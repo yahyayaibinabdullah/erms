@@ -759,14 +759,15 @@ def test_application_shell_is_flat_and_uses_one_background():
     assert 'not key.endswith("_display") or key in sortable_relationships' in source
 
 
-def test_aggregation_record_table_constrains_long_numbers_and_titles():
+def test_aggregation_records_use_compact_authorized_expandable_rows():
     source = inspect.getsource(index)
-    assert '"erms-page-table aggregation-records-table"' in source
-    assert ".aggregation-records-table .q-table { table-layout: fixed; width: 100%; }" in source
-    assert 'record_table.add_slot("body-cell-record_number"' in source
-    assert 'record_table.add_slot("body-cell-title"' in source
-    assert "<q-tooltip>{{ props.row.record_number || '—' }}</q-tooltip>" in source
-    assert "<q-tooltip>{{ props.row.title || '—' }}</q-tooltip>" in source
+    assert 'load_record_result_context(' in source
+    assert 'record["_components"] = components if record_capabilities.get("list_components") else []' in source
+    assert 'record["_can_preview"] = bool(' in source
+    assert 'record_capabilities.get("view_component")' in source
+    assert 'render_compact_resource_result(' in source
+    assert 'components=record.get("_components", [])' in source
+    assert 'can_expand_components=bool(record.get("_can_expand_components"))' in source
     assert '"Search code, name, or parent unit"' in source
     assert '"Search code, name, or organization unit"' in source
     assert '"Search name or email"' in source
@@ -774,7 +775,11 @@ def test_aggregation_record_table_constrains_long_numbers_and_titles():
     assert '"w-full items-center gap-3 px-5 pt-2 pb-1 mb-2"' in source
     assert ':rows-per-page-options="[10,25,50,100]"' in source
     assert '"Filter records"' in source
-    assert 'record_table.bind_filter_from(contained_record_filter, "value")' in source
+    assert 'filtered_contained_records()' in source
+    assert 'contained_record_page = ui.pagination(' in source
+    assert 'state["aggregation_child_return"] = {' in source
+    assert '"expanded_records": sorted(expanded_child_records)' in source
+    assert 'restore_compact_result_anchor(child_return.get("anchor"))' in source
 
 
 def test_brand_assets_are_exposed_through_the_frontend_static_route():
@@ -1309,3 +1314,45 @@ def test_review_and_location_experience_has_accessible_text_labels():
     assert '"Reason for change"' in source
     assert '"Reason for changing the medium"' not in source
     assert '"Reason for lowering the security level"' not in source
+
+
+def test_record_and_aggregation_searches_use_shared_compact_results():
+    source = APP_SOURCE
+    assert "def render_entity_compact_results(spec: EntitySpec)" in source
+    assert 'if spec.key in {"aggregations", "records"}:' in source
+    assert "render_entity_compact_results(spec)" in source
+    assert "show_medium=True" in source
+    assert 'parent_aggregation=parent' in source
+    assert 'icon="folder", on_click=lambda _, parent=parent_aggregation' in source
+    assert 'await decorate_record_search_components(decorated_rows)' in source
+    assert 'flex: 0 0 92px; width: 92px;' in source
+    assert 'font-variant-numeric: tabular-nums;' in source
+
+
+def test_entity_search_return_restores_page_row_and_expansion_state():
+    source = APP_SOURCE
+    assert '"entity_result_states": {}' in source
+    assert '"entity_result_state": {' in source
+    assert 'restored_result_state["expanded_results"] = set(' in source
+    assert 'result_state["return_anchor"] = f"compact-result-{resource}-{int(item[\'id\'])}"' in source
+    assert 'restore_compact_result_anchor(result_state.pop("return_anchor", None))' in source
+    assert 'initially_expanded=f"{resource}:{int(item[\'id\'])}" in result_state["expanded_results"]' in source
+
+
+def test_entity_page_favourites_reuse_dashboard_compact_item_treatment():
+    source = inspect.getsource(index)
+    favourites_source = source[
+        source.index("def render_entity_favourites_section"):
+        source.index("def render_resource_personal_sections")
+    ]
+    assert 'classes("dashboard-personal-item")' in favourites_source
+    assert 'classes("dashboard-personal-panel w-full")' in favourites_source
+    assert "ui.grid(columns=2)" not in favourites_source
+    assert '"recent-card cursor-pointer' not in favourites_source
+
+
+def test_record_and_aggregation_searches_keep_favourites_and_recents_visible():
+    source = inspect.getsource(index)
+    render_table_source = source[source.index("def render_table(spec: EntitySpec)"):]
+    assert render_table_source.count("render_resource_personal_sections(spec)") >= 2
+    assert "same favourites and recent-activity context" in render_table_source

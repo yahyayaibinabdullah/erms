@@ -873,6 +873,9 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
                 "id":record["id"],"record_number":record["record_number"],"title":record["title"],
                 "aggregation_id":record.get("aggregation_id"),
                 "aggregation_number":aggregation["aggregation_number"] if aggregation else None,
+                "date_originated":record.get("date_originated"),
+                "is_vital":record.get("is_vital",False),
+                "on_effective_hold":record.get("on_effective_hold",False),
             },"matched_record_metadata":search["metadata_matched"],
                 "matching_components":search["matching_components"],"score":search["relevance"],
                 "_id":record["id"]})
@@ -892,7 +895,10 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
             ).fetchone()["value"]
             merged.append({"type":"aggregation","aggregation":{
                 "id":aggregation["id"],"aggregation_number":aggregation["aggregation_number"],
-                "title":aggregation["title"]},"snippet":snippet,"score":search["relevance"],
+                "title":aggregation["title"],"date_opened":aggregation.get("date_opened"),
+                "is_vital":aggregation.get("is_vital",False),
+                "on_effective_hold":aggregation.get("on_effective_hold",False),
+            },"snippet":snippet,"score":search["relevance"],
                 "_id":aggregation["id"]})
     merged.sort(key=lambda item:(-item["score"],item["type"],item["_id"]))
     if after:
