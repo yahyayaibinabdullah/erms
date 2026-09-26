@@ -15,20 +15,36 @@ def test_global_search_header_results_and_safe_snippets_are_present():
     assert "left: 50%; transform: translateX(-50%)" in source
     assert "if full_text_search_enabled():" in source
     assert 'async def run_global_search(' in source
-    assert '"Load more results"' in source
+    assert 'async def change_global_search_page(' in source
+    assert "aria-label='Previous page'" in source
+    assert "aria-label='Next page'" in source
+    assert '"Load more results"' not in source
     assert '"Recently added content may still be indexing' in source
     assert 'def render_safe_snippet(' in source
+    assert 'text = " ".join(text.split())' in source
+    assert 'render_safe_snippet(component.get("snippet"), compact=True)' in source
     assert 'ui.html(' not in source[source.index("def render_safe_snippet("):source.index("async def copy_diagnostic_json(")]
     assert 'await api.full_text_search(payload)' in source
     assert 'async def full_text_search(' in CLIENT.read_text()
     assert 'result_item["authorized_component_details"] = component_details.get' in source
     assert 'for component in item.get("matching_components", [])' in source
     assert '{**authorized_component_details.get(int(component["id"]), {}), **component}' in source
-    assert 'preview_record_components(selected_record, component_id)' in source
+    assert 'preview_record_components(selected, component_id)' in source
     assert "aria-label='Preview digital component'" in source
-    assert 'Preview is unavailable for this component' in source
+    assert 'can_expand_components=bool(' in source
+    assert 'record_capabilities.get("list_components") and matching_components' in source
+    assert 'record_capabilities.get("view_component")' in source
+    assert 'metadata_matched=bool(item.get("matched_record_metadata"))' in source
+    assert 'content_matched=bool(matching_components)' in source
+    assert 'classes("compact-result-component-badge")' in source
+    assert 'components_are_matches=True' in source
+    assert "f\"{'matching ' if components_are_matches else ''}digital component\"" in source
     assert 'async def open_global_record(record_id: int)' in source
     assert 'async def open_global_aggregation(aggregation: dict[str, Any])' in source
+    assert 'global_search_return_anchor' in source
+    assert 'global_search_expanded_results' in source
+    assert 'initially_expanded=(' in source
+    assert 'restore_compact_result_anchor(' in source
     assert source.count('state.pop("discard_navigation_guard", None)') >= 7
 
 

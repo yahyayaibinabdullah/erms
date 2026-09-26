@@ -9,7 +9,7 @@ import time
 from dataclasses import replace
 
 from .config import Settings
-from .supervisor import run_worker
+from .supervisor import AUTH_FAILURE_EXIT_CODE, run_worker
 from .tika import self_test
 from .worker import Worker
 
@@ -48,7 +48,7 @@ def run_pool(settings: Settings, count: int) -> None:
         identity = worker_id(settings.worker_id, run_id, slot)
         process = context.Process(
             target=run_worker,
-            args=(replace(settings, worker_id=identity),),
+            args=(replace(settings, worker_id=identity), run_id),
             name=f"text-indexer-{slot}",
         )
         process.start()
@@ -63,6 +63,15 @@ def run_pool(settings: Settings, count: int) -> None:
                 if process.is_alive():
                     continue
                 process.join()
+                if process.exitcode == AUTH_FAILURE_EXIT_CODE:
+                    LOG.error(
+                        "worker credential was rejected; stopping all text-indexer processes"
+                    )
+                    stopping = True
+                    for sibling in workers.values():
+                        if sibling.is_alive():
+                            sibling.terminate()
+                    break
                 if not stopping:
                     LOG.error(
                         "worker slot %s exited with status %s; restarting",

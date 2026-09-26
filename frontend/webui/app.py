@@ -456,6 +456,16 @@ def format_timestamp(value: Any) -> str:
         return str(value)
 
 
+def format_date(value: Any) -> str:
+    if not value:
+        return "—"
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed.astimezone().strftime("%d %b %Y").lstrip("0")
+    except (ValueError, TypeError):
+        return str(value)
+
+
 def format_file_size(value: Any) -> str:
     try:
         size = int(value)
@@ -1099,6 +1109,10 @@ def index(q: str = "") -> None:
         "favourite_ids": {"aggregations": set(), "records": set()},
         "global_search_query": q.strip(), "global_search_items": [],
         "global_search_cursor": None, "global_search_filter": "all",
+        "global_search_page": 1, "global_search_page_size": 10,
+        "global_search_return_anchor": None,
+        "global_search_expanded_results": set(),
+        "entity_result_states": {},
         "search_diagnostics_enabled": False, "search_diagnostics_sent": None,
         "search_diagnostics_accepted": None, "search_diagnostics_error": None,
     }
@@ -1154,6 +1168,43 @@ def index(q: str = "") -> None:
             box-shadow: none; padding: 0; overflow: hidden; }
         .global-search-card-header { background: #f7fbfe; border-bottom: 1px solid var(--erms-border); }
         .global-search-component { border-top: 1px solid #e7edf2; padding: 8px 12px; }
+        .compact-result-list { border: 1px solid var(--erms-border); border-radius: 12px; overflow: hidden; }
+        .compact-result-item { width: 100%; border-bottom: 1px solid var(--erms-border); background: white; }
+        .compact-result-item:last-child { border-bottom: 0; }
+        .compact-result-row { min-height: 68px; padding: 8px 12px; gap: 10px; }
+        .compact-result-type {
+            width: 30px; height: 34px; flex: 0 0 30px; display: flex; align-items: center;
+            justify-content: center; border-radius: 7px; color: var(--erms-blue); background: #eaf5fc;
+        }
+        .compact-result-title { min-width: 0; line-height: 1.3; }
+        .compact-result-date {
+            color: #718096; font-size: .75rem;
+            flex: 0 0 92px; width: 92px;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+        .compact-result-parent { max-width: min(46vw, 560px); padding: 0 5px !important; min-height: 24px !important; }
+        .compact-result-indicators { gap: 0; }
+        .compact-result-indicator { width: 28px; height: 28px; min-width: 28px !important; padding: 0 !important; }
+        .compact-result-actions { flex-wrap: nowrap; gap: 0; }
+        .compact-result-actions .q-btn { width: 34px; height: 34px; min-width: 34px !important; padding: 0 !important; }
+        .compact-result-component-badge {
+            min-width: 18px; height: 18px; padding: 0 5px; margin-left: -5px; margin-right: 4px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #9a6700 !important; border-color: #e0ad2f !important; background: #fffdf5 !important;
+            font-size: .67rem; font-weight: 700; line-height: 1;
+        }
+        .compact-result-components { padding: 0 12px 7px 52px; background: #f7fbfe; }
+        .compact-result-component {
+            min-height: 52px; padding: 6px 8px; border-left: 2px solid #a9d6ee;
+            border-top: 1px solid #e7edf2;
+        }
+        .compact-result-component:first-child { border-top: 0; }
+        .compact-result-snippet { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .compact-result-snippet > .q-row { flex-wrap: nowrap !important; overflow: hidden; white-space: nowrap; }
+        .compact-result-snippet .q-label { white-space: pre !important; flex: 0 0 auto; }
+        [dir="rtl"] .compact-result-components { padding-left: 12px; padding-right: 52px; }
+        [dir="rtl"] .compact-result-component { border-left: 0; border-right: 2px solid #a9d6ee; }
         .global-search-highlight { background: #fff0a8; color: #573f00; border-radius: 3px;
             padding: 0 2px; font-weight: 600; }
         .global-search-json { max-height: 280px; overflow: auto; white-space: pre-wrap;
@@ -2461,12 +2512,21 @@ def index(q: str = "") -> None:
             page_title_icon.set_visibility(False)
 
     def current_navigation_snapshot() -> dict[str, Any]:
+        entity_result_state = state.get("entity_result_states", {}).get(state.get("resource"), {})
         return {
             "searched": bool(state.get("searched")),
             "search_text": str(search_input.value or ""),
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
             "aggregation_mode": state.get("aggregation_mode", "search"),
             "global_search_query": state.get("global_search_query", ""),
+            "global_search_page": state.get("global_search_page", 1),
+            "global_search_filter": state.get("global_search_filter", "all"),
+            "global_search_return_anchor": state.get("global_search_return_anchor"),
+            "global_search_expanded_results": sorted(state.get("global_search_expanded_results", set())),
+            "entity_result_state": {
+                **entity_result_state,
+                "expanded_results": sorted(entity_result_state.get("expanded_results", set())),
+            } if entity_result_state else {},
         }
 
     def global_search_payload(query: str, *, cursor: str | None = None) -> dict[str, Any]:
@@ -2483,10 +2543,16 @@ def index(q: str = "") -> None:
             payload["debug"] = True
         return payload
 
-    def render_safe_snippet(value: str | None) -> None:
+    def render_safe_snippet(value: str | None, *, compact: bool = False) -> None:
         """Render server markers as elements so snippet text can never become HTML."""
         text = value or "No preview available"
-        with ui.row().classes("items-baseline gap-0 text-sm text-slate-600 flex-wrap"):
+        if compact:
+            text = " ".join(text.split())
+        layout = (
+            "items-baseline gap-0 text-xs text-slate-600 no-wrap overflow-hidden whitespace-nowrap"
+            if compact else "items-baseline gap-0 text-sm text-slate-600 flex-wrap"
+        )
+        with ui.row().classes(layout):
             highlighted = False
             for segment in text.replace("⟧", "⟧\x00").replace("⟦", "\x00⟦").split("\x00"):
                 if not segment:
@@ -2498,7 +2564,7 @@ def index(q: str = "") -> None:
                 if closes:
                     segment = segment[:-1]
                 if segment:
-                    label = ui.label(segment).classes("whitespace-pre-wrap")
+                    label = ui.label(segment).classes("whitespace-pre" if compact else "whitespace-pre-wrap")
                     if highlighted:
                         label.classes(add="global-search-highlight")
                 if closes:
@@ -2549,6 +2615,12 @@ def index(q: str = "") -> None:
         items = state["global_search_items"]
         selected = state["global_search_filter"]
         visible = [item for item in items if selected == "all" or item["type"] == selected]
+        page_size = int(state.get("global_search_page_size", 10))
+        page_count = max(1, (len(visible) + page_size - 1) // page_size)
+        state["global_search_page"] = min(max(1, int(state.get("global_search_page", 1))), page_count)
+        page_number = state["global_search_page"]
+        page_start = (page_number - 1) * page_size
+        page_items = visible[page_start:page_start + page_size]
         record_count = sum(item["type"] == "record" for item in items)
         aggregation_count = sum(item["type"] == "aggregation" for item in items)
         with table_container, ui.column().classes("w-full p-5 gap-4"):
@@ -2571,7 +2643,11 @@ def index(q: str = "") -> None:
                         diagnostics_toggle.on_value_change(toggle_diagnostics)
             with ui.row().classes("items-center gap-1"):
                 for key, label in (("all", f"All · {len(items)}"), ("record", f"Records · {record_count}"), ("aggregation", f"Aggregations · {aggregation_count}")):
-                    button = ui.button(label, on_click=lambda _, value=key: (state.__setitem__("global_search_filter", value), render_global_search_results())).props("dense no-caps")
+                    button = ui.button(label, on_click=lambda _, value=key: (
+                        state.__setitem__("global_search_filter", value),
+                        state.__setitem__("global_search_page", 1),
+                        render_global_search_results(),
+                    )).props("dense no-caps")
                     button.props("unelevated color=primary" if selected == key else "flat color=blue-grey")
             if state.get("global_search_loading"):
                 with ui.row().classes("w-full justify-center items-center py-12 gap-3").props("role=status aria-label='Loading search results'"):
@@ -2595,70 +2671,104 @@ def index(q: str = "") -> None:
                     ui.icon("search_off", size="42px").classes("text-slate-300")
                     ui.label("No results found").classes("text-lg font-semibold")
                     ui.label("Try different words or check the spelling.").classes("text-sm text-slate-500")
-            for item in visible:
-                if item["type"] == "record":
-                    record = item["record"]
-                    with ui.card().classes("global-search-card w-full"):
-                        with ui.row().classes("global-search-card-header w-full items-start p-4 gap-3"):
-                            ui.icon("description", color="primary", size="26px")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label("RECORD").classes("text-[11px] font-bold tracking-wide text-primary")
-                                ui.label(record["title"]).classes("font-semibold text-base")
-                                ui.label(" · ".join(filter(None, (record.get("record_number"), record.get("aggregation_number"))))).classes("text-sm text-slate-500")
-                                if item.get("matched_record_metadata"):
-                                    ui.badge("Record metadata matched", color="primary").props("outline").classes("mt-1")
-                            ui.button(
-                                icon="open_in_new",
-                                on_click=lambda _, entity_id=record["id"]: open_global_record(entity_id),
-                            ).props("flat round dense color=primary aria-label='Open record'").classes(
-                                "global-search-result-action"
-                            ).tooltip("Open record")
-                        authorized_component_details = {
-                            int(component["id"]): component
-                            for component in item.get("authorized_component_details", [])
-                        }
-                        matching_components = [
-                            {**authorized_component_details.get(int(component["id"]), {}), **component}
-                            for component in item.get("matching_components", [])
-                            if component.get("id") is not None
-                        ]
-                        if matching_components:
-                            ui.label("Digital components").classes("text-xs font-semibold uppercase tracking-wide text-slate-500 px-4 pt-3")
-                        for component in matching_components:
-                            with ui.column().classes("global-search-component w-full gap-1"):
-                                with ui.row().classes("w-full items-center gap-2"):
-                                    ui.icon("attach_file", size="18px").classes("text-slate-500")
-                                    ui.label(component.get("file_name") or "Unnamed file").classes("text-sm font-medium grow")
-                                    if component.get("id") is not None:
-                                        preview_button = ui.button(
-                                            icon="visibility",
-                                            on_click=lambda _, selected_record=record, component_id=int(component["id"]):
-                                                preview_record_components(selected_record, component_id),
-                                        ).props("flat round dense color=primary aria-label='Preview digital component'")
-                                        if not component_is_previewable(component):
-                                            preview_button.disable()
-                                            preview_button.tooltip("Preview is unavailable for this component")
-                                        else:
-                                            preview_button.tooltip("Preview digital component")
-                                render_safe_snippet(component.get("snippet"))
-                else:
-                    aggregation = item["aggregation"]
-                    with ui.card().classes("global-search-card w-full"):
-                        with ui.row().classes("global-search-card-header w-full items-start p-4 gap-3"):
-                            ui.icon("folder", color="secondary", size="26px")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label("AGGREGATION").classes("text-[11px] font-bold tracking-wide text-secondary")
-                                ui.label(aggregation["title"]).classes("font-semibold text-base")
-                                ui.label(aggregation.get("aggregation_number") or "").classes("text-sm text-slate-500")
-                                render_safe_snippet(item.get("snippet"))
-                            ui.button(
-                                icon="open_in_new",
-                                on_click=lambda _, entity=aggregation: open_global_aggregation(entity),
-                            ).props("flat round dense color=primary aria-label='Open aggregation'").classes(
-                                "global-search-result-action"
-                            ).tooltip("Open aggregation")
-            if state.get("global_search_cursor"):
-                ui.button("Load more results", icon="expand_more", on_click=lambda: run_global_search(query, load_more=True)).props("outline no-caps").classes("self-center")
+            if page_items:
+                with ui.column().classes("compact-result-list w-full gap-0"):
+                    for item in page_items:
+                        if item["type"] == "record":
+                            record = item["record"]
+                            authorized_component_details = {
+                                int(component["id"]): component
+                                for component in item.get("authorized_component_details", [])
+                            }
+                            matching_components = [
+                                {**authorized_component_details.get(int(component["id"]), {}), **component}
+                                for component in item.get("matching_components", [])
+                                if component.get("id") is not None
+                            ]
+                            record_capabilities = item.get("record_capabilities") or {}
+                            render_compact_resource_result(
+                                "records", record,
+                                on_open=open_global_record_from_result,
+                                components=matching_components,
+                                metadata_matched=bool(item.get("matched_record_metadata")),
+                                content_matched=bool(matching_components),
+                                can_preview=bool(
+                                    record_capabilities.get("view_component")
+                                    and any(component_is_previewable(component) for component in authorized_component_details.values())
+                                ),
+                                can_expand_components=bool(
+                                    record_capabilities.get("list_components") and matching_components
+                                ),
+                                components_are_matches=True,
+                                initially_expanded=(
+                                    f"records:{int(record['id'])}" in state["global_search_expanded_results"]
+                                ),
+                                on_expansion_changed=lambda expanded, identifier=int(record["id"]):
+                                    set_global_result_expansion("records", identifier, expanded),
+                            )
+                        else:
+                            aggregation = item["aggregation"]
+                            render_compact_resource_result(
+                                "aggregations", aggregation,
+                                on_open=open_global_aggregation_from_result,
+                                metadata_matched=True,
+                            )
+            if visible:
+                with ui.row().classes("w-full items-center justify-center gap-2 pt-1"):
+                    first_button = ui.button(icon="first_page", on_click=lambda: change_global_search_page(1)).props(
+                        "flat round aria-label='First page'"
+                    ).tooltip("First page")
+                    previous_button = ui.button(icon="chevron_left", on_click=lambda: change_global_search_page(page_number - 1)).props(
+                        "flat round aria-label='Previous page'"
+                    ).tooltip("Previous page")
+                    ui.label(f"Page {page_number}").classes("text-sm text-slate-600 min-w-20 text-center")
+                    next_button = ui.button(icon="chevron_right", on_click=lambda: change_global_search_page(page_number + 1)).props(
+                        "flat round aria-label='Next page'"
+                    ).tooltip("Next page")
+                    first_button.set_enabled(page_number > 1)
+                    previous_button.set_enabled(page_number > 1)
+                    next_button.set_enabled(page_number < page_count or bool(state.get("global_search_cursor")))
+            restore_compact_result_anchor(state.pop("global_search_return_anchor", None))
+
+    async def change_global_search_page(target_page: int) -> None:
+        target_page = max(1, int(target_page))
+        page_size = int(state.get("global_search_page_size", 10))
+        while True:
+            selected = state.get("global_search_filter", "all")
+            visible_count = sum(
+                selected == "all" or item["type"] == selected
+                for item in state.get("global_search_items", [])
+            )
+            if (target_page - 1) * page_size < visible_count or not state.get("global_search_cursor"):
+                break
+            previous_cursor = state.get("global_search_cursor")
+            await run_global_search(state["global_search_query"], load_more=True)
+            if state.get("global_search_cursor") == previous_cursor:
+                break
+        selected = state.get("global_search_filter", "all")
+        visible_count = sum(
+            selected == "all" or item["type"] == selected
+            for item in state.get("global_search_items", [])
+        )
+        page_count = max(1, (visible_count + page_size - 1) // page_size)
+        state["global_search_page"] = min(target_page, page_count)
+        render_global_search_results()
+
+    def remember_global_result(item: dict[str, Any], resource: str) -> None:
+        state["global_search_return_anchor"] = f"compact-result-{resource}-{int(item['id'])}"
+
+    def set_global_result_expansion(resource: str, identifier: int, expanded: bool) -> None:
+        key = f"{resource}:{int(identifier)}"
+        expanded_results = state["global_search_expanded_results"]
+        (expanded_results.add if expanded else expanded_results.discard)(key)
+
+    async def open_global_record_from_result(record: dict[str, Any]) -> None:
+        remember_global_result(record, "records")
+        await open_global_record(int(record["id"]))
+
+    async def open_global_aggregation_from_result(aggregation: dict[str, Any]) -> None:
+        remember_global_result(aggregation, "aggregations")
+        await open_global_aggregation(aggregation)
 
     async def open_global_record(record_id: int) -> None:
         state.pop("discard_navigation_guard", None)
@@ -2678,7 +2788,9 @@ def index(q: str = "") -> None:
             register_navigation("full-text-search", "Search results")
             state.update(resource="full-text-search", global_search_query=query,
                          global_search_items=[], global_search_cursor=None,
-                         global_search_filter="all", search_diagnostics_sent=None,
+                         global_search_filter="all", global_search_page=1,
+                         global_search_return_anchor=None, search_diagnostics_sent=None,
+                         global_search_expanded_results=set(),
                          search_diagnostics_accepted=None, search_diagnostics_error=None)
             global_search_input.value = query
             global_search_input.update()
@@ -2701,17 +2813,31 @@ def index(q: str = "") -> None:
             result = await api.full_text_search(payload)
             result_items = list(result.get("items", []))
             record_items = [item for item in result_items if item.get("type") == "record"]
-            async def load_global_matching_component_details(result_item: dict[str, Any]) -> tuple[int, list[dict[str, Any]]]:
+            async def load_global_matching_component_details(
+                result_item: dict[str, Any],
+            ) -> tuple[int, dict[str, Any], list[dict[str, Any]]]:
                 record_id = int(result_item["record"]["id"])
                 try:
-                    return record_id, await api.components(record_id)
+                    capabilities, components = await asyncio.gather(
+                        api.resource_capabilities("records", record_id),
+                        api.components(record_id),
+                    )
+                    return record_id, capabilities, components
                 except ApiError:
-                    return record_id, []
-            component_details = dict(await asyncio.gather(*(
+                    return record_id, {}, []
+            component_contexts = await asyncio.gather(*(
                 load_global_matching_component_details(result_item) for result_item in record_items
-            ))) if record_items else {}
+            )) if record_items else []
+            component_details = {
+                record_id: components for record_id, _, components in component_contexts
+            }
+            component_capabilities = {
+                record_id: capabilities for record_id, capabilities, _ in component_contexts
+            }
             for result_item in record_items:
-                result_item["authorized_component_details"] = component_details.get(int(result_item["record"]["id"]), [])
+                record_id = int(result_item["record"]["id"])
+                result_item["authorized_component_details"] = component_details.get(record_id, [])
+                result_item["record_capabilities"] = component_capabilities.get(record_id, {})
             state["global_search_items"].extend(result_items)
             state["global_search_cursor"] = result.get("next_cursor")
             state["global_search_pending"] = bool(result.get("index_freshness", {}).get("has_pending_content"))
@@ -2843,12 +2969,34 @@ def index(q: str = "") -> None:
         elif page == "full-text-search":
             query = str(saved.get("global_search_query") or state.get("global_search_query") or "")
             if query:
-                await run_global_search(query)
+                if state.get("global_search_items") and state.get("global_search_query") == query:
+                    state["global_search_page"] = int(saved.get("global_search_page") or 1)
+                    state["global_search_filter"] = saved.get("global_search_filter") or "all"
+                    state["global_search_return_anchor"] = saved.get("global_search_return_anchor")
+                    state["global_search_expanded_results"] = set(
+                        saved.get("global_search_expanded_results") or []
+                    )
+                    register_navigation("full-text-search", "Search results")
+                    state["resource"] = "full-text-search"
+                    title.text = "Search results"
+                    subtitle.text = "Records, files and aggregations"
+                    show_authenticated_view()
+                    search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
+                    add_button.set_visibility(False); add_record_button.set_visibility(False)
+                    render_global_search_results()
+                else:
+                    await run_global_search(query)
             else:
                 await select_dashboard()
         elif page == "advanced-search":
             await select_advanced_search()
         elif page in ENTITIES:
+            if saved.get("entity_result_state"):
+                restored_result_state = dict(saved["entity_result_state"])
+                restored_result_state["expanded_results"] = set(
+                    restored_result_state.get("expanded_results") or []
+                )
+                state.setdefault("entity_result_states", {})[page] = restored_result_state
             if page == "aggregations":
                 state["aggregation_mode"] = saved.get("aggregation_mode", "search")
             await select_entity(page)
@@ -3013,6 +3161,167 @@ def index(q: str = "") -> None:
             js_handler=STOP_PROPAGATION_CLICK_HANDLER,
         )
         return button
+
+    def render_compact_resource_result(
+        resource: str,
+        item: dict[str, Any],
+        *,
+        on_open: Any,
+        components: list[dict[str, Any]] | None = None,
+        metadata_matched: bool = False,
+        content_matched: bool = False,
+        show_medium: bool = False,
+        parent_aggregation: dict[str, Any] | None = None,
+        on_open_parent: Any | None = None,
+        can_favourite: bool = True,
+        can_preview: bool = False,
+        can_expand_components: bool = False,
+        components_are_matches: bool = False,
+        initially_expanded: bool = False,
+        on_expansion_changed: Any | None = None,
+    ) -> None:
+        """Render the shared compact record/aggregation result treatment."""
+        is_record = resource == "records"
+        number = item.get("record_number" if is_record else "aggregation_number") or f"#{item['id']}"
+        date_value = item.get("date_originated" if is_record else "date_opened")
+        component_rows = list(components or []) if is_record and can_expand_components else []
+        result_id = f"compact-result-{resource}-{int(item['id'])}"
+        with ui.column().classes("compact-result-item gap-0").props(f"id={result_id}"):
+            with ui.row().classes("compact-result-row w-full items-center no-wrap"):
+                with ui.element("div").classes("compact-result-type"):
+                    ui.icon("description" if is_record else "folder", size="20px").tooltip(
+                        "Record" if is_record else "Aggregation"
+                    )
+                with ui.column().classes("compact-result-title gap-0 grow"):
+                    with ui.row().classes("w-full items-center no-wrap gap-2 min-w-0"):
+                        ui.label(str(number)).classes("text-sm font-semibold text-slate-800 shrink-0")
+                        ui.label("·").classes("text-slate-300 shrink-0")
+                        ui.label(item.get("title") or "Untitled").classes(
+                            "text-sm font-semibold text-slate-800 truncate"
+                        ).tooltip(item.get("title") or "Untitled")
+                    with ui.row().classes("w-full items-center no-wrap gap-1"):
+                        ui.label(format_date(date_value)).classes(
+                            "compact-result-date"
+                        ).tooltip("Originated" if is_record else "Opened")
+                        with ui.row().classes("compact-result-indicators items-center no-wrap"):
+                            if item.get("is_vital"):
+                                ui.icon("emergency", color="red-8", size="18px").classes(
+                                    "compact-result-indicator"
+                                ).tooltip("Vital record" if is_record else "Vital aggregation")
+                            if item.get("on_effective_hold") or item.get("is_on_effective_hold"):
+                                ui.icon("gavel", color="warning", size="18px").classes(
+                                    "compact-result-indicator"
+                                ).tooltip("On effective legal hold")
+                            if metadata_matched:
+                                ui.icon("manage_search", color="blue-grey-7", size="18px").classes(
+                                    "compact-result-indicator"
+                                ).tooltip("Record metadata matched" if is_record else "Aggregation metadata matched")
+                            if content_matched:
+                                ui.icon("text_snippet", color="blue-grey-7", size="18px").classes(
+                                    "compact-result-indicator"
+                                ).tooltip("Digital component content matched")
+                            if show_medium and item.get("medium"):
+                                medium = str(item["medium"]).lower()
+                                medium_icon = {
+                                    "physical": "inventory_2", "digital": "computer", "mixed": "layers",
+                                }.get(medium, "category")
+                                ui.icon(medium_icon, color="blue-grey-7", size="18px").classes(
+                                    "compact-result-indicator"
+                                ).tooltip(f"Medium: {medium_label(medium)}")
+                        if is_record and parent_aggregation and on_open_parent is not None:
+                            parent_number = parent_aggregation.get("code") or parent_aggregation.get("aggregation_number")
+                            parent_title = parent_aggregation.get("name") or parent_aggregation.get("title")
+                            parent_label = " — ".join(filter(None, (parent_number, parent_title)))
+                            ui.button(
+                                parent_label or "Open parent aggregation",
+                                icon="folder", on_click=lambda _, parent=parent_aggregation: on_open_parent(parent),
+                            ).props(
+                                "flat dense no-caps color=primary aria-label='Open parent aggregation'"
+                            ).classes("compact-result-parent text-xs min-w-0 truncate").tooltip(
+                                f"Open parent aggregation: {parent_label}"
+                            )
+                with ui.row().classes("compact-result-actions items-center no-wrap"):
+                    component_host = None
+                    expand_button = None
+                    if component_rows:
+                        expand_button = ui.button(icon="chevron_right").props(
+                            "flat round dense color=primary aria-label='Show digital components'"
+                        )
+                        ui.badge(str(len(component_rows)), color="warning").props(
+                            "outline"
+                        ).classes("compact-result-component-badge").tooltip(
+                            f"{len(component_rows)} "
+                            f"{'matching ' if components_are_matches else ''}digital component"
+                            f"{'s' if len(component_rows) != 1 else ''}"
+                        )
+                    if can_favourite:
+                        favourite_button(resource, int(item["id"]))
+                    if is_record and can_preview:
+                        ui.button(
+                            icon="visibility", on_click=lambda _, selected=item: preview_record_components(selected),
+                        ).props(
+                            "flat round dense color=primary aria-label='Preview digital components'"
+                        ).tooltip("Preview digital components")
+                    if on_open is not None:
+                        ui.button(
+                            icon="open_in_new", on_click=lambda _, selected=item: on_open(selected),
+                        ).props(
+                            f"flat round dense color=primary aria-label='Open {'record' if is_record else 'aggregation'}'"
+                        ).tooltip("Open record" if is_record else "Open aggregation")
+            if component_rows:
+                component_host = ui.column().classes("compact-result-components w-full gap-0")
+                component_host.set_visibility(initially_expanded)
+                with component_host:
+                    for component in component_rows:
+                        with ui.row().classes("compact-result-component w-full items-center no-wrap gap-2"):
+                            ui.icon("attach_file", size="17px").classes("text-slate-500 shrink-0")
+                            with ui.column().classes("gap-0 grow min-w-0"):
+                                ui.label(component.get("file_name") or "Unnamed file").classes(
+                                    "text-xs font-semibold text-slate-800 truncate"
+                                ).tooltip(component.get("file_name") or "Unnamed file")
+                                if component.get("snippet"):
+                                    with ui.row().classes("compact-result-snippet w-full text-xs text-slate-500 no-wrap"):
+                                        render_safe_snippet(component.get("snippet"), compact=True)
+                            if component_is_previewable(component):
+                                ui.button(
+                                    icon="visibility",
+                                    on_click=lambda _, selected=item, component_id=int(component["id"]):
+                                        preview_record_components(selected, component_id),
+                                ).props(
+                                    "flat round dense color=primary aria-label='Preview digital component'"
+                                ).tooltip("Preview digital component")
+
+                expanded = {"value": initially_expanded}
+                if initially_expanded:
+                    expand_button.props(remove="icon aria-label")
+                    expand_button.props("icon=expand_more aria-label='Hide digital components'")
+                    expand_button.update()
+
+                def toggle_components() -> None:
+                    expanded["value"] = not expanded["value"]
+                    component_host.set_visibility(expanded["value"])
+                    expand_button.props(remove="icon aria-label")
+                    expand_button.props(
+                        f"icon={'expand_more' if expanded['value'] else 'chevron_right'} "
+                        f"aria-label='{'Hide' if expanded['value'] else 'Show'} digital components'"
+                    )
+                    expand_button.update()
+                    if on_expansion_changed is not None:
+                        on_expansion_changed(expanded["value"])
+
+                expand_button.on("click", toggle_components, js_handler=STOP_PROPAGATION_CLICK_HANDLER)
+
+    def restore_compact_result_anchor(anchor_id: str | None) -> None:
+        if not anchor_id:
+            return
+        async def restore() -> None:
+            await page_client.run_javascript(
+                "requestAnimationFrame(() => requestAnimationFrame(() => {"
+                f"const result = document.getElementById({json.dumps(anchor_id)});"
+                "if (result) result.scrollIntoView({block:'center'});"
+                "}));"
+            )
+        background_tasks.create(restore())
 
     entity_types = {
         "aggregations": "aggregation", "records": "record",
@@ -6701,26 +7010,39 @@ def index(q: str = "") -> None:
                 if item.get("parent_aggregation_id") == current["id"]
             ]
             records = await api.list("records", aggregation_id=current["id"])
-            async def record_preview_available(record: dict[str, Any]) -> bool:
+            async def load_record_result_context(
+                record: dict[str, Any],
+            ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
                 if record.get("medium") == "physical":
-                    return False
+                    try:
+                        return await api.resource_capabilities("records", record["id"]), []
+                    except ApiError:
+                        return {}, []
                 try:
                     record_capabilities, components = await asyncio.gather(
                         api.resource_capabilities("records", record["id"]),
                         api.components(record["id"]),
                     )
                 except ApiError:
-                    return False
-                return bool(
-                    record_capabilities.get("view_component")
-                    and any(component_is_previewable(item) for item in components)
-                )
+                    return {}, []
+                return record_capabilities, components
 
-            preview_availability = await asyncio.gather(*[
-                record_preview_available(record) for record in records
+            record_contexts = await asyncio.gather(*[
+                load_record_result_context(record) for record in records
             ])
-            for record, available in zip(records, preview_availability):
-                record["_preview_available"] = available
+            for record, (record_capabilities, components) in zip(records, record_contexts):
+                record["_components"] = components if record_capabilities.get("list_components") else []
+                record["_can_expand_components"] = bool(
+                    record_capabilities.get("list_components") and record["_components"]
+                )
+                record["_can_preview"] = bool(
+                    record_capabilities.get("view_component")
+                    and any(component_is_previewable(item) for item in record["_components"])
+                )
+                record["on_effective_hold"] = bool(
+                    record.get("on_effective_hold")
+                    or record_capabilities.get("is_on_effective_hold")
+                )
             effective_rule = None
             local_retention_rule = None
             classification_path = []
@@ -7386,62 +7708,90 @@ def index(q: str = "") -> None:
                 if not records:
                     ui.label("This aggregation does not contain any records.").classes("px-5 pb-6 text-slate-500")
                 else:
-                    for row in records:
-                        row["_is_favourite"] = favourite_state("records", row["id"])
+                    child_return = state.get("aggregation_child_return") or {}
+                    if int(child_return.get("aggregation_id") or 0) != int(current["id"]):
+                        child_return = {}
+                    expanded_child_records = set(
+                        int(value) for value in child_return.get("expanded_records", [])
+                    )
                     with ui.row().classes("w-full items-center px-5 pt-2 gap-3"):
                         contained_record_filter = ui.input(
                             "Filter records",
                             placeholder="Number, title, or date",
+                            value=str(child_return.get("filter") or ""),
                         ).props("outlined dense clearable debounce=250").classes("w-80 max-w-full")
                         ui.space()
                         ui.label(f"{len(records)} records").classes("text-sm text-slate-500")
-                    record_table = ui.table(
-                        columns=[
-                            {"name": "record_number", "label": "Number", "field": "record_number", "align": "left", "sortable": True, "style": "width: 230px; max-width: 230px", "headerStyle": "width: 230px; max-width: 230px"},
-                            {"name": "title", "label": "Title", "field": "title", "align": "left", "sortable": True, "style": "max-width: 520px", "headerStyle": "width: auto"},
-                            {"name": "date_originated", "label": "Originated", "field": "date_originated", "align": "left", "sortable": True, "style": "width: 190px; max-width: 190px", "headerStyle": "width: 190px; max-width: 190px"},
-                            {"name": "actions", "label": "", "field": "actions", "align": "right", "style": "width: 200px; max-width: 200px", "headerStyle": "width: 200px; max-width: 200px"},
-                        ],
-                        rows=records,
-                        row_key="id",
-                        pagination=10,
-                    ).props("flat bordered separator=horizontal").classes(
-                        "erms-page-table aggregation-records-table"
-                    )
-                    record_table.bind_filter_from(contained_record_filter, "value")
-                    record_table.add_slot("body-cell-record_number", '''
-                        <q-td :props="props" class="text-left">
-                          <span class="aggregation-record-cell-value">
-                            {{ props.row.record_number || '—' }}
-                            <q-tooltip>{{ props.row.record_number || '—' }}</q-tooltip>
-                          </span>
-                        </q-td>
-                    ''')
-                    record_table.add_slot("body-cell-title", '''
-                        <q-td :props="props" class="text-left">
-                          <span class="aggregation-record-cell-value">
-                            {{ props.row.title || '—' }}
-                            <q-tooltip>{{ props.row.title || '—' }}</q-tooltip>
-                          </span>
-                        </q-td>
-                    ''')
-                    add_timestamp_slots(record_table, ["date_originated"])
-                    record_table.add_slot("body-cell-actions", '<q-td :props="props"><q-btn flat round :icon="props.row._is_favourite ? \'favorite\' : \'favorite_border\'" :color="props.row._is_favourite ? \'red\' : \'primary\'" :aria-label="props.row._is_favourite ? \'Remove from favourites\' : \'Add to favourites\'" @click.stop="$parent.$emit(\'toggle_favourite\', props.row)"><q-tooltip>{{ props.row._is_favourite ? \'Remove from favourites\' : \'Add to favourites\' }}</q-tooltip></q-btn><q-btn v-if="props.row._preview_available" flat round icon="visibility" color="primary" aria-label="Preview digital components" @click.stop="$parent.$emit(\'preview_record\', props.row)"><q-tooltip>Preview digital components</q-tooltip></q-btn><q-btn flat round icon="open_in_new" color="primary" @click="$parent.$emit(\'open_record\', props.row)"><q-tooltip>Open record</q-tooltip></q-btn><q-btn flat round icon="history" color="blue-grey" @click="$parent.$emit(\'history\', props.row)"><q-tooltip>Event history</q-tooltip></q-btn></q-td>')
-                    record_table.on(
-                        "preview_record",
-                        lambda event: preview_record_components(event.args),
-                    )
-                    record_table.on("open_record", lambda event: show_record_details(event.args))
-                    record_table.on("history", lambda event: show_entity_history("records", event.args))
-                    async def toggle_contained_record(event) -> None:
-                        row = event.args
-                        selected = await toggle_favourite("records", row["id"])
-                        for table_row in record_table.rows:
-                            if table_row["id"] == row["id"]:
-                                table_row["_is_favourite"] = selected
-                                break
-                        record_table.update()
-                    record_table.on("toggle_favourite", toggle_contained_record)
+                    contained_records_host = ui.column().classes("w-full px-5 pt-2 gap-2")
+                    contained_record_page = ui.pagination(
+                        1, max(1, (len(records) + 9) // 10),
+                        value=max(1, int(child_return.get("page") or 1)),
+                    ).props("direction-links boundary-links color=primary")
+
+                    async def open_contained_record(record: dict[str, Any]) -> None:
+                        state["aggregation_child_return"] = {
+                            "aggregation_id": int(current["id"]),
+                            "page": int(contained_record_page.value or 1),
+                            "filter": str(contained_record_filter.value or ""),
+                            "anchor": f"compact-result-records-{int(record['id'])}",
+                            "expanded_records": sorted(expanded_child_records),
+                        }
+                        await show_record_details(record)
+
+                    def set_child_record_expansion(identifier: int, expanded: bool) -> None:
+                        (expanded_child_records.add if expanded else expanded_child_records.discard)(
+                            int(identifier)
+                        )
+
+                    def filtered_contained_records() -> list[dict[str, Any]]:
+                        needle = str(contained_record_filter.value or "").strip().casefold()
+                        if not needle:
+                            return records
+                        return [
+                            record for record in records
+                            if needle in " ".join(str(record.get(field) or "") for field in (
+                                "record_number", "title", "date_originated",
+                            )).casefold()
+                        ]
+
+                    def render_contained_records() -> None:
+                        matching_records = filtered_contained_records()
+                        contained_record_page.max = max(1, (len(matching_records) + 9) // 10)
+                        if int(contained_record_page.value or 1) > contained_record_page.max:
+                            contained_record_page.value = contained_record_page.max
+                        contained_record_page.set_visibility(len(matching_records) > 10)
+                        contained_record_page.update()
+                        start = (int(contained_record_page.value or 1) - 1) * 10
+                        contained_records_host.clear()
+                        with contained_records_host:
+                            if not matching_records:
+                                ui.label("No records match this filter.").classes(
+                                    "w-full py-6 text-center text-sm text-slate-500"
+                                )
+                                return
+                            with ui.column().classes("compact-result-list w-full gap-0"):
+                                for record in matching_records[start:start + 10]:
+                                    render_compact_resource_result(
+                                        "records", record,
+                                        on_open=open_contained_record,
+                                        components=record.get("_components", []),
+                                        can_preview=bool(record.get("_can_preview")),
+                                        can_expand_components=bool(record.get("_can_expand_components")),
+                                        initially_expanded=int(record["id"]) in expanded_child_records,
+                                        on_expansion_changed=lambda expanded, identifier=int(record["id"]):
+                                            set_child_record_expansion(identifier, expanded),
+                                    )
+
+                    def refilter_contained_records() -> None:
+                        contained_record_page.value = 1
+                        render_contained_records()
+
+                    contained_record_filter.on_value_change(lambda _: refilter_contained_records())
+                    contained_record_page.on_value_change(lambda _: render_contained_records())
+                    render_contained_records()
+                    restore_compact_result_anchor(child_return.get("anchor"))
+                    if child_return:
+                        state.pop("aggregation_child_return", None)
         except ApiError as error:
             ui.notify(error_message(error), color="negative", close_button=True)
 
@@ -7498,7 +7848,7 @@ def index(q: str = "") -> None:
                                 ui.icon("chevron_right", size="18px").classes("text-slate-300")
 
     def render_entity_favourites_section(spec: EntitySpec) -> None:
-        preview_host = ui.column().classes("w-full gap-2 px-5 pt-5")
+        preview_host = ui.column().classes("w-full px-5 pt-5")
         limit = dashboard_favourite_item_limit()
         resource = spec.key
         singular = "aggregation" if resource == "aggregations" else "record"
@@ -7516,22 +7866,22 @@ def index(q: str = "") -> None:
                 ui.notify(error_message(error), color="negative", close_button=True)
 
         def render_entry(item: dict[str, Any], *, after_remove: Any) -> None:
-            with ui.row().classes(
-                "recent-card cursor-pointer w-full items-center no-wrap px-3 py-2 gap-3"
-            ).on("click", lambda _, selected=item: open_favourite(selected)):
-                ui.icon(icon, color="primary")
+            row = ui.element("div").classes("dashboard-personal-item").props(
+                "role=button tabindex=0"
+            ).on("click", lambda _, selected=item: open_favourite(selected)).on(
+                "keydown.enter", lambda _, selected=item: open_favourite(selected)
+            )
+            with row:
+                with ui.element("div").classes("dashboard-overview-icon"):
+                    ui.icon(icon, size="18px")
                 with ui.column().classes("gap-0 grow min-w-0"):
-                    ui.label(item["title"]).classes("text-sm font-semibold line-clamp-1")
+                    ui.label(item["title"]).classes(
+                        "text-sm font-semibold text-slate-700 truncate w-full"
+                    ).tooltip(item["title"])
                     number = item.get("aggregation_number") or item.get("record_number")
-                    ui.label(number or f"{singular.title()} #{item['id']}").classes(
-                        "text-xs text-slate-400"
+                    ui.label(f"{singular.title()} · {number or '—'}").classes(
+                        "text-xs text-slate-500 truncate w-full"
                     )
-                    if resource == "records":
-                        aggregation = " — ".join(filter(None, (
-                            item.get("aggregation_number"), item.get("aggregation_title"),
-                        )))
-                        if aggregation:
-                            ui.label(aggregation).classes("text-xs text-slate-400 line-clamp-1")
                 remove_button = ui.button(icon="favorite", color="red").props(
                     "flat round dense aria-label='Remove from favourites'"
                 )
@@ -7540,7 +7890,6 @@ def index(q: str = "") -> None:
                     "click", lambda _, selected=item: after_remove(selected),
                     js_handler=STOP_PROPAGATION_CLICK_HANDLER,
                 )
-                ui.icon("chevron_right").classes("text-slate-300")
 
         def show_all() -> None:
             dialog = ui.dialog()
@@ -7595,20 +7944,19 @@ def index(q: str = "") -> None:
             preview_host.clear()
             items = state["favourites"][resource]
             with preview_host:
-                with ui.row().classes("w-full items-center gap-2"):
-                    ui.icon("favorite", color="red")
-                    ui.label(heading).classes("text-lg font-semibold")
-                    ui.badge(str(len(items)), color="blue-grey").props("outline")
-                    ui.space()
-                    if len(items) > limit:
-                        ui.button(
-                            f"View all ({len(items)})", icon="open_in_full",
-                            on_click=show_all,
-                        ).props("flat dense no-caps color=primary")
-                if not items:
-                    ui.label(f"No favourite {resource}").classes("text-sm text-slate-400 py-2")
-                else:
-                    with ui.grid(columns=2).classes("w-full gap-3"):
+                with ui.card().classes("dashboard-personal-panel w-full"):
+                    with ui.row().classes("dashboard-personal-header w-full items-center gap-2"):
+                        ui.icon("favorite_border", color="primary", size="19px")
+                        ui.label(heading).classes("font-semibold text-slate-800")
+                        ui.badge(str(len(items)), color="blue-grey").props("outline")
+                        ui.space()
+                        if len(items) > limit:
+                            ui.button("View all", on_click=show_all).props(
+                                "flat dense no-caps color=primary"
+                            )
+                    if not items:
+                        ui.label(f"No favourite {resource}").classes("text-sm text-slate-500 p-4")
+                    else:
                         for item in items[:limit]:
                             render_entry(item, after_remove=remove_favourite)
 
@@ -7886,6 +8234,139 @@ def index(q: str = "") -> None:
                 ui.button("Save privileges", icon="save", on_click=save_privileges).props("unelevated no-caps")
         dialog.open()
 
+    async def decorate_record_search_components(
+        rows: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        async def context(record: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+            try:
+                capabilities = await api.resource_capabilities("records", int(record["id"]))
+                components = (
+                    await api.components(int(record["id"]))
+                    if capabilities.get("list_components") else []
+                )
+                return capabilities, components
+            except ApiError:
+                return {}, []
+
+        contexts = await asyncio.gather(*(context(record) for record in rows))
+        return [
+            {
+                **record,
+                "_record_capabilities": capabilities,
+                "_components": components,
+            }
+            for record, (capabilities, components) in zip(rows, contexts)
+        ]
+
+    def render_entity_compact_results(spec: EntitySpec) -> None:
+        resource = spec.key
+        result_state = state.setdefault("entity_result_states", {}).setdefault(resource, {
+            "filter": "", "sort": "number", "page": 1, "page_size": 10,
+            "expanded_results": set(), "return_anchor": None,
+        })
+        result_state["expanded_results"] = set(result_state.get("expanded_results") or [])
+        number_field = "aggregation_number" if resource == "aggregations" else "record_number"
+
+        ui.separator().classes("erms-results-divider")
+        with ui.row().classes("w-full items-center px-5 pt-2 gap-2"):
+            ui.icon("search", color="primary")
+            ui.label("Search results").classes("text-lg font-semibold")
+            ui.badge(str(len(state["rows"])), color="blue-grey").props("outline")
+
+        controls = ui.row().classes("w-full items-end gap-3 px-5 pt-2 flex-wrap")
+        with controls:
+            filter_control = ui.input(
+                "Filter results", value=result_state.get("filter", ""),
+            ).props("outlined dense clearable debounce=200").classes("grow min-w-[250px]")
+            sort_control = ui.select(
+                {"number": "Number", "title": "Title", "date": "Date originated" if resource == "records" else "Date opened", "medium": "Medium"},
+                value=result_state.get("sort", "number"), label="Sort by",
+            ).props("outlined dense options-dense").classes("w-44")
+            page_size_control = ui.select(
+                {10: "10", 25: "25", 50: "50", 100: "100"},
+                value=int(result_state.get("page_size", 10)), label="Per page",
+            ).props("outlined dense options-dense").classes("w-28")
+        summary = ui.label().classes("text-sm text-slate-500 px-5")
+        host = ui.column().classes("compact-result-list w-[calc(100%-2.5rem)] mx-5 gap-0")
+        pager = ui.row().classes("w-full items-center justify-center gap-2 px-5 pb-5")
+        with pager:
+            first = ui.button(icon="first_page").props("flat round aria-label='First page'").tooltip("First page")
+            previous = ui.button(icon="chevron_left").props("flat round aria-label='Previous page'").tooltip("Previous page")
+            page_label = ui.label().classes("text-sm text-slate-600 min-w-20 text-center")
+            next_button = ui.button(icon="chevron_right").props("flat round aria-label='Next page'").tooltip("Next page")
+            last = ui.button(icon="last_page").props("flat round aria-label='Last page'").tooltip("Last page")
+
+        async def open_result(item: dict[str, Any]) -> None:
+            result_state["return_anchor"] = f"compact-result-{resource}-{int(item['id'])}"
+            if resource == "aggregations":
+                await open_aggregation(item)
+            else:
+                await show_record_details(item)
+
+        async def open_parent(parent_id: int, source: dict[str, Any]) -> None:
+            result_state["return_anchor"] = f"compact-result-{resource}-{int(source['id'])}"
+            try:
+                await open_aggregation(await api.get("aggregations", parent_id))
+            except ApiError as error:
+                ui.notify(error_message(error), color="negative", close_button=True)
+
+        def render_results() -> None:
+            query = str(filter_control.value or "").strip().casefold()
+            result_state.update(filter=str(filter_control.value or ""), sort=sort_control.value,
+                                page_size=int(page_size_control.value or 10))
+            rows = list(state["rows"])
+            if query:
+                rows = [row for row in rows if query in " ".join(str(value or "") for value in (
+                    row.get(number_field), row.get("title"), row.get("medium"),
+                    (row.get("aggregation_display") or {}).get("code"),
+                    (row.get("aggregation_display") or {}).get("name"),
+                )).casefold()]
+            sort_field = {"number": number_field, "title": "title", "date": "date_originated" if resource == "records" else "date_opened", "medium": "medium"}[sort_control.value]
+            rows.sort(key=lambda row: str(row.get(sort_field) or "").casefold())
+            page_size = int(page_size_control.value or 10)
+            page_count = max(1, (len(rows) + page_size - 1) // page_size)
+            result_state["page"] = min(max(1, int(result_state.get("page", 1))), page_count)
+            page_number = result_state["page"]
+            start = (page_number - 1) * page_size
+            page_rows = rows[start:start + page_size]
+            summary.text = f"Showing {start + 1 if page_rows else 0}–{start + len(page_rows)} of {len(rows)} results"
+            page_label.text = f"Page {page_number} of {page_count}"
+            first.set_enabled(page_number > 1); previous.set_enabled(page_number > 1)
+            next_button.set_enabled(page_number < page_count); last.set_enabled(page_number < page_count)
+            host.clear()
+            with host:
+                if not page_rows:
+                    ui.label("No matching results").classes("w-full text-center text-slate-500 py-8")
+                for item in page_rows:
+                    capabilities = item.get("_record_capabilities") or {}
+                    components = item.get("_components") or []
+                    parent = item.get("aggregation_display") if resource == "records" else None
+                    render_compact_resource_result(
+                        resource, item, on_open=open_result,
+                        components=components, show_medium=True,
+                        parent_aggregation=parent,
+                        on_open_parent=(lambda _, parent_id=int(item["aggregation_id"]), source=item: open_parent(parent_id, source)) if parent and item.get("aggregation_id") else None,
+                        can_preview=bool(resource == "records" and capabilities.get("view_component") and any(component_is_previewable(component) for component in components)),
+                        can_expand_components=bool(resource == "records" and capabilities.get("list_components") and components),
+                        initially_expanded=f"{resource}:{int(item['id'])}" in result_state["expanded_results"],
+                        on_expansion_changed=lambda expanded, identifier=int(item["id"]): (
+                            result_state["expanded_results"].add(f"{resource}:{identifier}") if expanded
+                            else result_state["expanded_results"].discard(f"{resource}:{identifier}")
+                        ),
+                    )
+            restore_compact_result_anchor(result_state.pop("return_anchor", None))
+
+        def set_page(page_number: int) -> None:
+            result_state["page"] = page_number
+            render_results()
+
+        filter_control.on_value_change(lambda _: (result_state.__setitem__("page", 1), render_results()))
+        sort_control.on_value_change(lambda _: (result_state.__setitem__("page", 1), render_results()))
+        page_size_control.on_value_change(lambda _: (result_state.__setitem__("page", 1), render_results()))
+        first.on("click", lambda: set_page(1)); previous.on("click", lambda: set_page(result_state["page"] - 1))
+        next_button.on("click", lambda: set_page(result_state["page"] + 1)); last.on("click", lambda: set_page(10**9))
+        render_results()
+
     def render_table(spec: EntitySpec) -> None:
         table_container.clear()
         with table_container:
@@ -7893,7 +8374,9 @@ def index(q: str = "") -> None:
                 render_resource_personal_sections(spec)
                 return
             if spec.key in {"aggregations", "records"}:
-                render_entity_favourites_section(spec)
+                # Keep the same favourites and recent-activity context visible
+                # before and after a collection search.
+                render_resource_personal_sections(spec)
             if spec.search_first and not state["searched"]:
                 if spec.key == "classifications":
                     with ui.column().classes("w-full items-center py-12 gap-2 text-slate-500"):
@@ -7904,6 +8387,9 @@ def index(q: str = "") -> None:
                         ui.label("Partial matching is automatic; wildcard characters are not required.").classes("text-xs")
                     return
                 render_recent_section(spec)
+                return
+            if spec.key in {"aggregations", "records"}:
+                render_entity_compact_results(spec)
                 return
             if spec.key == "aggregations":
                 ui.separator().classes("erms-results-divider")
@@ -10004,7 +10490,11 @@ def index(q: str = "") -> None:
                     state["rows"] = []
                 elif query:
                     rows = await api.search(spec.key, query, spec.search_fields)
-                    state["rows"] = await decorate_for_spec(spec, rows)
+                    decorated_rows = await decorate_for_spec(spec, rows)
+                    state["rows"] = (
+                        await decorate_record_search_components(decorated_rows)
+                        if spec.key == "records" else decorated_rows
+                    )
                     state["searched"] = True
             else:
                 rows = (
@@ -13878,6 +14368,7 @@ def index(q: str = "") -> None:
             "search_name": "", "search_category": None, "search_description": "",
             "category_suggestions": [],
             "last_result": None,
+            "expanded_results": [],
         }
         restored_workspace = state.get("advanced_search_workspace")
         workspace: dict[str, Any] = copy.deepcopy(restored_workspace) if isinstance(restored_workspace, dict) else default_workspace
@@ -13960,6 +14451,13 @@ def index(q: str = "") -> None:
 
         def persist_workspace() -> None:
             state["advanced_search_workspace"] = copy.deepcopy(workspace)
+
+        def set_advanced_result_expansion(identifier: int, expanded: bool) -> None:
+            key = int(identifier)
+            expanded_results = set(int(value) for value in workspace.get("expanded_results", []))
+            (expanded_results.add if expanded else expanded_results.discard)(key)
+            workspace["expanded_results"] = sorted(expanded_results)
+            persist_workspace()
 
         def current_definition() -> dict[str, Any]:
             expression = compile_advanced_search_node(workspace["root"], workspace["resource"])
@@ -14798,8 +15296,9 @@ def index(q: str = "") -> None:
                     )
                 else:
                     result = await api.search_request(workspace["resource"], payload)
-                workspace["aggregation_labels"] = {}
+                workspace["aggregation_contexts"] = {}
                 workspace["record_component_details"] = {}
+                workspace["record_capabilities"] = {}
                 if workspace["resource"] == "records":
                     for aggregation_id in sorted({
                         int(item["aggregation_id"]) for item in result.get("items", [])
@@ -14807,21 +15306,32 @@ def index(q: str = "") -> None:
                     }):
                         try:
                             aggregation = await api.get("aggregations", aggregation_id)
-                            workspace["aggregation_labels"][aggregation_id] = (
-                                f"{aggregation.get('aggregation_number') or '#' + str(aggregation_id)} — "
-                                f"{aggregation.get('title') or 'Untitled'}"
+                            workspace["aggregation_contexts"][aggregation_id] = relationship_cell(
+                                aggregation
                             )
                         except ApiError:
-                            workspace["aggregation_labels"][aggregation_id] = "Containing aggregation unavailable"
-                    async def load_matching_component_details(record_item: dict[str, Any]) -> tuple[int, list[dict[str, Any]]]:
+                            workspace["aggregation_contexts"][aggregation_id] = None
+                    async def load_matching_component_details(
+                        record_item: dict[str, Any],
+                    ) -> tuple[int, dict[str, Any], list[dict[str, Any]]]:
                         try:
-                            return int(record_item["id"]), await api.components(int(record_item["id"]))
+                            record_id = int(record_item["id"])
+                            capabilities, components = await asyncio.gather(
+                                api.resource_capabilities("records", record_id),
+                                api.components(record_id),
+                            )
+                            return record_id, capabilities, components
                         except ApiError:
-                            return int(record_item["id"]), []
-                    component_details = await asyncio.gather(*(
+                            return int(record_item["id"]), {}, []
+                    component_contexts = await asyncio.gather(*(
                         load_matching_component_details(record_item) for record_item in result.get("items", [])
                     ))
-                    workspace["record_component_details"] = dict(component_details)
+                    workspace["record_component_details"] = {
+                        record_id: components for record_id, _, components in component_contexts
+                    }
+                    workspace["record_capabilities"] = {
+                        record_id: capabilities for record_id, capabilities, _ in component_contexts
+                    }
                 workspace["total"] = min(int(result["total"]), maximum)
                 workspace["searched"] = True
                 render_results(result)
@@ -14864,65 +15374,82 @@ def index(q: str = "") -> None:
                     ui.label("Change a condition or broaden the criteria, then search again.").classes("text-sm text-slate-500")
                 return
             with results_host:
-                for item in items:
-                    number = item.get("record_number") or item.get("aggregation_number") or f"#{item['id']}"
-                    search_meta = item.get("_search") or {}
-                    authorized_component_details = {
-                        int(component["id"]): component
-                        for component in workspace.get("record_component_details", {}).get(int(item["id"]), [])
-                    }
-                    matching_components = [
-                        {**authorized_component_details.get(int(component["id"]), {}), **component}
-                        for component in search_meta.get("matching_components", [])
-                        if component.get("id") is not None
-                    ]
-                    open_action = open_advanced_record if workspace["resource"] == "records" else open_advanced_aggregation
-                    with ui.card().classes("global-search-card w-full shadow-none"):
-                        with ui.row().classes("global-search-card-header w-full items-center gap-2 px-3 py-2"):
-                            ui.icon("description" if workspace["resource"] == "records" else "folder", size="22px").classes("text-primary")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label(item.get("title") or "Untitled").classes("font-semibold text-base")
-                                ui.label(str(number)).classes("text-xs text-slate-500")
-                            ui.badge("Record" if workspace["resource"] == "records" else "Aggregation", color="blue-grey").props("outline")
-                            with ui.row().classes("advanced-search-result-actions items-center gap-0"):
-                                ui.button(
-                                    icon="open_in_new",
-                                    on_click=lambda _, identifier=item["id"], action=open_action: action(identifier),
-                                ).props("flat round dense color=primary aria-label='Open result'").tooltip("Open")
-                        with ui.column().classes("w-full gap-1 px-3 py-2"):
-                            ui.label(item.get("description") or "No description").classes("text-sm text-slate-600 whitespace-pre-wrap")
-                            if workspace["resource"] == "records" and item.get("aggregation_id"):
-                                ui.label(workspace.get("aggregation_labels", {}).get(int(item["aggregation_id"]), "Containing aggregation unavailable")).classes("text-xs text-slate-500")
-                            if workspace["resource"] == "aggregations":
-                                lifecycle = "Closed" if item.get("date_closed") else "Open"
-                                ui.label(f"{lifecycle} · {str(item.get('medium') or 'Unspecified medium').title()}").classes("text-xs text-slate-500")
-                            if matching_components:
-                                ui.label("Digital components").classes("text-xs font-semibold uppercase tracking-wide text-slate-500 mt-1")
-                            for component in matching_components:
-                                with ui.column().classes("global-search-component w-full gap-1"):
-                                    with ui.row().classes("w-full items-center gap-2"):
-                                        ui.label(component.get("file_name") or "Digital component").classes("text-sm font-medium grow")
-                                        preview_button = ui.button(
-                                            icon="visibility",
-                                            on_click=lambda _, record=item, component_id=int(component["id"]):
-                                                preview_record_components(record, component_id),
-                                        ).props("flat round dense color=primary aria-label='Preview digital component'")
-                                        if not component_is_previewable(component):
-                                            preview_button.disable()
-                                            preview_button.tooltip("Preview is unavailable for this component")
-                                        else:
-                                            preview_button.tooltip(f"Preview {component.get('file_name') or 'digital component'}")
-                                    render_safe_snippet(component.get("snippet"))
+                with ui.column().classes("compact-result-list w-full gap-0"):
+                    uses_full_text = advanced_search_has_positive_full_text(workspace["root"])
+                    for item in items:
+                        search_meta = item.get("_search") or {}
+                        authorized_component_details = {
+                            int(component["id"]): component
+                            for component in workspace.get("record_component_details", {}).get(int(item["id"]), [])
+                        }
+                        matching_components = [
+                            {**authorized_component_details.get(int(component["id"]), {}), **component}
+                            for component in search_meta.get("matching_components", [])
+                            if component.get("id") is not None
+                        ]
+                        record_capabilities = workspace.get("record_capabilities", {}).get(
+                            int(item["id"]), {}
+                        )
+                        if workspace["resource"] == "records":
+                            displayed_components = (
+                                matching_components if uses_full_text
+                                else list(authorized_component_details.values())
+                            )
+                            parent_aggregation = workspace.get("aggregation_contexts", {}).get(
+                                int(item["aggregation_id"])
+                            ) if item.get("aggregation_id") is not None else None
+                            render_compact_resource_result(
+                                "records", item,
+                                on_open=lambda selected: open_advanced_record(int(selected["id"])),
+                                components=displayed_components,
+                                metadata_matched=bool(search_meta.get("metadata_matched")),
+                                content_matched=bool(matching_components),
+                                show_medium=True,
+                                parent_aggregation=parent_aggregation,
+                                on_open_parent=(
+                                    lambda _, parent_id=int(item["aggregation_id"]), source_id=int(item["id"]):
+                                        open_advanced_parent(parent_id, source_id)
+                                ) if parent_aggregation and item.get("aggregation_id") is not None else None,
+                                can_preview=bool(
+                                    record_capabilities.get("view_component")
+                                    and any(component_is_previewable(component) for component in authorized_component_details.values())
+                                ),
+                                can_expand_components=bool(
+                                    record_capabilities.get("list_components") and displayed_components
+                                ),
+                                components_are_matches=uses_full_text,
+                                initially_expanded=int(item["id"]) in set(
+                                    int(value) for value in workspace.get("expanded_results", [])
+                                ),
+                                on_expansion_changed=lambda expanded, identifier=int(item["id"]):
+                                    set_advanced_result_expansion(identifier, expanded),
+                            )
+                        else:
+                            render_compact_resource_result(
+                                "aggregations", item,
+                                on_open=lambda selected: open_advanced_aggregation(int(selected["id"])),
+                                metadata_matched=bool(search_meta.get("metadata_matched")),
+                                show_medium=True,
+                            )
+            restore_compact_result_anchor(workspace.pop("return_anchor", None))
 
         async def open_advanced_record(identifier: int) -> None:
+            workspace["return_anchor"] = f"compact-result-records-{int(identifier)}"
             persist_workspace()
             state.pop("discard_navigation_guard", None)
             await select_record_details(identifier)
 
         async def open_advanced_aggregation(identifier: int) -> None:
+            workspace["return_anchor"] = f"compact-result-aggregations-{int(identifier)}"
             persist_workspace()
             state.pop("discard_navigation_guard", None)
             await open_aggregation(await api.get("aggregations", identifier))
+
+        async def open_advanced_parent(parent_id: int, source_id: int) -> None:
+            workspace["return_anchor"] = f"compact-result-records-{int(source_id)}"
+            persist_workspace()
+            state.pop("discard_navigation_guard", None)
+            await open_aggregation(await api.get("aggregations", parent_id))
 
         async def confirm_target_reset() -> bool:
             with ui.dialog() as dialog, ui.card().classes("w-[480px] max-w-full p-5 gap-4"):

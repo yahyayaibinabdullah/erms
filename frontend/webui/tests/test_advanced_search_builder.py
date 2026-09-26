@@ -104,6 +104,10 @@ def test_advanced_search_restores_the_workspace_across_result_drill_down():
     assert 'state["advanced_search_workspace"] = copy.deepcopy(workspace)' in APP_SOURCE
     assert APP_SOURCE.count('state.pop("discard_navigation_guard", None)') >= 4
     assert 'render_results(workspace["last_result"])' in APP_SOURCE
+    assert 'workspace["return_anchor"] = f"compact-result-records-{int(identifier)}"' in APP_SOURCE
+    assert 'workspace["return_anchor"] = f"compact-result-aggregations-{int(identifier)}"' in APP_SOURCE
+    assert 'restore_compact_result_anchor(workspace.pop("return_anchor", None))' in APP_SOURCE
+    assert 'set_advanced_result_expansion(identifier, expanded)' in APP_SOURCE
 
 
 def test_search_builder_precedes_secondary_saved_search_actions():
@@ -197,20 +201,20 @@ def test_advanced_search_uses_clearable_catalogues_and_classification_aggregatio
 
 def test_record_component_attributions_open_the_governed_viewer():
     assert "aria-label='Preview digital component'" in APP_SOURCE
-    assert 'preview_record_components(record, component_id)' in APP_SOURCE
-    assert 'workspace["record_component_details"] = dict(component_details)' in APP_SOURCE
+    assert 'preview_record_components(selected, component_id)' in APP_SOURCE
+    assert 'workspace["record_component_details"] = {' in APP_SOURCE
     assert 'for component in search_meta.get("matching_components", [])' in APP_SOURCE
     assert '{**authorized_component_details.get(int(component["id"]), {}), **component}' in APP_SOURCE
-    assert 'Preview is unavailable for this component' in APP_SOURCE
+    assert 'workspace["record_capabilities"] = {' in APP_SOURCE
 
 
 def test_advanced_search_builder_and_results_use_compact_aligned_layouts():
     assert 'advanced-search-condition w-full p-2' in APP_SOURCE
     assert 'advanced-search-group w-full p-2' in APP_SOURCE
     assert 'advanced-search-condition-actions items-center gap-0 self-end' in APP_SOURCE
-    assert 'global-search-card-header w-full items-center gap-2 px-3 py-2' in APP_SOURCE
-    assert 'advanced-search-result-actions items-center gap-0' in APP_SOURCE
-    assert 'with ui.column().classes("w-full gap-1 px-3 py-2")' in APP_SOURCE
+    assert 'compact-result-list w-full gap-0' in APP_SOURCE
+    assert 'render_compact_resource_result(' in APP_SOURCE
+    assert '.compact-result-row {' in APP_SOURCE
 
 
 def test_each_advanced_search_preview_is_attributed_to_its_component():
@@ -218,19 +222,28 @@ def test_each_advanced_search_preview_is_attributed_to_its_component():
         APP_SOURCE.index("def render_results(result:"):
         APP_SOURCE.index("async def open_advanced_record")
     ]
-    component_section = result_renderer[result_renderer.index("for component in matching_components:"):]
-    assert 'ui.label(component.get("file_name") or "Digital component")' in component_section
-    assert "aria-label='Preview digital component'" in component_section
-    header_actions = result_renderer[
-        result_renderer.index('advanced-search-result-actions items-center gap-0'):
-        result_renderer.index('with ui.column().classes("w-full gap-1 px-3 py-2")')
+    assert 'displayed_components = (' in result_renderer
+    assert 'matching_components if uses_full_text' in result_renderer
+    assert 'else list(authorized_component_details.values())' in result_renderer
+    assert 'components=displayed_components' in result_renderer
+    assert 'record_capabilities.get("list_components") and displayed_components' in result_renderer
+    assert 'record_capabilities.get("view_component")' in result_renderer
+
+
+def test_advanced_results_include_medium_parent_and_component_indicators():
+    result_renderer = APP_SOURCE[
+        APP_SOURCE.index("def render_results(result:"):
+        APP_SOURCE.index("async def open_advanced_record")
     ]
-    assert "visibility" not in header_actions
+    assert "show_medium=True" in result_renderer
+    assert "parent_aggregation=parent_aggregation" in result_renderer
+    assert "open_advanced_parent(parent_id, source_id)" in result_renderer
+    assert "components_are_matches=uses_full_text" in result_renderer
+    assert 'metadata_matched=bool(search_meta.get("metadata_matched"))' in result_renderer
+    assert "content_matched=bool(matching_components)" in result_renderer
 
 
 def test_global_and_advanced_search_open_actions_are_icon_only():
-    assert 'aria-label=\'Open record\'' in APP_SOURCE
-    assert 'aria-label=\'Open aggregation\'' in APP_SOURCE
     assert 'ui.button("Open record", icon="open_in_new"' not in APP_SOURCE
     assert 'ui.button("Open aggregation", icon="open_in_new"' not in APP_SOURCE
-    assert "aria-label='Open result'" in APP_SOURCE
+    assert "aria-label='Open {'record' if is_record else 'aggregation'}'" in APP_SOURCE
