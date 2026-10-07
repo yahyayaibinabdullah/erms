@@ -22,7 +22,7 @@ def test_holds_workspace_and_navigation_are_wired():
     assert 'last_page=ui.button("Last"' in source
     assert '.tooltip("Open resource")' in source
     assert '.tooltip("Remove from this hold")' in source
-    assert '"Remove from all holds"' in source
+    assert '"Remove direct holds"' in source
     assert 'color="positive" if hold["state"]=="active" else "blue-grey"' in source
     assert 'render_user_avatar(contributor, size="25px").style(' in source
     assert '"margin-inline-end:5px !important"' in source
@@ -42,7 +42,7 @@ def test_holds_workspace_and_navigation_are_wired():
     assert 'value=(hold or {}).get("owner_user_id"), label="Owner", with_input=True' in source
     assert 'control._props["display-value"]' not in source
     assert '"hold-held-item-filter-primary w-full"' in source
-    assert '"hold-held-item-filter-secondary w-full"' in source
+    assert 'with ui.grid(columns=4).classes("w-full gap-3")' in source
     assert 'with ui.row().classes("w-full items-center justify-end gap-2")' in source
     assert '"width:1280px;max-width:calc(100vw - 48px)"' in source
     assert 'update_held_item_selection(row: dict[str, Any], selected: bool)' in source
@@ -119,8 +119,7 @@ def test_hold_mutations_collect_reasons_and_refresh_live_state():
     assert 'async def hold_reason_dialog(' in source
     assert 'Reason for updating this hold' in source
     assert 'Reason for removing this direct assignment' in source
-    assert 'Remove from all holds? Inherited protection from parent aggregations will remain.' in source
-    assert 'Remove from all holds? Inherited protection from its aggregation hierarchy will remain.' in source
+    assert 'Remove all directly assigned holds? Protection inherited from parent aggregations will remain.' in source
     assert 'api.effective_holds("record", record_id)' in source
     assert 'api.effective_holds("aggregation", current["id"])' in source
     assert 'effective_holds, "record", record_id' in source
@@ -182,7 +181,7 @@ def test_security_level_change_remains_separate_from_hold_frozen_metadata():
     assert '"none": "Change only this resource"' in source
     assert '"raise_ancestors": "Also raise parent aggregations as needed"' in source
     assert '"downgrade_subtree": "Also lower contained resources as needed"' in source
-    assert "props.opt.value === 0" in source
+    assert "__REMEDY_DESCRIPTIONS__[props.opt.value]" in source
     assert 'popup-content-style="width:572px;max-width:calc(100vw - 64px)"' in source
     assert "white-space:normal; overflow-wrap:anywhere" in source
 

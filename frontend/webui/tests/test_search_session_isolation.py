@@ -104,10 +104,10 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
             if outcome == 'cancelled':
                 raise asyncio.CancelledError
             return {'items': [{'id': 42, 'title': 'private result'}], 'total': 1}
-        async def component_details(*args):
+        async def component_details(*args, **kwargs):
             started.set()
             await release.wait()
-            return []
+            return {"items": []}
         class Host:
             is_deleted = False
             def clear(self): pass
@@ -124,7 +124,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
                   render_message=lambda *a: '',
                   ui=SimpleNamespace(spinner=lambda **k: SimpleNamespace(classes=lambda *a: None)),
                   advanced_search_has_positive_full_text=lambda root: False,
-                  api=SimpleNamespace(search_request=search, components=component_details,
+                  api=SimpleNamespace(search_request=search, component_page=component_details,
                                       resource_capabilities=component_details), render_results=renders.append,
                   global_search_input=SimpleNamespace(value='', update=lambda: None))
         for name in ('search_session_is_current', 'search_view_is_current', 'persist_workspace'):

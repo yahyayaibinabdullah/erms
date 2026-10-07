@@ -7,12 +7,12 @@ from psycopg.rows import dict_row
 
 AGGREGATION_CREATOR = {
     "aggregation.view", "aggregation.modify_metadata", "aggregation.add_child",
-    "aggregation.add_record", "aggregation.close", "aggregation.acl.manage",
+    "aggregation.add_record", "aggregation.close",
     "aggregation.history.view",
 }
 AGGREGATION_MEMBERS = {"aggregation.view", "aggregation.history.view"}
 RECORD_CREATOR = {
-    "record.view", "record.acl.manage", "record.history.view",
+    "record.view", "record.history.view",
     "record.component.list", "record.component.view", "record.component.download",
     "record.component.share", "record.component.print",
 }

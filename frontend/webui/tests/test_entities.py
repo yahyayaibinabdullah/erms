@@ -210,6 +210,14 @@ def test_identity_administration_lists_use_one_column_governance_cards():
     assert '"limit": int(page["limit"]), "offset": int(page["offset"])' in APP_SOURCE
 
 
+def test_identity_card_headers_use_direction_aware_native_grid():
+    header = APP_SOURCE.split('def render_governance_cards', 1)[1].split('facts_by_resource =', 1)[0]
+    assert 'ui.grid(columns="auto minmax(0, 1fr) auto")' in header
+    assert 'governance-card-header w-full items-start gap-3' in header
+    assert 'with ui.row().classes("w-full items-start no-wrap gap-3")' not in header
+    assert header.index('governance-card-icon') < header.index('card_value(row, "name")')
+
+
 def test_governance_cards_display_and_sort_localized_entity_metadata():
     assert 'def card_value(row: dict[str, Any], field: str) -> Any:' in APP_SOURCE
     assert '(row.get("localized") or {}).get(field) or row.get(field)' in APP_SOURCE
@@ -345,7 +353,7 @@ def test_personal_dialog_list_height_is_compact_and_capped():
 def test_classification_workspace_uses_available_height_without_fixed_panels():
     assert 'h-[870px]' not in WORKSPACE_SOURCE
     assert 'h-[420px]' not in WORKSPACE_SOURCE
-    assert 'browser_host = ui.column().classes("classification-workspace w-full gap-3")' in WORKSPACE_SOURCE
+    assert 'browser_host = ui.column().classes("classification-workspace w-full gap-3 p-3")' in WORKSPACE_SOURCE
 
 
 def test_classification_workspace_uses_server_order_and_branch_pagination():
@@ -1039,7 +1047,7 @@ def test_application_shell_is_flat_and_uses_one_background():
     assert 'font-family: Changa, Tahoma, Arial, "Segoe UI", sans-serif' in source
     assert 'html[dir="rtl"] .erms-brand {' in source
     assert 'direction: rtl; flex-direction: row !important;' in source
-    assert 'html[dir="rtl"] .erms-brand-name {' in source
+    assert 'html[dir="rtl"] .erms-brand-name,' in source
     assert 'html[dir="rtl"] .erms-page-title-row {' in source
     assert '"erms-page-title-row items-center no-wrap gap-2"' in source
     assert "Noto Sans Arabic" not in source
@@ -1061,7 +1069,7 @@ def test_application_shell_is_flat_and_uses_one_background():
     assert 'await api.login_sessions_page(' in source
     assert ".login-session-action-button" in source
     assert "<q-btn-dropdown" not in source
-    assert 'ui.row().classes("w-full items-center no-wrap gap-4")' in source
+    assert 'ui.row().classes("w-full items-center no-wrap gap-4", remove="row")' in source
     assert 'ui.row().classes("items-center no-wrap gap-2 flex-none")' in source
     assert 'ui.label("Search results").classes("text-lg font-semibold")' in source
     assert '"Filter displayed results"' in source
@@ -1345,7 +1353,7 @@ def test_navigation_links_scroll_independently_when_the_drawer_is_taller_than_th
 def test_empty_navigation_sections_are_hidden_with_their_links():
     source = with_english_messages(inspect.getsource(index))
     assert "drawer_sections: list[tuple[Any, tuple[str, ...]]]" in source
-    assert "any(link_visibility.get(key, False) for key in section_keys)" in source
+    assert "bool(visible_links.intersection(section_keys))" in source
     assert "refresh_drawer_visibility(privileges)" in source
     assert "not drawer_collapsed" in source
 
@@ -1434,7 +1442,7 @@ def test_login_session_statuses_and_security_operations_use_compact_cards():
     assert 'replace="text-positive text-lg"' in source
     assert "#popup { display: none !important; }" in source
     assert 'ui.label("wathiq").classes("wathiq-login-word")' in source
-    assert 'login_submit = ui.button("Continue to wathiq"' in source
+    assert 'login_submit = ui.button(\n                        "Continue to wathiq"' in source
     assert 'drawer.hide()' in source
     assert 'drawer.show()' in source
     assert "Sign in to ERMS" not in source
@@ -1444,8 +1452,8 @@ def test_login_session_statuses_and_security_operations_use_compact_cards():
     assert 'content_card.classes(remove="erms-dashboard-card")' in source
     assert 'drawer.props(add="mini")' in source
     assert 'drawer.props(remove="mini")' in source
-    assert 'drawer.classes(add="erms-drawer--collapsed")' in source
-    assert 'ui.button(icon="chevron_left")' in source
+    assert 'drawer.classes(add="erms-drawer--collapsed p-0")' in source
+    assert 'icon="chevron_right" if initial_direction == "rtl" else "chevron_left"' in source
     assert 'icon=chevron_right' in source
     assert 'icon="menu"' not in source
     assert "erms-drawer-toggle" in source
@@ -1944,7 +1952,7 @@ def test_record_and_aggregation_searches_keep_favourites_and_recents_visible():
     source = with_english_messages(inspect.getsource(index))
     render_table_source = source[source.index("def render_table(spec: EntitySpec)"):]
     assert render_table_source.count("render_resource_personal_sections(spec)") >= 2
-    assert "same favourites and recent-activity context" in render_table_source
+    assert "render_entity_compact_results(spec)\n                render_resource_personal_sections(spec)" in render_table_source
 
 
 def test_classification_workspace_reuses_path_loaded_for_tree_reveal():

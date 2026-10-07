@@ -4,7 +4,10 @@
 **Approved:** 20 September 2026
 **Project:** ERMS / wathiq
 **Prepared:** 20 September 2026
-**Revision:** 1.4 — Component views included in record and aggregation recent activity
+**Revision:** 1.5 — removed ACL management from prospective creator defaults
+
+Revision 1.5 is approved on 7 October 2026. Its creator-default changes apply
+only to ACLs initialized after implementation. Existing grants remain unchanged.
 
 ## 1. Purpose
 
@@ -429,18 +432,19 @@ aggregation.modify_metadata
 aggregation.add_child
 aggregation.add_record
 aggregation.close
-aggregation.acl.manage
 aggregation.history.view
 ```
 
 These defaults let an appropriately privileged creating role maintain ordinary
-aggregation metadata, add content, close the aggregation, inspect its history,
-and adjust the ACL.
+aggregation metadata, add content, close the aggregation, and inspect its
+history. Creating a resource does not appoint the creator role
+as its access administrator.
 
 Do not grant automatically:
 
 ```text
 aggregation.delete
+aggregation.acl.manage
 aggregation.reopen
 aggregation.move
 aggregation.receive_child
@@ -479,7 +483,6 @@ Grant:
 
 ```text
 record.view
-record.acl.manage
 record.history.view
 record.component.list
 record.component.view
@@ -492,6 +495,7 @@ Do not grant automatically:
 
 ```text
 record.modify_metadata
+record.acl.manage
 record.delete
 record.move
 record.security_level.change
@@ -501,8 +505,8 @@ record.component.remove
 record.component.reorder
 ```
 
-The defaults do not give the creator ACL role metadata or component-mutation
-permissions after the record has been saved. The creator role may view,
+The defaults do not give the creator ACL role ACL-management, metadata, or
+component-mutation permissions after the record has been saved. The creator role may view,
 download, share, and print the record when its profile supplies the applicable
 global privileges.
 
@@ -533,6 +537,13 @@ deletion, security-level changes, component mutation, sharing, or printing by
 default.
 
 ## 10. ACL inheritance
+
+Creator status does not confer ACL-management authority. A role may receive
+that authority through a separate authorized grant, and exercising it still
+requires the matching global privilege. Information governors retain ultimate
+responsibility for access administration. The Effective File Administrator
+grants and delegated responsibility are defined in
+[Hierarchical Oversight Default ACLs](hierarchical-oversight-default-acls.md).
 
 Wathiq currently supports live ACL inheritance for child aggregations and
 records. A local ACL may exist while remaining dormant because the resource
@@ -810,6 +821,13 @@ immutable ACL history under the existing authorization specification.
 
 ## 16. Existing-data migration
 
+The migration below describes the original ownership feature. Revision 1.5
+does not repeat that ACL initialization on existing resources. Preserve all
+existing resource grants, dormant local grants, and default-child ACL grants,
+including existing creator-role ACL-management grants. Change only the
+initializer for subsequently created resources and templates; do not rerun or
+rewrite migration 049 to remove existing permissions.
+
 Wathiq is currently a greenfield project without a production holdings
 database. Existing development and test resources may therefore receive a
 deterministic best-effort owner and creator ACL role rather than requiring
@@ -957,6 +975,10 @@ and immutable completion reporting.
 - exact creator record grants from Section 9.3;
 - exact org-unit-member record grants from Section 9.4;
 - absence of every permission listed as excluded;
+- no creator-role `aggregation.acl.manage` or `record.acl.manage` grant in newly
+  initialized local ACLs or default-child templates;
+- preservation of existing ACL-management grants during the revision 1.5
+  upgrade, including dormant local ACLs and default-child templates;
 - complete permission dependencies;
 - removable and re-addable `org_unit_members` grants; and
 - unchanged historical ACLs during migration.
@@ -1282,6 +1304,14 @@ initializer. The API validates effective role choices and records the choice in
 creation audit metadata. The aggregation and saved-record creation interfaces
 use the combined selector, including automatic read-only selection when only
 one role is eligible.
+
+**Revision 1.5 amendment — implemented:** migration 048 and the canonical schema
+omit creator-role ACL-management grants from prospective defaults as required
+by Sections 9.1 and 9.3. Exact grant-set and populated upgrade tests verify the
+new defaults and preservation of all existing grants. **Create for** selection
+remains unchanged. See
+[implementation and verification](../docs/hierarchical-oversight-acls-implementation.md)
+for the requirement-to-test map and deployment notes.
 
 ### Phase 7 — Operational hardening and core-feature release
 

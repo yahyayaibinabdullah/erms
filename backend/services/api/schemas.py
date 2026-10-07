@@ -107,7 +107,7 @@ class PermissionRead(ApiModel):
 
 
 class AclPrincipalGrant(ApiModel):
-    principal_type: Literal["role", "everyone", "org_unit_members"]
+    principal_type: Literal["role", "everyone", "org_unit_members", "owning_and_higher_level_unit_managers", "effective_file_administrator"]
     role_id: int | None = None
     permission_codes: list[str]
 
@@ -141,7 +141,7 @@ class ChildRecordAclReplace(ApiModel):
 
 
 class AclPrincipalRead(ApiModel):
-    principal_type: Literal["role", "everyone", "org_unit_members"]
+    principal_type: Literal["role", "everyone", "org_unit_members", "owning_and_higher_level_unit_managers", "effective_file_administrator"]
     role_id: int | None
     display_name: str
     role_code: str | None
@@ -233,7 +233,7 @@ class AuthorizationSubjectRead(ApiModel):
 
 class EffectiveAclGrantRowRead(ApiModel):
     id: int
-    principal_type: Literal["role", "everyone", "org_unit_members"]
+    principal_type: Literal["role", "everyone", "org_unit_members", "owning_and_higher_level_unit_managers", "effective_file_administrator"]
     role_id: int | None
     role_code: str | None
     role_name: str | None
@@ -242,6 +242,7 @@ class EffectiveAclGrantRowRead(ApiModel):
 
 
 class AccessExplanationAclRead(ApiModel):
+    contextual_matches: list[dict[str, Any]] = Field(default_factory=list)
     resource_type: Literal["aggregation", "record"]
     source: str
     source_resource_id: int
@@ -1179,6 +1180,8 @@ class OrgUnitCreate(ApiModel):
 
 
 class OrgUnitUpdate(ApiModel):
+    managing_role_id: int | None = None
+    file_administrator_role_id: int | None = None
     parent_org_unit_id: int | None = None
     code: NonBlankString | None = None
     name: NonBlankString | None = None
@@ -1186,6 +1189,8 @@ class OrgUnitUpdate(ApiModel):
 
 
 class OrgUnitRead(ApiModel):
+    managing_role_id: int | None = None
+    file_administrator_role_id: int | None = None
     id: int
     parent_org_unit_id: int | None
     code: str

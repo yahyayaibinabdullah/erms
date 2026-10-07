@@ -846,10 +846,15 @@ def test_messaging_translation_artifact_valid_and_curated_items_preserved(client
     with db() as c:
         _, _, summary = _translation_import_plan(c, "ar", artifact)
         assert summary["complete"], summary
+    # Curated baseline rows were compared exactly above. Older approved exports
+    # need not carry the generation-only review_required field; new generated
+    # messaging candidates must still be explicitly marked for review.
+    baseline_keys = {row["message_key"] for row in baseline["items"]}
     assert all(
-        row["provenance"]["review_required"]
+        row.get("provenance", {}).get("review_required")
         for row in artifact["items"]
         if row["message_key"].startswith("messaging.")
+        and row["message_key"] not in baseline_keys
     )
 
 

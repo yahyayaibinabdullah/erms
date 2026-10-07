@@ -190,6 +190,9 @@ def _target_policy(method: str, path: str) -> tuple[str, str | None, str | None]
         return "globally_privileged", "identity.users.administer", None
     if path == "/api/v1/authorization/explain":
         return "resource_scoped", "authorization.explain", None
+    if path == "/api/v1/{resource}/{resource_id}/acl-contextual-principals":
+        # Organization disclosure plus resource-type-specific ACL management.
+        return "resource_scoped", "organization.browse", None
     if path == "/api/v1/authorization/governance-custody":
         return "globally_privileged", "authorization.administer", None
     if path == "/api/v1/security-operations/summary":
@@ -361,6 +364,13 @@ def api_operations() -> list[dict[str, Any]]:
                             "record": ["authorization.administer", "record.acl.manage"],
                         },
                     }} if (upper_method, path) == ("GET", "/api/v1/permissions") else {}),
+                    **({"conditional_resource_authorization": {
+                        "path_parameter": "resource",
+                        "by_value": {
+                            "aggregations": {"global_privilege": "aggregation.acl.manage", "resource_permission": "aggregation.acl.manage"},
+                            "records": {"global_privilege": "record.acl.manage", "resource_permission": "record.acl.manage"},
+                        },
+                    }} if path == "/api/v1/{resource}/{resource_id}/acl-contextual-principals" else {}),
                     "phase_0_enforced": False,
                     "phase_4_enforced": target_class == "globally_privileged",
                     "phase_5_enforced": (

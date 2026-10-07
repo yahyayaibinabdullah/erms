@@ -7,7 +7,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, Depends, HTTPException, Query
 from psycopg import Connection
 
-from .authorization_policy import require_authorization_admin
+from .authorization_policy import require_authorization_admin, require_organization_browse
 from .database import get_connection
 from .resource_authorization import governance_role_snapshot, require_global, require_resource_operation
 from .schemas import (
@@ -29,6 +29,43 @@ TABLES = {
     "child_record": ("aggregation_child_record_acl_defaults", "aggregation_id", "record"),
     "record": ("record_acl_grants", "record_id", "record"),
 }
+
+
+@router.get("/{resource}/{resource_id}/acl-contextual-principals")
+def contextual_principal_matches(
+    resource: Literal["aggregations", "records"], resource_id: int,
+    principal_type: Literal["owning_and_higher_level_unit_managers", "effective_file_administrator"],
+    limit: int = Query(default=25, ge=1, le=100), offset: int = Query(default=0, ge=0),
+    _authorization: Any = Depends(require_organization_browse),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    kind = "aggregation" if resource == "aggregations" else "record"
+    require_resource_operation(connection, kind, resource_id, f"{kind}.acl.manage", f"{kind}.acl.manage", lock=False)
+    owner = _resource(connection, resource, resource_id)["owning_org_unit_id"]
+    rows = list(connection.execute(
+        """WITH RECURSIVE chain AS (
+             SELECT id,parent_org_unit_id,code,name,managing_role_id,file_administrator_role_id,0 AS depth
+               FROM org_units WHERE id=%s
+             UNION ALL
+             SELECT parent.id,parent.parent_org_unit_id,parent.code,parent.name,
+                    parent.managing_role_id,parent.file_administrator_role_id,child.depth+1
+               FROM org_units parent JOIN chain child ON parent.id=child.parent_org_unit_id
+           ), selected AS (
+             SELECT *,managing_role_id AS designated_role_id FROM chain
+               WHERE %s='owning_and_higher_level_unit_managers'
+             UNION ALL
+             SELECT *,file_administrator_role_id FROM
+               (SELECT * FROM chain WHERE file_administrator_role_id IS NOT NULL ORDER BY depth LIMIT 1) nearest
+               WHERE %s='effective_file_administrator'
+           )
+           SELECT selected.id AS org_unit_id,selected.code AS org_unit_code,
+                  selected.name AS org_unit_name,role.id AS role_id,role.code AS role_code,
+                  role.name AS role_name,COALESCE(role_effectively_active(role.id),false) AS active
+             FROM selected LEFT JOIN roles role ON role.id=selected.designated_role_id
+            ORDER BY depth LIMIT %s OFFSET %s""",
+        (owner, principal_type, principal_type, limit + 1, offset),
+    ).fetchall())
+    return {"owning_org_unit_id": owner, "items": rows[:limit], "has_more": len(rows)>limit}
 
 
 def _resource(connection: Connection, table: str, resource_id: int) -> dict[str, Any]:
@@ -68,6 +105,8 @@ def _group(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "display_name": {
                 "everyone": "Everyone",
                 "org_unit_members": "All org unit members",
+                "owning_and_higher_level_unit_managers": "Owning and Higher-Level Unit Managers",
+                "effective_file_administrator": "Effective File Administrator",
             }.get(row["principal_type"], row["role_name"]),
             "role_code": row["role_code"], "permission_codes": [],
         })
@@ -419,6 +458,7 @@ def aggregation_acl_move_preview(aggregation_id:int,destination_aggregation_id:i
     return {"keep_current_access_as_override":keep_current_access_as_override,"added_count":len(new-old),"removed_count":len(old-new),
             "affected_subtree":_descendant_impact(connection,aggregation_id),"resource_version":aggregation["version"],
             "destination_child_acl_version":destination["child_aggregation_acl_version"],
+            "contextual_access_may_change":aggregation["owning_org_unit_id"]!=destination["owning_org_unit_id"],
             "ownership_changes":aggregation["owning_org_unit_id"]!=destination["owning_org_unit_id"],
             "source_owning_org_unit_id":aggregation["owning_org_unit_id"],
             "destination_owning_org_unit_id":destination["owning_org_unit_id"]}
@@ -462,6 +502,7 @@ def record_acl_move_preview(record_id:int,destination_aggregation_id:int,keep_cu
     proposed=current if not record["inherit_acl_from_parent"] or keep_current_access_as_override else _grant_rows(connection,"child_record",destination_aggregation_id)
     old=_permission_set(current); new=_permission_set(proposed)
     return {"keep_current_access_as_override":keep_current_access_as_override,"added_count":len(new-old),"removed_count":len(old-new),"resource_version":record["version"],
+            "contextual_access_may_change":record["owning_org_unit_id"]!=destination["owning_org_unit_id"],
             "ownership_changes":record["owning_org_unit_id"]!=destination["owning_org_unit_id"],
             "source_owning_org_unit_id":record["owning_org_unit_id"],
             "destination_owning_org_unit_id":destination["owning_org_unit_id"]}

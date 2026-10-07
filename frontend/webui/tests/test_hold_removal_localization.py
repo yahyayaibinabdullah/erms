@@ -38,7 +38,7 @@ def test_hold_update_reason_dialog_localizes_title_and_action_in_both_languages(
     save = next(n for n in ast.walk(editor) if isinstance(n, ast.AsyncFunctionDef)
                 and n.name == 'save')
     for messages, expected in [({}, ('Reason for updating this hold', 'Update hold')),
-                               (arabic, ('سبب تعديل هذا التعليق القانوني', 'تعديل التعليق القانوني'))]:
+                               (arabic, (arabic['webui.hold_reason_dialog.update_title'], arabic['webui.hold_reason_dialog.update_action']))]:
         set_active_messages(messages)
         try:
             dialog, persist = AsyncMock(), AsyncMock()

@@ -2805,6 +2805,220 @@
     "is_html": false
   },
   {
+    "message_key": "authorization.oversight.add_file_administrator",
+    "context_group": "authorization.oversight",
+    "default_text": "Add effective File Administrator",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Add effective File Administrator",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add effective File Administrator",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.add_managers",
+    "context_group": "authorization.oversight",
+    "default_text": "Add owning and higher-level unit managers",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Add owning and higher-level unit managers",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add owning and higher-level unit managers",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.close",
+    "context_group": "authorization.oversight",
+    "default_text": "Close",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Close",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Close",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.dynamic",
+    "context_group": "authorization.oversight",
+    "default_text": "Resolved from the current organizational hierarchy of {owner_name}.",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Resolved from the current organizational hierarchy of {owner_name}.",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "owner_name": "text"
+    },
+    "rendered_example": "Resolved from the current organizational hierarchy of Finance.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.file_administrator",
+    "context_group": "authorization.oversight",
+    "default_text": "Effective File Administrator",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Effective File Administrator",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Effective File Administrator",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.inactive",
+    "context_group": "authorization.oversight",
+    "default_text": "This designated role is inactive and does not grant access.",
+    "semantic_meaning": "Hierarchical oversight authorization interface: This designated role is inactive and does not grant access.",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This designated role is inactive and does not grant access.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.managers",
+    "context_group": "authorization.oversight",
+    "default_text": "Owning and Higher-Level Unit Managers",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Owning and Higher-Level Unit Managers",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Owning and Higher-Level Unit Managers",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.match_unit",
+    "context_group": "authorization.oversight",
+    "default_text": "Matched through organizational unit {unit_id}.",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Matched through organizational unit {unit_id}.",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "unit_id": "identifier"
+    },
+    "rendered_example": "Matched through organizational unit {unit_id}.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.next",
+    "context_group": "authorization.oversight",
+    "default_text": "Next",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Next",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Next",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.no_designation",
+    "context_group": "authorization.oversight",
+    "default_text": "No managing role is designated for this unit.",
+    "semantic_meaning": "Hierarchical oversight authorization interface: No managing role is designated for this unit.",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No managing role is designated for this unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.no_matches",
+    "context_group": "authorization.oversight",
+    "default_text": "No active designated role currently matches this principal.",
+    "semantic_meaning": "Hierarchical oversight authorization interface: No active designated role currently matches this principal.",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No active designated role currently matches this principal.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.ownership_change",
+    "context_group": "authorization.oversight",
+    "default_text": "The unit managers and effective File Administrator are resolved again using the new owning unit, even when the same ACL entries are kept.",
+    "semantic_meaning": "Hierarchical oversight authorization interface: The unit managers and effective File Administrator are resolved again using the new owning unit, even when the same ACL entries are kept.",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The unit managers and effective File Administrator are resolved again using the new owning unit, even when the same ACL entries are kept.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.previous",
+    "context_group": "authorization.oversight",
+    "default_text": "Previous",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Previous",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Previous",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.oversight.show_roles",
+    "context_group": "authorization.oversight",
+    "default_text": "Show current roles",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Show current roles",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Show current roles",
+    "is_html": false
+  },
+  {
     "message_key": "authorization.permission.aggregation.acl.manage",
     "context_group": "authorization.acl",
     "default_text": "Manage ACL",
@@ -5532,6 +5746,21 @@
     "is_html": false
   },
   {
+    "message_key": "entity_metadata.field.file_administrator_role",
+    "context_group": "entity_metadata.field",
+    "default_text": "File Administrator role",
+    "semantic_meaning": "Hierarchical oversight authorization interface: File Administrator role",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "File Administrator role",
+    "is_html": false
+  },
+  {
     "message_key": "entity_metadata.field.final_disposition",
     "context_group": "entity_metadata.field",
     "default_text": "Final disposition",
@@ -5657,6 +5886,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Location",
+    "is_html": false
+  },
+  {
+    "message_key": "entity_metadata.field.managing_role",
+    "context_group": "entity_metadata.field",
+    "default_text": "Managing role",
+    "semantic_meaning": "Hierarchical oversight authorization interface: Managing role",
+    "common_locations": [
+      "ACL editor",
+      "Organization unit editor"
+    ],
+    "translator_guidance": "Preserve named placeholders exactly. File Administrator is the designated organizational role.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Managing role",
     "is_html": false
   },
   {

@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import subprocess
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,7 +14,12 @@ SEED_PATH = PROJECT_ROOT / "security" / "catalogue-seed.json"
 
 def test_database_sql_contains_no_psql_meta_commands():
     offenders = []
-    for path in sorted(PROJECT_ROOT.rglob("*.sql")):
+    # Check project SQL, including new untracked files, but not ignored
+    # pg_dump backups, virtual environments, or other local artifacts.
+    project_sql = subprocess.check_output([
+        "git", "ls-files", "--cached", "--others", "--exclude-standard", "--", "*.sql",
+    ], cwd=PROJECT_ROOT, text=True).splitlines()
+    for path in (PROJECT_ROOT / name for name in sorted(set(project_sql))):
         for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             if line.lstrip().startswith("\\"):
                 offenders.append(f"{path.relative_to(PROJECT_ROOT)}:{line_number}: {line}")

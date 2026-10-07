@@ -23,7 +23,11 @@ def _create_profile(client: TestClient, code: str = "RECORDS_EDITOR") -> dict:
 def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient):
     privileges = _by_code(client, "/api/v1/privileges?limit=500")
     profiles = _by_code(client, "/api/v1/profiles?limit=500")
-    assert len(privileges) == 61
+    separately_seeded = {
+        "messaging.user_messages.exchange", "messaging.monitor",
+        "messaging.notifications.administer",
+    }
+    assert len(set(privileges) - separately_seeded) == 61
     assert privileges["localization.administer"]["is_reserved"] is True
     assert {
         "classification_scheme.modify_metadata", "classification.modify_metadata",

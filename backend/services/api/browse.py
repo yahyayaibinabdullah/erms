@@ -38,6 +38,7 @@ ORG_UNIT_NODE_SQL = """
     )
     SELECT unit.id, unit.parent_org_unit_id, unit.code, unit.name, unit.translations,
            unit.description, unit.status, unit.date_created,
+           unit.managing_role_id, unit.file_administrator_role_id,
            unit.date_deactivated, unit.version,
            CASE WHEN EXISTS (
                SELECT 1 FROM ancestors
@@ -577,6 +578,18 @@ def browse_org_unit_summary(
     row["name"] = localized["name"]
     row["description"] = localized["description"]
     row.pop("translations", None)
+    designated_roles = {
+        role["id"]: role for role in connection.execute(
+            "SELECT id,code,name,translations FROM roles WHERE id=ANY(%s)",
+            ([role_id for role_id in (row.get("managing_role_id"), row.get("file_administrator_role_id")) if role_id is not None],),
+        ).fetchall()
+    }
+    for field in ("managing_role", "file_administrator_role"):
+        role = designated_roles.get(row.get(field + "_id"))
+        if role is not None:
+            role = {"id": role["id"], "code": role["code"],
+                    "name": localized_projection(role, language_tag, "name")["name"]}
+        row[field] = role
     if row["parent_org_unit_id"]:
         row["parent"] = connection.execute(
             "SELECT id, code, name, translations FROM org_units WHERE id=%s", (row["parent_org_unit_id"],),
