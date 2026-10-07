@@ -1,6 +1,7 @@
 # Record and Aggregation Relationships
 
-**Status:** Discussion draft — no implementation authorized  
+**Status:** Approved — ready for implementation
+
 **Prepared:** 6 October 2026  
 **Project:** ERMS / Wathiq
 
@@ -12,8 +13,7 @@ they do not replace or alter the existing aggregation hierarchy or a record's
 containing aggregation. They do not confer access, inherit metadata, change
 retention rules, or automatically move or copy content.
 
-The requirements below capture the requested behavior. Sections marked
-**Proposed** require approval before implementation. The existing
+The requirements below capture the approved behavior. The existing
 [security specification](security-and-authorization-subsystem.md),
 [disposition specification](disposition.md), and
 [WebUI performance contract](../docs/webui-performance.md) remain authoritative
@@ -99,6 +99,24 @@ business catalogue maintenance. Do not grant either privilege to `SYS_ADMIN`
 merely for technical administration. Explicitly add both to `ALL_PRIVS` under
 its existing compatibility policy. Existing custom profiles receive grants
 through normal profile administration. This catalogue and privilege setup is approved.
+
+### English and Arabic localization
+
+Localize the display names and descriptions of `relationships.link` and
+`relationships.administer` in English and Arabic. Keep their privilege codes
+unchanged across languages. Provide English and Arabic forward and reverse
+labels for every seeded type in both relationship catalogues. Catalogue
+administration must support maintaining labels in both languages for
+user-created types, using the existing multilingual catalogue conventions.
+Stable type identifiers and link direction do not change with the UI language.
+
+Localize the catalogue administration screens, relationship actions, table
+headings, redacted and empty states, validation messages, and disposition
+blocker explanations in English and Arabic. Follow sections 7.5 and
+7.8.1–7.8.4 of the internationalization specification: preserve curated Arabic
+wording and provenance, merge by message key, maintain canonical ordering, and
+verify active-key coverage and translation-artifact checks. Verify relationship
+and privilege displays in both English/LTR and Arabic/RTL.
 
 ## 5. Authorization and redacted targets
 
@@ -255,7 +273,13 @@ if A finishes but B fails, their link does not prevent retrying B in that job.
 Completed work remains recorded; the job is incomplete until all required work
 succeeds.
 
-## 8. Proposed audit and verification
+If a partially completed destruction job is terminated and an unfinished unit
+enters a new job, retain its links to units already destroyed in the former job
+as historical evidence. Such links do not block its later destruction and do
+not permit ordinary navigation to destroyed endpoints. Links to resources that
+remain live still follow the normal same-job or outside-job blocking rule.
+
+## 8. Audit and verification
 
 Audit link creation and removal, including actor, endpoints, type, direction,
 time, and removal reason during disposition review. Audit catalogue changes.
@@ -273,7 +297,10 @@ Apply existing event-history access and redaction rules to this evidence.
 | REL-08 Admit but block final disposition | Admission succeeds despite this blocker; links within a unit or the same job do not block or require removal; links outside the job block until removal from either endpoint; no-active-job, membership-change, descendant, and concurrency checks |
 | REL-09 Audit changes | Attributable link/catalogue events and protected review reasons |
 | REL-10 Bounded relationship UI | Server pagination, bounded search, selected-value retention, and repeated-navigation checks |
-| REL-11 Explain record links within the job | Live-browser Officer and Manager review verifies visible summary, unique-link counts, paginated table, explicit blocking explanations, authorized navigation/removal, redaction, post-removal refresh, empty/loading/error states, and LTR/RTL presentation against existing Wathiq tables |
+| REL-11 Explain aggregation and record links within the job | Live-browser Officer and Manager review verifies visible summary, unique-link counts, paginated table, explicit blocking explanations, authorized navigation/removal, redaction, post-removal refresh, empty/loading/error states, and LTR/RTL presentation against existing Wathiq tables |
+
+| REL-12 English and Arabic localization | Both privileges and both catalogues have localized labels; forward/reverse names remain correct in English/LTR and Arabic/RTL; UI key coverage, provenance, ordering, placeholders, terminology, and artifact checks pass |
+| REL-13 Historical links after terminated partial destruction | Retained links to already-destroyed units do not block later destruction of the unfinished unit; links to live units retain normal blocking behavior; historical access restrictions remain enforced |
 
 Implementation and test evidence must be attached to these requirements before
 the feature is declared complete. Database-backed verification must use a new

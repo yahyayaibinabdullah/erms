@@ -742,6 +742,14 @@ safeguards. If any check fails, no destruction starts.
 
 ### 15.2 Asynchronous execution
 
+If a partially completed destruction job is terminated and an unfinished unit
+enters a new job, retain links to units already destroyed in the former job as
+historical evidence. Those links do not block later destruction of the
+unfinished unit. Links to live resources continue to follow the normal
+relationship-blocking rules. Retained evidence remains protected and does not
+provide ordinary navigation to destroyed resources.
+
+
 The Records Manager starts the operation with an explicit **Destroy digital
 content** action. Wathiq may execute it asynchronously. The operation must be
 durable, idempotent, resumable after interruption, and safe against two workers

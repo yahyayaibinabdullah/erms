@@ -940,6 +940,14 @@ status changes.
 
 ## 14. Destruction outcome
 
+If a partially completed destruction job is terminated and an unfinished unit
+enters a new job, retain links to units already destroyed in the former job as
+historical evidence. Those links do not block later destruction of the
+unfinished unit. Links to live resources continue to follow the normal
+relationship-blocking rules. Retained evidence remains protected and does not
+provide ordinary navigation to destroyed resources.
+
+
 If destruction stops after some work has completed, preserve that progress and
 allow an authorized retry or resumption of unfinished work in the same job.
 Do not repeat completed destruction or mark the job complete early. Retained
