@@ -178,15 +178,15 @@ def test_saved_search_category_is_committed_and_can_be_updated_reliably():
 def test_restored_advanced_search_selectors_reject_stale_values_before_rendering():
     assert 'if workspace.get("sort_direction") not in {"asc", "desc"}:' in APP_SOURCE
     assert 'if workspace.get("limit") not in {25, 50, 100}:' in APP_SOURCE
-    assert 'if int(value) in role_options' in APP_SOURCE
-    assert 'if int(value) in unit_options' in APP_SOURCE
-    assert 'value=selected_role_ids' in APP_SOURCE
-    assert 'value=selected_unit_ids' in APP_SOURCE
+    assert 'load_selected_roles(selected_role_ids)' in APP_SOURCE
+    assert 'load_selected_units(selected_unit_ids)' in APP_SOURCE
+    assert 'selected_loader(int(value))' in APP_SOURCE
+    assert 'if not active() or getattr(control, "_deleted", False):' in APP_SOURCE
 
 
 def test_restored_relationship_values_are_resolved_to_localized_labels():
     assert 'async def resolve_selected_options()' in APP_SOURCE
-    assert 'api.get(resource, int(value)) for value in selected_values' in APP_SOURCE
+    assert 'else api.get(resource, int(value))) for value in selected_values' in APP_SOURCE
     assert 'include_level_number=resource == "security-levels"' in APP_SOURCE
     assert 'level_label=security_level_label' in APP_SOURCE
     assert 'selected_label = str(node.get("_value_label") or "…")' in APP_SOURCE

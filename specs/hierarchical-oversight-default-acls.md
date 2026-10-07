@@ -413,6 +413,16 @@ test database must be dropped after the run whether the tests pass or fail.
 
 ## 13. Completion criteria
 
+Implementation and requirement-to-test evidence are maintained in
+[Hierarchical oversight ACLs: implementation and verification](../docs/hierarchical-oversight-acls-implementation.md).
+
+**Implementation status:** Complete. The canonical schema, migration 048,
+API, ACL editors, organizational-unit role selectors, and authorization
+explanations implement this extension. Final verification passed 740 API tests
+and 423 frontend tests, including populated upgrade preservation and live
+English LTR and Arabic RTL checks. Deployment has not modified any persistent
+database or existing ACL grants.
+
 This extension is complete only when:
 
 - every requirement in Section 12 has implementation and passing verification

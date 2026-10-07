@@ -95,7 +95,7 @@ def test_branched_group_retained_then_purged_atomically_and_replay(client):
 
 
 def test_capture_commits_ordered_validated_record_and_survives_purge(
-    client, aggregation, monkeypatch
+    client, aggregation, monkeypatch, tmp_path
 ):
     import os
     from backend.services.api.messaging import capture_pdf
@@ -161,13 +161,9 @@ def test_capture_commits_ordered_validated_record_and_survives_purge(
         )
         assert str(components[1]["envelope_id"]) == original["envelope_id"]
         from backend.services.api.content_storage import configured_storage
-        from pathlib import Path
         import subprocess
 
-        evidence = (
-            Path(__file__).resolve().parents[4]
-            / "docs/verification/messaging-phase-5/committed"
-        )
+        evidence = tmp_path / "committed"
         evidence.mkdir(parents=True, exist_ok=True)
         preserved = {}
         for component in components:
@@ -597,9 +593,20 @@ def test_operational_failure_resolution_and_producer_isolation(client):
         observe("test_seconds", 1, producer="producer-a", connection=c)
     overview = client.get(PREFIX + "/monitor", headers=_bearer(monitor)).json()
     assert any(a.get("metric") == "system_failure" for a in overview["alerts"])
-    values = client.get(
-        PREFIX + "/monitor/producers?limit=1", headers=_bearer(monitor)
-    ).json()["items"]
+    values = []
+    after = ""
+    while True:
+        response = client.get(
+            PREFIX + "/monitor/producers", params={"limit": 1, "after": after},
+            headers=_bearer(monitor),
+        )
+        assert response.status_code == 200, response.text
+        page = response.json()
+        assert len({row["producer_code"] for row in page["items"]}) <= 1
+        values.extend(row for row in page["items"] if row["producer_code"] == "producer-a")
+        after = page["next_cursor"]
+        if not after:
+            break
     assert {v["metric"] for v in values} == {
         "system_failure",
         "system_seconds",

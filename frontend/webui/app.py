@@ -159,6 +159,8 @@ ADVANCED_SEARCH_CONTROLLED_VALUES: dict[str, dict[Any, str]] = {
 # by validation and API-shaping code.  Resolve them at the presentation edge so
 # every table, editor and selector receives the active locale consistently.
 ENTITY_METADATA_LABEL_KEYS = {
+    "Managing role": "entity_metadata.field.managing_role",
+    "File Administrator role": "entity_metadata.field.file_administrator_role",
     "Account type": "entity_metadata.field.account_type",
     "Aggregation": "entity_metadata.field.aggregation",
     "Aggregation number": "entity_metadata.field.aggregation_number",
@@ -5808,6 +5810,52 @@ def index(q: str = "") -> None:
         conflict_dialog.open()
         return True
 
+    async def show_contextual_acl_roles(resource, entity_id, principal_type) -> None:
+        dialog = ui.dialog()
+        with dialog, ui.card().classes("w-[560px] max-w-full gap-3"):
+            ui.label(
+                render_message("authorization.oversight.managers")
+                if principal_type == "owning_and_higher_level_unit_managers"
+                else render_message("authorization.oversight.file_administrator")
+            ).classes("text-lg font-semibold")
+            host = ui.column().classes("w-full gap-2")
+            state = {"offset": 0, "revision": 0}
+
+            async def load_page(offset=0):
+                state["revision"] += 1
+                revision = state["revision"]
+                try:
+                    result = await api.request("GET", f"/api/v1/{resource}/{entity_id}/acl-contextual-principals", params={
+                        "principal_type": principal_type, "limit": 25, "offset": offset,
+                    })
+                except ApiError as error:
+                    if dialog.value and revision == state["revision"]:
+                        ui.notify(error_message(error), color="negative", close_button=True)
+                    return
+                if not dialog.value or revision != state["revision"]:
+                    return
+                state["offset"] = offset
+                host.clear()
+                with host:
+                    if not result["items"]:
+                        ui.label(render_message("authorization.oversight.no_matches"))
+                    for item in result["items"]:
+                        ui.label(f'{item["org_unit_code"]} — {item["org_unit_name"]}').classes("text-sm font-medium")
+                        if item["role_id"] is not None:
+                            ui.label(f'{item["role_code"]} — {item["role_name"]}').classes("text-sm")
+                            if not item["active"]:
+                                ui.label(render_message("authorization.oversight.inactive")).classes("text-xs text-amber-900")
+                        else:
+                            ui.label(render_message("authorization.oversight.no_designation")).classes("text-xs text-slate-500")
+                    with ui.row():
+                        previous = ui.button(render_message("authorization.oversight.previous"), on_click=lambda: load_page(max(0, state["offset"]-25))).props("flat no-caps")
+                        previous.set_enabled(offset>0)
+                        following = ui.button(render_message("authorization.oversight.next"), on_click=lambda: load_page(state["offset"]+25)).props("flat no-caps")
+                        following.set_enabled(result["has_more"])
+            ui.button(render_message("authorization.oversight.close"), on_click=dialog.close).props("flat no-caps")
+        dialog.open()
+        await load_page()
+
     async def show_acl_editor(
         resource: str, entity_id: int, *, scope: str = "resource",
         on_saved: Callable[[], Any] | None = None,
@@ -6035,6 +6083,20 @@ def index(q: str = "") -> None:
                                 ).props("outline no-caps")
                                 editor_controls.append(add_org_members_button)
 
+                            for contextual_type in ("owning_and_higher_level_unit_managers", "effective_file_administrator"):
+                                if not any(item["principal_type"] == contextual_type for item in principals):
+                                    button = ui.button(
+                                        render_message("authorization.oversight.add_managers")
+                                        if contextual_type == "owning_and_higher_level_unit_managers"
+                                        else render_message("authorization.oversight.add_file_administrator"),
+                                        icon="corporate_fare",
+                                        on_click=lambda _, kind=contextual_type: (
+                                            principals.append({"principal_type": kind, "role_id": None, "permission_codes": []}),
+                                            render_principals(),
+                                        ),
+                                    ).props("outline no-caps")
+                                    editor_controls.append(button)
+
                         with ui.row().classes("w-full items-center gap-2 text-slate-500"):
                             ui.icon("groups", size="17px")
                             ui.label(
@@ -6116,6 +6178,19 @@ def index(q: str = "") -> None:
                                                         ui.label(
                                                             render_message("webui.render_principals.label.everyone_currently_working_in_owner_name_271a9a37", owner_name=owner_name)
                                                         ).classes("text-xs text-slate-500")
+                                                elif principal["principal_type"] in {"owning_and_higher_level_unit_managers", "effective_file_administrator"}:
+                                                    with ui.column().classes("gap-0 grow min-w-0"):
+                                                        ui.label(
+                                                            render_message("authorization.oversight.managers")
+                                                            if principal["principal_type"] == "owning_and_higher_level_unit_managers"
+                                                            else render_message("authorization.oversight.file_administrator")
+                                                        ).classes("font-semibold")
+                                                        ui.label(render_message("authorization.oversight.dynamic", owner_name=owner_name)).classes("text-xs text-slate-500")
+                                                        if "organization.browse" in (auth_state.get("principal") or {}).get("global_privileges", []):
+                                                            ui.button(
+                                                                render_message("authorization.oversight.show_roles"),
+                                                                on_click=lambda _, kind=principal["principal_type"]: show_contextual_acl_roles(resource, entity_id, kind),
+                                                            ).props("flat dense no-caps")
                                                 else:
                                                     role_picker = ui.select(
                                                         role_options, value=principal.get("role_id"),
@@ -6554,6 +6629,14 @@ def index(q: str = "") -> None:
                                     for role_id in org_unit_member_roles.get(permission, []):
                                         contributor_role(role_id)
                             for role_id in role_ids:
+                                for match in result.get("acl", {}).get("contextual_matches", []):
+                                    if match["role_id"] == role_id and match["permission_code"] == permission:
+                                        ui.label(
+                                            render_message("authorization.oversight.managers")
+                                            if match["principal_type"] == "owning_and_higher_level_unit_managers"
+                                            else render_message("authorization.oversight.file_administrator")
+                                        ).classes("text-sm font-medium")
+                                        ui.label(render_message("authorization.oversight.match_unit", unit_id=match["org_unit_id"])).classes("text-xs text-slate-500")
                                 contributor_role(role_id)
 
                     bypass_role_ids = contributors.get("governance_bypass_role_ids", [])
@@ -6676,6 +6759,7 @@ def index(q: str = "") -> None:
                         ui.label(
                             render_message("webui.refresh_preview.label.this_move_changes_organizational_ownership_d0b5efd9")
                         ).classes("text-sm font-medium text-amber-900 bg-amber-50 rounded p-2")
+                        ui.label(render_message("authorization.oversight.ownership_change")).classes("text-sm text-amber-900")
 
             destination.on_value_change(lambda _: refresh_preview())
             keep_access.on_value_change(lambda _: refresh_preview())
@@ -8176,6 +8260,15 @@ def index(q: str = "") -> None:
         }.get(state["resource"], state["resource"])
         spec = ENTITIES[resolved_resource]
         creating = row is None
+        if row is not None and spec.key == "org-units":
+            # Tree nodes and summary cards are display projections, not edit
+            # records. Read all persisted fields before initializing controls;
+            # an omitted designation must never turn into an implicit clear.
+            try:
+                row = await api.get("org-units", row["id"])
+            except ApiError as error:
+                show_api_error(error)
+                return
         translation_only = bool(
             row and (
                 (spec.key == "roles" and row.get("is_system"))
@@ -8494,6 +8587,8 @@ def index(q: str = "") -> None:
                         "text-xs leading-5 text-amber-800 -mt-2"
                     )
                 for field in spec.fields:
+                    if creating and spec.key == "org-units" and field.name in {"managing_role_id", "file_administrator_role_id"}:
+                        continue
                     if not creating and spec.key in {"aggregations", "records"} and field.name in {
                         "date_of_next_review", "is_vital", "assigned_location", "current_location",
                         "security_level_id",
@@ -8551,7 +8646,7 @@ def index(q: str = "") -> None:
                             with ui.column().classes("w-full min-w-0 gap-1") as field_group:
                                 controls[field.name].move(field_group)
                                 ui.label(render_message("security_level.selection.constraints")).classes("w-full text-xs text-slate-500 leading-relaxed")
-                    elif field.lookup_resource:
+                    elif field.lookup_resource and not (spec.key == "org-units" and field.name in {"managing_role_id", "file_administrator_role_id"}):
                         bind_remote_relationship_select(
                             controls[field.name], field.lookup_resource,
                             CLASSIFICATION_SELECTOR_SEARCH_FIELDS
@@ -8563,6 +8658,21 @@ def index(q: str = "") -> None:
                                 row["id"]
                                 if row and field.lookup_resource == spec.key else None
                             ),
+                        )
+                    if spec.key == "org-units" and field.name in {"managing_role_id", "file_administrator_role_id"}:
+                        async def designated_roles(query, unit_id=row["id"]):
+                            if len(query.strip()) < 2:
+                                return {"items": []}
+                            return await api.search_request("roles", {
+                                "where": {"and": [
+                                    {"field": "org_unit_id", "operator": "eq", "value": unit_id},
+                                    {"or": [{"field": name, "operator": "contains_ci", "value": query.strip()} for name in ("code", "name")]},
+                                ]},
+                                "sort": [{"field": "code", "direction": "asc"}], "limit": 25,
+                            })
+                        bind_remote_relationship_select(
+                            controls[field.name], "roles", ("code", "name"), ("code", "name"),
+                            page_loader=designated_roles, active=lambda: dialog.value,
                         )
                     if spec.key == "roles" and field.name == "profile_id":
                         profiles_by_id = {
@@ -11083,7 +11193,10 @@ def index(q: str = "") -> None:
                             ui.label(render_message("webui.render_governance_cards.label.no_matching_items_38db9ba1")).classes("w-full text-center text-slate-400 py-12")
                         for row in page_rows:
                             with ui.card().classes("governance-list-card shadow-none"):
-                                with ui.row().classes("w-full items-start no-wrap gap-3"):
+                                # Grid follows document direction directly; the
+                                # global RTL flex-row reversal must not move
+                                # the leading identity icon to the trailing edge.
+                                with ui.grid(columns="auto minmax(0, 1fr) auto").classes("governance-card-header w-full items-start gap-3"):
                                     with ui.element("div").classes("governance-card-icon mt-1"):
                                         ui.icon(
                                             {
@@ -14136,6 +14249,8 @@ def index(q: str = "") -> None:
                         (render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"), unit.get("effective_status"), "status"),
                         (render_message("webui.render_tree_level.text.inactive_via_parent_29212032"), (unit.get("inactive_source") or {}).get("name"), None),
                         (entity_metadata_label("Parent organization unit"), (unit.get("parent") or {}).get("name"), "parent"),
+                        (entity_metadata_label("Managing role"), unit.get("managing_role"), "role"),
+                        (entity_metadata_label("File Administrator role"), unit.get("file_administrator_role"), "role"),
                         (render_message("navigation.item.org_units"), unit.get("child_org_unit_count"), None),
                         (render_message("navigation.item.roles"), unit.get("role_count"), None),
                     ):
@@ -14150,7 +14265,11 @@ def index(q: str = "") -> None:
                                 if value is not None and value_kind == "status"
                                 else str(value) if value is not None else "—"
                             )
-                            if value_kind == "parent" and (unit.get("parent") or {}).get("id"):
+                            if value_kind == "role" and value:
+                                ui.label(f"{value['code']} · {value['name']}").classes(
+                                    "font-medium text-primary cursor-pointer break-words"
+                                ).on("click", lambda _, role_id=value["id"]: select_role_details(role_id))
+                            elif value_kind == "parent" and (unit.get("parent") or {}).get("id"):
                                 ui.label(display_value).classes(
                                     "font-medium text-primary cursor-pointer"
                                 ).on(

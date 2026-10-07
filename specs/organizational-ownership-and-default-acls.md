@@ -1305,11 +1305,13 @@ creation audit metadata. The aggregation and saved-record creation interfaces
 use the combined selector, including automatic read-only selection when only
 one role is eligible.
 
-**Revision 1.5 amendment — implementation pending:** the completed phase above
-describes the earlier defaults. Update prospective creation initialization to
-omit creator-role ACL-management grants as required by Sections 9.1 and 9.3.
-Verify the revised grant sets and preservation of all existing grants before
-marking this amendment implemented. **Create for** selection remains unchanged.
+**Revision 1.5 amendment — implemented:** migration 048 and the canonical schema
+omit creator-role ACL-management grants from prospective defaults as required
+by Sections 9.1 and 9.3. Exact grant-set and populated upgrade tests verify the
+new defaults and preservation of all existing grants. **Create for** selection
+remains unchanged. See
+[implementation and verification](../docs/hierarchical-oversight-acls-implementation.md)
+for the requirement-to-test map and deployment notes.
 
 ### Phase 7 — Operational hardening and core-feature release
 

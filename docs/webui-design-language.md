@@ -889,6 +889,16 @@ groups retain their separate opposite-side placement.
 The shared action-panel correction and verification are documented in
 [detail action RTL verification](detail-action-rtl-verification.md).
 
+The shared Users, Roles, and Organization Units item-card header uses a native
+NiceGUI three-column grid: icon, wrapping title/identity, and trailing status
+badge. Browser inspection found the old header inherited `direction: rtl`
+but also received the global `.row { flex-direction: row-reverse }` rule,
+placing its icon at the far left in Arabic. Standard Row alignment cannot
+correct that double reversal. The supported Grid layout follows document
+direction without a row override: the icon leads on the right in Arabic and
+the left in English, while the badge stays at the opposite edge. No Quasar or
+custom CSS fallback is needed.
+
 For developers and agents, the required troubleshooting order is:
 
 1. Reproduce the issue and inspect the existing shared component and its

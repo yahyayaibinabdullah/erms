@@ -5916,6 +5916,36 @@
       "phase_12_enforced": false
     },
     {
+      "id": "GET:/api/v1/{resource}/{resource_id}/acl-contextual-principals",
+      "method": "GET",
+      "path": "/api/v1/{resource}/{resource_id}/acl-contextual-principals",
+      "current_access_class": "authenticated_only",
+      "target_policy_class": "resource_scoped",
+      "global_privilege": "organization.browse",
+      "resource_permission": null,
+      "conditional_resource_authorization": {
+        "path_parameter": "resource",
+        "by_value": {
+          "aggregations": {
+            "global_privilege": "aggregation.acl.manage",
+            "resource_permission": "aggregation.acl.manage"
+          },
+          "records": {
+            "global_privilege": "record.acl.manage",
+            "resource_permission": "record.acl.manage"
+          }
+        }
+      },
+      "phase_0_enforced": false,
+      "phase_4_enforced": false,
+      "phase_5_enforced": false,
+      "phase_7_enforced": false,
+      "phase_8_enforced": false,
+      "phase_9_enforced": false,
+      "phase_11_enforced": false,
+      "phase_12_enforced": false
+    },
+    {
       "id": "GET:/health",
       "method": "GET",
       "path": "/health",

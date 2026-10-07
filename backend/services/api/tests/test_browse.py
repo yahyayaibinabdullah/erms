@@ -1,6 +1,29 @@
 from fastapi.testclient import TestClient
 
 
+def test_unit_summary_includes_localized_designated_roles_and_empty_values(client, monkeypatch):
+    import os
+    import psycopg
+    from backend.services.api import browse
+
+    url = '/api/v1/browse/organization/org-units/1/summary'
+    empty = client.get(url)
+    assert empty.status_code == 200, empty.text
+    assert empty.json()['managing_role'] is None
+    assert empty.json()['file_administrator_role'] is None
+    with psycopg.connect(os.environ['DATABASE_URL']) as c:
+        c.execute("UPDATE roles SET translations='{\"ar\":{\"name\":\"مدير الوحدة\"}}'::jsonb WHERE id=1")
+        c.execute('UPDATE org_units SET managing_role_id=1,file_administrator_role_id=1 WHERE id=1')
+    for language, name in (('en', 'System Administrator'), ('ar', 'مدير الوحدة'), ('ar-AE', 'مدير الوحدة')):
+        monkeypatch.setattr(browse, 'preferred_language', lambda *_, lang=language: lang)
+        result = client.get(url)
+        assert result.status_code == 200, result.text
+        body = result.json()
+        for field in ('managing_role', 'file_administrator_role'):
+            assert body[field + '_id'] == 1
+            assert body[field] == {'id': 1, 'code': 'system-administrator', 'name': name}
+
+
 def _published_scheme(client: TestClient, code: str = "BROWSE") -> dict:
     scheme = client.post("/api/v1/classification-schemes", json={
         "code": code, "title": f"{code} Scheme",

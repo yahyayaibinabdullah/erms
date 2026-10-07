@@ -61,7 +61,7 @@ ENTITIES = {
     "org-units": EntitySpec(
         "org-units", "Organization units", "organization unit",
         (("code", "Code"), ("name", "Name"), ("effective_status", "Status"), ("parent_org_unit_display", "Parent")),
-        (FieldSpec("parent_org_unit_id", "Parent organization unit", "lookup", lookup_resource="org-units", lookup_label_fields=("code", "name")), FieldSpec("code", "Code", required=True), FieldSpec("name", "Name", required=True), FieldSpec("description", "Description", "textarea")),
+        (FieldSpec("parent_org_unit_id", "Parent organization unit", "lookup", lookup_resource="org-units", lookup_label_fields=("code", "name")), FieldSpec("code", "Code", required=True), FieldSpec("name", "Name", required=True), FieldSpec("description", "Description", "textarea"), FieldSpec("managing_role_id", "Managing role", "lookup", lookup_resource="roles", lookup_label_fields=("code", "name")), FieldSpec("file_administrator_role_id", "File Administrator role", "lookup", lookup_resource="roles", lookup_label_fields=("code", "name"))),
         search_fields=("code", "name", "description"),
     ),
     "users": EntitySpec(

@@ -37,7 +37,7 @@ def test_catalogue_organizational_defaults_and_no_synthetic_role(client: TestCli
     assert aggregation_grants["org_unit_members"] == {"aggregation.view", "aggregation.history.view"}
     assert aggregation_grants["role"] == {
         "aggregation.view", "aggregation.modify_metadata", "aggregation.add_child",
-        "aggregation.add_record", "aggregation.close", "aggregation.acl.manage",
+        "aggregation.add_record", "aggregation.close",
         "aggregation.history.view",
     }
     assert record_acl["inherit_acl_from_parent"] is True
@@ -84,7 +84,7 @@ def test_live_mirror_chain_custom_boundary_and_dormant_override(client: TestClie
     assert grandchild_acl["override_acl_is_dormant"] is True
     dormant = {grant["principal_type"]: set(grant["permission_codes"]) for grant in grandchild_acl["override_acl"]}
     assert dormant["org_unit_members"] == {"aggregation.view", "aggregation.history.view"}
-    assert len(dormant["role"]) == 7
+    assert len(dormant["role"]) == 6
 
     preview = client.post(f"/api/v1/aggregations/{child['id']}/default-child-aggregation-permissions/preview", json={
         "version": custom.json()["version"], "mode": "mirror_resource_acl",
@@ -156,6 +156,8 @@ def test_record_inheritance_override_and_parent_default_live_change(client: Test
 
 def test_orphan_prevention_rejects_without_governance_custodian(client: TestClient, aggregation: dict):
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        # Explicit legacy/manual grant: new creator defaults no longer grant ACL management.
+        connection.execute("INSERT INTO aggregation_acl_grants(aggregation_id,principal_type,role_id,permission_id) SELECT %s,'role',1,id FROM permissions WHERE code='aggregation.acl.manage'", (aggregation["id"],))
         connection.execute("UPDATE roles SET is_information_governance=false WHERE id=1")
     acl = client.get(f"/api/v1/aggregations/{aggregation['id']}/permissions").json()
     denied = client.put(f"/api/v1/aggregations/{aggregation['id']}/permissions", json={
@@ -199,7 +201,7 @@ def test_custom_template_is_retained_dormant_when_switching_back_to_mirror(clien
     assert set(body["custom_acl"][0]["permission_codes"]) == {"aggregation.view", "aggregation.history.view"}
     effective = {grant["principal_type"]: set(grant["permission_codes"]) for grant in body["effective_acl"]}
     assert effective["org_unit_members"] == {"aggregation.view", "aggregation.history.view"}
-    assert len(effective["role"]) == 7
+    assert len(effective["role"]) == 6
 
 
 def test_move_can_follow_destination_or_atomically_keep_current_access(client: TestClient, aggregation: dict):
