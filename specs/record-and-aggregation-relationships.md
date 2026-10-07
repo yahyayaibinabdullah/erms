@@ -298,7 +298,6 @@ Apply existing event-history access and redaction rules to this evidence.
 | REL-09 Audit changes | Attributable link/catalogue events and protected review reasons |
 | REL-10 Bounded relationship UI | Server pagination, bounded search, selected-value retention, and repeated-navigation checks |
 | REL-11 Explain aggregation and record links within the job | Live-browser Officer and Manager review verifies visible summary, unique-link counts, paginated table, explicit blocking explanations, authorized navigation/removal, redaction, post-removal refresh, empty/loading/error states, and LTR/RTL presentation against existing Wathiq tables |
-
 | REL-12 English and Arabic localization | Both privileges and both catalogues have localized labels; forward/reverse names remain correct in English/LTR and Arabic/RTL; UI key coverage, provenance, ordering, placeholders, terminology, and artifact checks pass |
 | REL-13 Historical links after terminated partial destruction | Retained links to already-destroyed units do not block later destruction of the unfinished unit; links to live units retain normal blocking behavior; historical access restrictions remain enforced |
 
