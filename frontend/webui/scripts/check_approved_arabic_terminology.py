@@ -38,7 +38,7 @@ RULES = (
     Rule("Security Level", r"\bsecurity levels?\b", r"درج(?:ة|ات)\s+(?:ال)?سرية", r"مستو(?:ى|يات)\s+(?:ال)?سرية"),
     Rule("Selective Preservation", r"\bselective preservation\b", r"الإنتقاء"),
     Rule("Permanent Preservation", r"\bpermanent preservation\b", r"حفظ الدائم"),
-    Rule("Vital record", r"\bvital records?\b", r"الوثائق الهيوية"),
+    Rule("Vital record", r"\bvital records?\b", r"الوثائق الحيوية"),
     Rule("Checksum", r"\bchecksums?\b", r"مجموع التحقق"),
     Rule("System Administrator", r"\bSystem Administrators?\b", r"مسؤول(?:و|ي|ا)?\s+النظام"),
     Rule("Dashboard", r"\bdashboard\b", r"لوحة المعلومات"),
@@ -65,7 +65,10 @@ def main() -> None:
     matched = {rule.term: 0 for rule in RULES}
     for definition in definitions:
         source = definition["default_text"]
-        target = translations[definition["message_key"]]
+        # Diacritics enrich Arabic wording without changing its terminology.
+        # Normalize only for comparison; preserve the canonical translation.
+        target = re.sub(r"[\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]", "",
+                        translations[definition["message_key"]])
         for rule in RULES:
             if not re.search(rule.source, source, re.IGNORECASE):
                 continue

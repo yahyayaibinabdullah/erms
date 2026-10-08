@@ -48,6 +48,13 @@ entered from the reverse endpoint. Permit different relationship types between
 the same pair. Do not infer transitive relationships: A relating to B and B
 relating to C does not create an A–C link.
 
+When a record or aggregation is permanently deleted through ordinary deletion,
+remove its links automatically in the same transaction and retain the link
+removal audit evidence. The existing resource-deletion authorization governs
+that cascade; it does not require separate link-management authority. Explicit
+link removal continues to require `relationships.link` and view authorization
+on both endpoints. Disposition retains links under section 7 instead.
+
 ## 4. Relationship catalogues
 
 Maintain separate catalogues for aggregation relationships and record
@@ -107,7 +114,14 @@ Localize the display names and descriptions of `relationships.link` and
 unchanged across languages. Provide English and Arabic forward and reverse
 labels for every seeded type in both relationship catalogues. Catalogue
 administration must support maintaining labels in both languages for
-user-created types, using the existing multilingual catalogue conventions.
+user-created types, using the existing multilingual catalogue conventions. Use
+the same collapsible Translations section and enabled-language selector as
+Users, Roles, and Organization Units. Store localized forward and reverse names
+by language tag in the existing `translations` JSONB column; do not add a fixed
+pair of form fields for each language. Include English in the selector so a
+localized English name can override the canonical English name; enabled regional
+English variants use the same mechanism and standard language fallback. Label
+the symmetric-type checkbox “Same meaning in both directions”
 Stable type identifiers and link direction do not change with the UI language.
 
 Localize the catalogue administration screens, relationship actions, table
@@ -328,6 +342,10 @@ This phase covers REL-01–REL-04 and the backend portions of REL-06, REL-07,
 REL-09, REL-10, and REL-12. Record implementation and verification evidence for
 those portions; requirements spanning the UI remain incomplete until phase 2.
 
+Phase 1 implementation, test evidence, deployment steps, and localization
+validation are recorded in
+[the Phase 1 handoff](../docs/relationships-phase-1.md).
+
 ### Phase 2 Relationship UI
 
 Implement Relationship Types administration, aggregation and record
@@ -341,6 +359,10 @@ This phase covers REL-05 and completes the standalone portions of REL-03,
 REL-06, REL-07, REL-09, REL-10, and REL-12. The standalone subsystem is complete
 when all phase 1 and phase 2 requirements have implementation and verification
 evidence.
+
+Phase 2 implementation and verification evidence are recorded in
+[the Phase 2 handoff](../docs/relationships-phase-2.md). Standalone Phase 1 and
+Phase 2 work is complete; the disposition integration below remains deferred.
 
 ### Integration owned by the future disposition implementation
 
@@ -356,3 +378,16 @@ linked disposition and destruction specifications and provide implementation
 and verification evidence there. Their deferral does not prevent standalone
 relationships completion, but they must not be reported as implemented or
 verified until the disposition integration is complete.
+
+### Approved related-resource selector refinement
+
+Related-resource selection must use the existing shared selector controls. Do
+not load target options when the field opens. Start bounded, debounced API
+filtering after at least two characters; match resource number, title and
+description. Provide a Browse button below the field using the existing shared
+classification/aggregation tree browser. Browse means drilling down the tree,
+with records shown beneath aggregations when selecting a record. Page each
+branch independently and preserve the shared browser’s RTL behavior. Limit
+choices to the same resource kind, exclude the source,
+and retain selected values with individual-ID hydration and current access
+checks.

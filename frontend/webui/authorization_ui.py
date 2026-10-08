@@ -102,6 +102,8 @@ AUTHORIZATION_CODE_LABELS = {
 
 
 PRIVILEGE_HELP = {
+    'relationships.administer': 'Maintain aggregation and record relationship catalogues.',
+    'relationships.link': 'Create and remove named links between resources you can view.',
     "authorization.administer": "Create and maintain authorization profiles and their privilege assignments. Shows the Profiles and Governance custody pages in navigation.",
     "authorization.explain": "Inspect why a person is allowed or denied an operation on protected information.",
     "security_levels.administer": "Create and maintain the security levels used for roles, aggregations, and records. Shows the Security levels page in navigation.",

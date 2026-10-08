@@ -81,6 +81,7 @@ from .classification_management import router as classification_management_route
 from .scheme_transfer.routes import router as scheme_transfer_router
 from .browse import router as browse_router
 from .favourites import router as favourites_router
+from .resource_relationships import router as resource_relationships_router
 from .security_levels import router as security_levels_router
 from .authorization_admin import router as authorization_admin_router
 from .resource_acls import router as resource_acl_router
@@ -195,6 +196,7 @@ app.include_router(scheme_transfer_router)
 app.include_router(classification_management_router)
 app.include_router(browse_router)
 app.include_router(favourites_router)
+app.include_router(resource_relationships_router)
 app.include_router(security_levels_router)
 app.include_router(authorization_admin_router)
 app.include_router(resource_acl_router)
