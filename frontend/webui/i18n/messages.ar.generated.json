@@ -4,10 +4,10 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
-  "catalogue_sha256": "60f9147978956c210cc9785f853d8d06430c5e6cb563953fbf5d473f71628be4",
+  "catalogue_sha256": "7aefceb36467289251fc5b5d456bf083559fc65cd4325f41fa96b7e1a7d4b0c6",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
-  "batch_id": "admin-export-ar-20261008021622",
-  "generated_at": "2026-10-08T02:16:22.041753+04:00",
+  "batch_id": "admin-export-ar-20261008143451",
+  "generated_at": "2026-10-08T14:34:51.436440+04:00",
   "artifact_type": "wathiq_translation_administration_export",
   "language_tag": "ar",
   "language_metadata": {
@@ -18,7 +18,7 @@
       "locale": "ar"
     }
   },
-  "catalogue_revision": 163,
+  "catalogue_revision": 173,
   "includes_reviewed_drafts": false,
   "superseded_translations": {
     "localization.bulk.action.review_publish_all": [
@@ -144,6 +144,16 @@
     ],
     "messaging.capture.error.message_capture_medium_fixed_digital": [
       "يجب أن يكون وسيط السجل المنشأ من الرسالة رقميًا. لا يمكن تغييره إلى مختلط أو مادي."
+    ],
+    "classification_transfer.error.checksum_mismatch": [
+      "لا يتطابق المجموع الاختباري مع محتويات الملف. لم يُستورد أي شيء."
+    ],
+    "classification_transfer.retention_rule": [
+      "قاعدة الاستبقاء"
+    ],
+    "relationships.ui.symmetric": [
+      "العلاقة نفسها في كلا الاتجاهين",
+      "استخدم الاسم نفسه في كلا الاتجاهين."
     ]
   },
   "items": [
@@ -3341,14 +3351,14 @@
     },
     {
       "message_key": "classification_transfer.error.checksum_mismatch",
-      "translated_text": "لا يتطابق المجموع الاختباري مع محتويات الملف. لم يُستورد أي شيء.",
+      "translated_text": "لا يتطابق مجموع التحقق مع محتويات الملف. لم يُستورد أي شيء.",
       "quality_flags": [],
       "provenance": {
         "kind": "admin_catalogue_export",
-        "source_origin": "generated",
+        "source_origin": "imported",
         "source_status": "published",
-        "date_reviewed": "2026-09-29T13:59:42.866147+00:00",
-        "date_published": "2026-09-29T13:59:42.866147+00:00"
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
       }
     },
     {
@@ -3665,14 +3675,14 @@
     },
     {
       "message_key": "classification_transfer.retention_rule",
-      "translated_text": "قاعدة الاستبقاء",
+      "translated_text": "قاعدة الحفظ",
       "quality_flags": [],
       "provenance": {
         "kind": "admin_catalogue_export",
-        "source_origin": "generated",
+        "source_origin": "imported",
         "source_status": "published",
-        "date_reviewed": "2026-09-29T13:59:42.866147+00:00",
-        "date_published": "2026-09-29T13:59:42.866147+00:00"
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
       }
     },
     {
@@ -12220,6 +12230,54 @@
       }
     },
     {
+      "message_key": "privilege.relationships.administer.description",
+      "translated_text": "إدارة قائمتي أنواع العلاقات بين الملفات وبين الوثائق.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "privilege.relationships.administer.name",
+      "translated_text": "إدارة أنواع العلاقات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "privilege.relationships.link.description",
+      "translated_text": "إنشاء روابط مسماة بين الموارد التي يمكنك عرضها وإزالتها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "privilege.relationships.link.name",
+      "translated_text": "ربط الوثائق والملفات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
       "message_key": "privilege.role.modify_metadata.description",
       "translated_text": "تتيح هذه الصلاحية للمستخدم تعديل البيانات الوصفية للدور وفق ضوابط التفويض والسياسات المعتمدة.",
       "quality_flags": [],
@@ -12589,6 +12647,654 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
         "date_published": "2026-09-26T16:20:14.562571+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.access_denied",
+      "translated_text": "ليس لديك تصريح لتغيير هذه العلاقة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.arabic_labels_required",
+      "translated_text": "أدخل أسماء عربية صحيحة في كلا الاتجاهين.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.duplicate",
+      "translated_text": "هذه العلاقة أو نوع العلاقة موجود بالفعل.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.invalid",
+      "translated_text": "قيم العلاقة غير صحيحة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.not_found",
+      "translated_text": "لم يُعثر على العلاقة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.resource_not_found",
+      "translated_text": "المورد غير متاح أو لا يمكنك عرضه.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.type_in_use",
+      "translated_text": "نوع العلاقة مستخدم ولا يمكن حذفه.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.type_inactive",
+      "translated_text": "نوع العلاقة غير نشط.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.type_not_found",
+      "translated_text": "لم يُعثر على نوع العلاقة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.error.type_scope_mismatch",
+      "translated_text": "اختر نوع علاقة مناسبًا لنوع المورد.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.actions",
+      "translated_text": "الإجراءات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.active",
+      "translated_text": "مفعّل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.add",
+      "translated_text": "إضافة علاقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.aggregation",
+      "translated_text": "المِلفّات الحاوية",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.arabic_forward",
+      "translated_text": "الاسم في الاتجاه الأصلي (بالعربية)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.arabic_reverse",
+      "translated_text": "الاسم في الاتجاه العكسي (بالعربية)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.cancel",
+      "translated_text": "إلغاء",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.catalogue",
+      "translated_text": "أنواع العلاقات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.catalogue_help",
+      "translated_text": "أدر كتالوجات مستقلة للمِلفّات الحاوية والوثائق. ألغِ تفعيل النوع لمنع علاقات جديدة مع إبقاء العلاقات القائمة مقروءة. حافظ على معنى كل نوع، وأضف نوعًا جديدًا عند اختلاف المعنى.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.code",
+      "translated_text": "الرمز الثابت",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.confirm_delete",
+      "translated_text": "هل تريد حذف نوع العلاقة غير المستخدم هذا؟ لا يمكن حذف الأنواع المستخدمة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.confirm_remove",
+      "translated_text": "هل تريد إزالة هذه العلاقة من كلا الموردين؟",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.deactivated",
+      "translated_text": "غير مفعّل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.delete_type",
+      "translated_text": "حذف نوع غير مستخدم",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.direction",
+      "translated_text": "العلاقة من هذا المورد",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.edit",
+      "translated_text": "تعديل نوع العلاقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.empty",
+      "translated_text": "لا توجد علاقات.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.english_forward",
+      "translated_text": "الاسم في الاتجاه الأصلي (بالإنجليزية)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.english_reverse",
+      "translated_text": "الاسم في الاتجاه العكسي (بالإنجليزية)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.forward",
+      "translated_text": "الاسم في الاتجاه الأصلي",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.link_help",
+      "translated_text": "اختر علاقة وموردًا يمكنك عرضه. تظهر العلاقة العكسية على المورد الآخر. لا يغيّر ذلك علاقة الاحتواء.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.loading",
+      "translated_text": "جارٍ تحميل العلاقات…",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.new_type",
+      "translated_text": "إضافة نوع علاقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.next",
+      "translated_text": "الصفحة التالية",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.no_types",
+      "translated_text": "لا توجد أنواع علاقات مطابقة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.open",
+      "translated_text": "فتح المورد المرتبط",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.page_count",
+      "translated_text": "{first}–{last} من {total}",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.page_size",
+      "translated_text": "الصفوف في الصفحة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.preview",
+      "translated_text": "{source} — {relationship} — {target}",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.previous",
+      "translated_text": "الصفحة السابقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.record",
+      "translated_text": "الوثائق",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.redacted",
+      "translated_text": "مورد محجوب",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.refresh",
+      "translated_text": "تحديث",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.remove",
+      "translated_text": "إزالة العلاقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.required",
+      "translated_text": "أكمل جميع الحقول المطلوبة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.reverse",
+      "translated_text": "الاسم في الاتجاه العكسي",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.save",
+      "translated_text": "حفظ",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.search",
+      "translated_text": "البحث عن أنواع العلاقات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.status",
+      "translated_text": "الحالة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.symmetric",
+      "translated_text": "المعنى نفسه في كلا الاتجاهين",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T10:30:55.073430+00:00",
+        "date_published": "2026-10-08T10:30:55.073430+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.target",
+      "translated_text": "المورد المرتبط",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.target_search_hint",
+      "translated_text": "اكتب حرفين على الأقل للبحث بالرقم أو العنوان أو الوصف، أو استخدم «استعراض».",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T10:30:55.073430+00:00",
+        "date_published": "2026-10-08T10:30:55.073430+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.title",
+      "translated_text": "العلاقات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
+      }
+    },
+    {
+      "message_key": "relationships.ui.type",
+      "translated_text": "نوع العلاقة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "generated",
+        "source_status": "published",
+        "date_reviewed": "2026-10-08T09:31:53.566524+00:00",
+        "date_published": "2026-10-08T09:31:53.566524+00:00"
       }
     },
     {

@@ -30,6 +30,8 @@ CATEGORY_ARABIC = {
 }
 
 NAME_ARABIC = {
+    'relationships.administer': 'إدارة أنواع العلاقات',
+    'relationships.link': 'ربط الوثائق والملفات',
     "aggregation.acl.manage": "إدارة قائمة التحكم في وصول الملفات",
     "aggregation.close": "إغلاق ملف",
     "aggregation.create_child": "إنشاء ملف فرعي",
@@ -94,6 +96,8 @@ NAME_ARABIC = {
 }
 
 DESCRIPTION_ARABIC = {
+    'relationships.administer': 'إدارة قائمتي أنواع العلاقات بين الملفات وبين الوثائق.',
+    'relationships.link': 'إنشاء روابط مسماة بين الموارد التي يمكنك عرضها وإزالتها.',
     "aggregation.move": "تتيح نقل ملف إلى الملف الحاوي الآخر المسموح به.",
     "audit.view": "تتيح عرض مسار التتبع للنظام وأحداث الأمن والأعمال المسجّلة فيه.",
     "classifications.administer": "تتيح إنشاء نظم التصنيف والتصنيفات ونشرها وتحديثها وتعطيلها وإدارتها.",
@@ -162,7 +166,7 @@ def main() -> None:
             f"Heading for the {english_text} group in the privilege catalogue.",
             "heading",
         )
-        arabic_by_key[key] = arabic_item(key, CATEGORY_ARABIC[category])
+        arabic_by_key.setdefault(key, arabic_item(key, CATEGORY_ARABIC[category]))
 
     for privilege in privileges:
         code = privilege["code"]
@@ -189,14 +193,14 @@ def main() -> None:
             f"Accessible explanation of what the immutable system privilege {code} permits.",
             "guidance",
         )
-        arabic_by_key[name_key] = arabic_item(name_key, arabic_name)
-        arabic_by_key[description_key] = arabic_item(
+        arabic_by_key.setdefault(name_key, arabic_item(name_key, arabic_name))
+        arabic_by_key.setdefault(description_key, arabic_item(
             description_key,
             DESCRIPTION_ARABIC.get(
                 code,
                 f"تتيح هذه الصلاحية للمستخدم {arabic_name} وفق ضوابط التفويض والسياسات المعتمدة.",
             ),
-        )
+        ))
 
     ENGLISH_PATH.write_text(
         json.dumps(sorted(by_key.values(), key=lambda item: item["message_key"]), ensure_ascii=False, indent=2)

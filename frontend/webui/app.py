@@ -23,6 +23,7 @@ from .messaging_workspace import messaging_workspace
 from .resource_inspector import resource_inspector
 from .messaging_live import LiveMailbox, stream_events, mailbox_cursor_key
 from .notification_administration import notification_administration
+from .resource_relationships import relationship_panel, relationship_administration
 from .messaging_monitor import messaging_monitor
 from .audit_labels import audit_entity_type_label
 from .retention_timeline import render_disposition_date, render_retention_stages
@@ -1569,6 +1570,7 @@ def index(q: str = "") -> None:
         selected_loader: Callable | None = None,
         option_reason: Callable | None = None,
         active: Callable = lambda: True,
+        min_query_length: int = 0,
     ) -> Callable[..., Any]:
         """Load a bounded relationship page as the user filters a selector."""
         request_state: dict[str, Any] = {"revision": 0, "task": None, "loaded": False}
@@ -1656,7 +1658,7 @@ def index(q: str = "") -> None:
             request_state["revision"] += 1
             revision = request_state["revision"]
             try:
-                result = await page_loader(query) if page_loader else (
+                result = {'items': []} if len(query.strip()) < min_query_length else await page_loader(query) if page_loader else (
                     await api.administration_reference_page(
                         resource, query=query, limit=25,
                         sort="level_number" if resource == "security-levels" else "name",
@@ -3778,6 +3780,7 @@ def index(q: str = "") -> None:
             "messages-outbox": render_message("messaging.navigation.outbox"),
             "messages-drafts": render_message("messaging.navigation.drafts"),
             "messages-notifications": render_message("messaging.admin.title"),
+            "relationship-types": render_message("relationships.ui.catalogue"),
             "messages-monitor": render_message("messaging.monitor.title"),
             "advanced-search": render_message("navigation.item.advanced_search"),
             "aggregations": render_message("navigation.item.aggregations"),
@@ -3793,7 +3796,7 @@ def index(q: str = "") -> None:
                     render_message("navigation.item.dashboard"), "dashboard", navigation_key="dashboard", extra_classes="mt-4",
                 )
                 for heading_key, entries in (
-                    ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"))),
+                    ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"), ("relationship-types", "link"))),
                     ("messages_heading", (("messages-inbox", "inbox"), ("messages-outbox", "outbox"), ("messages-drafts", "drafts"), ("messages-monitor", "monitor_heart"), ("messages-notifications", "notifications"))),
                     ("organization_heading", (("org-units", "corporate_fare"), ("roles", "badge"), ("users", "group"))),
                 ):
@@ -4403,6 +4406,7 @@ def index(q: str = "") -> None:
         "messages-outbox": "messaging.navigation.outbox",
         "messages-drafts": "messaging.navigation.drafts",
         "messages-notifications": "messaging.admin.title",
+        "relationship-types": "relationships.ui.catalogue",
         "messages-monitor": "messaging.monitor.title",
         "dashboard": "navigation.item.dashboard",
         "advanced-search": "navigation.item.advanced_search",
@@ -4553,6 +4557,8 @@ def index(q: str = "") -> None:
                     await run_global_search(query)
             else:
                 await select_dashboard()
+        elif page == "relationship-types":
+            await select_relationship_types()
         elif page.startswith("messages-"):
             await select_messages(page.removeprefix("messages-"))
         elif page == "advanced-search":
@@ -7007,6 +7013,9 @@ def index(q: str = "") -> None:
         await select_record_details(record["id"])
 
     async def select_record_details(record_id: int) -> None:
+        relationship_token = object()
+        relationship_principal = auth_state.get("principal")
+        state["relationship_page_token"] = relationship_token
         register_navigation("record-details", f"Record #{record_id}", entity_id=record_id)
         previous_resource = state.get("resource")
         if previous_resource != "record-details":
@@ -7423,6 +7432,14 @@ def index(q: str = "") -> None:
                             )
 
                 record_command_overview.__exit__(None, None, None)
+            await relationship_panel(
+                api=api, kind="record", identity=record_id,
+                source_label=" · ".join(filter(None, (record.get("record_number"), record.get("title")))),
+                can_link="relationships.link" in (auth_state.get("principal") or {}).get("global_privileges", []),
+                active=lambda: auth_state.get("principal") is relationship_principal and state.get("resource") == "record-details" and state.get("relationship_page_token") is relationship_token,
+                open_target=open_related_resource, bind_remote=bind_remote_relationship_select, on_error=error_message,
+                browse_resource=browse_advanced_aggregation,
+            )
             with ui.card().classes("detail-surface w-full shadow-none p-5 gap-4"):
                 with ui.row().classes("w-full items-center gap-3"):
                     ui.icon("attach_file", color="primary", size="28px")
@@ -7608,22 +7625,29 @@ def index(q: str = "") -> None:
         state["recent_created"] = await decorate_for_spec(spec, created)
         state["recent_updated"] = await decorate_for_spec(spec, updated)
 
-    async def browse_advanced_aggregation(target_control: Any, *, record_creation=False, digital_only=False) -> None:
+    async def browse_advanced_aggregation(target_control: Any, *, record_creation=False, digital_only=False, resource_kind="aggregation", exclude_id=None, on_select=None, active=lambda: True) -> None:
         dialog = ui.dialog()
         content: Any = None
         scheme_control: Any = None
+        def current():
+            return active() and dialog.value and not dialog._deleted
         browser = {"collections": {}, "expanded": set(), "scheme_id": None}
 
         async def load_collection(path: str, *, append: bool = False) -> None:
-            current = browser["collections"].setdefault(path, {"items": [], "next_cursor": None})
+            requested_scheme = browser['scheme_id']
+            collection = browser["collections"].setdefault(path, {"items": [], "next_cursor": None})
             page = await api.browse_page(
-                path, cursor=current["next_cursor"] if append else None, limit=50,
+                path, cursor=collection["next_cursor"] if append else None, limit=50,
                 **({"record_creation": True, "digital_only": digital_only} if record_creation and (path.endswith("/aggregations") or path.startswith("aggregations/")) else {}),
             )
-            current["items"] = [*current["items"], *page["items"]] if append else list(page["items"])
-            current["next_cursor"] = page.get("next_cursor")
+            if not current() or browser['scheme_id'] != requested_scheme:
+                return
+            collection["items"] = [*collection["items"], *page["items"]] if append else list(page["items"])
+            collection["next_cursor"] = page.get("next_cursor")
 
         async def toggle_node(kind: str, item: dict[str, Any]) -> None:
+            if not current():
+                return
             node = (kind, int(item["id"]))
             if node in browser["expanded"]:
                 browser["expanded"].remove(node)
@@ -7637,35 +7661,48 @@ def index(q: str = "") -> None:
                 )
             else:
                 path = f"aggregations/{item['id']}/children"
-            if path not in browser["collections"]:
-                await load_collection(path)
-            render_tree()
+            paths = [path]
+            if kind == "aggregation" and resource_kind == "record":
+                paths.append(f"aggregations/{item['id']}/records")
+            await asyncio.gather(*(load_collection(candidate) for candidate in paths if candidate not in browser["collections"]))
+            if current():
+                render_tree()
 
-        def select_aggregation(item: dict[str, Any]) -> None:
-            apply_relationship_selection(
-                target_control, item["id"],
-                f"{item['aggregation_number']} · {item['title']}",
-            )
-            dialog.close()
+        async def select_aggregation(item: dict[str, Any]) -> None:
+            if not current():
+                return
+            if on_select:
+                try:
+                    await on_select(item, current)
+                except ApiError as error:
+                    if current():
+                        ui.notify(error_message(error), color="negative")
+                    return
+            else:
+                apply_relationship_selection(target_control, item["id"], f"{item['aggregation_number']} · {item['title']}")
+            if current():
+                dialog.close()
 
         def render_collection(path: str, kind: str, depth: int) -> None:
             collection = browser["collections"].get(path, {"items": [], "next_cursor": None})
             for item in collection["items"]:
-                node_kind = "classification" if kind == "classification" else "aggregation"
+                node_kind = kind
                 node = (node_kind, int(item["id"]))
                 expanded = node in browser["expanded"]
                 with ui.column().classes("advanced-relationship-tree-node gap-0"):
                     with ui.row().classes(
                         "advanced-relationship-tree-row w-full rounded-lg py-1 pe-2 hover:bg-blue-50"
                     ):
-                        ui.button(
+                        expander = ui.button(
                             icon=tree_expander_icon(expanded),
                             on_click=lambda _, selected=item, selected_kind=node_kind: toggle_node(selected_kind, selected),
                         ).props("flat round dense size=sm color=blue-grey").classes(
                             "advanced-relationship-tree-expander"
                         )
+                        if node_kind == "record":
+                            expander.set_visibility(False)
                         ui.icon(
-                            "schema" if node_kind == "classification" and not item.get("is_terminal")
+                            "description" if node_kind == "record" else "schema" if node_kind == "classification" and not item.get("is_terminal")
                             else "label" if node_kind == "classification" else "folder",
                             color="primary",
                         ).classes("advanced-relationship-tree-icon")
@@ -7673,10 +7710,10 @@ def index(q: str = "") -> None:
                             "advanced-relationship-tree-content min-w-0 gap-0"
                         ):
                             ui.label(item["title"]).classes("text-sm font-semibold")
-                            ui.label(item.get("code") or item.get("aggregation_number")).classes(
+                            ui.label(item.get("code") or item.get(node_kind + "_number")).classes(
                                 "text-xs text-slate-500"
                             )
-                        if node_kind == "aggregation":
+                        if node_kind == resource_kind and item['id'] != exclude_id:
                             ui.button(
                                 render_message("webui.render_collection.button.select_c2c58965"), icon="check",
                                 on_click=lambda _, selected=item: select_aggregation(selected),
@@ -7699,6 +7736,8 @@ def index(q: str = "") -> None:
                                 "aggregation" if node_kind == "aggregation" or item.get("is_terminal") else "classification",
                                 depth + 1,
                             )
+                            if node_kind == "aggregation" and resource_kind == "record":
+                                render_collection(f"aggregations/{item['id']}/records", "record", depth + 1)
             if collection.get("next_cursor"):
                 async def load_more(collection_path: str = path) -> None:
                     await load_collection(collection_path, append=True)
@@ -7709,6 +7748,8 @@ def index(q: str = "") -> None:
                 ).props("flat dense no-caps").classes("self-start ms-8")
 
         def render_tree() -> None:
+            if not current():
+                return
             content.clear()
             with content:
                 scheme_id = browser.get("scheme_id")
@@ -7734,6 +7775,8 @@ def index(q: str = "") -> None:
         dialog.open()
         try:
             schemes = await api.browse_schemes()
+            if not current():
+                return
             scheme_control.options = {item["id"]: f"{item['code']} — {item['title']}" for item in schemes}
             scheme_control.update()
             if schemes:
@@ -9530,6 +9573,9 @@ def index(q: str = "") -> None:
         await load_held_itemships()
 
     async def open_aggregation(aggregation: dict[str, Any]) -> None:
+        relationship_token = object()
+        relationship_principal = auth_state.get("principal")
+        state["relationship_page_token"] = relationship_token
         register_navigation(
             "aggregation-details", aggregation.get("title") or f"Aggregation #{aggregation['id']}",
             entity_id=aggregation["id"],
@@ -10356,6 +10402,14 @@ def index(q: str = "") -> None:
                                 ui.label(render_message("webui.open_aggregation.label.no_hold_actions_are_available_c0a40db4")).classes("text-xs text-slate-500")
                     aggregation_command_side.__exit__(None, None, None)
 
+                await relationship_panel(
+                    api=api, kind="aggregation", identity=current["id"],
+                    source_label=" · ".join(filter(None, (current.get("aggregation_number"), current.get("title")))),
+                    can_link="relationships.link" in (auth_state.get("principal") or {}).get("global_privileges", []),
+                    active=lambda: auth_state.get("principal") is relationship_principal and state.get("resource") == "aggregation-details" and state.get("relationship_page_token") is relationship_token,
+                    open_target=open_related_resource, bind_remote=bind_remote_relationship_select, on_error=error_message,
+                browse_resource=browse_advanced_aggregation,
+                )
                 with ui.row().classes(
                     "aggregation-child-section-heading w-full items-center px-5 pt-1"
                 ):
@@ -19056,6 +19110,33 @@ def index(q: str = "") -> None:
             render_results(workspace["last_result"])
         persist_workspace()
 
+    async def open_related_resource(kind: str, identity: int) -> None:
+        if kind == "record":
+            await select_record_details(identity)
+        else:
+            await open_aggregation(await api.get("aggregations", identity))
+
+    async def select_relationship_types() -> None:
+        principal = auth_state.get("principal")
+        if not principal or not can_navigate("relationship-types", principal.get("global_privileges", [])):
+            return
+        token = object()
+        state.update(resource="relationship-types", relationship_page_token=token, rows=[], searched=True, aggregation_detail=None)
+        register_navigation("relationship-types", localized_navigation["relationship-types"])
+        show_authenticated_view()
+        title.text = localized_navigation["relationship-types"]
+        subtitle.text = ""
+        guidance.text = ""
+        for control in (search_bar, aggregation_mode_bar, add_button, add_record_button):
+            control.set_visibility(False)
+        table_container.clear()
+        await relationship_administration(
+            api=api, container=table_container,
+            supported_languages=(state.get('localization') or {}).get('supported_languages', []),
+            active=lambda: auth_state.get("principal") is principal and state.get("resource") == "relationship-types" and state.get("relationship_page_token") is token,
+            on_error=error_message,
+        )
+
     async def select_messages(mailbox: str = "inbox") -> None:
         principal = auth_state.get("principal")
         if principal is None:
@@ -20686,6 +20767,8 @@ def index(q: str = "") -> None:
             button.on("click", lambda: guarded_page_navigation(select_classification_workspace))
         elif key == "advanced-search":
             button.on("click", lambda: guarded_page_navigation(select_advanced_search))
+        elif key == "relationship-types":
+            button.on("click", lambda: guarded_page_navigation(select_relationship_types))
         elif key == "translations":
             button.on("click", lambda: guarded_page_navigation(select_translation_administration))
         else:

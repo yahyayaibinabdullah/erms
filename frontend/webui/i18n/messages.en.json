@@ -14784,6 +14784,66 @@
     "is_html": false
   },
   {
+    "message_key": "privilege.relationships.administer.description",
+    "context_group": "privilege.relationships.administer",
+    "default_text": "Maintain aggregation and record relationship catalogues.",
+    "semantic_meaning": "Description of the immutable privilege relationships.administer.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the display text; keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maintain aggregation and record relationship catalogues.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.relationships.administer.name",
+    "context_group": "privilege.relationships.administer",
+    "default_text": "Administer Relationship Types",
+    "semantic_meaning": "Name of the immutable privilege relationships.administer.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the display text; keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Administer Relationship Types",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.relationships.link.description",
+    "context_group": "privilege.relationships.link",
+    "default_text": "Create and remove named links between resources you can view.",
+    "semantic_meaning": "Description of the immutable privilege relationships.link.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the display text; keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Create and remove named links between resources you can view.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.relationships.link.name",
+    "context_group": "privilege.relationships.link",
+    "default_text": "Link Records and Aggregations",
+    "semantic_meaning": "Name of the immutable privilege relationships.link.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the display text; keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Link Records and Aggregations",
+    "is_html": false
+  },
+  {
     "message_key": "privilege.role.modify_metadata.description",
     "context_group": "privilege.role.modify_metadata",
     "default_text": "Modify multilingual names and descriptions for roles.",
@@ -15233,6 +15293,814 @@
     "grammatical_role": "caption",
     "parameter_schema": {},
     "rendered_example": "Specialist record actions",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.access_denied",
+    "context_group": "relationships.error",
+    "default_text": "You are not authorized to change this relationship.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "You are not authorized to change this relationship.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.arabic_labels_required",
+    "context_group": "relationships.error",
+    "default_text": "Provide valid Arabic names in both directions.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "Provide valid Arabic names in both directions.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.duplicate",
+    "context_group": "relationships.error",
+    "default_text": "This relationship or relationship type already exists.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "This relationship or relationship type already exists.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.invalid",
+    "context_group": "relationships.error",
+    "default_text": "The relationship values are invalid.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The relationship values are invalid.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.not_found",
+    "context_group": "relationships.error",
+    "default_text": "The relationship was not found.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The relationship was not found.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.resource_not_found",
+    "context_group": "relationships.error",
+    "default_text": "The resource is unavailable or you cannot view it.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The resource is unavailable or you cannot view it.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.type_in_use",
+    "context_group": "relationships.error",
+    "default_text": "This relationship type is in use and cannot be deleted.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "This relationship type is in use and cannot be deleted.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.type_inactive",
+    "context_group": "relationships.error",
+    "default_text": "This relationship type is inactive.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "This relationship type is inactive.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.type_not_found",
+    "context_group": "relationships.error",
+    "default_text": "The relationship type was not found.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The relationship type was not found.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.error.type_scope_mismatch",
+    "context_group": "relationships.error",
+    "default_text": "Choose a relationship type for this resource kind.",
+    "semantic_meaning": "Relationship API validation or authorization error.",
+    "common_locations": [
+      "Relationship API responses"
+    ],
+    "translator_guidance": "Use concise resource relationship terminology.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "Choose a relationship type for this resource kind.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.actions",
+    "context_group": "relationships.ui",
+    "default_text": "Actions",
+    "semantic_meaning": "Named resource relationships: actions.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Actions",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.active",
+    "context_group": "relationships.ui",
+    "default_text": "Active",
+    "semantic_meaning": "Named resource relationships: active.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Active",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.add",
+    "context_group": "relationships.ui",
+    "default_text": "Add relationship",
+    "semantic_meaning": "Named resource relationships: add.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add relationship",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.aggregation",
+    "context_group": "relationships.ui",
+    "default_text": "Aggregations",
+    "semantic_meaning": "Named resource relationships: aggregation.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Aggregations",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.arabic_forward",
+    "context_group": "relationships.ui",
+    "default_text": "Forward name (Arabic)",
+    "semantic_meaning": "Named resource relationships: arabic forward.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Forward name (Arabic)",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.arabic_reverse",
+    "context_group": "relationships.ui",
+    "default_text": "Reverse name (Arabic)",
+    "semantic_meaning": "Named resource relationships: arabic reverse.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reverse name (Arabic)",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.cancel",
+    "context_group": "relationships.ui",
+    "default_text": "Cancel",
+    "semantic_meaning": "Named resource relationships: cancel.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Cancel",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.catalogue",
+    "context_group": "relationships.ui",
+    "default_text": "Relationship Types",
+    "semantic_meaning": "Named resource relationships: catalogue.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationship Types",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.catalogue_help",
+    "context_group": "relationships.ui",
+    "default_text": "Maintain separate catalogues for aggregations and records. Deactivate a type to prevent new links while keeping existing links readable. Keep each type’s meaning unchanged; add a new type for a different meaning.",
+    "semantic_meaning": "Named resource relationships: catalogue help.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Maintain separate catalogues for aggregations and records. Deactivate a type to prevent new links while keeping existing links readable. Keep each type’s meaning unchanged; add a new type for a different meaning.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.code",
+    "context_group": "relationships.ui",
+    "default_text": "Stable code",
+    "semantic_meaning": "Named resource relationships: code.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Stable code",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.confirm_delete",
+    "context_group": "relationships.ui",
+    "default_text": "Delete this unused relationship type? Types in use cannot be deleted.",
+    "semantic_meaning": "Named resource relationships: confirm delete.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Delete this unused relationship type? Types in use cannot be deleted.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.confirm_remove",
+    "context_group": "relationships.ui",
+    "default_text": "Remove this relationship from both resources?",
+    "semantic_meaning": "Named resource relationships: confirm remove.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove this relationship from both resources?",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.deactivated",
+    "context_group": "relationships.ui",
+    "default_text": "Deactivated",
+    "semantic_meaning": "Named resource relationships: deactivated.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Deactivated",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.delete_type",
+    "context_group": "relationships.ui",
+    "default_text": "Delete unused type",
+    "semantic_meaning": "Named resource relationships: delete type.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Delete unused type",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.direction",
+    "context_group": "relationships.ui",
+    "default_text": "Relationship from this resource",
+    "semantic_meaning": "Named resource relationships: direction.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationship from this resource",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.edit",
+    "context_group": "relationships.ui",
+    "default_text": "Edit relationship type",
+    "semantic_meaning": "Named resource relationships: edit.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Edit relationship type",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.empty",
+    "context_group": "relationships.ui",
+    "default_text": "No relationships.",
+    "semantic_meaning": "Named resource relationships: empty.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No relationships.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.english_forward",
+    "context_group": "relationships.ui",
+    "default_text": "Forward name (English)",
+    "semantic_meaning": "Named resource relationships: english forward.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Forward name (English)",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.english_reverse",
+    "context_group": "relationships.ui",
+    "default_text": "Reverse name (English)",
+    "semantic_meaning": "Named resource relationships: english reverse.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reverse name (English)",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.forward",
+    "context_group": "relationships.ui",
+    "default_text": "Forward name",
+    "semantic_meaning": "Named resource relationships: forward.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Forward name",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.link_help",
+    "context_group": "relationships.ui",
+    "default_text": "Choose a relationship and a resource you can view. The reverse relationship appears on the other resource. This does not change containment.",
+    "semantic_meaning": "Named resource relationships: link help.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Choose a relationship and a resource you can view. The reverse relationship appears on the other resource. This does not change containment.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.loading",
+    "context_group": "relationships.ui",
+    "default_text": "Loading relationships…",
+    "semantic_meaning": "Named resource relationships: loading.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Loading relationships…",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.new_type",
+    "context_group": "relationships.ui",
+    "default_text": "Add relationship type",
+    "semantic_meaning": "Named resource relationships: new type.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add relationship type",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.next",
+    "context_group": "relationships.ui",
+    "default_text": "Next page",
+    "semantic_meaning": "Named resource relationships: next.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Next page",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.no_types",
+    "context_group": "relationships.ui",
+    "default_text": "No matching relationship types.",
+    "semantic_meaning": "Named resource relationships: no types.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No matching relationship types.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.open",
+    "context_group": "relationships.ui",
+    "default_text": "Open related resource",
+    "semantic_meaning": "Named resource relationships: open.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Open related resource",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.page_count",
+    "context_group": "relationships.ui",
+    "default_text": "{first}–{last} of {total}",
+    "semantic_meaning": "Named resource relationships: page count.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "first": "integer",
+      "last": "integer",
+      "total": "integer"
+    },
+    "rendered_example": "{first}–{last} of {total}",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.page_size",
+    "context_group": "relationships.ui",
+    "default_text": "Rows per page",
+    "semantic_meaning": "Named resource relationships: page size.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Rows per page",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.preview",
+    "context_group": "relationships.ui",
+    "default_text": "{source} — {relationship} — {target}",
+    "semantic_meaning": "Named resource relationships: preview.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "source": "text",
+      "relationship": "text",
+      "target": "text"
+    },
+    "rendered_example": "REC-001 — related to — REC-002",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.previous",
+    "context_group": "relationships.ui",
+    "default_text": "Previous page",
+    "semantic_meaning": "Named resource relationships: previous.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Previous page",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.record",
+    "context_group": "relationships.ui",
+    "default_text": "Records",
+    "semantic_meaning": "Named resource relationships: record.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.redacted",
+    "context_group": "relationships.ui",
+    "default_text": "Restricted resource",
+    "semantic_meaning": "Named resource relationships: redacted.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Restricted resource",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.refresh",
+    "context_group": "relationships.ui",
+    "default_text": "Refresh",
+    "semantic_meaning": "Named resource relationships: refresh.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Refresh",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.remove",
+    "context_group": "relationships.ui",
+    "default_text": "Remove relationship",
+    "semantic_meaning": "Named resource relationships: remove.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove relationship",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.required",
+    "context_group": "relationships.ui",
+    "default_text": "Complete all required fields.",
+    "semantic_meaning": "Named resource relationships: required.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Complete all required fields.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.reverse",
+    "context_group": "relationships.ui",
+    "default_text": "Reverse name",
+    "semantic_meaning": "Named resource relationships: reverse.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reverse name",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.save",
+    "context_group": "relationships.ui",
+    "default_text": "Save",
+    "semantic_meaning": "Named resource relationships: save.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Save",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.search",
+    "context_group": "relationships.ui",
+    "default_text": "Search relationship types",
+    "semantic_meaning": "Named resource relationships: search.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search relationship types",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.status",
+    "context_group": "relationships.ui",
+    "default_text": "Status",
+    "semantic_meaning": "Named resource relationships: status.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Status",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.symmetric",
+    "context_group": "relationships.ui",
+    "default_text": "Same meaning in both directions",
+    "semantic_meaning": "Whether reversing the endpoints expresses the same relationship fact; a symmetric type also uses identical directional names in each language.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Same meaning in both directions",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.target",
+    "context_group": "relationships.ui",
+    "default_text": "Related resource",
+    "semantic_meaning": "Named resource relationships: target.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Related resource",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.target_search_hint",
+    "context_group": "relationships.ui",
+    "default_text": "Type at least 2 characters to search by number, title or description, or use Browse.",
+    "semantic_meaning": "Explains the related-resource search threshold, fields, and Browse alternative.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Type at least 2 characters to search by number, title or description, or use Browse.",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.title",
+    "context_group": "relationships.ui",
+    "default_text": "Relationships",
+    "semantic_meaning": "Named resource relationships: title.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationships",
+    "is_html": false
+  },
+  {
+    "message_key": "relationships.ui.type",
+    "context_group": "relationships.ui",
+    "default_text": "Relationship type",
+    "semantic_meaning": "Named resource relationships: type.",
+    "common_locations": [
+      "Relationship Types administration",
+      "Aggregation and record details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve placeholders; forward/reverse refer to the two names of one bidirectional relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationship type",
     "is_html": false
   },
   {

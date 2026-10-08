@@ -14,6 +14,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    targets = sys.argv[1:]
+    baseline_ref = None
+    migration_path = None
+    if targets and targets[0].startswith("--baseline-ref="):
+        baseline_ref = targets.pop(0).split("=", 1)[1]
+        if not targets or not targets[0].startswith("--migration="):
+            raise ValueError("A baseline schema requires an explicit upgrade migration")
+        migration_path = ROOT / targets.pop(0).split("=", 1)[1]
+    schema_source = (
+        subprocess.check_output(["git", "show", f"{baseline_ref}:database/schema.sql"], cwd=ROOT, text=True)
+        if baseline_ref else (ROOT / "database/schema.sql").read_text()
+    )
     configuration = {**dotenv_values(ROOT / ".env"), **os.environ}
     base_url = configuration["DATABASE_URL"]
     # Existing real-process messaging probes enforce this disposable prefix.
@@ -27,10 +39,13 @@ def main():
         created = True
         print(f"Created disposable database {database_name}", flush=True)
         with psycopg.connect(test_url) as connection:
-            connection.execute((ROOT / "database/schema.sql").read_text(), prepare=False)
+            connection.execute(schema_source, prepare=False)
+            if migration_path:
+                connection.commit()
+                connection.execute(migration_path.read_text(), prepare=False)
             connection.commit()
             # Existing messaging tests require the separately maintained seeds.
-            for seed in ("messaging.sql", "hold-notification-producers.sql"):
+            for seed in ("messaging.sql", "hold-notification-producers.sql", "relationship-types.sql"):
                 connection.execute((ROOT / "database/seeds" / seed).read_text(), prepare=False)
         environment = {key: str(value) for key, value in configuration.items() if value is not None}
         environment["DATABASE_URL"] = test_url
@@ -39,7 +54,7 @@ def main():
         # API regressions also exercise shared WebUI policy/catalogue modules.
         frontend_packages = ROOT / "frontend/webui/.venv/lib/python3.11/site-packages"
         environment["PYTHONPATH"] = os.pathsep.join([str(ROOT), str(frontend_packages), environment.get("PYTHONPATH", "")])
-        targets = sys.argv[1:] or ["backend/services/api/tests"]
+        targets = targets or ["backend/services/api/tests"]
         if targets[0].startswith("--shard="):
             index, total = map(int, targets.pop(0).split("=", 1)[1].split("/"))
             if not 1 <= index <= total:
