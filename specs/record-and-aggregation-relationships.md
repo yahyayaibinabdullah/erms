@@ -301,6 +301,58 @@ Apply existing event-history access and redaction rules to this evidence.
 | REL-12 English and Arabic localization | Both privileges and both catalogues have localized labels; forward/reverse names remain correct in English/LTR and Arabic/RTL; UI key coverage, provenance, ordering, placeholders, terminology, and artifact checks pass |
 | REL-13 Historical links after terminated partial destruction | Retained links to already-destroyed units do not block later destruction of the unfinished unit; links to live units retain normal blocking behavior; historical access restrictions remain enforced |
 
-Implementation and test evidence must be attached to these requirements before
-the feature is declared complete. Database-backed verification must use a new
-disposable database for each run and clean it up afterward.
+Implementation and test evidence must be attached to each requirement before
+it is declared complete. Standalone subsystem completion and deferred
+disposition requirements are distinguished in section 9. Database-backed
+verification must use a new disposable database for each run and clean it up
+afterward.
+
+## 9. Implementation phases
+
+Disposition has not yet been implemented. Implement the standalone
+relationships subsystem in two phases. Implement section 7's disposition
+behavior as part of the future disposition subsystem, rather than as a third
+relationships phase.
+
+### Phase 1 Foundation
+
+Implement the canonical schema and upgrade migrations, stable relationship
+types, bidirectional link integrity, separate catalogues, deactivation, seeded
+English and Arabic labels, privileges and approved profile grants, and APIs for
+catalogue administration, link creation/removal, and authorized listing and
+bounded target search. Enforce both-endpoint authorization, redaction,
+duplicate and self-link rejection, and audit events. Verify database integrity,
+API behavior, authorization, pagination, and catalogue localization.
+
+This phase covers REL-01–REL-04 and the backend portions of REL-06, REL-07,
+REL-09, REL-10, and REL-12. Record implementation and verification evidence for
+those portions; requirements spanning the UI remain incomplete until phase 2.
+
+### Phase 2 Relationship UI
+
+Implement Relationship Types administration, aggregation and record
+relationship lists, add/remove controls, bounded target search, server
+pagination, and bidirectional navigation. Verify loading, empty, error, and
+redacted states, authorization-aware actions, refresh after changes, repeated
+navigation, and English/LTR and Arabic/RTL presentation against established
+Wathiq components and tables. Complete translation-artifact checks.
+
+This phase covers REL-05 and completes the standalone portions of REL-03,
+REL-06, REL-07, REL-09, REL-10, and REL-12. The standalone subsystem is complete
+when all phase 1 and phase 2 requirements have implementation and verification
+evidence.
+
+### Integration owned by the future disposition implementation
+
+Implement and verify section 7 as part of disposition and destruction work:
+review summaries and tables, admission versus final-action blockers, same-job
+exemptions, links outside the job, execution-time relationship and membership
+checks, removal during review with its required authority and reason, retained
+links, and retry/resume and terminated-job historical-link behavior.
+
+REL-08, REL-11, and REL-13, together with disposition-specific portions of
+REL-09 and REL-12, are deferred to that implementation. Track them against the
+linked disposition and destruction specifications and provide implementation
+and verification evidence there. Their deferral does not prevent standalone
+relationships completion, but they must not be reported as implemented or
+verified until the disposition integration is complete.
