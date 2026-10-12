@@ -2,7 +2,7 @@
 
 **Status:** Approved implementation plan
 **Approved:** 12 October 2026
-**Revision:** 1.0
+**Revision:** 1.1
 **Date:** 12 October 2026
 
 ## 1. Purpose and scope
@@ -603,3 +603,70 @@ A phase is complete only when its implementation and verification are complete.
 The release is complete only when all approved in-scope requirements have that
 evidence. An unresolved product decision remains a decision for the user; it
 must not become an undocumented implementation assumption.
+
+## 6. Actual implementation time
+
+Record actual hours for every phase to support future estimates. Begin timing
+when implementation work on that phase starts, not when this plan was written.
+Maintain the session log below as work proceeds and update the phase totals at
+each handoff. A phase's completion record includes its total measured hours.
+
+Use timestamped work sessions, with start and end recorded in UTC. Active elapsed
+time includes inspection, implementation, required tests and their execution,
+debugging, browser/PDF verification, and implementation documentation. Pause
+timing for user-response waits, unrelated work, or external outages that prevent
+progress. Record such waiting separately. Split sessions when switching phases;
+do not charge the same elapsed interval to more than one phase. Concurrent tool
+operations count once as elapsed time, not as summed tool durations.
+
+Calculate hours from recorded timestamps, retaining minutes and reporting totals
+to two decimal places. If timing was interrupted or a boundary was not captured,
+mark that entry estimated or incomplete; never present reconstructed time as
+measured. Do not invent retrospective timings. Calendar duration from first
+start to final completion is separate from active hours and may span many days.
+
+Record verification and corrections within the phase that performs them. Later
+cross-phase acceptance belongs to Phase 23; a separately reopened implementation
+phase receives its own additional correction session. Record the reason and
+avoid double-counting. Preserve both the original completion total and later
+rework so future benchmarks show the full cost.
+
+### Session log
+
+Append one row per work session. Use the notes to record scope, interruptions,
+test runs, significant reuse, or rework that affects comparisons with future work.
+
+| Phase | Start UTC | End UTC | Active hours | Excluded waiting hours | Measurement quality | Work and notes |
+| --- | --- | --- | --- | --- | --- | --- |
+
+### Phase totals
+
+A dash means no implementation time has been recorded, not zero hours worked.
+Update status from actual progress; specification approval is not implementation.
+
+| Phase | Status | First started | Completed | Active hours at completion | Later rework hours | Excluded waiting hours |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Not started | — | — | — | — | — |
+| 2 | Not started | — | — | — | — | — |
+| 3 | Not started | — | — | — | — | — |
+| 4 | Not started | — | — | — | — | — |
+| 5 | Not started | — | — | — | — | — |
+| 6 | Not started | — | — | — | — | — |
+| 7 | Not started | — | — | — | — | — |
+| 8 | Not started | — | — | — | — | — |
+| 9 | Not started | — | — | — | — | — |
+| 10 | Not started | — | — | — | — | — |
+| 11 | Not started | — | — | — | — | — |
+| 12 | Not started | — | — | — | — | — |
+| 13 | Not started | — | — | — | — | — |
+| 14 | Not started | — | — | — | — | — |
+| 15 | Not started | — | — | — | — | — |
+| 16 | Not started | — | — | — | — | — |
+| 17 | Not started | — | — | — | — | — |
+| 18 | Not started | — | — | — | — | — |
+| 19 | Not started | — | — | — | — | — |
+| 20 | Not started | — | — | — | — | — |
+| 21 | Not started | — | — | — | — | — |
+| 22 | Not started | — | — | — | — | — |
+| 23 | Not started | — | — | — | — | — |
+| 24 | Not started | — | — | — | — | — |
