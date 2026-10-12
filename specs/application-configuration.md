@@ -1,9 +1,10 @@
-# Application Configuration — Draft Specification
+# Application Configuration — Specification
 
-**Status:** Discussion draft — general proposal not approved; the Audit Trail deployment result limit is separately approved for implementation
+**Status:** Approved
+**Approved:** 12 October 2026
 **Project:** ERMS
 **Prepared:** 2 October 2026
-**Revision:** 0.2 — explicitly approved Audit Trail deployment result limit
+**Revision:** 1.0 — approved specification
 
 ## 1. Purpose
 
@@ -20,13 +21,13 @@ application behavior. It deliberately excludes copying settings between the
 database and `.env`, exporting database settings to `.env`, PostgreSQL
 notifications, a message broker, and distributed cache invalidation.
 
-This document is a proposal only. It must not be implemented until it is
-reviewed and explicitly approved.
+This document is the approved contract for application configuration.
 
 ## 2. Governing rules
 
 1. Every production setting listed in this specification belongs to exactly one
-   category.
+   configuration ownership category: deployment-managed or database-managed.
+   This is separate from the UI grouping category defined in section 7.
 2. A database-managed setting must not also be read from the process environment
    or `.env`, including as a fallback.
 3. A deployment setting must not be copied into the application-settings table
@@ -84,7 +85,6 @@ The following settings remain environment/`.env` settings.
 | `DB_POOL_MIN_SIZE` | `1` | Per-process database capacity |
 | `DB_POOL_MAX_SIZE` | `10` | Per-process database capacity |
 | `DB_POOL_TIMEOUT` | `10` seconds | Per-process connection-pool behavior |
-| `AUDIT_TRAIL_SEARCH_RESULT_LIMIT` | `1000`; integer at least `1` | Per-API deployment bound on Audit Trail matching results and count work; server returns the effective cap to the WebUI |
 | `WATHIQ_APPLICATION_REVISION` | Packaged Git revision when required | Build/deployment identity |
 
 ### 4.2 WebUI process and session infrastructure
@@ -153,6 +153,13 @@ table records the initial canonical default. Approval of this specification
 also approves removal of the corresponding environment lookup; it does not by
 itself approve a particular API or UI layout.
 
+Sections 5.6 and 5.7 add the organization-wide settings agreed in
+[Administration Settings](administration-settings.md) and the
+[Destruction Process](destruction-process.md). They use this same configuration
+registry and persistence boundary, not a parallel store. Their business
+behavior is defined by those approved specifications. The general settings
+migration and these settings share the approved implementation plan.
+
 ### 5.1 General application behavior
 
 | Setting key | Type | Initial default | Validation |
@@ -215,15 +222,68 @@ extend an already expired session.
 | `TEXT_INDEXER_RATE_LIMIT_PER_MINUTE` | integer | `600` | At least `1` |
 | `SEARCH_RATE_LIMIT_PER_MINUTE` | integer | `600` | At least `1` |
 | `MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE` | integer | `60` | At least `1` |
+| `AUDIT_TRAIL_SEARCH_RESULT_LIMIT` | integer | `1000` | At least `1`; limits Audit Trail matching results and count work |
+
+The Audit Trail limit is editable through Administration Settings and uses the
+general 30-second settings cache. Changes require no restart. Each request uses
+one effective limit consistently for counting, pagination, and the returned
+`result_cap`. Counts detect at most limit + 1 matches, pagination cannot cross
+the limit, and the WebUI uses the API's cap rather than hard-coding 1000.
+Migrate existing non-default values according to section 9 and remove the
+environment lookup and template entries when consumers switch to database reads.
 
 `WEBUI_FULL_TEXT_SEARCH_ENABLED` is removed rather than migrated. The WebUI
 uses the API's effective `FULL_TEXT_SEARCH_ENABLED` value so the two layers
 cannot disagree.
 
+### 5.6 Disposition settings
+
+| Setting | Type | Initial value | Validation and effect |
+| --- | --- | --- | --- |
+| Destruction review route | enum | Standard | Standard or Simplified; captured on each new job and immutable thereafter |
+| Classification scheme | nullable scheme reference | Unset | Existing scheme selected through bounded search/Browse |
+| Uploaded evidence classification | nullable classification reference | Unset | Terminal classification belonging to the selected scheme |
+| Generated reports classification | nullable classification reference | Unset | Terminal classification belonging to the selected scheme |
+| External archives authority name | string | Sharjah Archives | Nonblank recipient authority name used on new request forms |
+| External archives authority email address | nullable email address | Unset | Valid address when set; used for request and digital-certificate email attempts |
+| Destruction reminder interval | positive calendar-month interval | 6 months | Affects future reminder schedules, not historical reminders |
+
+Scheme and destination references are saved as a validated consistent set.
+The destination selectors use two-character bounded type-ahead and paged
+Browse controls as defined by Administration Settings. Missing destinations
+and missing suitable open roots produce the defined task/Governance Custody
+warnings; no default classification is invented. New artifact saves use current
+destinations even for existing jobs, with a task warning when earlier job
+artifacts used different destinations. Earlier records are not moved.
+
+### 5.7 Shared outgoing email settings
+
+| Setting | Type | Initial value | Validation |
+| --- | --- | --- | --- |
+| SMTP server hostname | nullable string | Unset | Nonblank hostname when configured |
+| SMTP port | integer | 587 for STARTTLS; 465 for implicit TLS | Valid port; default follows selected security mode |
+| SMTP connection security | enum | Requires configuration | STARTTLS or implicit TLS; certificate verification enabled |
+| SMTP authentication enabled | boolean | Requires configuration | Determines whether authentication credentials are required |
+| SMTP username | nullable string | Unset | Required when authentication is enabled |
+| SMTP password | protected secret | Unset | Required when authentication is enabled; protected at rest and never returned in plaintext |
+| Sender email address | nullable email address | Unset | Valid address required for sending |
+| Sender display name | nullable string | Unset | Display name when configured |
+| Reply-to email address | nullable email address | Unset | Valid address when set |
+| Connection and send timeout | positive seconds | 30 | Positive timeout |
+
+Incomplete configuration does not prevent application startup; it prevents
+the relevant email send and produces the defined task error. No SMTP server,
+credential, or sender is copied from environment variables or invented.
+These settings serve both request-form and digital-certificate delivery.
+All system notifications still use the existing messaging and notifications
+subsystem; external document sending does not introduce a replacement for it.
+
 ## 6. Runtime reads and short-expiry cache
 
 Each API process maintains an in-memory snapshot of the complete validated
-database-managed configuration for one logical database.
+non-secret database-managed configuration for one logical database. The
+general 30-second cache below does not govern the fresh operation reads
+specified in Section 6.1 or decrypted SMTP credentials.
 
 1. The cache lifetime is **30 seconds**, measured from completion of a successful
    database load.
@@ -249,23 +309,57 @@ guarantee that all in-flight requests change behavior simultaneously. The
 administration UI must state that a saved value can take up to 30 seconds to be
 used by every API instance.
 
+### 6.1 Current settings at disposition operation boundaries
+
+Job creation reads the committed review-route setting from PostgreSQL and
+saves it on the job. Each new artifact save reads the current committed scheme
+and destination classifications as one consistent set. Each document-email
+attempt reads current recipient and SMTP settings and records the non-secret
+values used for that attempt. These operations must not use the general
+30-second cache or a stale fallback to override a newer committed setting.
+If the required read fails, the operation cannot proceed using old settings.
+
+The operation retains that consistent configuration for its own execution;
+changes committed afterward apply to subsequent operations, not partway through
+an already captured send or save. Existing jobs keep their captured route;
+previous artifacts and send attempts keep their recorded references/addresses.
+SMTP secrets are resolved only server-side for sending and are not included
+in public configuration responses or ordinary cached snapshots. No restart
+or cross-process invalidation mechanism is needed for these fresh reads.
+
 ## 7. Registry and persistence model
 
 The application owns a closed registry containing, for every key in section 5:
 
 - stable key;
+- explicit `category` identifying its Administration Settings UI group;
 - data type;
 - default value;
 - validation rule;
 - sensitivity classification;
-- editable status; and
+- editable status (enabled for every database-managed setting); and
 - administrator-facing label and description keys.
 
-Unknown keys must not be accepted or used. None of the database-managed values
-in section 5 is a secret.
+The application registry defines each setting's category explicitly, aligned
+with the functional groups in section 5, including Disposition and Email. The
+settings API supplies this category and its translated display label to the UI.
+Categories are not inferred from setting-key prefixes and are not duplicated
+as columns in `application_settings`. Administrators edit setting values;
+category assignments remain application-defined. Grouped saves follow related
+setting dependencies; a category does not require every setting in it to be
+changed together.
+
+Unknown keys must not be accepted or used. SMTP passwords are secret
+application configuration; the remaining settings are non-secret or carry
+their declared sensitivity. Passwords are protected at rest and must not be
+stored as plaintext typed JSON, exposed through list/get responses, or included
+in ordinary logs or history. Use a protected secret representation within the
+shared configuration mechanism. The UI shows only masked/set-state information
+and accepts a replacement without returning the existing password.
 
 The canonical schema contains an `application_settings` table with one row per
-registered key. At minimum, each row stores the key, typed JSON value, row
+registered key. At minimum, each row stores the key, typed JSON value or
+protected secret representation appropriate to its sensitivity, row
 version, last-update timestamp, and last-updating user. The canonical schema
 seeds every key with the defaults in section 5. The upgrade migration inserts
 missing rows only and never overwrites an existing value.
@@ -277,43 +371,139 @@ the complete proposed change before writing it.
 
 ## 8. Administration and audit
 
-The administration UI presents only the keys in section 5. It groups settings
+The reusable **Administration → Settings** page presents all registered
+database-managed keys in section 5 as editable. None becomes read-only after
+installation. Secret settings remain editable through protected replacement
+inputs; editability does not permit reading saved secrets. It groups settings
 by the same functional areas, shows the effective value and validation rules,
 and identifies the initial default. Secret deployment configuration is neither
 returned by the API nor shown in this UI.
 
+Each control includes visible, concise, translated explanatory text covering
+purpose, data type in plain language, units, permitted values or limits, default
+or unset meaning, dependencies, and when changes take effect. The registry's
+label and description keys support this text. Do not rely on technical key
+names or tooltips alone to explain a setting.
+
 An update:
 
-1. requires an authenticated person with an explicitly approved configuration-
-   administration privilege;
+1. requires an authenticated person with `app.settings.manage`, granted to
+   the System Administrator profile;
 2. requires a non-blank change reason;
 3. uses the existing optimistic-concurrency pattern so one administrator cannot
    silently overwrite another administrator's edit;
 4. validates all submitted values before changing any row;
 5. changes the submitted settings and writes their audit evidence in one
    PostgreSQL transaction; and
-6. records actor, time, reason, old value, new value, and resulting row version
-   in durable event history.
+6. records actor, time, reason, old/new non-secret values, and resulting row
+   version in durable event history. Secret changes record that the credential
+   was changed, with actor/time/version, never its plaintext, encrypted value,
+   or a reversible substitute.
 
-The exact privilege code and its assignment to built-in profiles are an open
-approval decision. Implementation must not reuse an unrelated administration
-privilege merely to avoid adding the approved privilege.
+Related settings are saved together in one validated, atomic operation. For
+example, the classification scheme and both destination classifications form
+one consistent set; related SMTP settings are also saved together. Validate the
+resulting set and check the expected versions before saving. A validation or
+concurrency failure leaves the entire submitted group unchanged. One change
+reason applies to the group, with audit evidence for each changed setting.
+
+The privilege and System Administrator grant are agreed. No
+`disposition.jobs.manage` grant or unrelated administrator privilege substitutes
+for `app.settings.manage`. The Disposition and Email groups use the agreed
+layout and controls in Administration Settings. SMTP secret input is allowed;
+deployment secrets such as database credentials remain excluded.
 
 ## 9. Rollout and compatibility
 
 There is no automatic import from `.env`.
 
 For a new database, `database/schema.sql` creates the settings with the defaults
-in section 5. For an existing database, the migration inserts those defaults.
-Before deploying the code that stops reading the migrated environment variables,
-an operator must compare any deployment-specific overrides with the proposed
-database values and enter intentional non-default values through the governed
-administration path. The deployment must then remove the section 5 variables
-and `WEBUI_FULL_TEXT_SEARCH_ENABLED` from its environment files.
+in section 5. For an existing database, the migration inserts missing defaults
+without overwriting existing database values. Existing non-default environment
+values for migrated settings must be preserved through an explicit, reviewed
+migration using the governed administration path before switching their consumers
+to database-only reads. They must not silently revert to defaults. Validate the
+values and save related settings together. If a value is invalid or conflicts
+with an existing database value, resolve that discrepancy explicitly before
+switching the affected settings; do not silently choose or discard either value.
+Verify the resulting database values before removing the migrated variables
+from the deployment environment. Reconcile and remove the obsolete
+`WEBUI_FULL_TEXT_SEARCH_ENABLED` flag against the API-owned full-text setting;
+it must not become a second database setting. Startup never automatically
+imports environment values or overwrites saved settings.
 
 The checked-in environment examples must contain only section 4 settings after
 the feature is implemented. Documentation for settings moved to PostgreSQL must
 refer to the administration UI and database-backed defaults, not `.env`.
+
+### 9.1 Local development migration after pulling updated code
+
+Provide a one-time, explicit settings-migration command for colleagues upgrading
+their local development environments. Publish its exact invocation with the
+implementation. It must work before starting services that require the migrated
+settings; it must not depend on those services already running.
+
+The procedure is:
+
+1. Pull the updated code and apply the required schema upgrades to the selected
+   local database using the documented upgrade procedure.
+2. Run the command in preview mode with an explicit target database and source
+   `.env` file. Read only the registered legacy settings being migrated, validate
+   them, and show the proposed non-secret values and conflicts. Do not import
+   deployment credentials, paths, infrastructure settings, or unrelated entries.
+3. Review and explicitly apply the migration. Preserve existing non-default
+   values, use specified defaults for missing values, and validate related
+   settings together. Missing values never reset an already configured database
+   setting. Invalid values and conflicts require explicit resolution before the
+   affected settings are marked ready for database-only use.
+4. Verify the saved values, then start the updated application. These settings
+   are now read exclusively from that database. Later edits to the old `.env`
+   entries have no effect.
+5. Review the command's list of obsolete entries that can be removed from the
+   private `.env`. The command leaves the file intact. Checked-in environment
+   templates no longer contain migrated settings.
+
+For colleagues using several local databases, run the procedure separately for
+each selected database. The same `.env` may supply their initial values, but
+each database subsequently owns its settings independently. Never infer that
+migrating one database has migrated another, or silently migrate every reachable
+database. Retain the source entries until all intended databases have migrated.
+
+### 9.2 Migration provenance and safe reruns
+
+Persist enough provenance to distinguish untouched installation or migration
+defaults from values deliberately configured by an administrator, even when a
+configured value equals the default. Comparing values alone is insufficient.
+An explicit migration may replace an untouched default with the reviewed legacy
+value. A differing previously configured value is a conflict; preserve it until
+the operator explicitly resolves the conflict through the governed update path.
+Recheck versions when applying a preview so a concurrent edit cannot be lost.
+
+Record applied changes and migration completion against the target database and
+the applicable settings migration. Related values, their audit evidence, and
+their completion state commit atomically. Failed groups remain incomplete and
+can be retried. Actual upgrade events use source `migration`; default seeding
+events use source `seeding`. Do not record secrets or the complete `.env` file.
+
+Rerunning a completed migration must not reset settings or reimport later `.env`
+edits. Later releases migrating additional keys track those keys separately
+without overwriting earlier settings. Ordinary subsequent edits use Settings.
+
+### 9.3 Local startup checks
+
+`run-local-stack.sh` checks the configured target database's settings-migration
+state before starting affected services. If migration is incomplete, it reports
+the target and the exact preview/apply commands needed, without exposing secrets,
+and does not start those services against unreviewed defaults. It never silently
+imports `.env` settings on startup. An unreachable database or failed state check
+is reported and cannot be treated as successful migration.
+
+A fresh installation with no legacy settings uses the defined defaults and the
+documented initialization path; it does not require a nonexistent legacy import.
+Unset optional destinations or SMTP values retain their existing warning and
+task-blocking behavior. This check is separate from local environment-file
+reconciliation, which continues to preserve private values and add only missing
+active deployment settings.
 
 ## 10. Existing-codebase impact analysis
 
@@ -353,7 +543,8 @@ The new component will need:
 
 - the closed typed registry described in section 7;
 - complete-snapshot loading and validation;
-- the 30-second process-local cache and reload lock;
+- the 30-second non-secret process-local cache and reload lock, plus fresh
+  disposition/send-boundary reads and protected SMTP-secret resolution;
 - an explicit test clock or equivalent deterministic cache-expiry seam;
 - lookup methods that do not fall back to `os.getenv`; and
 - a safe way to load settings through an existing connection without recursively
@@ -443,7 +634,7 @@ implementation will require endpoints to:
 
 - list the registered editable settings and their effective values, types,
   validation metadata, defaults, versions, and last-update metadata; and
-- update one setting or an approved atomic batch with `If-Match`/expected
+- update related settings together in an atomic batch with `If-Match`/expected
   versions and a mandatory change reason.
 
 Request and response models must be explicit; the generic CRUD routes must not
@@ -451,10 +642,10 @@ be used to bypass registry validation, authorization, optimistic concurrency,
 or auditing. Deployment settings must be impossible to retrieve through these
 endpoints.
 
-The authorization subsystem currently has no configuration-administration
-privilege. Approval must resolve the open decision in section 12 before schema,
-profile, API-policy, and authorization tests can be finalized. Role-name checks
-must not replace privilege enforcement.
+Implementation must add the agreed `app.settings.manage` privilege and grant
+it to the System Administrator profile through the normal authorization
+model. Role-name checks must not replace privilege enforcement. SMTP password
+inputs are write-only; list responses expose set-state, not secret values.
 
 ### 10.6 WebUI behavior and configuration module
 
@@ -476,7 +667,9 @@ The duplicate `WEBUI_FULL_TEXT_SEARCH_ENABLED` path must be deleted. UI feature
 visibility and the API's enforcement must derive from the same database value;
 API enforcement remains authoritative during the cache propagation window.
 
-A new administration page or section will be required. Before implementation,
+The reusable Administration → Settings page defined in Administration Settings
+is required; no separate disposition-only settings store or page is introduced.
+Before implementation,
 its user-visible text must follow sections 7.5 and 7.8.1–7.8.4 of
 `specs/internationalization-and-user-preferences.md`. English keys must remain
 lexicographically ordered, maintained-language artifacts must preserve curated
@@ -571,39 +764,49 @@ lookup together.
 
 | Requirement | Required verification |
 | --- | --- |
-| ACFG-01 — Every production setting is assigned to exactly one category | Inventory test comparing registered settings, production environment reads, and documented tables |
+| ACFG-01 — Every production setting has exactly one configuration ownership category; every database-managed setting has an explicit registry UI category supplied by the API | Inventory tests comparing registry, environment reads and documented tables; API/UI grouping and translated-category tests without key-prefix inference |
 | ACFG-02 — Database-managed keys have no environment lookup or fallback | Static/source test and runtime tests with conflicting environment values |
-| ACFG-03 — Canonical schema and migration create all settings without overwriting existing values | Fresh-schema and upgrade tests using separate disposable databases |
+| ACFG-03 — Canonical schema and migration create all settings without overwriting existing database values; reviewed rollout preserves existing non-default environment values before database-only cutover | Fresh-schema and upgrade tests using separate disposable databases, non-default preservation, conflicting/invalid-value handling, and repeat-rollout tests |
 | ACFG-04 — Types, defaults, and validation match section 5 | Registry/schema contract tests and invalid-update API tests |
-| ACFG-05 — Multiple API processes converge within the 30-second cache lifetime without notifications | Controlled-clock multi-instance integration test |
+| ACFG-05 — General cached settings converge within 30 seconds; disposition creation/save/send operations read current committed settings directly without notifications | Controlled-clock multi-instance cache and fresh-operation-read tests |
 | ACFG-06 — A failed refresh never exposes a partial or environment-derived snapshot | Unit and database-failure integration tests |
-| ACFG-07 — Administrative updates are authorized, reasoned, optimistic, atomic, and audited | Authorization, conflict, rollback, and event-history tests |
+| ACFG-07 — All database-managed settings are editable; related settings are saved together through authorized, reasoned, optimistic, atomic, audited updates | Registry/UI editability coverage, protected-secret replacement, grouped validation, authorization, concurrent group conflict, complete rollback, and per-setting event-history tests |
 | ACFG-08 — The WebUI has no duplicate feature flag or business-setting authority | UI/API integration and source inventory tests |
 | ACFG-09 — Deployment secrets and infrastructure values are absent from the settings API and UI | API negative tests and UI tests |
 | ACFG-10 — Environment examples and operational documentation contain only deployment settings | Documentation/inventory check |
-| ACFG-11 — LTR and RTL administration UI behavior and all maintained translations are verified | Browser verification and internationalization artifact checks |
+| ACFG-11 — LTR and RTL administration UI behavior, concise visible explanations for every setting, and all maintained translations are verified | Browser verification of purpose/type/units/limits/default/effect explanations and internationalization artifact checks |
+| ACFG-12 — app.settings.manage is granted to System Administrator and governs the reusable Settings page and updates | Privilege/profile, unauthorized role, API, and UI authorization tests |
+| ACFG-13 — SMTP password is protected at rest, masked/write-only, and absent from logs, audit values, and public/cache snapshots | Secret storage, input/output, failure-log, audit-redaction, and server-only resolution tests |
+| ACFG-14 — Disposition settings preserve per-job routes, current artifact destinations and warnings, and per-attempt recipient/SMTP configuration | Route snapshot, changed-destination warning, original-record preservation, fresh-send configuration, and concurrent-setting-change tests |
+| ACFG-15 — Unset optional disposition/SMTP settings do not prevent startup but produce the required warnings or task errors | Unconfigured startup, custody/task warnings, missing-root handling, and disabled-send tests |
+| ACFG-16 — Explicit local migration previews and preserves legacy values independently for each selected database, distinguishes untouched defaults from configured values, and is safe to rerun | Disposable-database preview/no-write, non-default and configured-default preservation, invalid/conflicting values, concurrent edit, grouped rollback, provenance, multiple-database isolation, and completed-rerun tests |
+| ACFG-17 — Local startup checks migration readiness without importing settings; private environment files are preserved and fresh installation remains supported | Launcher tests for incomplete/completed migration, failed database checks, exact actionable commands, no silent import, unchanged private files, obsolete-entry reporting, and fresh-install defaults |
 
 Database-backed verification must follow the repository rule requiring a newly
 created, uniquely named disposable PostgreSQL database for each run and clean
 removal after the run, whether the run passes or fails.
 
-## 12. Decisions required before approval
+## 12. Approved configuration decisions
 
-1. Approve or change the proposed 30-second cache lifetime.
-2. Approve the exact configuration-administration privilege code and built-in
-   profile assignments.
-3. Confirm whether every setting in section 5 is editable, or identify any key
-   that should be database-resident but read-only after installation.
-4. Confirm the rollout treatment of existing non-default environment values.
-5. Confirm whether the administration UI saves one setting at a time or permits
-   a validated atomic batch edit.
+1. The general settings cache lifetime is 30 seconds. Section 6.1 operations
+   still read current committed settings directly.
+2. Settings administration uses `app.settings.manage`, granted to System Administrator.
+3. Every database-managed setting is editable, subject to validation and
+   protected-secret handling.
+4. Migration preserves existing non-default values through the reviewed rollout
+   in section 9; defaults must not silently replace them.
+5. Related settings are saved together in a validated atomic operation.
+6. `AUDIT_TRAIL_SEARCH_RESULT_LIMIT` is database-managed, with default 1000,
+   positive-integer validation, and the general 30-second cache.
+7. UI grouping uses an explicit registry `category` supplied by the API, not
+   setting-key prefixes or a duplicated database column.
 
-`AUDIT_TRAIL_SEARCH_RESULT_LIMIT` is explicitly deployment-managed. It is read
-from the API process environment, defaults to 1000, and is validated at startup
-as a positive integer. It is not duplicated in database-managed configuration
-or a WebUI setting. Restart the API after changing `.env`. Counts detect at
-most limit + 1 matches, pagination cannot cross the limit, and the UI uses the
-API's `result_cap` rather than hard-coding 1000.
+These decisions and the specification are approved. No configuration decision
+remains open in this section.
+
+The database-managed Audit Trail decision supersedes the earlier decision to
+keep this limit deployment-managed. Its result-count and pagination protections
+remain as defined in section 5.5.
 
 
 ## Approved local environment reconciliation

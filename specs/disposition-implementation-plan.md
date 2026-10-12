@@ -1,0 +1,605 @@
+# Administration Configuration and Disposition Implementation Plan
+
+**Status:** Approved implementation plan
+**Approved:** 12 October 2026
+**Revision:** 1.0
+**Date:** 12 October 2026
+
+## 1. Purpose and scope
+
+Implement the shared Administration Settings foundation, common disposition
+rules, and destruction process in the order below. Each phase delivers a bounded
+part of the system with its own verification. Destruction must not be made
+available for operational use until its complete workflow and recovery paths
+have passed the final release gate.
+
+This plan follows these specifications:
+
+- [Administration Settings](administration-settings.md), revision 1.0;
+- [Application Configuration](application-configuration.md), revision 1.0;
+- [Disposition](disposition.md), revision 1.5; and
+- [Destruction Process](destruction-process.md), revision 1.0.
+
+The destruction specification is named `destruction-process.md` in this
+repository. All four specifications and this implementation plan are approved
+as of 12 October 2026. Approval records the agreed implementation contract;
+it does not claim that any phase has been implemented or verified.
+
+The plan includes the broader application-configuration migration as distinct
+phases because it shares the same settings foundation. The four configuration
+decisions are now approved: a 30-second general cache, all database-managed
+settings editable, preservation of existing non-default values during migration,
+and atomic saves of related settings. The broader migration scope is included
+in the approved specification and plan.
+
+Permanent transfer, selective transfer, and retention as local archives receive
+their specified common statuses, job types, and integrity rules. Their
+action-specific workflows require their own specifications; this plan does not
+invent them. No generic workflow engine, digital signatures, or new privilege
+model is included.
+
+## 2. How to execute the phases
+
+The numbered order is the recommended implementation order. Dependencies stated
+for each phase identify what must already be verified. A phase can take several
+development sessions; it is not a promise to fit a complete subsystem into one
+agent turn. If a phase grows too large, split its implementation into smaller
+changes while preserving its completion gate.
+
+For every phase, maintain a requirement ledger linking the applicable source
+section or requirement ID to implementation locations, named tests, and actual
+verification results. Include requirements in prose that have no ID. A checked
+box or a test name without a passing result is not completion evidence.
+
+Every phase follows these rules:
+
+- Inspect existing implementation first and reuse working subsystems. In
+  particular, verify existing organizational-role fields, access control,
+  notifications, storage, retention rules, and event history before adding them.
+- Add schema changes to the self-contained canonical schema and an independent
+  upgrade migration. Verify both paths. Keep seeds separate and preserve
+  existing data and grants unless an approved requirement changes them.
+- Run database tests only on newly created, uniquely named disposable databases.
+  Initialize each from the canonical schema or the required migration path;
+  drop it after success or failure and report cleanup failures. Never test
+  against `demo`, `demo3`, or another persistent database.
+- Test protected commands through supported entry points and attempted bypasses,
+  including direct SQL where required. Exercise concurrency, stale versions,
+  rollback, retries, and authorization failures at the phase that introduces
+  the operation.
+- For each UI phase, verify real save-and-reload behavior and server results,
+  not merely rendered controls or mocked success responses. Verify English LTR
+  and Arabic RTL, the established Wathiq table design, bounded selectors, true
+  server pagination, accessibility, and deliberate loading/error/empty states.
+- Follow the WebUI performance contract and translation-artifact rules. Preserve
+  curated Arabic wording and provenance; verify key coverage, ordering,
+  placeholders, terminology, stale keys, and artifact hashes.
+- Reconcile environment templates whenever configuration ownership changes.
+  Preserve private values; use the authoritative API template and its sync/check
+  utility. Document restart requirements and operator actions.
+- Record remaining work honestly. Do not expose an unfinished irreversible
+  action or describe a partially implemented workflow as complete.
+
+## 3. Ordered phases
+
+### Phase 1 Establish the implementation baseline
+
+**Priority:** Foundation. **Dependencies:** None.
+
+**Scope:** Build the requirement ledger for all four specifications, including
+their referenced security, relationships, retention, storage, messaging,
+internationalization, and UI contracts. Inventory existing code, schema,
+migrations, tests, and deployment settings. Record what is already implemented
+and what requires extension. Identify exact integration points and document
+technical transaction boundaries without changing product rules.
+
+Apply the approved Application Configuration section 12 decisions: 30-second
+general cache, every database-managed setting editable, preservation of existing
+non-default values, and grouped atomic saves. Include tests for each decision.
+These four decisions and the applicable scope are approved; they are no longer
+outstanding approval gates.
+
+**Verification and completion:** Every source requirement has a phase owner and
+planned verification. Existing claims of implementation have evidence. Any
+remaining product decision identifies precisely which later phase it blocks.
+
+### Phase 2 Build the shared settings registry and protected administration API
+
+**Priority:** Foundation. **Dependencies:** Phase 1.
+
+**Scope:** Implement the single typed settings registry, database persistence,
+defaults, validation, versions, authorized reads and updates, required change
+reasons, and atomic audit history. Grant `app.settings.manage` through System
+Administrator using the established privilege mechanism. Define an explicit
+registry `category` for each setting and supply it with translated labels
+through the API; do not infer it from keys or duplicate it in the settings table.
+Implement protected
+SMTP-secret storage, masked/write-only responses, and server-only resolution.
+Register the approved Disposition and Email settings, including the six-month
+reminder default, without inventing missing destinations or credentials.
+
+Persist provenance distinguishing untouched defaults from intentionally configured
+values, including values equal to defaults. Provide per-database migration
+completion tracking that supports additional migrated keys in later releases.
+Verify provenance, atomic completion updates, and concurrent configuration edits.
+
+Implement the approved general-cache policy and direct committed reads at job
+creation, artifact saving, and email sending. Each operation captures one
+consistent set of settings; failures cannot substitute stale settings at those
+boundaries. Do not migrate unrelated legacy consumers in this phase.
+
+**Verification and completion:** Fresh-schema and upgrade parity; preserved
+existing settings; invalid values and inconsistent reference rejection;
+unauthorized access; optimistic conflicts and rollback; cache isolation and
+refresh failure; fresh operation reads; no secret in responses, logs, history,
+or ordinary caches; startup with optional settings unset.
+
+### Phase 3 Deliver Administration Settings and configuration warnings
+
+**Priority:** Foundation. **Dependencies:** Phase 2.
+
+**Scope:** Build the reusable Settings page with Disposition and Email groups.
+Implement two-character remote search and paginated Browse for schemes and
+terminal classifications, selected-value retention, and consistent scheme and
+destination validation. Show setting effects and protected credential controls.
+Include visible translated explanations for every setting: purpose, plain-language
+type, units, limits, default/unset meaning, dependencies, and effective timing.
+Verify their presence and readability in both interface languages.
+Add Governance Custody warnings for missing destination settings and missing
+suitable open roots, with authorized navigation to Settings and warning clearance.
+
+**Verification and completion:** Browser save/reload proves persisted values,
+including role restrictions and secret handling. Test deep and large
+classification trees without full downloads, stale selections, setting changes,
+missing roots, warning clearance, LTR/RTL, and translation/performance checks.
+
+### Phase 4 Migrate general application and WebUI settings
+
+**Priority:** Configuration completion. **Dependencies:** Phases 1–3.
+
+**Scope:** Migrate Application Configuration sections 5.1 and 5.4 consumers to
+the registry: timezone and medium defaults, review warning window, dashboard,
+selector, and administration-page limits. Make every database-managed setting
+editable and save related settings atomically. Preserve existing non-default
+values through reviewed migration before switching consumers, resolving invalid
+values or conflicts explicitly. Remove corresponding environment fallbacks and duplicate WebUI
+authority; preserve deployment-managed settings.
+
+**Verification and completion:** Conflicting old environment values cannot
+override database settings after cutover. Verify migrated non-default values,
+existing database-value preservation, conflict handling, grouped rollback,
+runtime changes, consumer behavior, existing user preferences, default
+preservation, pagination, and reconciled templates.
+
+Phase 4 also delivers the explicit preview/apply command and launcher readiness
+check specified in Application Configuration section 9. The command operates
+before affected services start, targets one explicit database, preserves the
+private `.env`, and reports obsolete entries. Test preview without writes,
+conflicts, invalid values, grouped rollback, per-database isolation, safe reruns,
+and incomplete-migration startup blocking. Extend the same command for the
+additional setting groups in phases 5 and 6; do not build separate importers.
+
+### Phase 5 Migrate content and authentication policy settings
+
+**Priority:** Configuration completion. **Dependencies:** Phase 4.
+
+**Scope:** Migrate sections 5.2 and 5.3 in two bounded implementation changes:
+content upload, segmentation, cleanup and conversion policy; then authentication,
+session and password policy. Update operational workers as well as request
+handlers. Preserve the specified treatment of existing passwords and expired
+sessions.
+
+**Verification and completion:** Exercise upload boundaries, segmented content,
+conversion limits, cleanup batches, active/expired sessions, lockout and password
+changes. Verify runtime refresh, failure behavior, and removal of every migrated
+environment read. Each change passes its own regression tests before the next.
+
+### Phase 6 Complete search configuration and deployment reconciliation
+
+**Priority:** Configuration completion. **Dependencies:** Phase 5.
+
+**Scope:** Migrate section 5.5 search, indexing, cleanup, history and rate-limit
+settings and all API-owned workers. Migrate `AUDIT_TRAIL_SEARCH_RESULT_LIMIT`
+to database management with default 1000, positive-integer validation, the
+30-second cache, and no restart requirement. Preserve existing non-default
+values and remove its environment lookup and template entries at cutover.
+Remove the separate WebUI full-text flag.
+Complete the production-setting inventory, installation/upgrade procedure, and
+environment-template reconciliation. Preserve Audit Trail count/pagination
+protections and the separately approved local environment reconciliation.
+
+**Verification and completion:** API/WebUI agreement, scheduling and cleanup,
+rate limits, worker refresh, no migrated environment fallback, and template
+checks pass. Verify Audit Trail invalid-value rejection, non-default migration,
+runtime cache refresh, consistent per-request count/pagination bounds and
+API-provided `result_cap`, and absence of environment fallback. Verify registry
+category coverage, translated UI grouping, and no key-prefix inference.
+Every production setting has exactly one documented authority.
+
+### Phase 7 Implement common disposition persistence and protected transitions
+
+**Priority:** Disposition foundation. **Dependencies:** Phase 1; this approved
+common work does not depend on completing the legacy migration in phases 4–6.
+
+**Scope:** Implement resource outcome fields and the shared jobs, membership
+episodes, tasks, review rounds, decisions, and document-link structures from
+Disposition section 17. Enforce statuses 1–13, job types/lifecycle, controlled
+stages, versions, terminal fields, and authorized transition operations. Pending
+statuses require matching active membership. Propagate root changes to every
+descendant in the same transaction. Establish immutable history and command
+retry handling; later phases supply action-specific commands.
+
+**Verification and completion:** Schema/upgrade parity, full-unit rollback,
+invalid transitions, ordinary-CRUD and direct-SQL bypass attempts, concurrent
+membership changes, terminal-field consistency, and historical-row preservation.
+
+### Phase 8 Implement eligibility calculation and current blockers
+
+**Priority:** Disposition foundation. **Dependencies:** Phase 7.
+
+**Scope:** Implement effective-rule resolution, database timestamp calculation,
+strict due-time comparison, and the bounded repeatable eligibility service.
+Open roots stay at status 1. Evaluate vital status, disposition-blocking
+security, and effective holds throughout the unit. Evaluate relationships
+separately: they permit admission and acceleration but outside-job links prevent
+final disposition. Include record endpoints, both directions, and all link types.
+
+**Verification and completion:** Exact due boundary, leap/calendar behavior,
+timezone display independence, local overrides, open roots, inherited holds,
+hidden descendants, same-job links, concurrent changes, and repeated worker runs.
+
+### Phase 9 Implement job membership and changing eligibility
+
+**Priority:** Disposition foundation. **Dependencies:** Phase 8.
+
+**Scope:** Implement creation, assignment/reassignment, per-item multi-add,
+removal, and termination before irreversible work. Enforce one active job,
+matching action, specific authorized assignee before first membership, and
+rejection of redacted roots. Preserve every membership episode and terminated
+job membership history. Add acceleration with reasons and blockers. Integrate
+reopening, local/effective retention changes, and hierarchy changes with status
+recalculation and explicit-removal requirements. Matching due members retain
+pending status; incompatible members block progress.
+
+**Verification and completion:** Mixed-success additions, simultaneous jobs,
+repeated add/remove, assignment without access, open/reclosed roots, matching
+and mismatching rule changes, unchanged inherited rules, required removal, and
+all-or-nothing propagation. Terminal units cannot be readmitted.
+
+### Phase 10 Deliver eligibility and common job screens
+
+**Priority:** Disposition usability. **Dependencies:** Phase 9.
+
+**Scope:** Build the eligibility listing, required filters/grouping/sorting,
+blocked-unit explanations and protected redacted descendants. Add job creation,
+assignment, membership management, history, and status display in descendant
+metadata/search/browse. Show per-item addition results. Apply destruction-stage
+restrictions when its stages are introduced; common controls must not bypass them.
+
+**Verification and completion:** Real persistence, permission intersections,
+large paginated lists, inaccessible root selection rejection, blocker rendering,
+descendant status accuracy, repeat navigation, and LTR/RTL checks.
+
+### Phase 11 Implement artifact destinations and governed evidence storage
+
+**Priority:** Workflow foundation. **Dependencies:** Phases 2, 3, and 7.
+
+**Scope:** Implement current-settings destination resolution: latest open root
+by `date_opened`, with larger ID breaking ties. Save uploads and generated
+artifacts as governed records/components with job links, checksums, provenance,
+and the specified transaction boundaries. Evidence and reports use separate
+configured destinations; digital certificates use the evidence destination.
+Block relevant tasks when no destination exists. Warn before saving to a changed
+destination while preserving earlier records. Keep job evidence outside the
+units scheduled for destruction.
+
+Implement authorized preview and correction of uploaded evidence by the assigned
+Records Officer or authorized Records Manager, preserving every version and
+original confirmation. Generated documents cannot be replaced through upload
+correction.
+
+**Verification and completion:** Root ordering and ties, closed/child/wrong
+classification exclusion, concurrent closure/settings changes, missing-root
+warnings, rollback, retry deduplication, evidence-version authorization, and
+original-record preservation.
+
+### Phase 12 Implement controlled Word templates and PDF generation
+
+**Priority:** Workflow foundation. **Dependencies:** Phase 11.
+
+**Scope:** Create the specified default Word templates under
+`templates/disposition/destruction/` for the request, digital certificate,
+proposal execution report, and physical preparation report. Implement template
+download, validation, revision upload, retained versions, and artifact provenance.
+Generate PDF from the selected valid template revision. Follow the specified
+mandatory fields, Arabic-first bilingual layout, RTL/LTR handling and Changa
+font requirements; no signature blocks. Do not create templates during planning.
+
+**Verification and completion:** Valid/invalid Word files, required fields and
+repeating groups, role authorization, revision history, deterministic artifact
+linkage and retry behavior. Render representative short and multipage PDFs;
+inspect Arabic shaping, English direction, fonts, pagination, and overflow.
+
+### Phase 13 Implement destruction routing and shared task operations
+
+**Priority:** Review workflow. **Dependencies:** Phases 2, 7, and 9.
+
+**Scope:** Capture Standard/Simplified route at job creation. Implement allowed
+owning-unit scope, descendant-unit membership, and owning-unit editability only
+while active, empty, and never submitted. Resolve File Administrator from the
+nearest configured unit; no configured role skips the stage, while an unusable
+configured role blocks it. Resolve the job unit's manager and required governance
+profiles. Implement direct assignments, role queues, atomic claims, release,
+reassignment, eligibility loss, round routing, and task history.
+
+**Verification and completion:** Both routes, nearest ancestor, no-role skip,
+configured-unusable block, no implied resource access, concurrent claims, role
+loss, first-submission locking, correction routing, and same-person Officer/
+Manager participation when independently authorized.
+
+### Phase 14 Implement proposals and review decisions
+
+**Priority:** Review workflow. **Dependencies:** Phase 13.
+
+**Scope:** Implement every specified proposal type, payload validation,
+multi-hold selections, relationship identity, and root retention overrides.
+All four participants can revise/withdraw active proposals during their own
+authorized open task; preserve original proposer and every change. Individual
+governance reasons are optional; proposed-removal reasons and the Officer's
+overall submission reason follow their separate mandatory rules. Implement
+optional attributed Review notes, own-note editing, rounds and decisions.
+Officer membership removal is immediate only in preparation/correction;
+relationship removal remains a proposal.
+
+**Verification and completion:** Each proposal type, no premature resource
+mutation, successor reviewers, claim checks, closed/executed edit rejection,
+history, note ownership, required reasons, removal marks, rejected rounds and
+complete saved-route resubmission.
+
+### Phase 15 Implement Records Manager approval and proposal execution
+
+**Priority:** Review correctness. **Dependencies:** Phases 11, 12, and 14.
+
+**Scope:** Approve the exact reviewed membership and complete active proposal
+set under current authorization and versions. Execute underlying operations as
+the approving Records Manager with `actor_type = 'user'`; retain proposer and
+revision history. Use the overall submission reason when an execution needs a
+reason and the proposal has none. Compute direct and cascading membership
+removals to a stable result, with correct statuses. Reject unresolved conflicts
+and roll back the entire operation on failure. Return an empty job to the
+Officer. Produce the governed proposal execution report for the successful round.
+
+**Verification and completion:** Every underlying privilege, including retention
+administration and relationship authorization; stale endpoints; combined
+proposals; cascading removals; empty jobs; approval snapshots; atomic rollback;
+execution attribution; and report retry without re-executing proposals.
+
+### Phase 16 Deliver the task inbox and review workspace
+
+**Priority:** Review usability. **Dependencies:** Phases 13–15.
+
+**Scope:** Deliver paginated My tasks, direct/queue/claimant display, correct
+task forms, workflow timeline, job membership, attributed proposals, reasons,
+Review notes, evidence preview, and history. Start the process diagram with
+Start, then active job creation and Officer preparation; end with Completed and
+End. Show skipped stages and the saved route. Expose only the actions authorized
+for the current task, including task-only File Administrator/Unit Manager work.
+
+**Verification and completion:** Role-by-role live-browser review and correction
+cycles on both routes; evidence visibility; unauthorized actions; saved proposal
+changes; concurrent/stale forms; paginated large jobs; LTR/RTL and performance.
+
+### Phase 17 Implement external requests and authority decisions
+
+**Priority:** External approval. **Dependencies:** Phases 12, 15, and 16.
+
+**Scope:** Generate the request PDF from post-proposal membership, grouped by
+terminal classification and effective rule, with counts, explicit local-rule
+sources, required job details, and configured authority name. Record approval
+with its letter and unique never-reused destruction number, accepting the
+specified characters up to 20 characters. Record rejection with mandatory notes
+and letter; return to Officer correction and repeat the saved internal route.
+Retain separate requests/decisions and never replay already executed proposals.
+
+**Verification and completion:** Group counts and local overrides, removed-unit
+exclusion, large requests, number boundaries and uniqueness after termination,
+atomic governed evidence creation, repeated rejection cycles, new forms, and
+approval invalidation rules.
+
+### Phase 18 Implement external document email and eligibility reminders
+
+**Priority:** Communication. **Dependencies:** Phases 2, 8, 13, and 17.
+
+**Scope:** Implement shared external PDF sending with current recipient/SMTP
+settings, exact artifact version, repeat explicit sends, request deduplication,
+durable per-attempt status and audit. Officer sends requests; Manager sends the
+digital certificate once available, including after completion. Distinguish SMTP
+acceptance, failure, and unknown outcomes without claiming inbox delivery.
+
+Implement configurable calendar-month eligibility reminders to active effective
+Officer and Manager profiles supplying `disposition.jobs.manage`, deduplicated
+per person/interval using durable checkpoints. All system notifications use the
+existing messaging subsystem. Reminder text omits protected metadata and links
+to the authorized eligibility listing.
+
+**Verification and completion:** Isolated mail test transport; TLS/settings
+validation, secret-safe errors, retry/resend distinction, configuration changes,
+navigation persistence, authorization, no workflow advancement by sending,
+calendar boundaries, duplicate workers, and reminder deduplication after message
+purge. Certificate end-to-end sending is completed in phase 22.
+
+### Phase 19 Implement physical preparation and confirmation
+
+**Priority:** Irreversible-action preparation. **Dependencies:** Phases 11, 12,
+and 17.
+
+**Scope:** Route using the complete hierarchy's media. Generate and store the
+physical preparation PDF, grouped by terminal classification, with assigned
+and current locations, prescribed descendant counts, non-overlapping totals,
+and missing/inherited-location treatment. Support report versions. Recheck
+blockers before physical work is authorized. Confirm offline destruction only
+with the checkbox, unique certificate reference, upload, actor/time, and immutable
+physical scope; commit confirmation and governed evidence together.
+
+**Verification and completion:** Physical descendants under digital parents,
+mixed units, location rules and counts, report destination, concurrent blockers,
+missing evidence, duplicate confirmation/reference, rollback and correction
+without rewriting confirmation. Operational destruction remains unavailable
+until recovery and completion phases pass.
+
+### Phase 20 Implement termination and partial disposition recovery
+
+**Priority:** Required before operational destruction. **Dependencies:** Phase 19.
+
+**Scope:** Extend termination to irreversible outcomes. Preserve fully disposed
+units at status 10, set partially disposed units and descendants to status 13,
+preserve remaining digital material, and retain terminated membership/history.
+After physical destruction, blockers or required corrections follow termination
+and recovery rather than ordinary review/removal. Implement explicit IGU
+resolution to selected eligibility status 2–5 with a required reason; bulk
+resolution applies one status/reason to all applicable status-13 units atomically.
+Allow subsequent admission to a matching new job under ordinary checks.
+
+**Verification and completion:** Mixed completed/partial/unexecuted membership,
+preserved content, authorization, all-or-nothing bulk rollback, terminal-unit
+exclusion, historical facts, new-job admission, and recovery UI in both languages.
+
+### Phase 21 Implement durable digital destruction and retained disposition records
+
+**Priority:** Irreversible execution. **Dependencies:** Phases 19 and 20.
+
+**Scope:** Implement explicit Manager confirmation, final fresh checks, bounded
+worker claims, durable runs/unit progress/manifests, and idempotent resume. Remove
+content and all prohibited renditions, OCR, indexes, previews, temporary and cached
+copies controlled by Wathiq. Retain only the permanent disposition metadata
+approved in Disposition section 14.2, protected and read-only; exclude destroyed
+resources from ordinary views and prevent reuse or reopening. Record complete
+executor, number, job, and separate physical/digital outcome information.
+
+Treat this phase as three sequential changes: execution/manifest persistence;
+storage and derivative deletion; then status finalization and read restrictions.
+Do not enable execution until all three pass. Technical failures may resume only
+under the specified valid approved scope; blockers and required corrections after
+physical destruction use phase 20.
+
+**Verification and completion:** Worker crashes at irreversible boundaries,
+duplicate requests/workers, completed-unit retry exclusion, concurrent holds/
+security/vital/relationships, partial storage failure, protected errors, manifest
+minimization, no retained prohibited content, immutable outcomes, and restricted
+disposition/audit access. Do not rely solely on mocked file deletion.
+
+### Phase 22 Complete certificates and final task behavior
+
+**Priority:** Destruction completion. **Dependencies:** Phases 18 and 21.
+
+**Scope:** Generate and save exactly one digital certificate as evidence before
+completion when digital destruction applies. Support certificate-only retry
+without repeating deletion. Create the Manager download task and allow repeat
+certificate email using phase 18. Physical-only jobs skip digital runs,
+certificates, and their tasks and complete with physical evidence. Show the
+external-backups/copies warning. Persist progress across navigation and notify
+completion, failure, or required action through existing notifications.
+
+**Verification and completion:** Fully digital, physical-only, and mixed jobs;
+certificate storage failure after successful deletion; missing destinations;
+retry deduplication; complete final fields; download not gating completion;
+post-completion send history; completion warnings; and evidence surviving unit
+destruction. Verify evidence-retention expiry preserves permanent provenance
+and deletion history under the existing approved retention policy.
+
+### Phase 23 Run complete workflow and upgrade acceptance
+
+**Priority:** Release gate. **Dependencies:** All applicable preceding phases.
+
+**Scope:** Execute the complete requirement ledger against the integrated
+system. Verify fresh installation and representative populated upgrade paths on
+disposable databases. Run Standard with direct/inherited/no File Administrator,
+Simplified, repeated internal/external rejection, proposal revisions, both email
+actions, destination changes, physical-only/digital/mixed outcomes, termination,
+status-13 resolution, and a new job after recovery.
+
+**Verification and completion:** Every approved requirement has passing evidence.
+Include multiple concurrent users/workers, privilege loss, hidden descendants,
+large/deep hierarchies, stale pages, server restart, storage/mail/database failures,
+and settings changes between tasks. Complete live LTR/RTL, accessibility,
+translation, pagination and performance verification. Resolve failures at their
+owning phase; do not waive them as integration follow-ups.
+
+### Phase 24 Prepare the controlled rollout and implementation handoff
+
+**Priority:** Delivery. **Dependencies:** Phase 23.
+
+**Scope:** Prepare the ordered migration/installation instructions, settings
+setup, role/profile prerequisites, evidence/report roots, SMTP setup, templates
+and font dependencies, worker startup, and operator recovery procedures. Explain
+which settings require no restart and which remaining deployment settings do.
+Document upgrade treatment of existing values and preservation of data/grants.
+Provide exact colleague instructions to pull code, upgrade the schema, preview
+and apply local settings migration for each database, verify values, and start
+the stack. Explain conflict resolution, safe reruns, and when obsolete `.env`
+entries can be removed after all intended databases have migrated. Rehearse
+both a multi-database upgrade and a fresh installation on disposable databases.
+Provide the completed requirement ledger and verification results.
+
+**Verification and completion:** Rehearse installation and upgrade on disposable
+environments, including an initially unconfigured deployment. Confirm warnings
+and safe task blocking. Distinguish reversible deployment changes from content
+already destroyed, which cannot be restored by code rollback. Applying changes
+to persistent databases or enabling operational destruction requires the user's
+deployment authorization; producing this plan does not provide it.
+
+## 4. Requirement coverage index
+
+The following assigns every existing requirement ID to its principal phases.
+It supplements, rather than replaces, the detailed requirement ledger and source
+prose. Requirements spanning several phases are complete only when all their
+applicable verification passes.
+
+| Source requirements | Principal phases |
+| --- | --- |
+| ACFG-01, ACFG-02, ACFG-08, ACFG-10 | 1, 4–6, 24 |
+| ACFG-03, ACFG-04, ACFG-05, ACFG-06, ACFG-07, ACFG-09, ACFG-12, ACFG-13 | 2, 4–6 |
+| ACFG-11 | 3, 23 |
+| ACFG-14, ACFG-15 | 2, 3, 11, 13, 18, 22 |
+| ACFG-16, ACFG-17 | 2, 4–6, 23, 24 |
+| Administration Settings sections 2–4 | 2, 3, 11, 13, 18 |
+| Administration Settings sections 5–7 | 2, 3, 11, 23, 24 |
+| DISP-01, DISP-02, DISP-17, DISP-25, DISP-37, DISP-38, DISP-42 | 7, 9, 10, 23 |
+| DISP-03, DISP-04, DISP-05, DISP-06, DISP-08, DISP-09, DISP-10 | 8, 9 |
+| DISP-07, DISP-27, DISP-28 | 9, 10 |
+| DISP-11, DISP-12, DISP-13, DISP-21, DISP-24, DISP-26, DISP-29, DISP-32, DISP-34 | 9, 13, 20, 22 |
+| DISP-14, DISP-15, DISP-16, DISP-20, DISP-30, DISP-35 | 19–22 |
+| DISP-18, DISP-19, DISP-36 | 8, 9, 14, 15, 19–21 |
+| DISP-22, DISP-23 | 20 |
+| DISP-31 | 2, 9, 13–16, 20–22 |
+| DISP-33 | 7, 17, 21 |
+| DISP-39, DISP-40 | 7, 13–16 |
+| DISP-41 | 7, 11, 12, 15, 17, 19, 22 |
+| DEST-01, DEST-27 | 18 |
+| DEST-02, DEST-28, DEST-31 | 13, 16 |
+| DEST-03, DEST-04, DEST-05, DEST-18, DEST-24, DEST-29 | 14, 16 |
+| DEST-06, DEST-19, DEST-20, DEST-34 | 15, 16 |
+| DEST-07, DEST-08, DEST-30 | 17 |
+| DEST-09, DEST-10, DEST-37 | 19 |
+| DEST-11, DEST-12, DEST-26 | 21 |
+| DEST-13 | 20, 21 |
+| DEST-14, DEST-15 | 11, 21, 22 |
+| DEST-16 | 7, 11–22, 23 |
+| DEST-17 | 8, 14, 15, 19, 21 |
+| DEST-21, DEST-22, DEST-23 | 13, 16, 22 |
+| DEST-25 | 17, 19 |
+| DEST-32, DEST-33, DEST-38 | 3, 11, 17, 19, 22 |
+| DEST-35, DEST-36 | 18, 22 |
+| DEST-39 | 12, 17, 22 |
+
+## 5. Completion record for each phase
+
+At handoff, record the phase's status, implemented requirement IDs and prose
+sections, code/schema/UI locations, test names and results, disposable-database
+creation and cleanup results, and any required browser/render evidence. Record
+migrations, template/catalogue changes, deployment actions, and remaining gaps.
+
+A phase is complete only when its implementation and verification are complete.
+The release is complete only when all approved in-scope requirements have that
+evidence. An unresolved product decision remains a decision for the user; it
+must not become an undocumented implementation assumption.

@@ -1,14 +1,18 @@
 # Disposition — Product and Technical Specification
 
 **Status:** Approved
+**Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.2
+**Revision:** 1.5
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.5 | 12 October 2026 | Reconciled destruction-specific review, membership, proposal execution, reason fallback, dual-role authorization, and post-physical termination rules |
+| 1.4 | 12 October 2026 | Required all disposition system notifications to reuse the existing messaging and notifications subsystem |
+| 1.3 | 12 October 2026 | Aligned the common authorization contract with agreed limited File Administrator and Unit Manager destruction-review task authority; resource-changing execution remains subject to Records Manager privileges |
 | 0.1 | 30 September 2026 | Initial discussion draft |
 | 0.2 | 6 October 2026 | Clarified the disposition actions, FSM, repeated job membership, blockers that arise during a job, termination versus completion, the one-active-job rule, destruction records, and open decisions; renamed selective-appraisal statuses to selective-transfer statuses |
 | 0.3 | 6 October 2026 | Added status 13 for a mixed disposition unit whose physical material was destroyed but whose digital material must be preserved after job termination; restored termination after physical destruction; defined individual and bulk IGU recovery from status 13; defined reopening, hierarchy-change, and retention-rule recalculation behavior; required status propagation to descendants; defined the active-job requirement for pending statuses, the active/completed/terminated job lifecycle, mandatory assignment before job membership, separate final-executor records, externally supplied disposition numbers, metadata and evidence retained after destruction, per-aggregation results for multi-selection job addition, the prohibition on adding redacted disposition units, blocker enforcement during acceleration, and the single `disposition.jobs.manage` privilege |
@@ -279,7 +283,12 @@ that the transition is allowed.
 ### 5.3 Removal transitions
 
 An aggregation may be removed from its disposition job at any time before
-final execution. Removal restores the corresponding eligible status:
+final execution, subject to the action-specific workflow's authorized stages.
+For destruction, Records Officer membership removal occurs only during
+preparation or correction, not while reviewers hold the job. After confirmed
+physical destruction, correction follows termination and status-13 rules;
+ordinary membership removal must not restore destroyed physical material to
+normal eligibility. Removal otherwise restores the corresponding eligible status:
 
 - pending destruction returns to eligible for destruction (`6 -> 2`);
 - pending permanent transfer returns to eligible for permanent transfer
@@ -521,13 +530,23 @@ to Records Officers and Records Managers. An admitted unit with outside-job
 links enters its normal pending status and is marked blocked from final
 disposition. Removing a link during review requires `disposition.jobs.manage`,
 `relationships.link`, current view authorization on both endpoints, and a
-recorded reason. Relationship privileges do not bypass access to a redacted
+recorded reason. For destruction review, proposing removal is distinct from
+execution: authorized task participants may propose it without execution
+privileges, and individual proposal reasons are optional. The approving Records
+Manager executes approved removals with all underlying privileges and endpoint
+access checked at execution. Use the proposal reason when supplied, otherwise
+the mandatory overall submission reason. Relationship privileges do not bypass access to a redacted
 endpoint.
 
 Adding or removing a relationship does not itself require repeating review
 approvals. A new link to a unit outside the job blocks final execution until
 removed; the server checks the current links again before execution. Other
 changes remain subject to their existing approval rules.
+
+For destruction, relationship removal through review requires Records Manager
+approval of the proposal. A new removal proposal after approval follows the
+destruction extension's renewed-review rules; the general statement above
+does not authorize bypassing that approval.
 
 ### 9.1 Blocker arising after addition to a job
 
@@ -551,6 +570,12 @@ When a blocker arises after addition to a job:
    remain intact; and
 6. the system never automatically clears vital status, lowers security,
    releases a hold, or removes the unit from the job.
+
+These rules cover independently arising blockers. For destruction, an explicit
+Records Manager **Approve and apply proposals** action also authorizes the
+extension's removal of complete units made unsuitable by those approved
+proposals, including cascading removals. That authorized execution is not an
+automatic removal merely because a blocker was detected.
 
 Wathiq calculates whether an item is blocked from the current resource,
 security, hierarchy, legal-hold, and relationship data. Users cannot edit the blocked state,
@@ -715,6 +740,13 @@ terminated, and the unit remains a member of it as permanent history. The unit
 cannot be added to another disposition job until an authorized IGU completes
 the status-13 resolution in Section 10.4.
 
+For destruction, after physical destruction is confirmed, a blocker or required
+correction that prevents continuing the approved job requires termination,
+not an ordinary correction round or membership removal. Partially disposed
+units follow status 13; fully disposed units retain their final status.
+Resumable technical execution failures or certificate-only recovery do not
+require termination when the approved scope remains valid and unblocked.
+
 ### 10.4 Resolving status 13
 
 An IGU with `disposition.jobs.manage` may resolve status 13 for one aggregation
@@ -778,6 +810,12 @@ An assigned IGU reviews the aggregation and descendants, obtains the owning
 organization-unit manager's approval and the organization's records manager's
 approval, performs the required real-world activities, and records their
 outcomes and evidence in Wathiq.
+
+For destruction, the saved Standard or Simplified route governs required
+reviews. Simplified omits Unit Manager approval. A consolidated job may cover
+the owning unit and its descendants; Standard uses the job-owning unit's
+manager approval for the combined batch rather than separate descendant-unit
+approvals. Records Manager approval remains required in both routes.
 
 Wathiq records these facts, but an uploaded file or checked box does not by
 itself prove that work outside Wathiq occurred. The separate specifications
@@ -1091,6 +1129,10 @@ digital material.
 
 ## 15. Authorization and separation of duties
 
+All disposition system notifications must use Wathiq's existing messaging and
+notifications subsystem, including notifications defined by action-specific
+extensions. No separate notification store or delivery subsystem is introduced.
+
 Wathiq uses one global privilege for disposition-job management:
 `disposition.jobs.manage`. This privilege is granted through an
 information-governance role. It covers:
@@ -1110,10 +1152,24 @@ information-governance role. It covers:
 - recording selective-transfer decisions; and
 - executing each final disposition action.
 
+For destruction jobs, assigned File Administrator and Unit Manager review tasks
+use the limited role/task authority defined in Section 17.5 of the Destruction
+Process extension, not the full `disposition.jobs.manage` privilege. Those
+participants may create, revise, or withdraw proposals, record Review notes,
+and complete their review decisions while authorized for their open task.
+They cannot execute proposals or make lasting resource changes through that
+task authority. Records Manager final approval and proposal execution still
+require `disposition.jobs.manage` and the underlying operation's authorization.
+
 Removing a relationship during disposition review additionally requires
 `relationships.link`, view authorization on both endpoints, and a recorded
 reason, as specified in Section 9. `disposition.jobs.manage` alone does not
 authorize link removal.
+
+For destruction, this execution requirement applies to the approving Records
+Manager, not merely to a task participant proposing removal. The mandatory
+overall submission reason supplies the execution reason if no individual
+proposal reason was provided.
 
 Retention-rule administration, including creating, changing, or removing a
 local retention-rule override, is policy management rather than disposition
@@ -1134,6 +1190,11 @@ creating a separate privilege for each duty or job type. Those specifications
 must define whether the same IGU may prepare, approve, and complete a job. A
 system administrator does not receive `disposition.jobs.manage` or bypass
 record security merely by being an administrator.
+
+Destruction permits the same person to prepare as Records Officer and approve
+or execute as Records Manager if independently authorized for each role and
+task at the time of action. Each action records its acting role; holding one
+role does not supply the other's authorization.
 
 ## 16. Audit, reporting, and data integrity
 
@@ -1178,7 +1239,8 @@ operation must follow Wathiq's existing database authorization pattern. A
 client cannot bypass these checks by sending the fields through a general
 update request.
 
-Every disposition-job operation listed in Section 15 requires
+Except for the explicitly limited destruction-review task actions in Section
+15, every disposition-job operation listed in Section 15 requires
 `disposition.jobs.manage`, including operations performed through the API,
 imports, and background processes acting for a user. The privilege does not
 replace resource access, security-clearance, organizational-access, or blocker
