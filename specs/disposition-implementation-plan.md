@@ -2,7 +2,8 @@
 
 **Status:** Approved implementation plan
 **Approved:** 12 October 2026
-**Revision:** 1.1
+**Revision:** 1.2
+**Amendment approved:** 13 October 2026
 **Date:** 12 October 2026
 
 ## 1. Purpose and scope
@@ -15,10 +16,10 @@ have passed the final release gate.
 
 This plan follows these specifications:
 
-- [Administration Settings](administration-settings.md), revision 1.0;
-- [Application Configuration](application-configuration.md), revision 1.0;
-- [Disposition](disposition.md), revision 1.5; and
-- [Destruction Process](destruction-process.md), revision 1.0.
+- [Administration Settings](administration-settings.md), revision 1.1;
+- [Application Configuration](application-configuration.md), revision 1.1;
+- [Disposition](disposition.md), revision 1.6; and
+- [Destruction Process](destruction-process.md), revision 1.1.
 
 The destruction specification is named `destruction-process.md` in this
 repository. All four specifications and this implementation plan are approved
@@ -550,6 +551,26 @@ deployment authorization; producing this plan does not provide it.
 
 ## 4. Requirement coverage index
 
+The approved Records Manager Only and Save amendment extends these phases:
+
+- Phases 2–3: register and explain all three route choices, retaining Standard
+  as default and immutable route capture for existing jobs.
+- Phase 13: implement direct Manager preparation/correction assignments,
+  route-specific duties and stages, and the combined-action owning-unit lock.
+- Phases 14–16: implement persistent Save for Officer, File Administrator,
+  Unit Manager, and Manager tasks, including partial overall reasons, version
+  conflicts and history. Implement Manager-only combined approval without a
+  separate submission/approval task, retaining proposal execution safeguards.
+- Phases 17–18: route external correspondence and rejection correction to the
+  assigned Manager for Manager-only jobs, with the same evidence and email rules.
+- Phase 23: run all three routes, including multi-day save/resume by each
+  participant, no workflow advance on Save, combined approval, empty membership,
+  external rejection, and unchanged authorization and destruction safeguards.
+
+All references elsewhere in this plan to both routes now include the third
+route wherever applicable. Phase timing continues under Section 6; this
+specification amendment is not implementation time.
+
 The following assigns every existing requirement ID to its principal phases.
 It supplements, rather than replaces, the detailed requirement ledger and source
 prose. Requirements spanning several phases are complete only when all their
@@ -591,6 +612,8 @@ applicable verification passes.
 | DEST-32, DEST-33, DEST-38 | 3, 11, 17, 19, 22 |
 | DEST-35, DEST-36 | 18, 22 |
 | DEST-39 | 12, 17, 22 |
+| DEST-40 | 2, 3, 13–18, 23 |
+| DEST-41 | 14–16, 23 |
 
 ## 5. Completion record for each phase
 

@@ -4,7 +4,8 @@
 **Approved:** 12 October 2026
 **Project:** ERMS
 **Prepared:** 2 October 2026
-**Revision:** 1.0 — approved specification
+**Revision:** 1.1 — Records Manager Only route
+**Amendment approved:** 13 October 2026
 
 ## 1. Purpose
 
@@ -240,7 +241,7 @@ cannot disagree.
 
 | Setting | Type | Initial value | Validation and effect |
 | --- | --- | --- | --- |
-| Destruction review route | enum | Standard | Standard or Simplified; captured on each new job and immutable thereafter |
+| Destruction review route | enum | Standard | Standard, Simplified, or Records Manager Only (`standard`, `simplified`, `records_manager_only`); captured on each new job and immutable thereafter |
 | Classification scheme | nullable scheme reference | Unset | Existing scheme selected through bounded search/Browse |
 | Uploaded evidence classification | nullable classification reference | Unset | Terminal classification belonging to the selected scheme |
 | Generated reports classification | nullable classification reference | Unset | Terminal classification belonging to the selected scheme |

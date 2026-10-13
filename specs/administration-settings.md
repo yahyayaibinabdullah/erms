@@ -3,7 +3,8 @@
 **Status:** Approved
 **Approved:** 12 October 2026
 **Prepared:** 12 October 2026
-**Revision:** 1.0
+**Revision:** 1.1
+**Amendment approved:** 13 October 2026
 
 ## 1. Purpose
 
@@ -69,7 +70,11 @@ it does not import values automatically. Subsequent edits use this Settings page
 ## 3. Disposition settings
 
 The **Disposition** group contains **Destruction review route**, with
-**Standard** as its default and **Simplified** as its alternative.
+**Standard** as its default, with **Simplified** and **Records Manager Only**
+as alternatives. Records Manager Only assigns preparation, review, approval,
+and external correspondence to the Records Manager without the other three
+participants. The setting's explanation makes this absence of independent
+internal review clear. Existing jobs retain their saved route.
 The [Destruction Process specification, Section 5.4](destruction-process.md#54-organization-wide-review-route)
 defines the routes and when a changed setting takes effect.
 

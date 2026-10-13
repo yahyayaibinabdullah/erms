@@ -4,12 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.0
+**Revision:** 1.1
+**Amendment approved:** 13 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.1 | 13 October 2026 | Added Records Manager Only routing and explicit Save without submission for every review participant |
 | 1.0 | 12 October 2026 | Approved specification, including the agreed workflow, configuration, evidence, recovery, and verification requirements |
 | 0.1 | 6 October 2026 | Initial destruction-process extension covering reminders, job ownership, internal review and approval, the external request, approval evidence, physical and digital destruction, and destruction certificates |
 | 0.2 | 6 October 2026 | Clarified relationship admission versus final-destruction blockers, review UI, and checks before physical and digital destruction |
@@ -383,6 +385,10 @@ or a per-job choice made by the Records Officer.
 - **Simplified**: Records Officer → Records Manager. File Administrator and
   Unit Manager review are deliberately bypassed, regardless of their role
   configuration. Their tasks and approvals are not required for this route.
+- **Records Manager Only**: the assigned Records Manager prepares, reviews,
+  corrects, and approves the job. No Records Officer, File Administrator, or
+  Unit Manager task or role is required. One **Approve and generate request**
+  action replaces submission to a separate internal approval task.
 
 The simplified route supports small organizations that need fewer internal
 review steps. It is an explicit organization-wide policy, not an automatic
@@ -391,19 +397,61 @@ remain mandatory, including review and amendment of proposals before applying
 the complete active set.
 
 At creation, each job stores the current route as `review_route`, with values
-`standard` or `simplified`. It cannot be changed on that job. Later settings
+`standard`, `simplified`, or `records_manager_only`. It cannot be changed on that job. Later settings
 changes affect new jobs only. The job workspace and history identify the saved
 route and which review stages are bypassed. That same route governs every
 correction and resubmission round, including after external rejection.
 In Standard, File Administrator resolution is repeated as already specified.
 
-Both routes retain all access checks, common disposition blockers,
+All three routes retain all access checks, common disposition blockers,
 proposal-execution authorization and validation, external approval, physical
 and digital destruction requirements, and evidence requirements. References
 elsewhere in this specification to the File Administrator and Unit Manager
 review sequence apply only to jobs with the Standard route. Review summaries
 on generated forms identify stages bypassed under the saved route rather than
 implying that their approvals were obtained.
+
+### 5.5 Records Manager Only route
+
+This route supports very small entities with one, potentially part-time, Records
+Manager. It deliberately omits independent internal review and avoids requiring
+the Manager to submit work to themselves. Standard remains the default.
+
+For this route, all references in this specification to duties, direct task
+assignment, required job assignee, forms, notifications, external-decision
+recording, request sending, and correction work of the assigned Records Officer
+mean the assigned Records Manager instead. This includes job creation, eligibility
+listing access, membership management, proposal preparation, evidence handling,
+and correspondence with the authority. The user needs the Records Manager
+profile, `disposition.jobs.manage`, and the existing access and underlying
+execution privileges; no Officer profile is required. History and reports name
+the actual Records Manager and acting role, never a fictional Officer.
+
+Use `manager_preparation` and `manager_correction` as the preparation/correction
+stages, with directly assigned tasks. The Manager may immediately remove job
+members during those stages under the common membership rules. Relationship
+removal remains a proposal. Reviewer-stage restrictions for other routes remain
+unchanged. The owning unit is editable only while active, empty, and before the
+first successful **Approve and generate request** action; this is the equivalent
+of the first-submission boundary in the other routes.
+
+The preparation/correction screen provides **Save** and **Approve and generate
+request**. The latter requires a nonblank overall reason and validates the exact
+membership and complete active proposal set. It applies the same atomic approval,
+authorization, attribution, reason fallback, and direct/cascading removal rules
+as Section 10, then generates the request from remaining membership. There is no
+intervening submission, claim, or separate Manager approval task. If no units
+remain, retain preparation/correction with the assigned Manager and generate no
+request. Report-generation failures use the existing retry rules without
+re-executing applied proposals.
+
+External rejection requires the same notes and governed rejection letter and
+returns directly to the assigned Manager's correction task. A renewed approval
+records a new round and generates a new request. Earlier applied proposals are
+not reversed or replayed. External approval, physical/digital destruction,
+termination, status-13 recovery, evidence, and completion rules are unchanged.
+Route-specific interpretation in this section also applies to the logical data
+model and verification requirements below.
 
 ## 6. Task inbox and destruction-job workspace
 
@@ -629,12 +677,37 @@ Officer as **Awaiting external archival authority approval**. Waiting does not
 make it overdue unless a future approved requirement introduces a follow-up
 date.
 
+### 6.6.1 Save work without submitting
+
+Every preparation, review, and correction task provides an explicit **Save**
+button for its authorized participant: Records Officer, File Administrator,
+Unit Manager, or Records Manager. This applies to all three routes, not just
+Records Manager Only. Work can be saved, left, and resumed over multiple days.
+
+Save persists proposals and their revisions or withdrawals, removal
+recommendations, the user's Review notes, and any partially entered overall
+submission reason. It does not execute proposals, approve or submit the job,
+complete the task, create the next task, or advance the workflow. Empty or
+partially entered overall reasons are permitted on Save; the required nonblank
+reason is checked on submission or **Approve and generate request**. Individual
+governance reasons remain optional; proposed-removal marks retain their required
+reason and proposal payloads retain their validation rules.
+
+Saved work retains the original proposer and every change's actor, acting role,
+time, and prior/new values under existing history rules. Existing task ownership,
+claim, access, and optimistic-version checks apply. Reopening the task restores
+the persisted work; a failed or stale save must not appear successful. Saving
+does not release or reassign the task. Own-note editing restrictions still apply.
+Immediate membership removal is a separate protected action, not a side effect
+of Save. Submission/approval validates the current complete saved work and may
+not silently omit changes visible in the form.
+
 ### 6.7 Workflow overview
 
 ```mermaid
 flowchart TD
     START([Start])
-    A[Active job created<br/>Records Officer preparation and review proposals]
+    A[Active job created<br/>Assigned Officer or Manager preparation and review proposals]
     V{Saved review route?}
     X{File Administrator role configured<br/>on owning unit or an ancestor?}
     B[File Administrator review]
@@ -664,6 +737,7 @@ flowchart TD
 
     START --> A
     A -- Submit --> V
+    A -- "Records Manager Only: Approve and generate request" --> Q
     V -- Standard --> X
     V -- Simplified --> F
     X -- Yes --> B --> C --> D
@@ -672,7 +746,9 @@ flowchart TD
     D -- No --> F --> G
     G -- Yes --> E
     G -- No --> Q --> R --> H --> I --> S
-    S -- "No: record correction notes" --> E
+    S -- "No: Standard or Simplified; save rejection letter and notes" --> E
+    S -- "No: Records Manager Only; save rejection letter and notes" --> MC[Assigned Records Manager correction]
+    MC -- "Approve and generate request" --> Q
     S -- Yes --> J --> K
     K -- Yes --> L --> U
     U -- Yes --> M
@@ -683,8 +759,12 @@ flowchart TD
 ```
 
 The rounded, emphasized **Start** and **End** nodes mark the process boundaries.
-Start leads to **Active job created — Records Officer preparation and review
-proposals**; **Completed** leads to End. Correction and resubmission return to
+Start leads to active job creation and preparation by the assigned Records
+Officer, or Records Manager in Records Manager Only. The Submit edge applies
+only to Standard and Simplified. Save is available in every preparation/review/
+correction task and does not traverse an edge. **Completed** leads to End.
+After proposal execution, an empty job returns to its assigned preparer instead
+of generating a request. Correction and resubmission return to
 the review route, not to job creation.
 
 Termination may occur while the job is active under the common specification.
@@ -1731,6 +1811,20 @@ templates, and configuration are separate seed or installer concerns and are
 not hidden inside schema migrations.
 
 ## 19. Verification and traceability
+
+DEST-40: Verify Records Manager Only across creation, assignment, eligibility,
+immediate preparation membership removal, combined approval, empty results,
+external request sending and decisions, correction rounds, evidence, destruction,
+termination and recovery. No Officer/Administrator/Unit Manager role or task is
+required. Verify actual actor/role history, all underlying authorization checks,
+route immutability, owning-unit locking, and both other routes unchanged.
+
+DEST-41: Verify Save for each of the four participant types in every applicable
+preparation/review/correction task and all three routes. Test save, navigation
+away, later login and restoration, partial overall reason, proposal/history
+preservation, own-note restrictions, concurrent edits, unauthorized saves and
+failure feedback. Assert no proposal execution, approval, next task, membership
+removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 
 | ID | Requirement | Minimum verification |
 | --- | --- | --- |

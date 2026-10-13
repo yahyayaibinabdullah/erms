@@ -4,7 +4,8 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.5
+**Revision:** 1.6
+**Amendment approved:** 13 October 2026
 
 ## Revision history
 
@@ -1128,6 +1129,14 @@ this exceptional status and records the final treatment of the preserved
 digital material.
 
 ## 15. Authorization and separation of duties
+
+The destruction extension's Records Manager Only route assigns preparation,
+correction, and approval to one authorized Records Manager without requiring an
+Officer role or separate internal approval task. The common specific-IGU
+assignment, access, blocker, history, and execution-authorization rules still
+apply. All destruction preparation, review, and correction participants have
+Save without submission as defined in that extension; Save never advances the
+workflow or executes proposals.
 
 All disposition system notifications must use Wathiq's existing messaging and
 notifications subsystem, including notifications defined by action-specific
