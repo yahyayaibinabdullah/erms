@@ -187,6 +187,18 @@ including role restrictions and secret handling. Test deep and large
 classification trees without full downloads, stale selections, setting changes,
 missing roots, warning clearance, LTR/RTL, and translation/performance checks.
 
+**Completion (14 October 2026):** Phase 3 is complete. See
+[Phase 3 verification](../docs/disposition-phase-3.md) and the maintained ledger:
+all 51 settings have bilingual controls and visible explanations; grouped
+reasoned/versioned saves, protected credentials, bounded scheme/terminal Browse
+and search, current destination/root warnings and restricted navigation pass.
+68 disposable-database API, 76 frontend and 27 traceability/environment checks
+passed, together with live English/Arabic save/reload, deep/large-tree paging,
+warning clearance, role restrictions, measured RTL and translation checks. All
+seven test/preview databases are confirmed dropped. No persistent database or
+private environment values were changed. New Arabic wording remains generated
+drafts for explicit administrator review/publication. Phase 4 is the next work.
+
 ### Phase 4 Migrate general application and WebUI settings
 
 **Priority:** Configuration completion. **Dependencies:** Phases 1–3.
@@ -696,6 +708,7 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | 2026-10-14 04:24:21 | 2026-10-14 05:41:29 | 1.29 | 0.00 | Measured | Source/setting ledger, code/schema/test inventory, approved decisions, integration and transaction boundaries, 103 disposable-DB + 31 UI + 27 traceability/local-env checks passed; disposable DB created/dropped; D-01 recorded for Phase 21 only. Final handoff bookkeeping follows the captured end boundary. |
 | 2 | 2026-10-14 05:52:04 | 2026-10-14 07:21:03 | 1.48 | 0.00 | Measured | Shared settings registry/API/schema/cache/audit/provenance, approved env encryption key and encrypted SMTP password, current capture helpers, templates/upgrade guidance, preserved curated translations, fresh/upgrade/compatibility and unit checks passed; all disposable DBs dropped. Final completion bookkeeping follows the captured end boundary. |
+| 3 | 2026-10-14 07:32:00 | 2026-10-14 09:13:34 | 1.69 | 0.00 | Measured | All 51 Settings controls/explanations, protected saves, bounded selectors, current custody warnings; 68 disposable-DB + 76 frontend + 27 traceability/env checks and live bilingual persistence/RTL/role/performance checks passed; all seven disposable DBs confirmed dropped; 3141 Arabic items preserved and 47 new drafts require review. Final completion bookkeeping follows the captured end boundary. |
 
 ### Phase totals
 
@@ -706,7 +719,7 @@ Update status from actual progress; specification approval is not implementation
 | --- | --- | --- | --- | --- | --- | --- |
 | 1 | Complete | 2026-10-14 04:24:21 UTC | 2026-10-14 05:41:29 UTC | 1.29 | — | 0.00 |
 | 2 | Complete | 2026-10-14 05:52:04 UTC | 2026-10-14 07:21:03 UTC | 1.48 | — | 0.00 |
-| 3 | Not started | — | — | — | — | — |
+| 3 | Complete | 2026-10-14 07:32:00 UTC | 2026-10-14 09:13:34 UTC | 1.69 | — | 0.00 |
 | 4 | Not started | — | — | — | — | — |
 | 5 | Not started | — | — | — | — | — |
 | 6 | Not started | — | — | — | — | — |

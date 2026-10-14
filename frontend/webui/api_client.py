@@ -723,6 +723,13 @@ class ErmsApiClient:
     async def governance_custody(self) -> dict[str, Any]:
         return await self.request("GET", "/api/v1/authorization/governance-custody")
 
+    async def application_settings(self) -> dict[str, Any]:
+        return await self.request("GET", "/api/v1/application-settings")
+
+    async def save_application_settings(self, changes, reason: str) -> dict[str, Any]:
+        return await self.request("PUT", "/api/v1/application-settings",
+                                  json={"changes": changes}, headers={"X-Change-Reason": reason})
+
     async def security_summary(
         self, *, hours: int = 24, start_at: str | None = None, end_at: str | None = None,
     ) -> dict[str, Any]:

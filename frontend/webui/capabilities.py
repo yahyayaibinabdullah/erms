@@ -4,6 +4,7 @@ from collections.abc import Iterable, Mapping
 
 
 NAVIGATION_PRIVILEGES = {
+    "application-settings": "app.settings.manage",
     "relationship-types": "relationships.administer",
     "messages-monitor": "messaging.monitor",
     "messages-notifications": "messaging.notifications.administer",

@@ -101,6 +101,38 @@ class SettingsCache:
 cache = SettingsCache()
 
 
+def destination_configuration(connection):
+    """One committed snapshot of destinations and the defined latest open roots.
+
+    Server-side readiness only: public warnings never expose root identities or
+    metadata, and do not confuse an inaccessible root with a missing root.
+    """
+    return connection.execute(
+        """SELECT s.key,s.value,root.id AS open_root_id
+             FROM application_settings s
+             LEFT JOIN LATERAL (
+               SELECT a.id FROM aggregations a
+                WHERE s.key<>'DISPOSITION_CLASSIFICATION_SCHEME_ID'
+                  AND s.value<>'null'::jsonb
+                  AND a.classification_id=(s.value#>>'{}')::bigint
+                  AND a.parent_aggregation_id IS NULL AND a.date_closed IS NULL
+                ORDER BY a.date_opened DESC,a.id DESC LIMIT 1
+             ) root ON true
+            WHERE s.key=ANY(%s) ORDER BY s.key""",
+        (["DISPOSITION_CLASSIFICATION_SCHEME_ID", "DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID",
+          "DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID"],),
+    ).fetchall()
+
+
+def destination_warnings(connection):
+    rows = destination_configuration(connection)
+    if len(rows) != 3:
+        raise SettingsInvalid("application_settings_registry_mismatch")
+    return [{"setting_key": row["key"], "code": "destination_unset" if row["value"] is None else "destination_open_root_missing"}
+            for row in rows if row["value"] is None or
+            (row["key"] != "DISPOSITION_CLASSIFICATION_SCHEME_ID" and row["open_root_id"] is None)]
+
+
 def apply_changes(connection, changes, reason, *, migration_id=None, encrypt_secret=None):
     """Caller owns commit; public API invalidates only after commit succeeds.
 

@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
-  "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+  "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261008143451",
   "generated_at": "2026-10-08T14:34:51.436440+04:00",
@@ -10502,6 +10502,22 @@
       }
     },
     {
+      "message_key": "navigation.item.application_settings",
+      "translated_text": "الإعدادات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "navigation.item.audit_trail",
       "translated_text": "مسار التتبع",
       "quality_flags": [],
@@ -13546,6 +13562,118 @@
       }
     },
     {
+      "message_key": "settings.action.back",
+      "translated_text": "العودة إلى الفرع الحاوي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.action.browse",
+      "translated_text": "استعراض",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.action.clear_selection",
+      "translated_text": "إزالة الاختيار",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T09:01:08.073181+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.action.next",
+      "translated_text": "التالي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.action.previous",
+      "translated_text": "السابق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.action.refresh",
+      "translated_text": "تحديث",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.action.retry",
+      "translated_text": "إعادة المحاولة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "settings.category.authentication",
       "translated_text": "المصادقة والجلسات",
       "quality_flags": [],
@@ -13654,6 +13782,262 @@
         "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
         "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
         "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.digital",
+      "translated_text": "رقمي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.implicit_tls",
+      "translated_text": "تشفير منذ بدء الاتصال",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.mixed",
+      "translated_text": "هجين",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.no",
+      "translated_text": "لا",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.physical",
+      "translated_text": "مادي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.records_manager_only",
+      "translated_text": "مدير الوثائق فقط",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.simplified",
+      "translated_text": "مبسط",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.standard",
+      "translated_text": "قياسي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.starttls",
+      "translated_text": "تشفير بعد بدء الاتصال",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.choice.yes",
+      "translated_text": "نعم",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.custody.contact",
+      "translated_text": "اطلب من مسؤول مخول مراجعة إعدادات التصرف.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.custody.loading",
+      "translated_text": "جار التحقق من المسؤولية الشاملة عن الحفظ وإعدادات التصرف…",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.custody.no_root",
+      "translated_text": "لا يوجد ملف رئيسي مفتوح في {setting}. لا يمكن استخدام الملفات المغلقة أو الفرعية أو التصنيفات الأخرى.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.custody.open",
+      "translated_text": "فتح إعدادات التصرف",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.custody.title",
+      "translated_text": "وجهات التصرف تحتاج إلى الانتباه",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.custody.unset",
+      "translated_text": "لم يضبط {setting}.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
         "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
@@ -14922,6 +15306,22 @@
       }
     },
     {
+      "message_key": "settings.field.reason",
+      "translated_text": "سبب التغيير (مطلوب)",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "settings.field.review_warning_window_days.description",
       "translated_text": "عدد الأيام قبل موعد المراجعة التي يظهر خلالها اقتراب مراجعة الوثيقة أو الملف. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
       "quality_flags": [],
@@ -15398,6 +15798,358 @@
         "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
         "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
         "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.page.loading",
+      "translated_text": "جار تحميل الإعدادات…",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.page.propagation",
+      "translated_text": "قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم الوظائف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.page.saved",
+      "translated_text": "تم حفظ التغييرات.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.page.saving",
+      "translated_text": "جار حفظ التغييرات…",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.page.subtitle",
+      "translated_text": "إعدادات التطبيق المشتركة، مرتبة حسب الغرض.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.page.unchanged",
+      "translated_text": "لا توجد تغييرات لحفظها.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.port.auto",
+      "translated_text": "اترك الحقل فارغا لاستخدام المنفذ الافتراضي لوضع الاتصال الآمن: 587 للتشفير بعد بدء الاتصال، أو 465 للتشفير منذ بدء الاتصال.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.port.effective",
+      "translated_text": "منفذ هذا الإعداد: {port}. اترك الحقل فارغا ليتبع وضع الاتصال الآمن.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.secret.clear",
+      "translated_text": "إزالة كلمة المرور المحفوظة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.secret.replace",
+      "translated_text": "كلمة المرور البديلة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.secret.retain",
+      "translated_text": "اترك الحقل فارغا للإبقاء على كلمة المرور المحفوظة.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.secret.set",
+      "translated_text": "كلمة المرور مضبوطة. قيمتها المحفوظة مخفية.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.secret.unset",
+      "translated_text": "لم تضبط كلمة مرور.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.branch",
+      "translated_text": "فرع",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.browse_classifications",
+      "translated_text": "استعراض تصنيفات الوجهة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.browse_schemes",
+      "translated_text": "استعراض نظم التصنيف",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.choose_scheme",
+      "translated_text": "اختر نظام تصنيف أولا.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.empty",
+      "translated_text": "لا توجد عناصر في هذه الصفحة أو هذا الفرع.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.page",
+      "translated_text": "عرض {count} عناصر، بدءا من {offset}.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.search_help",
+      "translated_text": "اكتب حرفين على الأقل للبحث، أو استخدم الاستعراض.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.selected_id",
+      "translated_text": "العنصر المحدد {id} (تفاصيله غير متاحة)",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.selector.terminal",
+      "translated_text": "نهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-ui-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:49:32.916497+00:00",
+        "batch_id": "settings-ui-phase3-20261014",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
         "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },

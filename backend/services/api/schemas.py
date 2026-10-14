@@ -347,6 +347,11 @@ class GovernanceWarningRead(ApiModel):
     severity: Literal["critical", "advisory"]
 
 
+class DispositionConfigurationWarningRead(ApiModel):
+    setting_key: Literal["DISPOSITION_CLASSIFICATION_SCHEME_ID", "DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID", "DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID"]
+    code: Literal["destination_unset", "destination_open_root_missing"]
+
+
 class GovernanceCustodyRead(ApiModel):
     security_levels: list[CustodySecurityLevelRead]
     highest_security_level: CustodySecurityLevelRead | None
@@ -355,6 +360,7 @@ class GovernanceCustodyRead(ApiModel):
     assignments: list[GovernanceAssignmentRead]
     highest_clearance_custodian_count: int
     warnings: list[GovernanceWarningRead]
+    disposition_configuration_warnings: list[DispositionConfigurationWarningRead] = Field(default_factory=list)
 
 
 class SecurityEventCountRead(ApiModel):

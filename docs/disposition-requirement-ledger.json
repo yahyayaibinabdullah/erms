@@ -753,6 +753,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -766,6 +778,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -826,6 +849,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -839,6 +874,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -899,6 +945,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -912,6 +970,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -972,6 +1041,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -985,6 +1066,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -1045,6 +1137,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -1058,6 +1162,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -1127,6 +1242,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -1140,6 +1267,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -1202,6 +1340,18 @@
           ],
           "evidence_group": "secret",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -1223,6 +1373,17 @@
           "tests": [
             "tools/tests/test_application_settings_secret.py"
           ]
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -1458,6 +1619,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -1471,6 +1644,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -1511,7 +1695,7 @@
           "status": "planned"
         }
       ],
-      "status": "in_progress",
+      "status": "complete",
       "implementation": [
         {
           "phase": 2,
@@ -1528,6 +1712,18 @@
           ],
           "evidence_group": "audit",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -1542,6 +1738,17 @@
             "backend/services/api/tests/test_application_settings.py::test_concurrent_administrators_have_one_winner"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -2072,7 +2279,7 @@
           "status": "planned"
         }
       ],
-      "status": "in_progress",
+      "status": "complete",
       "implementation": [
         {
           "phase": 2,
@@ -2089,6 +2296,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -2102,6 +2321,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -2145,9 +2375,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
+        }
+      ],
       "baseline_refs": [
         "roles",
         "webui-reuse",
@@ -2499,6 +2754,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -2512,6 +2779,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -2583,6 +2861,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -2596,6 +2886,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -3342,6 +3643,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -3364,6 +3677,18 @@
             "frontend/webui/tests/test_translation_bulk_administration.py"
           ],
           "scope": "Catalogue preservation/coverage/hashes, draft provenance and existing publication behavior; browser evidence remains future UI phases."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
         }
       ],
       "baseline_refs": [
@@ -3581,6 +3906,19 @@
           ],
           "evidence_group": "fresh",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases.",
+          "locations": [
+            "backend/services/api/application_settings.py",
+            "backend/services/api/governance_authorization.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py"
+          ],
+          "evidence_group": "warning",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -3602,6 +3940,18 @@
           "tests": [
             "tools/tests/test_application_settings_cache.py"
           ]
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "backend/services/api/tests/test_application_settings_phase3.py::test_each_missing_setting_clears_independently_without_cached_warning",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_closed_children_wrong_classifications_and_changed_settings_are_not_roots",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_latest_root_uses_opening_date_then_id_and_warnings_hide_root_details",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_warning_panel_does_not_grant_settings_authority"
+          ],
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases."
         }
       ],
       "baseline_refs": [
@@ -3671,6 +4021,19 @@
           ],
           "evidence_group": "startup",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases.",
+          "locations": [
+            "backend/services/api/application_settings.py",
+            "backend/services/api/governance_authorization.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py"
+          ],
+          "evidence_group": "warning",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -3684,6 +4047,18 @@
             "backend/services/api/tests/test_application_settings.py::test_missing_canonical_rows_fail_startup_without_environment_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "backend/services/api/tests/test_application_settings_phase3.py::test_each_missing_setting_clears_independently_without_cached_warning",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_closed_children_wrong_classifications_and_changed_settings_are_not_roots",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_latest_root_uses_opening_date_then_id_and_warnings_hide_root_details",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_warning_panel_does_not_grant_settings_authority"
+          ],
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases."
         }
       ],
       "baseline_refs": [
@@ -3883,7 +4258,7 @@
           "status": "planned"
         }
       ],
-      "status": "in_progress",
+      "status": "complete",
       "implementation": [
         {
           "phase": 2,
@@ -3900,6 +4275,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -3913,6 +4300,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -3976,6 +4374,18 @@
           ],
           "evidence_group": "audit",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -3990,6 +4400,17 @@
             "backend/services/api/tests/test_application_settings.py::test_concurrent_administrators_have_one_winner"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -4059,6 +4480,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -4072,6 +4505,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -4134,6 +4578,18 @@
           ],
           "evidence_group": "secret",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -4155,6 +4611,17 @@
           "tests": [
             "tools/tests/test_application_settings_secret.py"
           ]
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -4196,9 +4663,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases.",
+          "locations": [
+            "backend/services/api/application_settings.py",
+            "backend/services/api/governance_authorization.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py"
+          ],
+          "evidence_group": "warning",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "backend/services/api/tests/test_application_settings_phase3.py::test_each_missing_setting_clears_independently_without_cached_warning",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_closed_children_wrong_classifications_and_changed_settings_are_not_roots",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_latest_root_uses_opening_date_then_id_and_warnings_hide_root_details",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_warning_panel_does_not_grant_settings_authority"
+          ],
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases."
+        }
+      ],
       "baseline_refs": [
         "roles",
         "webui-reuse",
@@ -4264,6 +4758,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -4277,6 +4783,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -9520,6 +10037,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -9533,6 +10062,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -11139,6 +11679,19 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases.",
+          "locations": [
+            "backend/services/api/application_settings.py",
+            "backend/services/api/governance_authorization.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py"
+          ],
+          "evidence_group": "warning",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -11152,6 +11705,18 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "backend/services/api/tests/test_application_settings_phase3.py::test_each_missing_setting_clears_independently_without_cached_warning",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_closed_children_wrong_classifications_and_changed_settings_are_not_roots",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_latest_root_uses_opening_date_then_id_and_warnings_hide_root_details",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_warning_panel_does_not_grant_settings_authority"
+          ],
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases."
         }
       ],
       "baseline_refs": [
@@ -11812,6 +12377,19 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases.",
+          "locations": [
+            "backend/services/api/application_settings.py",
+            "backend/services/api/governance_authorization.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py"
+          ],
+          "evidence_group": "warning",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -11825,6 +12403,18 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "backend/services/api/tests/test_application_settings_phase3.py::test_each_missing_setting_clears_independently_without_cached_warning",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_closed_children_wrong_classifications_and_changed_settings_are_not_roots",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_latest_root_uses_opening_date_then_id_and_warnings_hide_root_details",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_warning_panel_does_not_grant_settings_authority"
+          ],
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases."
         }
       ],
       "baseline_refs": [
@@ -12041,6 +12631,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -12054,6 +12656,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -12368,6 +12981,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/capabilities.py"
+          ],
+          "evidence_group": "form",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -12381,6 +13006,17 @@
             "backend/services/api/tests/test_application_settings.py::test_settings_labels_use_published_preferred_language_and_english_fallback"
           ],
           "scope": "Applicable Phase 2 foundation clauses; does not satisfy future workflow/UI acceptance."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_reason_atomic_destinations_and_other_unsaved_category_are_preserved",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_conflict_keeps_form_and_password_replacement_clears_after_save"
+          ],
+          "scope": "All assigned Phase 3 settings presentation/editing clauses only; later consumer/job/send clauses remain with their assigned phases."
         }
       ],
       "baseline_refs": [
@@ -12429,9 +13065,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "roles",
         "webui-reuse",
@@ -12993,9 +13656,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases.",
+          "locations": [
+            "backend/services/api/application_settings.py",
+            "backend/services/api/governance_authorization.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py"
+          ],
+          "evidence_group": "warning",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "backend/services/api/tests/test_application_settings_phase3.py::test_each_missing_setting_clears_independently_without_cached_warning",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_closed_children_wrong_classifications_and_changed_settings_are_not_roots",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_latest_root_uses_opening_date_then_id_and_warnings_hide_root_details",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_warning_panel_does_not_grant_settings_authority"
+          ],
+          "scope": "Phase 3 Governance Custody configuration readiness and warning clearance only; task blockers/artifact routing remain later phases."
+        }
+      ],
       "baseline_refs": [
         "roles",
         "webui-reuse",
@@ -13086,9 +13776,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "roles",
         "webui-reuse",
@@ -16246,9 +16963,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -16306,9 +17050,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -16366,9 +17137,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -16426,9 +17224,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -16486,9 +17311,36 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/remote_select.py",
+            "backend/services/api/classification_management.py",
+            "backend/services/api/browse.py"
+          ],
+          "evidence_group": "selector",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_browse_pages_each_branch_and_revalidates_stale_terminal",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "backend/services/api/tests/test_application_settings_phase3.py::test_large_branch_and_terminal_search_are_bounded_and_scheme_scoped"
+          ],
+          "scope": "Phase 3 bounded setting selectors and retention-policy reuse only; no workflow evidence/artifact-save behavior claimed."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -17990,6 +18842,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -18012,6 +18876,18 @@
             "frontend/webui/tests/test_translation_bulk_administration.py"
           ],
           "scope": "Catalogue preservation/coverage/hashes, draft provenance and existing publication behavior; browser evidence remains future UI phases."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
         }
       ],
       "baseline_refs": [
@@ -18096,6 +18972,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -18118,6 +19006,18 @@
             "frontend/webui/tests/test_translation_bulk_administration.py"
           ],
           "scope": "Catalogue preservation/coverage/hashes, draft provenance and existing publication behavior; browser evidence remains future UI phases."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
         }
       ],
       "baseline_refs": [
@@ -18182,9 +19082,35 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18247,9 +19173,35 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18312,9 +19264,35 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18377,9 +19355,35 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18462,6 +19466,18 @@
           ],
           "evidence_group": "registry",
           "details": "docs/disposition-phase-2.md"
+        },
+        {
+          "phase": 3,
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json",
+            "frontend/webui/scripts/check_i18n_catalogue.py"
+          ],
+          "evidence_group": "i18n",
+          "details": "docs/disposition-phase-3.md"
         }
       ],
       "verification": [
@@ -18484,6 +19500,18 @@
             "frontend/webui/tests/test_translation_bulk_administration.py"
           ],
           "scope": "Catalogue preservation/coverage/hashes, draft provenance and existing publication behavior; browser evidence remains future UI phases."
+        },
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "frontend/webui/scripts/check_i18n_catalogue.py",
+            "frontend/webui/scripts/check_approved_arabic_terminology.py"
+          ],
+          "scope": "Phase 3 maintained catalogue and bilingual Settings/control verification only."
         }
       ],
       "baseline_refs": [
@@ -18545,9 +19573,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18607,9 +19660,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18669,9 +19747,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18731,9 +19834,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18793,9 +19921,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18855,9 +20008,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18917,9 +20095,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -18979,9 +20182,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "frontend/webui/api_client.py"
+          ],
+          "evidence_group": "performance",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_refresh_single_request_retains_old_content_and_ignores_abandoned_response",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_old_search_cannot_restore_previous_scheme_options",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters",
+            "frontend/webui/tests/test_bounded_collection_contract.py"
+          ],
+          "scope": "Phase 3 finite settings reads, bounded selectors, freshness and abandoned-result protection only."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -19035,9 +20263,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "docs/webui-design-language.md",
+            "docs/images/disposition-phase-3-ar.jpg"
+          ],
+          "evidence_group": "design",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "browser::phase3_ltr_rtl_native_geometry"
+          ],
+          "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -19090,9 +20343,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "docs/webui-design-language.md",
+            "docs/images/disposition-phase-3-ar.jpg"
+          ],
+          "evidence_group": "design",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "browser::phase3_ltr_rtl_native_geometry"
+          ],
+          "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -19111,8 +20389,8 @@
         "path": "docs/webui-design-language.md",
         "heading": "19.1 NiceGUI-first layout and RTL troubleshooting",
         "start_line": 837,
-        "end_line": 926,
-        "sha256": "622e9b8ec1b8a3887ce8bd91ef91dc02b56f9e8c0193b79b8003afe6bccb6b92"
+        "end_line": 942,
+        "sha256": "6d7d458f3fef0f1435a8cf6eaf82fa3e0a21f627d310cd3ac4d72e87d368a963"
       },
       "phases": [
         3,
@@ -19145,9 +20423,34 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 3,
+          "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table.",
+          "locations": [
+            "frontend/webui/application_settings.py",
+            "frontend/webui/app.py",
+            "docs/webui-design-language.md",
+            "docs/images/disposition-phase-3-ar.jpg"
+          ],
+          "evidence_group": "design",
+          "details": "docs/disposition-phase-3.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 3,
+          "result": "passed",
+          "run": "phase3-browser-and-contracts-20261014",
+          "tests": [
+            "frontend/webui/interaction/tests/test_application_settings.py::test_every_setting_has_visible_explanation_and_controls_and_no_secret",
+            "frontend/webui/interaction/tests/test_application_settings.py::test_optional_selector_clear_is_translated_and_resets_destination_drafts",
+            "browser::phase3_ltr_rtl_native_geometry"
+          ],
+          "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -25887,6 +27190,68 @@
         "tools/tests/test_disposition_baseline.py",
         "tools/tests/test_reconcile_local_env.py"
       ]
+    },
+    "phase3-api-20261014": {
+      "result": "passed",
+      "exit_code": 0,
+      "passed": 68,
+      "elapsed_seconds": 104.79,
+      "warnings": 2,
+      "database": "erms_messaging_test_acl_9149cbf479d44ddcb5afd3cafc866b80",
+      "creation": "succeeded",
+      "initialization": "database/schema.sql alone, then separate seeds",
+      "cleanup": "succeeded; runner reported DROP DATABASE WITH (FORCE)",
+      "runner": "tools/run_disposable_acl_tests.py",
+      "targets": [
+        "backend/services/api/tests/test_application_settings_phase3.py",
+        "backend/services/api/tests/test_application_settings.py",
+        "backend/services/api/tests/test_phase9_governance_authorization.py",
+        "backend/services/api/tests/test_policy_inventory.py",
+        "backend/services/api/tests/test_localization_catalogue.py"
+      ]
+    },
+    "phase3-webui-20261014": {
+      "result": "passed",
+      "exit_code": 0,
+      "passed": 76,
+      "elapsed_seconds": 10.6,
+      "database": null,
+      "targets": [
+        "frontend/webui/interaction/tests/test_application_settings.py",
+        "frontend/webui/interaction/tests/test_security_level_selector.py",
+        "frontend/webui/tests/test_api_client.py",
+        "frontend/webui/tests/test_navigation_history.py",
+        "frontend/webui/tests/test_navigation_heading_visibility.py",
+        "frontend/webui/tests/test_bounded_collection_contract.py"
+      ],
+      "options": "--asyncio-mode=auto"
+    },
+    "phase3-browser-and-contracts-20261014": {
+      "result": "passed",
+      "details": "docs/disposition-phase-3.md",
+      "api_run": "phase3-api-20261014",
+      "webui_run": "phase3-webui-20261014",
+      "languages": [
+        "en",
+        "ar"
+      ],
+      "freshness": "English and Arabic save/reload; three repeated entries add exactly three settings GETs; abandoned metadata and search controls verified",
+      "artifact": "docs/images/disposition-phase-3-ar.jpg",
+      "translated_active_keys": 3188,
+      "prior_items_preserved": 3141,
+      "new_generated_drafts": 47,
+      "limitations": "Phase 3 Settings/warnings only; later consumer and workflow clauses remain assigned work."
+    },
+    "phase3-traceability-unit-20261014": {
+      "result": "passed",
+      "exit_code": 0,
+      "passed": 27,
+      "elapsed_seconds": 1.06,
+      "database": null,
+      "targets": [
+        "tools/tests/test_disposition_baseline.py",
+        "tools/tests/test_reconcile_local_env.py"
+      ]
     }
   },
   "removed_setting": {
@@ -26473,5 +27838,166 @@
       "note": "Final completion bookkeeping follows the captured end boundary."
     },
     "requirements_gate": "Every applicable Phase 2 foundation clause has implementation and passing verification; multi-phase requirements remain in progress until their other assigned UI/consumer/workflow clauses pass."
+  },
+  "phase_3_completion": {
+    "status": "complete",
+    "details": "docs/disposition-phase-3.md",
+    "deliverables": [
+      "frontend/webui/application_settings.py",
+      "docs/disposition-phase-3.md",
+      "docs/images/disposition-phase-3-ar.jpg",
+      "tools/preview_application_settings.py"
+    ],
+    "requirements": [
+      "ACFG-S5.1",
+      "ACFG-S5.2",
+      "ACFG-S5.3",
+      "ACFG-S5.4",
+      "ACFG-S5.5",
+      "ACFG-S5.6",
+      "ACFG-S5.7",
+      "ACFG-S7",
+      "ACFG-S8",
+      "ACFG-S10.5",
+      "ACFG-S10.6",
+      "ACFG-S11",
+      "ACFG-S12",
+      "ACFG-11",
+      "ACFG-14",
+      "ACFG-15",
+      "ADMIN-S1",
+      "ADMIN-S2",
+      "ADMIN-S3",
+      "ADMIN-S4",
+      "ADMIN-S5",
+      "ADMIN-S6",
+      "DEST-S5.4",
+      "DEST-S17.2",
+      "DEST-S18.12",
+      "DEST-40",
+      "DEST-31",
+      "DEST-32",
+      "DEST-38",
+      "DEST-33",
+      "REF-retention-5.3",
+      "REF-retention-5.4",
+      "REF-retention-6",
+      "REF-retention-7",
+      "REF-retention-16",
+      "REF-i18n-7.5",
+      "REF-i18n-7.8",
+      "REF-i18n-14",
+      "REF-i18n-15",
+      "REF-i18n-16",
+      "REF-i18n-19",
+      "REF-i18n-21.1",
+      "REF-performance-3",
+      "REF-performance-4",
+      "REF-performance-5",
+      "REF-performance-6",
+      "REF-performance-7",
+      "REF-performance-8",
+      "REF-performance-9",
+      "REF-performance-10",
+      "REF-design-6",
+      "REF-design-7",
+      "REF-design-19.1"
+    ],
+    "evidence_runs": [
+      "phase3-api-20261014",
+      "phase3-webui-20261014",
+      "phase3-browser-and-contracts-20261014",
+      "phase3-traceability-unit-20261014"
+    ],
+    "requirements_gate": "Every assigned Phase 3 Settings/warning/UI clause has implementation and passing evidence; later clauses of multi-phase requirements remain in progress.",
+    "persistent_database_changes": false,
+    "environment_template_changes": false,
+    "next_phase": 4,
+    "timing": {
+      "start_utc": "2026-10-14 07:32:00",
+      "end_utc": "2026-10-14 09:13:34",
+      "active_hours": 1.69,
+      "excluded_waiting_hours": 0.0,
+      "quality": "measured",
+      "note": "Final completion bookkeeping follows this captured end boundary."
+    },
+    "database_attempts": [
+      {
+        "database": "erms_messaging_test_acl_715346b5e0354218b00191b393ac1b7d",
+        "creation": "succeeded",
+        "cleanup": "succeeded; final PostgreSQL catalogue confirms absent",
+        "result": "38 passed; missing effective-retention-rule fixture corrected"
+      },
+      {
+        "database": "erms_messaging_test_acl_9149cbf479d44ddcb5afd3cafc866b80",
+        "creation": "succeeded",
+        "cleanup": "succeeded; final PostgreSQL catalogue confirms absent",
+        "result": "68 passed"
+      },
+      {
+        "database": "erms_messaging_test_acl_5b57f58e7636405fada58e76c2d33123",
+        "creation": "succeeded",
+        "cleanup": "succeeded; final PostgreSQL catalogue confirms absent",
+        "result": "initial preview SQL type inference failure corrected"
+      },
+      {
+        "database": "erms_messaging_test_acl_441ab3c9ce4447d8944ff1a58955c131",
+        "creation": "succeeded",
+        "cleanup": "succeeded; final PostgreSQL catalogue confirms absent",
+        "result": "English persisted destinations/reminder, large/deep selector, missing-root warning clearance"
+      },
+      {
+        "database": "erms_messaging_test_acl_ff68647db30d470d94bcf710ba97d378",
+        "creation": "succeeded",
+        "cleanup": "succeeded; final PostgreSQL catalogue confirms absent",
+        "result": "Arabic save/reload/category, restricted role, native direction and narrow viewport"
+      },
+      {
+        "database": "erms_messaging_test_acl_d3744ff7022d4dbfa3736d2218b48ea4",
+        "creation": "succeeded",
+        "cleanup": "succeeded; final PostgreSQL catalogue confirms absent",
+        "result": "English/Arabic native translated clear, exact one settings GET per repeated entry, no API/WebUI error markers"
+      },
+      {
+        "database": "erms_messaging_test_acl_57e6d051ed6848c8a6f7934af94b67ce",
+        "creation": "succeeded",
+        "cleanup": "succeeded; runner reported DROP and final PostgreSQL catalogue confirms absent",
+        "result": "Retook screenshot after native tab transition settled; inspected image before saving"
+      }
+    ],
+    "additional_checks": [
+      {
+        "command": "python3 tools/check_disposition_baseline.py",
+        "result": "passed"
+      },
+      {
+        "command": "python3 tools/sync_api_env_template.py --check",
+        "result": "passed"
+      },
+      {
+        "command": "frontend/webui/scripts/check_i18n_catalogue.py",
+        "result": "passed"
+      },
+      {
+        "command": "frontend/webui/scripts/check_approved_arabic_terminology.py",
+        "result": "passed"
+      },
+      {
+        "command": "3188 ordered active keys; 3141 full prior Arabic item equality; 47 new draft quality/provenance/hash validation; complete placeholder/nonblank/root hashes",
+        "result": "passed"
+      },
+      {
+        "command": "Python compilation of all changed Python modules/tests/preview utility",
+        "result": "passed"
+      },
+      {
+        "command": "git diff --check",
+        "result": "passed"
+      },
+      {
+        "command": "All recorded Phase 3 automated test selectors and run targets exist",
+        "result": "passed"
+      }
+    ]
   }
 }

@@ -19,6 +19,7 @@ from .api_client import ApiError, ErmsApiClient
 from .remote_select import RemoteSelect
 from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .classification_workspace import classification_workspace
+from .application_settings import settings_page, disposition_warning_panel
 from .messaging_workspace import messaging_workspace
 from .resource_inspector import resource_inspector
 from .messaging_live import LiveMailbox, stream_events, mailbox_cursor_key
@@ -2044,16 +2045,16 @@ def index(q: str = "") -> None:
         /* These native components already inherit RTL. The legacy global row
            reversal flips them twice; Quasar floating labels remain left-anchored.
            Native direction/card/row props do not reset those internal styles. */
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .row {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page, .application-settings-browser) .row {
             flex-direction: row;
         }
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .q-field__label {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__label {
             left: auto; right: 0; transform-origin: right top; text-align: right;
         }
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .q-field__append {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__append {
             padding-left: 0; padding-right: 12px;
         }
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .q-field__prepend {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__prepend {
             padding-right: 0; padding-left: 12px;
         }
         /* The native login glyph has no directional variant. Keep the same
@@ -3823,10 +3824,13 @@ def index(q: str = "") -> None:
                 drawer_sections.append((system_heading, (
                     "audit-trail", "login-sessions", "security-operations", "saved-search-administration",
                     "security-levels", "profiles", "governance-custody", "holds",
-                    "text-indexers", "translations",
+                    "text-indexers", "translations", "application-settings",
                 )))
                 text_indexers_navigation = drawer_link(
                     render_message("navigation.item.text_indexers"), "manage_search", navigation_key="text-indexers",
+                )
+                application_settings_navigation = drawer_link(
+                    render_message("navigation.item.application_settings"), "settings", navigation_key="application-settings",
                 )
                 audit_navigation = drawer_link(
                     render_message("navigation.item.audit_trail"), "manage_history", navigation_key="audit-trail",
@@ -3999,6 +4003,7 @@ def index(q: str = "") -> None:
             "audit-trail": "manage_history",
             "login-sessions": "devices",
             "governance-custody": "shield_person",
+            "application-settings": "settings",
             "security-operations": "monitor_heart",
         }.get(page)
         if icon_name:
@@ -4015,6 +4020,7 @@ def index(q: str = "") -> None:
             "search_text": str(search_input.value or ""),
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
             "aggregation_mode": state.get("aggregation_mode", "search"),
+            "settings_category": state.get("settings_category", "general"),
             "global_search_query": state.get("global_search_query", ""),
             "global_search_page": state.get("global_search_page", 1),
             "global_search_filter": state.get("global_search_filter", "all"),
@@ -4427,6 +4433,7 @@ def index(q: str = "") -> None:
         "profiles": "navigation.item.profiles",
         "translations": "navigation.item.translations",
         "governance-custody": "navigation.item.governance_custody",
+        "application-settings": "navigation.item.application_settings",
         "holds": "navigation.item.holds",
     }
 
@@ -4593,6 +4600,8 @@ def index(q: str = "") -> None:
             await select_login_sessions()
         elif page == "governance-custody":
             await select_governance_custody()
+        elif page == "application-settings":
+            await select_application_settings(saved.get("settings_category", "general"))
         elif page == "holds":
             await select_holds()
         elif page == "hold-details" and entity_id is not None:
@@ -16936,22 +16945,35 @@ def index(q: str = "") -> None:
             dialog.open()
 
     async def select_governance_custody() -> None:
+        principal = auth_state.get("principal")
+        if not principal or not can_navigate("governance-custody", principal.get("global_privileges", [])):
+            return
+        prior_report_visible = state.get("resource") == "governance-custody"
+        token = object()
         register_navigation(
             "governance-custody",
             render_message("webui.select_governance_custody.text.governance_custody_d1711a12"),
         )
         show_authenticated_view()
-        state.update(resource="governance-custody", rows=[], searched=True)
+        state.update(resource="governance-custody", custody_page_token=token, rows=[], searched=True)
         title.text = render_message("webui.select_governance_custody.text.governance_custody_d1711a12")
         subtitle.text = render_message("webui.select_governance_custody.text.checks_that_someone_can_always_manage_and_63c11d0d")
         search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
         add_button.set_visibility(False); add_record_button.set_visibility(False)
         guidance.text = ""
-        table_container.clear()
+        if not prior_report_visible:
+            table_container.clear()
+            with table_container:
+                ui.label(render_message("settings.custody.loading")).classes("p-5 text-sm text-slate-500").props("role=status")
         try:
             report = await api.governance_custody()
         except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True); return
+            if state.get("custody_page_token") is token and state.get("resource") == "governance-custody":
+                ui.notify(error_message(error), color="negative", close_button=True)
+            return
+        if auth_state.get("principal") is not principal or state.get("resource") != "governance-custody" or state.get("custody_page_token") is not token:
+            return
+        table_container.clear()
         highest_level = report.get("highest_security_level")
         warning = next(iter(report.get("warnings", [])), None)
         custodian_count = report["highest_clearance_custodian_count"]
@@ -16969,6 +16991,13 @@ def index(q: str = "") -> None:
         ]
         qualifying_roles_by_id = {item["id"]: item for item in qualifying_roles}
         with table_container, ui.column().classes("w-full p-5 gap-4"):
+            with ui.row().classes("w-full justify-end"):
+                ui.button(render_message("settings.action.refresh"), icon="refresh", on_click=select_governance_custody).props("flat dense no-caps")
+            disposition_warning_panel(
+                report.get("disposition_configuration_warnings", []),
+                can_manage=can_navigate("application-settings", principal.get("global_privileges", [])),
+                open_settings=lambda: guarded_page_navigation(lambda: select_application_settings("disposition")),
+            )
             with ui.element("div").classes("governance-overview-grid"):
                 with ui.card().classes("governance-purpose-card shadow-none"):
                     with ui.row().classes("w-full items-start gap-3 no-wrap"):
@@ -19116,6 +19145,35 @@ def index(q: str = "") -> None:
         else:
             await open_aggregation(await api.get("aggregations", identity))
 
+    async def select_application_settings(initial_category: str = "general") -> None:
+        principal = auth_state.get("principal")
+        if not principal or not can_navigate("application-settings", principal.get("global_privileges", [])):
+            return
+        token = object()
+        state.update(resource="application-settings", settings_page_token=token,
+                     settings_category=initial_category, rows=[], searched=True, aggregation_detail=None)
+        register_navigation("application-settings", render_message("navigation.item.application_settings"))
+        show_authenticated_view()
+        title.text = render_message("navigation.item.application_settings")
+        subtitle.text = render_message("settings.page.subtitle")
+        guidance.text = ""
+        for control in (search_bar, aggregation_mode_bar, add_button, add_record_button):
+            control.set_visibility(False)
+        table_container.clear()
+        def remember_settings_category(value):
+            if auth_state.get("principal") is not principal or state.get("resource") != "application-settings" or state.get("settings_page_token") is not token:
+                return
+            state.update(settings_category=value)
+            if navigation_state["trail"] and navigation_state["trail"][-1]["page"] == "application-settings":
+                navigation_state["trail"][-1]["state"] = current_navigation_snapshot()
+                persist_navigation_trail()
+        await settings_page(
+            api=api, container=table_container, bind_relationship=bind_remote_relationship_select,
+            active=lambda: auth_state.get("principal") is principal and state.get("resource") == "application-settings" and state.get("settings_page_token") is token,
+            on_error=error_message, direction=lambda: current_direction["value"], initial_category=initial_category,
+            on_category=remember_settings_category,
+        )
+
     async def select_relationship_types() -> None:
         principal = auth_state.get("principal")
         if not principal or not can_navigate("relationship-types", principal.get("global_privileges", [])):
@@ -20784,6 +20842,7 @@ def index(q: str = "") -> None:
         "click", lambda: guarded_page_navigation(select_saved_search_administration)
     )
     text_indexers_navigation.on("click", lambda: guarded_page_navigation(select_text_indexers))
+    application_settings_navigation.on("click", lambda: guarded_page_navigation(select_application_settings))
     custody_navigation.on("click", lambda: guarded_page_navigation(select_governance_custody))
     holds_navigation.on("click", lambda: guarded_page_navigation(select_holds))
     change_password_menu.on("click", show_change_password)
