@@ -113,4 +113,13 @@ def test_canonical_and_upgrade_settings_ddl_are_identical_except_installation_ki
     marker_051="INSERT INTO schema_migrations(version) VALUES('051_database_indexing_policy') ON CONFLICT DO NOTHING;"
     assert canonical.count(marker_051)==1
     canonical=canonical.replace("\n"+marker_051,"")
+    marker_052="INSERT INTO schema_migrations(version) VALUES('052_application_settings_reference_audit') ON CONFLICT DO NOTHING;"
+    assert canonical.count(marker_052)==1
+    canonical=canonical.replace("\n"+marker_052,"")
+    snapshot_upgrade=(root/'database/migrations/052_application_settings_reference_audit.sql').read_text()
+    def audit_function(sql):
+        start=sql.index('CREATE OR REPLACE FUNCTION audit_application_setting()')
+        return sql[start:sql.index('END $$;',start)+len('END $$;')]
+    assert audit_function(canonical)==audit_function(snapshot_upgrade)
+    canonical=canonical.replace(audit_function(canonical),audit_function(migration))
     assert canonical == migration.replace("VALUES(true,'upgrade')", "VALUES(true,'fresh')")

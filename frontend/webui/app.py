@@ -5019,7 +5019,8 @@ def index(q: str = "") -> None:
         }
         primary, secondary = identities.get(entity_type, (None, None))
         identity = " — ".join(str(value) for value in (primary, secondary) if value)
-        heading = render_message("webui.event_entity_identity.text.title_entity_id_3be1e8f8", title=entity_type.replace('_', ' ').title(), entity_id=event['entity_id'])
+        entity_title = audit_entity_type_label(entity_type) if entity_type == "application_setting" else entity_type.replace('_', ' ').title()
+        heading = render_message("webui.event_entity_identity.text.title_entity_id_3be1e8f8", title=entity_title, entity_id=event['entity_id'])
         return heading, identity
 
     def hydrate_historical_audit_identities(events_list: list[dict[str, Any]]) -> None:
@@ -5045,7 +5046,22 @@ def index(q: str = "") -> None:
         }
         return labels.get(actor_type, actor_type.replace("_", " ").title()), None
 
+    def can_open_event_entity(event: dict[str, Any]) -> bool:
+        if event.get("entity_type") == "application_setting":
+            principal = auth_state.get("principal") or {}
+            return can_navigate("application-settings", principal.get("global_privileges", []))
+        return event.get("entity_type") in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}
+
     async def navigate_to_event_entity(event: dict[str, Any]) -> None:
+        if event.get("entity_type") == "application_setting":
+            if not can_open_event_entity(event):
+                return
+            origin_dialog = event.get("_origin_dialog")
+            if origin_dialog:
+                origin_dialog.close()
+            setting_key = (event.get("metadata") or {}).get("setting_key")
+            await guarded_page_navigation(lambda: select_application_settings(initial_setting_key=setting_key))
+            return
         entity = event.get("_current_entity")
         if not entity:
             resources = {
@@ -5120,7 +5136,7 @@ def index(q: str = "") -> None:
                     ui.label(entity_heading).classes("text-sm text-slate-500")
                     if entity_identity:
                         ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
-                if event["entity_type"] in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}:
+                if can_open_event_entity(event):
                     ui.button(
                         render_message("webui.show_event_detail.button.open_entity_ef774537"), icon="open_in_new",
                         on_click=open_entity,
@@ -5212,11 +5228,13 @@ def index(q: str = "") -> None:
                             if actor_email:
                                 ui.label(actor_email).classes("text-xs text-slate-400")
                             ui.label(event.get("source", render_message("webui.render_event_timeline.label.unknown_509e35f5"))).classes("text-xs text-slate-400")
-                        if event["entity_type"] in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}:
+                        if can_open_event_entity(event):
                             ui.button(
                                 icon="open_in_new",
                                 on_click=lambda _, item=event: navigate_to_event_entity(item),
-                            ).props("flat round dense color=primary").tooltip(render_message("webui.render_event_timeline.tooltip.open_current_entity_208e2a65"))
+                            ).props("flat round dense color=primary").props(
+                                f'aria-label="{render_message_plain("webui.render_event_timeline.tooltip.open_current_entity_208e2a65")}"'
+                            ).tooltip(render_message("webui.render_event_timeline.tooltip.open_current_entity_208e2a65"))
                         ui.button(
                             icon="chevron_right",
                             on_click=lambda _, item=event: show_event_detail(item),
@@ -19176,7 +19194,7 @@ def index(q: str = "") -> None:
         else:
             await open_aggregation(await api.get("aggregations", identity))
 
-    async def select_application_settings(initial_category: str = "general") -> None:
+    async def select_application_settings(initial_category: str = "general", *, initial_setting_key: str | None = None) -> None:
         principal = auth_state.get("principal")
         if not principal or not can_navigate("application-settings", principal.get("global_privileges", [])):
             return
@@ -19202,6 +19220,7 @@ def index(q: str = "") -> None:
             api=api, container=table_container, bind_relationship=bind_remote_relationship_select,
             active=lambda: auth_state.get("principal") is principal and state.get("resource") == "application-settings" and state.get("settings_page_token") is token,
             on_error=error_message, direction=lambda: current_direction["value"], initial_category=initial_category,
+            initial_setting_key=initial_setting_key,
             on_category=remember_settings_category,
         )
 

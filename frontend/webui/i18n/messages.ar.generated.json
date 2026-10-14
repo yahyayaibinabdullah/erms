@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-  "catalogue_sha256": "d1ec95e3a5a4bec7e461cd8fbcb08ea8c9249e1d0a7981429c8f473e7c748699",
+  "catalogue_sha256": "6ffc52eee138082c3384700ebb48d7f366e347b57545394adfbb8507053168bc",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261008143451",
   "generated_at": "2026-10-08T14:34:51.436440+04:00",
@@ -1010,6 +1010,22 @@
       }
     },
     {
+      "message_key": "audit.entity.application_setting",
+      "translated_text": "إعداد التطبيق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-audit-labels-ar-v1",
+        "generated_at": "2026-10-14T17:07:36.194992+00:00",
+        "batch_id": "settings-audit-labels-20261014",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "6ffc52eee138082c3384700ebb48d7f366e347b57545394adfbb8507053168bc",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
       "message_key": "audit.event.access_explanation_viewed",
       "translated_text": "عرض تفسير الوصول",
       "quality_flags": [],
@@ -1055,6 +1071,54 @@
         "source_status": "published",
         "date_reviewed": "2026-09-28T10:30:03.437443+00:00",
         "date_published": "2026-09-28T10:30:03.437443+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.application_setting_changed",
+      "translated_text": "تغيير إعداد التطبيق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-audit-labels-ar-v1",
+        "generated_at": "2026-10-14T17:07:36.194992+00:00",
+        "batch_id": "settings-audit-labels-20261014",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "6ffc52eee138082c3384700ebb48d7f366e347b57545394adfbb8507053168bc",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "audit.event.application_setting_seeded",
+      "translated_text": "تهيئة إعداد التطبيق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-audit-labels-ar-v1",
+        "generated_at": "2026-10-14T17:07:36.194992+00:00",
+        "batch_id": "settings-audit-labels-20261014",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "6ffc52eee138082c3384700ebb48d7f366e347b57545394adfbb8507053168bc",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "audit.event.application_settings_migration_completed",
+      "translated_text": "اكتمال ترحيل إعدادات التطبيق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-audit-labels-ar-v1",
+        "generated_at": "2026-10-14T17:07:36.194992+00:00",
+        "batch_id": "settings-audit-labels-20261014",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "6ffc52eee138082c3384700ebb48d7f366e347b57545394adfbb8507053168bc",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
       }
     },
     {

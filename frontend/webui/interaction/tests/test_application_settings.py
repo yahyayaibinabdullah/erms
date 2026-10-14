@@ -82,7 +82,7 @@ def mark(user,element):
     return user.find(marker=f'element-{element.id}')
 
 
-async def open_page(user,language='en',configured=False):
+async def open_page(user,language='en',configured=False,initial_setting_key=None):
     api=Api(language);live={'active':True};holder={}
     if configured:
         for key,value in [('DISPOSITION_CLASSIFICATION_SCHEME_ID',1),('DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID',301),('DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID',301)]:api.items[key]['value']=value
@@ -96,9 +96,16 @@ async def open_page(user,language='en',configured=False):
         set_active_messages(AR if language=='ar' else {})
         holder['container']=ui.column()
         holder['state']=await settings_page(api=api,container=holder['container'],active=lambda:live['active'],on_error=str,
-            bind_relationship=scope['bind_remote_relationship_select'],direction=lambda:'rtl' if language=='ar' else 'ltr',initial_category='disposition')
+            bind_relationship=scope['bind_remote_relationship_select'],direction=lambda:'rtl' if language=='ar' else 'ltr',initial_category='disposition',initial_setting_key=initial_setting_key)
     await user.open('/settings-test');await asyncio.sleep(.02)
     return api,holder,live
+
+
+@pytest.mark.parametrize('key,category',[('DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID','disposition'),('SMTP_HOST','email'),('REVIEW_WARNING_WINDOW_DAYS','general')])
+async def test_audit_target_opens_api_category_with_one_settings_read(user:User,key,category):
+    api,_,_=await open_page(user,initial_setting_key=key)
+    assert next(iter(user.find(ui.tabs).elements)).value==category
+    assert api.calls==[('settings',None)]
 
 
 @pytest.mark.parametrize('language',['en','ar'])
@@ -253,3 +260,109 @@ async def test_optional_selector_clear_is_translated_and_resets_destination_draf
         events.handle_event(listener.handler,events.GenericEventArguments(sender=clear,client=user.client,args=None))
     await asyncio.sleep(.02)
     assert all(form['controls'][key].value is None for key in DESTINATION_KEYS)
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+async def test_timezone_dropdown_and_exact_integer_steppers(user:User,language):
+    api,holder,_=await open_page(user,language)
+    forms=holder['state']['forms']
+    timezone=forms['general']['controls']['DEFAULT_WORKING_TIMEZONE']
+    assert isinstance(timezone,ui.select) and timezone._props['use-input']
+    assert timezone.options==sorted(timezone.options)
+    assert {'Asia/Dubai','Europe/London','UTC'} <= set(timezone.options)
+    with user:timezone.set_value('Europe/London')
+    assert changed_rows(list(api.items.values())[:3],forms['general']['controls'])[0]['value']=='Europe/London'
+    for item in api.items.values():
+        if item['kind']!='integer':continue
+        control=forms[item['category']]['controls'][item['key']]
+        assert isinstance(control,ui.input) and control._props['type']=='number'
+        assert not control.slots.get('append')  # No separately composed arrows.
+        minimum=max(1,item['validation']['minimum'])
+        assert control._props['step']=='1' and control._props['min']==str(minimum)
+        assert control._props['max']==str(item['validation']['maximum'] or 9223372036854775807)
+        with user:
+            control.set_value(str(minimum));assert control.validate()
+            control.set_value(str(minimum-1));assert not control.validate()
+            if item['validation']['maximum']:
+                control.set_value(str(item['validation']['maximum']+1));assert not control.validate()
+    big=forms['content']['controls']['MAX_UPLOAD_SIZE_BYTES']
+    with user:big.set_value('9007199254740993')
+    assert big.value=='9007199254740993'
+    changes=changed_rows([api.items['MAX_UPLOAD_SIZE_BYTES']],forms['content']['controls'])
+    assert changes[0]['value']==9007199254740993
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+async def test_successful_save_has_translated_toast_but_conflict_does_not(user:User,language):
+    api,holder,_=await open_page(user,language)
+    form=holder['state']['forms']['general']
+    with user:form['controls']['REVIEW_WARNING_WINDOW_DAYS'].set_value('31')
+    mark(user,form['reason']).type('Update warning window')
+    api.fail=True
+    mark(user,form['save']).click();await asyncio.sleep(.03)
+    assert not user.notify.messages
+    api.fail=False
+    mark(user,form['save']).click();await asyncio.sleep(.06)
+    assert len(user.notify.messages)==1
+    assert strip_diagnostic_metadata(user.notify.messages[0])==(AR if language=='ar' else EN)['settings.page.saved']
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+@pytest.mark.parametrize('reason',['','   '])
+async def test_missing_reason_warns_without_saving_or_losing_draft(user:User,language,reason):
+    api,holder,_=await open_page(user,language)
+    form=holder['state']['forms']['general']
+    with user:
+        form['controls']['REVIEW_WARNING_WINDOW_DAYS'].set_value('29')
+        form['reason'].set_value('First successful update')
+    mark(user,form['save']).click();await asyncio.sleep(.06)
+    assert len(api.saved)==1
+    form=holder['state']['forms']['general']
+    calls_before=list(api.calls)
+    user.notify.messages.clear()
+    with user:
+        form['controls']['REVIEW_WARNING_WINDOW_DAYS'].set_value('31')
+        form['reason'].set_value(reason)
+    mark(user,form['save']).click();await asyncio.sleep(.03)
+    assert len(api.saved)==1 and api.calls==calls_before
+    assert form['controls']['REVIEW_WARNING_WINDOW_DAYS'].value=='31' and form['save'].enabled
+    expected=(AR if language=='ar' else EN)['settings.error.reason_required']
+    assert strip_diagnostic_metadata(form['feedback'].text)==expected
+    assert [strip_diagnostic_metadata(message) for message in user.notify.messages]==[expected]
+    saved=(AR if language=='ar' else EN)['settings.page.saved']
+    assert not any(strip_diagnostic_metadata(label.text)==saved for label in user.find(ui.label).elements)
+
+
+async def test_integer_minimum_blocks_invalid_save_without_rewriting_existing_zero(user:User):
+    api,holder,_=await open_page(user)
+    form=holder['state']['forms']['general']
+    with user:form['controls']['REVIEW_WARNING_WINDOW_DAYS'].set_value('0')
+    mark(user,form['reason']).type('Update warning window')
+    mark(user,form['save']).click();await asyncio.sleep(.02)
+    assert not api.saved and form['feedback'].text
+    item=copy.deepcopy(api.items['REVIEW_WARNING_WINDOW_DAYS']);item['value']=0
+    assert changed_rows([item],{item['key']:SimpleNamespace(value='0')})==[]
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+async def test_scheme_first_browse_unlocks_both_two_character_destination_searches(user:User,language):
+    api,holder,_=await open_page(user,language)
+    form=holder['state']['forms']['disposition'];scheme=form['controls'][DESTINATION_KEYS[0]]
+    assert 'lg:col-span-2' in scheme.parent_slot.parent.classes
+    for key in DESTINATION_KEYS[1:]:
+        assert not form['controls'][key].enabled and not form['browse_buttons'][key].enabled
+        assert strip_diagnostic_metadata(form['selector_help'][key].text)==(AR if language=='ar' else EN)['settings.selector.choose_scheme']
+    mark(user,form['browse_buttons'][DESTINATION_KEYS[0]]).click();await asyncio.sleep(.03)
+    user.find('S01 · Scheme 1').click();await asyncio.sleep(.03)
+    assert scheme.value==1
+    for key in DESTINATION_KEYS[1:]:
+        assert form['controls'][key].enabled and form['browse_buttons'][key].enabled
+        control=form['controls'][key]
+        for query in ('t','te'):
+            with user:
+                listener=next(v for v in control._event_listeners.values() if v.type=='inputValue')
+                events.handle_event(listener.handler,events.GenericEventArguments(sender=control,client=user.client,args=query))
+            await asyncio.sleep(.25)
+    searches=[v for kind,v in api.calls if kind=='search']
+    assert len(searches)==2
+    assert all(v[1]=='te' and v[2]['limit']==25 and v[2]['filters']=={'classification_scheme_id':1,'is_terminal':True} for v in searches)

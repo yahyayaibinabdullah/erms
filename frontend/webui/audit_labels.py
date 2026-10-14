@@ -4,6 +4,7 @@ from .i18n_catalogue import render_message_plain
 
 def audit_entity_type_label(value: str) -> str:
     labels = {
+        'application_setting': render_message_plain('audit.entity.application_setting'),
         'aggregation': render_message_plain('dashboard.resource.aggregation'),
         'record': render_message_plain('dashboard.resource.record'),
         'classification': render_message_plain('entity_metadata.field.classification'),

@@ -1,5 +1,12 @@
 # Disposition Phase 3 implementation and verification
 
+Later user-approved control corrections are recorded in
+[Application Settings control verification](application-settings-controls.md):
+IANA timezone dropdown, exact integer steppers and scheme-first destination
+selection. The original completion evidence and hours below remain unchanged.
+Shared Audit Trail labels and current-settings navigation are recorded in
+[Audit Trail presentation verification](application-settings-audit-navigation.md).
+
 Phase 3 delivers Administration Settings for all 51 database settings and the
 required destination warnings on Governance Custody. It uses the Phase 2
 registry/API, existing authorization and bounded classification endpoints.

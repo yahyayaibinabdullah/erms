@@ -1,5 +1,9 @@
 # Disposition Phase 2 implementation and verification
 
+The later user-approved readable Settings audit snapshots and migration 052 are
+documented in [reference audit verification](application-settings-reference-audit.md).
+Original completion evidence and hours below remain unchanged.
+
 Phase 2 supplies the shared application-settings foundation: a closed registry
 of 51 database settings, protected administration API, canonical/upgrade SQL,
 safe audit, provenance/completion, non-secret cache, and fresh operation-capture

@@ -8,6 +8,7 @@ selected IDs only; no options catalogue or additional authoritative cache exists
 import asyncio
 from collections import defaultdict
 from typing import Any
+from zoneinfo import available_timezones
 
 from nicegui import ui
 
@@ -17,8 +18,9 @@ from .remote_select import RemoteSelect
 
 CATEGORY_ORDER = ('general', 'content', 'authentication', 'interface_limits', 'search', 'disposition', 'email')
 FIELD_ORDER = {
-    'disposition': ('DISPOSITION_DESTRUCTION_REVIEW_ROUTE','DISPOSITION_CLASSIFICATION_SCHEME_ID',
+    'disposition': ('DISPOSITION_CLASSIFICATION_SCHEME_ID',
                     'DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID','DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID',
+                    'DISPOSITION_DESTRUCTION_REVIEW_ROUTE',
                     'DISPOSITION_EXTERNAL_AUTHORITY_NAME','DISPOSITION_EXTERNAL_AUTHORITY_EMAIL','DISPOSITION_DESTRUCTION_REMINDER_MONTHS'),
     'email': ('SMTP_HOST','SMTP_PORT','SMTP_SECURITY','SMTP_AUTH_ENABLED','SMTP_USERNAME','SMTP_PASSWORD',
               'SMTP_SENDER_EMAIL','SMTP_SENDER_NAME','SMTP_REPLY_TO_EMAIL','SMTP_TIMEOUT_SECONDS'),
@@ -61,6 +63,33 @@ def proposed_value(item, value):
     return value
 
 
+def integer_bounds(item):
+    validation = item['validation']
+    return max(1, validation.get('minimum') or 1), validation.get('maximum') or 9223372036854775807
+
+
+def integer_control(item):
+    """Standard NiceGUI numeric input with the browser's built-in stepper.
+
+    Input's string binding avoids Number's Python float conversion, preserving
+    PostgreSQL bigint values without a separate visual control or custom arrows.
+    """
+    minimum, maximum = integer_bounds(item)
+    error = render_message_plain('settings.error.invalid_value')
+
+    def validate(value):
+        try:
+            number = proposed_value(item, value)
+            return None if (number is None and item['validation']['nullable']) or (number is not None and minimum <= number <= maximum) else error
+        except (ValueError, TypeError, OverflowError):
+            return error
+
+    return ui.input(label=item['label'], value=str(item['value']) if item['value'] is not None else '',
+                    validation=validate).props(
+                        f'outlined dense type=number inputmode=numeric step=1 min={minimum} max="{maximum}"'
+                    ).classes('w-full')
+
+
 def changed_rows(items, controls, *, password=None, clear_password=False):
     """No plaintext saved value exists in the form; submit only replacements.
 
@@ -83,6 +112,10 @@ def changed_rows(items, controls, *, password=None, clear_password=False):
         # Changes to an untouched default are explicit only after a field event.
         touched = bool(getattr(controls[key], '_settings_touched', False))
         if value != item['value'] or touched and item['provenance'] == 'default':
+            if item['kind'] == 'integer':
+                minimum, maximum = integer_bounds(item)
+                if (value is None and not item['validation']['nullable']) or (value is not None and not minimum <= value <= maximum):
+                    raise ValueError
             changes.append(dict(key=key, expected_version=item['version'], value=value))
             if item['validation']['group']:
                 changed_groups.add(item['validation']['group'])
@@ -109,7 +142,7 @@ def disposition_warning_panel(warnings, *, can_manage, open_settings):
 
 
 async def settings_page(*, api, container, bind_relationship, active, on_error,
-                        direction=lambda: 'ltr', initial_category='general', on_category=lambda value: None):
+                        direction=lambda: 'ltr', initial_category='general', initial_setting_key=None, on_category=lambda value: None):
     state = {'revision': 0, 'items': {}, 'references': {}, 'hosts': {}, 'forms': {}, 'loading': False}
     with container:
         with ui.column().classes('application-settings-page w-full p-5 gap-4'):
@@ -246,14 +279,16 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
         host = state['hosts'][category]
         host.clear()
         items = [i for i in state['items'].values() if i['category'] == category]
-        form = {'controls': {}, 'loaders': {}, 'busy': False}
+        form = {'controls': {}, 'loaders': {}, 'browse_buttons': {}, 'selector_help': {}, 'busy': False}
         state['forms'][category] = form
         order = {key:index for index,key in enumerate(FIELD_ORDER.get(category,()))}
         with host:
             with ui.grid().classes('w-full grid-cols-1 lg:grid-cols-2 gap-5'):
                 for item in sorted(items, key=lambda i: (order.get(i['key'],len(order)), i['key'])):
                     key = item['key']
-                    with ui.column().classes('w-full gap-2 min-w-0').props(f'data-setting-key={key}'):
+                    with ui.column().classes('w-full gap-2 min-w-0').props(f'data-setting-key={key}') as field:
+                        if key == DESTINATION_KEYS[0]:
+                            field.classes('lg:col-span-2')
                         ui.label(item['label']).classes('font-semibold text-sm')
                         validation = item['validation']
                         if item['sensitive']:
@@ -271,8 +306,8 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                             row = state['references'].get((resource,item['value']))
                             options = {item['value']: reference_label(row) if row else render_message_plain('settings.selector.selected_id', id=item['value'])} if item['value'] is not None else {}
                             control = RemoteSelect(options, value=item['value'], label=item['label'], with_input=True).props('outlined dense input-debounce=0').classes('w-full')
-                            ui.label(render_message('settings.selector.search_help')).classes('text-xs text-slate-500')
-                            ui.button(render_message('settings.action.browse'), icon='account_tree', on_click=lambda _, c=control, k=item['kind'], f=form: browse(c,k,f)).props('outline dense no-caps')
+                            form['selector_help'][key] = ui.label(render_message('settings.selector.search_help')).classes('text-xs text-slate-500')
+                            form['browse_buttons'][key] = ui.button(render_message('settings.action.browse'), icon='account_tree', on_click=lambda _, c=control, k=item['kind'], f=form: browse(c,k,f)).props('outline dense no-caps')
                             async def page_loader(query, kind=item['kind'], f=form):
                                 filters = {}
                                 if kind == 'classification':
@@ -295,9 +330,12 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                             options = {choice: render_message_plain(SETTINGS_CHOICE_MESSAGE_KEYS[choice]) for choice in validation['choices']}
                             control = ui.select(options, value=item['value'], label=item['label']).props('outlined dense').classes('w-full')
                         elif item['kind'] == 'integer':
-                            control = ui.input(label=item['label'], value=str(item['value']) if item['value'] is not None else '').props('outlined dense inputmode=numeric').classes('w-full')
+                            control = integer_control(item)
                             if key == 'SMTP_PORT':
                                 form['port_help'] = ui.label(render_message('settings.port.auto')).classes('text-xs text-slate-500')
+                        elif item['kind'] == 'timezone':
+                            control = ui.select(sorted(available_timezones()), value=item['value'], label=item['label'],
+                                                with_input=True).props('outlined dense options-dense input-debounce=0').classes('w-full')
                         else:
                             control = ui.input(item['label'], value=item['value'] or '').props('outlined dense').classes('w-full')
                             if item['kind'] == 'email':
@@ -319,12 +357,21 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                         form['controls'][key] = control
                         ui.label(item['description']).classes('text-sm text-slate-600 leading-relaxed w-full whitespace-normal')
             if category == 'disposition':
+                def update_destination_controls():
+                    has_scheme = form['controls'][DESTINATION_KEYS[0]].value is not None
+                    for key in DESTINATION_KEYS[1:]:
+                        form['controls'][key].set_enabled(has_scheme)
+                        form['browse_buttons'][key].set_enabled(has_scheme)
+                        form['selector_help'][key].text = render_message('settings.selector.search_help' if has_scheme else 'settings.selector.choose_scheme')
+
                 async def scheme_changed():
                     for key in DESTINATION_KEYS[1:]:
                         control = form['controls'][key]
                         control.set_options({}, value=None)
+                    update_destination_controls()
                     await asyncio.gather(*(form['loaders'][key]('') for key in DESTINATION_KEYS[1:]))
                 form['controls'][DESTINATION_KEYS[0]].on_value_change(scheme_changed)
+                update_destination_controls()
             if category == 'email':
                 def show_effective_port():
                     port = form['controls']['SMTP_PORT'].value
@@ -344,7 +391,9 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
             if form['busy'] or not current():
                 return
             if not (reason.value or '').strip():
+                status.text = ''
                 feedback.text = render_message('settings.error.reason_required')
+                ui.notify(render_message('settings.error.reason_required'), color='warning')
                 return
             try:
                 changes = changed_rows(items, form['controls'], password=form.get('password').value if form.get('password') else None,
@@ -370,6 +419,7 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                     render_category(category)
                 with container:
                     status.text = render_message('settings.page.saved')
+                    ui.notify(render_message('settings.page.saved'), color='positive')
             except asyncio.CancelledError:
                 return
             except ApiError as error:
@@ -404,7 +454,8 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                     categories = {i['category']: i['category_label'] for i in response['items']}
                     with ui.tabs().props('no-caps outside-arrows mobile-arrows').classes('w-full') as tabs:
                         tab_by_category = {c:ui.tab(c,label=categories[c]) for c in CATEGORY_ORDER if c in categories}
-                    tabs.value = initial_category if initial_category in tab_by_category else next(iter(tab_by_category))
+                    target_category = (state['items'].get(initial_setting_key) or {}).get('category', initial_category)
+                    tabs.value = target_category if target_category in tab_by_category else next(iter(tab_by_category))
                     tabs.on_value_change(lambda e: on_category(e.value))
                     on_category(tabs.value)
                     with ui.tab_panels(tabs,value=tabs.value).classes('w-full'):

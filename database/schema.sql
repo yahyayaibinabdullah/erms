@@ -7365,7 +7365,7 @@ DROP TRIGGER IF EXISTS application_settings_guard ON application_settings;
 CREATE TRIGGER application_settings_guard BEFORE INSERT OR UPDATE OR DELETE ON application_settings
  FOR EACH ROW EXECUTE FUNCTION guard_application_setting();
 CREATE OR REPLACE FUNCTION audit_application_setting() RETURNS trigger LANGUAGE plpgsql AS $$
-DECLARE safe jsonb;
+DECLARE safe jsonb; reference_field text;
 BEGIN
  safe:=jsonb_build_object('setting_key',NEW.key,'version',NEW.version,'provenance',NEW.provenance);
  IF NEW.key='SMTP_PASSWORD' THEN
@@ -7373,6 +7373,19 @@ BEGIN
  ELSE
   safe:=safe||jsonb_build_object('new_value',NEW.value,
    'old_value',CASE WHEN TG_OP='UPDATE' THEN OLD.value END);
+  reference_field:=CASE
+   WHEN NEW.key='DISPOSITION_CLASSIFICATION_SCHEME_ID' THEN 'classification_scheme_id'
+   WHEN NEW.key IN ('DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID',
+                   'DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID') THEN 'classification_id'
+  END;
+  IF reference_field IS NOT NULL THEN
+   -- Persist identities at the change, rather than resolving mutable names
+   -- when an administrator later opens the historical event.
+   safe:=safe||jsonb_build_object(
+    'new_reference',event_reference_identity(reference_field,(NEW.value#>>'{}')::bigint),
+    'old_reference',CASE WHEN TG_OP='UPDATE' THEN
+     event_reference_identity(reference_field,(OLD.value#>>'{}')::bigint) END);
+  END IF;
  END IF;
  PERFORM append_domain_event('application_setting',NEW.id,
   CASE WHEN TG_OP='INSERT' THEN 'APPLICATION_SETTING_SEEDED' ELSE 'APPLICATION_SETTING_CHANGED' END,safe);
@@ -7576,3 +7589,4 @@ INSERT INTO profile_privileges(profile_id,privilege_id)
  ON CONFLICT DO NOTHING;
 INSERT INTO schema_migrations(version) VALUES('050_application_settings') ON CONFLICT DO NOTHING;
 INSERT INTO schema_migrations(version) VALUES('051_database_indexing_policy') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(version) VALUES('052_application_settings_reference_audit') ON CONFLICT DO NOTHING;

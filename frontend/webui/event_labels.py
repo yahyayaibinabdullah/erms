@@ -6,6 +6,9 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    "APPLICATION_SETTING_CHANGED": "audit.event.application_setting_changed",
+    "APPLICATION_SETTING_SEEDED": "audit.event.application_setting_seeded",
+    "APPLICATION_SETTINGS_MIGRATION_COMPLETED": "audit.event.application_settings_migration_completed",
     "EXPORT": "audit.event.export",
     "NOTIFICATION_CONFIGURATION_SAVED": "audit.event.notification_configuration_saved",
     "NOTIFICATION_CONFIGURATION_ACTIVATED": "audit.event.notification_configuration_activated",

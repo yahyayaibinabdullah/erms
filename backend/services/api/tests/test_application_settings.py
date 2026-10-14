@@ -245,6 +245,72 @@ def test_destinations_require_complete_group_and_reject_inconsistent_sets(client
                 c.execute("SET CONSTRAINTS ALL IMMEDIATE")
 
 
+@pytest.mark.parametrize('upgrade',[False,True])
+@pytest.mark.parametrize('key',[
+    'DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID',
+    'DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID',
+])
+def test_destination_audit_snapshots_survive_rename_clear_and_deletion(client,key,upgrade):
+    if upgrade:
+        before=items(client)
+        with db() as c:
+            c.execute((ROOT/'database/migrations/050_application_settings.sql').read_text(),prepare=False)
+        assert save(client,{'REVIEW_WARNING_WINDOW_DAYS':31}).status_code==200
+        with db() as c:
+            historical=c.execute("SELECT id,metadata FROM event_history WHERE entity_type='application_setting' ORDER BY id").fetchall()
+            for _ in range(2):
+                c.execute((ROOT/'database/migrations/052_application_settings_reference_audit.sql').read_text(),prepare=False)
+            assert c.execute("SELECT id,metadata FROM event_history WHERE entity_type='application_setting' ORDER BY id").fetchall()==historical
+        assert items(client)[key]==before[key]
+    with db() as c:
+        actor(c)
+        scheme=c.execute("INSERT INTO classification_schemes(code,title) VALUES('TARGET','Target scheme') RETURNING id").fetchone()['id']
+        second=c.execute("INSERT INTO classifications(classification_scheme_id,code,title,is_terminal) VALUES(%s,'EVIDENCE-02','Evidence records',true) RETURNING id",(scheme,)).fetchone()['id']
+        c.execute("INSERT INTO classification_retention_rules(classification_id,current_period_years,intermediate_period_years,final_disposition) VALUES(%s,5,0,'destruction')",(second,))
+    def history():
+        with db() as c:
+            return [r['metadata'] for r in c.execute("SELECT metadata FROM event_history WHERE operation='APPLICATION_SETTING_CHANGED' AND metadata->>'setting_key'=%s ORDER BY id",(key,)).fetchall()]
+    assert save(client,{'DISPOSITION_CLASSIFICATION_SCHEME_ID':1,key:1},group='destinations').status_code==200
+    first=history()[0]
+    assert first['old_value'] is None and first['old_reference'] is None
+    assert first['new_value']==1 and first['new_reference']=={'id':1,'code':'TEST-01','title':'Test Classification'}
+    with db() as c:
+        actor(c)
+        c.execute("UPDATE classifications SET code='RENAMED-01',title='Renamed original' WHERE id=1")
+    assert history()[0]==first
+    assert save(client,{'DISPOSITION_CLASSIFICATION_SCHEME_ID':scheme,key:second},group='destinations').status_code==200
+    changed=history()[1]
+    assert changed['old_value']==1 and changed['new_value']==second
+    assert changed['old_reference']=={'id':1,'code':'RENAMED-01','title':'Renamed original'}
+    assert changed['new_reference']=={'id':second,'code':'EVIDENCE-02','title':'Evidence records'}
+    assert save(client,{key:None},group='destinations').status_code==200
+    cleared=history()[2]
+    assert cleared['old_reference']==changed['new_reference'] and cleared['new_reference'] is None
+    assert cleared['old_value']==second and cleared['new_value'] is None
+    with db() as c:
+        actor(c)
+        c.execute('DELETE FROM classification_retention_rules WHERE classification_id=%s',(second,))
+        c.execute('DELETE FROM classifications WHERE id=%s',(second,))
+    assert history()==[first,changed,cleared]
+
+
+def test_scheme_audit_has_immutable_code_and_title_snapshots(client):
+    key='DISPOSITION_CLASSIFICATION_SCHEME_ID'
+    assert save(client,{key:1},group='destinations').status_code==200
+    with db() as c:
+        actor(c)
+        first=c.execute("SELECT metadata FROM event_history WHERE operation='APPLICATION_SETTING_CHANGED' AND metadata->>'setting_key'=%s ORDER BY id DESC LIMIT 1",(key,)).fetchone()['metadata']
+        assert first['new_reference']=={'id':1,'code':'TEST','title':'Test Scheme'}
+        assert first['old_reference'] is None
+        c.execute("UPDATE classification_schemes SET code='NEW-TEST',title='Renamed scheme' WHERE id=1")
+    assert save(client,{key:None},group='destinations').status_code==200
+    with db() as c:
+        events=c.execute("SELECT metadata FROM event_history WHERE operation='APPLICATION_SETTING_CHANGED' AND metadata->>'setting_key'=%s ORDER BY id",(key,)).fetchall()
+    assert events[0]['metadata']==first
+    assert events[1]['metadata']['old_reference']=={'id':1,'code':'NEW-TEST','title':'Renamed scheme'}
+    assert events[1]['metadata']['new_reference'] is None
+
+
 def test_smtp_group_auto_port_and_incomplete_optional_configuration(client):
     assert save(client, {"SMTP_SECURITY": "starttls"}).status_code == 422
     result = save(client, {"SMTP_SECURITY": "starttls"}, group="smtp")
@@ -394,6 +460,7 @@ def test_upgrade_repeats_portable_ddl_preserves_values_and_fresh_schema_parity(c
     before = items(client)
     with db() as c:
         c.execute((ROOT / "database/migrations/050_application_settings.sql").read_text(), prepare=False)
+        c.execute((ROOT / "database/migrations/052_application_settings_reference_audit.sql").read_text(), prepare=False)
     assert items(client) == before
     with db() as c:
         columns = c.execute("SELECT column_name FROM information_schema.columns WHERE table_name='application_settings'").fetchall()

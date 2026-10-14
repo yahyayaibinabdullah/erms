@@ -15,6 +15,7 @@ apply the missing upgrades in order:
 ```sh
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/migrations/050_application_settings.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/migrations/051_database_indexing_policy.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/migrations/052_application_settings_reference_audit.sql
 backend/services/api/.venv/bin/python -m pip install -r backend/services/api/requirements.txt
 ```
 
@@ -24,6 +25,16 @@ and the existing All Privileges compatibility profile. It can be rerun safely.
 Settings provenance and per-database/per-key completion support the explicit
 reviewed legacy migration below. Deploying code or applying schema 050 alone
 does not mark an existing database's legacy migration complete.
+
+Migration 052 extends the existing Settings audit trigger. Scheme and destination
+events retain their numeric `old_value`/`new_value`, and add `old_reference` and
+`new_reference` snapshots containing `id`, `code` and `title`. Null selections
+have null snapshots. It reuses `event_reference_identity` and takes the snapshot
+in the same transaction as the setting update. Later renames or deletion cannot
+change the stored event. Existing events are immutable and are not backfilled
+from today's names. It is safe to rerun and changes no configured settings.
+Applying this trigger-only correction to a database already current through 051
+requires no application restart or environment/translation change.
 
 Restart API processes after deploying the code/schema/dependency changes. API
 startup validates the complete settings registry. Missing or invalid rows fail
