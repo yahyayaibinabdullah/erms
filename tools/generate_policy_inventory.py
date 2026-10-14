@@ -41,6 +41,17 @@ def _target_policy(method: str, path: str) -> tuple[str, str | None, str | None]
     """
     if path == "/health" or (method == "POST" and path == "/api/v1/auth/login"):
         return "public", None, None
+    if path == "/api/v1/application-settings":
+        return "globally_privileged", "app.settings.manage", None
+    # Reconcile the generator with the already committed relationship policies.
+    if path.startswith("/api/v1/relationships/types/"):
+        if method == "GET":
+            return "authenticated_only", None, None
+        return "globally_privileged", "relationships.administer", None
+    if path.startswith("/api/v1/relationships/"):
+        if path.endswith("/targets"):
+            return "resource_scoped", None, None
+        return "relationship_scoped", "relationships.link" if method in {"POST", "DELETE"} else None, None
     if path == "/api/v1/messages/stream/sse":
         return "relationship_scoped", None, None
     if path.startswith("/api/v1/messages/monitor"):

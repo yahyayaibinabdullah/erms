@@ -104,6 +104,21 @@ outstanding approval gates.
 planned verification. Existing claims of implementation have evidence. Any
 remaining product decision identifies precisely which later phase it blocks.
 
+**Completion record — 14 October 2026:** Complete. The
+[Phase 1 baseline](../docs/disposition-phase-1.md) and
+[requirement ledger](../docs/disposition-requirement-ledger.json) record all
+100 acceptance IDs, 171 numbered prose sections, referenced contracts,
+93 setting-inventory rows, the four approved configuration decisions,
+integration/transaction boundaries, and planned verification owners.
+103 disposable-database API regressions, 31 database-free WebUI checks,
+and 27 traceability/local-environment tests passed. Database creation and
+cleanup succeeded; source coverage, compilation, environment-template sync,
+shell syntax and whitespace checks passed. Runtime requirements remain planned.
+Decision D-01 applies to historical audit-payload minimization before Phase 21
+retained-record finalization and does not block Phase 2. No runtime/schema,
+environment-template, translation-artifact or deployment changes were made.
+Measured active time: **1.29 hours**; see Section 6.
+
 ### Phase 2 Build the shared settings registry and protected administration API
 
 **Priority:** Foundation. **Dependencies:** Phase 1.
@@ -116,6 +131,10 @@ registry `category` for each setting and supply it with translated labels
 through the API; do not infer it from keys or duplicate it in the settings table.
 Implement protected
 SMTP-secret storage, masked/write-only responses, and server-only resolution.
+Use the user-approved API deployment key `APPLICATION_SETTINGS_ENCRYPTION_KEY`
+from local `.env`, with production shell environment precedence. SMTP passwords
+remain encrypted database settings; missing key configuration blocks only
+credential replacement/resolution.
 Register the approved Disposition and Email settings, including the six-month
 reminder default, without inventing missing destinations or credentials.
 
@@ -134,6 +153,20 @@ existing settings; invalid values and inconsistent reference rejection;
 unauthorized access; optimistic conflicts and rollback; cache isolation and
 refresh failure; fresh operation reads; no secret in responses, logs, history,
 or ordinary caches; startup with optional settings unset.
+
+**Completion record — 14 October 2026:** Complete. The shared settings registry,
+protected GET/PUT API, canonical schema and independent migration 050, safe audit,
+provenance/completion, 30-second cache, fresh operation captures, and encrypted
+SMTP secret representation are implemented. The approved deployment key uses
+`APPLICATION_SETTINGS_ENCRYPTION_KEY` with shell-over-dotenv precedence. Evidence
+and phase-scoped requirement coverage are recorded in
+[Phase 2 verification](../docs/disposition-phase-2.md) and the maintained ledger:
+80 fresh-schema, 82 upgrade, 105 compatibility, one fixture-guard, 22 settings
+unit, 16 frontend regression and 27 traceability/local-environment checks passed.
+Every disposable database was created and dropped. Templates and 118 new draft
+translation keys are reconciled; 3,023 prior Arabic items are preserved.
+Persistent databases were not migrated; operator instructions accompany 050.
+Phase 3 UI and later consumer/workflow integrations remain assigned work.
 
 ### Phase 3 Deliver Administration Settings and configuration warnings
 
@@ -661,6 +694,8 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 
 | Phase | Start UTC | End UTC | Active hours | Excluded waiting hours | Measurement quality | Work and notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2026-10-14 04:24:21 | 2026-10-14 05:41:29 | 1.29 | 0.00 | Measured | Source/setting ledger, code/schema/test inventory, approved decisions, integration and transaction boundaries, 103 disposable-DB + 31 UI + 27 traceability/local-env checks passed; disposable DB created/dropped; D-01 recorded for Phase 21 only. Final handoff bookkeeping follows the captured end boundary. |
+| 2 | 2026-10-14 05:52:04 | 2026-10-14 07:21:03 | 1.48 | 0.00 | Measured | Shared settings registry/API/schema/cache/audit/provenance, approved env encryption key and encrypted SMTP password, current capture helpers, templates/upgrade guidance, preserved curated translations, fresh/upgrade/compatibility and unit checks passed; all disposable DBs dropped. Final completion bookkeeping follows the captured end boundary. |
 
 ### Phase totals
 
@@ -669,8 +704,8 @@ Update status from actual progress; specification approval is not implementation
 
 | Phase | Status | First started | Completed | Active hours at completion | Later rework hours | Excluded waiting hours |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Not started | — | — | — | — | — |
-| 2 | Not started | — | — | — | — | — |
+| 1 | Complete | 2026-10-14 04:24:21 UTC | 2026-10-14 05:41:29 UTC | 1.29 | — | 0.00 |
+| 2 | Complete | 2026-10-14 05:52:04 UTC | 2026-10-14 07:21:03 UTC | 1.48 | — | 0.00 |
 | 3 | Not started | — | — | — | — | — |
 | 4 | Not started | — | — | — | — | — |
 | 5 | Not started | — | — | — | — | — |

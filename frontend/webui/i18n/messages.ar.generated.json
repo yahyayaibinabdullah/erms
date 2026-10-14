@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
-  "catalogue_sha256": "7aefceb36467289251fc5b5d456bf083559fc65cd4325f41fa96b7e1a7d4b0c6",
+  "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261008143451",
   "generated_at": "2026-10-08T14:34:51.436440+04:00",
@@ -11174,6 +11174,38 @@
       }
     },
     {
+      "message_key": "privilege.app.settings.manage.description",
+      "translated_text": "إدارة إعدادات التطبيق المعتمدة وبيانات اعتماد البريد المحمية.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "privilege.app.settings.manage.name",
+      "translated_text": "إدارة إعدادات التطبيق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "privilege.audit.view.description",
       "translated_text": "تتيح عرض مسار التتبع للنظام وأحداث الأمن والأعمال المسجّلة فيه.",
       "quality_flags": [],
@@ -13511,6 +13543,1862 @@
         "source_status": "published",
         "date_reviewed": "2026-09-28T10:21:30.100182+00:00",
         "date_published": "2026-09-28T10:21:30.100182+00:00"
+      }
+    },
+    {
+      "message_key": "settings.category.authentication",
+      "translated_text": "المصادقة والجلسات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.category.content",
+      "translated_text": "المحتوى وعرض الوثائق",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.category.disposition",
+      "translated_text": "التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.category.email",
+      "translated_text": "البريد الإلكتروني",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.category.general",
+      "translated_text": "سلوك التطبيق العام",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.category.interface_limits",
+      "translated_text": "حدود لوحة المعلومات والاختيار",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.category.search",
+      "translated_text": "البحث والفهرسة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.group_inconsistent",
+      "translated_text": "الإعدادات المرتبطة غير متسقة؛ لم تحفظ أي تغييرات.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.group_required",
+      "translated_text": "احفظ الإعدادات المرتبطة معا مع إصداراتها الحالية.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.invalid_update",
+      "translated_text": "تحديث الإعدادات المرسل غير صالح.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.invalid_value",
+      "translated_text": "أدخل قيمة مسموحة لكل إعداد.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.reason_required",
+      "translated_text": "أدخل سببا لتغيير هذه الإعدادات.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.secret_unavailable",
+      "translated_text": "يتعذر على الخادم حماية بيانات الاعتماد أو قراءتها؛ تحقق من مفتاح التشفير في إعدادات التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.error.unavailable",
+      "translated_text": "إعدادات التطبيق غير متاحة. أعد المحاولة بعد استعادة إعدادات الخادم.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.audit_trail_search_result_limit.description",
+      "translated_text": "الحد الأقصى لنتائج مسار التتبع المطابقة وعمليات العد المحدودة؛ يسري حد واحد طوال الطلب. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 1000. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.audit_trail_search_result_limit.label",
+      "translated_text": "حد نتائج بحث مسار التتبع",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_lockout_attempts.description",
+      "translated_text": "عدد محاولات الدخول الفاشلة قبل قفل بيانات الدخول مؤقتا. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 5. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_lockout_attempts.label",
+      "translated_text": "محاولات تسجيل الدخول قبل القفل",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_lockout_minutes.description",
+      "translated_text": "مدة القفل المؤقت لبيانات الدخول بالدقائق. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 15. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_lockout_minutes.label",
+      "translated_text": "مدة القفل",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_password_min_length.description",
+      "translated_text": "الحد الأدنى لعدد أحرف كلمات المرور الجديدة أو المعدلة؛ تبقى كلمات المرور الحالية صالحة. النوع: عدد صحيح. الحد الأدنى: 8. القيمة الافتراضية الأولية: 12. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_password_min_length.label",
+      "translated_text": "الحد الأدنى لطول كلمة المرور",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_absolute_hours.description",
+      "translated_text": "المدة القصوى للجلسة بالساعات؛ لا تعيد التغييرات جلسة منتهية. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 12. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_absolute_hours.label",
+      "translated_text": "المدة القصوى للجلسة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_cleanup_batch_size.description",
+      "translated_text": "الحد الأقصى لصفوف تاريخ الجلسات التي تنظر فيها دفعة التنظيف. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 500. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_cleanup_batch_size.label",
+      "translated_text": "حجم دفعة تنظيف الجلسات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_cleanup_interval_seconds.description",
+      "translated_text": "عدد الثواني بين عمليات تنظيف تاريخ الجلسات. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 3600. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_cleanup_interval_seconds.label",
+      "translated_text": "الفاصل بين عمليات تنظيف الجلسات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_idle_minutes.description",
+      "translated_text": "مدة خمول الجلسة بالدقائق؛ تسري التغييرات عند التحقق التالي ولا تعيد جلسة منتهية. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_idle_minutes.label",
+      "translated_text": "مدة خمول الجلسة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_retention_days.description",
+      "translated_text": "مدة حفظ تاريخ الجلسات بالأيام. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 90. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.auth_session_retention_days.label",
+      "translated_text": "مدة حفظ تاريخ الجلسات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.classification_recent_selection_limit.description",
+      "translated_text": "الحد الأقصى لاختيارات التصنيف الحديثة المعروضة. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 4. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.classification_recent_selection_limit.label",
+      "translated_text": "حد التصنيفات المختارة حديثا",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_cleanup_interval_seconds.description",
+      "translated_text": "عدد الثواني بين عمليات تنظيف المحتوى. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 3600. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_cleanup_interval_seconds.label",
+      "translated_text": "الفاصل بين عمليات تنظيف المحتوى",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_cleanup_batch_size.description",
+      "translated_text": "الحد الأقصى لصفوف تاريخ الفهرسة التي تنظر فيها دفعة التنظيف. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 500. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_cleanup_batch_size.label",
+      "translated_text": "حجم دفعة تنظيف الفهرسة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_cleanup_interval_seconds.description",
+      "translated_text": "عدد الثواني بين عمليات تنظيف الفهرسة التي يديرها خادم الواجهة البرمجية. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 3600. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_cleanup_interval_seconds.label",
+      "translated_text": "الفاصل بين عمليات تنظيف الفهرسة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_history_retention_days.description",
+      "translated_text": "مدة حفظ تاريخ فهرسة المحتوى بالأيام. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 365. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_history_retention_days.label",
+      "translated_text": "مدة حفظ تاريخ الفهرسة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_scheduling_enabled.description",
+      "translated_text": "جدولة أعمال فهرسة المحتوى التي يديرها خادم الواجهة البرمجية. النوع: نعم أو لا. القيمة الافتراضية الأولية: لا. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_indexing_scheduling_enabled.label",
+      "translated_text": "تفعيل جدولة فهرسة المحتوى",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_segment_checksums_enabled.description",
+      "translated_text": "حفظ مجموع التحقق لكل مقطع والتحقق منه. النوع: نعم أو لا. القيمة الافتراضية الأولية: نعم. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_segment_checksums_enabled.label",
+      "translated_text": "مجموع التحقق لمقاطع المحتوى",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_segment_size_bytes.description",
+      "translated_text": "الحجم المستهدف للمقطع بالبايت، من بايت واحد إلى 64 ميبيبايت. النوع: عدد صحيح. الحد الأدنى: 1. الحد الأقصى: 67108864. القيمة الافتراضية الأولية: 16777216. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_segment_size_bytes.label",
+      "translated_text": "حجم مقطع المحتوى",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_upload_session_ttl_seconds.description",
+      "translated_text": "مدة صلاحية رفع المحتوى غير المكتمل بالثواني. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 86400. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.content_upload_session_ttl_seconds.label",
+      "translated_text": "مدة جلسة الرفع",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_favourite_item_limit.description",
+      "translated_text": "الحد الأقصى للعناصر المفضلة في معاينة لوحة المعلومات. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 5. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_favourite_item_limit.label",
+      "translated_text": "حد المفضلة في لوحة المعلومات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_recent_days.description",
+      "translated_text": "عدد الأيام التي تشملها معاينة العناصر الحديثة في لوحة المعلومات. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_recent_days.label",
+      "translated_text": "فترة العناصر الحديثة في لوحة المعلومات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_recent_item_limit.description",
+      "translated_text": "الحد الأقصى للعناصر الحديثة في معاينة لوحة المعلومات. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 4. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_recent_item_limit.label",
+      "translated_text": "حد العناصر الحديثة في لوحة المعلومات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_review_preview_limit.description",
+      "translated_text": "الحد الأقصى للوثائق والملفات في معاينة المراجعات بلوحة المعلومات. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 5. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.dashboard_review_preview_limit.label",
+      "translated_text": "حد معاينة المراجعات في لوحة المعلومات",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.default_root_aggregation_medium.description",
+      "translated_text": "الوسيط الأولي عند إنشاء ملف رئيسي جديد. النوع: اختيار. الخيارات: رقمي، مادي، هجين. القيمة الافتراضية الأولية: هجين. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.default_root_aggregation_medium.label",
+      "translated_text": "الوسيط الافتراضي للملف الرئيسي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.default_working_timezone.description",
+      "translated_text": "المنطقة الزمنية للعمل عند عدم وجود تفضيل محفوظ للمستخدم. النوع: معرّف منطقة زمنية. القيمة الافتراضية الأولية: دبي. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.default_working_timezone.label",
+      "translated_text": "المنطقة الزمنية الافتراضية للعمل",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_classification_scheme_id.description",
+      "translated_text": "نظام التصنيف لوجهتي التصرف النهائي؛ يمنع عدم ضبطه متابعة المهام التي تتطلب حفظ المستندات. النوع: اختيار نظام التصنيف. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_classification_scheme_id.label",
+      "translated_text": "نظام التصنيف",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_destruction_reminder_months.description",
+      "translated_text": "عدد الأشهر التقويمية بين تذكيرات الأهلية المستقبلية؛ لا ترسل تذكيرات عن الفترات السابقة. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 6. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_destruction_reminder_months.label",
+      "translated_text": "الفاصل بين تذكيرات الإتلاف",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_destruction_review_route.description",
+      "translated_text": "يحفظ كل عمل جديد هذا المسار بصورة دائمة. يتيح مسار مدير الوثائق فقط العمل دون مراجعة داخلية مستقلة. النوع: اختيار. الخيارات: القياسي، المبسّط، مدير الوثائق فقط. القيمة الافتراضية الأولية: القياسي. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_destruction_review_route.label",
+      "translated_text": "مسار مراجعة الإتلاف",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_external_authority_email.description",
+      "translated_text": "عنوان إرسال المستندات في محاولات البريد اللاحقة؛ يمنع عدم ضبطه الإرسال. النوع: عنوان بريد إلكتروني. غير مضبوط في البداية؛ اضبطه عند الحاجة. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_external_authority_email.label",
+      "translated_text": "البريد الإلكتروني لجهة الأرشيف الخارجية",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_external_authority_name.description",
+      "translated_text": "الجهة المستلمة في نماذج الطلب الجديدة؛ تحتفظ النماذج السابقة باسمها الأصلي. النوع: نص. القيمة الافتراضية الأولية: دار الوثائق في إمارة الشارقة. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_external_authority_name.label",
+      "translated_text": "اسم جهة الأرشيف الخارجية",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_generated_reports_classification_id.description",
+      "translated_text": "تصنيف نهائي ضمن نظام التصنيف المختار للتقارير المنشأة، باستثناء شهادة الإتلاف الرقمي. النوع: اختيار تصنيف نهائي. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_generated_reports_classification_id.label",
+      "translated_text": "تصنيف التقارير المنشأة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_uploaded_evidence_classification_id.description",
+      "translated_text": "تصنيف نهائي ضمن نظام التصنيف المختار للمرفقات وشهادة الإتلاف الرقمي. النوع: اختيار تصنيف نهائي. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.disposition_uploaded_evidence_classification_id.label",
+      "translated_text": "تصنيف الأدلة المرفوعة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.document_conversion_timeout_seconds.description",
+      "translated_text": "الوقت الأقصى لتحويل الوثيقة بالثواني. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 60. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.document_conversion_timeout_seconds.label",
+      "translated_text": "مهلة تحويل الوثيقة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.full_text_search_enabled.description",
+      "translated_text": "إتاحة البحث في النص الكامل الذي يضبطه خادم الواجهة البرمجية. النوع: نعم أو لا. القيمة الافتراضية الأولية: لا. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.full_text_search_enabled.label",
+      "translated_text": "تفعيل البحث في النص الكامل",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.manual_reindex_rate_limit_per_minute.description",
+      "translated_text": "الحد الأقصى لطلبات إعادة الفهرسة اليدوية في الدقيقة. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 60. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.manual_reindex_rate_limit_per_minute.label",
+      "translated_text": "حد إعادة الفهرسة اليدوية",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.max_rendition_size_bytes.description",
+      "translated_text": "الحجم الأقصى للنسخة المشتقة من الوثيقة بالبايت. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 104857600. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.max_rendition_size_bytes.label",
+      "translated_text": "الحد الأقصى لحجم النسخة المشتقة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.max_upload_size_bytes.description",
+      "translated_text": "الحد الأقصى لحجم الملف المرفوع بالكامل بالبايت. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 52428800. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.max_upload_size_bytes.label",
+      "translated_text": "الحد الأقصى لحجم الرفع",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.review_warning_window_days.description",
+      "translated_text": "عدد الأيام قبل موعد المراجعة التي يظهر خلالها اقتراب مراجعة الوثيقة أو الملف. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 30. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.review_warning_window_days.label",
+      "translated_text": "فترة التنبيه للمراجعة",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.search_rate_limit_per_minute.description",
+      "translated_text": "الحد الأقصى لطلبات البحث المصادق عليها في الدقيقة. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 600. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.search_rate_limit_per_minute.label",
+      "translated_text": "حد طلبات البحث",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_auth_enabled.description",
+      "translated_text": "حدد الحاجة إلى المصادقة؛ يتطلب تفعيلها اسم مستخدم وكلمة مرور. النوع: نعم أو لا. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_auth_enabled.label",
+      "translated_text": "تفعيل مصادقة البريد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_host.description",
+      "translated_text": "خادم البريد الصادر؛ يمنع عدم ضبطه الإرسال. النوع: نص. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_host.label",
+      "translated_text": "اسم خادم البريد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_password.description",
+      "translated_text": "استبدال بيانات الاعتماد المحمية؛ لا تعرض كلمات المرور المحفوظة. مطلوبة عند تفعيل المصادقة. النوع: كلمة مرور محمية. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_password.label",
+      "translated_text": "كلمة مرور البريد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_port.description",
+      "translated_text": "منفذ من 1 إلى 65535؛ يتبع الافتراضي نمط الاتصال المشفر: 587 عند ترقية الاتصال أو 465 عند التشفير منذ البدء. النوع: عدد صحيح. الحد الأدنى: 1. الحد الأقصى: 65535. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_port.label",
+      "translated_text": "منفذ خادم البريد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_reply_to_email.description",
+      "translated_text": "عنوان اختياري للرد على البريد الصادر. النوع: عنوان بريد إلكتروني. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_reply_to_email.label",
+      "translated_text": "البريد الإلكتروني للرد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_security.description",
+      "translated_text": "اختر ترقية الاتصال المشفر أو التشفير منذ بدء الاتصال؛ يبقى التحقق من الشهادة مفعلا. النوع: اختيار. الخيارات: ترقية الاتصال المشفر، التشفير منذ بدء الاتصال. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_security.label",
+      "translated_text": "نمط تأمين اتصال البريد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_sender_email.description",
+      "translated_text": "عنوان المرسل المطلوب لإرسال المستندات بالبريد. النوع: عنوان بريد إلكتروني. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_sender_email.label",
+      "translated_text": "البريد الإلكتروني للمرسل",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_sender_name.description",
+      "translated_text": "اسم اختياري يعرض للمرسل. النوع: نص. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_sender_name.label",
+      "translated_text": "اسم المرسل المعروض",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_timeout_seconds.description",
+      "translated_text": "مهلة موجبة للاتصال وإرسال البريد بالثواني. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 30. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_timeout_seconds.label",
+      "translated_text": "مهلة الاتصال والإرسال",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_username.description",
+      "translated_text": "اسم المستخدم المطلوب عند تفعيل مصادقة البريد. النوع: نص. غير مضبوط في البداية؛ اضبطه عند الحاجة. تحفظ الإعدادات المرتبطة معا. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.smtp_username.label",
+      "translated_text": "اسم مستخدم البريد",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.text_indexer_credential_history_retention_days.description",
+      "translated_text": "مدة حفظ تاريخ بيانات اعتماد مفهرس النصوص بالأيام على خادم الواجهة البرمجية. النوع: عدد صحيح. الحد الأدنى: 0. القيمة الافتراضية الأولية: 365. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.text_indexer_credential_history_retention_days.label",
+      "translated_text": "مدة حفظ تاريخ بيانات اعتماد المفهرس",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.text_indexer_rate_limit_per_minute.description",
+      "translated_text": "الحد الأقصى لطلبات مفهرس النصوص المصادق عليها في الدقيقة. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 600. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.text_indexer_rate_limit_per_minute.label",
+      "translated_text": "حد طلبات مفهرس النصوص",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.user_details_session_limit.description",
+      "translated_text": "عدد صفوف الجلسات في صفحة تفاصيل المستخدم؛ يبقى تقسيم الصفحات على الخادم مطلوبا. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 5. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T07:18:55+00:00",
+        "batch_id": "settings-phase2-20261014-071855",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "settings.field.user_details_session_limit.label",
+      "translated_text": "حجم صفحة جلسات المستخدم",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-settings-contextual-ar-v1",
+        "generated_at": "2026-10-14T06:52:14+00:00",
+        "batch_id": "wathiq-settings-phase2-2026-10-14T065214+0000",
+        "specification_sha256": "bccca5609cd31aacc6fb878e6459e27903a0cab4e35914e5df22c1678d856bee",
+        "catalogue_sha256": "c186a561e5b63350a934b3cfb71cbc8f2eed26b6b2e662fcfa139a8df2181be4",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {

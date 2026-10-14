@@ -8,6 +8,9 @@
     {"code": "TS", "name": "Top Secret", "level_number": 100, "prevents_disposition": true}
   ],
   "privileges": [
+    {"code": "app.settings.manage", "category": "administration", "reserved": false},
+    {"code": "relationships.link", "category": "record", "reserved": false},
+    {"code": "relationships.administer", "category": "administration", "reserved": false},
     {"code": "messaging.user_messages.exchange", "category": "administration"},
     {"code": "messaging.monitor", "category": "administration"},
     {"code": "messaging.notifications.administer", "category": "administration"},
@@ -163,7 +166,8 @@
         "search.saved_search.administer",
         "search.saved_search.delete",
         "record.component.reindex",
-        "audit.view"
+        "audit.view",
+        "app.settings.manage"
       ]
     },
     {
@@ -210,7 +214,9 @@
         "record.component.share",
         "record.component.print",
         "security.resource.downgrade",
-        "closure.correct_record_placement"
+        "closure.correct_record_placement",
+        "relationships.link",
+        "relationships.administer"
       ]
     },
     {
@@ -257,7 +263,9 @@
         "record.component.share",
         "record.component.print",
         "security.resource.downgrade",
-        "closure.correct_record_placement"
+        "closure.correct_record_placement",
+        "relationships.link",
+        "relationships.administer"
       ]
     }
   ]

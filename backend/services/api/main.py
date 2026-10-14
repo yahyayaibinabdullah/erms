@@ -82,6 +82,8 @@ from .scheme_transfer.routes import router as scheme_transfer_router
 from .browse import router as browse_router
 from .favourites import router as favourites_router
 from .resource_relationships import router as resource_relationships_router
+from .application_settings_routes import router as application_settings_router
+from .application_settings import cache as settings_cache
 from .security_levels import router as security_levels_router
 from .authorization_admin import router as authorization_admin_router
 from .resource_acls import router as resource_acl_router
@@ -164,6 +166,15 @@ async def lifespan(application: FastAPI):
     default_working_timezone()
     integer_environment("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 1000, minimum=1)
     open_pool()
+    # Phase 2 installs only the shared foundation. Legacy business consumers
+    # retain their authority until their reviewed Phase 4-6 cutovers.
+    settings_cache.invalidate()
+    try:
+        with pool.connection() as connection:
+            settings_cache.for_connection(connection)  # Fail startup on missing/invalid rows.
+    except Exception:
+        close_pool()
+        raise
     synchronize_message_definitions()
     initialize_registry()
     with pool.connection() as connection:
@@ -197,6 +208,7 @@ app.include_router(classification_management_router)
 app.include_router(browse_router)
 app.include_router(favourites_router)
 app.include_router(resource_relationships_router)
+app.include_router(application_settings_router)
 app.include_router(security_levels_router)
 app.include_router(authorization_admin_router)
 app.include_router(resource_acl_router)
@@ -212,6 +224,22 @@ app.include_router(messaging_monitor_router)
 app.include_router(messaging_router)
 app.include_router(localization_router)
 app.include_router(entity_translations_router)
+
+
+# Pydantic's default validation response includes the rejected input, including
+# nested write-only credentials. Keep this redaction narrowly scoped to Settings.
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, error: RequestValidationError):
+    if request.url.path.startswith("/api/v1/application-settings"):
+        return JSONResponse(status_code=422, content={"detail": {
+            "code": "application_settings_invalid_update",
+            "message_key": "settings.error.invalid_update", "parameters": {},
+        }})
+    return await request_validation_exception_handler(request, error)
 
 
 @app.post("/api/v1/full-text-search", response_model=None, tags=["search"])

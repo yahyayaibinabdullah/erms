@@ -21,6 +21,13 @@ direct access to the API for the current UI.
 
 ## Sessions and load balancing
 
+The application-settings foundation requires migration 050 for existing
+databases. SMTP passwords remain encrypted database settings; all API instances
+for one database share the deployment-owned `APPLICATION_SETTINGS_ENCRYPTION_KEY`.
+Production shell/service environment takes precedence over local `.env`.
+See [upgrade and key configuration](application-settings-upgrade.md) before
+deploying this change. Settings edits need no restart; deployment key changes do.
+
 ### API instances
 
 API authentication uses an opaque token whose hash is stored in PostgreSQL's
