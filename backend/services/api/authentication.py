@@ -12,7 +12,8 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection
 
-from .config import boolean_environment, integer_environment
+from .config import boolean_environment
+from .application_settings import cache as settings_cache
 from .database import get_connection
 from .entity_localization import localized_projection, preferred_language_for_user
 from .authorization_policy import (
@@ -29,11 +30,6 @@ SESSION_COOKIE = "erms_session"
 CSRF_COOKIE = "erms_csrf"
 # Provisioning identifier only; runtime authorization never grants by role name.
 SYSTEM_ADMIN_ROLE = "system-administrator"
-IDLE_MINUTES = integer_environment("AUTH_SESSION_IDLE_MINUTES", 30, minimum=1)
-ABSOLUTE_HOURS = integer_environment("AUTH_SESSION_ABSOLUTE_HOURS", 12, minimum=1)
-LOCKOUT_ATTEMPTS = integer_environment("AUTH_LOCKOUT_ATTEMPTS", 5, minimum=1)
-LOCKOUT_MINUTES = integer_environment("AUTH_LOCKOUT_MINUTES", 15, minimum=1)
-PASSWORD_MIN_LENGTH = integer_environment("AUTH_PASSWORD_MIN_LENGTH", 12, minimum=8)
 COOKIE_SECURE = boolean_environment("AUTH_COOKIE_SECURE", False)
 password_hasher = PasswordHasher()
 
@@ -53,14 +49,30 @@ def hash_secret(value: str) -> bytes:
 
 
 def hash_password(password: str) -> str:
-    validate_password(password)
+    """Hash already validated application passwords or explicit seed fixtures."""
     return password_hasher.hash(password)
 
 
-def validate_password(password: str) -> None:
-    if len(password) < PASSWORD_MIN_LENGTH:
-        raise ValueError(f"password must contain at least {PASSWORD_MIN_LENGTH} characters")
+def validate_password(password: str, settings) -> None:
+    minimum = settings["AUTH_PASSWORD_MIN_LENGTH"]
+    if len(password) < minimum:
+        raise ValueError(f"password must contain at least {minimum} characters")
 
+
+
+def _deadline(instant: datetime, units: int, seconds_per_unit: int) -> datetime:
+    """Represent valid large policy durations without datetime overflow."""
+    maximum = datetime.max.replace(tzinfo=timezone.utc) - timedelta(days=1)
+    seconds = units * seconds_per_unit
+    if seconds >= (maximum - instant).total_seconds():
+        return maximum
+    return instant + timedelta(seconds=seconds)
+
+
+def temporary_password(settings) -> str:
+    password = secrets.token_urlsafe(max(15, (settings['AUTH_PASSWORD_MIN_LENGTH'] * 3 + 3) // 4))
+    validate_password(password, settings)
+    return password
 
 def _roles(connection: Connection, user_id: int) -> list[dict[str, Any]]:
     return list(connection.execute(
@@ -84,7 +96,8 @@ def resolve_principal(connection: Connection, token: str) -> Principal | None:
     row = connection.execute(
         """
         SELECT s.id AS session_id, s.user_id, u.name, u.email, u.account_type,
-               c.must_change_password
+               c.must_change_password, s.date_created, s.last_seen_at,
+               s.expires_at, s.absolute_expires_at, CURRENT_TIMESTAMP AS evaluated_at
         FROM login_sessions s
         JOIN users u ON u.id = s.user_id
         JOIN user_credentials c ON c.user_id = u.id
@@ -94,18 +107,27 @@ def resolve_principal(connection: Connection, token: str) -> Principal | None:
           AND s.absolute_expires_at > CURRENT_TIMESTAMP
           AND u.status = 'active'
           AND u.account_type = 'person'
+        FOR UPDATE OF s
         """, (hash_secret(token),)
     ).fetchone()
     if not row:
         return None
+    settings = settings_cache.for_connection(connection)
+    now = row['evaluated_at']
+    idle_deadline = _deadline(row['last_seen_at'], settings['AUTH_SESSION_IDLE_MINUTES'], 60)
+    absolute_deadline = _deadline(row['date_created'], settings['AUTH_SESSION_ABSOLUTE_HOURS'], 3600)
+    if min(idle_deadline, absolute_deadline) <= now:
+        # Persist terminal expiry before a later policy increase can revive it.
+        connection.execute(
+            "UPDATE login_sessions SET expires_at=LEAST(expires_at,%s), absolute_expires_at=LEAST(absolute_expires_at,%s) WHERE id=%s",
+            (min(idle_deadline,absolute_deadline), absolute_deadline, row['session_id']))
+        return None
+    last_seen = now if row['last_seen_at'] < now - timedelta(minutes=1) else row['last_seen_at']
+    expires_at = min(_deadline(last_seen, settings['AUTH_SESSION_IDLE_MINUTES'], 60), absolute_deadline)
     connection.execute(
-        """
-        UPDATE login_sessions
-        SET last_seen_at = CURRENT_TIMESTAMP,
-            expires_at = LEAST(CURRENT_TIMESTAMP + make_interval(mins => %s), absolute_expires_at)
-        WHERE id = %s AND last_seen_at < CURRENT_TIMESTAMP - interval '1 minute'
-        """, (IDLE_MINUTES, row["session_id"])
-    )
+        """UPDATE login_sessions SET last_seen_at=%s, expires_at=%s, absolute_expires_at=%s
+           WHERE id=%s AND (last_seen_at,expires_at,absolute_expires_at) IS DISTINCT FROM (%s,%s,%s)""",
+        (last_seen, expires_at, absolute_deadline, row['session_id'],last_seen,expires_at,absolute_deadline))
     return Principal(
         user_id=row["user_id"], session_id=row["session_id"], name=row["name"],
         email=row["email"], account_type=row["account_type"],
@@ -192,6 +214,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
 
 @router.post("/login", response_model=PrincipalRead)
 def login(payload: LoginRequest, request: Request, response: Response, connection: Connection = Depends(get_connection, scope="function")):
+    settings = settings_cache.for_connection(connection)
     generic = HTTPException(status_code=401, detail="invalid email or password")
     row = connection.execute(
         """
@@ -214,7 +237,7 @@ def login(payload: LoginRequest, request: Request, response: Response, connectio
         valid = False
     if not valid:
         attempts = row["failed_attempt_count"] + 1
-        locked_until = now + timedelta(minutes=LOCKOUT_MINUTES) if attempts >= LOCKOUT_ATTEMPTS else None
+        locked_until = _deadline(now, settings['AUTH_LOCKOUT_MINUTES'], 60) if attempts >= settings['AUTH_LOCKOUT_ATTEMPTS'] else None
         connection.execute(
             "UPDATE user_credentials SET failed_attempt_count=%s, last_failed_at=%s, locked_until=%s, date_updated=%s WHERE user_id=%s",
             (attempts, now, locked_until, now, row["id"]),
@@ -234,8 +257,9 @@ def login(payload: LoginRequest, request: Request, response: Response, connectio
     if row["temporary_expires_at"] and row["temporary_expires_at"] <= now:
         raise HTTPException(status_code=401, detail="temporary password has expired")
     token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
-    expires_at = now + timedelta(minutes=IDLE_MINUTES)
-    absolute_at = now + timedelta(hours=ABSOLUTE_HOURS)
+    expires_at = _deadline(now, settings['AUTH_SESSION_IDLE_MINUTES'], 60)
+    absolute_at = _deadline(now, settings['AUTH_SESSION_ABSOLUTE_HOURS'], 3600)
+    expires_at = min(expires_at, absolute_at)
     client_ip, user_agent = _client_context(request)
     session = connection.execute(
         """
@@ -335,6 +359,10 @@ def my_recent_activity(
     This is not an audit-trail endpoint: it contains no audit snapshots,
     reasons, other actors, or resources the caller can no longer view.
     """
+    from .application_configuration import recent_since_default
+    from .application_settings import cache
+    if since is None:
+        since = recent_since_default(cache.for_connection(connection)["DASHBOARD_RECENT_DAYS"])
     return list(connection.execute(
         """WITH governed_resource_events AS (
                SELECT DISTINCT ON (event.entity_type,event.entity_id,event.operation)
@@ -440,6 +468,7 @@ def change_password(payload: ChangePasswordRequest, principal: Principal = Depen
     if not valid:
         raise HTTPException(status_code=400, detail="current password is incorrect")
     try:
+        validate_password(payload.new_password, settings_cache.for_connection(connection))
         new_hash = hash_password(payload.new_password)
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
@@ -496,7 +525,7 @@ def list_sessions(
 @router.get("/sessions/page", dependencies=[Depends(require_identity_sessions_admin)])
 def page_sessions(
     user_id: int | None = None,
-    limit: int = Query(20, ge=1, le=100),
+    limit: int | None = Query(None, ge=1, le=100),
     offset: int = Query(0, ge=0),
     query: str = Query("", max_length=200),
     session_status: str = Query("all", pattern="^(all|active|expired|revoked)$"),
@@ -508,6 +537,9 @@ def page_sessions(
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    if limit is None:
+        from .application_settings import cache
+        limit = min(cache.for_connection(connection)["USER_DETAILS_SESSION_LIMIT"],50) if user_id is not None else 20
     sort_columns = {
         "date_created": "date_created", "last_seen_at": "last_seen_at",
         "expires_at": "expires_at", "status": "status", "client_ip": "client_ip",
@@ -605,7 +637,7 @@ def issue_temporary_password(user_id: int, principal: Principal = Depends(princi
         raise HTTPException(status_code=404, detail="user not found")
     if user["account_type"] != "person" or not user["email"]:
         raise HTTPException(status_code=422, detail="local passwords require a person account with an email address")
-    password = secrets.token_urlsafe(15)
+    password = temporary_password(settings_cache.for_connection(connection))
     password_hash = hash_password(password)
     temporary_expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
     connection.execute(

@@ -9,6 +9,7 @@ from psycopg import Connection, sql
 
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .concurrency import expected_version
+from .application_settings import cache as settings_cache
 from .database import get_connection
 from .entity_localization import (
     localize_rows,
@@ -162,13 +163,6 @@ def _list_service_credentials(connection: Connection, user_id: int) -> list[dict
     return [_credential_result(row) for row in rows]
 
 
-def _credential_retention_days() -> int:
-    try:
-        return max(0, int(os.getenv("TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS", "365")))
-    except ValueError:
-        return 365
-
-
 def _list_service_credentials_page(
     connection: Connection, user_id: int, *, history: str, limit: int, offset: int,
 ) -> dict:
@@ -197,7 +191,7 @@ def _list_service_credentials_page(
         "total": total,
         "limit": limit,
         "offset": offset,
-        "retention_days": _credential_retention_days(),
+        "retention_days": settings_cache.for_connection(connection)["TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS"],
     }
 
 

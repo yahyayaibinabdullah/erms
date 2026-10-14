@@ -30,6 +30,7 @@ CATEGORY_ARABIC = {
 }
 
 NAME_ARABIC = {
+    'app.settings.manage': 'إدارة إعدادات التطبيق',
     'relationships.administer': 'إدارة أنواع العلاقات',
     'relationships.link': 'ربط الوثائق والملفات',
     "aggregation.acl.manage": "إدارة قائمة التحكم في وصول الملفات",
@@ -96,6 +97,7 @@ NAME_ARABIC = {
 }
 
 DESCRIPTION_ARABIC = {
+    'app.settings.manage': 'إدارة إعدادات التطبيق المعتمدة وبيانات اعتماد البريد المحمية.',
     'relationships.administer': 'إدارة قائمتي أنواع العلاقات بين الملفات وبين الوثائق.',
     'relationships.link': 'إنشاء روابط مسماة بين الموارد التي يمكنك عرضها وإزالتها.',
     "aggregation.move": "تتيح نقل ملف إلى الملف الحاوي الآخر المسموح به.",

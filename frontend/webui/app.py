@@ -19,6 +19,7 @@ from .api_client import ApiError, ErmsApiClient
 from .remote_select import RemoteSelect
 from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .classification_workspace import classification_workspace
+from .application_settings import settings_page, disposition_warning_panel
 from .messaging_workspace import messaging_workspace
 from .resource_inspector import resource_inspector
 from .messaging_live import LiveMailbox, stream_events, mailbox_cursor_key
@@ -48,7 +49,6 @@ from .config import (
     default_root_aggregation_medium,
     full_text_search_enabled,
     classification_recent_selection_limit,
-    default_working_timezone,
     host,
     port,
     reload_enabled,
@@ -677,7 +677,7 @@ def format_timestamp(value: Any) -> str:
         try:
             language, timezone_name = current_locale_context()
         except RuntimeError:
-            language, timezone_name = "en", default_working_timezone()
+            return str(value)  # No timezone authority before API localization.
         return format_instant(value, timezone_name, language)
     except (ValueError, TypeError):
         return str(value)
@@ -1458,10 +1458,8 @@ def index(q: str = "") -> None:
             return "expand_more"
         return "chevron_left" if current_direction["value"] == "rtl" else "chevron_right"
 
-    set_locale_context(
-        initial_language,
-        str(cached_localization.get("working_timezone") or default_working_timezone()),
-    )
+    if cached_localization.get("working_timezone"):
+        set_locale_context(initial_language, str(cached_localization["working_timezone"]))
     ui.query("html").props(f"lang={initial_language} dir={initial_direction}")
 
     async def apply_document_direction(language: str, direction: str) -> None:
@@ -1510,11 +1508,14 @@ def index(q: str = "") -> None:
                 fallback_keys = catalogue.get("fallback_keys", [])
             catalogue_etag = catalogue.get("etag") or session_catalogue_etag
         set_active_messages(messages, fallback_keys)
-        state["localization"] = bootstrap
+        # Persist remembered locale metadata only. Business settings remain a
+        # transient page response, never another browser settings cache.
+        state["localization"] = {key:value for key,value in bootstrap.items() if key != "application_configuration"}
+        state["application_configuration"] = bootstrap["application_configuration"]
         set_locale_context(
             bootstrap["effective_language"], bootstrap["working_timezone"],
         )
-        app.storage.user["localization_context"] = bootstrap
+        app.storage.user["localization_context"] = state["localization"]
         app.storage.user["localization_messages"] = messages
         app.storage.user["localization_fallback_keys"] = fallback_keys
         app.storage.user["localization_catalogue_etag"] = catalogue_etag
@@ -1522,8 +1523,8 @@ def index(q: str = "") -> None:
             bootstrap["effective_language"], bootstrap["direction"],
         )
         needs_rebuild = (
-            previous.get("effective_language") != bootstrap["effective_language"]
-            or previous.get("direction") != bootstrap["direction"]
+            previous.get("effective_language", initial_language) != bootstrap["effective_language"]
+            or previous.get("direction", initial_direction) != bootstrap["direction"]
         )
         if needs_rebuild:
             await ui.run_javascript("window.location.reload(); true", timeout=5)
@@ -2044,16 +2045,16 @@ def index(q: str = "") -> None:
         /* These native components already inherit RTL. The legacy global row
            reversal flips them twice; Quasar floating labels remain left-anchored.
            Native direction/card/row props do not reset those internal styles. */
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .row {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page, .application-settings-browser) .row {
             flex-direction: row;
         }
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .q-field__label {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__label {
             left: auto; right: 0; transform-origin: right top; text-align: right;
         }
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .q-field__append {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__append {
             padding-left: 0; padding-right: 12px;
         }
-        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace) .q-field__prepend {
+        html[dir="rtl"] :is(.wathiq-login-card, .messaging-workspace, .application-settings-page) .q-field__prepend {
             padding-right: 0; padding-left: 12px;
         }
         /* The native login glyph has no directional variant. Keep the same
@@ -3666,7 +3667,7 @@ def index(q: str = "") -> None:
             global_search_submit = ui.button(icon="search").props(
                 "flat round color=blue-grey-8 aria-label='" + render_message("webui.index.accessible_name.submit_global_search_d3d1329e") + "'"
             ).tooltip(render_message("webui.index.tooltip.search_93d9b9f9"))
-        global_search_wrap.set_visibility(full_text_search_enabled())
+        global_search_wrap.set_visibility(False)
         ui.space()
         message_unread_button = ui.button(icon="inbox", on_click=lambda: select_messages("inbox")).props("flat no-caps")
         message_unread_button.set_visibility(False)
@@ -3823,10 +3824,13 @@ def index(q: str = "") -> None:
                 drawer_sections.append((system_heading, (
                     "audit-trail", "login-sessions", "security-operations", "saved-search-administration",
                     "security-levels", "profiles", "governance-custody", "holds",
-                    "text-indexers", "translations",
+                    "text-indexers", "translations", "application-settings",
                 )))
                 text_indexers_navigation = drawer_link(
                     render_message("navigation.item.text_indexers"), "manage_search", navigation_key="text-indexers",
+                )
+                application_settings_navigation = drawer_link(
+                    render_message("navigation.item.application_settings"), "settings", navigation_key="application-settings",
                 )
                 audit_navigation = drawer_link(
                     render_message("navigation.item.audit_trail"), "manage_history", navigation_key="audit-trail",
@@ -3999,6 +4003,7 @@ def index(q: str = "") -> None:
             "audit-trail": "manage_history",
             "login-sessions": "devices",
             "governance-custody": "shield_person",
+            "application-settings": "settings",
             "security-operations": "monitor_heart",
         }.get(page)
         if icon_name:
@@ -4015,6 +4020,7 @@ def index(q: str = "") -> None:
             "search_text": str(search_input.value or ""),
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
             "aggregation_mode": state.get("aggregation_mode", "search"),
+            "settings_category": state.get("settings_category", "general"),
             "global_search_query": state.get("global_search_query", ""),
             "global_search_page": state.get("global_search_page", 1),
             "global_search_filter": state.get("global_search_filter", "all"),
@@ -4427,6 +4433,7 @@ def index(q: str = "") -> None:
         "profiles": "navigation.item.profiles",
         "translations": "navigation.item.translations",
         "governance-custody": "navigation.item.governance_custody",
+        "application-settings": "navigation.item.application_settings",
         "holds": "navigation.item.holds",
     }
 
@@ -4593,6 +4600,8 @@ def index(q: str = "") -> None:
             await select_login_sessions()
         elif page == "governance-custody":
             await select_governance_custody()
+        elif page == "application-settings":
+            await select_application_settings(saved.get("settings_category", "general"))
         elif page == "holds":
             await select_holds()
         elif page == "hold-details" and entity_id is not None:
@@ -4680,6 +4689,8 @@ def index(q: str = "") -> None:
         background_tasks.create(clear_translation_inspector_session())
         disable_diagnostic_metadata(page_client.id)
         auth_state["principal"] = None
+        state["application_configuration"] = {}
+        global_search_wrap.set_visibility(False)
         current_user_name.text = render_message("webui.clear_signed_in_identity.text.not_signed_in_a1c07c9a")
         current_user_email.text = ""
         current_user_avatar_initials.text = "?"
@@ -4699,9 +4710,26 @@ def index(q: str = "") -> None:
     def show_authenticated_view() -> None:
         content_card.set_visibility(True)
 
+    def accept_application_configuration(configuration):
+        """Page response values only; no independent expiry or environment fallback."""
+        state["application_configuration"] = configuration
+        global_search_wrap.set_visibility(full_text_search_enabled(configuration))
+        localization = state.get("localization") or {}
+        if localization.get("uses_default_working_timezone") is True:
+            timezone_name = configuration["DEFAULT_WORKING_TIMEZONE"]
+            localization["working_timezone"] = timezone_name
+            with table_container:
+                set_locale_context(localization["effective_language"], timezone_name)
+            app.storage.user["localization_context"] = localization
+
     async def reload_favourites() -> dict[str, list[dict[str, Any]]]:
+        principal = auth_state.get("principal")
+        resource = state.get("resource")
         favourites = await api.favourites()
-        state["favourites"] = favourites
+        if auth_state.get("principal") is not principal or state.get("resource") != resource:
+            return favourites
+        accept_application_configuration(favourites["application_configuration"])
+        state["favourites"] = {key:favourites[key] for key in ("aggregations","records")}
         state["favourite_ids"] = {
             resource: {int(item["id"]) for item in favourites[resource]}
             for resource in ("aggregations", "records")
@@ -4991,7 +5019,8 @@ def index(q: str = "") -> None:
         }
         primary, secondary = identities.get(entity_type, (None, None))
         identity = " — ".join(str(value) for value in (primary, secondary) if value)
-        heading = render_message("webui.event_entity_identity.text.title_entity_id_3be1e8f8", title=entity_type.replace('_', ' ').title(), entity_id=event['entity_id'])
+        entity_title = audit_entity_type_label(entity_type) if entity_type == "application_setting" else entity_type.replace('_', ' ').title()
+        heading = render_message("webui.event_entity_identity.text.title_entity_id_3be1e8f8", title=entity_title, entity_id=event['entity_id'])
         return heading, identity
 
     def hydrate_historical_audit_identities(events_list: list[dict[str, Any]]) -> None:
@@ -5017,7 +5046,22 @@ def index(q: str = "") -> None:
         }
         return labels.get(actor_type, actor_type.replace("_", " ").title()), None
 
+    def can_open_event_entity(event: dict[str, Any]) -> bool:
+        if event.get("entity_type") == "application_setting":
+            principal = auth_state.get("principal") or {}
+            return can_navigate("application-settings", principal.get("global_privileges", []))
+        return event.get("entity_type") in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}
+
     async def navigate_to_event_entity(event: dict[str, Any]) -> None:
+        if event.get("entity_type") == "application_setting":
+            if not can_open_event_entity(event):
+                return
+            origin_dialog = event.get("_origin_dialog")
+            if origin_dialog:
+                origin_dialog.close()
+            setting_key = (event.get("metadata") or {}).get("setting_key")
+            await guarded_page_navigation(lambda: select_application_settings(initial_setting_key=setting_key))
+            return
         entity = event.get("_current_entity")
         if not entity:
             resources = {
@@ -5092,7 +5136,7 @@ def index(q: str = "") -> None:
                     ui.label(entity_heading).classes("text-sm text-slate-500")
                     if entity_identity:
                         ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
-                if event["entity_type"] in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}:
+                if can_open_event_entity(event):
                     ui.button(
                         render_message("webui.show_event_detail.button.open_entity_ef774537"), icon="open_in_new",
                         on_click=open_entity,
@@ -5184,11 +5228,13 @@ def index(q: str = "") -> None:
                             if actor_email:
                                 ui.label(actor_email).classes("text-xs text-slate-400")
                             ui.label(event.get("source", render_message("webui.render_event_timeline.label.unknown_509e35f5"))).classes("text-xs text-slate-400")
-                        if event["entity_type"] in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}:
+                        if can_open_event_entity(event):
                             ui.button(
                                 icon="open_in_new",
                                 on_click=lambda _, item=event: navigate_to_event_entity(item),
-                            ).props("flat round dense color=primary").tooltip(render_message("webui.render_event_timeline.tooltip.open_current_entity_208e2a65"))
+                            ).props("flat round dense color=primary").props(
+                                f'aria-label="{render_message_plain("webui.render_event_timeline.tooltip.open_current_entity_208e2a65")}"'
+                            ).tooltip(render_message("webui.render_event_timeline.tooltip.open_current_entity_208e2a65"))
                         ui.button(
                             icon="chevron_right",
                             on_click=lambda _, item=event: show_event_detail(item),
@@ -7613,8 +7659,7 @@ def index(q: str = "") -> None:
             state["recent_activity"] = []
             return
         if spec.key in {"aggregations", "records"}:
-            since = datetime.now(timezone.utc) - timedelta(days=dashboard_recent_days())
-            activity = await api.recent_resource_activity(spec.key, limit=50, since=since)
+            activity = await api.recent_resource_activity(spec.key, limit=50)
             decorated = await decorate_for_spec(spec, activity)
             state["recent_activity"] = decorated
             state["recent_created"] = [item for item in decorated if item["_operation"] == "CREATE"]
@@ -8356,9 +8401,11 @@ def index(q: str = "") -> None:
         retention_rule: dict[str, Any] | None = None
         try:
             if creating and spec.key == "aggregations":
-                creation_roles = await api.creation_role_options(
-                    (initial_values or {}).get("parent_aggregation_id")
+                creation_roles, creation_configuration = await asyncio.gather(
+                    api.creation_role_options((initial_values or {}).get("parent_aggregation_id")),
+                    api.application_configuration(),
                 )
+                accept_application_configuration(creation_configuration)
             if row and spec.key == "classifications":
                 try:
                     retention_rule = await api.classification_retention_rule(row["id"])
@@ -8663,7 +8710,7 @@ def index(q: str = "") -> None:
                     if creating and spec.key == "aggregations" and field.name == "medium":
                         parent_id = controls["parent_aggregation_id"].value
                         parent = next((item for item in lookup_rows_by_field.get("parent_aggregation_id", []) if item["id"] == parent_id), None)
-                        initial_value = parent.get("medium", "mixed") if parent else default_root_aggregation_medium()
+                        initial_value = parent.get("medium", "mixed") if parent else default_root_aggregation_medium(creation_configuration)
                     if creating and field.name == "profile_id" and initial_value is None:
                         available_profiles = lookup_rows_by_field.get(field.name, [])
                         compatibility = next(
@@ -9000,7 +9047,7 @@ def index(q: str = "") -> None:
                     else:
                         medium_control.set_options(
                             medium_options(),
-                            value=medium_control.value or default_root_aggregation_medium(),
+                            value=medium_control.value or (row["medium"] if row else default_root_aggregation_medium(creation_configuration)),
                         )
                         medium_control.enable()
                     medium_control.update()
@@ -10578,7 +10625,7 @@ def index(q: str = "") -> None:
 
     def render_entity_favourites_section(spec: EntitySpec) -> None:
         preview_host = ui.column().classes("w-full px-5 pt-5")
-        limit = dashboard_favourite_item_limit()
+        limit = dashboard_favourite_item_limit(state["application_configuration"])
         resource = spec.key
         singular = "aggregation" if resource == "aggregations" else "record"
         localized_singular = render_message(
@@ -10701,7 +10748,7 @@ def index(q: str = "") -> None:
         spec: EntitySpec, *, container: Any | None = None,
     ) -> None:
         """Render resource favourites and activity using the Dashboard treatment."""
-        limit = dashboard_favourite_item_limit()
+        limit = dashboard_favourite_item_limit(state["application_configuration"])
         resource = spec.key
         icon = "folder" if resource == "aggregations" else "description"
         number_field = "aggregation_number" if resource == "aggregations" else "record_number"
@@ -12518,16 +12565,16 @@ def index(q: str = "") -> None:
                 can_organize = "organization.administer" in privileges
                 can_administer_users = "identity.users.administer" in privileges
 
-                recent_limit = dashboard_recent_item_limit()
-                recent_days = dashboard_recent_days()
-                recent_since = datetime.now(timezone.utc) - timedelta(days=recent_days)
                 if summary_override is None:
-                    summary = await api.dashboard_summary(
-                        recent_limit=50, recent_since=recent_since,
-                    )
+                    summary = await api.dashboard_summary(recent_limit=50)
                     state["dashboard_summary_cache"] = summary
                 else:
                     summary = summary_override
+                if state.get("resource") != "dashboard" or getattr(dashboard_content,"_deleted",False):
+                    return
+                accept_application_configuration(summary["application_configuration"])
+                recent_limit = dashboard_recent_item_limit(summary["application_configuration"])
+                recent_days = dashboard_recent_days(summary["application_configuration"])
                 counts = summary["overview_counts"]
                 medium_counts = summary["overview_medium_counts"]
                 attention_counts = summary["overview_resource_attention_counts"]
@@ -12570,7 +12617,7 @@ def index(q: str = "") -> None:
 
                 all_recent_records = recent_record_entries(activity)
                 recent_records = all_recent_records[:recent_limit]
-                favourite_limit = dashboard_favourite_item_limit()
+                favourite_limit = dashboard_favourite_item_limit(state["application_configuration"])
             except ApiError as error:
                 if getattr(page_client, "_deleted", False):
                     return
@@ -15546,9 +15593,11 @@ def index(q: str = "") -> None:
 
     async def select_user_details(user_id: int) -> None:
         """Render the extensible single-user management view."""
+        principal = auth_state.get("principal")
+        token = object()
         register_navigation("user-details", f"User #{user_id}", entity_id=user_id)
         show_authenticated_view()
-        state.update(resource="user-details", rows=[], searched=True, aggregation_detail=None)
+        state.update(resource="user-details", user_details_token=token, rows=[], searched=True, aggregation_detail=None)
         search_bar.set_visibility(False)
         aggregation_mode_bar.set_visibility(False)
         add_button.set_visibility(False)
@@ -15556,10 +15605,15 @@ def index(q: str = "") -> None:
         guidance.text = ""
         table_container.clear()
         try:
-            session_page_size = user_details_session_limit()
-            person, assignment_page_result = await asyncio.gather(
+            person, assignment_page_result, session_configuration = await asyncio.gather(
                 api.get("users", user_id), api.user_roles(user_id, limit=50, offset=0),
+                api.application_configuration(),
             )
+            if auth_state.get("principal") is not principal or state.get("resource") != "user-details" or state.get("user_details_token") is not token:
+                return
+            # This setting is a maximum; transport/rendering windows remain bounded.
+            accept_application_configuration(session_configuration)
+            session_page_size = min(user_details_session_limit(session_configuration), 50)
             assignments = list(assignment_page_result.get("items") or [])
             roles = [item.get("counterpart") or {} for item in assignments]
         except ApiError as error:
@@ -16113,15 +16167,19 @@ def index(q: str = "") -> None:
                                 ).tooltip(render_message("webui.render_user_session_card.tooltip.force_sign_out_this_session_e9c1809a"))
 
                 async def load_session_page(*, reset: bool = False) -> None:
+                    nonlocal session_page_size
                     if reset: session_state["offset"] = 0
                     try:
                         page = await api.login_sessions_page(
-                            user_id, limit=session_page_size, offset=session_state["offset"],
+                            user_id, limit=None, offset=session_state["offset"],
                             query=session_query.value or "", session_status=session_status.value or "all",
                             sort_by=session_sort.value or "date_created", descending=bool(session_direction.value),
                         )
                     except ApiError as error:
                         ui.notify(error_message(error), color="negative", close_button=True); return
+                    if auth_state.get("principal") is not principal or state.get("resource") != "user-details" or state.get("user_details_token") is not token:
+                        return
+                    session_page_size = page["limit"]
                     session_state["total"] = page["total"]
                     session_results.clear()
                     with session_results:
@@ -16936,22 +16994,35 @@ def index(q: str = "") -> None:
             dialog.open()
 
     async def select_governance_custody() -> None:
+        principal = auth_state.get("principal")
+        if not principal or not can_navigate("governance-custody", principal.get("global_privileges", [])):
+            return
+        prior_report_visible = state.get("resource") == "governance-custody"
+        token = object()
         register_navigation(
             "governance-custody",
             render_message("webui.select_governance_custody.text.governance_custody_d1711a12"),
         )
         show_authenticated_view()
-        state.update(resource="governance-custody", rows=[], searched=True)
+        state.update(resource="governance-custody", custody_page_token=token, rows=[], searched=True)
         title.text = render_message("webui.select_governance_custody.text.governance_custody_d1711a12")
         subtitle.text = render_message("webui.select_governance_custody.text.checks_that_someone_can_always_manage_and_63c11d0d")
         search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
         add_button.set_visibility(False); add_record_button.set_visibility(False)
         guidance.text = ""
-        table_container.clear()
+        if not prior_report_visible:
+            table_container.clear()
+            with table_container:
+                ui.label(render_message("settings.custody.loading")).classes("p-5 text-sm text-slate-500").props("role=status")
         try:
             report = await api.governance_custody()
         except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True); return
+            if state.get("custody_page_token") is token and state.get("resource") == "governance-custody":
+                ui.notify(error_message(error), color="negative", close_button=True)
+            return
+        if auth_state.get("principal") is not principal or state.get("resource") != "governance-custody" or state.get("custody_page_token") is not token:
+            return
+        table_container.clear()
         highest_level = report.get("highest_security_level")
         warning = next(iter(report.get("warnings", [])), None)
         custodian_count = report["highest_clearance_custodian_count"]
@@ -16969,6 +17040,13 @@ def index(q: str = "") -> None:
         ]
         qualifying_roles_by_id = {item["id"]: item for item in qualifying_roles}
         with table_container, ui.column().classes("w-full p-5 gap-4"):
+            with ui.row().classes("w-full justify-end"):
+                ui.button(render_message("settings.action.refresh"), icon="refresh", on_click=select_governance_custody).props("flat dense no-caps")
+            disposition_warning_panel(
+                report.get("disposition_configuration_warnings", []),
+                can_manage=can_navigate("application-settings", principal.get("global_privileges", [])),
+                open_settings=lambda: guarded_page_navigation(lambda: select_application_settings("disposition")),
+            )
             with ui.element("div").classes("governance-overview-grid"):
                 with ui.card().classes("governance-purpose-card shadow-none"):
                     with ui.row().classes("w-full items-start gap-3 no-wrap"):
@@ -19116,6 +19194,36 @@ def index(q: str = "") -> None:
         else:
             await open_aggregation(await api.get("aggregations", identity))
 
+    async def select_application_settings(initial_category: str = "general", *, initial_setting_key: str | None = None) -> None:
+        principal = auth_state.get("principal")
+        if not principal or not can_navigate("application-settings", principal.get("global_privileges", [])):
+            return
+        token = object()
+        state.update(resource="application-settings", settings_page_token=token,
+                     settings_category=initial_category, rows=[], searched=True, aggregation_detail=None)
+        register_navigation("application-settings", render_message("navigation.item.application_settings"))
+        show_authenticated_view()
+        title.text = render_message("navigation.item.application_settings")
+        subtitle.text = render_message("settings.page.subtitle")
+        guidance.text = ""
+        for control in (search_bar, aggregation_mode_bar, add_button, add_record_button):
+            control.set_visibility(False)
+        table_container.clear()
+        def remember_settings_category(value):
+            if auth_state.get("principal") is not principal or state.get("resource") != "application-settings" or state.get("settings_page_token") is not token:
+                return
+            state.update(settings_category=value)
+            if navigation_state["trail"] and navigation_state["trail"][-1]["page"] == "application-settings":
+                navigation_state["trail"][-1]["state"] = current_navigation_snapshot()
+                persist_navigation_trail()
+        await settings_page(
+            api=api, container=table_container, bind_relationship=bind_remote_relationship_select,
+            active=lambda: auth_state.get("principal") is principal and state.get("resource") == "application-settings" and state.get("settings_page_token") is token,
+            on_error=error_message, direction=lambda: current_direction["value"], initial_category=initial_category,
+            initial_setting_key=initial_setting_key,
+            on_category=remember_settings_category,
+        )
+
     async def select_relationship_types() -> None:
         principal = auth_state.get("principal")
         if not principal or not can_navigate("relationship-types", principal.get("global_privileges", [])):
@@ -20784,6 +20892,7 @@ def index(q: str = "") -> None:
         "click", lambda: guarded_page_navigation(select_saved_search_administration)
     )
     text_indexers_navigation.on("click", lambda: guarded_page_navigation(select_text_indexers))
+    application_settings_navigation.on("click", lambda: guarded_page_navigation(select_application_settings))
     custody_navigation.on("click", lambda: guarded_page_navigation(select_governance_custody))
     holds_navigation.on("click", lambda: guarded_page_navigation(select_holds))
     change_password_menu.on("click", show_change_password)
@@ -20893,9 +21002,8 @@ def index(q: str = "") -> None:
         search_input.run_method("focus")
 
     search_input.on("clear", clear_collection_search)
-    if full_text_search_enabled():
-        global_search_submit.on("click", lambda: run_global_search(global_search_input.value or ""))
-        global_search_input.on("keydown.enter", lambda: run_global_search(global_search_input.value or ""))
+    global_search_submit.on("click", lambda: run_global_search(global_search_input.value or ""))
+    global_search_input.on("keydown.enter", lambda: run_global_search(global_search_input.value or ""))
     login_dialog = ui.dialog().props("persistent")
     with login_dialog:
         ui.element("canvas").classes(
@@ -21123,6 +21231,7 @@ def index(q: str = "") -> None:
         """Load ordinary application state only after password restrictions end."""
         if await load_localization_context():
             return False
+        accept_application_configuration(state["application_configuration"])
         populate_user_menu(principal)
         background_tasks.create(load_authenticated_client_assets())
         background_tasks.create(start_message_stream())

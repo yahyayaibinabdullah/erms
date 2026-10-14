@@ -24,6 +24,7 @@ from .audit_context import decode_change_reason
 from .authentication import Principal, principal_from_request
 from .authorization_policy import require_global_privilege
 from .config import default_working_timezone
+from .application_configuration import ui_configuration
 from .database import get_connection, pool
 
 
@@ -87,6 +88,8 @@ class BootstrapRead(StrictModel):
     supported_languages: list[LanguageRead]
     catalogue_revision: int
     catalogue_url: str
+    application_configuration: dict[str, Any]
+    uses_default_working_timezone: bool
 
 
 class LanguageCreate(StrictModel):
@@ -526,11 +529,11 @@ def _preference(connection: Connection, user_id: int) -> dict | None:
     ).fetchone()
 
 
-def _effective_preference(connection: Connection, user_id: int) -> dict:
+def _effective_preference(connection: Connection, user_id: int, *, include_context=False) -> dict:
     stored = _preference(connection, user_id)
     if stored and stored["is_enabled"]:
         stored.pop("is_enabled", None)
-        return {**stored, "persisted": True}
+        return {**stored, "persisted": True, **({"uses_default_working_timezone":False} if include_context else {})}
     language = connection.execute(
         "SELECT language_tag,direction FROM supported_languages WHERE is_default AND is_enabled"
     ).fetchone()
@@ -538,7 +541,8 @@ def _effective_preference(connection: Connection, user_id: int) -> dict:
         raise RuntimeError("an enabled default language is required")
     return {
         "language_tag": language["language_tag"],
-        "working_timezone": default_working_timezone(),
+        "working_timezone": default_working_timezone(connection),
+        **({"uses_default_working_timezone":True} if include_context else {}),
         "direction": language["direction"],
         "persisted": stored is not None,
         "version": stored["version"] if stored else 0,
@@ -618,7 +622,7 @@ def bootstrap(
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     languages = _languages(connection)
-    preference = _effective_preference(connection, principal.user_id)
+    preference = _effective_preference(connection, principal.user_id, include_context=True)
     fallback = connection.execute(
         "SELECT language_tag FROM supported_languages WHERE is_default AND is_enabled"
     ).fetchone()
@@ -639,6 +643,8 @@ def bootstrap(
         "supported_languages": languages,
         "catalogue_revision": revision,
         "catalogue_url": f"/api/v1/i18n/catalogues/{preference['language_tag']}",
+        "application_configuration": ui_configuration(connection),
+        "uses_default_working_timezone": preference["uses_default_working_timezone"],
     }
 
 
@@ -704,7 +710,7 @@ def _compiled_catalogue(
 
 
 def localization_readiness(connection: Connection) -> dict[str, Any]:
-    timezone_name = default_working_timezone()
+    timezone_name = default_working_timezone(connection)
     language = connection.execute(
         "SELECT language_tag,catalogue_revision FROM supported_languages WHERE is_default AND is_enabled"
     ).fetchone()

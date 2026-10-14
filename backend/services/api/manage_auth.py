@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import secrets
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -12,8 +11,9 @@ import psycopg
 from psycopg import Connection
 from psycopg.rows import dict_row
 
-from .authentication import SYSTEM_ADMIN_ROLE, hash_password, revoke_sessions_for_user
+from .authentication import SYSTEM_ADMIN_ROLE, hash_password, revoke_sessions_for_user, temporary_password
 from .config import required_environment
+from .application_settings import load_snapshot
 
 
 BOOTSTRAP_ORG_UNIT_CODE = "SYSTEM"
@@ -35,8 +35,8 @@ class BootstrapResult:
     expires_at: datetime
 
 
-def _temporary_credential() -> tuple[str, str, datetime]:
-    password = secrets.token_urlsafe(15)
+def _temporary_credential(connection) -> tuple[str, str, datetime]:
+    password = temporary_password(load_snapshot(connection))
     expires_at = datetime.now(timezone.utc) + timedelta(hours=TEMPORARY_PASSWORD_HOURS)
     return password, hash_password(password), expires_at
 
@@ -127,7 +127,7 @@ def bootstrap_administrator(
         "INSERT INTO user_role_assignments (user_id, role_id) VALUES (%s, %s)",
         (user["id"], role["id"]),
     )
-    password, password_hash, expires_at = _temporary_credential()
+    password, password_hash, expires_at = _temporary_credential(connection)
     connection.execute(
         """
         INSERT INTO user_credentials (
@@ -171,7 +171,7 @@ def set_temporary_password(
         """,
         (str(uuid4()),),
     )
-    password, password_hash, expires_at = _temporary_credential()
+    password, password_hash, expires_at = _temporary_credential(connection)
     connection.execute(
         """
         INSERT INTO user_credentials (user_id,password_hash,must_change_password,temporary_expires_at)

@@ -203,6 +203,12 @@ export WEBUI_API_URL="${STACK_API_URL}"
 
 start_database
 
+# Read-only, per-target readiness before any affected service/worker starts or
+# is reused. No import or private-file rewrite occurs on startup.
+"${PROJECT_DIR}/backend/services/api/.venv/bin/python" \
+    "${PROJECT_DIR}/tools/migrate_application_settings.py" --check \
+    --database-url "${STACK_DATABASE_URL}" --source-env "${PROJECT_ENV_FILE}"
+
 if [[ "${STACK_INDEXING_MAINTENANCE_ENABLED}" == true ]]; then
     echo "Starting API-owned text-indexing maintenance worker."
     PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" \

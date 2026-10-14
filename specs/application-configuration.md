@@ -4,8 +4,8 @@
 **Approved:** 12 October 2026
 **Project:** ERMS
 **Prepared:** 2 October 2026
-**Revision:** 1.1 — Records Manager Only route
-**Amendment approved:** 13 October 2026
+**Revision:** 1.2 — Environment-managed settings encryption key
+**Amendment approved:** 14 October 2026 (key storage); 13 October 2026 (Records Manager Only route)
 
 ## 1. Purpose
 
@@ -107,6 +107,7 @@ The following settings remain environment/`.env` settings.
 | Setting | Current default or requirement | Reason |
 | --- | --- | --- |
 | `AUTH_COOKIE_SECURE` | `false` locally; `true` in the production example | Depends on the deployment's HTTPS boundary and must not be weakened from the application UI |
+| `APPLICATION_SETTINGS_ENCRYPTION_KEY` | Unset by default; required to save or resolve an SMTP password | API-owned authenticated-encryption key, stored in local `.env` or supplied by the production shell environment, which takes precedence; shared by API instances using the same database; changing it requires API restart |
 | `CONTENT_STORAGE_BACKEND` | `postgresql` | Storage-provider/infrastructure selection |
 | `LIBREOFFICE_BINARY` | Auto-discovered when unset | Host executable path |
 
@@ -276,6 +277,13 @@ Incomplete configuration does not prevent application startup; it prevents
 the relevant email send and produces the defined task error. No SMTP server,
 credential, or sender is copied from environment variables or invented.
 These settings serve both request-form and digital-certificate delivery.
+The SMTP password is encrypted in PostgreSQL using the deployment-managed
+`APPLICATION_SETTINGS_ENCRYPTION_KEY`. The key is never stored in PostgreSQL
+or exposed through the settings API. Missing key configuration does not prevent
+startup or non-secret settings changes; replacing or resolving a password
+requires a valid key. Local `.env` values never override the shell environment.
+Preserve the key for existing encrypted passwords; changing it alone does not
+re-encrypt saved credentials.
 All system notifications still use the existing messaging and notifications
 subsystem; external document sending does not introduce a replacement for it.
 

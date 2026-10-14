@@ -16,7 +16,6 @@ from .audit_context import (
     request_id_context,
 )
 from .config import (
-    boolean_environment,
     float_environment,
     integer_environment,
     required_environment,
@@ -49,9 +48,11 @@ def close_pool() -> None:
 
 
 def _get_connection(consistent=False) -> Generator[Connection, None, None]:
+    from .application_settings import cache
     with pool.connection() as connection:
         if consistent:
             connection.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+        settings = cache.for_connection(connection)
         connection.execute(
             """
             SELECT
@@ -77,7 +78,7 @@ def _get_connection(consistent=False) -> Generator[Connection, None, None]:
                 change_reason_context.get(),
                 event_metadata_context.get(),
                 str(
-                    boolean_environment("CONTENT_INDEXING_SCHEDULING_ENABLED", True)
+                    settings["CONTENT_INDEXING_SCHEDULING_ENABLED"]
                 ).lower(),
             ),
         )

@@ -11,8 +11,9 @@ from psycopg import Connection
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from .config import integer_environment
+from .application_settings import cache as settings_cache, load_snapshot
 from .database import database_url
+from .application_settings_migration import readiness, MigrationInvalid
 
 
 LOCK_KEY = 2_027_091_701
@@ -144,12 +145,21 @@ def cleanup_content(connection: Connection, *, batch_size: int = 100, dry_run: b
     return result
 
 
-def run_once(*, batch_size: int, dry_run: bool) -> CleanupResult:
+def _run_pass(*, batch_size: int, dry_run: bool, watch: bool = False,
+              interval_seconds: int | None = None):
     with psycopg.connect(database_url(), row_factory=dict_row) as connection:
+        settings = settings_cache.for_connection(connection) if watch else load_snapshot(connection)
+        if not readiness(connection, snapshot=settings)['ready']:
+            raise MigrationInvalid('application_settings_migration_incomplete; run the reviewed preview/apply command')
         result = cleanup_content(connection, batch_size=batch_size, dry_run=dry_run)
+        interval = interval_seconds if interval_seconds is not None else settings["CONTENT_CLEANUP_INTERVAL_SECONDS"]
         if dry_run:
             connection.rollback()
-        return result
+        return result, interval
+
+
+def run_once(*, batch_size: int, dry_run: bool) -> CleanupResult:
+    return _run_pass(batch_size=batch_size, dry_run=dry_run)[0]
 
 
 def main() -> None:
@@ -159,13 +169,16 @@ def main() -> None:
     parser.add_argument("--watch", action="store_true", help="run continuously as the dedicated cleanup worker")
     parser.add_argument(
         "--interval-seconds", type=int,
-        default=integer_environment("CONTENT_CLEANUP_INTERVAL_SECONDS", 3600, minimum=1),
+        default=None, help="Explicit per-invocation override; default is database CONTENT_CLEANUP_INTERVAL_SECONDS",
     )
     arguments = parser.parse_args()
     if arguments.batch_size < 1:
         parser.error("--batch-size must be positive")
+    if arguments.interval_seconds is not None and arguments.interval_seconds < 1:
+        parser.error("--interval-seconds must be positive")
     while True:
-        result = run_once(batch_size=arguments.batch_size, dry_run=arguments.dry_run)
+        result, interval = _run_pass(batch_size=arguments.batch_size, dry_run=arguments.dry_run,
+                                     watch=arguments.watch, interval_seconds=arguments.interval_seconds)
         print(
             f"expired_sessions={result.expired_sessions} removed_sessions={result.removed_sessions} "
             f"removed_drafts={result.removed_drafts} removed_content_sets={result.removed_content_sets} "
@@ -174,7 +187,7 @@ def main() -> None:
         )
         if not arguments.watch:
             return
-        time.sleep(arguments.interval_seconds)
+        time.sleep(interval)
 
 
 if __name__ == "__main__":

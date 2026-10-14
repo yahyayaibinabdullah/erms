@@ -7,11 +7,18 @@ from psycopg import Connection
 from .authentication import Principal, principal_from_request
 from .database import get_connection
 from .schemas import DashboardReviewItem, DashboardSummaryRead
-from .config import integer_environment
+from .application_settings import cache
+from .application_configuration import ui_configuration, recent_since_default
 from .entity_localization import localized_projection, preferred_language
 
 
 router = APIRouter(prefix="/api/v1/dashboard", tags=["dashboard"])
+
+# Saturate only beyond PostgreSQL's timestamp domain, so every valid registry
+# integer works without interval overflow or a new product-level upper limit.
+REVIEW_WINDOW_END_SQL = """CASE WHEN %s::bigint > (DATE '294276-12-31'-CURRENT_DATE)
+ THEN 'infinity'::timestamptz ELSE CURRENT_TIMESTAMP +
+ (LEAST(%s::bigint,DATE '294276-12-31'-CURRENT_DATE)*INTERVAL '1 day') END"""
 
 
 @router.get("/reviews", response_model=list[DashboardReviewItem])
@@ -23,9 +30,10 @@ def dashboard_reviews(
 ):
     comparison = (
         "date_of_next_review<=CURRENT_TIMESTAMP" if state == "overdue" else
-        "date_of_next_review>CURRENT_TIMESTAMP AND date_of_next_review<=CURRENT_TIMESTAMP+(%s*INTERVAL '1 day')"
+        f"date_of_next_review>CURRENT_TIMESTAMP AND date_of_next_review<=({REVIEW_WINDOW_END_SQL})"
     )
-    parameters = (REVIEW_WARNING_WINDOW_DAYS, limit, offset) if state == "upcoming" else (limit, offset)
+    settings = cache.for_connection(connection)
+    parameters = (settings["REVIEW_WARNING_WINDOW_DAYS"], settings["REVIEW_WARNING_WINDOW_DAYS"], limit, offset) if state == "upcoming" else (limit, offset)
     return list(connection.execute(
         f"""WITH reviewable AS (
           SELECT 'aggregation'::text entity_type,id entity_id,date_of_next_review,title,aggregation_number,NULL::text record_number
@@ -38,14 +46,12 @@ def dashboard_reviews(
         ) SELECT * FROM reviewable WHERE {comparison} ORDER BY date_of_next_review ASC,entity_type,entity_id LIMIT %s OFFSET %s""",
         parameters,
     ).fetchall())
-REVIEW_WARNING_WINDOW_DAYS = integer_environment("REVIEW_WARNING_WINDOW_DAYS", 30)
-DASHBOARD_REVIEW_PREVIEW_LIMIT = integer_environment("DASHBOARD_REVIEW_PREVIEW_LIMIT", 5)
 
 
 @router.get("/summary", response_model=DashboardSummaryRead)
 def dashboard_summary(
     request: Request,
-    recent_limit: int = Query(7, ge=1, le=50),
+    recent_limit: int | None = Query(None, ge=1, le=50),
     recent_since: datetime | None = None,
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -58,6 +64,11 @@ def dashboard_summary(
     and resource-visibility rules as the underlying features while using one
     database-pool checkout.
     """
+    settings = cache.for_connection(connection)
+    recent_limit = recent_limit if recent_limit is not None else min(settings["DASHBOARD_RECENT_ITEM_LIMIT"], 50)
+    recent_since = recent_since if recent_since is not None else recent_since_default(settings["DASHBOARD_RECENT_DAYS"])
+    REVIEW_WARNING_WINDOW_DAYS = settings["REVIEW_WARNING_WINDOW_DAYS"]
+    DASHBOARD_REVIEW_PREVIEW_LIMIT = min(settings["DASHBOARD_REVIEW_PREVIEW_LIMIT"], 50)
     privilege_rows = connection.execute(
         """SELECT code FROM privileges
             WHERE user_has_global_privilege(current_user_id(), code)"""
@@ -331,10 +342,10 @@ def dashboard_summary(
         ),
     ).fetchall())
     review_counts = connection.execute(
-        """SELECT
+        f"""SELECT
              count(*) FILTER (WHERE date_of_next_review<=CURRENT_TIMESTAMP) AS overdue,
              count(*) FILTER (WHERE date_of_next_review>CURRENT_TIMESTAMP
-                                AND date_of_next_review<=CURRENT_TIMESTAMP+(%s*INTERVAL '1 day')) AS upcoming
+                                AND date_of_next_review<=({REVIEW_WINDOW_END_SQL})) AS upcoming
            FROM (
              SELECT date_of_next_review FROM aggregations
               WHERE date_of_next_review IS NOT NULL
@@ -346,7 +357,7 @@ def dashboard_summary(
                 AND current_user_can_view_record(id)
                 AND owning_org_unit_id IN (SELECT DISTINCT role.org_unit_id FROM user_role_assignments assignment JOIN roles role ON role.id=assignment.role_id WHERE assignment.user_id=current_user_id() AND assignment.valid_from<=CURRENT_TIMESTAMP AND (assignment.valid_until IS NULL OR assignment.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(role.id))
            ) reviewable""",
-        (REVIEW_WARNING_WINDOW_DAYS,),
+        (REVIEW_WARNING_WINDOW_DAYS, REVIEW_WARNING_WINDOW_DAYS),
     ).fetchone()
     review_rows = list(connection.execute(
         """WITH reviewable AS (
@@ -363,7 +374,7 @@ def dashboard_summary(
         (DASHBOARD_REVIEW_PREVIEW_LIMIT,),
     ).fetchall())
     upcoming_rows = list(connection.execute(
-        """WITH reviewable AS (
+        f"""WITH reviewable AS (
                SELECT 'aggregation'::text AS entity_type,id AS entity_id,date_of_next_review,title,aggregation_number,NULL::text AS record_number
                  FROM aggregations WHERE date_of_next_review IS NOT NULL AND current_user_can_view_aggregation(id)
                   AND owning_org_unit_id IN (SELECT DISTINCT role.org_unit_id FROM user_role_assignments assignment JOIN roles role ON role.id=assignment.role_id WHERE assignment.user_id=current_user_id() AND assignment.valid_from<=CURRENT_TIMESTAMP AND (assignment.valid_until IS NULL OR assignment.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(role.id))
@@ -373,12 +384,13 @@ def dashboard_summary(
                   AND owning_org_unit_id IN (SELECT DISTINCT role.org_unit_id FROM user_role_assignments assignment JOIN roles role ON role.id=assignment.role_id WHERE assignment.user_id=current_user_id() AND assignment.valid_from<=CURRENT_TIMESTAMP AND (assignment.valid_until IS NULL OR assignment.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(role.id))
            ) SELECT * FROM reviewable
            WHERE date_of_next_review > CURRENT_TIMESTAMP
-             AND date_of_next_review <= CURRENT_TIMESTAMP + (%s * INTERVAL '1 day')
+             AND date_of_next_review <= ({REVIEW_WINDOW_END_SQL})
            ORDER BY date_of_next_review ASC,entity_id ASC LIMIT %s""",
-        (REVIEW_WARNING_WINDOW_DAYS, DASHBOARD_REVIEW_PREVIEW_LIMIT,),
+        (REVIEW_WARNING_WINDOW_DAYS, REVIEW_WARNING_WINDOW_DAYS, DASHBOARD_REVIEW_PREVIEW_LIMIT,),
     ).fetchall())
 
     return {
+        "application_configuration": ui_configuration(connection, snapshot=settings),
         "overview_counts": overview_counts,
         "overview_medium_counts": overview_medium_counts,
         "overview_resource_attention_counts": overview_resource_attention_counts,

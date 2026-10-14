@@ -181,3 +181,10 @@ def test_cleanup_retention_boundaries_and_single_leader(client,record):
         assert blocked["leader"] is False and blocked["credentials"]==0
     finally:
         first.rollback(); first.close(); second.close()
+
+
+import pytest
+@pytest.fixture(autouse=True)
+def enabled_indexing_policy(client):
+    from backend.services.api.tests.test_application_settings import save
+    assert save(client,{'FULL_TEXT_SEARCH_ENABLED':True,'CONTENT_INDEXING_SCHEDULING_ENABLED':True}).status_code==200

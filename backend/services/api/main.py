@@ -32,7 +32,6 @@ from .service_authentication import (
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .concurrency import expected_version
 from .continuity_lock import acquire_continuity_shared_lock
-from .config import boolean_environment, choice_environment, default_working_timezone, integer_environment
 from .content_storage import configured_storage, inspect_upload
 from .database import close_pool, get_connection, open_pool, pool
 from .document_conversion import ConversionUnavailable, UnsupportedPreview, pdf_rendition
@@ -82,6 +81,9 @@ from .scheme_transfer.routes import router as scheme_transfer_router
 from .browse import router as browse_router
 from .favourites import router as favourites_router
 from .resource_relationships import router as resource_relationships_router
+from .application_settings_routes import router as application_settings_router
+from .application_configuration import router as application_configuration_router
+from .application_settings import cache as settings_cache
 from .security_levels import router as security_levels_router
 from .authorization_admin import router as authorization_admin_router
 from .resource_acls import router as resource_acl_router
@@ -103,10 +105,7 @@ from .authorization_policy import load_policy_context, require_audit_view
 
 
 RESOURCE_MEDIA = {"digital", "physical", "mixed"}
-DEFAULT_ROOT_AGGREGATION_MEDIUM = choice_environment(
-    "DEFAULT_ROOT_AGGREGATION_MEDIUM", "mixed", RESOURCE_MEDIA,
-)
-REVIEW_WARNING_WINDOW_DAYS = integer_environment("REVIEW_WARNING_WINDOW_DAYS", 30)
+
 
 
 def _medium_error(code: str, message: str, **details) -> HTTPException:
@@ -161,9 +160,18 @@ from .messaging.notification_configuration import readiness as notification_read
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    default_working_timezone()
-    integer_environment("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 1000, minimum=1)
     open_pool()
+    # Load database configuration before business consumers or background work.
+    settings_cache.invalidate()
+    try:
+        with pool.connection() as connection:
+            settings_cache.for_connection(connection)  # Fail on missing/invalid rows.
+            from .application_settings_migration import readiness
+            if not readiness(connection)["ready"]:
+                raise RuntimeError("application_settings_migration_incomplete; run the reviewed preview/apply command")
+    except Exception:
+        close_pool()
+        raise
     synchronize_message_definitions()
     initialize_registry()
     with pool.connection() as connection:
@@ -197,6 +205,8 @@ app.include_router(classification_management_router)
 app.include_router(browse_router)
 app.include_router(favourites_router)
 app.include_router(resource_relationships_router)
+app.include_router(application_settings_router)
+app.include_router(application_configuration_router)
 app.include_router(security_levels_router)
 app.include_router(authorization_admin_router)
 app.include_router(resource_acl_router)
@@ -212,6 +222,22 @@ app.include_router(messaging_monitor_router)
 app.include_router(messaging_router)
 app.include_router(localization_router)
 app.include_router(entity_translations_router)
+
+
+# Pydantic's default validation response includes the rejected input, including
+# nested write-only credentials. Keep this redaction narrowly scoped to Settings.
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error_handler(request: Request, error: RequestValidationError):
+    if request.url.path.startswith("/api/v1/application-settings"):
+        return JSONResponse(status_code=422, content={"detail": {
+            "code": "application_settings_invalid_update",
+            "message_key": "settings.error.invalid_update", "parameters": {},
+        }})
+    return await request_validation_exception_handler(request, error)
 
 
 @app.post("/api/v1/full-text-search", response_model=None, tags=["search"])
@@ -280,6 +306,7 @@ async def audit_request_context(request: Request, call_next):
     if service_key_present and not internal_text_indexing_path:
         return JSONResponse(status_code=401, content={"detail": "invalid authentication credentials"})
     session_token = None if internal_text_indexing_path else (bearer_token or cookie_token)
+    request_settings = None
     if internal_text_indexing_path or session_token:
         try:
             with pool.connection() as authentication_connection:
@@ -294,6 +321,8 @@ async def audit_request_context(request: Request, call_next):
                         load_policy_context(authentication_connection, principal)
                         if principal else None
                     )
+                if service_principal or principal:
+                    request_settings = settings_cache.for_connection(authentication_connection)
         except PoolTimeout:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -311,7 +340,7 @@ async def audit_request_context(request: Request, call_next):
         return JSONResponse(status_code=401, content={"detail": "authentication required"})
     if service_principal and not service_request_allowed(
         service_principal.credential_id,
-        integer_environment("TEXT_INDEXER_RATE_LIMIT_PER_MINUTE", 600, minimum=1),
+        request_settings["TEXT_INDEXER_RATE_LIMIT_PER_MINUTE"],
     ):
         return JSONResponse(status_code=429, content={"detail": "request rate limit exceeded"},
                             headers={"Retry-After": "1"})
@@ -320,13 +349,13 @@ async def audit_request_context(request: Request, call_next):
         is_search = request.url.path.endswith("/search") or request.url.path == "/api/v1/full-text-search"
         if is_reindex and not service_request_allowed(
             -1_000_000_000-principal.user_id,
-            integer_environment("MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE",60,minimum=1),
+            request_settings["MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE"],
         ):
             return JSONResponse(status_code=429,content={"detail":{"code":"reindex_rate_limit_exceeded"}},
                                 headers={"Retry-After":"60"})
         if is_search and not service_request_allowed(
             -principal.user_id,
-            integer_environment("SEARCH_RATE_LIMIT_PER_MINUTE",600,minimum=1),
+            request_settings["SEARCH_RATE_LIMIT_PER_MINUTE"],
         ):
             return JSONResponse(status_code=429,content={"detail":{"code":"search_rate_limit_exceeded"}},
                                 headers={"Retry-After":"1"})
@@ -474,6 +503,7 @@ async def database_error_handler(_, exception: psycopg.Error):
 @app.get("/health", tags=["system"])
 def health(connection: Connection = Depends(get_connection, scope="function")) -> dict[str, Any]:
     connection.execute("SELECT 1")
+    settings = settings_cache.for_connection(connection)
     notifications = notification_readiness(connection)
     if not notifications["ready"]:
         raise HTTPException(status_code=503, detail={"code": "notification_readiness_failed", "notifications": notifications})
@@ -481,10 +511,8 @@ def health(connection: Connection = Depends(get_connection, scope="function")) -
         "status": "ok",
         "notifications": notifications,
         "messaging_realtime": app.state.messaging_gateway.health(),
-        "full_text_search_enabled": boolean_environment("FULL_TEXT_SEARCH_ENABLED", True),
-        "content_indexing_scheduling_enabled": boolean_environment(
-            "CONTENT_INDEXING_SCHEDULING_ENABLED", True,
-        ),
+        "full_text_search_enabled": settings["FULL_TEXT_SEARCH_ENABLED"],
+        "content_indexing_scheduling_enabled": settings["CONTENT_INDEXING_SCHEDULING_ENABLED"],
         "localization": localization_readiness(connection),
     }
 
@@ -631,7 +659,7 @@ def create_aggregation(
         connection, payload.creator_acl_role_id, payload.parent_aggregation_id,
     )
     if payload.parent_aggregation_id is None:
-        values["medium"] = payload.medium or DEFAULT_ROOT_AGGREGATION_MEDIUM
+        values["medium"] = payload.medium or settings_cache.for_connection(connection)["DEFAULT_ROOT_AGGREGATION_MEDIUM"]
         level_id = payload.security_level_id or connection.execute(
             "SELECT lowest_security_level_id() AS id"
         ).fetchone()["id"]
@@ -1437,7 +1465,8 @@ def upload_record_draft_component(
     draft = _open_draft(connection, draft_id, lock=True)
     messaging_capture.protect_components(connection, draft_id)
     _require_draft_accepts_components(draft)
-    inspected = inspect_upload(file)
+    content_settings = settings_cache.for_connection(connection)
+    inspected = inspect_upload(file, content_settings)
     component = connection.execute(
         """INSERT INTO record_draft_components
                (draft_id, component_order, file_name, date_originated, mime_type,
@@ -1448,7 +1477,7 @@ def upload_record_draft_component(
          file.content_type or "application/octet-stream", inspected.size_in_bytes,
          inspected.checksum_value),
     ).fetchone()
-    configured_storage().store_draft_upload(connection, component["id"], file)
+    configured_storage().store_draft_upload(connection, component["id"], file, settings=content_settings)
     component = connection.execute(
         """SELECT id, draft_id, component_order, file_name, date_created,
                   date_originated, mime_type, size_in_bytes, checksum_algo,
@@ -1869,7 +1898,8 @@ def upload_digital_component(
     require_resource_operation(connection, "record", record_id,
                                "record.component.add", "record.component.add")
     _require_record_accepts_components(connection, record_id)
-    inspected = inspect_upload(file)
+    content_settings = settings_cache.for_connection(connection)
+    inspected = inspect_upload(file, content_settings)
     mime_type = file.content_type or "application/octet-stream"
     component = create_row(
         connection,
@@ -1887,7 +1917,7 @@ def upload_digital_component(
             "content_status": "available",
         },
     )
-    uploaded = configured_storage().store_upload(connection, component["id"], file)
+    uploaded = configured_storage().store_upload(connection, component["id"], file, settings=content_settings)
     component = get_or_404(connection, "digital_components", component["id"])
     _append_content_event(
         connection,
@@ -1996,14 +2026,15 @@ def _component_rendition_response(
             content=content[start:end], status_code=response_status,
             media_type=rendered_mime, headers=headers,
         )
-    maximum_source = integer_environment("MAX_RENDITION_SIZE_BYTES", 100 * 1024 * 1024, minimum=1)
+    content_settings = settings_cache.for_connection(connection)
+    maximum_source = content_settings["MAX_RENDITION_SIZE_BYTES"]
     if location.size_in_bytes > maximum_source:
         raise HTTPException(status_code=413, detail="source document exceeds the configured rendition size limit")
     content = storage.read(connection, component_id)
     if content is None:
         raise HTTPException(status_code=404, detail="digital component content not found")
     try:
-        rendition, method = pdf_rendition(content, component["file_name"], mime_type)
+        rendition, method = pdf_rendition(content, component["file_name"], mime_type, settings=content_settings)
     except UnsupportedPreview as error:
         raise HTTPException(status_code=415, detail=str(error)) from error
     except ConversionUnavailable as error:
@@ -2077,8 +2108,9 @@ def replace_digital_component_content(
     if current["version"] != version:
         return update_row(connection, "digital_components", component_id, {}, version)
     mime_type = file.content_type or "application/octet-stream"
-    inspected = inspect_upload(file)
-    uploaded = configured_storage().store_upload(connection, component_id, file)
+    content_settings = settings_cache.for_connection(connection)
+    inspected = inspect_upload(file, content_settings)
+    uploaded = configured_storage().store_upload(connection, component_id, file, settings=content_settings)
     component = update_row(connection, "digital_components", component_id, {
         "file_name": file.filename or "unnamed",
         "mime_type": mime_type,

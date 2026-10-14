@@ -21,8 +21,8 @@ The query parameters are:
 
 | Parameter | Required | Default | Meaning |
 | --- | --- | ---: | --- |
-| `recent_limit` | No | `7` | Maximum recent items for each entity-type/operation group; accepted range is 1–50 |
-| `recent_since` | No | No lower bound | ISO 8601 timestamp; excludes older personal activity |
+| `recent_limit` | No | Database `DASHBOARD_RECENT_ITEM_LIMIT` (initial `4`, request window at most 50) | Maximum recent items for each entity-type/operation group; accepted range is 1–50 |
+| `recent_since` | No | Database `DASHBOARD_RECENT_DAYS` (initial `30` days) | ISO 8601 timestamp; excludes older personal activity |
 
 The response has this stable top-level shape:
 
@@ -218,8 +218,9 @@ resource to open.
 
 ## Configuration
 
-The NiceGUI service reads these settings from the process environment or the
-project `.env` file:
+These settings are shared PostgreSQL application settings, edited through
+Administration → Settings. The API supplies effective values in its page
+responses; NiceGUI has no environment fallback or authoritative settings cache:
 
 | Variable | Default | Meaning |
 | --- | ---: | --- |
@@ -227,6 +228,12 @@ project `.env` file:
 | `DASHBOARD_RECENT_ITEM_LIMIT` | `4` | Maximum records shown in the combined created, updated, and content-viewed Dashboard preview |
 | `DASHBOARD_RECENT_DAYS` | `30` | Rolling number of days included in personal recent activity |
 
-All values must be positive integers. Actual process environment variables
-override `.env` values. Restart the NiceGUI service after changing either
-setting.
+All values must be positive integers. Changes propagate through the API's
+30-second validated cache without a service restart. Existing custom environment
+values require the reviewed upgrade procedure in
+[application settings upgrade](application-settings-upgrade.md). The summary
+also returns the finite `application_configuration` values used by its previews.
+Review previews and user-detail session transport windows remain at most 50;
+recent-classification selections are independently paged in at most 20-row
+windows. A configured limit remains the maximum, not permission to download a
+complete collection.

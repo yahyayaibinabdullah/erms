@@ -56,17 +56,17 @@ defaults:
 - `WEBUI_RELOAD` defaults to `false`
 - `WEBUI_STORAGE_SECRET` encrypts per-user authentication storage and must be
   changed outside local development
-- `DASHBOARD_FAVOURITE_ITEM_LIMIT` defaults to `5` and controls how many
-  favourites appear in each Dashboard and entity-listing preview
-- `DASHBOARD_RECENT_ITEM_LIMIT` defaults to `4` and controls how many items are
-  shown in each personal recent-activity category
-- `DASHBOARD_RECENT_DAYS` defaults to `30` and excludes activity older than that
-  rolling number of days
-- `CLASSIFICATION_RECENT_SELECTION_LIMIT` defaults to `4` and controls how many
-  of the signed-in user's recently selected classifications are promoted in the
-  aggregation classification selector.
-- `USER_DETAILS_SESSION_LIMIT` defaults to `5` and controls the bounded page
-  size of the filterable, sortable login-session table on User details.
+General defaults and preview/page limits are now database-owned under
+Administration → Settings, not WebUI environment settings. Initial defaults are
+`DEFAULT_WORKING_TIMEZONE=Asia/Dubai`, `DEFAULT_ROOT_AGGREGATION_MEDIUM=mixed`,
+`REVIEW_WARNING_WINDOW_DAYS=30`, favourite/review previews `5`, recent items `4`,
+recent days `30`, recent classification selections `4`, and user sessions `5`.
+The API supplies current page/bootstrap values; changes propagate within 30
+seconds without restart. Recent classifications retain server paging (20-row
+windows), and user-detail sessions retain bounded server pages (at most 50).
+See [the reviewed per-database migration procedure](../../docs/application-settings-upgrade.md)
+before starting upgraded services. Private legacy entries are never removed or
+imported automatically; content/authentication/search cutovers follow later.
 
 Dashboard recent activity is attributed through the immutable audit event's
 `actor_user_id`. Created and updated cards display the matching event's
@@ -144,3 +144,8 @@ DATABASE_URL='' frontend/webui/.venv/bin/python -m pytest frontend/webui/interac
 ```
 
 These interaction tests use a fake API and never connect to a database.
+
+Full-text header visibility now follows the API's saved FULL_TEXT_SEARCH_ENABLED
+value in bootstrap/page configuration. WEBUI_FULL_TEXT_SEARCH_ENABLED is removed.
+No WebUI feature cache or extra bootstrap/widget settings request is introduced.
+See docs/application-settings-upgrade.md before deploying this cutover.

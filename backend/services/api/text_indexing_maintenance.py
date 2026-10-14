@@ -9,7 +9,9 @@ import psycopg
 from psycopg import Connection
 from psycopg.rows import dict_row
 
-from .config import integer_environment
+from datetime import datetime, timedelta, timezone
+from .application_settings import cache as settings_cache, load_snapshot
+from .application_settings_migration import readiness as settings_readiness, MigrationInvalid
 from .database import database_url
 
 
@@ -66,8 +68,12 @@ def reconcile(connection: Connection, batch_size: int, dry_run: bool) -> dict[st
 
 def cleanup(
     connection: Connection, batch_size: int, retention_days: int, dry_run: bool,
-    credential_retention_days: int = 365,
+    credential_retention_days: int | None = None,
 ) -> dict[str, int | bool]:
+    if credential_retention_days is None:
+        credential_retention_days = settings_cache.for_connection(connection)["TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS"]
+    history_cutoff = _retention_cutoff(retention_days)
+    credential_cutoff = _retention_cutoff(credential_retention_days)
     leader = connection.execute("SELECT pg_try_advisory_xact_lock(%s) AS acquired", (LOCK_KEY,)).fetchone()["acquired"]
     if not leader:
         return {"leader": False, "staging": 0, "operations": 0, "jobs": 0, "attempts": 0, "credentials": 0}
@@ -79,46 +85,60 @@ def cleanup(
                OR job.lease_expires_at<CURRENT_TIMESTAMP ORDER BY chunk.date_staged LIMIT %s)""",
         "operations": """DELETE FROM content_indexing_operations WHERE ctid IN (
             SELECT operation.ctid FROM content_indexing_operations operation JOIN content_indexing_jobs job ON job.id=operation.job_id
-            WHERE job.completed_at<CURRENT_TIMESTAMP-(%s*interval '1 day') ORDER BY operation.date_created LIMIT %s)""",
+            WHERE job.completed_at<%s ORDER BY operation.date_created LIMIT %s)""",
         "jobs": """DELETE FROM content_indexing_jobs WHERE id IN (
             SELECT id FROM content_indexing_jobs WHERE status IN ('succeeded','failed','unsupported','cancelled','skipped')
-            AND completed_at<CURRENT_TIMESTAMP-(%s*interval '1 day') ORDER BY completed_at LIMIT %s)""",
+            AND completed_at<%s ORDER BY completed_at LIMIT %s)""",
         "attempts": """DELETE FROM content_indexing_attempts WHERE id IN (
             SELECT id FROM content_indexing_attempts WHERE status<>'processing'
-            AND completed_at<CURRENT_TIMESTAMP-(%s*interval '1 day') ORDER BY completed_at LIMIT %s)""",
+            AND completed_at<%s ORDER BY completed_at LIMIT %s)""",
         "credentials": """DELETE FROM service_account_credentials WHERE id IN (
             SELECT id FROM service_account_credentials
-             WHERE (status='revoked' AND date_revoked<CURRENT_TIMESTAMP-(%s*interval '1 day'))
-                OR (status='active' AND expires_at<CURRENT_TIMESTAMP-(%s*interval '1 day'))
+             WHERE (status='revoked' AND date_revoked<%s)
+                OR (status='active' AND expires_at<%s)
              ORDER BY coalesce(date_revoked,expires_at),id LIMIT %s)""",
     }
     if dry_run:
         counts.update({name: 0 for name in targets})
         return counts
     counts["staging"] = connection.execute(targets["staging"], (batch_size,)).rowcount
-    counts["operations"] = connection.execute(targets["operations"], (retention_days,batch_size)).rowcount
+    counts["operations"] = connection.execute(targets["operations"], (history_cutoff,batch_size)).rowcount
     # Jobs precede attempts safely because attempt.job_id is ON DELETE SET NULL.
-    counts["jobs"] = connection.execute(targets["jobs"], (retention_days,batch_size)).rowcount
-    counts["attempts"] = connection.execute(targets["attempts"], (retention_days,batch_size)).rowcount
+    counts["jobs"] = connection.execute(targets["jobs"], (history_cutoff,batch_size)).rowcount
+    counts["attempts"] = connection.execute(targets["attempts"], (history_cutoff,batch_size)).rowcount
     counts["credentials"] = connection.execute(
         targets["credentials"],
-        (credential_retention_days, credential_retention_days, batch_size),
+        (credential_cutoff, credential_cutoff, batch_size),
     ).rowcount
     return counts
 
 
-def run_cleanup_once(
-    *, batch_size: int, retention_days: int, credential_retention_days: int,
-    dry_run: bool,
-) -> dict[str, int | bool]:
+def _retention_cutoff(days):
+    now = datetime.now(timezone.utc)
+    return datetime.min.replace(tzinfo=timezone.utc) if days >= now.toordinal() else now - timedelta(days=days)
+
+
+def _run_cleanup_pass(*, batch_size: int | None = None, retention_days: int | None = None,
+                      credential_retention_days: int | None = None, dry_run: bool = False,
+                      watch: bool = False, interval_seconds: int | None = None):
     with psycopg.connect(database_url(), row_factory=dict_row) as connection:
-        result = cleanup(
-            connection, batch_size, retention_days, dry_run,
-            credential_retention_days,
-        )
+        settings = settings_cache.for_connection(connection) if watch else load_snapshot(connection)
+        if not settings_readiness(connection, snapshot=settings)['ready']:
+            raise MigrationInvalid('application_settings_migration_incomplete; run the reviewed preview/apply command')
+        result = cleanup(connection,
+            settings['CONTENT_INDEXING_CLEANUP_BATCH_SIZE'] if batch_size is None else batch_size,
+            settings['CONTENT_INDEXING_HISTORY_RETENTION_DAYS'] if retention_days is None else retention_days,
+            dry_run, settings['TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS'] if credential_retention_days is None else credential_retention_days)
+        interval = settings['CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS'] if interval_seconds is None else interval_seconds
         if dry_run:
             connection.rollback()
-        return result
+        return result, interval
+
+
+def run_cleanup_once(*, batch_size: int | None = None, retention_days: int | None = None,
+                     credential_retention_days: int | None = None, dry_run: bool = False):
+    return _run_cleanup_pass(batch_size=batch_size,retention_days=retention_days,
+                             credential_retention_days=credential_retention_days,dry_run=dry_run)[0]
 
 
 def metrics(connection: Connection) -> dict:
@@ -384,25 +404,21 @@ def main() -> None:
         command = commands.add_parser(name)
         command.add_argument(
             "--batch-size", type=int,
-            default=integer_environment("CONTENT_INDEXING_CLEANUP_BATCH_SIZE", 500, minimum=1),
+            default=None, help="Explicit override; default is database CONTENT_INDEXING_CLEANUP_BATCH_SIZE",
         )
         command.add_argument("--dry-run", action="store_true")
     commands.choices["cleanup"].add_argument(
         "--retention-days", type=int,
-        default=integer_environment("CONTENT_INDEXING_HISTORY_RETENTION_DAYS", 365, minimum=0),
+        default=None, help="Explicit override; default is database CONTENT_INDEXING_HISTORY_RETENTION_DAYS",
     )
     commands.choices["cleanup"].add_argument(
         "--credential-retention-days", type=int,
-        default=integer_environment(
-            "TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS", 365, minimum=0,
-        ),
+        default=None, help="Explicit override; default is database TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS",
     )
     commands.choices["cleanup"].add_argument("--watch", action="store_true")
     commands.choices["cleanup"].add_argument(
         "--interval-seconds", type=int,
-        default=integer_environment(
-            "CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS", 3600, minimum=1,
-        ),
+        default=None, help="Explicit override; default is database CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS",
     )
     commands.add_parser("metrics")
     commands.add_parser("readiness")
@@ -414,26 +430,33 @@ def main() -> None:
         print(json.dumps(result, sort_keys=True))
         raise SystemExit(0 if result["passed"] else 1)
     if args.command == "cleanup":
-        if args.batch_size < 1:
+        if args.batch_size is not None and args.batch_size < 1:
             parser.error("--batch-size must be positive")
-        if args.retention_days < 0 or args.credential_retention_days < 0:
+        if any(value is not None and value < 0 for value in (args.retention_days,args.credential_retention_days)):
             parser.error("retention days cannot be negative")
-        if args.interval_seconds < 1:
+        if args.interval_seconds is not None and args.interval_seconds < 1:
             parser.error("--interval-seconds must be positive")
         while True:
-            result = run_cleanup_once(
+            result, interval = _run_cleanup_pass(
                 batch_size=args.batch_size,
                 retention_days=args.retention_days,
                 credential_retention_days=args.credential_retention_days,
-                dry_run=args.dry_run,
+                dry_run=args.dry_run,watch=args.watch,interval_seconds=args.interval_seconds,
             )
             print(json.dumps(result, sort_keys=True), flush=True)
             if not args.watch:
                 return
-            time.sleep(args.interval_seconds)
+            time.sleep(interval)
 
     with psycopg.connect(database_url(), row_factory=dict_row) as connection:
-        if args.command == "reconcile": result = reconcile(connection,args.batch_size,args.dry_run)
+        settings = load_snapshot(connection)
+        if not settings_readiness(connection, snapshot=settings)['ready']:
+            raise MigrationInvalid('application_settings_migration_incomplete; run the reviewed preview/apply command')
+        if args.command == "reconcile":
+            if args.batch_size is not None and args.batch_size < 1:
+                parser.error('--batch-size must be positive')
+            result = reconcile(connection,settings['CONTENT_INDEXING_CLEANUP_BATCH_SIZE'] if args.batch_size is None else args.batch_size,args.dry_run)
+            if args.dry_run:connection.rollback()
         elif args.command == "metrics": result = metrics(connection)
         else: result = readiness(connection)
     print(json.dumps(result,sort_keys=True))

@@ -603,3 +603,35 @@ duration, backup/restore measurements and the expected partition-pruning
 predicate. Test creation of future partitions, default-partition monitoring,
 constraint enforcement, cross-partition cascades and disaster recovery on a
 production-scale disposable database.
+
+## General settings migration and readiness
+
+Disposition Phase 4 moves general defaults and Dashboard/selector/user-session
+limits to PostgreSQL. Use the offline preview/apply/check commands in
+[application settings upgrade](application-settings-upgrade.md) before starting
+upgraded services. Each database is reviewed separately; the private legacy file
+is preserved. The local launcher fails closed on incomplete/unreachable state.
+API runtime reads have a 30-second cache and no environment fallback. Content,
+authentication and search policy cutovers remain Phases 5–6.
+
+### Phase 5 cleanup policy ownership
+
+Content-cleanup interval and session-cleanup retention/interval/batch settings
+are database-owned. Omit their CLI options to follow Administration Settings;
+explicit options are per-invocation overrides. A one-shot run loads one fresh,
+validated complete snapshot. A watch process uses the shared 30-second cache and
+re-evaluates the policy before each pass. Initial settings-load failure stops the
+worker before cleanup; a failed cache refresh may retain only its last validated
+snapshot. Advisory locks, bounded batches, dry-run rollback and terminal audit
+remain unchanged. Review/apply the extended migration before service startup.
+
+### Phase 6 indexing-maintenance policy
+
+Indexing cleanup interval/history/batch and credential-history retention are now
+Administration Settings. One shot loads a fresh validated snapshot; watch mode
+uses the shared 30-second cache before each pass. Explicit flags are invocation
+overrides, never database updates. Workers reject incomplete legacy migration.
+Search, manual reindex and indexer request rates are API database settings.
+The Audit Trail cap uses one captured value for count lookahead, page bounds and
+`result_cap`. Apply schema migration 051 and a reviewed 34-key preview/apply
+before deployment; see application-settings-upgrade.md.

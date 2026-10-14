@@ -13,6 +13,8 @@ from .authorization_policy import (
     policy_context_from_request, require_authorization_admin,
 )
 from .authorization_admin import CUSTODY_PRIVILEGE_CODES
+from .application_settings import destination_warnings as _destination_warnings
+from .application_settings_registry import SettingsInvalid
 from .database import get_connection
 from .entity_localization import localized_projection, preferred_language
 from .resource_acls import _effective_aggregation, _effective_record, _grant_rows
@@ -491,8 +493,13 @@ def governance_custody(
         warnings.append({"code": "zero_universal_governance_custodians", "severity": "critical"})
     elif highest_people == 1:
         warnings.append({"code": "single_universal_governance_custodian", "severity": "advisory"})
+    try:
+        configuration_warnings = _destination_warnings(connection)
+    except SettingsInvalid:
+        raise HTTPException(503, detail={"code": "application_settings_unavailable", "message_key": "settings.error.unavailable", "parameters": {}}) from None
     return {"security_levels": levels, "highest_security_level": highest_level,
             "required_custody_privilege_codes": sorted(required_privileges),
             "governance_roles": roles,
             "assignments": assignments, "highest_clearance_custodian_count": highest_people,
-            "warnings": warnings}
+            "warnings": warnings,
+            "disposition_configuration_warnings": configuration_warnings}

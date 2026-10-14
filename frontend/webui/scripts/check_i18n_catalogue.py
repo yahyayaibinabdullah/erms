@@ -33,6 +33,7 @@ def referenced_keys() -> set[str]:
                             "ADVANCED_SEARCH_CONTROLLED_VALUES",
                             "ENTITY_METADATA_LABEL_KEYS",
                             "PERMISSION_MESSAGE_KEYS", "ACL_SOURCE_MESSAGE_KEYS", "EVENT_MESSAGE_KEYS",
+                            "SETTINGS_CHOICE_MESSAGE_KEYS",
                         }
                         for target in (
                             node.targets if isinstance(node, ast.Assign) else [node.target]
@@ -44,7 +45,7 @@ def referenced_keys() -> set[str]:
                         child.value for child in ast.walk(value)
                         if isinstance(child, ast.Constant)
                         and isinstance(child.value, str)
-                        and child.value.startswith(("resource_picker.", "relationships.", "messaging.", "classification_transfer.", "advanced_search.", "entity_metadata.", "authorization.permission.", "authorization.acl_source.", "audit.event.", "security_operations.event."))
+                        and child.value.startswith(("resource_picker.", "relationships.", "messaging.", "classification_transfer.", "advanced_search.", "entity_metadata.", "authorization.permission.", "authorization.acl_source.", "audit.event.", "security_operations.event.", "settings."))
                     )
                 if (
                     isinstance(node, ast.Assign)
@@ -101,12 +102,16 @@ def validate_repository_catalogue() -> None:
     # sync_privilege_translation_keys.py, so they are intentionally not
     # discoverable as literal render_message calls.
     data_driven = {key for key in defined if key.startswith("privilege.")}
+    # Explicit registry metadata is rendered by the settings API. Discover its
+    # exact closed key set rather than treating a prefix as active coverage.
+    from backend.services.api.application_settings_registry import MESSAGE_KEYS
+    data_driven.update(MESSAGE_KEYS)
     stale = sorted(defined - referenced - data_driven)
     if unknown or stale:
         raise ValueError(f"catalogue mismatch; unknown={unknown}, stale={stale}")
     privilege_fields: dict[str, set[str]] = {}
     for key in data_driven:
-        if key.startswith("privilege.category."):
+        if not key.startswith("privilege.") or key.startswith("privilege.category."):
             continue
         code, field = key.removeprefix("privilege.").rsplit(".", 1)
         privilege_fields.setdefault(code, set()).add(field)

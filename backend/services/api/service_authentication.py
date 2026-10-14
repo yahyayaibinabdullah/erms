@@ -32,7 +32,7 @@ class ServicePrincipal:
     account_type: str = "service"
 
 
-def service_request_allowed(credential_id: int, limit_per_minute: int = 600) -> bool:
+def service_request_allowed(credential_id: int, limit_per_minute: int) -> bool:
     now = time.monotonic()
     with _RATE_LOCK:
         window = _RATE_WINDOWS[credential_id]

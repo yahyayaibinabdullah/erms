@@ -3,13 +3,14 @@ from psycopg import Connection
 
 from .authentication import Principal, principal_from_request
 from .database import get_connection
-from .schemas import FavouritesRead
+from .schemas import FavouritesPageRead
+from .application_configuration import ui_configuration
 
 
 router = APIRouter(prefix="/api/v1/favourites", tags=["favourites"])
 
 
-@router.get("", response_model=FavouritesRead)
+@router.get("", response_model=FavouritesPageRead)
 def list_favourites(
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -49,7 +50,7 @@ def list_favourites(
         """,
         (principal.user_id,),
     ).fetchall()
-    return {"aggregations": aggregations, "records": records}
+    return {"aggregations": aggregations, "records": records, "application_configuration": ui_configuration(connection)}
 
 
 def _add_favourite(

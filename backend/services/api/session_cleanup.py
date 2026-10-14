@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import psycopg
@@ -13,8 +13,9 @@ from psycopg import Connection
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
-from .config import integer_environment
+from .application_settings import cache as settings_cache, load_snapshot
 from .database import database_url
+from .application_settings_migration import readiness, MigrationInvalid
 
 
 LOCK_KEY = 2_026_091_801
@@ -69,10 +70,16 @@ def _has_revocation_event(connection: Connection, session_id: int) -> bool:
 def cleanup_sessions(
     connection: Connection,
     *,
-    retention_days: int = 90,
-    batch_size: int = 500,
+    retention_days: int | None = None,
+    batch_size: int | None = None,
     dry_run: bool = False,
 ) -> SessionCleanupResult:
+    if retention_days is None or batch_size is None:
+        settings = settings_cache.for_connection(connection)
+        retention_days = settings["AUTH_SESSION_RETENTION_DAYS"] if retention_days is None else retention_days
+        batch_size = settings["AUTH_SESSION_CLEANUP_BATCH_SIZE"] if batch_size is None else batch_size
+    now = datetime.now(timezone.utc)
+    cutoff = datetime.min.replace(tzinfo=timezone.utc) if retention_days >= now.toordinal() else now - timedelta(days=retention_days)
     result = SessionCleanupResult()
     connection.execute(
         """SELECT set_config('app.actor_type', 'automated_process', true),
@@ -92,15 +99,15 @@ def cleanup_sessions(
                expires_at, absolute_expires_at, revoked_at
           FROM login_sessions
          WHERE (revoked_at IS NOT NULL
-                AND revoked_at <= CURRENT_TIMESTAMP - make_interval(days => %s))
+                AND revoked_at <= %s)
             OR (revoked_at IS NULL
                 AND LEAST(expires_at, absolute_expires_at)
-                    <= CURRENT_TIMESTAMP - make_interval(days => %s))
+                    <= %s)
          ORDER BY COALESCE(revoked_at, LEAST(expires_at, absolute_expires_at)), id
          FOR UPDATE SKIP LOCKED
          LIMIT %s
         """,
-        (retention_days, retention_days, batch_size),
+        (cutoff, cutoff, batch_size),
     ).fetchall()
     result.selected = len(sessions)
     if dry_run:
@@ -135,19 +142,25 @@ def cleanup_sessions(
     return result
 
 
-def run_once(
-    *, retention_days: int, batch_size: int, dry_run: bool,
-) -> SessionCleanupResult:
+def _run_pass(*, retention_days: int | None = None, batch_size: int | None = None,
+              dry_run: bool = False, watch: bool = False, interval_seconds: int | None = None):
     with psycopg.connect(database_url(), row_factory=dict_row) as connection:
-        result = cleanup_sessions(
-            connection,
-            retention_days=retention_days,
-            batch_size=batch_size,
-            dry_run=dry_run,
-        )
+        settings = settings_cache.for_connection(connection) if watch else load_snapshot(connection)
+        if not readiness(connection, snapshot=settings)['ready']:
+            raise MigrationInvalid('application_settings_migration_incomplete; run the reviewed preview/apply command')
+        result = cleanup_sessions(connection,
+            retention_days=settings['AUTH_SESSION_RETENTION_DAYS'] if retention_days is None else retention_days,
+            batch_size=settings['AUTH_SESSION_CLEANUP_BATCH_SIZE'] if batch_size is None else batch_size,
+            dry_run=dry_run)
+        interval = settings['AUTH_SESSION_CLEANUP_INTERVAL_SECONDS'] if interval_seconds is None else interval_seconds
         if dry_run:
             connection.rollback()
-        return result
+        return result, interval
+
+
+def run_once(*, retention_days: int | None = None, batch_size: int | None = None,
+             dry_run: bool = False) -> SessionCleanupResult:
+    return _run_pass(retention_days=retention_days,batch_size=batch_size,dry_run=dry_run)[0]
 
 
 def main() -> None:
@@ -157,33 +170,33 @@ def main() -> None:
     parser.add_argument(
         "--retention-days",
         type=int,
-        default=integer_environment("AUTH_SESSION_RETENTION_DAYS", 90, minimum=0),
+        default=None, help="Explicit override; default is database AUTH_SESSION_RETENTION_DAYS",
     )
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=integer_environment("AUTH_SESSION_CLEANUP_BATCH_SIZE", 500, minimum=1),
+        default=None, help="Explicit override; default is database AUTH_SESSION_CLEANUP_BATCH_SIZE",
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--watch", action="store_true")
     parser.add_argument(
         "--interval-seconds",
         type=int,
-        default=integer_environment(
-            "AUTH_SESSION_CLEANUP_INTERVAL_SECONDS", 3600, minimum=1
-        ),
+        default=None, help="Explicit override; default is database AUTH_SESSION_CLEANUP_INTERVAL_SECONDS",
     )
     arguments = parser.parse_args()
-    if arguments.retention_days < 0:
+    if arguments.retention_days is not None and arguments.retention_days < 0:
         parser.error("--retention-days cannot be negative")
-    if arguments.batch_size < 1:
+    if arguments.batch_size is not None and arguments.batch_size < 1:
         parser.error("--batch-size must be positive")
 
+    if arguments.interval_seconds is not None and arguments.interval_seconds < 1:
+        parser.error("--interval-seconds must be positive")
     while True:
-        result = run_once(
+        result, interval = _run_pass(
             retention_days=arguments.retention_days,
             batch_size=arguments.batch_size,
-            dry_run=arguments.dry_run,
+            dry_run=arguments.dry_run, watch=arguments.watch, interval_seconds=arguments.interval_seconds,
         )
         print(
             f"selected={result.selected} expired_events={result.expired_events} "
@@ -193,7 +206,7 @@ def main() -> None:
         )
         if not arguments.watch:
             return
-        time.sleep(arguments.interval_seconds)
+        time.sleep(interval)
 
 
 if __name__ == "__main__":

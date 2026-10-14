@@ -1002,6 +1002,20 @@
     "is_html": false
   },
   {
+    "message_key": "audit.entity.application_setting",
+    "context_group": "audit.entities",
+    "default_text": "Application Setting",
+    "semantic_meaning": "Localized entity label for application_setting in Audit Trail.",
+    "common_locations": [
+      "Audit Trail filters, timeline and event details"
+    ],
+    "translator_guidance": "Translate the display label only; preserve immutable operation codes. Follow existing Audit Trail wording and approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Application Setting",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.access_explanation_viewed",
     "context_group": "audit.events",
     "default_text": "Access Explanation Viewed",
@@ -1063,6 +1077,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "All Direct Holds Removed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.application_setting_changed",
+    "context_group": "audit.events",
+    "default_text": "Application Setting Changed",
+    "semantic_meaning": "Display label for the immutable audit operation APPLICATION_SETTING_CHANGED.",
+    "common_locations": [
+      "Audit Trail filters, timeline and event details"
+    ],
+    "translator_guidance": "Translate the display label only; preserve immutable operation codes. Follow existing Audit Trail wording and approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Application Setting Changed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.application_setting_seeded",
+    "context_group": "audit.events",
+    "default_text": "Application Setting Seeded",
+    "semantic_meaning": "Display label for the immutable audit operation APPLICATION_SETTING_SEEDED.",
+    "common_locations": [
+      "Audit Trail filters, timeline and event details"
+    ],
+    "translator_guidance": "Translate the display label only; preserve immutable operation codes. Follow existing Audit Trail wording and approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Application Setting Seeded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.application_settings_migration_completed",
+    "context_group": "audit.events",
+    "default_text": "Application Settings Migration Completed",
+    "semantic_meaning": "Display label for the immutable audit operation APPLICATION_SETTINGS_MIGRATION_COMPLETED.",
+    "common_locations": [
+      "Audit Trail filters, timeline and event details"
+    ],
+    "translator_guidance": "Translate the display label only; preserve immutable operation codes. Follow existing Audit Trail wording and approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Application Settings Migration Completed",
     "is_html": false
   },
   {
@@ -12644,6 +12700,20 @@
     "is_html": false
   },
   {
+    "message_key": "navigation.item.application_settings",
+    "context_group": "navigation.item",
+    "default_text": "Settings",
+    "semantic_meaning": "Administration Settings application settings.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Settings",
+    "is_html": false
+  },
+  {
     "message_key": "navigation.item.audit_trail",
     "context_group": "navigation",
     "default_text": "Audit trail",
@@ -13467,6 +13537,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Change Aggregation Vital Status",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.app.settings.manage.description",
+    "context_group": "privilege.app.settings.manage",
+    "default_text": "Manage validated application configuration and protected SMTP credentials.",
+    "semantic_meaning": "Administration Settings: Manage validated application configuration and protected SMTP credentials.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Manage validated application configuration and protected SMTP credentials.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.app.settings.manage.name",
+    "context_group": "privilege.app.settings.manage",
+    "default_text": "Manage Application Settings",
+    "semantic_meaning": "Administration Settings: Manage Application Settings",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Manage Application Settings",
     "is_html": false
   },
   {
@@ -16365,6 +16463,2291 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Information Governance Bypass Used",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.back",
+    "context_group": "settings.action",
+    "default_text": "Back to parent branch",
+    "semantic_meaning": "Administration Settings back.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Back to parent branch",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.browse",
+    "context_group": "settings.action",
+    "default_text": "Browse",
+    "semantic_meaning": "Administration Settings browse.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Browse",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.clear_selection",
+    "context_group": "settings.action",
+    "default_text": "Clear selection",
+    "semantic_meaning": "Clear this optional application-setting selection without changing other settings.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Accessible label and tooltip on an optional setting selector clear button.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Clear selection",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.next",
+    "context_group": "settings.action",
+    "default_text": "Next",
+    "semantic_meaning": "Administration Settings next.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Next",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.previous",
+    "context_group": "settings.action",
+    "default_text": "Previous",
+    "semantic_meaning": "Administration Settings previous.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Previous",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.refresh",
+    "context_group": "settings.action",
+    "default_text": "Refresh",
+    "semantic_meaning": "Administration Settings refresh.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Refresh",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.action.retry",
+    "context_group": "settings.action",
+    "default_text": "Retry",
+    "semantic_meaning": "Administration Settings retry.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retry",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.authentication",
+    "context_group": "settings.category",
+    "default_text": "Authentication and sessions",
+    "semantic_meaning": "Administration Settings: Authentication and sessions",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Authentication and sessions",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.content",
+    "context_group": "settings.category",
+    "default_text": "Content and document viewing",
+    "semantic_meaning": "Administration Settings: Content and document viewing",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Content and document viewing",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.disposition",
+    "context_group": "settings.category",
+    "default_text": "Disposition",
+    "semantic_meaning": "Administration Settings: Disposition",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.email",
+    "context_group": "settings.category",
+    "default_text": "Email",
+    "semantic_meaning": "Administration Settings: Email",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Email",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.general",
+    "context_group": "settings.category",
+    "default_text": "General application behavior",
+    "semantic_meaning": "Administration Settings: General application behavior",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "General application behavior",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.interface_limits",
+    "context_group": "settings.category",
+    "default_text": "Dashboard and selection limits",
+    "semantic_meaning": "Administration Settings: Dashboard and selection limits",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Dashboard and selection limits",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.category.search",
+    "context_group": "settings.category",
+    "default_text": "Search and indexing",
+    "semantic_meaning": "Administration Settings: Search and indexing",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search and indexing",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.digital",
+    "context_group": "settings.choice",
+    "default_text": "Digital",
+    "semantic_meaning": "Administration Settings digital.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.implicit_tls",
+    "context_group": "settings.choice",
+    "default_text": "Implicit TLS",
+    "semantic_meaning": "Administration Settings implicit tls.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Implicit TLS",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.mixed",
+    "context_group": "settings.choice",
+    "default_text": "Mixed",
+    "semantic_meaning": "Administration Settings mixed.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Mixed",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.no",
+    "context_group": "settings.choice",
+    "default_text": "No",
+    "semantic_meaning": "Administration Settings no.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.physical",
+    "context_group": "settings.choice",
+    "default_text": "Physical",
+    "semantic_meaning": "Administration Settings physical.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.records_manager_only",
+    "context_group": "settings.choice",
+    "default_text": "Records Manager Only",
+    "semantic_meaning": "Administration Settings records manager only.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Manager Only",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.simplified",
+    "context_group": "settings.choice",
+    "default_text": "Simplified",
+    "semantic_meaning": "Administration Settings simplified.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Simplified",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.standard",
+    "context_group": "settings.choice",
+    "default_text": "Standard",
+    "semantic_meaning": "Administration Settings standard.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Standard",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.starttls",
+    "context_group": "settings.choice",
+    "default_text": "STARTTLS",
+    "semantic_meaning": "Administration Settings starttls.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "STARTTLS",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.yes",
+    "context_group": "settings.choice",
+    "default_text": "Yes",
+    "semantic_meaning": "Administration Settings yes.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Yes",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.custody.contact",
+    "context_group": "settings.custody",
+    "default_text": "Ask an authorized administrator to review the disposition configuration.",
+    "semantic_meaning": "Administration Settings contact.",
+    "common_locations": [
+      "Administration → Settings",
+      "Governance Custody"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Ask an authorized administrator to review the disposition configuration.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.custody.loading",
+    "context_group": "settings.custody",
+    "default_text": "Checking governance custody and disposition configuration…",
+    "semantic_meaning": "Administration Settings loading.",
+    "common_locations": [
+      "Administration → Settings",
+      "Governance Custody"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Checking governance custody and disposition configuration…",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.custody.no_root",
+    "context_group": "settings.custody",
+    "default_text": "{setting} has no open root aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
+    "semantic_meaning": "Administration Settings no root.",
+    "common_locations": [
+      "Administration → Settings",
+      "Governance Custody"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {
+      "setting": "text"
+    },
+    "rendered_example": "{setting} has no open root aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.custody.open",
+    "context_group": "settings.custody",
+    "default_text": "Open Disposition settings",
+    "semantic_meaning": "Administration Settings open.",
+    "common_locations": [
+      "Administration → Settings",
+      "Governance Custody"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Open Disposition settings",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.custody.title",
+    "context_group": "settings.custody",
+    "default_text": "Disposition destinations need attention",
+    "semantic_meaning": "Administration Settings title.",
+    "common_locations": [
+      "Administration → Settings",
+      "Governance Custody"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Disposition destinations need attention",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.custody.unset",
+    "context_group": "settings.custody",
+    "default_text": "{setting} is not configured.",
+    "semantic_meaning": "Administration Settings unset.",
+    "common_locations": [
+      "Administration → Settings",
+      "Governance Custody"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {
+      "setting": "text"
+    },
+    "rendered_example": "{setting} is not configured.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.group_inconsistent",
+    "context_group": "settings.error",
+    "default_text": "The related settings are inconsistent; no changes were saved.",
+    "semantic_meaning": "Administration Settings: The related settings are inconsistent; no changes were saved.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The related settings are inconsistent; no changes were saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.group_required",
+    "context_group": "settings.error",
+    "default_text": "Save the related settings together with their current versions.",
+    "semantic_meaning": "Administration Settings: Save the related settings together with their current versions.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "Save the related settings together with their current versions.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.invalid_update",
+    "context_group": "settings.error",
+    "default_text": "The submitted settings update is invalid.",
+    "semantic_meaning": "Administration Settings: The submitted settings update is invalid.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The submitted settings update is invalid.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.invalid_value",
+    "context_group": "settings.error",
+    "default_text": "Enter an allowed value for each setting.",
+    "semantic_meaning": "Administration Settings: Enter an allowed value for each setting.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "Enter an allowed value for each setting.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.reason_required",
+    "context_group": "settings.error",
+    "default_text": "Enter a reason for changing these settings.",
+    "semantic_meaning": "Administration Settings: Enter a reason for changing these settings.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "Enter a reason for changing these settings.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.secret_unavailable",
+    "context_group": "settings.error",
+    "default_text": "The server cannot protect or resolve this credential; check the deployment encryption key.",
+    "semantic_meaning": "Administration Settings: The server cannot protect or resolve this credential; check the deployment encryption key.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "The server cannot protect or resolve this credential; check the deployment encryption key.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.error.unavailable",
+    "context_group": "settings.error",
+    "default_text": "Application settings are unavailable. Try again after the server configuration is restored.",
+    "semantic_meaning": "Administration Settings: Application settings are unavailable. Try again after the server configuration is restored.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "error",
+    "parameter_schema": {},
+    "rendered_example": "Application settings are unavailable. Try again after the server configuration is restored.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.audit_trail_search_result_limit.description",
+    "context_group": "settings.field.audit_trail_search_result_limit",
+    "default_text": "Maximum matching Audit Trail results and bounded count work; one effective cap applies throughout each request. Type: whole number. Minimum: 1. Initial default: 1000. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum matching Audit Trail results and bounded count work; one effective cap applies throughout each request. Type: whole number. Minimum: 1. Initial default: 1000. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum matching Audit Trail results and bounded count work; one effective cap applies throughout each request. Type: whole number. Minimum: 1. Initial default: 1000. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.audit_trail_search_result_limit.label",
+    "context_group": "settings.field.audit_trail_search_result_limit",
+    "default_text": "Audit Trail search result limit",
+    "semantic_meaning": "Administration Settings: Audit Trail search result limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Audit Trail search result limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_lockout_attempts.description",
+    "context_group": "settings.field.auth_lockout_attempts",
+    "default_text": "Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_lockout_attempts.label",
+    "context_group": "settings.field.auth_lockout_attempts",
+    "default_text": "Lockout attempts",
+    "semantic_meaning": "Administration Settings: Lockout attempts",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Lockout attempts",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_lockout_minutes.description",
+    "context_group": "settings.field.auth_lockout_minutes",
+    "default_text": "Temporary credential lockout duration in minutes. Type: whole number. Minimum: 1. Initial default: 15. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Temporary credential lockout duration in minutes. Type: whole number. Minimum: 1. Initial default: 15. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Temporary credential lockout duration in minutes. Type: whole number. Minimum: 1. Initial default: 15. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_lockout_minutes.label",
+    "context_group": "settings.field.auth_lockout_minutes",
+    "default_text": "Lockout duration",
+    "semantic_meaning": "Administration Settings: Lockout duration",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Lockout duration",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_password_min_length.description",
+    "context_group": "settings.field.auth_password_min_length",
+    "default_text": "Minimum characters for newly set or changed passwords; existing password hashes remain valid. Type: whole number. Minimum: 8. Initial default: 12. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Minimum characters for newly set or changed passwords; existing password hashes remain valid. Type: whole number. Minimum: 8. Initial default: 12. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Minimum characters for newly set or changed passwords; existing password hashes remain valid. Type: whole number. Minimum: 8. Initial default: 12. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_password_min_length.label",
+    "context_group": "settings.field.auth_password_min_length",
+    "default_text": "Minimum password length",
+    "semantic_meaning": "Administration Settings: Minimum password length",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Minimum password length",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_absolute_hours.description",
+    "context_group": "settings.field.auth_session_absolute_hours",
+    "default_text": "Absolute session lifetime in hours; changes never revive an expired session. Type: whole number. Minimum: 1. Initial default: 12. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Absolute session lifetime in hours; changes never revive an expired session. Type: whole number. Minimum: 1. Initial default: 12. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Absolute session lifetime in hours; changes never revive an expired session. Type: whole number. Minimum: 1. Initial default: 12. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_absolute_hours.label",
+    "context_group": "settings.field.auth_session_absolute_hours",
+    "default_text": "Session absolute lifetime",
+    "semantic_meaning": "Administration Settings: Session absolute lifetime",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Session absolute lifetime",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_cleanup_batch_size.description",
+    "context_group": "settings.field.auth_session_cleanup_batch_size",
+    "default_text": "Maximum session history rows considered per cleanup batch. Type: whole number. Minimum: 1. Initial default: 500. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum session history rows considered per cleanup batch. Type: whole number. Minimum: 1. Initial default: 500. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum session history rows considered per cleanup batch. Type: whole number. Minimum: 1. Initial default: 500. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_cleanup_batch_size.label",
+    "context_group": "settings.field.auth_session_cleanup_batch_size",
+    "default_text": "Session cleanup batch size",
+    "semantic_meaning": "Administration Settings: Session cleanup batch size",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Session cleanup batch size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_cleanup_interval_seconds.description",
+    "context_group": "settings.field.auth_session_cleanup_interval_seconds",
+    "default_text": "Seconds between session history cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Seconds between session history cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Seconds between session history cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_cleanup_interval_seconds.label",
+    "context_group": "settings.field.auth_session_cleanup_interval_seconds",
+    "default_text": "Session cleanup interval",
+    "semantic_meaning": "Administration Settings: Session cleanup interval",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Session cleanup interval",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_idle_minutes.description",
+    "context_group": "settings.field.auth_session_idle_minutes",
+    "default_text": "Idle session lifetime in minutes; changes apply on the next evaluation and never revive an expired session. Type: whole number. Minimum: 1. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Idle session lifetime in minutes; changes apply on the next evaluation and never revive an expired session. Type: whole number. Minimum: 1. Initial default: 30. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Idle session lifetime in minutes; changes apply on the next evaluation and never revive an expired session. Type: whole number. Minimum: 1. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_idle_minutes.label",
+    "context_group": "settings.field.auth_session_idle_minutes",
+    "default_text": "Session idle lifetime",
+    "semantic_meaning": "Administration Settings: Session idle lifetime",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Session idle lifetime",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_retention_days.description",
+    "context_group": "settings.field.auth_session_retention_days",
+    "default_text": "Session history retention in days. Type: whole number. Minimum: 0. Initial default: 90. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Session history retention in days. Type: whole number. Minimum: 0. Initial default: 90. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Session history retention in days. Type: whole number. Minimum: 0. Initial default: 90. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.auth_session_retention_days.label",
+    "context_group": "settings.field.auth_session_retention_days",
+    "default_text": "Session history retention",
+    "semantic_meaning": "Administration Settings: Session history retention",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Session history retention",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.classification_recent_selection_limit.description",
+    "context_group": "settings.field.classification_recent_selection_limit",
+    "default_text": "Maximum recent classification selections shown. Type: whole number. Minimum: 1. Initial default: 4. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum recent classification selections shown. Type: whole number. Minimum: 1. Initial default: 4. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum recent classification selections shown. Type: whole number. Minimum: 1. Initial default: 4. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.classification_recent_selection_limit.label",
+    "context_group": "settings.field.classification_recent_selection_limit",
+    "default_text": "Recent classification selection limit",
+    "semantic_meaning": "Administration Settings: Recent classification selection limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Recent classification selection limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_cleanup_interval_seconds.description",
+    "context_group": "settings.field.content_cleanup_interval_seconds",
+    "default_text": "Seconds between content cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Seconds between content cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Seconds between content cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_cleanup_interval_seconds.label",
+    "context_group": "settings.field.content_cleanup_interval_seconds",
+    "default_text": "Content cleanup interval",
+    "semantic_meaning": "Administration Settings: Content cleanup interval",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Content cleanup interval",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_cleanup_batch_size.description",
+    "context_group": "settings.field.content_indexing_cleanup_batch_size",
+    "default_text": "Maximum indexing history rows considered per cleanup batch. Type: whole number. Minimum: 1. Initial default: 500. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum indexing history rows considered per cleanup batch. Type: whole number. Minimum: 1. Initial default: 500. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum indexing history rows considered per cleanup batch. Type: whole number. Minimum: 1. Initial default: 500. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_cleanup_batch_size.label",
+    "context_group": "settings.field.content_indexing_cleanup_batch_size",
+    "default_text": "Indexing cleanup batch size",
+    "semantic_meaning": "Administration Settings: Indexing cleanup batch size",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Indexing cleanup batch size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_cleanup_interval_seconds.description",
+    "context_group": "settings.field.content_indexing_cleanup_interval_seconds",
+    "default_text": "Seconds between API-owned indexing cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Seconds between API-owned indexing cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Seconds between API-owned indexing cleanup passes. Type: whole number. Minimum: 1. Initial default: 3600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_cleanup_interval_seconds.label",
+    "context_group": "settings.field.content_indexing_cleanup_interval_seconds",
+    "default_text": "Indexing cleanup interval",
+    "semantic_meaning": "Administration Settings: Indexing cleanup interval",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Indexing cleanup interval",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_history_retention_days.description",
+    "context_group": "settings.field.content_indexing_history_retention_days",
+    "default_text": "Content indexing history retention in days. Type: whole number. Minimum: 0. Initial default: 365. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Content indexing history retention in days. Type: whole number. Minimum: 0. Initial default: 365. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Content indexing history retention in days. Type: whole number. Minimum: 0. Initial default: 365. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_history_retention_days.label",
+    "context_group": "settings.field.content_indexing_history_retention_days",
+    "default_text": "Indexing history retention",
+    "semantic_meaning": "Administration Settings: Indexing history retention",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Indexing history retention",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_scheduling_enabled.description",
+    "context_group": "settings.field.content_indexing_scheduling_enabled",
+    "default_text": "Schedule API-owned content indexing work. Type: yes or no. Initial default: no. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Schedule API-owned content indexing work. Type: yes or no. Initial default: no. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Schedule API-owned content indexing work. Type: yes or no. Initial default: no. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_indexing_scheduling_enabled.label",
+    "context_group": "settings.field.content_indexing_scheduling_enabled",
+    "default_text": "Content indexing scheduling enabled",
+    "semantic_meaning": "Administration Settings: Content indexing scheduling enabled",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Content indexing scheduling enabled",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_segment_checksums_enabled.description",
+    "context_group": "settings.field.content_segment_checksums_enabled",
+    "default_text": "Store and verify per-segment checksums. Type: yes or no. Initial default: yes. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Store and verify per-segment checksums. Type: yes or no. Initial default: yes. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Store and verify per-segment checksums. Type: yes or no. Initial default: yes. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_segment_checksums_enabled.label",
+    "context_group": "settings.field.content_segment_checksums_enabled",
+    "default_text": "Content segment checksums",
+    "semantic_meaning": "Administration Settings: Content segment checksums",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Content segment checksums",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_segment_size_bytes.description",
+    "context_group": "settings.field.content_segment_size_bytes",
+    "default_text": "Target segment size in bytes; from 1 byte to 64 MiB. Type: whole number. Minimum: 1. Maximum: 67108864. Initial default: 16777216. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Target segment size in bytes; from 1 byte to 64 MiB. Type: whole number. Minimum: 1. Maximum: 67108864. Initial default: 16777216. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Target segment size in bytes; from 1 byte to 64 MiB. Type: whole number. Minimum: 1. Maximum: 67108864. Initial default: 16777216. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_segment_size_bytes.label",
+    "context_group": "settings.field.content_segment_size_bytes",
+    "default_text": "Content segment size",
+    "semantic_meaning": "Administration Settings: Content segment size",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Content segment size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_upload_session_ttl_seconds.description",
+    "context_group": "settings.field.content_upload_session_ttl_seconds",
+    "default_text": "Lifetime of an incomplete content upload in seconds. Type: whole number. Minimum: 1. Initial default: 86400. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Lifetime of an incomplete content upload in seconds. Type: whole number. Minimum: 1. Initial default: 86400. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Lifetime of an incomplete content upload in seconds. Type: whole number. Minimum: 1. Initial default: 86400. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.content_upload_session_ttl_seconds.label",
+    "context_group": "settings.field.content_upload_session_ttl_seconds",
+    "default_text": "Upload session lifetime",
+    "semantic_meaning": "Administration Settings: Upload session lifetime",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Upload session lifetime",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_favourite_item_limit.description",
+    "context_group": "settings.field.dashboard_favourite_item_limit",
+    "default_text": "Maximum favourite items shown in the dashboard preview. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum favourite items shown in the dashboard preview. Type: whole number. Minimum: 1. Initial default: 5. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum favourite items shown in the dashboard preview. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_favourite_item_limit.label",
+    "context_group": "settings.field.dashboard_favourite_item_limit",
+    "default_text": "Dashboard favourite limit",
+    "semantic_meaning": "Administration Settings: Dashboard favourite limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Dashboard favourite limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_recent_days.description",
+    "context_group": "settings.field.dashboard_recent_days",
+    "default_text": "Days included in the dashboard recent-items preview. Type: whole number. Minimum: 1. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Days included in the dashboard recent-items preview. Type: whole number. Minimum: 1. Initial default: 30. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Days included in the dashboard recent-items preview. Type: whole number. Minimum: 1. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_recent_days.label",
+    "context_group": "settings.field.dashboard_recent_days",
+    "default_text": "Dashboard recent period",
+    "semantic_meaning": "Administration Settings: Dashboard recent period",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Dashboard recent period",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_recent_item_limit.description",
+    "context_group": "settings.field.dashboard_recent_item_limit",
+    "default_text": "Maximum recent items shown in the dashboard preview. Type: whole number. Minimum: 1. Initial default: 4. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum recent items shown in the dashboard preview. Type: whole number. Minimum: 1. Initial default: 4. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum recent items shown in the dashboard preview. Type: whole number. Minimum: 1. Initial default: 4. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_recent_item_limit.label",
+    "context_group": "settings.field.dashboard_recent_item_limit",
+    "default_text": "Dashboard recent item limit",
+    "semantic_meaning": "Administration Settings: Dashboard recent item limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Dashboard recent item limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_review_preview_limit.description",
+    "context_group": "settings.field.dashboard_review_preview_limit",
+    "default_text": "Maximum resources shown in the dashboard review preview. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum resources shown in the dashboard review preview. Type: whole number. Minimum: 1. Initial default: 5. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum resources shown in the dashboard review preview. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.dashboard_review_preview_limit.label",
+    "context_group": "settings.field.dashboard_review_preview_limit",
+    "default_text": "Dashboard review preview limit",
+    "semantic_meaning": "Administration Settings: Dashboard review preview limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Dashboard review preview limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.default_root_aggregation_medium.description",
+    "context_group": "settings.field.default_root_aggregation_medium",
+    "default_text": "Initial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Initial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Initial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.default_root_aggregation_medium.label",
+    "context_group": "settings.field.default_root_aggregation_medium",
+    "default_text": "Default root aggregation medium",
+    "semantic_meaning": "Administration Settings: Default root aggregation medium",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Default root aggregation medium",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.default_working_timezone.description",
+    "context_group": "settings.field.default_working_timezone",
+    "default_text": "Working timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Working timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Working timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.default_working_timezone.label",
+    "context_group": "settings.field.default_working_timezone",
+    "default_text": "Default working timezone",
+    "semantic_meaning": "Administration Settings: Default working timezone",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Default working timezone",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_classification_scheme_id.description",
+    "context_group": "settings.field.disposition_classification_scheme_id",
+    "default_text": "Scheme for both disposition destinations; unset blocks the relevant artifact tasks. Type: classification scheme selection. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Scheme for both disposition destinations; unset blocks the relevant artifact tasks. Type: classification scheme selection. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Scheme for both disposition destinations; unset blocks the relevant artifact tasks. Type: classification scheme selection. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_classification_scheme_id.label",
+    "context_group": "settings.field.disposition_classification_scheme_id",
+    "default_text": "Classification scheme",
+    "semantic_meaning": "Administration Settings: Classification scheme",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Classification scheme",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_destruction_reminder_months.description",
+    "context_group": "settings.field.disposition_destruction_reminder_months",
+    "default_text": "Calendar months between future eligibility reminders; no historical reminders are sent. Type: whole number. Minimum: 1. Initial default: 6. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Calendar months between future eligibility reminders; no historical reminders are sent. Type: whole number. Minimum: 1. Initial default: 6. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Calendar months between future eligibility reminders; no historical reminders are sent. Type: whole number. Minimum: 1. Initial default: 6. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_destruction_reminder_months.label",
+    "context_group": "settings.field.disposition_destruction_reminder_months",
+    "default_text": "Destruction reminder interval",
+    "semantic_meaning": "Administration Settings: Destruction reminder interval",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction reminder interval",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_destruction_review_route.description",
+    "context_group": "settings.field.disposition_destruction_review_route",
+    "default_text": "New jobs capture this route permanently. Records Manager Only omits independent internal review. Type: choice. Choices: Standard, Simplified, Records Manager Only. Initial default: Standard. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: New jobs capture this route permanently. Records Manager Only omits independent internal review. Type: choice. Choices: Standard, Simplified, Records Manager Only. Initial default: Standard. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "New jobs capture this route permanently. Records Manager Only omits independent internal review. Type: choice. Choices: Standard, Simplified, Records Manager Only. Initial default: Standard. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_destruction_review_route.label",
+    "context_group": "settings.field.disposition_destruction_review_route",
+    "default_text": "Destruction review route",
+    "semantic_meaning": "Administration Settings: Destruction review route",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction review route",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_external_authority_email.description",
+    "context_group": "settings.field.disposition_external_authority_email",
+    "default_text": "Recipient for subsequent document email attempts; unset prevents sending. Type: email address. Initially unset; configure it when needed. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Recipient for subsequent document email attempts; unset prevents sending. Type: email address. Initially unset; no destination, server or credential is invented. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Recipient for subsequent document email attempts; unset prevents sending. Type: email address. Initially unset; configure it when needed. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_external_authority_email.label",
+    "context_group": "settings.field.disposition_external_authority_email",
+    "default_text": "External archives authority email address",
+    "semantic_meaning": "Administration Settings: External archives authority email address",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External archives authority email address",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_external_authority_name.description",
+    "context_group": "settings.field.disposition_external_authority_name",
+    "default_text": "Recipient authority on new request forms; earlier forms retain their original name. Type: text. Initial default: Sharjah Archives. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Recipient authority on new request forms; earlier forms retain their original name. Type: text. Initial default: Sharjah Archives. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Recipient authority on new request forms; earlier forms retain their original name. Type: text. Initial default: Sharjah Archives. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_external_authority_name.label",
+    "context_group": "settings.field.disposition_external_authority_name",
+    "default_text": "External archives authority name",
+    "semantic_meaning": "Administration Settings: External archives authority name",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External archives authority name",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_generated_reports_classification_id.description",
+    "context_group": "settings.field.disposition_generated_reports_classification_id",
+    "default_text": "Terminal classification in the selected scheme for generated reports, excluding the digital destruction certificate. Type: terminal classification selection. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Terminal classification in the selected scheme for generated reports, excluding the digital destruction certificate. Type: terminal classification selection. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Terminal classification in the selected scheme for generated reports, excluding the digital destruction certificate. Type: terminal classification selection. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_generated_reports_classification_id.label",
+    "context_group": "settings.field.disposition_generated_reports_classification_id",
+    "default_text": "Generated reports classification",
+    "semantic_meaning": "Administration Settings: Generated reports classification",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generated reports classification",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_uploaded_evidence_classification_id.description",
+    "context_group": "settings.field.disposition_uploaded_evidence_classification_id",
+    "default_text": "Terminal classification in the selected scheme for uploads and the digital destruction certificate. Type: terminal classification selection. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Terminal classification in the selected scheme for uploads and the digital destruction certificate. Type: terminal classification selection. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Terminal classification in the selected scheme for uploads and the digital destruction certificate. Type: terminal classification selection. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_uploaded_evidence_classification_id.label",
+    "context_group": "settings.field.disposition_uploaded_evidence_classification_id",
+    "default_text": "Uploaded evidence classification",
+    "semantic_meaning": "Administration Settings: Uploaded evidence classification",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Uploaded evidence classification",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.document_conversion_timeout_seconds.description",
+    "context_group": "settings.field.document_conversion_timeout_seconds",
+    "default_text": "Maximum document conversion time in seconds. Type: whole number. Minimum: 1. Initial default: 60. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum document conversion time in seconds. Type: whole number. Minimum: 1. Initial default: 60. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum document conversion time in seconds. Type: whole number. Minimum: 1. Initial default: 60. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.document_conversion_timeout_seconds.label",
+    "context_group": "settings.field.document_conversion_timeout_seconds",
+    "default_text": "Document conversion timeout",
+    "semantic_meaning": "Administration Settings: Document conversion timeout",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Document conversion timeout",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.full_text_search_enabled.description",
+    "context_group": "settings.field.full_text_search_enabled",
+    "default_text": "Availability of API-enforced full-text search. Type: yes or no. Initial default: no. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Availability of API-enforced full-text search. Type: yes or no. Initial default: no. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Availability of API-enforced full-text search. Type: yes or no. Initial default: no. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.full_text_search_enabled.label",
+    "context_group": "settings.field.full_text_search_enabled",
+    "default_text": "Full-text search enabled",
+    "semantic_meaning": "Administration Settings: Full-text search enabled",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Full-text search enabled",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.manual_reindex_rate_limit_per_minute.description",
+    "context_group": "settings.field.manual_reindex_rate_limit_per_minute",
+    "default_text": "Maximum manual reindex requests per minute. Type: whole number. Minimum: 1. Initial default: 60. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum manual reindex requests per minute. Type: whole number. Minimum: 1. Initial default: 60. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum manual reindex requests per minute. Type: whole number. Minimum: 1. Initial default: 60. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.manual_reindex_rate_limit_per_minute.label",
+    "context_group": "settings.field.manual_reindex_rate_limit_per_minute",
+    "default_text": "Manual reindex rate limit",
+    "semantic_meaning": "Administration Settings: Manual reindex rate limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Manual reindex rate limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.max_rendition_size_bytes.description",
+    "context_group": "settings.field.max_rendition_size_bytes",
+    "default_text": "Maximum generated document rendition size in bytes. Type: whole number. Minimum: 1. Initial default: 104857600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum generated document rendition size in bytes. Type: whole number. Minimum: 1. Initial default: 104857600. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum generated document rendition size in bytes. Type: whole number. Minimum: 1. Initial default: 104857600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.max_rendition_size_bytes.label",
+    "context_group": "settings.field.max_rendition_size_bytes",
+    "default_text": "Maximum rendition size",
+    "semantic_meaning": "Administration Settings: Maximum rendition size",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Maximum rendition size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.max_upload_size_bytes.description",
+    "context_group": "settings.field.max_upload_size_bytes",
+    "default_text": "Maximum complete logical file size in bytes. Type: whole number. Minimum: 1. Initial default: 52428800. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum complete logical file size in bytes. Type: whole number. Minimum: 1. Initial default: 52428800. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum complete logical file size in bytes. Type: whole number. Minimum: 1. Initial default: 52428800. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.max_upload_size_bytes.label",
+    "context_group": "settings.field.max_upload_size_bytes",
+    "default_text": "Maximum upload size",
+    "semantic_meaning": "Administration Settings: Maximum upload size",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Maximum upload size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.reason",
+    "context_group": "settings.field",
+    "default_text": "Reason for change (required)",
+    "semantic_meaning": "Administration Settings reason.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Reason for change (required)",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.review_warning_window_days.description",
+    "context_group": "settings.field.review_warning_window_days",
+    "default_text": "Days before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Days before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Days before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.review_warning_window_days.label",
+    "context_group": "settings.field.review_warning_window_days",
+    "default_text": "Review warning window",
+    "semantic_meaning": "Administration Settings: Review warning window",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review warning window",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.search_rate_limit_per_minute.description",
+    "context_group": "settings.field.search_rate_limit_per_minute",
+    "default_text": "Maximum authenticated search requests per minute. Type: whole number. Minimum: 1. Initial default: 600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum authenticated search requests per minute. Type: whole number. Minimum: 1. Initial default: 600. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum authenticated search requests per minute. Type: whole number. Minimum: 1. Initial default: 600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.search_rate_limit_per_minute.label",
+    "context_group": "settings.field.search_rate_limit_per_minute",
+    "default_text": "Search request rate limit",
+    "semantic_meaning": "Administration Settings: Search request rate limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search request rate limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_auth_enabled.description",
+    "context_group": "settings.field.smtp_auth_enabled",
+    "default_text": "Configure whether authentication is needed; enabled requires username and password. Type: yes or no. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Configure whether authentication is needed; enabled requires username and password. Type: yes or no. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Configure whether authentication is needed; enabled requires username and password. Type: yes or no. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_auth_enabled.label",
+    "context_group": "settings.field.smtp_auth_enabled",
+    "default_text": "SMTP authentication enabled",
+    "semantic_meaning": "Administration Settings: SMTP authentication enabled",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP authentication enabled",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_host.description",
+    "context_group": "settings.field.smtp_host",
+    "default_text": "Outgoing mail server; unset prevents sending. Type: text. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Outgoing mail server; unset prevents sending. Type: text. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Outgoing mail server; unset prevents sending. Type: text. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_host.label",
+    "context_group": "settings.field.smtp_host",
+    "default_text": "SMTP server hostname",
+    "semantic_meaning": "Administration Settings: SMTP server hostname",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP server hostname",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_password.description",
+    "context_group": "settings.field.smtp_password",
+    "default_text": "Protected credential replacement; saved passwords are never readable. Required when authentication is enabled. Type: protected password. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Protected credential replacement; saved passwords are never readable. Required when authentication is enabled. Type: protected password. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Protected credential replacement; saved passwords are never readable. Required when authentication is enabled. Type: protected password. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_password.label",
+    "context_group": "settings.field.smtp_password",
+    "default_text": "SMTP password",
+    "semantic_meaning": "Administration Settings: SMTP password",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP password",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_port.description",
+    "context_group": "settings.field.smtp_port",
+    "default_text": "Port from 1 to 65535; untouched default follows security mode: 587 for STARTTLS or 465 for implicit TLS. Type: whole number. Minimum: 1. Maximum: 65535. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Port from 1 to 65535; untouched default follows security mode: 587 for STARTTLS or 465 for implicit TLS. Type: whole number. Minimum: 1. Maximum: 65535. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Port from 1 to 65535; untouched default follows security mode: 587 for STARTTLS or 465 for implicit TLS. Type: whole number. Minimum: 1. Maximum: 65535. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_port.label",
+    "context_group": "settings.field.smtp_port",
+    "default_text": "SMTP port",
+    "semantic_meaning": "Administration Settings: SMTP port",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP port",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_reply_to_email.description",
+    "context_group": "settings.field.smtp_reply_to_email",
+    "default_text": "Optional reply-to address for outgoing document email. Type: email address. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Optional reply-to address for outgoing document email. Type: email address. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Optional reply-to address for outgoing document email. Type: email address. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_reply_to_email.label",
+    "context_group": "settings.field.smtp_reply_to_email",
+    "default_text": "Reply-to email address",
+    "semantic_meaning": "Administration Settings: Reply-to email address",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reply-to email address",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_security.description",
+    "context_group": "settings.field.smtp_security",
+    "default_text": "Configure STARTTLS or implicit TLS; certificate verification stays enabled. Type: choice. Choices: STARTTLS, Implicit TLS. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Configure STARTTLS or implicit TLS; certificate verification stays enabled. Type: choice. Choices: STARTTLS, Implicit TLS. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Configure STARTTLS or implicit TLS; certificate verification stays enabled. Type: choice. Choices: STARTTLS, Implicit TLS. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_security.label",
+    "context_group": "settings.field.smtp_security",
+    "default_text": "SMTP connection security",
+    "semantic_meaning": "Administration Settings: SMTP connection security",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP connection security",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_sender_email.description",
+    "context_group": "settings.field.smtp_sender_email",
+    "default_text": "Sender address required for outgoing document email. Type: email address. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Sender address required for outgoing document email. Type: email address. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Sender address required for outgoing document email. Type: email address. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_sender_email.label",
+    "context_group": "settings.field.smtp_sender_email",
+    "default_text": "Sender email address",
+    "semantic_meaning": "Administration Settings: Sender email address",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Sender email address",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_sender_name.description",
+    "context_group": "settings.field.smtp_sender_name",
+    "default_text": "Optional sender display name. Type: text. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Optional sender display name. Type: text. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Optional sender display name. Type: text. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_sender_name.label",
+    "context_group": "settings.field.smtp_sender_name",
+    "default_text": "Sender display name",
+    "semantic_meaning": "Administration Settings: Sender display name",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Sender display name",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_timeout_seconds.description",
+    "context_group": "settings.field.smtp_timeout_seconds",
+    "default_text": "Positive connection and send timeout in seconds. Type: whole number. Minimum: 1. Initial default: 30. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Positive connection and send timeout in seconds. Type: whole number. Minimum: 1. Initial default: 30. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Positive connection and send timeout in seconds. Type: whole number. Minimum: 1. Initial default: 30. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_timeout_seconds.label",
+    "context_group": "settings.field.smtp_timeout_seconds",
+    "default_text": "Connection and send timeout",
+    "semantic_meaning": "Administration Settings: Connection and send timeout",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Connection and send timeout",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_username.description",
+    "context_group": "settings.field.smtp_username",
+    "default_text": "Username required when SMTP authentication is enabled. Type: text. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "semantic_meaning": "Administration Settings: Username required when SMTP authentication is enabled. Type: text. Initially unset; no destination, server or credential is invented. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Username required when SMTP authentication is enabled. Type: text. Initially unset; configure it when needed. Save related settings together. New operations read committed settings directly; no restart is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.smtp_username.label",
+    "context_group": "settings.field.smtp_username",
+    "default_text": "SMTP username",
+    "semantic_meaning": "Administration Settings: SMTP username",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP username",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.text_indexer_credential_history_retention_days.description",
+    "context_group": "settings.field.text_indexer_credential_history_retention_days",
+    "default_text": "API-owned indexer credential history retention in days. Type: whole number. Minimum: 0. Initial default: 365. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: API-owned indexer credential history retention in days. Type: whole number. Minimum: 0. Initial default: 365. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "API-owned indexer credential history retention in days. Type: whole number. Minimum: 0. Initial default: 365. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.text_indexer_credential_history_retention_days.label",
+    "context_group": "settings.field.text_indexer_credential_history_retention_days",
+    "default_text": "Indexer credential history retention",
+    "semantic_meaning": "Administration Settings: Indexer credential history retention",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Indexer credential history retention",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.text_indexer_rate_limit_per_minute.description",
+    "context_group": "settings.field.text_indexer_rate_limit_per_minute",
+    "default_text": "Maximum authenticated indexer requests per minute. Type: whole number. Minimum: 1. Initial default: 600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Maximum authenticated indexer requests per minute. Type: whole number. Minimum: 1. Initial default: 600. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum authenticated indexer requests per minute. Type: whole number. Minimum: 1. Initial default: 600. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.text_indexer_rate_limit_per_minute.label",
+    "context_group": "settings.field.text_indexer_rate_limit_per_minute",
+    "default_text": "Indexer request rate limit",
+    "semantic_meaning": "Administration Settings: Indexer request rate limit",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Indexer request rate limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.user_details_session_limit.description",
+    "context_group": "settings.field.user_details_session_limit",
+    "default_text": "Session rows per page in user details; server pagination remains required. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Session rows per page in user details; server pagination remains required. Type: whole number. Minimum: 1. Initial default: 5. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Session rows per page in user details; server pagination remains required. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.user_details_session_limit.label",
+    "context_group": "settings.field.user_details_session_limit",
+    "default_text": "User session page size",
+    "semantic_meaning": "Administration Settings: User session page size",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "User session page size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.page.loading",
+    "context_group": "settings.page",
+    "default_text": "Loading settings…",
+    "semantic_meaning": "Administration Settings loading.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Loading settings…",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.page.propagation",
+    "context_group": "settings.page",
+    "default_text": "Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.",
+    "semantic_meaning": "Administration Settings propagation.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.page.saved",
+    "context_group": "settings.page",
+    "default_text": "Changes saved.",
+    "semantic_meaning": "Administration Settings saved.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Changes saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.page.saving",
+    "context_group": "settings.page",
+    "default_text": "Saving changes…",
+    "semantic_meaning": "Administration Settings saving.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Saving changes…",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.page.subtitle",
+    "context_group": "settings.page",
+    "default_text": "Shared application settings, grouped by purpose.",
+    "semantic_meaning": "Administration Settings subtitle.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Shared application settings, grouped by purpose.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.page.unchanged",
+    "context_group": "settings.page",
+    "default_text": "There are no changes to save.",
+    "semantic_meaning": "Administration Settings unchanged.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "There are no changes to save.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.port.auto",
+    "context_group": "settings.port",
+    "default_text": "Leave blank to use the security-mode default: 587 for STARTTLS or 465 for implicit TLS.",
+    "semantic_meaning": "Administration Settings auto.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Leave blank to use the security-mode default: 587 for STARTTLS or 465 for implicit TLS.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.port.effective",
+    "context_group": "settings.port",
+    "default_text": "Port for this configuration: {port}. Leave blank to follow the security mode.",
+    "semantic_meaning": "Administration Settings effective.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {
+      "port": "text"
+    },
+    "rendered_example": "Port for this configuration: {port}. Leave blank to follow the security mode.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.secret.clear",
+    "context_group": "settings.secret",
+    "default_text": "Clear the saved password",
+    "semantic_meaning": "Administration Settings clear.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Clear the saved password",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.secret.replace",
+    "context_group": "settings.secret",
+    "default_text": "Replacement password",
+    "semantic_meaning": "Administration Settings replace.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Replacement password",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.secret.retain",
+    "context_group": "settings.secret",
+    "default_text": "Leave blank to keep the saved password.",
+    "semantic_meaning": "Administration Settings retain.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Leave blank to keep the saved password.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.secret.set",
+    "context_group": "settings.secret",
+    "default_text": "A password is configured. Its saved value is hidden.",
+    "semantic_meaning": "Administration Settings set.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "A password is configured. Its saved value is hidden.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.secret.unset",
+    "context_group": "settings.secret",
+    "default_text": "No password is configured.",
+    "semantic_meaning": "Administration Settings unset.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "No password is configured.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.branch",
+    "context_group": "settings.selector",
+    "default_text": "Branch",
+    "semantic_meaning": "Administration Settings branch.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Branch",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.browse_classifications",
+    "context_group": "settings.selector",
+    "default_text": "Browse destination classifications",
+    "semantic_meaning": "Administration Settings browse classifications.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Browse destination classifications",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.browse_schemes",
+    "context_group": "settings.selector",
+    "default_text": "Browse classification schemes",
+    "semantic_meaning": "Administration Settings browse schemes.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Browse classification schemes",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.choose_scheme",
+    "context_group": "settings.selector",
+    "default_text": "Choose a classification scheme first.",
+    "semantic_meaning": "Administration Settings choose scheme.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Choose a classification scheme first.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.empty",
+    "context_group": "settings.selector",
+    "default_text": "There are no items in this page or branch.",
+    "semantic_meaning": "Administration Settings empty.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "There are no items in this page or branch.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.page",
+    "context_group": "settings.selector",
+    "default_text": "Showing {count} items, starting at {offset}.",
+    "semantic_meaning": "Administration Settings page.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {
+      "count": "integer",
+      "offset": "integer"
+    },
+    "rendered_example": "Showing {count} items, starting at {offset}.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.search_help",
+    "context_group": "settings.selector",
+    "default_text": "Type at least two characters to search, or use Browse.",
+    "semantic_meaning": "Administration Settings search help.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Type at least two characters to search, or use Browse.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.selected_id",
+    "context_group": "settings.selector",
+    "default_text": "Selected item {id} (details unavailable)",
+    "semantic_meaning": "Administration Settings selected id.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {
+      "id": "integer"
+    },
+    "rendered_example": "Selected item {id} (details unavailable)",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.selector.terminal",
+    "context_group": "settings.selector",
+    "default_text": "Terminal",
+    "semantic_meaning": "Administration Settings terminal.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Terminal",
     "is_html": false
   },
   {

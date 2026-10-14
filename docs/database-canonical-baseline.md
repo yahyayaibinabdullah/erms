@@ -1,7 +1,8 @@
 # Canonical database baseline
 
 `database/schema.sql` is the sole schema baseline for Wathiq. It creates a
-complete current database and deliberately leaves `schema_migrations` empty.
+complete current database. Later schema additions may record their included
+version markers in `schema_migrations`; those markers do not execute migrations.
 Seed scripts remain separate under `database/seeds`.
 
 On 21 September 2026, the sole local development database was re-baselined by

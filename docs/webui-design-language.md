@@ -870,6 +870,22 @@ passed. Existing translation wording/provenance was preserved; no administrator
 export was promoted. The draft was seeded to demo for review/publication while
 all 2935 previously protected translation rows remained unchanged.
 
+Administration Settings uses native NiceGUI tabs, panels, responsive grids,
+Inputs, Selects and the existing bounded RemoteSelect. On 14 October, browser
+inspection confirmed that document RTL already reached these components, but
+the legacy global reversal produced `row-reverse` inside native tabs/fields,
+and floating labels retained `left: 0`. Native direction inheritance and
+Row/Input/Select configuration cannot override those physical stylesheet rules.
+The existing correction above therefore also covers `.application-settings-page`
+and, for row flow only, `.application-settings-browser`. Final measurements show
+native `row` flow, right-anchored Arabic labels and unchanged English left anchors;
+the Arabic form settles to one column at 375px without horizontal overflow.
+Input-only LTR isolation uses the supported `input-style` property. Optional
+Select clearing uses the supported append slot and a translated native button,
+because the vendor clear label otherwise follows its process-wide English locale.
+No global vendor language or unrelated page styles change. See
+[Phase 3 verification](disposition-phase-3.md) for browser and test evidence.
+
 Saved-search cards keep the Mine/Shared badge at the top trailing edge (right
 in English, left in Arabic). A native NiceGUI three-column grid reserves space
 for the resource icon, wrapping metadata, and badge; Open occupies its own line.

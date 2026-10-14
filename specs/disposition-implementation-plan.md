@@ -104,6 +104,21 @@ outstanding approval gates.
 planned verification. Existing claims of implementation have evidence. Any
 remaining product decision identifies precisely which later phase it blocks.
 
+**Completion record — 14 October 2026:** Complete. The
+[Phase 1 baseline](../docs/disposition-phase-1.md) and
+[requirement ledger](../docs/disposition-requirement-ledger.json) record all
+100 acceptance IDs, 171 numbered prose sections, referenced contracts,
+93 setting-inventory rows, the four approved configuration decisions,
+integration/transaction boundaries, and planned verification owners.
+103 disposable-database API regressions, 31 database-free WebUI checks,
+and 27 traceability/local-environment tests passed. Database creation and
+cleanup succeeded; source coverage, compilation, environment-template sync,
+shell syntax and whitespace checks passed. Runtime requirements remain planned.
+Decision D-01 applies to historical audit-payload minimization before Phase 21
+retained-record finalization and does not block Phase 2. No runtime/schema,
+environment-template, translation-artifact or deployment changes were made.
+Measured active time: **1.29 hours**; see Section 6.
+
 ### Phase 2 Build the shared settings registry and protected administration API
 
 **Priority:** Foundation. **Dependencies:** Phase 1.
@@ -116,6 +131,10 @@ registry `category` for each setting and supply it with translated labels
 through the API; do not infer it from keys or duplicate it in the settings table.
 Implement protected
 SMTP-secret storage, masked/write-only responses, and server-only resolution.
+Use the user-approved API deployment key `APPLICATION_SETTINGS_ENCRYPTION_KEY`
+from local `.env`, with production shell environment precedence. SMTP passwords
+remain encrypted database settings; missing key configuration blocks only
+credential replacement/resolution.
 Register the approved Disposition and Email settings, including the six-month
 reminder default, without inventing missing destinations or credentials.
 
@@ -135,6 +154,20 @@ unauthorized access; optimistic conflicts and rollback; cache isolation and
 refresh failure; fresh operation reads; no secret in responses, logs, history,
 or ordinary caches; startup with optional settings unset.
 
+**Completion record — 14 October 2026:** Complete. The shared settings registry,
+protected GET/PUT API, canonical schema and independent migration 050, safe audit,
+provenance/completion, 30-second cache, fresh operation captures, and encrypted
+SMTP secret representation are implemented. The approved deployment key uses
+`APPLICATION_SETTINGS_ENCRYPTION_KEY` with shell-over-dotenv precedence. Evidence
+and phase-scoped requirement coverage are recorded in
+[Phase 2 verification](../docs/disposition-phase-2.md) and the maintained ledger:
+80 fresh-schema, 82 upgrade, 105 compatibility, one fixture-guard, 22 settings
+unit, 16 frontend regression and 27 traceability/local-environment checks passed.
+Every disposable database was created and dropped. Templates and 118 new draft
+translation keys are reconciled; 3,023 prior Arabic items are preserved.
+Persistent databases were not migrated; operator instructions accompany 050.
+Phase 3 UI and later consumer/workflow integrations remain assigned work.
+
 ### Phase 3 Deliver Administration Settings and configuration warnings
 
 **Priority:** Foundation. **Dependencies:** Phase 2.
@@ -153,6 +186,18 @@ suitable open roots, with authorized navigation to Settings and warning clearanc
 including role restrictions and secret handling. Test deep and large
 classification trees without full downloads, stale selections, setting changes,
 missing roots, warning clearance, LTR/RTL, and translation/performance checks.
+
+**Completion (14 October 2026):** Phase 3 is complete. See
+[Phase 3 verification](../docs/disposition-phase-3.md) and the maintained ledger:
+all 51 settings have bilingual controls and visible explanations; grouped
+reasoned/versioned saves, protected credentials, bounded scheme/terminal Browse
+and search, current destination/root warnings and restricted navigation pass.
+68 disposable-database API, 76 frontend and 27 traceability/environment checks
+passed, together with live English/Arabic save/reload, deep/large-tree paging,
+warning clearance, role restrictions, measured RTL and translation checks. All
+seven test/preview databases are confirmed dropped. No persistent database or
+private environment values were changed. New Arabic wording remains generated
+drafts for explicit administrator review/publication. Phase 4 completion is recorded below.
 
 ### Phase 4 Migrate general application and WebUI settings
 
@@ -180,6 +225,17 @@ conflicts, invalid values, grouped rollback, per-database isolation, safe reruns
 and incomplete-migration startup blocking. Extend the same command for the
 additional setting groups in phases 5 and 6; do not build separate importers.
 
+**Completed 14 October 2026:** Nine general/interface consumers now use database
+settings exclusively. Reviewed per-database preview/apply, explicit conflict
+resolution, atomic provenance/audit/completion and startup readiness are delivered.
+125 API, 227 WebUI and 29 traceability/environment/CLI tests pass; English/Arabic
+live runtime freshness, preference precedence, pagination and repeated navigation
+are verified. All disposable databases were dropped. Nine obsolete template
+entries were removed; no private environment or persistent database was changed.
+All 3,188 Arabic items were preserved. See `docs/disposition-phase-4.md` and the
+phase-scoped ledger evidence. Total active time: **2.25 hours** (first interruption
+boundary approximate; offline interval excluded). Phase 5 is next.
+
 ### Phase 5 Migrate content and authentication policy settings
 
 **Priority:** Configuration completion. **Dependencies:** Phase 4.
@@ -194,6 +250,18 @@ sessions.
 conversion limits, cleanup batches, active/expired sessions, lockout and password
 changes. Verify runtime refresh, failure behavior, and removal of every migrated
 environment read. Each change passes its own regression tests before the next.
+
+**Completed 14 October 2026:** All seven content and eight authentication/session
+settings now use the database registry at request and operational worker boundaries.
+The existing migration extends to 24 keys and preserves earlier completion.
+Content passed 37 regressions before authentication implementation; broad regression
+passed 132 tests, followed by 28 boundary/authentication and 25 final readiness
+checks. 84 WebUI and 44 traceability/cache/CLI/environment tests passed. All nine
+disposable run/isolation databases are confirmed absent. No private environment,
+persistent database, schema or translation item changed. Deployment requires a
+new reviewed 24-key preview/apply before upgraded API/cleanup workers start.
+See `docs/disposition-phase-5.md` and phase-scoped ledger evidence. Total measured
+active time: **0.30 hours**. Phase 6 is next.
 
 ### Phase 6 Complete search configuration and deployment reconciliation
 
@@ -216,6 +284,18 @@ runtime cache refresh, consistent per-request count/pagination bounds and
 API-provided `result_cap`, and absence of environment fallback. Verify registry
 category coverage, translated UI grouping, and no key-prefix inference.
 Every production setting has exactly one documented authority.
+
+**Completed 14 October 2026:** All ten search/indexing settings now use database
+policy, including one Audit Trail cap captured per request. UI visibility follows
+API responses; the separate WebUI flag is removed. Reviewed migration extends to
+34 keys, preserving earlier completion. Canonical schema and migration 051 supply
+saved scheduling policy for direct database writes. The 117-setting production
+inventory, service templates, append-only bootstrap and upgrade guide agree.
+36 search/indexing, 63 integration, 14 Audit Trail, 223 frontend and 46 supporting
+checks passed; bilingual runtime availability/cap/grouping and request counts were
+verified live. All six disposable databases are confirmed absent. No private
+environment or maintained translation item changed. See `docs/disposition-phase-6.md`
+and phase-scoped ledger evidence. Total active time: **0.47 hours**. Phase 7 is next.
 
 ### Phase 7 Implement common disposition persistence and protected transitions
 
@@ -661,6 +741,18 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 
 | Phase | Start UTC | End UTC | Active hours | Excluded waiting hours | Measurement quality | Work and notes |
 | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2026-10-14 04:24:21 | 2026-10-14 05:41:29 | 1.29 | 0.00 | Measured | Source/setting ledger, code/schema/test inventory, approved decisions, integration and transaction boundaries, 103 disposable-DB + 31 UI + 27 traceability/local-env checks passed; disposable DB created/dropped; D-01 recorded for Phase 21 only. Final handoff bookkeeping follows the captured end boundary. |
+| 2 | 2026-10-14 05:52:04 | 2026-10-14 07:21:03 | 1.48 | 0.00 | Measured | Shared settings registry/API/schema/cache/audit/provenance, approved env encryption key and encrypted SMTP password, current capture helpers, templates/upgrade guidance, preserved curated translations, fresh/upgrade/compatibility and unit checks passed; all disposable DBs dropped. Final completion bookkeeping follows the captured end boundary. |
+| 3 | 2026-10-14 07:32:00 | 2026-10-14 09:13:34 | 1.69 | 0.00 | Measured | All 51 Settings controls/explanations, protected saves, bounded selectors, current custody warnings; 68 disposable-DB + 76 frontend + 27 traceability/env checks and live bilingual persistence/RTL/role/performance checks passed; all seven disposable DBs confirmed dropped; 3141 Arabic items preserved and 47 new drafts require review. Final completion bookkeeping follows the captured end boundary. |
+| 4 | 2026-10-14 09:16:16 | 2026-10-14 11:24:00 | 2.13 | 0.00 | Start measured; end approximate | Implementation and regression tests; English checks. User requested immediate stop before losing connectivity; interruption boundary reconstructed from saved resume note. Preview stopped and disposable database dropped. |
+| 4 | 2026-10-14 12:06:39 | 2026-10-14 12:13:42 | 0.12 | 0.71 | Measured; excluded interval approximate | Resumed after user authorization. Arabic saves/runtime limits/preference precedence/RTL/repeated navigation, 29 final tool checks, artifact preservation/template/policy checks, ledger and handoff. Offline interval 11:24–12:06:39 excluded. Final bookkeeping follows this captured end boundary. |
+| 5 | 2026-10-14 12:15:58 | 2026-10-14 12:33:52 | 0.30 | 0.00 | Measured | Content first, then authentication; runtime upload/conversion/session/password/cleanup policy, extended reviewed migration/worker readiness; 132 broad + 28 boundary/auth + 25 final readiness, 84 UI and 44 tool checks passed. All nine disposable databases confirmed dropped. Fifteen business template entries removed; no private env/schema/translation changes. Final completion bookkeeping follows captured end boundary. |
+| 6 | 2026-10-14 13:22:58 | 2026-10-14 13:51:03 | 0.47 | 0.00 | Measured | Search/indexing/Audit cap cutover,34-key migration,canonical/051,API-owned header,117-setting inventory and safe bootstrap.36 search+63 integration+14 Audit+223 UI+46 supporting checks and live bilingual freshness/grouping passed; all six disposable databases absent. Final bookkeeping follows captured end boundary. |
+| 3 (control correction) | 2026-10-14 15:31:21 | 2026-10-14 15:47:07 | 0.26 | 0.00 | Measured | User-requested IANA dropdown, exact integer steppers/minimum one, scheme-first layout and dependent selector guidance. 17 Settings + 18 relationship/bounded tests and English/Arabic browser save/search/Browse/reload/responsive checks passed; both disposable previews confirmed dropped; catalogues unchanged. Details: docs/application-settings-controls.md. Final documentation bookkeeping follows captured end boundary. |
+| 3 (native stepper/toast correction) | 2026-10-14 16:03:51 | 2026-10-14 16:13:36 | 0.16 | 0.00 | Measured | User-reported stepper overflow reproduced (64px buttons in a 40px field); replaced composed arrows with standard NiceGUI numeric Input and native stepping. Added translated positive save toast. 19 Settings tests and English/Arabic browser integer precision, toast, reload and narrow RTL checks passed. Both disposable previews confirmed absent; translation artifacts unchanged. Final documentation bookkeeping follows captured end boundary. |
+| 3 (required-reason warning) | 2026-10-14 16:22:44 | 2026-10-14 16:27:12 | 0.07 | 0.00 | Measured | Added translated warning toast when Save has an empty/whitespace-only reason, retained inline error/draft and cleared an earlier success status. 23 Settings tests and live English/Arabic checks pass; no Settings PUT sent. Disposable preview confirmed dropped; catalogues unchanged. Final documentation bookkeeping follows captured end boundary. |
+| 2 (readable reference audit) | 2026-10-14 16:35:10 | 2026-10-14 16:42:21 | 0.12 | 0.00 | Measured | User-approved scheme/classification code/title snapshots for old/new Settings values. Canonical schema and standalone migration 052; 31 disposable-DB regressions and 15 schema/cache checks passed. All three test databases confirmed dropped. Tested trigger migration applied to demo with settings/history preservation verified and private rollback definition saved; no restart required. Final documentation bookkeeping follows captured end boundary. |
+| 3 (audit labels/navigation) | 2026-10-14 17:03:58 | 2026-10-14 17:22:28 | 0.31 | 0.00 | Measured | Shared readable labels for all three Settings operation codes, including historical events; authorized/guarded current-entity links open the API-selected Settings category with one read. 32 interaction + one export regression pass, live English/Arabic details and links verified, disposable preview confirmed dropped. Four contextual labels merged while preserving all prior Arabic entries; four demo labels published with all pre-existing translation rows preserved. Final documentation bookkeeping follows captured end boundary. |
 
 ### Phase totals
 
@@ -669,12 +761,12 @@ Update status from actual progress; specification approval is not implementation
 
 | Phase | Status | First started | Completed | Active hours at completion | Later rework hours | Excluded waiting hours |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Not started | — | — | — | — | — |
-| 2 | Not started | — | — | — | — | — |
-| 3 | Not started | — | — | — | — | — |
-| 4 | Not started | — | — | — | — | — |
-| 5 | Not started | — | — | — | — | — |
-| 6 | Not started | — | — | — | — | — |
+| 1 | Complete | 2026-10-14 04:24:21 UTC | 2026-10-14 05:41:29 UTC | 1.29 | — | 0.00 |
+| 2 | Complete | 2026-10-14 05:52:04 UTC | 2026-10-14 07:21:03 UTC | 1.48 | 0.12 | 0.00 |
+| 3 | Complete | 2026-10-14 07:32:00 UTC | 2026-10-14 09:13:34 UTC | 1.69 | 0.80 | 0.00 |
+| 4 | Complete | 2026-10-14 09:16:16 UTC | 2026-10-14 12:13:42 UTC | 2.25 (interruption boundary approximate) | — | 0.71 |
+| 5 | Complete | 2026-10-14 12:15:58 UTC | 2026-10-14 12:33:52 UTC | 0.30 | — | 0.00 |
+| 6 | Complete | 2026-10-14 13:22:58 UTC | 2026-10-14 13:51:03 UTC | 0.47 | — | 0.00 |
 | 7 | Not started | — | — | — | — | — |
 | 8 | Not started | — | — | — | — | — |
 | 9 | Not started | — | — | — | — | — |

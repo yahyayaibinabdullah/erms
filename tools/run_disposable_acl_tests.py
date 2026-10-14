@@ -50,7 +50,6 @@ def main():
         environment = {key: str(value) for key, value in configuration.items() if value is not None}
         environment["DATABASE_URL"] = test_url
         environment["AUTH_COOKIE_SECURE"] = "false"
-        environment["TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS"] = "365"
         # API regressions also exercise shared WebUI policy/catalogue modules.
         frontend_packages = ROOT / "frontend/webui/.venv/lib/python3.11/site-packages"
         environment["PYTHONPATH"] = os.pathsep.join([str(ROOT), str(frontend_packages), environment.get("PYTHONPATH", "")])

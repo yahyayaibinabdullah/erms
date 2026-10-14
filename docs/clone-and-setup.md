@@ -114,9 +114,6 @@ TEXT_INDEXER_API_KEY_FILE=.secrets/text-indexer-api-key
 TEXT_INDEXER_ENABLED=true
 TEXT_INDEXER_CLAIM_BATCH_SIZE=1
 TEXT_INDEXER_PROCESS_COUNT=2
-CONTENT_INDEXING_SCHEDULING_ENABLED=true
-FULL_TEXT_SEARCH_ENABLED=true
-WEBUI_FULL_TEXT_SEARCH_ENABLED=true
 MESSAGING_PDF_VALIDATOR=.local-tools/verapdf/verapdf
 ```
 
@@ -281,3 +278,10 @@ The repository intentionally ignores machine-specific local tooling and editor s
 - `.secrets/`
 
 Do not commit local installations or generated runtime state.
+
+Search/indexing policy and Audit Trail result caps are database-owned. Configure
+them through Administration Settings after bootstrap; environment assignments no
+longer enable scheduling or search. The removed WebUI flag has no authority.
+See [application-settings-upgrade.md](application-settings-upgrade.md) for the
+reviewed 34-key upgrade and [configuration-authority-inventory.json](configuration-authority-inventory.json)
+for ownership, defaults, consumers, service templates and restart requirements.

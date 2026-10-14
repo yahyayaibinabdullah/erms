@@ -102,6 +102,7 @@ AUTHORIZATION_CODE_LABELS = {
 
 
 PRIVILEGE_HELP = {
+    "app.settings.manage": "Manage validated application configuration and protected SMTP credentials.",
     'relationships.administer': 'Maintain aggregation and record relationship catalogues.',
     'relationships.link': 'Create and remove named links between resources you can view.',
     "authorization.administer": "Create and maintain authorization profiles and their privilege assignments. Shows the Profiles and Governance custody pages in navigation.",

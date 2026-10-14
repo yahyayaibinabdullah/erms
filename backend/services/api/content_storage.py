@@ -6,7 +6,7 @@ from typing import BinaryIO, Iterator, Protocol
 from fastapi import HTTPException, UploadFile, status
 from psycopg import Connection
 
-from .config import boolean_environment, integer_environment
+from .application_settings import cache as settings_cache
 from .database import pool
 
 
@@ -25,8 +25,8 @@ class ContentLocation:
 
 
 class ContentStorage(Protocol):
-    def store_upload(self, connection: Connection, component_id: int, upload: UploadFile) -> UploadedContent: ...
-    def store_draft_upload(self, connection: Connection, draft_component_id: int, upload: UploadFile) -> UploadedContent: ...
+    def store_upload(self, connection: Connection, component_id: int, upload: UploadFile, *, settings=None) -> UploadedContent: ...
+    def store_draft_upload(self, connection: Connection, draft_component_id: int, upload: UploadFile, *, settings=None) -> UploadedContent: ...
     def promote_draft(self, connection: Connection, draft_component_id: int, component_id: int) -> None: ...
     def location(self, connection: Connection, component_id: int) -> ContentLocation | None: ...
     def iter_content(self, location: ContentLocation, start: int = 0, end: int | None = None) -> Iterator[bytes]: ...
@@ -34,14 +34,14 @@ class ContentStorage(Protocol):
     def delete(self, connection: Connection, component_id: int) -> bool: ...
 
 
-def inspect_upload(upload: UploadFile) -> UploadedContent:
+def inspect_upload(upload: UploadFile, settings) -> UploadedContent:
     """Measure and hash a spooled upload without retaining the file in memory."""
     digest = hashlib.sha256()
     total = 0
     count = 0
-    maximum = integer_environment("MAX_UPLOAD_SIZE_BYTES", 50 * 1024 * 1024, minimum=1)
+    maximum = settings["MAX_UPLOAD_SIZE_BYTES"]
     upload.file.seek(0)
-    while content := upload.file.read(_segment_size()):
+    while content := upload.file.read(settings["CONTENT_SEGMENT_SIZE_BYTES"]):
         total += len(content)
         if total > maximum:
             upload.file.seek(0)
@@ -55,27 +55,20 @@ def inspect_upload(upload: UploadFile) -> UploadedContent:
     return UploadedContent(total, digest.hexdigest(), count)
 
 
-def _segment_size() -> int:
-    value = integer_environment("CONTENT_SEGMENT_SIZE_BYTES", 16 * 1024 * 1024, minimum=1)
-    if value > 64 * 1024 * 1024:
-        raise RuntimeError("CONTENT_SEGMENT_SIZE_BYTES must not exceed 67108864")
-    return value
-
-
-def _segment_digest(content: bytes) -> tuple[str | None, str | None]:
-    if not boolean_environment("CONTENT_SEGMENT_CHECKSUMS_ENABLED", True):
+def _segment_digest(content: bytes, settings) -> tuple[str | None, str | None]:
+    if not settings["CONTENT_SEGMENT_CHECKSUMS_ENABLED"]:
         return None, None
     return "sha256", hashlib.sha256(content).hexdigest()
 
 
 def _stream_segments(
-    connection: Connection, source: BinaryIO, insert_sql: str, owner_id: int,
+    connection: Connection, source: BinaryIO, insert_sql: str, owner_id: int, settings,
 ) -> UploadedContent:
     digest = hashlib.sha256()
     total = 0
     segment_no = 0
-    maximum = integer_environment("MAX_UPLOAD_SIZE_BYTES", 50 * 1024 * 1024, minimum=1)
-    while content := source.read(_segment_size()):
+    maximum = settings["MAX_UPLOAD_SIZE_BYTES"]
+    while content := source.read(settings["CONTENT_SEGMENT_SIZE_BYTES"]):
         total += len(content)
         if total > maximum:
             raise HTTPException(
@@ -83,7 +76,7 @@ def _stream_segments(
                 detail=f"file exceeds the configured {maximum}-byte upload limit",
             )
         digest.update(content)
-        algorithm, segment_checksum = _segment_digest(content)
+        algorithm, segment_checksum = _segment_digest(content, settings)
         connection.execute(
             insert_sql,
             (owner_id, segment_no, len(content), algorithm, segment_checksum, content),
@@ -94,8 +87,9 @@ def _stream_segments(
 
 class PostgreSQLContentStorage:
     def store_upload(
-        self, connection: Connection, component_id: int, upload: UploadFile,
+        self, connection: Connection, component_id: int, upload: UploadFile, *, settings=None,
     ) -> UploadedContent:
+        settings = settings if settings is not None else settings_cache.for_connection(connection)
         old = connection.execute(
             "SELECT active_content_set_id FROM digital_components WHERE id = %s FOR UPDATE",
             (component_id,),
@@ -109,10 +103,11 @@ class PostgreSQLContentStorage:
         session = connection.execute(
             """INSERT INTO content_upload_sessions
                    (digital_component_id, content_set_id, status, expires_at)
-               VALUES (%s, %s, 'uploading', CURRENT_TIMESTAMP + (%s * interval '1 second'))
+               VALUES (%s, %s, 'uploading', CURRENT_TIMESTAMP + (LEAST(%s::numeric, EXTRACT(EPOCH FROM
+                   (TIMESTAMPTZ '9999-12-31 00:00:00+00' - CURRENT_TIMESTAMP))) * interval '1 second'))
                RETURNING id""",
             (component_id, content_set["id"],
-             integer_environment("CONTENT_UPLOAD_SESSION_TTL_SECONDS", 86400, minimum=1)),
+             settings["CONTENT_UPLOAD_SESSION_TTL_SECONDS"]),
         ).fetchone()
         uploaded = _stream_segments(
             connection, upload.file,
@@ -120,7 +115,7 @@ class PostgreSQLContentStorage:
                    (content_set_id, segment_no, segment_size,
                     segment_checksum_algo, segment_checksum_value, content)
                VALUES (%s, %s, %s, %s, %s, %s)""",
-            content_set["id"],
+            content_set["id"], settings,
         )
         connection.execute(
             """UPDATE content_upload_sessions SET status = 'finalizing',
@@ -158,14 +153,16 @@ class PostgreSQLContentStorage:
         return uploaded
 
     def store_draft_upload(
-        self, connection: Connection, draft_component_id: int, upload: UploadFile,
+        self, connection: Connection, draft_component_id: int, upload: UploadFile, *, settings=None,
     ) -> UploadedContent:
+        settings = settings if settings is not None else settings_cache.for_connection(connection)
         session = connection.execute(
             """INSERT INTO content_upload_sessions (draft_component_id, status, expires_at)
-               VALUES (%s, 'uploading', CURRENT_TIMESTAMP + (%s * interval '1 second'))
+               VALUES (%s, 'uploading', CURRENT_TIMESTAMP + (LEAST(%s::numeric, EXTRACT(EPOCH FROM
+                   (TIMESTAMPTZ '9999-12-31 00:00:00+00' - CURRENT_TIMESTAMP))) * interval '1 second'))
                RETURNING id""",
             (draft_component_id,
-             integer_environment("CONTENT_UPLOAD_SESSION_TTL_SECONDS", 86400, minimum=1)),
+             settings["CONTENT_UPLOAD_SESSION_TTL_SECONDS"]),
         ).fetchone()
         uploaded = _stream_segments(
             connection, upload.file,
@@ -173,7 +170,7 @@ class PostgreSQLContentStorage:
                    (record_draft_component_id, segment_no, segment_size,
                     segment_checksum_algo, segment_checksum_value, content)
                VALUES (%s, %s, %s, %s, %s, %s)""",
-            draft_component_id,
+            draft_component_id, settings,
         )
         connection.execute(
             """UPDATE record_draft_components SET size_in_bytes = %s,

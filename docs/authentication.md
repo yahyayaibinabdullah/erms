@@ -231,3 +231,20 @@ with internal users. After provider validation, OIDC login will create the same
 opaque internal session used by local authentication. Roles, audit attribution,
 session administration, and future authorization will therefore work the same
 way for either provider.
+
+## Runtime database policy
+
+The five authentication/password and three session-cleanup settings are owned by
+Administration Settings, with canonical defaults from Application Configuration
+section 5.3 and 30-second API cache convergence. Obsolete environment assignments
+cannot override them. Cookie security remains deployment-owned.
+
+Session lifetimes are evaluated from creation/last activity at the next session
+check. A shorter policy can expire a session immediately; that expiry is persisted
+so a later increase cannot restore it. Previously expired/revoked sessions remain
+unusable. Existing password hashes remain accepted when the minimum changes;
+new password changes and generated temporary/recovery passwords use current
+policy. Cleanup defaults come from the same validated registry. One-shot commands
+load a fresh snapshot; watch commands re-evaluate cached policy before each pass.
+Explicit CLI arguments remain overrides and never update settings. See the
+[upgrade procedure](application-settings-upgrade.md).
