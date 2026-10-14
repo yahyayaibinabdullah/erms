@@ -346,20 +346,10 @@ API_RELOAD=false
 DB_POOL_MIN_SIZE=1
 DB_POOL_MAX_SIZE=10
 CONTENT_STORAGE_BACKEND=postgresql
-CONTENT_SEGMENT_SIZE_BYTES=16777216
-CONTENT_SEGMENT_CHECKSUMS_ENABLED=true
-CONTENT_UPLOAD_SESSION_TTL_SECONDS=86400
-CONTENT_CLEANUP_INTERVAL_SECONDS=3600
-AUTH_SESSION_RETENTION_DAYS=90
-AUTH_SESSION_CLEANUP_INTERVAL_SECONDS=3600
-AUTH_SESSION_CLEANUP_BATCH_SIZE=500
 CONTENT_INDEXING_HISTORY_RETENTION_DAYS=365
 CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS=3600
 CONTENT_INDEXING_CLEANUP_BATCH_SIZE=500
 TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS=365
-DASHBOARD_REVIEW_PREVIEW_LIMIT=5
-REVIEW_WARNING_WINDOW_DAYS=30
-DEFAULT_ROOT_AGGREGATION_MEDIUM=mixed
 AUTH_COOKIE_SECURE=true
 CONTENT_INDEXING_SCHEDULING_ENABLED=false
 FULL_TEXT_SEARCH_ENABLED=false
@@ -371,8 +361,12 @@ TEXT_INDEXER_RATE_LIMIT_PER_MINUTE=600
 defaults root-aggregation forms without preventing the creator from choosing a
 different value. `REVIEW_WARNING_WINDOW_DAYS` controls how far ahead review
 warnings appear and defaults to 30 days. `DASHBOARD_REVIEW_PREVIEW_LIMIT`
-defaults to five items per review category; zero keeps complete counts but
-omits preview items. Invalid values must prevent application startup.
+is a positive database setting, initially five items per review category.
+These general defaults and UI limits are edited in Administration → Settings;
+old shell/`.env` assignments have no effect after cutover. Runtime edits propagate
+within 30 seconds without restarting services. Before starting an upgraded API
+or local stack, follow [the reviewed per-database migration/readiness procedure](application-settings-upgrade.md).
+Invalid canonical database values prevent API readiness.
 
 Run segmented-content cleanup from exactly one dedicated worker or deployment
 scheduler, not from every API worker:
@@ -927,3 +921,8 @@ wording are preserved; review existing personal-assignment wording before using
 it for governors. New configurations use the neutral English/Arabic templates
 in `database/seeds/hold-notification-templates.json`. New databases still use the
 canonical schema alone, followed by the separate latest producer seed.
+
+Content and authentication policies are now database-owned Administration Settings.
+Review and apply the extended legacy migration before deploying Phase 5 code; see
+[application-settings-upgrade.md](application-settings-upgrade.md). Cleanup CLI
+arguments are per-invocation overrides; omit them to follow database defaults.

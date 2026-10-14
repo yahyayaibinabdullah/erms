@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from dotenv import load_dotenv
 
@@ -11,19 +10,6 @@ load_dotenv(PROJECT_DIR / ".env", override=False)
 
 def api_url() -> str:
     return os.getenv("WEBUI_API_URL", "http://127.0.0.1:8000").rstrip("/")
-
-
-def default_working_timezone() -> str:
-    value = os.getenv("DEFAULT_WORKING_TIMEZONE", "").strip()
-    if not value:
-        raise RuntimeError("DEFAULT_WORKING_TIMEZONE is required")
-    try:
-        zone = ZoneInfo(value)
-    except ZoneInfoNotFoundError as error:
-        raise RuntimeError("DEFAULT_WORKING_TIMEZONE must be a valid IANA timezone") from error
-    if zone.key != value:
-        raise RuntimeError("DEFAULT_WORKING_TIMEZONE must use its canonical IANA identifier")
-    return value
 
 
 def host() -> str:
@@ -57,41 +43,25 @@ def database_display_name(language_tag: str) -> str:
     return localized_name or default_name
 
 
-def default_root_aggregation_medium() -> str:
-    value = os.getenv("DEFAULT_ROOT_AGGREGATION_MEDIUM", "mixed").strip().lower()
-    if value not in {"digital", "physical", "mixed"}:
-        raise RuntimeError(
-            "DEFAULT_ROOT_AGGREGATION_MEDIUM must be digital, physical, or mixed"
-        )
-    return value
+def default_root_aggregation_medium(configuration) -> str:
+    return configuration["DEFAULT_ROOT_AGGREGATION_MEDIUM"]
 
 
-def _positive_integer(name: str, default: int) -> int:
-    raw_value = os.getenv(name, str(default))
-    try:
-        value = int(raw_value)
-    except ValueError as error:
-        raise RuntimeError(f"{name} must be an integer") from error
-    if value < 1:
-        raise RuntimeError(f"{name} must be at least 1")
-    return value
+def dashboard_recent_item_limit(configuration) -> int:
+    return configuration["DASHBOARD_RECENT_ITEM_LIMIT"]
 
 
-def dashboard_recent_item_limit() -> int:
-    return _positive_integer("DASHBOARD_RECENT_ITEM_LIMIT", 4)
+def dashboard_recent_days(configuration) -> int:
+    return configuration["DASHBOARD_RECENT_DAYS"]
 
 
-def dashboard_recent_days() -> int:
-    return _positive_integer("DASHBOARD_RECENT_DAYS", 30)
+def dashboard_favourite_item_limit(configuration) -> int:
+    return configuration["DASHBOARD_FAVOURITE_ITEM_LIMIT"]
 
 
-def dashboard_favourite_item_limit() -> int:
-    return _positive_integer("DASHBOARD_FAVOURITE_ITEM_LIMIT", 5)
+def classification_recent_selection_limit(configuration) -> int:
+    return configuration["CLASSIFICATION_RECENT_SELECTION_LIMIT"]
 
 
-def classification_recent_selection_limit() -> int:
-    return _positive_integer("CLASSIFICATION_RECENT_SELECTION_LIMIT", 4)
-
-
-def user_details_session_limit() -> int:
-    return _positive_integer("USER_DETAILS_SESSION_LIMIT", 5)
+def user_details_session_limit(configuration) -> int:
+    return configuration["USER_DETAILS_SESSION_LIMIT"]

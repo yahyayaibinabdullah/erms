@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from dotenv import load_dotenv
 
@@ -21,18 +20,10 @@ def required_environment(name: str) -> str:
     return value
 
 
-def default_working_timezone() -> str:
-    """Return the configured canonical IANA timezone or fail readiness."""
-    value = required_environment("DEFAULT_WORKING_TIMEZONE").strip()
-    try:
-        zone = ZoneInfo(value)
-    except ZoneInfoNotFoundError as exception:
-        raise RuntimeError(
-            "DEFAULT_WORKING_TIMEZONE must be a valid IANA timezone identifier"
-        ) from exception
-    if zone.key != value:
-        raise RuntimeError("DEFAULT_WORKING_TIMEZONE must use its canonical IANA identifier")
-    return value
+def default_working_timezone(connection) -> str:
+    """Database-owned fallback for people without a saved timezone preference."""
+    from .application_settings import cache
+    return cache.for_connection(connection)["DEFAULT_WORKING_TIMEZONE"]
 
 
 def boolean_environment(name: str, default: bool = False) -> bool:

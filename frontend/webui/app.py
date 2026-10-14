@@ -49,7 +49,6 @@ from .config import (
     default_root_aggregation_medium,
     full_text_search_enabled,
     classification_recent_selection_limit,
-    default_working_timezone,
     host,
     port,
     reload_enabled,
@@ -678,7 +677,7 @@ def format_timestamp(value: Any) -> str:
         try:
             language, timezone_name = current_locale_context()
         except RuntimeError:
-            language, timezone_name = "en", default_working_timezone()
+            return str(value)  # No timezone authority before API localization.
         return format_instant(value, timezone_name, language)
     except (ValueError, TypeError):
         return str(value)
@@ -1459,10 +1458,8 @@ def index(q: str = "") -> None:
             return "expand_more"
         return "chevron_left" if current_direction["value"] == "rtl" else "chevron_right"
 
-    set_locale_context(
-        initial_language,
-        str(cached_localization.get("working_timezone") or default_working_timezone()),
-    )
+    if cached_localization.get("working_timezone"):
+        set_locale_context(initial_language, str(cached_localization["working_timezone"]))
     ui.query("html").props(f"lang={initial_language} dir={initial_direction}")
 
     async def apply_document_direction(language: str, direction: str) -> None:
@@ -1511,11 +1508,14 @@ def index(q: str = "") -> None:
                 fallback_keys = catalogue.get("fallback_keys", [])
             catalogue_etag = catalogue.get("etag") or session_catalogue_etag
         set_active_messages(messages, fallback_keys)
-        state["localization"] = bootstrap
+        # Persist remembered locale metadata only. Business settings remain a
+        # transient page response, never another browser settings cache.
+        state["localization"] = {key:value for key,value in bootstrap.items() if key != "application_configuration"}
+        state["application_configuration"] = bootstrap["application_configuration"]
         set_locale_context(
             bootstrap["effective_language"], bootstrap["working_timezone"],
         )
-        app.storage.user["localization_context"] = bootstrap
+        app.storage.user["localization_context"] = state["localization"]
         app.storage.user["localization_messages"] = messages
         app.storage.user["localization_fallback_keys"] = fallback_keys
         app.storage.user["localization_catalogue_etag"] = catalogue_etag
@@ -1523,8 +1523,8 @@ def index(q: str = "") -> None:
             bootstrap["effective_language"], bootstrap["direction"],
         )
         needs_rebuild = (
-            previous.get("effective_language") != bootstrap["effective_language"]
-            or previous.get("direction") != bootstrap["direction"]
+            previous.get("effective_language", initial_language) != bootstrap["effective_language"]
+            or previous.get("direction", initial_direction) != bootstrap["direction"]
         )
         if needs_rebuild:
             await ui.run_javascript("window.location.reload(); true", timeout=5)
@@ -4708,9 +4708,25 @@ def index(q: str = "") -> None:
     def show_authenticated_view() -> None:
         content_card.set_visibility(True)
 
+    def accept_application_configuration(configuration):
+        """Page response values only; no independent expiry or environment fallback."""
+        state["application_configuration"] = configuration
+        localization = state.get("localization") or {}
+        if localization.get("uses_default_working_timezone") is True:
+            timezone_name = configuration["DEFAULT_WORKING_TIMEZONE"]
+            localization["working_timezone"] = timezone_name
+            with table_container:
+                set_locale_context(localization["effective_language"], timezone_name)
+            app.storage.user["localization_context"] = localization
+
     async def reload_favourites() -> dict[str, list[dict[str, Any]]]:
+        principal = auth_state.get("principal")
+        resource = state.get("resource")
         favourites = await api.favourites()
-        state["favourites"] = favourites
+        if auth_state.get("principal") is not principal or state.get("resource") != resource:
+            return favourites
+        accept_application_configuration(favourites["application_configuration"])
+        state["favourites"] = {key:favourites[key] for key in ("aggregations","records")}
         state["favourite_ids"] = {
             resource: {int(item["id"]) for item in favourites[resource]}
             for resource in ("aggregations", "records")
@@ -7622,8 +7638,7 @@ def index(q: str = "") -> None:
             state["recent_activity"] = []
             return
         if spec.key in {"aggregations", "records"}:
-            since = datetime.now(timezone.utc) - timedelta(days=dashboard_recent_days())
-            activity = await api.recent_resource_activity(spec.key, limit=50, since=since)
+            activity = await api.recent_resource_activity(spec.key, limit=50)
             decorated = await decorate_for_spec(spec, activity)
             state["recent_activity"] = decorated
             state["recent_created"] = [item for item in decorated if item["_operation"] == "CREATE"]
@@ -8365,9 +8380,11 @@ def index(q: str = "") -> None:
         retention_rule: dict[str, Any] | None = None
         try:
             if creating and spec.key == "aggregations":
-                creation_roles = await api.creation_role_options(
-                    (initial_values or {}).get("parent_aggregation_id")
+                creation_roles, creation_configuration = await asyncio.gather(
+                    api.creation_role_options((initial_values or {}).get("parent_aggregation_id")),
+                    api.application_configuration(),
                 )
+                accept_application_configuration(creation_configuration)
             if row and spec.key == "classifications":
                 try:
                     retention_rule = await api.classification_retention_rule(row["id"])
@@ -8672,7 +8689,7 @@ def index(q: str = "") -> None:
                     if creating and spec.key == "aggregations" and field.name == "medium":
                         parent_id = controls["parent_aggregation_id"].value
                         parent = next((item for item in lookup_rows_by_field.get("parent_aggregation_id", []) if item["id"] == parent_id), None)
-                        initial_value = parent.get("medium", "mixed") if parent else default_root_aggregation_medium()
+                        initial_value = parent.get("medium", "mixed") if parent else default_root_aggregation_medium(creation_configuration)
                     if creating and field.name == "profile_id" and initial_value is None:
                         available_profiles = lookup_rows_by_field.get(field.name, [])
                         compatibility = next(
@@ -9009,7 +9026,7 @@ def index(q: str = "") -> None:
                     else:
                         medium_control.set_options(
                             medium_options(),
-                            value=medium_control.value or default_root_aggregation_medium(),
+                            value=medium_control.value or (row["medium"] if row else default_root_aggregation_medium(creation_configuration)),
                         )
                         medium_control.enable()
                     medium_control.update()
@@ -10587,7 +10604,7 @@ def index(q: str = "") -> None:
 
     def render_entity_favourites_section(spec: EntitySpec) -> None:
         preview_host = ui.column().classes("w-full px-5 pt-5")
-        limit = dashboard_favourite_item_limit()
+        limit = dashboard_favourite_item_limit(state["application_configuration"])
         resource = spec.key
         singular = "aggregation" if resource == "aggregations" else "record"
         localized_singular = render_message(
@@ -10710,7 +10727,7 @@ def index(q: str = "") -> None:
         spec: EntitySpec, *, container: Any | None = None,
     ) -> None:
         """Render resource favourites and activity using the Dashboard treatment."""
-        limit = dashboard_favourite_item_limit()
+        limit = dashboard_favourite_item_limit(state["application_configuration"])
         resource = spec.key
         icon = "folder" if resource == "aggregations" else "description"
         number_field = "aggregation_number" if resource == "aggregations" else "record_number"
@@ -12527,16 +12544,16 @@ def index(q: str = "") -> None:
                 can_organize = "organization.administer" in privileges
                 can_administer_users = "identity.users.administer" in privileges
 
-                recent_limit = dashboard_recent_item_limit()
-                recent_days = dashboard_recent_days()
-                recent_since = datetime.now(timezone.utc) - timedelta(days=recent_days)
                 if summary_override is None:
-                    summary = await api.dashboard_summary(
-                        recent_limit=50, recent_since=recent_since,
-                    )
+                    summary = await api.dashboard_summary(recent_limit=50)
                     state["dashboard_summary_cache"] = summary
                 else:
                     summary = summary_override
+                if state.get("resource") != "dashboard" or getattr(dashboard_content,"_deleted",False):
+                    return
+                accept_application_configuration(summary["application_configuration"])
+                recent_limit = dashboard_recent_item_limit(summary["application_configuration"])
+                recent_days = dashboard_recent_days(summary["application_configuration"])
                 counts = summary["overview_counts"]
                 medium_counts = summary["overview_medium_counts"]
                 attention_counts = summary["overview_resource_attention_counts"]
@@ -12579,7 +12596,7 @@ def index(q: str = "") -> None:
 
                 all_recent_records = recent_record_entries(activity)
                 recent_records = all_recent_records[:recent_limit]
-                favourite_limit = dashboard_favourite_item_limit()
+                favourite_limit = dashboard_favourite_item_limit(state["application_configuration"])
             except ApiError as error:
                 if getattr(page_client, "_deleted", False):
                     return
@@ -15555,9 +15572,11 @@ def index(q: str = "") -> None:
 
     async def select_user_details(user_id: int) -> None:
         """Render the extensible single-user management view."""
+        principal = auth_state.get("principal")
+        token = object()
         register_navigation("user-details", f"User #{user_id}", entity_id=user_id)
         show_authenticated_view()
-        state.update(resource="user-details", rows=[], searched=True, aggregation_detail=None)
+        state.update(resource="user-details", user_details_token=token, rows=[], searched=True, aggregation_detail=None)
         search_bar.set_visibility(False)
         aggregation_mode_bar.set_visibility(False)
         add_button.set_visibility(False)
@@ -15565,10 +15584,15 @@ def index(q: str = "") -> None:
         guidance.text = ""
         table_container.clear()
         try:
-            session_page_size = user_details_session_limit()
-            person, assignment_page_result = await asyncio.gather(
+            person, assignment_page_result, session_configuration = await asyncio.gather(
                 api.get("users", user_id), api.user_roles(user_id, limit=50, offset=0),
+                api.application_configuration(),
             )
+            if auth_state.get("principal") is not principal or state.get("resource") != "user-details" or state.get("user_details_token") is not token:
+                return
+            # This setting is a maximum; transport/rendering windows remain bounded.
+            accept_application_configuration(session_configuration)
+            session_page_size = min(user_details_session_limit(session_configuration), 50)
             assignments = list(assignment_page_result.get("items") or [])
             roles = [item.get("counterpart") or {} for item in assignments]
         except ApiError as error:
@@ -16122,15 +16146,19 @@ def index(q: str = "") -> None:
                                 ).tooltip(render_message("webui.render_user_session_card.tooltip.force_sign_out_this_session_e9c1809a"))
 
                 async def load_session_page(*, reset: bool = False) -> None:
+                    nonlocal session_page_size
                     if reset: session_state["offset"] = 0
                     try:
                         page = await api.login_sessions_page(
-                            user_id, limit=session_page_size, offset=session_state["offset"],
+                            user_id, limit=None, offset=session_state["offset"],
                             query=session_query.value or "", session_status=session_status.value or "all",
                             sort_by=session_sort.value or "date_created", descending=bool(session_direction.value),
                         )
                     except ApiError as error:
                         ui.notify(error_message(error), color="negative", close_button=True); return
+                    if auth_state.get("principal") is not principal or state.get("resource") != "user-details" or state.get("user_details_token") is not token:
+                        return
+                    session_page_size = page["limit"]
                     session_state["total"] = page["total"]
                     session_results.clear()
                     with session_results:

@@ -729,6 +729,10 @@ class FavouritesRead(ApiModel):
     records: list[FavouriteRecordRead]
 
 
+class FavouritesPageRead(FavouritesRead):
+    application_configuration: dict[str, Any]
+
+
 BrowseNode = TypeVar("BrowseNode")
 
 
@@ -1143,6 +1147,7 @@ class DashboardReviewItem(ApiModel):
 
 
 class DashboardSummaryRead(ApiModel):
+    application_configuration: dict[str, Any]
     overview_counts: dict[str, int]
     overview_medium_counts: dict[str, dict[Literal["physical", "digital", "mixed"], int]]
     overview_resource_attention_counts: dict[str, dict[Literal["vital", "held"], int]]

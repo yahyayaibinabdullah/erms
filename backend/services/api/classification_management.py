@@ -315,10 +315,14 @@ def search_classifications(
 
 @router.get("/classifications/recent", response_model=list[ClassificationRead], tags=["classifications"])
 def recent_classifications(
-    request: Request, limit: int = Query(4, ge=1, le=20),
+    request: Request, limit: int | None = Query(None, ge=1, le=20),
+    offset: int = Query(0, ge=0),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     principal = request.state.principal
+    from .application_settings import cache
+    configured_limit = cache.for_connection(connection)["CLASSIFICATION_RECENT_SELECTION_LIMIT"]
+    limit = min(limit if limit is not None else 20, max(0, configured_limit-offset))
     return list(connection.execute(
         """SELECT c.* FROM user_classification_selections recent
            JOIN classifications c ON c.id=recent.classification_id
@@ -326,8 +330,8 @@ def recent_classifications(
              AND classification_scheme_is_eligible(c.classification_scheme_id)
              AND classification_is_effectively_active(c.id)
              AND EXISTS (SELECT 1 FROM effective_classification_retention_rule(c.id))
-           ORDER BY recent.last_selected_at DESC LIMIT %s""",
-        (principal.user_id, limit),
+           ORDER BY recent.last_selected_at DESC,c.id DESC LIMIT %s OFFSET %s""",
+        (principal.user_id, limit, offset),
     ).fetchall())
 
 

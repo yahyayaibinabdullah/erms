@@ -100,7 +100,7 @@ def _target_policy(method: str, path: str) -> tuple[str, str | None, str | None]
         return "service_lease_scoped", "content.index.execute", None
     if path == "/api/v1/full-text-search":
         return "resource_scoped", "record.view", "record.view"
-    if path in {"/api/v1/preferences", "/api/v1/i18n/bootstrap"}:
+    if path in {"/api/v1/preferences", "/api/v1/i18n/bootstrap", "/api/v1/application-configuration"}:
         return "authenticated_only", None, None
     if path.startswith("/api/v1/i18n/catalogues/"):
         return "authenticated_only", None, None

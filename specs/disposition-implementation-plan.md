@@ -197,7 +197,7 @@ passed, together with live English/Arabic save/reload, deep/large-tree paging,
 warning clearance, role restrictions, measured RTL and translation checks. All
 seven test/preview databases are confirmed dropped. No persistent database or
 private environment values were changed. New Arabic wording remains generated
-drafts for explicit administrator review/publication. Phase 4 is the next work.
+drafts for explicit administrator review/publication. Phase 4 completion is recorded below.
 
 ### Phase 4 Migrate general application and WebUI settings
 
@@ -225,6 +225,17 @@ conflicts, invalid values, grouped rollback, per-database isolation, safe reruns
 and incomplete-migration startup blocking. Extend the same command for the
 additional setting groups in phases 5 and 6; do not build separate importers.
 
+**Completed 14 October 2026:** Nine general/interface consumers now use database
+settings exclusively. Reviewed per-database preview/apply, explicit conflict
+resolution, atomic provenance/audit/completion and startup readiness are delivered.
+125 API, 227 WebUI and 29 traceability/environment/CLI tests pass; English/Arabic
+live runtime freshness, preference precedence, pagination and repeated navigation
+are verified. All disposable databases were dropped. Nine obsolete template
+entries were removed; no private environment or persistent database was changed.
+All 3,188 Arabic items were preserved. See `docs/disposition-phase-4.md` and the
+phase-scoped ledger evidence. Total active time: **2.25 hours** (first interruption
+boundary approximate; offline interval excluded). Phase 5 is next.
+
 ### Phase 5 Migrate content and authentication policy settings
 
 **Priority:** Configuration completion. **Dependencies:** Phase 4.
@@ -239,6 +250,18 @@ sessions.
 conversion limits, cleanup batches, active/expired sessions, lockout and password
 changes. Verify runtime refresh, failure behavior, and removal of every migrated
 environment read. Each change passes its own regression tests before the next.
+
+**Completed 14 October 2026:** All seven content and eight authentication/session
+settings now use the database registry at request and operational worker boundaries.
+The existing migration extends to 24 keys and preserves earlier completion.
+Content passed 37 regressions before authentication implementation; broad regression
+passed 132 tests, followed by 28 boundary/authentication and 25 final readiness
+checks. 84 WebUI and 44 traceability/cache/CLI/environment tests passed. All nine
+disposable run/isolation databases are confirmed absent. No private environment,
+persistent database, schema or translation item changed. Deployment requires a
+new reviewed 24-key preview/apply before upgraded API/cleanup workers start.
+See `docs/disposition-phase-5.md` and phase-scoped ledger evidence. Total measured
+active time: **0.30 hours**. Phase 6 is next.
 
 ### Phase 6 Complete search configuration and deployment reconciliation
 
@@ -709,6 +732,9 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 | 1 | 2026-10-14 04:24:21 | 2026-10-14 05:41:29 | 1.29 | 0.00 | Measured | Source/setting ledger, code/schema/test inventory, approved decisions, integration and transaction boundaries, 103 disposable-DB + 31 UI + 27 traceability/local-env checks passed; disposable DB created/dropped; D-01 recorded for Phase 21 only. Final handoff bookkeeping follows the captured end boundary. |
 | 2 | 2026-10-14 05:52:04 | 2026-10-14 07:21:03 | 1.48 | 0.00 | Measured | Shared settings registry/API/schema/cache/audit/provenance, approved env encryption key and encrypted SMTP password, current capture helpers, templates/upgrade guidance, preserved curated translations, fresh/upgrade/compatibility and unit checks passed; all disposable DBs dropped. Final completion bookkeeping follows the captured end boundary. |
 | 3 | 2026-10-14 07:32:00 | 2026-10-14 09:13:34 | 1.69 | 0.00 | Measured | All 51 Settings controls/explanations, protected saves, bounded selectors, current custody warnings; 68 disposable-DB + 76 frontend + 27 traceability/env checks and live bilingual persistence/RTL/role/performance checks passed; all seven disposable DBs confirmed dropped; 3141 Arabic items preserved and 47 new drafts require review. Final completion bookkeeping follows the captured end boundary. |
+| 4 | 2026-10-14 09:16:16 | 2026-10-14 11:24:00 | 2.13 | 0.00 | Start measured; end approximate | Implementation and regression tests; English checks. User requested immediate stop before losing connectivity; interruption boundary reconstructed from saved resume note. Preview stopped and disposable database dropped. |
+| 4 | 2026-10-14 12:06:39 | 2026-10-14 12:13:42 | 0.12 | 0.71 | Measured; excluded interval approximate | Resumed after user authorization. Arabic saves/runtime limits/preference precedence/RTL/repeated navigation, 29 final tool checks, artifact preservation/template/policy checks, ledger and handoff. Offline interval 11:24–12:06:39 excluded. Final bookkeeping follows this captured end boundary. |
+| 5 | 2026-10-14 12:15:58 | 2026-10-14 12:33:52 | 0.30 | 0.00 | Measured | Content first, then authentication; runtime upload/conversion/session/password/cleanup policy, extended reviewed migration/worker readiness; 132 broad + 28 boundary/auth + 25 final readiness, 84 UI and 44 tool checks passed. All nine disposable databases confirmed dropped. Fifteen business template entries removed; no private env/schema/translation changes. Final completion bookkeeping follows captured end boundary. |
 
 ### Phase totals
 
@@ -720,8 +746,8 @@ Update status from actual progress; specification approval is not implementation
 | 1 | Complete | 2026-10-14 04:24:21 UTC | 2026-10-14 05:41:29 UTC | 1.29 | — | 0.00 |
 | 2 | Complete | 2026-10-14 05:52:04 UTC | 2026-10-14 07:21:03 UTC | 1.48 | — | 0.00 |
 | 3 | Complete | 2026-10-14 07:32:00 UTC | 2026-10-14 09:13:34 UTC | 1.69 | — | 0.00 |
-| 4 | Not started | — | — | — | — | — |
-| 5 | Not started | — | — | — | — | — |
+| 4 | Complete | 2026-10-14 09:16:16 UTC | 2026-10-14 12:13:42 UTC | 2.25 (interruption boundary approximate) | — | 0.71 |
+| 5 | Complete | 2026-10-14 12:15:58 UTC | 2026-10-14 12:33:52 UTC | 0.30 | — | 0.00 |
 | 6 | Not started | — | — | — | — | — |
 | 7 | Not started | — | — | — | — | — |
 | 8 | Not started | — | — | — | — | — |

@@ -32,7 +32,7 @@ from .service_authentication import (
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .concurrency import expected_version
 from .continuity_lock import acquire_continuity_shared_lock
-from .config import boolean_environment, choice_environment, default_working_timezone, integer_environment
+from .config import boolean_environment, integer_environment
 from .content_storage import configured_storage, inspect_upload
 from .database import close_pool, get_connection, open_pool, pool
 from .document_conversion import ConversionUnavailable, UnsupportedPreview, pdf_rendition
@@ -83,6 +83,7 @@ from .browse import router as browse_router
 from .favourites import router as favourites_router
 from .resource_relationships import router as resource_relationships_router
 from .application_settings_routes import router as application_settings_router
+from .application_configuration import router as application_configuration_router
 from .application_settings import cache as settings_cache
 from .security_levels import router as security_levels_router
 from .authorization_admin import router as authorization_admin_router
@@ -105,10 +106,7 @@ from .authorization_policy import load_policy_context, require_audit_view
 
 
 RESOURCE_MEDIA = {"digital", "physical", "mixed"}
-DEFAULT_ROOT_AGGREGATION_MEDIUM = choice_environment(
-    "DEFAULT_ROOT_AGGREGATION_MEDIUM", "mixed", RESOURCE_MEDIA,
-)
-REVIEW_WARNING_WINDOW_DAYS = integer_environment("REVIEW_WARNING_WINDOW_DAYS", 30)
+
 
 
 def _medium_error(code: str, message: str, **details) -> HTTPException:
@@ -163,15 +161,16 @@ from .messaging.notification_configuration import readiness as notification_read
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    default_working_timezone()
     integer_environment("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 1000, minimum=1)
     open_pool()
-    # Phase 2 installs only the shared foundation. Legacy business consumers
-    # retain their authority until their reviewed Phase 4-6 cutovers.
+    # Load database configuration before business consumers or background work.
     settings_cache.invalidate()
     try:
         with pool.connection() as connection:
-            settings_cache.for_connection(connection)  # Fail startup on missing/invalid rows.
+            settings_cache.for_connection(connection)  # Fail on missing/invalid rows.
+            from .application_settings_migration import readiness
+            if not readiness(connection)["ready"]:
+                raise RuntimeError("application_settings_migration_incomplete; run the reviewed preview/apply command")
     except Exception:
         close_pool()
         raise
@@ -209,6 +208,7 @@ app.include_router(browse_router)
 app.include_router(favourites_router)
 app.include_router(resource_relationships_router)
 app.include_router(application_settings_router)
+app.include_router(application_configuration_router)
 app.include_router(security_levels_router)
 app.include_router(authorization_admin_router)
 app.include_router(resource_acl_router)
@@ -659,7 +659,7 @@ def create_aggregation(
         connection, payload.creator_acl_role_id, payload.parent_aggregation_id,
     )
     if payload.parent_aggregation_id is None:
-        values["medium"] = payload.medium or DEFAULT_ROOT_AGGREGATION_MEDIUM
+        values["medium"] = payload.medium or settings_cache.for_connection(connection)["DEFAULT_ROOT_AGGREGATION_MEDIUM"]
         level_id = payload.security_level_id or connection.execute(
             "SELECT lowest_security_level_id() AS id"
         ).fetchone()["id"]
@@ -1465,7 +1465,8 @@ def upload_record_draft_component(
     draft = _open_draft(connection, draft_id, lock=True)
     messaging_capture.protect_components(connection, draft_id)
     _require_draft_accepts_components(draft)
-    inspected = inspect_upload(file)
+    content_settings = settings_cache.for_connection(connection)
+    inspected = inspect_upload(file, content_settings)
     component = connection.execute(
         """INSERT INTO record_draft_components
                (draft_id, component_order, file_name, date_originated, mime_type,
@@ -1476,7 +1477,7 @@ def upload_record_draft_component(
          file.content_type or "application/octet-stream", inspected.size_in_bytes,
          inspected.checksum_value),
     ).fetchone()
-    configured_storage().store_draft_upload(connection, component["id"], file)
+    configured_storage().store_draft_upload(connection, component["id"], file, settings=content_settings)
     component = connection.execute(
         """SELECT id, draft_id, component_order, file_name, date_created,
                   date_originated, mime_type, size_in_bytes, checksum_algo,
@@ -1897,7 +1898,8 @@ def upload_digital_component(
     require_resource_operation(connection, "record", record_id,
                                "record.component.add", "record.component.add")
     _require_record_accepts_components(connection, record_id)
-    inspected = inspect_upload(file)
+    content_settings = settings_cache.for_connection(connection)
+    inspected = inspect_upload(file, content_settings)
     mime_type = file.content_type or "application/octet-stream"
     component = create_row(
         connection,
@@ -1915,7 +1917,7 @@ def upload_digital_component(
             "content_status": "available",
         },
     )
-    uploaded = configured_storage().store_upload(connection, component["id"], file)
+    uploaded = configured_storage().store_upload(connection, component["id"], file, settings=content_settings)
     component = get_or_404(connection, "digital_components", component["id"])
     _append_content_event(
         connection,
@@ -2024,14 +2026,15 @@ def _component_rendition_response(
             content=content[start:end], status_code=response_status,
             media_type=rendered_mime, headers=headers,
         )
-    maximum_source = integer_environment("MAX_RENDITION_SIZE_BYTES", 100 * 1024 * 1024, minimum=1)
+    content_settings = settings_cache.for_connection(connection)
+    maximum_source = content_settings["MAX_RENDITION_SIZE_BYTES"]
     if location.size_in_bytes > maximum_source:
         raise HTTPException(status_code=413, detail="source document exceeds the configured rendition size limit")
     content = storage.read(connection, component_id)
     if content is None:
         raise HTTPException(status_code=404, detail="digital component content not found")
     try:
-        rendition, method = pdf_rendition(content, component["file_name"], mime_type)
+        rendition, method = pdf_rendition(content, component["file_name"], mime_type, settings=content_settings)
     except UnsupportedPreview as error:
         raise HTTPException(status_code=415, detail=str(error)) from error
     except ConversionUnavailable as error:
@@ -2105,8 +2108,9 @@ def replace_digital_component_content(
     if current["version"] != version:
         return update_row(connection, "digital_components", component_id, {}, version)
     mime_type = file.content_type or "application/octet-stream"
-    inspected = inspect_upload(file)
-    uploaded = configured_storage().store_upload(connection, component_id, file)
+    content_settings = settings_cache.for_connection(connection)
+    inspected = inspect_upload(file, content_settings)
+    uploaded = configured_storage().store_upload(connection, component_id, file, settings=content_settings)
     component = update_row(connection, "digital_components", component_id, {
         "file_name": file.filename or "unnamed",
         "mime_type": mime_type,

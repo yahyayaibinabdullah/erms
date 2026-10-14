@@ -99,3 +99,17 @@ large scale or high concurrency.
 
 The detailed design, lifecycle, migration rules, and acceptance criteria are in
 [`specs/segmented-postgresql-content-storage.md`](../specs/segmented-postgresql-content-storage.md).
+
+## Database-managed policy
+
+Upload maximum, segment size/checksums, upload-session lifetime, cleanup interval,
+conversion timeout and rendition maximum now come from Administration Settings.
+The API uses one validated settings snapshot throughout each upload/conversion;
+changes converge within 30 seconds without restart. The storage backend and
+LibreOffice executable remain deployment environment settings. Existing segments
+and checksums retain their stored representation when policy changes.
+
+Content cleanup loads a fresh snapshot for one shot and the shared 30-second
+cache before each watch pass. Its interval override is optional; the fixed
+bounded batch default of 100 is unchanged. See the
+[reviewed legacy migration](application-settings-upgrade.md) before upgrade startup.

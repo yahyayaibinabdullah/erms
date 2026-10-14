@@ -414,14 +414,14 @@ class ErmsApiClient:
         return await self.request("GET", "/api/v1/auth/sessions", params=params)
 
     async def login_sessions_page(
-        self, user_id: int | None = None, *, limit: int = 20, offset: int = 0,
+        self, user_id: int | None = None, *, limit: int | None = 20, offset: int = 0,
         query: str = "", session_status: str = "all",
         sort_by: str = "date_created", descending: bool = True,
         date_field: str = "date_created", from_timestamp: str | None = None,
         until_timestamp: str | None = None,
     ) -> dict[str, Any]:
         params: dict[str, Any] = {
-            "limit": limit, "offset": offset, "query": query,
+            **({"limit":limit} if limit is not None else {}), "offset": offset, "query": query,
             "session_status": session_status, "sort_by": sort_by,
             "descending": descending, "date_field": date_field,
         }
@@ -723,6 +723,10 @@ class ErmsApiClient:
     async def governance_custody(self) -> dict[str, Any]:
         return await self.request("GET", "/api/v1/authorization/governance-custody")
 
+    async def application_configuration(self) -> dict[str, Any]:
+        """One finite, uncached page/dialog snapshot from the API authority."""
+        return await self.request("GET", "/api/v1/application-configuration")
+
     async def application_settings(self) -> dict[str, Any]:
         return await self.request("GET", "/api/v1/application-settings")
 
@@ -983,14 +987,12 @@ class ErmsApiClient:
         return result.get("closure")
 
     async def dashboard_summary(
-        self, *, recent_limit: int, recent_since: datetime,
+        self, *, recent_limit: int | None = None, recent_since: datetime | None = None,
     ) -> dict[str, Any]:
         return await self.request(
             "GET", "/api/v1/dashboard/summary",
-            params={
-                "recent_limit": recent_limit,
-                "recent_since": recent_since.isoformat(),
-            },
+            params={**({"recent_limit":recent_limit} if recent_limit is not None else {}),
+                    **({"recent_since":recent_since.isoformat()} if recent_since is not None else {})},
         )
 
     async def dashboard_reviews(
@@ -1342,8 +1344,8 @@ class ErmsApiClient:
     async def discard_record_draft(self, draft_id: int) -> None:
         await self.request("DELETE", f"/api/v1/record-drafts/{draft_id}")
 
-    async def recent_classifications(self, limit: int = 4) -> list[dict[str, Any]]:
-        return await self.request("GET", "/api/v1/classifications/recent", params={"limit": limit})
+    async def recent_classifications(self, limit: int | None = None, offset: int = 0) -> list[dict[str, Any]]:
+        return await self.request("GET", "/api/v1/classifications/recent", params={**({"limit":limit} if limit is not None else {}), "offset":offset})
 
     async def classification_path(self, classification_id: int) -> list[dict[str, Any]]:
         return await self.request("GET", f"/api/v1/classifications/{classification_id}/path")

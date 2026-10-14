@@ -1069,7 +1069,7 @@ def test_upload_download_replace_and_delete_content(client: TestClient, record: 
 
 
 def test_segmented_content_and_byte_ranges(client: TestClient, record: dict, monkeypatch):
-    monkeypatch.setenv("CONTENT_SEGMENT_SIZE_BYTES", "4")
+    set_content_settings(client, CONTENT_SEGMENT_SIZE_BYTES=4)
     payload = b"0123456789ABC"
     uploaded = client.post(
         f"/api/v1/records/{record['id']}/digital-components/upload",
@@ -1127,8 +1127,7 @@ def test_200_mib_upload_is_segmented_and_reconstructs_exactly(
     source_digest = hashlib.sha256()
     write_block = bytes(range(256)) * 4096  # 1 MiB deterministic block
 
-    monkeypatch.setenv("MAX_UPLOAD_SIZE_BYTES", str(file_size))
-    monkeypatch.setenv("CONTENT_SEGMENT_SIZE_BYTES", str(segment_size))
+    set_content_settings(client, MAX_UPLOAD_SIZE_BYTES=file_size, CONTENT_SEGMENT_SIZE_BYTES=segment_size)
 
     try:
         with source_path.open("wb") as source:
@@ -1240,7 +1239,7 @@ def test_pdf_print_rendition_uses_print_authorization_route(client: TestClient, 
     ),
 )
 def test_additional_text_and_email_formats_use_libreoffice_pdf_conversion(
-    monkeypatch, extension: str, mime_type: str, expected_method: str,
+    client, monkeypatch, extension: str, mime_type: str, expected_method: str,
 ):
     expected_pdf = b"%PDF-1.7\n% converted test fixture\n%%EOF"
 
@@ -1257,14 +1256,14 @@ def test_additional_text_and_email_formats_use_libreoffice_pdf_conversion(
     monkeypatch.setattr(document_conversion.subprocess, "run", convert)
 
     rendition, method = document_conversion.pdf_rendition(
-        b"synthetic source", f"source{extension}", mime_type,
+        b"synthetic source", f"source{extension}", mime_type, settings=content_snapshot(),
     )
 
     assert rendition == expected_pdf
     assert method == expected_method
 
 
-def test_email_extraction_timeout_fails_preview_safely(monkeypatch):
+def test_email_extraction_timeout_fails_preview_safely(client, monkeypatch):
     monkeypatch.setattr(
         document_conversion.subprocess,
         "run",
@@ -1275,7 +1274,7 @@ def test_email_extraction_timeout_fails_preview_safely(monkeypatch):
 
     with pytest.raises(document_conversion.ConversionUnavailable, match="preview preparation timed out"):
         document_conversion.pdf_rendition(
-            b"synthetic MSG", "message.msg", "application/vnd.ms-outlook",
+            b"synthetic MSG", "message.msg", "application/vnd.ms-outlook", settings=content_snapshot(),
         )
 
 
@@ -1326,7 +1325,7 @@ def test_browser_native_image_preview_preserves_mime_type_and_is_audited(client:
 
 
 def test_upload_size_limit(client: TestClient, record: dict, monkeypatch):
-    monkeypatch.setenv("MAX_UPLOAD_SIZE_BYTES", "4")
+    set_content_settings(client, MAX_UPLOAD_SIZE_BYTES=4)
     response = client.post(
         f"/api/v1/records/{record['id']}/digital-components/upload",
         data={"component_order": "1"},
@@ -1507,3 +1506,18 @@ def test_component_search_pages_and_single_move_cross_page_boundary(client, reco
         json={"direction": 2},
     )
     assert invalid.status_code == 422
+
+
+def set_content_settings(client, **values):
+    current = {i['key']:i for i in client.get('/api/v1/application-settings').json()['items']}
+    response = client.put('/api/v1/application-settings',json={'changes':[
+        {'key':key,'expected_version':current[key]['version'],'value':value} for key,value in values.items()]},
+        headers={'X-Change-Reason':'Set disposable content test policy'})
+    assert response.status_code == 200,response.text
+
+
+def content_snapshot():
+    from backend.services.api.application_settings import load_snapshot
+    from psycopg.rows import dict_row
+    with psycopg.connect(os.environ['DATABASE_URL'],row_factory=dict_row) as connection:
+        return load_snapshot(connection)

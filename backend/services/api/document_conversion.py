@@ -7,7 +7,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-from .config import integer_environment
 
 
 class ConversionUnavailable(RuntimeError):
@@ -36,7 +35,7 @@ def _libreoffice_binary() -> str:
     return binary
 
 
-def pdf_rendition(content: bytes, file_name: str, mime_type: str) -> tuple[bytes, str]:
+def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings) -> tuple[bytes, str]:
     """Return PDF bytes and the rendering method used."""
     if mime_type.lower() == "application/pdf" or content.startswith(b"%PDF-"):
         return content, "original"
@@ -45,8 +44,8 @@ def pdf_rendition(content: bytes, file_name: str, mime_type: str) -> tuple[bytes
     if suffix not in CONVERTIBLE_EXTENSIONS:
         raise UnsupportedPreview(f"in-app preview is not supported for {suffix or mime_type}")
 
-    timeout = integer_environment("DOCUMENT_CONVERSION_TIMEOUT_SECONDS", 60, minimum=1)
-    maximum = integer_environment("MAX_RENDITION_SIZE_BYTES", 100 * 1024 * 1024, minimum=1)
+    timeout = settings["DOCUMENT_CONVERSION_TIMEOUT_SECONDS"]
+    maximum = settings["MAX_RENDITION_SIZE_BYTES"]
     with tempfile.TemporaryDirectory(prefix="erms-rendition-") as temporary:
         workspace = Path(temporary)
         source = workspace / f"source{suffix}"

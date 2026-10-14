@@ -833,6 +833,23 @@
       "phase_12_enforced": false
     },
     {
+      "id": "GET:/api/v1/application-configuration",
+      "method": "GET",
+      "path": "/api/v1/application-configuration",
+      "current_access_class": "authenticated_only",
+      "target_policy_class": "authenticated_only",
+      "global_privilege": null,
+      "resource_permission": null,
+      "phase_0_enforced": false,
+      "phase_4_enforced": false,
+      "phase_5_enforced": false,
+      "phase_7_enforced": false,
+      "phase_8_enforced": false,
+      "phase_9_enforced": false,
+      "phase_11_enforced": false,
+      "phase_12_enforced": false
+    },
+    {
       "id": "GET:/api/v1/application-settings",
       "method": "GET",
       "path": "/api/v1/application-settings",

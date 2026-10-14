@@ -291,7 +291,8 @@ def test_classification_detail_rows_use_single_logical_rtl_order():
 
 def test_dashboard_uses_compact_favourites_and_recent_record_streams():
     assert APP_SOURCE.count("await api.dashboard_summary(") == 1
-    assert "recent_limit=50, recent_since=recent_since" in APP_SOURCE
+    assert "await api.dashboard_summary(recent_limit=50)" in APP_SOURCE
+    assert 'summary["application_configuration"]' in APP_SOURCE
     assert '"dashboard-personal-columns mt-2"' in APP_SOURCE
     assert 'ui.label("Favourites")' in APP_SOURCE
     assert 'ui.label("Recent records activity")' in APP_SOURCE
@@ -325,9 +326,9 @@ def test_records_and_aggregations_landing_use_dashboard_personal_panel_treatment
     assert '"dashboard-personal-columns w-full px-5 pt-5 pb-5"' in source
     assert source.count('"dashboard-personal-item"') >= 4
     assert 'f"dashboard-activity-badge {activity_class}"' in source
-    assert 'activity = await api.recent_resource_activity(spec.key, limit=50, since=since)' in source
+    assert 'activity = await api.recent_resource_activity(spec.key, limit=50)' in source
     assert 'decorated = await decorate_for_spec(spec, activity)' in source
-    assert 'api.recent_resource_activity(spec.key, limit=50, since=since)' in source
+    assert 'api.recent_resource_activity(spec.key, limit=50)' in source
     assert '"CONTENT_VIEWED": ("Viewed", "visibility", "dashboard-activity-viewed")' in source
     assert 'state["recent_activity"]' in source
     assert 'spec.key in {"aggregations", "records"}' in source
@@ -516,7 +517,8 @@ def test_relationship_columns_replace_foreign_keys_with_business_labels():
     }
 
 
-def test_timestamp_formatter_is_human_readable():
+def test_timestamp_formatter_is_human_readable(monkeypatch):
+    monkeypatch.setattr("frontend.webui.app.current_locale_context",lambda:("en","Asia/Dubai"))
     formatted = format_timestamp("2026-09-15T08:05:00+00:00")
     assert "2026" in formatted
     assert "T08:05:00" not in formatted
@@ -541,8 +543,8 @@ def test_medium_label_uses_accessible_business_terms():
 def test_dashboard_recent_configuration(monkeypatch):
     monkeypatch.setenv("DASHBOARD_RECENT_ITEM_LIMIT", "7")
     monkeypatch.setenv("DASHBOARD_RECENT_DAYS", "14")
-    assert dashboard_recent_item_limit() == 7
-    assert dashboard_recent_days() == 14
+    assert dashboard_recent_item_limit({"DASHBOARD_RECENT_ITEM_LIMIT":7}) == 7
+    assert dashboard_recent_days({"DASHBOARD_RECENT_DAYS":14}) == 14
 
 
 def test_database_display_name_uses_language_override_and_default_fallback(monkeypatch):
@@ -564,7 +566,7 @@ def test_database_display_name_is_required(monkeypatch):
 
 def test_dashboard_favourite_configuration_and_preview(monkeypatch):
     monkeypatch.setenv("DASHBOARD_FAVOURITE_ITEM_LIMIT", "2")
-    assert dashboard_favourite_item_limit() == 2
+    assert dashboard_favourite_item_limit({"DASHBOARD_FAVOURITE_ITEM_LIMIT":2}) == 2
     items = [{"id": 1}, {"id": 2}, {"id": 3}]
     assert favourite_preview(items, 2) == (items[:2], True)
     assert favourite_preview(items[:2], 2) == (items[:2], False)
@@ -572,14 +574,14 @@ def test_dashboard_favourite_configuration_and_preview(monkeypatch):
 
 def test_dashboard_favourite_configuration_defaults_to_five(monkeypatch):
     monkeypatch.delenv("DASHBOARD_FAVOURITE_ITEM_LIMIT", raising=False)
-    assert dashboard_favourite_item_limit() == 5
+    assert dashboard_favourite_item_limit({"DASHBOARD_FAVOURITE_ITEM_LIMIT":5}) == 5
 
 
 def test_user_details_session_limit_defaults_to_five_and_is_configurable(monkeypatch):
     monkeypatch.delenv("USER_DETAILS_SESSION_LIMIT", raising=False)
-    assert user_details_session_limit() == 5
+    assert user_details_session_limit({"USER_DETAILS_SESSION_LIMIT":5}) == 5
     monkeypatch.setenv("USER_DETAILS_SESSION_LIMIT", "8")
-    assert user_details_session_limit() == 8
+    assert user_details_session_limit({"USER_DETAILS_SESSION_LIMIT":8}) == 8
 
 
 def test_membership_filters_identity_status_and_overlapping_validity():
@@ -616,7 +618,7 @@ def test_user_avatar_is_stable_and_uses_best_effort_initials():
 
 def test_classification_recent_selection_configuration(monkeypatch):
     monkeypatch.setenv("CLASSIFICATION_RECENT_SELECTION_LIMIT", "6")
-    assert classification_recent_selection_limit() == 6
+    assert classification_recent_selection_limit({"CLASSIFICATION_RECENT_SELECTION_LIMIT":6}) == 6
 
 
 def test_classification_workspace_search_includes_keywords():
@@ -1712,14 +1714,15 @@ def test_suspend_action_remains_visible_but_disabled_for_inactive_users():
     assert 'icon="play_circle"' in USER_SUSPENSION_ACTION_BUTTONS
 
 
-def test_dashboard_recent_configuration_rejects_non_positive_values(monkeypatch):
+def test_database_owned_ui_limits_require_api_values_and_ignore_old_environment(monkeypatch):
     monkeypatch.setenv("DASHBOARD_RECENT_ITEM_LIMIT", "0")
-    with pytest.raises(RuntimeError, match="must be at least 1"):
-        dashboard_recent_item_limit()
-
     monkeypatch.setenv("DASHBOARD_FAVOURITE_ITEM_LIMIT", "0")
-    with pytest.raises(RuntimeError, match="must be at least 1"):
-        dashboard_favourite_item_limit()
+    assert dashboard_recent_item_limit({"DASHBOARD_RECENT_ITEM_LIMIT":7}) == 7
+    assert dashboard_favourite_item_limit({"DASHBOARD_FAVOURITE_ITEM_LIMIT":2}) == 2
+    with pytest.raises(KeyError):
+        dashboard_recent_item_limit({})
+    with pytest.raises(KeyError):
+        dashboard_favourite_item_limit({})
 
 
 def test_organizational_ownership_is_presented_on_details_and_dashboard():

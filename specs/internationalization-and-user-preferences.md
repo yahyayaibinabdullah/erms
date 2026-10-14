@@ -175,25 +175,24 @@ Each person user may choose:
 - **Working timezone:** one valid IANA timezone identifier.
 
 Until a preference row exists, language is English and working timezone is the
-application's configured default working timezone. The canonical environment
-variable is:
-
-```text
-DEFAULT_WORKING_TIMEZONE=Asia/Dubai
-```
-
-`Asia/Dubai` is supplied as the value in the repository's local and deployed
-environment examples. It must not be hard-coded in application code, database
-schema defaults, migrations, seed data, browser code, or preference rows. A
-deployment may select another valid IANA timezone by changing this environment
-value without rebuilding the application.
+application's configured default working timezone. The approved
+[Application Configuration](application-configuration.md) section 5.1 supersedes
+this section's earlier environment ownership: `DEFAULT_WORKING_TIMEZONE` is a
+shared PostgreSQL setting, initialized canonically to `Asia/Dubai`. The registry
+and canonical schema own that initial default; other application/browser code
+and preference rows must consume the API's effective value rather than hard-code
+it. Authorized Settings edits propagate within 30 seconds without restart.
+Existing non-default legacy values require the explicit reviewed migration in
+Application Configuration section 9. Shell or `.env` values no longer override
+the database after this consumer cutover.
 
 The API is the authority for this setting, validates it against pinned IANA
 tzdata at startup, and returns it through the authenticated bootstrap/preferences
 contract. The WebUI consumes that returned value and must not maintain a
 separate potentially divergent default. A missing, blank, or invalid
 `DEFAULT_WORKING_TIMEZONE` is a configuration error that prevents the affected
-service from becoming ready; it must not silently infer or fall back to the
+API from becoming ready; the WebUI cannot use an environment substitute. It must
+not silently infer or fall back to the
 browser, API server, frontend server, container, database, host operating-system
 timezone, UTC, or a timezone literal embedded in code. A user's valid saved
 working-timezone preference always takes precedence.

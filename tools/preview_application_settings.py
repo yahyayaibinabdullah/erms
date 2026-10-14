@@ -1,9 +1,10 @@
-"""Disposable-only Phase 3 browser fixture with isolated UI storage and cookies.
+"""Disposable-only Phases 3–4 browser fixture with isolated UI storage and cookies.
 
 Run with the API Python environment. Ctrl-C stops owned servers and drops the
 new database. No persistent ERMS database is initialized, tested or migrated.
 """
 import os
+import argparse
 from pathlib import Path
 import signal
 import subprocess
@@ -52,6 +53,7 @@ def seed(environment):
             parent=c.execute("INSERT INTO classifications(classification_scheme_id,parent_classification_id,code,title,is_terminal) VALUES(%s,%s,%s,%s,false) RETURNING id",(scheme,parent,f'D{depth:02}',f'Deep branch {depth}')).fetchone()['id']
         c.execute("INSERT INTO classifications(classification_scheme_id,parent_classification_id,code,title,is_terminal) VALUES(%s,%s,'DEEP-TERM','Deep terminal',true)",(scheme,parent))
     with TestClient(app) as client:
+        client.headers['X-Event-Source']='seeding'
         login=client.post('/api/v1/auth/login',json={'email':'admin@test.invalid','password':password})
         assert login.status_code==200
         client.headers['X-CSRF-Token']=client.cookies.get('erms_csrf')
@@ -64,9 +66,39 @@ def seed(environment):
         smtp=[{'key':i['key'],'expected_version':i['version'], **({'secret_value':'disposable-smtp-fixture-only'} if i['key']=='SMTP_PASSWORD' else {})} for i in before if i['category']=='email']
         result=client.put('/api/v1/application-settings',json={'changes':smtp},headers={'X-Change-Reason':'Prepare masked credential fixture'})
         assert result.status_code==200,result.text
+        if environment.get('DATABASE_DISPLAY_NAME')=='Phase 4 disposable preview':
+            from datetime import datetime,timedelta,timezone
+            values={'DEFAULT_WORKING_TIMEZONE':'UTC','DEFAULT_ROOT_AGGREGATION_MEDIUM':'digital',
+                'REVIEW_WARNING_WINDOW_DAYS':3,'DASHBOARD_FAVOURITE_ITEM_LIMIT':2,
+                'DASHBOARD_RECENT_ITEM_LIMIT':3,'DASHBOARD_RECENT_DAYS':14,
+                'DASHBOARD_REVIEW_PREVIEW_LIMIT':2,'CLASSIFICATION_RECENT_SELECTION_LIMIT':6,'USER_DETAILS_SESSION_LIMIT':3}
+            current={i['key']:i for i in client.get('/api/v1/application-settings').json()['items']}
+            changed=client.put('/api/v1/application-settings',json={'changes':[{'key':k,'expected_version':current[k]['version'],'value':v} for k,v in values.items()]},headers={'X-Change-Reason':'Prepare disposable Phase 4 settings fixtures'})
+            assert changed.status_code==200,changed.text
+            with psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row) as c:
+                classification=c.execute("SELECT id FROM classifications WHERE code='T0001'").fetchone()['id']
+            for i in range(1,9):
+                row=client.post('/api/v1/aggregations',json={'aggregation_number':f'PH4-ROOT-{i}',
+                    'title':f'Phase 4 root {i}','classification_id':classification,
+                    'date_of_next_review':(datetime.now(timezone.utc)+timedelta(days=i)).isoformat()})
+                assert row.status_code==201,row.text
+                if i<=4:assert client.put(f"/api/v1/favourites/aggregations/{row.json()['id']}").status_code==204
+            physical=client.post('/api/v1/aggregations',json={'aggregation_number':'PH4-RECORDS',
+                'title':'Phase 4 physical record fixtures','medium':'physical','classification_id':classification})
+            assert physical.status_code==201,physical.text
+            for i in range(1,6):
+                record=client.post('/api/v1/records',json={'record_number':f'PH4-RECORD-{i}',
+                    'title':f'Phase 4 record {i}','aggregation_id':physical.json()['id'],'medium':'physical'})
+                assert record.status_code==201,record.text
+            for _ in range(6):
+                assert client.post('/api/v1/auth/login',json={'email':'admin@test.invalid','password':password}).status_code==200
+                client.headers['X-CSRF-Token']=client.cookies.get('erms_csrf')
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--phase',type=int,choices=(3,4),default=3)
+    phase=parser.parse_args().phase
     configuration={**dotenv_values(ROOT/'.env'),**os.environ}
     admin_url=make_conninfo(configuration['DATABASE_URL'],dbname='postgres')
     name='erms_messaging_test_acl_'+uuid4().hex
@@ -84,13 +116,13 @@ def main():
             frontend_packages=ROOT/'frontend/webui/.venv/lib/python3.11/site-packages'
             environment={k:str(v) for k,v in configuration.items() if v is not None}
             environment.update(DATABASE_URL=url,AUTH_COOKIE_SECURE='false',APPLICATION_SETTINGS_ENCRYPTION_KEY=Fernet.generate_key().decode(),
-                DATABASE_DISPLAY_NAME='Phase 3 disposable preview',DATABASE_DISPLAY_NAME_AR='معاينة المرحلة الثالثة المؤقتة',
+                DATABASE_DISPLAY_NAME=f'Phase {phase} disposable preview',DATABASE_DISPLAY_NAME_AR='معاينة المرحلة الرابعة المؤقتة' if phase==4 else 'معاينة المرحلة الثالثة المؤقتة',
                 WEBUI_API_URL='http://127.0.0.1:18030',WEBUI_PORT='18083',WEBUI_HOST='127.0.0.1',WEBUI_RELOAD='false',
                 NICEGUI_STORAGE_PATH=directory,WEBUI_STORAGE_SECRET=uuid4().hex,NICEGUI_REDIS_URL='',
                 PYTHONPATH=os.pathsep.join([str(ROOT),str(frontend_packages)]))
             subprocess.run([sys.executable,'-c','from tools.preview_application_settings import seed; import os; seed(dict(os.environ))'],cwd=ROOT,env=environment,check=True)
             for label,command in [('api',[sys.executable,'-m','uvicorn','backend.services.api.main:app','--host','127.0.0.1','--port','18030']),
-                ('webui',[str(ROOT/'frontend/webui/.venv/bin/python'),'-c',"import os,runpy; from nicegui import app; from starlette.middleware.sessions import SessionMiddleware; app.add_middleware(SessionMiddleware,secret_key=os.environ['WEBUI_STORAGE_SECRET'],session_cookie='erms_settings_phase3_preview'); runpy.run_module('frontend.webui.app',run_name='__main__')"])]:
+                ('webui',[str(ROOT/'frontend/webui/.venv/bin/python'),'-c',"import os,runpy; from nicegui import app; from starlette.middleware.sessions import SessionMiddleware; app.add_middleware(SessionMiddleware,secret_key=os.environ['WEBUI_STORAGE_SECRET'],session_cookie='erms_settings_phase{phase}_preview'); runpy.run_module('frontend.webui.app',run_name='__main__')".replace("{phase}",str(phase))])]:
                 path=Path(directory)/(label+'.log');handle=path.open('w');logs.append(handle)
                 processes.append(subprocess.Popen(command,cwd=ROOT,env=environment,stdout=handle,stderr=subprocess.STDOUT))
             print('Disposable Settings preview: http://127.0.0.1:18083/',flush=True)
