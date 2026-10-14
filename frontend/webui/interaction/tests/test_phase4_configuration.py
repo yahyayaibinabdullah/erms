@@ -23,13 +23,15 @@ async def test_api_page_snapshot_refreshes_only_fallback_timezone(user,language,
         set_locale_context(language,'Asia/Dubai')
         storage={}
         scope={'state':state,'table_container':ui.column(),'set_locale_context':set_locale_context,
-               'app':SimpleNamespace(storage=SimpleNamespace(user=storage))}
+               'app':SimpleNamespace(storage=SimpleNamespace(user=storage)),
+               'global_search_wrap':SimpleNamespace(set_visibility=lambda value:None),
+               'full_text_search_enabled':lambda cfg:cfg['FULL_TEXT_SEARCH_ENABLED']}
         exec(compile(ast.Module(body=[NODE],type_ignores=[]),'<page-configuration>','exec'),scope)
         holder.update(state=state,storage=storage,accept=scope['accept_application_configuration'])
     await user.open('/configuration-test')
     for timezone_name in ('UTC','Asia/Tokyo'):
         with user:
-            holder['accept']({'DEFAULT_WORKING_TIMEZONE':timezone_name})
+            holder['accept']({'DEFAULT_WORKING_TIMEZONE':timezone_name,'FULL_TEXT_SEARCH_ENABLED':True})
             language_now,timezone_now=current_locale_context()
         assert language_now==language and timezone_now==(timezone_name if uses_default else 'Asia/Dubai')
         assert holder['state']['application_configuration']['DEFAULT_WORKING_TIMEZONE']==timezone_name

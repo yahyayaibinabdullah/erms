@@ -1,4 +1,4 @@
-"""Disposable-only Phases 3–4 browser fixture with isolated UI storage and cookies.
+"""Disposable-only Phases 3–6 browser fixture with isolated UI storage and cookies.
 
 Run with the API Python environment. Ctrl-C stops owned servers and drops the
 new database. No persistent ERMS database is initialized, tested or migrated.
@@ -66,12 +66,13 @@ def seed(environment):
         smtp=[{'key':i['key'],'expected_version':i['version'], **({'secret_value':'disposable-smtp-fixture-only'} if i['key']=='SMTP_PASSWORD' else {})} for i in before if i['category']=='email']
         result=client.put('/api/v1/application-settings',json={'changes':smtp},headers={'X-Change-Reason':'Prepare masked credential fixture'})
         assert result.status_code==200,result.text
-        if environment.get('DATABASE_DISPLAY_NAME')=='Phase 4 disposable preview':
+        if environment.get('DATABASE_DISPLAY_NAME') in {'Phase 4 disposable preview','Phase 6 disposable preview'}:
             from datetime import datetime,timedelta,timezone
             values={'DEFAULT_WORKING_TIMEZONE':'UTC','DEFAULT_ROOT_AGGREGATION_MEDIUM':'digital',
                 'REVIEW_WARNING_WINDOW_DAYS':3,'DASHBOARD_FAVOURITE_ITEM_LIMIT':2,
                 'DASHBOARD_RECENT_ITEM_LIMIT':3,'DASHBOARD_RECENT_DAYS':14,
                 'DASHBOARD_REVIEW_PREVIEW_LIMIT':2,'CLASSIFICATION_RECENT_SELECTION_LIMIT':6,'USER_DETAILS_SESSION_LIMIT':3}
+            if environment.get('DATABASE_DISPLAY_NAME')=='Phase 6 disposable preview':values.update(FULL_TEXT_SEARCH_ENABLED=True,CONTENT_INDEXING_SCHEDULING_ENABLED=True)
             current={i['key']:i for i in client.get('/api/v1/application-settings').json()['items']}
             changed=client.put('/api/v1/application-settings',json={'changes':[{'key':k,'expected_version':current[k]['version'],'value':v} for k,v in values.items()]},headers={'X-Change-Reason':'Prepare disposable Phase 4 settings fixtures'})
             assert changed.status_code==200,changed.text
@@ -97,7 +98,7 @@ def seed(environment):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(3,4),default=3)
+    parser.add_argument('--phase',type=int,choices=(3,4,6),default=3)
     phase=parser.parse_args().phase
     configuration={**dotenv_values(ROOT/'.env'),**os.environ}
     admin_url=make_conninfo(configuration['DATABASE_URL'],dbname='postgres')
@@ -116,7 +117,7 @@ def main():
             frontend_packages=ROOT/'frontend/webui/.venv/lib/python3.11/site-packages'
             environment={k:str(v) for k,v in configuration.items() if v is not None}
             environment.update(DATABASE_URL=url,AUTH_COOKIE_SECURE='false',APPLICATION_SETTINGS_ENCRYPTION_KEY=Fernet.generate_key().decode(),
-                DATABASE_DISPLAY_NAME=f'Phase {phase} disposable preview',DATABASE_DISPLAY_NAME_AR='معاينة المرحلة الرابعة المؤقتة' if phase==4 else 'معاينة المرحلة الثالثة المؤقتة',
+                DATABASE_DISPLAY_NAME=f'Phase {phase} disposable preview',DATABASE_DISPLAY_NAME_AR={3:'معاينة المرحلة الثالثة المؤقتة',4:'معاينة المرحلة الرابعة المؤقتة',6:'معاينة المرحلة السادسة المؤقتة'}[phase],
                 WEBUI_API_URL='http://127.0.0.1:18030',WEBUI_PORT='18083',WEBUI_HOST='127.0.0.1',WEBUI_RELOAD='false',
                 NICEGUI_STORAGE_PATH=directory,WEBUI_STORAGE_SECRET=uuid4().hex,NICEGUI_REDIS_URL='',
                 PYTHONPATH=os.pathsep.join([str(ROOT),str(frontend_packages)]))

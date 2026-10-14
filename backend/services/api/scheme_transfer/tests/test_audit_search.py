@@ -70,10 +70,10 @@ def test_suggestions_are_bounded(client,connection):
 
 @pytest.mark.parametrize('cap',[1000,75])
 def test_configurable_cap_counts_pagination_and_default_order(client,connection,monkeypatch,cap):
-    if cap==1000:
-        monkeypatch.delenv('AUDIT_TRAIL_SEARCH_RESULT_LIMIT',raising=False)
-    else:
-        monkeypatch.setenv('AUDIT_TRAIL_SEARCH_RESULT_LIMIT',str(cap))
+    response=client.get('/api/v1/application-settings');assert response.status_code==200,response.text
+    row=next(i for i in response.json()['items'] if i['key']=='AUDIT_TRAIL_SEARCH_RESULT_LIMIT')
+    response=client.put('/api/v1/application-settings',json={'changes':[{'key':row['key'],'expected_version':row['version'],'value':cap}]},headers={'X-Change-Reason':'Set disposable audit cap'})
+    assert response.status_code==200,response.text
     category='cap_fixture_'+str(cap)
     connection.execute("INSERT INTO event_history(entity_type,entity_id,operation,occurred_at) SELECT %s,i,'TEST','2026-01-01'::timestamptz+i*interval '1 second' FROM generate_series(1,1200) i",(category,))
     connection.commit()
@@ -113,6 +113,8 @@ def test_audit_indexes_upgrade_matches_canonical(connection):
 
 
 def test_realistic_volume_plan_and_bounded_execution(client,connection):
+    row=next(i for i in client.get('/api/v1/application-settings').json()['items'] if i['key']=='AUDIT_TRAIL_SEARCH_RESULT_LIMIT')
+    assert client.put('/api/v1/application-settings',json={'changes':[{'key':row['key'],'expected_version':row['version'],'value':1000}]},headers={'X-Change-Reason':'Restore performance fixture cap'}).status_code==200
     from psycopg import sql
     uid=connection.execute("SELECT id FROM users WHERE email='transfer@test.invalid'").fetchone()['id']
     connection.execute("INSERT INTO event_history(entity_type,entity_id,operation,actor_user_id,actor_name,actor_email,actor_type,source) SELECT 'audit_perf_fixture',i,'TEST',CASE WHEN i<=50 THEN 999001 ELSE %s END,CASE WHEN i<=50 THEN 'Unique Needle Actor' ELSE 'Bulk Actor' END,CASE WHEN i<=50 THEN 'needle@example.invalid' ELSE 'bulk@example.invalid' END,'user','seeding' FROM generate_series(1,50000) i",(uid,))
@@ -120,7 +122,7 @@ def test_realistic_volume_plan_and_bounded_execution(client,connection):
     connection.execute('ANALYZE event_history')
     connection.execute("SELECT set_config('app.user_id',%s,true)",(str(uid),))
     class Recorder:
-        def __init__(self): self.queries=[]
+        def __init__(self): self.queries=[];self.info=connection.info
         def execute(self,query,params=None):
             self.queries.append((query,params))
             return connection.execute(query,params)
@@ -149,12 +151,11 @@ def test_realistic_volume_plan_and_bounded_execution(client,connection):
         Path(output).mkdir(parents=True,exist_ok=True)
         (Path(output)/'query-plans.json').write_text(json.dumps(evidence,indent=2))
 
-@pytest.mark.parametrize('value',['0','-1','invalid'])
-def test_cap_configuration_rejects_nonpositive_or_noninteger(monkeypatch,value):
-    from backend.services.api.config import integer_environment
-    monkeypatch.setenv('AUDIT_TRAIL_SEARCH_RESULT_LIMIT',value)
-    with pytest.raises(RuntimeError,match='AUDIT_TRAIL_SEARCH_RESULT_LIMIT'):
-        integer_environment('AUDIT_TRAIL_SEARCH_RESULT_LIMIT',1000,minimum=1)
+@pytest.mark.parametrize('value',[0,-1,'invalid',True])
+def test_cap_configuration_rejects_nonpositive_or_noninteger(client,value):
+    row=next(i for i in client.get('/api/v1/application-settings').json()['items'] if i['key']=='AUDIT_TRAIL_SEARCH_RESULT_LIMIT')
+    response=client.put('/api/v1/application-settings',json={'changes':[{'key':row['key'],'expected_version':row['version'],'value':value}]},headers={'X-Change-Reason':'Reject invalid cap'})
+    assert response.status_code==422
 
 
 def test_suggestions_require_only_audit_view_and_deny_without_it(client,connection):

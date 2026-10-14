@@ -70,7 +70,7 @@ ensure_env_file() {
     cp "${template_file}" "${env_file}"
   fi
 
-  info "Ensuring the local .env values match the repo defaults"
+  info "Appending missing safe local deployment defaults"
   python3 - "${env_file}" "${PROJECT_DIR}" <<'PY'
 import os
 import sys
@@ -89,38 +89,18 @@ base = {
     "TEXT_INDEXER_ENABLED": "true",
     "TEXT_INDEXER_CLAIM_BATCH_SIZE": "1",
     "TEXT_INDEXER_PROCESS_COUNT": "2",
-    "CONTENT_INDEXING_SCHEDULING_ENABLED": "true",
-    "FULL_TEXT_SEARCH_ENABLED": "true",
-    "WEBUI_FULL_TEXT_SEARCH_ENABLED": "true",
     "MESSAGING_PDF_VALIDATOR": ".local-tools/verapdf/verapdf",
 }
 
-lines = env_path.read_text(encoding="utf-8").splitlines()
-existing = {}
-for line in lines:
-    if "=" in line and not line.lstrip().startswith("#"):
-        key, value = line.split("=", 1)
-        existing[key] = value
+import tempfile
+sys.path.insert(0, str(project_dir))
+from tools.reconcile_local_env import reconcile
+# Existing bytes, including empty assignments and comments, remain untouched.
+with tempfile.TemporaryDirectory() as directory:
+    template = Path(directory) / 'local-defaults.env'
+    template.write_text(''.join(f'{key}={value}\n' for key,value in base.items()))
+    reconcile(template, env_path)
 
-for key, value in base.items():
-    if key not in existing or existing[key].strip() in {"", "replace-with-a-secure-password", "replace-with-the-issued-wti-key", "replace-with-a-unique-deployment-id"}:
-        existing[key] = value
-
-out = []
-for key in list(base) + [k for k in existing if k not in base]:
-    if key in existing:
-        out.append(f"{key}={existing[key]}")
-
-# Keep comments and unrelated keys in place by appending any non-template lines not managed here.
-seen = set()
-normalized = []
-for line in out:
-    key = line.split("=", 1)[0]
-    if key not in seen:
-        seen.add(key)
-        normalized.append(line)
-
-env_path.write_text("\n".join(normalized) + "\n", encoding="utf-8")
 PY
 }
 

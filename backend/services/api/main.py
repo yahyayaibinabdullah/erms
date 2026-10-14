@@ -32,7 +32,6 @@ from .service_authentication import (
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .concurrency import expected_version
 from .continuity_lock import acquire_continuity_shared_lock
-from .config import boolean_environment, integer_environment
 from .content_storage import configured_storage, inspect_upload
 from .database import close_pool, get_connection, open_pool, pool
 from .document_conversion import ConversionUnavailable, UnsupportedPreview, pdf_rendition
@@ -161,7 +160,6 @@ from .messaging.notification_configuration import readiness as notification_read
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    integer_environment("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 1000, minimum=1)
     open_pool()
     # Load database configuration before business consumers or background work.
     settings_cache.invalidate()
@@ -308,6 +306,7 @@ async def audit_request_context(request: Request, call_next):
     if service_key_present and not internal_text_indexing_path:
         return JSONResponse(status_code=401, content={"detail": "invalid authentication credentials"})
     session_token = None if internal_text_indexing_path else (bearer_token or cookie_token)
+    request_settings = None
     if internal_text_indexing_path or session_token:
         try:
             with pool.connection() as authentication_connection:
@@ -322,6 +321,8 @@ async def audit_request_context(request: Request, call_next):
                         load_policy_context(authentication_connection, principal)
                         if principal else None
                     )
+                if service_principal or principal:
+                    request_settings = settings_cache.for_connection(authentication_connection)
         except PoolTimeout:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -339,7 +340,7 @@ async def audit_request_context(request: Request, call_next):
         return JSONResponse(status_code=401, content={"detail": "authentication required"})
     if service_principal and not service_request_allowed(
         service_principal.credential_id,
-        integer_environment("TEXT_INDEXER_RATE_LIMIT_PER_MINUTE", 600, minimum=1),
+        request_settings["TEXT_INDEXER_RATE_LIMIT_PER_MINUTE"],
     ):
         return JSONResponse(status_code=429, content={"detail": "request rate limit exceeded"},
                             headers={"Retry-After": "1"})
@@ -348,13 +349,13 @@ async def audit_request_context(request: Request, call_next):
         is_search = request.url.path.endswith("/search") or request.url.path == "/api/v1/full-text-search"
         if is_reindex and not service_request_allowed(
             -1_000_000_000-principal.user_id,
-            integer_environment("MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE",60,minimum=1),
+            request_settings["MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE"],
         ):
             return JSONResponse(status_code=429,content={"detail":{"code":"reindex_rate_limit_exceeded"}},
                                 headers={"Retry-After":"60"})
         if is_search and not service_request_allowed(
             -principal.user_id,
-            integer_environment("SEARCH_RATE_LIMIT_PER_MINUTE",600,minimum=1),
+            request_settings["SEARCH_RATE_LIMIT_PER_MINUTE"],
         ):
             return JSONResponse(status_code=429,content={"detail":{"code":"search_rate_limit_exceeded"}},
                                 headers={"Retry-After":"1"})
@@ -502,6 +503,7 @@ async def database_error_handler(_, exception: psycopg.Error):
 @app.get("/health", tags=["system"])
 def health(connection: Connection = Depends(get_connection, scope="function")) -> dict[str, Any]:
     connection.execute("SELECT 1")
+    settings = settings_cache.for_connection(connection)
     notifications = notification_readiness(connection)
     if not notifications["ready"]:
         raise HTTPException(status_code=503, detail={"code": "notification_readiness_failed", "notifications": notifications})
@@ -509,10 +511,8 @@ def health(connection: Connection = Depends(get_connection, scope="function")) -
         "status": "ok",
         "notifications": notifications,
         "messaging_realtime": app.state.messaging_gateway.health(),
-        "full_text_search_enabled": boolean_environment("FULL_TEXT_SEARCH_ENABLED", True),
-        "content_indexing_scheduling_enabled": boolean_environment(
-            "CONTENT_INDEXING_SCHEDULING_ENABLED", True,
-        ),
+        "full_text_search_enabled": settings["FULL_TEXT_SEARCH_ENABLED"],
+        "content_indexing_scheduling_enabled": settings["CONTENT_INDEXING_SCHEDULING_ENABLED"],
         "localization": localization_readiness(connection),
     }
 

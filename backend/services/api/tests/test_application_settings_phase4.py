@@ -153,7 +153,7 @@ def test_runtime_timezone_medium_dashboard_and_public_subset_ignore_old_env(clie
     for key in MIGRATED_KEYS:monkeypatch.setenv(key,'invalid-old-environment')
     assert save(client,{'DEFAULT_WORKING_TIMEZONE':'UTC','DEFAULT_ROOT_AGGREGATION_MEDIUM':'digital','REVIEW_WARNING_WINDOW_DAYS':2,'DASHBOARD_REVIEW_PREVIEW_LIMIT':2,'DASHBOARD_RECENT_ITEM_LIMIT':3}).status_code==200
     bootstrap=client.get('/api/v1/i18n/bootstrap').json()
-    assert bootstrap['working_timezone']=='UTC' and set(bootstrap['application_configuration'])==set(GENERAL_INTERFACE_KEYS)
+    assert bootstrap['working_timezone']=='UTC' and set(bootstrap['application_configuration'])==set(GENERAL_INTERFACE_KEYS)|{"FULL_TEXT_SEARCH_ENABLED"}
     assert client.get('/api/v1/application-configuration').json()==bootstrap['application_configuration']
     for i in range(5):
         result=client.post('/api/v1/aggregations',json={'aggregation_number':f'PH4-{i}','title':f'Phase 4 root {i}','classification_id':1,'date_of_next_review':(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()})

@@ -1,9 +1,8 @@
-# Application settings upgrade (Disposition Phases 2–5)
+# Application settings upgrade (Disposition Phases 2–6)
 
 The shared registry/API/schema is Phase 2, Settings UI is Phase 3, and general
 application/WebUI consumer cutover and reviewed migration/readiness are Phase 4.
-Content/authentication consumer cutovers are Phase 5. Search/indexing migration
-remains Phase 6; actual
+Content/authentication consumer cutovers are Phase 5. Search/indexing cutover and final deployment reconciliation are Phase 6; actual
 disposition operations and document delivery remain later phases.
 
 ## Database and API deployment
@@ -11,10 +10,11 @@ disposition operations and document delivery remain later phases.
 For a new empty database, initialize from `database/schema.sql` alone. For an
 existing database already current through migration 049, inspect
 `schema_migrations`, back up through the established deployment procedure, and
-apply the missing upgrade:
+apply the missing upgrades in order:
 
 ```sh
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/migrations/050_application_settings.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/migrations/051_database_indexing_policy.sql
 backend/services/api/.venv/bin/python -m pip install -r backend/services/api/requirements.txt
 ```
 
@@ -101,7 +101,7 @@ password/ciphertext enters that cache. Job, artifact, and email capture helpers 
 a separate current committed read with no cache fallback and retain one immutable
 configuration for the operation. Later phases connect them to their workflows.
 
-## Phases 4–5 reviewed legacy migration
+## Phases 4–6 reviewed legacy migration
 
 Stop the affected services before this upgrade. Apply the required schema upgrade
 first; then run the API Python interpreter from the repository root. Set
@@ -124,7 +124,7 @@ backend/services/api/.venv/bin/python tools/migrate_application_settings.py \
 
 Replace `123` with an existing active person who currently holds
 `app.settings.manage`. Preview is a read-only database transaction. Its JSON lists
-only the 24 active registered non-secret settings, their current/proposed values,
+only the 34 active registered non-secret settings, their current/proposed values,
 versions/provenance, validation/conflict codes, logical database identity and
 obsolete source keys. It never contains the complete source file, deployment
 credentials or an invalid raw value. The plan file must be new; choose another
@@ -208,3 +208,37 @@ These 15 obsolete entries were removed from root and API environment templates.
 WebUI/text-indexer service templates do not consume them and require no change.
 No new environment variable or schema migration is required. Existing private
 values remain intact until an operator deliberately removes obsolete entries.
+
+## Phase 6 final consumer migration
+
+Use a new preview from this code version: ten search/indexing keys now extend
+the same migration to **34** active keys. All earlier completed keys remain
+protected. `WEBUI_FULL_TEXT_SEARCH_ENABLED` is reported as obsolete when present
+but is never imported or given a database row. The API's existing legacy
+`FULL_TEXT_SEARCH_ENABLED` value is the migration source for the shared feature.
+Configured database defaults/conflicts and invalid values use the same explicit
+review/decision path. Settings labels/categories are supplied by the API registry,
+with no prefix-based grouping.
+
+Migration 051 makes direct PostgreSQL indexing writes consult the saved scheduling
+value when no explicit API session context exists. It replaces one function and
+records schema version only; it does not rewrite content/settings or import files.
+Apply 050 first where missing, then 051 on existing databases. Initialize a new
+empty database from the latest self-contained schema alone. Preview/apply/check
+while affected services are stopped; restart API/WebUI/maintenance to load code.
+After deployment, runtime edits converge within 30 seconds without restart.
+
+Indexing maintenance one-shot commands use a fresh validated snapshot. Cleanup
+watch passes re-evaluate cached interval/history/batch/credential policy. Explicit
+CLI options remain invocation overrides. Upgrade workers/API reject incomplete
+migration. Fresh no-legacy defaults keep scheduling/search disabled; deliberate
+operational enablement follows the quality/readiness procedure in deployment.md.
+
+All database keys and the duplicate WebUI flag are removed from environment
+examples and local bootstrap assignments. Messaging settings retain their
+separately approved deployment ownership; all text-indexer process/extraction
+settings remain environment-owned. Private environment files are preserved by
+both migration and append-only local reconciliation. Operators may deliberately
+remove reported obsolete entries after successful validation; code never removes
+them automatically. See configuration-authority-inventory.json and run
+`python3 tools/check_configuration_authority.py` to verify the production inventory.

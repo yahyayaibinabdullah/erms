@@ -35,15 +35,15 @@ def test_quality_gate_rejects_any_language_below_floor(tmp_path):
 def test_cleanup_watch_runs_immediately_then_waits(monkeypatch, capsys):
     calls = []
 
-    def fake_run_cleanup_once(**settings):
+    def fake_run_cleanup_pass(**settings):
         calls.append(settings)
-        return {"leader": True, "credentials": 2}
+        return {"leader": True, "credentials": 2},17
 
     def stop_after_first_pass(seconds):
         assert seconds == 17
         raise RuntimeError("watch loop stopped by test")
 
-    monkeypatch.setattr(text_indexing_maintenance, "run_cleanup_once", fake_run_cleanup_once)
+    monkeypatch.setattr(text_indexing_maintenance, "_run_cleanup_pass", fake_run_cleanup_pass)
     monkeypatch.setattr(text_indexing_maintenance.time, "sleep", stop_after_first_pass)
     monkeypatch.setattr(sys, "argv", [
         "text_indexing_maintenance", "cleanup", "--watch",
@@ -56,7 +56,7 @@ def test_cleanup_watch_runs_immediately_then_waits(monkeypatch, capsys):
         "batch_size": 23,
         "retention_days": 31,
         "credential_retention_days": 47,
-        "dry_run": False,
+        "dry_run": False, "watch":True,"interval_seconds":17,
     }]
     assert json.loads(capsys.readouterr().out) == {"leader": True, "credentials": 2}
 
@@ -72,7 +72,8 @@ def test_production_cleanup_service_runs_api_owned_watch_process():
 
 
 def test_global_search_rollout_gate_precedes_database_access(monkeypatch):
-    monkeypatch.setenv("FULL_TEXT_SEARCH_ENABLED", "false")
+    from types import SimpleNamespace
+    monkeypatch.setattr(search.settings_cache,"for_connection",lambda c:{"FULL_TEXT_SEARCH_ENABLED":False,"AUDIT_TRAIL_SEARCH_RESULT_LIMIT":1000})
     with pytest.raises(HTTPException) as error:
         search.global_search_rows(None, GlobalSearchRequest(
             record_where={"full_text": {"query": "water", "sources": ["metadata"]}},
@@ -83,7 +84,8 @@ def test_global_search_rollout_gate_precedes_database_access(monkeypatch):
 
 
 def test_resource_full_text_rollout_gate_does_not_disable_structured_search(monkeypatch):
-    monkeypatch.setenv("FULL_TEXT_SEARCH_ENABLED", "false")
+    from types import SimpleNamespace
+    monkeypatch.setattr(search.settings_cache,"for_connection",lambda c:{"FULL_TEXT_SEARCH_ENABLED":False,"AUDIT_TRAIL_SEARCH_RESULT_LIMIT":1000})
     request = SearchRequest(where={"field": "title", "operator": "eq", "value": "x"})
     class Connection:
         def execute(self, *_args, **_kwargs):
@@ -93,7 +95,8 @@ def test_resource_full_text_rollout_gate_does_not_disable_structured_search(monk
 
 
 def test_automatic_scheduling_gate_keeps_pending_freshness(client, record, monkeypatch):
-    monkeypatch.setenv("CONTENT_INDEXING_SCHEDULING_ENABLED", "false")
+    from backend.services.api.tests.test_application_settings import save
+    assert save(client,{"CONTENT_INDEXING_SCHEDULING_ENABLED":False}).status_code==200
     disabled = client.post(
         f"/api/v1/records/{record['id']}/digital-components/upload",
         data={"component_order": 1}, files={"file": ("disabled.txt", b"disabled", "text/plain")},
@@ -109,7 +112,7 @@ def test_automatic_scheduling_gate_keeps_pending_freshness(client, record, monke
             (disabled.json()["id"],),
         ).fetchone()[0] == 0
 
-    monkeypatch.setenv("CONTENT_INDEXING_SCHEDULING_ENABLED", "true")
+    assert save(client,{"CONTENT_INDEXING_SCHEDULING_ENABLED":True}).status_code==200
     enabled = client.post(
         f"/api/v1/records/{record['id']}/digital-components/upload",
         data={"component_order": 2}, files={"file": ("enabled.txt", b"enabled", "text/plain")},

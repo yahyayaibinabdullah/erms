@@ -14,7 +14,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from .schemas import GlobalSearchRequest, SearchExpression, SearchRequest
 from .crud import redact_hidden_relationships
-from .config import boolean_environment, integer_environment
+from .application_settings import cache as settings_cache
 
 
 MAX_SEARCH_DEPTH = 5
@@ -748,13 +748,14 @@ def search_rows(
     record_creation: bool = False,
     digital_only: bool = False,
 ) -> dict[str, Any]:
-    audit_cap = integer_environment("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", 1000, minimum=1)
+    settings = settings_cache.for_connection(connection)
+    audit_cap = settings["AUDIT_TRAIL_SEARCH_RESULT_LIMIT"]
     if table == "event_history" and request.offset >= audit_cap:
         raise HTTPException(status_code=422, detail={
             "code": "audit_result_cap", "message_key": "audit.filter.results_capped",
             "params": {"limit": audit_cap},
         })
-    if _full_text_leaves(request.where) and not boolean_environment("FULL_TEXT_SEARCH_ENABLED", True):
+    if _full_text_leaves(request.where) and not settings["FULL_TEXT_SEARCH_ENABLED"]:
         raise HTTPException(status_code=503, detail={
             "code": "full_text_search_disabled",
             "message": "Full-text search is temporarily disabled.",
@@ -835,7 +836,7 @@ def search_rows(
     if table == "event_history":
         count_query = sql.SQL(
             "SELECT count(*) AS total FROM (SELECT 1 FROM {} resource{} LIMIT {}) audit_count"
-        ).format(table_identifier, where_clause, sql.Literal(audit_cap + 1))
+        ).format(table_identifier, where_clause, sql.Literal(min(audit_cap + 1, 9223372036854775807)))
     total = connection.execute(count_query, parameters).fetchone()["total"]
     truncated = table == "event_history" and total > audit_cap
     if table == "event_history":
@@ -987,7 +988,8 @@ def _global_branch(
 
 
 def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> dict[str, Any]:
-    if not boolean_environment("FULL_TEXT_SEARCH_ENABLED", True):
+    settings = settings_cache.for_connection(connection)
+    if not settings["FULL_TEXT_SEARCH_ENABLED"]:
         raise HTTPException(status_code=503, detail={
             "code": "full_text_search_disabled",
             "message": "Full-text search is temporarily disabled.",

@@ -110,4 +110,7 @@ def test_canonical_and_upgrade_settings_ddl_are_identical_except_installation_ki
     marker = "-- Shared configuration foundation."
     canonical = schema[schema.index(marker):].strip()
     migration = upgrade[upgrade.index(marker):].removesuffix("\nCOMMIT;\n").strip()
+    marker_051="INSERT INTO schema_migrations(version) VALUES('051_database_indexing_policy') ON CONFLICT DO NOTHING;"
+    assert canonical.count(marker_051)==1
+    canonical=canonical.replace("\n"+marker_051,"")
     assert canonical == migration.replace("VALUES(true,'upgrade')", "VALUES(true,'fresh')")

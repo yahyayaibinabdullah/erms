@@ -144,3 +144,8 @@ DATABASE_URL='' frontend/webui/.venv/bin/python -m pytest frontend/webui/interac
 ```
 
 These interaction tests use a fake API and never connect to a database.
+
+Full-text header visibility now follows the API's saved FULL_TEXT_SEARCH_ENABLED
+value in bootstrap/page configuration. WEBUI_FULL_TEXT_SEARCH_ENABLED is removed.
+No WebUI feature cache or extra bootstrap/widget settings request is introduced.
+See docs/application-settings-upgrade.md before deploying this cutover.

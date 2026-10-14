@@ -31,7 +31,15 @@ AUTHENTICATION_KEYS = (
     'AUTH_LOCKOUT_MINUTES', 'AUTH_PASSWORD_MIN_LENGTH', 'AUTH_SESSION_RETENTION_DAYS',
     'AUTH_SESSION_CLEANUP_INTERVAL_SECONDS', 'AUTH_SESSION_CLEANUP_BATCH_SIZE',
 )
-MIGRATED_KEYS = GENERAL_INTERFACE_KEYS + CONTENT_KEYS + AUTHENTICATION_KEYS
+SEARCH_KEYS = (
+    'FULL_TEXT_SEARCH_ENABLED', 'CONTENT_INDEXING_SCHEDULING_ENABLED',
+    'CONTENT_INDEXING_HISTORY_RETENTION_DAYS', 'CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS',
+    'CONTENT_INDEXING_CLEANUP_BATCH_SIZE', 'TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS',
+    'TEXT_INDEXER_RATE_LIMIT_PER_MINUTE', 'SEARCH_RATE_LIMIT_PER_MINUTE',
+    'MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE', 'AUDIT_TRAIL_SEARCH_RESULT_LIMIT',
+)
+REMOVED_KEYS = ('WEBUI_FULL_TEXT_SEARCH_ENABLED',)
+MIGRATED_KEYS = GENERAL_INTERFACE_KEYS + CONTENT_KEYS + AUTHENTICATION_KEYS + SEARCH_KEYS
 
 
 class MigrationInvalid(ValueError):
@@ -40,7 +48,7 @@ class MigrationInvalid(ValueError):
 
 def source_values(path):
     values = dotenv_values(Path(path), interpolate=False)
-    return {key: values[key] for key in MIGRATED_KEYS if key in values}
+    return {key: values[key] for key in MIGRATED_KEYS + REMOVED_KEYS if key in values}
 
 
 def parse_legacy(key, raw):
@@ -90,7 +98,7 @@ def preview(connection, source, *, keep_database=(), use_legacy=()):
     snapshot, completed, rows = _state(connection)
     result = {'format_version':1, 'migration_id':MIGRATION_ID, 'database':connection.info.dbname,
               'database_id':snapshot.database_id, 'items':[], 'issues':[],
-              'obsolete_entries':sorted(set(source) & set(MIGRATED_KEYS))}
+              'obsolete_entries':sorted(set(source) & set(MIGRATED_KEYS + REMOVED_KEYS))}
     for key in sorted(MIGRATED_KEYS):
         row = rows[key]
         item = {'key':key, 'expected_version':row['version'], 'database_value':row['value'],

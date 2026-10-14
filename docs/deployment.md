@@ -346,15 +346,7 @@ API_RELOAD=false
 DB_POOL_MIN_SIZE=1
 DB_POOL_MAX_SIZE=10
 CONTENT_STORAGE_BACKEND=postgresql
-CONTENT_INDEXING_HISTORY_RETENTION_DAYS=365
-CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS=3600
-CONTENT_INDEXING_CLEANUP_BATCH_SIZE=500
-TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS=365
 AUTH_COOKIE_SECURE=true
-CONTENT_INDEXING_SCHEDULING_ENABLED=false
-FULL_TEXT_SEARCH_ENABLED=false
-AUDIT_TRAIL_SEARCH_RESULT_LIMIT=1000
-TEXT_INDEXER_RATE_LIMIT_PER_MINUTE=600
 ```
 
 `DEFAULT_ROOT_AGGREGATION_MEDIUM` accepts `digital`, `physical`, or `mixed` and
@@ -406,18 +398,17 @@ WEBUI_HOST=127.0.0.1
 WEBUI_PORT=8080
 WEBUI_RELOAD=false
 WEBUI_STORAGE_SECRET=REPLACE_WITH_A_STRONG_RANDOM_SECRET
-WEBUI_FULL_TEXT_SEARCH_ENABLED=false
 ```
 
 ## Full-text search staged rollout and rollback
 
-Keep the four controls independent: the indexer unit, automatic scheduling
-(`CONTENT_INDEXING_SCHEDULING_ENABLED`), API search (`FULL_TEXT_SEARCH_ENABLED`),
-and header search (`WEBUI_FULL_TEXT_SEARCH_ENABLED`). A new environment starts
-with all four disabled.
+Keep service orchestration separate from the two database rollout settings:
+`CONTENT_INDEXING_SCHEDULING_ENABLED` and `FULL_TEXT_SEARCH_ENABLED`.
+New databases start with both false. Header visibility follows the API setting.
 
-1. Apply all migrations through 017 while the indexer and all three flags are
-   disabled. Confirm `/health` reports both API flags false.
+1. Apply required schema upgrades through 051 and review/apply the 34-key legacy
+   settings migration before API/worker startup. Confirm `/health` reports both
+   flags false for a fresh installation. See [application-settings-upgrade.md](application-settings-upgrade.md).
 2. Install and verify
    `backend/services/text_indexer/deploy/erms-text-indexer.service`, then set
    `TEXT_INDEXER_PROCESS_COUNT` to the worker-process capacity of the host.
@@ -425,8 +416,8 @@ with all four disabled.
    environment file or secret store, and enforce an egress firewall that
    permits only the HTTPS API peer and loopback Pipes IPC. Run
    `run-text-indexer.sh --self-test`, then enable the unit.
-3. Set `CONTENT_INDEXING_SCHEDULING_ENABLED=true` on every API instance and
-   restart them. Confirm new available content creates a queued job.
+3. Enable `CONTENT_INDEXING_SCHEDULING_ENABLED` in Administration Settings;
+   changes converge within 30 seconds without restart. Confirm new available content creates a queued job.
 4. Run bounded backfill passes from **Administration → Text Indexers → Health**
    with **Queue backfill batch**, or with
    `backend/services/api/.venv/bin/python -m backend.services.api.text_indexing_maintenance reconcile --batch-size 500`.
@@ -437,11 +428,10 @@ with all four disabled.
    and `readiness`. Do not expose search until both exit successfully and the
    operational observation window has no sustained queue growth, lease loss,
    cleanup failure, or unexpected extraction error trend.
-6. Set `FULL_TEXT_SEARCH_ENABLED=true` on every API instance and smoke-test the
-   governed API. Finally set `WEBUI_FULL_TEXT_SEARCH_ENABLED=true` on every UI
-   instance and smoke-test the header.
+6. Enable `FULL_TEXT_SEARCH_ENABLED` in Administration Settings and smoke-test
+   the governed API and header, which share that value.
 
-Rollback is non-destructive: first disable the UI flag, then API search, then
+Rollback is non-destructive: disable the shared full-text search setting, then
 automatic scheduling, and stop the indexer. Pending/stale status remains
 truthful and source content is untouched. Do not drop index tables; their
 removal requires a separately reviewed later migration. Re-enable in the same
@@ -926,3 +916,10 @@ Content and authentication policies are now database-owned Administration Settin
 Review and apply the extended legacy migration before deploying Phase 5 code; see
 [application-settings-upgrade.md](application-settings-upgrade.md). Cleanup CLI
 arguments are per-invocation overrides; omit them to follow database defaults.
+
+Search/indexing policy and Audit Trail result caps are database-owned. Configure
+them through Administration Settings after bootstrap; environment assignments no
+longer enable scheduling or search. The removed WebUI flag has no authority.
+See [application-settings-upgrade.md](application-settings-upgrade.md) for the
+reviewed 34-key upgrade and [configuration-authority-inventory.json](configuration-authority-inventory.json)
+for ownership, defaults, consumers, service templates and restart requirements.

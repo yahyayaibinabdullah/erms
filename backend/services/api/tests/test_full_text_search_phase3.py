@@ -191,3 +191,10 @@ def test_sys_admin_privilege_does_not_bypass_resource_acl_or_disclose_search(cli
     assert search.status_code==200 and search.json()["items"]==[] and search.json()["total"]==0
     reindex=client.post(f"/api/v1/digital-components/{component['id']}/reindex")
     assert reindex.status_code in {403,404}
+
+
+import pytest
+@pytest.fixture(autouse=True)
+def enabled_indexing_policy(client):
+    from backend.services.api.tests.test_application_settings import save
+    assert save(client,{'FULL_TEXT_SEARCH_ENABLED':True,'CONTENT_INDEXING_SCHEDULING_ENABLED':True}).status_code==200

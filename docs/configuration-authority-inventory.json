@@ -1,0 +1,2468 @@
+{
+  "settings": [
+    {
+      "setting": "API_HOST",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "0.0.0.0",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 11
+        },
+        {
+          "path": "backend/services/api/messaging/gateway_health.py",
+          "line": 27
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Per-process network binding",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "API_PORT",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "8000",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 12
+        },
+        {
+          "path": "backend/services/api/messaging/gateway_health.py",
+          "line": 28
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Per-process network binding",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "API_RELOAD",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "false",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 14
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Development/process-launch behavior",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "API_WORKERS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "1",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 13
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Per-instance process capacity",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "APPLICATION_SETTINGS_ENCRYPTION_KEY",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.3",
+      "default_or_requirement": "Unset by default; required to save or resolve an SMTP password",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_secret.py",
+          "line": 20
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "API-owned authenticated-encryption key, stored in local `.env` or supplied by the production shell environment, which takes precedence; shared by API instances using the same database; changing it requires API restart",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "AUDIT_TRAIL_SEARCH_RESULT_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "1000",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/search.py",
+          "line": 752,
+          "source": "audit_cap = settings[\"AUDIT_TRAIL_SEARCH_RESULT_LIMIT\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum matching Audit Trail results and bounded count work; one effective cap applies throughout each request.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_COOKIE_SECURE",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.3",
+      "default_or_requirement": "false` locally; `true` in the production example",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 33
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Depends on the deployment's HTTPS boundary and must not be weakened from the application UI",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_LOCKOUT_ATTEMPTS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "5",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 240,
+          "source": "locked_until = _deadline(now, settings['AUTH_LOCKOUT_MINUTES'], 60) if attempts >= settings['AUTH_LOCKOUT_ATTEMPTS'] else None"
+        }
+      ],
+      "templates": [],
+      "purpose": "Failed login attempts before temporary credential lockout.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_LOCKOUT_MINUTES",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "15",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 240,
+          "source": "locked_until = _deadline(now, settings['AUTH_LOCKOUT_MINUTES'], 60) if attempts >= settings['AUTH_LOCKOUT_ATTEMPTS'] else None"
+        }
+      ],
+      "templates": [],
+      "purpose": "Temporary credential lockout duration in minutes.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_PASSWORD_MIN_LENGTH",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "12",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 57,
+          "source": "minimum = settings[\"AUTH_PASSWORD_MIN_LENGTH\"]"
+        },
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 73,
+          "source": "password = secrets.token_urlsafe(max(15, (settings['AUTH_PASSWORD_MIN_LENGTH'] * 3 + 3) // 4))"
+        }
+      ],
+      "templates": [],
+      "purpose": "Minimum characters for newly set or changed passwords; existing password hashes remain valid.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_SESSION_ABSOLUTE_HOURS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "12",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 118,
+          "source": "absolute_deadline = _deadline(row['date_created'], settings['AUTH_SESSION_ABSOLUTE_HOURS'], 3600)"
+        },
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 261,
+          "source": "absolute_at = _deadline(now, settings['AUTH_SESSION_ABSOLUTE_HOURS'], 3600)"
+        }
+      ],
+      "templates": [],
+      "purpose": "Absolute session lifetime in hours; changes never revive an expired session.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_SESSION_CLEANUP_BATCH_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "500",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 80,
+          "source": "batch_size = settings[\"AUTH_SESSION_CLEANUP_BATCH_SIZE\"] if batch_size is None else batch_size"
+        },
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 153,
+          "source": "batch_size=settings['AUTH_SESSION_CLEANUP_BATCH_SIZE'] if batch_size is None else batch_size,"
+        },
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 178,
+          "source": "default=None, help=\"Explicit override; default is database AUTH_SESSION_CLEANUP_BATCH_SIZE\","
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum session history rows considered per cleanup batch.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_SESSION_CLEANUP_INTERVAL_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "3600",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 155,
+          "source": "interval = settings['AUTH_SESSION_CLEANUP_INTERVAL_SECONDS'] if interval_seconds is None else interval_seconds"
+        },
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 185,
+          "source": "default=None, help=\"Explicit override; default is database AUTH_SESSION_CLEANUP_INTERVAL_SECONDS\","
+        }
+      ],
+      "templates": [],
+      "purpose": "Seconds between session history cleanup passes.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_SESSION_IDLE_MINUTES",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "30",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 117,
+          "source": "idle_deadline = _deadline(row['last_seen_at'], settings['AUTH_SESSION_IDLE_MINUTES'], 60)"
+        },
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 126,
+          "source": "expires_at = min(_deadline(last_seen, settings['AUTH_SESSION_IDLE_MINUTES'], 60), absolute_deadline)"
+        },
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 260,
+          "source": "expires_at = _deadline(now, settings['AUTH_SESSION_IDLE_MINUTES'], 60)"
+        }
+      ],
+      "templates": [],
+      "purpose": "Idle session lifetime in minutes; changes apply on the next evaluation and never revive an expired session.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "AUTH_SESSION_RETENTION_DAYS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.3",
+      "default_or_requirement": "90",
+      "category": "authentication",
+      "consumers": [
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 79,
+          "source": "retention_days = settings[\"AUTH_SESSION_RETENTION_DAYS\"] if retention_days is None else retention_days"
+        },
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 152,
+          "source": "retention_days=settings['AUTH_SESSION_RETENTION_DAYS'] if retention_days is None else retention_days,"
+        },
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "line": 173,
+          "source": "default=None, help=\"Explicit override; default is database AUTH_SESSION_RETENTION_DAYS\","
+        }
+      ],
+      "templates": [],
+      "purpose": "Session history retention in days.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CLASSIFICATION_RECENT_SELECTION_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.4",
+      "default_or_requirement": "4",
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "backend/services/api/classification_management.py",
+          "line": 324,
+          "source": "configured_limit = cache.for_connection(connection)[\"CLASSIFICATION_RECENT_SELECTION_LIMIT\"]"
+        },
+        {
+          "path": "frontend/webui/config.py",
+          "line": 63,
+          "source": "return configuration[\"CLASSIFICATION_RECENT_SELECTION_LIMIT\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum recent classification selections shown.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_CLEANUP_INTERVAL_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "3600",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/content_cleanup.py",
+          "line": 155,
+          "source": "interval = interval_seconds if interval_seconds is not None else settings[\"CONTENT_CLEANUP_INTERVAL_SECONDS\"]"
+        },
+        {
+          "path": "backend/services/api/content_cleanup.py",
+          "line": 172,
+          "source": "default=None, help=\"Explicit per-invocation override; default is database CONTENT_CLEANUP_INTERVAL_SECONDS\","
+        }
+      ],
+      "templates": [],
+      "purpose": "Seconds between content cleanup passes.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_INDEXING_CLEANUP_BATCH_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "500",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 129,
+          "source": "settings['CONTENT_INDEXING_CLEANUP_BATCH_SIZE'] if batch_size is None else batch_size,"
+        },
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 407,
+          "source": "default=None, help=\"Explicit override; default is database CONTENT_INDEXING_CLEANUP_BATCH_SIZE\","
+        },
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 458,
+          "source": "result = reconcile(connection,settings['CONTENT_INDEXING_CLEANUP_BATCH_SIZE'] if args.batch_size is None else args.batch_size,args.dry_run)"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum indexing history rows considered per cleanup batch.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "3600",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 132,
+          "source": "interval = settings['CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS'] if interval_seconds is None else interval_seconds"
+        },
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 421,
+          "source": "default=None, help=\"Explicit override; default is database CONTENT_INDEXING_CLEANUP_INTERVAL_SECONDS\","
+        }
+      ],
+      "templates": [],
+      "purpose": "Seconds between API-owned indexing cleanup passes.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_INDEXING_HISTORY_RETENTION_DAYS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "365",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 130,
+          "source": "settings['CONTENT_INDEXING_HISTORY_RETENTION_DAYS'] if retention_days is None else retention_days,"
+        },
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 412,
+          "source": "default=None, help=\"Explicit override; default is database CONTENT_INDEXING_HISTORY_RETENTION_DAYS\","
+        }
+      ],
+      "templates": [],
+      "purpose": "Content indexing history retention in days.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_INDEXING_MAINTENANCE_ENABLED",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.4",
+      "default_or_requirement": "true",
+      "category": null,
+      "consumers": [],
+      "templates": [
+        ".env.example"
+      ],
+      "purpose": "Controls whether local orchestration launches the maintenance process",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Local orchestration"
+    },
+    {
+      "setting": "CONTENT_INDEXING_SCHEDULING_ENABLED",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "false",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/database.py",
+          "line": 81,
+          "source": "settings[\"CONTENT_INDEXING_SCHEDULING_ENABLED\"]"
+        },
+        {
+          "path": "backend/services/api/main.py",
+          "line": 515,
+          "source": "\"content_indexing_scheduling_enabled\": settings[\"CONTENT_INDEXING_SCHEDULING_ENABLED\"],"
+        }
+      ],
+      "templates": [],
+      "purpose": "Schedule API-owned content indexing work.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_SEGMENT_CHECKSUMS_ENABLED",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "true",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 59,
+          "source": "if not settings[\"CONTENT_SEGMENT_CHECKSUMS_ENABLED\"]:"
+        }
+      ],
+      "templates": [],
+      "purpose": "Store and verify per-segment checksums.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_SEGMENT_SIZE_BYTES",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "16777216",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 44,
+          "source": "while content := upload.file.read(settings[\"CONTENT_SEGMENT_SIZE_BYTES\"]):"
+        },
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 71,
+          "source": "while content := source.read(settings[\"CONTENT_SEGMENT_SIZE_BYTES\"]):"
+        }
+      ],
+      "templates": [],
+      "purpose": "Target segment size in bytes; from 1 byte to 64 MiB.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_STORAGE_BACKEND",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.3",
+      "default_or_requirement": "postgresql",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 285
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Storage-provider/infrastructure selection",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "CONTENT_UPLOAD_SESSION_TTL_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "86400",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 110,
+          "source": "settings[\"CONTENT_UPLOAD_SESSION_TTL_SECONDS\"]),"
+        },
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 165,
+          "source": "settings[\"CONTENT_UPLOAD_SESSION_TTL_SECONDS\"]),"
+        }
+      ],
+      "templates": [],
+      "purpose": "Lifetime of an incomplete content upload in seconds.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DASHBOARD_FAVOURITE_ITEM_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.4",
+      "default_or_requirement": "5",
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 59,
+          "source": "return configuration[\"DASHBOARD_FAVOURITE_ITEM_LIMIT\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum favourite items shown in the dashboard preview.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DASHBOARD_RECENT_DAYS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.4",
+      "default_or_requirement": "30",
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 69,
+          "source": "recent_since = recent_since if recent_since is not None else recent_since_default(settings[\"DASHBOARD_RECENT_DAYS\"])"
+        },
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 341,
+          "source": "since = recent_since_default(cache.for_connection(connection)[\"DASHBOARD_RECENT_DAYS\"])"
+        },
+        {
+          "path": "frontend/webui/config.py",
+          "line": 55,
+          "source": "return configuration[\"DASHBOARD_RECENT_DAYS\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Days included in the dashboard recent-items preview.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DASHBOARD_RECENT_ITEM_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.4",
+      "default_or_requirement": "4",
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 68,
+          "source": "recent_limit = recent_limit if recent_limit is not None else min(settings[\"DASHBOARD_RECENT_ITEM_LIMIT\"], 50)"
+        },
+        {
+          "path": "frontend/webui/config.py",
+          "line": 51,
+          "source": "return configuration[\"DASHBOARD_RECENT_ITEM_LIMIT\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum recent items shown in the dashboard preview.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DASHBOARD_REVIEW_PREVIEW_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.4",
+      "default_or_requirement": "5",
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 71,
+          "source": "DASHBOARD_REVIEW_PREVIEW_LIMIT = min(settings[\"DASHBOARD_REVIEW_PREVIEW_LIMIT\"], 50)"
+        },
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 374,
+          "source": "(DASHBOARD_REVIEW_PREVIEW_LIMIT,),"
+        },
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 389,
+          "source": "(REVIEW_WARNING_WINDOW_DAYS, REVIEW_WARNING_WINDOW_DAYS, DASHBOARD_REVIEW_PREVIEW_LIMIT,),"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum resources shown in the dashboard review preview.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DATABASE_DISPLAY_NAME",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "Required",
+      "category": null,
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 36
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Default-language deployment identity displayed by the WebUI",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "DATABASE_DISPLAY_NAME_<LANGUAGE>",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "Optional; falls back to `DATABASE_DISPLAY_NAME",
+      "category": null,
+      "consumers": [],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Localized deployment identity using the uppercase base language tag, for example `DATABASE_DISPLAY_NAME_AR",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "DATABASE_URL",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "Required",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/manage_auth.py",
+          "line": 259
+        },
+        {
+          "path": "backend/services/api/database.py",
+          "line": 26
+        },
+        {
+          "path": "backend/services/api/launcher.py",
+          "line": 9
+        },
+        {
+          "path": "backend/services/api/provision_local_text_indexer.py",
+          "line": 71
+        },
+        {
+          "path": "frontend/webui/scripts/sync_privilege_translation_keys.py",
+          "line": 140
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Required before application configuration can be read; contains database location and credentials",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "DB_POOL_MAX_SIZE",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "10",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/database.py",
+          "line": 34
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Per-process database capacity",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "DB_POOL_MIN_SIZE",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "1",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/database.py",
+          "line": 33
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Per-process database capacity",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "DB_POOL_TIMEOUT",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "10` seconds",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/database.py",
+          "line": 29
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Per-process connection-pool behavior",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "DEFAULT_ROOT_AGGREGATION_MEDIUM",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.1",
+      "default_or_requirement": "mixed",
+      "category": "general",
+      "consumers": [
+        {
+          "path": "backend/services/api/main.py",
+          "line": 662,
+          "source": "values[\"medium\"] = payload.medium or settings_cache.for_connection(connection)[\"DEFAULT_ROOT_AGGREGATION_MEDIUM\"]"
+        },
+        {
+          "path": "frontend/webui/config.py",
+          "line": 47,
+          "source": "return configuration[\"DEFAULT_ROOT_AGGREGATION_MEDIUM\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Initial medium for a new root aggregation.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DEFAULT_WORKING_TIMEZONE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.1",
+      "default_or_requirement": "Asia/Dubai",
+      "category": "general",
+      "consumers": [
+        {
+          "path": "backend/services/api/config.py",
+          "line": 26,
+          "source": "return cache.for_connection(connection)[\"DEFAULT_WORKING_TIMEZONE\"]"
+        },
+        {
+          "path": "frontend/webui/app.py",
+          "line": 4716,
+          "source": "timezone_name = configuration[\"DEFAULT_WORKING_TIMEZONE\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Working timezone used when a person has no saved timezone preference.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "Unset",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Scheme for both disposition destinations; unset blocks the relevant artifact tasks.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_DESTRUCTION_REMINDER_MONTHS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "6 months",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Calendar months between future eligibility reminders; no historical reminders are sent.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_DESTRUCTION_REVIEW_ROUTE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "Standard",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "New jobs capture this route permanently. Records Manager Only omits independent internal review.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_EXTERNAL_AUTHORITY_EMAIL",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "Unset",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Recipient for subsequent document email attempts; unset prevents sending.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_EXTERNAL_AUTHORITY_NAME",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "Sharjah Archives",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Recipient authority on new request forms; earlier forms retain their original name.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "Unset",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Terminal classification in the selected scheme for generated reports, excluding the digital destruction certificate.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.6",
+      "default_or_requirement": "Unset",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Terminal classification in the selected scheme for uploads and the digital destruction certificate.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DOCUMENT_CONVERSION_TIMEOUT_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "60",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/document_conversion.py",
+          "line": 47,
+          "source": "timeout = settings[\"DOCUMENT_CONVERSION_TIMEOUT_SECONDS\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum document conversion time in seconds.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "FULL_TEXT_SEARCH_ENABLED",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "false",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/main.py",
+          "line": 514,
+          "source": "\"full_text_search_enabled\": settings[\"FULL_TEXT_SEARCH_ENABLED\"],"
+        },
+        {
+          "path": "backend/services/api/search.py",
+          "line": 758,
+          "source": "if _full_text_leaves(request.where) and not settings[\"FULL_TEXT_SEARCH_ENABLED\"]:"
+        },
+        {
+          "path": "backend/services/api/search.py",
+          "line": 992,
+          "source": "if not settings[\"FULL_TEXT_SEARCH_ENABLED\"]:"
+        },
+        {
+          "path": "backend/services/api/application_configuration.py",
+          "line": 13,
+          "source": "if definition.category in {\"general\", \"interface_limits\"}) + (\"FULL_TEXT_SEARCH_ENABLED\",)"
+        },
+        {
+          "path": "frontend/webui/config.py",
+          "line": 28,
+          "source": "return configuration[\"FULL_TEXT_SEARCH_ENABLED\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Availability of API-enforced full-text search.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "LIBREOFFICE_BINARY",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.3",
+      "default_or_requirement": "Auto-discovered when unset",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/document_conversion.py",
+          "line": 29
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Host executable path",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "60",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/main.py",
+          "line": 352,
+          "source": "request_settings[\"MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE\"],"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum manual reindex requests per minute.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "MAX_RENDITION_SIZE_BYTES",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "104857600",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/document_conversion.py",
+          "line": 48,
+          "source": "maximum = settings[\"MAX_RENDITION_SIZE_BYTES\"]"
+        },
+        {
+          "path": "backend/services/api/main.py",
+          "line": 2030,
+          "source": "maximum_source = content_settings[\"MAX_RENDITION_SIZE_BYTES\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum generated document rendition size in bytes.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "MAX_UPLOAD_SIZE_BYTES",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.2",
+      "default_or_requirement": "52428800",
+      "category": "content",
+      "consumers": [
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 42,
+          "source": "maximum = settings[\"MAX_UPLOAD_SIZE_BYTES\"]"
+        },
+        {
+          "path": "backend/services/api/content_storage.py",
+          "line": 70,
+          "source": "maximum = settings[\"MAX_UPLOAD_SIZE_BYTES\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum complete logical file size in bytes.",
+      "runtime_status": "database_only_consumer_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_CAPTURE_MAX_LINKED_MESSAGES",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 100,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_CAPTURE_MAX_PDF_BYTES",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 52428800,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_CLEANUP_BATCH_SIZE",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 500,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_CLEANUP_INTERVAL_SECONDS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 3600,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_DELETION_RECOVERY_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 30,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_DRAFT_ACTIVE_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 180,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_DRAFT_RECOVERY_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 30,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_DRAFT_WARNING_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 30,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_LISTENER_DATABASE_URL",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/realtime.py",
+          "line": 211
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_MAX_RECIPIENTS_PER_SEND",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 2000,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_MAX_RESOURCE_LINKS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 50,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_MAX_SELECTORS_PER_SEND",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 100,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_PDF_VALIDATOR",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/capture_pdf.py",
+          "line": 62
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_RETENTION_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 1095,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_RETENTION_WARNING_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 90,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_STREAM_HEARTBEAT_SECONDS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/realtime.py",
+          "line": 34
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_STREAM_MAX_CONNECTIONS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/realtime.py",
+          "line": 27
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_STREAM_MAX_USER_CONNECTIONS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/realtime.py",
+          "line": 30
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_STREAM_QUEUE_SIZE",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/realtime.py",
+          "line": 33
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_STREAM_SEND_TIMEOUT_SECONDS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": "See service template",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/realtime.py",
+          "line": 37
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_TEST_MAX_RECIPIENTS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 10,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_TEST_RETENTION_DAYS",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 30,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "MESSAGING_TEST_SENDS_PER_HOUR",
+      "authority": "deployment",
+      "contract": "specs/notifications-and-messaging.md section 11.5 and backend/services/api/messaging/realtime.py",
+      "default_or_requirement": 20,
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/messaging/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "NICEGUI_REDIS_KEY_PREFIX",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "Runtime default when Redis is used",
+      "category": null,
+      "consumers": [],
+      "templates": [
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Deployment/environment isolation",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "NICEGUI_REDIS_URL",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "Unset",
+      "category": null,
+      "consumers": [],
+      "templates": [
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Optional external session-storage infrastructure",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "REVIEW_WARNING_WINDOW_DAYS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.1",
+      "default_or_requirement": "30",
+      "category": "general",
+      "consumers": [
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 36,
+          "source": "parameters = (settings[\"REVIEW_WARNING_WINDOW_DAYS\"], settings[\"REVIEW_WARNING_WINDOW_DAYS\"], limit, offset) if state == \"upcoming\" else (limit, offset)"
+        },
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 70,
+          "source": "REVIEW_WARNING_WINDOW_DAYS = settings[\"REVIEW_WARNING_WINDOW_DAYS\"]"
+        },
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 360,
+          "source": "(REVIEW_WARNING_WINDOW_DAYS, REVIEW_WARNING_WINDOW_DAYS),"
+        },
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 389,
+          "source": "(REVIEW_WARNING_WINDOW_DAYS, REVIEW_WARNING_WINDOW_DAYS, DASHBOARD_REVIEW_PREVIEW_LIMIT,),"
+        },
+        {
+          "path": "backend/services/api/dashboard.py",
+          "line": 407,
+          "source": "\"review_warning_window_days\": REVIEW_WARNING_WINDOW_DAYS,"
+        }
+      ],
+      "templates": [],
+      "purpose": "Days before a scheduled review when the resource appears as approaching review.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SEARCH_RATE_LIMIT_PER_MINUTE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "600",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/main.py",
+          "line": 358,
+          "source": "request_settings[\"SEARCH_RATE_LIMIT_PER_MINUTE\"],"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum authenticated search requests per minute.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_AUTH_ENABLED",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Requires configuration",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Configure whether authentication is needed; enabled requires username and password.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_HOST",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Unset",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Outgoing mail server; unset prevents sending.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_PASSWORD",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Unset",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Protected credential replacement; saved passwords are never readable. Required when authentication is enabled.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_PORT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "587 for STARTTLS; 465 for implicit TLS",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Port from 1 to 65535; untouched default follows security mode: 587 for STARTTLS or 465 for implicit TLS.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_REPLY_TO_EMAIL",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Unset",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Optional reply-to address for outgoing document email.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_SECURITY",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Requires configuration",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Configure STARTTLS or implicit TLS; certificate verification stays enabled.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_SENDER_EMAIL",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Unset",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Sender address required for outgoing document email.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_SENDER_NAME",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Unset",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Optional sender display name.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_TIMEOUT_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "30",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Positive connection and send timeout in seconds.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SMTP_USERNAME",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.7",
+      "default_or_requirement": "Unset",
+      "category": "email",
+      "consumers": [
+        {
+          "path": "backend/services/api/application_settings_registry.py",
+          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+        }
+      ],
+      "templates": [],
+      "purpose": "Username required when SMTP authentication is enabled.",
+      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "TEXT_INDEXER_API_KEY",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "Required issued `wti_` credential",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 61
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_API_KEY_FILE",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": ".secrets/text-indexer-api-key` for local provisioning",
+      "category": null,
+      "consumers": [],
+      "templates": [
+        ".env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Local orchestration"
+    },
+    {
+      "setting": "TEXT_INDEXER_API_URL",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "Required",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 55
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_CHUNK_MAX_CHARACTERS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "20000",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 75
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_CHUNK_TARGET_CHARACTERS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "16000",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 74
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_CLAIM_BATCH_SIZE",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "1",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 68
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "365",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 74,
+          "source": "credential_retention_days = settings_cache.for_connection(connection)[\"TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS\"]"
+        },
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 131,
+          "source": "dry_run, settings['TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS'] if credential_retention_days is None else credential_retention_days)"
+        },
+        {
+          "path": "backend/services/api/text_indexing_maintenance.py",
+          "line": 416,
+          "source": "default=None, help=\"Explicit override; default is database TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS\","
+        },
+        {
+          "path": "backend/services/api/user_management.py",
+          "line": 194,
+          "source": "\"retention_days\": settings_cache.for_connection(connection)[\"TEXT_INDEXER_CREDENTIAL_HISTORY_RETENTION_DAYS\"],"
+        }
+      ],
+      "templates": [],
+      "purpose": "API-owned indexer credential history retention in days.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "TEXT_INDEXER_ENABLED",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.4",
+      "default_or_requirement": "false",
+      "category": null,
+      "consumers": [],
+      "templates": [
+        ".env.example"
+      ],
+      "purpose": "Controls whether local orchestration launches the separate service",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Local orchestration"
+    },
+    {
+      "setting": "TEXT_INDEXER_EXTRACTION_TIMEOUT_SECONDS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "120",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 71
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_HEARTBEAT_SECONDS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "60",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 70
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_MAX_EXTRACTED_CHARACTERS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "5000000",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 73
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_MAX_INPUT_BYTES",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "52428800",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 72
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_MAX_PAGES",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "1000",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 76
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_MAX_TEMP_BYTES",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "1073741824",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 77
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_POLL_SECONDS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "5",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 69
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_PROCESS_COUNT",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "2",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/__main__.py",
+          "line": 21
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_RATE_LIMIT_PER_MINUTE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": "600",
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/main.py",
+          "line": 343,
+          "source": "request_settings[\"TEXT_INDEXER_RATE_LIMIT_PER_MINUTE\"],"
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum authenticated indexer requests per minute.",
+      "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "TEXT_INDEXER_STALE_TEMP_HOURS",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "24",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 79
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_TEMP_DIR",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "Operating-system temporary directory plus `wathiq-text-indexer",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 78
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_TEMP_SWEEP_LIMIT",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "100",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 80
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_TIKA_HOME",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "Required Tika installation path",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 67
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "TEXT_INDEXER_WORKER_ID",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.5",
+      "default_or_requirement": "Required unique deployment identity in production",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/text_indexer/config.py",
+          "line": 66
+        }
+      ],
+      "templates": [
+        "backend/services/text_indexer/deploy/text-indexer.env.example"
+      ],
+      "purpose": "Deployment process/extraction control; see the approved contract and service template",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "Text indexer"
+    },
+    {
+      "setting": "USER_DETAILS_SESSION_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.4",
+      "default_or_requirement": "5",
+      "category": "interface_limits",
+      "consumers": [
+        {
+          "path": "backend/services/api/authentication.py",
+          "line": 517,
+          "source": "limit = min(cache.for_connection(connection)[\"USER_DETAILS_SESSION_LIMIT\"],50) if user_id is not None else 20"
+        },
+        {
+          "path": "frontend/webui/config.py",
+          "line": 67,
+          "source": "return configuration[\"USER_DETAILS_SESSION_LIMIT\"]"
+        }
+      ],
+      "templates": [],
+      "purpose": "Session rows per page in user details; server pagination remains required.",
+      "runtime_status": "database_only_consumer_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "WATHIQ_APPLICATION_REVISION",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.1",
+      "default_or_requirement": "Packaged Git revision when required",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/scheme_transfer/service.py",
+          "line": 25
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Build/deployment identity",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "API"
+    },
+    {
+      "setting": "WEBUI_API_URL",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "http://127.0.0.1:8000",
+      "category": null,
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 12
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Address used to reach the API or its load balancer",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "WEBUI_HOST",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "0.0.0.0",
+      "category": null,
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 16
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Per-process network binding",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "WEBUI_PORT",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "8080",
+      "category": null,
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 20
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Per-process network binding",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "WEBUI_RELOAD",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "false",
+      "category": null,
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 24
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Development/process-launch behavior",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    },
+    {
+      "setting": "WEBUI_STORAGE_SECRET",
+      "authority": "deployment",
+      "contract": "specs/application-configuration.md section 4.2",
+      "default_or_requirement": "Must be supplied securely outside local development",
+      "category": null,
+      "consumers": [
+        {
+          "path": "frontend/webui/config.py",
+          "line": 32
+        }
+      ],
+      "templates": [
+        ".env.example",
+        "frontend/webui/deploy/webui.env.example"
+      ],
+      "purpose": "Secret used for UI user-storage protection",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
+      "service": "WebUI"
+    }
+  ],
+  "reconciliation": [
+    "All 51 database settings have explicit API registry categories.",
+    "WEBUI_FULL_TEXT_SEARCH_ENABLED is removed; API FULL_TEXT_SEARCH_ENABLED is the only authority.",
+    "MESSAGING_* retains its separately approved deployment ownership.",
+    "CONTENT_DOWNLOAD_DB_BATCH_SIZE has no current consumer/template; no unused setting was invented.",
+    "PATH is host runtime infrastructure, not a Wathiq product setting.",
+    "DATABASE_DISPLAY_NAME_<LANGUAGE> covers localized deployment display names.",
+    "Third-party library/internal process variables and test-only seams are not product-setting inventory."
+  ]
+}

@@ -285,6 +285,18 @@ API-provided `result_cap`, and absence of environment fallback. Verify registry
 category coverage, translated UI grouping, and no key-prefix inference.
 Every production setting has exactly one documented authority.
 
+**Completed 14 October 2026:** All ten search/indexing settings now use database
+policy, including one Audit Trail cap captured per request. UI visibility follows
+API responses; the separate WebUI flag is removed. Reviewed migration extends to
+34 keys, preserving earlier completion. Canonical schema and migration 051 supply
+saved scheduling policy for direct database writes. The 117-setting production
+inventory, service templates, append-only bootstrap and upgrade guide agree.
+36 search/indexing, 63 integration, 14 Audit Trail, 223 frontend and 46 supporting
+checks passed; bilingual runtime availability/cap/grouping and request counts were
+verified live. All six disposable databases are confirmed absent. No private
+environment or maintained translation item changed. See `docs/disposition-phase-6.md`
+and phase-scoped ledger evidence. Total active time: **0.47 hours**. Phase 7 is next.
+
 ### Phase 7 Implement common disposition persistence and protected transitions
 
 **Priority:** Disposition foundation. **Dependencies:** Phase 1; this approved
@@ -735,6 +747,7 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 | 4 | 2026-10-14 09:16:16 | 2026-10-14 11:24:00 | 2.13 | 0.00 | Start measured; end approximate | Implementation and regression tests; English checks. User requested immediate stop before losing connectivity; interruption boundary reconstructed from saved resume note. Preview stopped and disposable database dropped. |
 | 4 | 2026-10-14 12:06:39 | 2026-10-14 12:13:42 | 0.12 | 0.71 | Measured; excluded interval approximate | Resumed after user authorization. Arabic saves/runtime limits/preference precedence/RTL/repeated navigation, 29 final tool checks, artifact preservation/template/policy checks, ledger and handoff. Offline interval 11:24–12:06:39 excluded. Final bookkeeping follows this captured end boundary. |
 | 5 | 2026-10-14 12:15:58 | 2026-10-14 12:33:52 | 0.30 | 0.00 | Measured | Content first, then authentication; runtime upload/conversion/session/password/cleanup policy, extended reviewed migration/worker readiness; 132 broad + 28 boundary/auth + 25 final readiness, 84 UI and 44 tool checks passed. All nine disposable databases confirmed dropped. Fifteen business template entries removed; no private env/schema/translation changes. Final completion bookkeeping follows captured end boundary. |
+| 6 | 2026-10-14 13:22:58 | 2026-10-14 13:51:03 | 0.47 | 0.00 | Measured | Search/indexing/Audit cap cutover,34-key migration,canonical/051,API-owned header,117-setting inventory and safe bootstrap.36 search+63 integration+14 Audit+223 UI+46 supporting checks and live bilingual freshness/grouping passed; all six disposable databases absent. Final bookkeeping follows captured end boundary. |
 
 ### Phase totals
 
@@ -748,7 +761,7 @@ Update status from actual progress; specification approval is not implementation
 | 3 | Complete | 2026-10-14 07:32:00 UTC | 2026-10-14 09:13:34 UTC | 1.69 | — | 0.00 |
 | 4 | Complete | 2026-10-14 09:16:16 UTC | 2026-10-14 12:13:42 UTC | 2.25 (interruption boundary approximate) | — | 0.71 |
 | 5 | Complete | 2026-10-14 12:15:58 UTC | 2026-10-14 12:33:52 UTC | 0.30 | — | 0.00 |
-| 6 | Not started | — | — | — | — | — |
+| 6 | Complete | 2026-10-14 13:22:58 UTC | 2026-10-14 13:51:03 UTC | 0.47 | — | 0.00 |
 | 7 | Not started | — | — | — | — | — |
 | 8 | Not started | — | — | — | — | — |
 | 9 | Not started | — | — | — | — | — |

@@ -4153,7 +4153,8 @@ BEGIN
         extraction_config_version=EXCLUDED.extraction_config_version,
         index_config_version=EXCLUDED.index_config_version,indexed_at=NULL,
         last_error_code=NULL,last_error_summary=NULL,date_updated=CURRENT_TIMESTAMP;
-    IF coalesce(nullif(current_setting('app.content_indexing_scheduling_enabled',true),''),'true')<>'true' THEN
+    IF coalesce(nullif(current_setting('app.content_indexing_scheduling_enabled',true),''),
+        (SELECT value#>>'{}' FROM application_settings WHERE key='CONTENT_INDEXING_SCHEDULING_ENABLED'))::boolean IS DISTINCT FROM true THEN
         RETURN NEW;
     END IF;
     INSERT INTO content_indexing_jobs(
@@ -7574,3 +7575,4 @@ INSERT INTO profile_privileges(profile_id,privilege_id)
  SELECT p.id,v.id FROM profiles p CROSS JOIN privileges v WHERE p.code IN ('SYS_ADMIN','ALL_PRIVS') AND v.code='app.settings.manage'
  ON CONFLICT DO NOTHING;
 INSERT INTO schema_migrations(version) VALUES('050_application_settings') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(version) VALUES('051_database_indexing_policy') ON CONFLICT DO NOTHING;

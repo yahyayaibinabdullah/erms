@@ -12,9 +12,10 @@ def test_global_search_header_results_and_safe_snippets_are_present():
     assert 'placeholder="Search records, files and aggregations"' in source
     assert 'global_search_input.on("keydown.enter"' in source
     assert 'classes("erms-global-search-wrap no-wrap")' in source
-    assert "global_search_wrap.set_visibility(full_text_search_enabled())" in source
+    assert "global_search_wrap.set_visibility(full_text_search_enabled(configuration))" in source
     assert "left: 50%; transform: translateX(-50%)" in source
-    assert "if full_text_search_enabled():" in source
+    assert "global_search_wrap.set_visibility(False)" in source
+    assert "if full_text_search_enabled():" not in source
     assert 'async def run_global_search(' in source
     assert 'async def change_global_search_page(' in source
     assert "Previous page" in source

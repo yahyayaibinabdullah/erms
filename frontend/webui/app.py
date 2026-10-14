@@ -3667,7 +3667,7 @@ def index(q: str = "") -> None:
             global_search_submit = ui.button(icon="search").props(
                 "flat round color=blue-grey-8 aria-label='" + render_message("webui.index.accessible_name.submit_global_search_d3d1329e") + "'"
             ).tooltip(render_message("webui.index.tooltip.search_93d9b9f9"))
-        global_search_wrap.set_visibility(full_text_search_enabled())
+        global_search_wrap.set_visibility(False)
         ui.space()
         message_unread_button = ui.button(icon="inbox", on_click=lambda: select_messages("inbox")).props("flat no-caps")
         message_unread_button.set_visibility(False)
@@ -4689,6 +4689,8 @@ def index(q: str = "") -> None:
         background_tasks.create(clear_translation_inspector_session())
         disable_diagnostic_metadata(page_client.id)
         auth_state["principal"] = None
+        state["application_configuration"] = {}
+        global_search_wrap.set_visibility(False)
         current_user_name.text = render_message("webui.clear_signed_in_identity.text.not_signed_in_a1c07c9a")
         current_user_email.text = ""
         current_user_avatar_initials.text = "?"
@@ -4711,6 +4713,7 @@ def index(q: str = "") -> None:
     def accept_application_configuration(configuration):
         """Page response values only; no independent expiry or environment fallback."""
         state["application_configuration"] = configuration
+        global_search_wrap.set_visibility(full_text_search_enabled(configuration))
         localization = state.get("localization") or {}
         if localization.get("uses_default_working_timezone") is True:
             timezone_name = configuration["DEFAULT_WORKING_TIMEZONE"]
@@ -20980,9 +20983,8 @@ def index(q: str = "") -> None:
         search_input.run_method("focus")
 
     search_input.on("clear", clear_collection_search)
-    if full_text_search_enabled():
-        global_search_submit.on("click", lambda: run_global_search(global_search_input.value or ""))
-        global_search_input.on("keydown.enter", lambda: run_global_search(global_search_input.value or ""))
+    global_search_submit.on("click", lambda: run_global_search(global_search_input.value or ""))
+    global_search_input.on("keydown.enter", lambda: run_global_search(global_search_input.value or ""))
     login_dialog = ui.dialog().props("persistent")
     with login_dialog:
         ui.element("canvas").classes(
@@ -21210,6 +21212,7 @@ def index(q: str = "") -> None:
         """Load ordinary application state only after password restrictions end."""
         if await load_localization_context():
             return False
+        accept_application_configuration(state["application_configuration"])
         populate_user_menu(principal)
         background_tasks.create(load_authenticated_client_assets())
         background_tasks.create(start_message_stream())

@@ -624,3 +624,14 @@ re-evaluates the policy before each pass. Initial settings-load failure stops th
 worker before cleanup; a failed cache refresh may retain only its last validated
 snapshot. Advisory locks, bounded batches, dry-run rollback and terminal audit
 remain unchanged. Review/apply the extended migration before service startup.
+
+### Phase 6 indexing-maintenance policy
+
+Indexing cleanup interval/history/batch and credential-history retention are now
+Administration Settings. One shot loads a fresh validated snapshot; watch mode
+uses the shared 30-second cache before each pass. Explicit flags are invocation
+overrides, never database updates. Workers reject incomplete legacy migration.
+Search, manual reindex and indexer request rates are API database settings.
+The Audit Trail cap uses one captured value for count lookahead, page bounds and
+`result_cap`. Apply schema migration 051 and a reviewed 34-key preview/apply
+before deployment; see application-settings-upgrade.md.

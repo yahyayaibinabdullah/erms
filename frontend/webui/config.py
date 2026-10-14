@@ -24,10 +24,8 @@ def reload_enabled() -> bool:
     return os.getenv("WEBUI_RELOAD", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 
-def full_text_search_enabled() -> bool:
-    return os.getenv("WEBUI_FULL_TEXT_SEARCH_ENABLED", "true").strip().lower() in {
-        "1", "true", "yes", "on",
-    }
+def full_text_search_enabled(configuration) -> bool:
+    return configuration["FULL_TEXT_SEARCH_ENABLED"]
 
 
 def storage_secret() -> str:

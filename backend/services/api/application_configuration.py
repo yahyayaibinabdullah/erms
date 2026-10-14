@@ -10,7 +10,7 @@ from .application_settings import cache
 from .application_settings_registry import REGISTRY
 
 UI_CONFIGURATION_KEYS = tuple(key for key, definition in REGISTRY.items()
-                              if definition.category in {"general", "interface_limits"})
+                              if definition.category in {"general", "interface_limits"}) + ("FULL_TEXT_SEARCH_ENABLED",)
 from .authentication import Principal, principal_from_request
 from .database import get_connection
 
