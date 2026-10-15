@@ -1360,6 +1360,34 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_blockers_detected",
+    "context_group": "audit.event",
+    "default_text": "Disposition blockers detected",
+    "semantic_meaning": "Disposition blockers detected in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition blockers detected",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_blockers_resolved",
+    "context_group": "audit.event",
+    "default_text": "Disposition blockers resolved",
+    "semantic_meaning": "Disposition blockers resolved in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition blockers resolved",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_eligibility_evaluated",
     "context_group": "audit.event",
     "default_text": "Disposition Eligibility Evaluated",
@@ -5599,6 +5627,2080 @@
     "grammatical_role": "page subtitle",
     "parameter_schema": {},
     "rendered_example": "An overview of your records management system",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.accelerate",
+    "context_group": "disposition.ui",
+    "default_text": "Accelerate disposition eligibility",
+    "semantic_meaning": "Accelerate disposition eligibility in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Accelerate disposition eligibility",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.accelerate_scope",
+    "context_group": "disposition.ui",
+    "default_text": "This exceptional action changes the eligibility status of this root and all descendants. Admission still requires a closed, unblocked root and an authorized assignee.",
+    "semantic_meaning": "This exceptional action changes the eligibility status of this root and all descendants. Admission still requires a closed, unblocked root and an authorized assignee. in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This exceptional action changes the eligibility status of this root and all descendants. Admission still requires a closed, unblocked root and an authorized assignee.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.actions",
+    "context_group": "disposition.ui",
+    "default_text": "Actions",
+    "semantic_meaning": "Disposition eligibility and common job interface: Actions",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Actions",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.active",
+    "context_group": "disposition.ui",
+    "default_text": "Active",
+    "semantic_meaning": "Disposition eligibility and common job interface: Active",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Active",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.active_job",
+    "context_group": "disposition.ui",
+    "default_text": "Active job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Active job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Active job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.actor",
+    "context_group": "disposition.ui",
+    "default_text": "Actor",
+    "semantic_meaning": "Disposition eligibility and common job interface: Actor",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Actor",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.add",
+    "context_group": "disposition.ui",
+    "default_text": "Add selected roots to job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Add selected roots to job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add selected roots to job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.added",
+    "context_group": "disposition.ui",
+    "default_text": "Added",
+    "semantic_meaning": "Disposition eligibility and common job interface: Added",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Added",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.added_at",
+    "context_group": "disposition.ui",
+    "default_text": "Added at",
+    "semantic_meaning": "Disposition eligibility and common job interface: Added at",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Added at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.aggregation",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregation",
+    "semantic_meaning": "Disposition eligibility and common job interface: Aggregation",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Aggregation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.any",
+    "context_group": "disposition.ui",
+    "default_text": "Any",
+    "semantic_meaning": "Disposition eligibility and common job interface: Any",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Any",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.assign",
+    "context_group": "disposition.ui",
+    "default_text": "Change assignment",
+    "semantic_meaning": "Disposition eligibility and common job interface: Change assignment",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Change assignment",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.assignee",
+    "context_group": "disposition.ui",
+    "default_text": "Assigned person",
+    "semantic_meaning": "Disposition eligibility and common job interface: Assigned person",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Assigned person",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.blocked",
+    "context_group": "disposition.ui",
+    "default_text": "Blocked from disposition job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Blocked from disposition job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Blocked from disposition job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.blockers",
+    "context_group": "disposition.ui",
+    "default_text": "Current blockers",
+    "semantic_meaning": "Disposition eligibility and common job interface: Current blockers",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.cancel",
+    "context_group": "disposition.ui",
+    "default_text": "Cancel",
+    "semantic_meaning": "Disposition eligibility and common job interface: Cancel",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Cancel",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_generation",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate generation",
+    "semantic_meaning": "Disposition eligibility and common job interface: Certificate generation",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate generation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.change_owner",
+    "context_group": "disposition.ui",
+    "default_text": "Change owning unit",
+    "semantic_meaning": "Disposition eligibility and common job interface: Change owning unit",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Change owning unit",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.classification",
+    "context_group": "disposition.ui",
+    "default_text": "Classification",
+    "semantic_meaning": "Disposition eligibility and common job interface: Classification",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Classification",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.closed_required",
+    "context_group": "disposition.ui",
+    "default_text": "Close this root before adding it to a job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Close this root before adding it to a job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Close this root before adding it to a job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.completed",
+    "context_group": "disposition.ui",
+    "default_text": "Completed",
+    "semantic_meaning": "Disposition eligibility and common job interface: Completed",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Completed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.completed_history",
+    "context_group": "disposition.ui",
+    "default_text": "Completed membership",
+    "semantic_meaning": "Disposition eligibility and common job interface: Completed membership",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Completed membership",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.confirm_remove",
+    "context_group": "disposition.ui",
+    "default_text": "Remove this aggregation from the job? Its membership history will be retained.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Remove this aggregation from the job? Its membership history will be retained.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove this aggregation from the job? Its membership history will be retained.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.create",
+    "context_group": "disposition.ui",
+    "default_text": "Create job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Create job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.descending",
+    "context_group": "disposition.ui",
+    "default_text": "Descending order",
+    "semantic_meaning": "Sort the current server-provided page in descending order.",
+    "common_locations": [
+      "Disposition eligibility filters"
+    ],
+    "translator_guidance": "Sort direction, not resource hierarchy direction.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Descending order",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.destruction",
+    "context_group": "disposition.ui",
+    "default_text": "Destruction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Destruction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital_destruction",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Digital destruction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_admission_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "Current vital, security or legal-hold protection prevents admission.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Current vital, security or legal-hold protection prevents admission.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current vital, security or legal-hold protection prevents admission.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_assignee_access_required",
+    "context_group": "disposition.ui",
+    "default_text": "The assigned person cannot access one or more selected roots.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The assigned person cannot access one or more selected roots.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The assigned person cannot access one or more selected roots.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_assignee_not_authorized",
+    "context_group": "disposition.ui",
+    "default_text": "The selected person is not currently authorized for this job type.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The selected person is not currently authorized for this job type.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The selected person is not currently authorized for this job type.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_assignment_required",
+    "context_group": "disposition.ui",
+    "default_text": "Assign an authorized person before adding members.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Assign an authorized person before adding members.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Assign an authorized person before adding members.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_inactive_job",
+    "context_group": "disposition.ui",
+    "default_text": "This job is no longer active.",
+    "semantic_meaning": "Disposition eligibility and common job interface: This job is no longer active.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This job is no longer active.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_job_type_status_mismatch",
+    "context_group": "disposition.ui",
+    "default_text": "The eligibility status does not match this job type.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The eligibility status does not match this job type.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The eligibility status does not match this job type.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_membership_stage_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Membership cannot change at this workflow stage.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Membership cannot change at this workflow stage.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Membership cannot change at this workflow stage.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_owning_unit_mismatch",
+    "context_group": "disposition.ui",
+    "default_text": "The root is outside this destruction job’s owning unit.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The root is outside this destruction job’s owning unit.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The root is outside this destruction job’s owning unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_removal_required",
+    "context_group": "disposition.ui",
+    "default_text": "Remove the marked members before continuing.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Remove the marked members before continuing.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove the marked members before continuing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_resource_access_required",
+    "context_group": "disposition.ui",
+    "default_text": "Current access to this root is required.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Current access to this root is required.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current access to this root is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_root_not_closed",
+    "context_group": "disposition.ui",
+    "default_text": "The root must be closed before admission.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The root must be closed before admission.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The root must be closed before admission.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_stale_version",
+    "context_group": "disposition.ui",
+    "default_text": "This item changed. Refresh before trying again.",
+    "semantic_meaning": "Disposition eligibility and common job interface: This item changed. Refresh before trying again.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This item changed. Refresh before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.due",
+    "context_group": "disposition.ui",
+    "default_text": "Due date",
+    "semantic_meaning": "Disposition eligibility and common job interface: Due date",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Due date",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.due_from",
+    "context_group": "disposition.ui",
+    "default_text": "Due on or after (working timezone)",
+    "semantic_meaning": "Local date-time filter interpreted in the user’s saved IANA working timezone; submitted as an offset-bearing UTC instant.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Due on or after (working timezone)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.due_to",
+    "context_group": "disposition.ui",
+    "default_text": "Due on or before (working timezone)",
+    "semantic_meaning": "Local date-time filter interpreted in the user’s saved IANA working timezone; submitted as an offset-bearing UTC instant.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Due on or before (working timezone)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.earlier",
+    "context_group": "disposition.ui",
+    "default_text": "Earlier occurrence",
+    "semantic_meaning": "Explicit disambiguation of a repeated local clock time in disposition due-date filtering.",
+    "common_locations": [
+      "Disposition eligibility due-date filter"
+    ],
+    "translator_guidance": "Earlier and later identify the first or second occurrence of a repeated wall-clock time during a daylight-saving change.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Earlier occurrence",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility",
+    "context_group": "disposition.ui",
+    "default_text": "Disposition eligibility",
+    "semantic_meaning": "Disposition eligibility and common job interface: Disposition eligibility",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition eligibility",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.empty",
+    "context_group": "disposition.ui",
+    "default_text": "No matching items",
+    "semantic_meaning": "Disposition eligibility and common job interface: No matching items",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No matching items",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_approval_pending",
+    "context_group": "disposition.ui",
+    "default_text": "External approval pending",
+    "semantic_meaning": "Disposition eligibility and common job interface: External approval pending",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External approval pending",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.failed",
+    "context_group": "disposition.ui",
+    "default_text": "The operation could not be completed. Refresh and try again.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The operation could not be completed. Refresh and try again.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The operation could not be completed. Refresh and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.file_administrator_review",
+    "context_group": "disposition.ui",
+    "default_text": "File Administrator review",
+    "semantic_meaning": "Disposition eligibility and common job interface: File Administrator review",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "File Administrator review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.filters",
+    "context_group": "disposition.ui",
+    "default_text": "Apply filters",
+    "semantic_meaning": "Disposition eligibility and common job interface: Apply filters",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Apply filters",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.final_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "Outside-job relationships block final disposition only",
+    "semantic_meaning": "Disposition eligibility and common job interface: Outside-job relationships block final disposition only",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Outside-job relationships block final disposition only",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.group_owner",
+    "context_group": "disposition.ui",
+    "default_text": "Group this page by owner",
+    "semantic_meaning": "Disposition eligibility and common job interface: Group this page by owner",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Group this page by owner",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.held",
+    "context_group": "disposition.ui",
+    "default_text": "Legal holds",
+    "semantic_meaning": "Disposition eligibility and common job interface: Legal holds",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Legal holds",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.hidden",
+    "context_group": "disposition.ui",
+    "default_text": "Restricted blocking descendant",
+    "semantic_meaning": "Disposition eligibility and common job interface: Restricted blocking descendant",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Restricted blocking descendant",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history",
+    "context_group": "disposition.ui",
+    "default_text": "Event history",
+    "semantic_meaning": "Disposition eligibility and common job interface: Event history",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Event history",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.job_number",
+    "context_group": "disposition.ui",
+    "default_text": "Job number",
+    "semantic_meaning": "Disposition eligibility and common job interface: Job number",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Job number",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.job_type",
+    "context_group": "disposition.ui",
+    "default_text": "Job type",
+    "semantic_meaning": "Disposition eligibility and common job interface: Job type",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Job type",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.jobs",
+    "context_group": "disposition.ui",
+    "default_text": "Disposition jobs",
+    "semantic_meaning": "Disposition eligibility and common job interface: Disposition jobs",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition jobs",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.later",
+    "context_group": "disposition.ui",
+    "default_text": "Later occurrence",
+    "semantic_meaning": "Explicit disambiguation of a repeated local clock time in disposition due-date filtering.",
+    "common_locations": [
+      "Disposition eligibility due-date filter"
+    ],
+    "translator_guidance": "Earlier and later identify the first or second occurrence of a repeated wall-clock time during a daylight-saving change.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Later occurrence",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.lifecycle",
+    "context_group": "disposition.ui",
+    "default_text": "Job state",
+    "semantic_meaning": "Disposition eligibility and common job interface: Job state",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Job state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.loading",
+    "context_group": "disposition.ui",
+    "default_text": "Loading…",
+    "semantic_meaning": "Disposition eligibility and common job interface: Loading…",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Loading…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.local_archives",
+    "context_group": "disposition.ui",
+    "default_text": "Retention as local archives",
+    "semantic_meaning": "Disposition eligibility and common job interface: Retention as local archives",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retention as local archives",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.manager_correction",
+    "context_group": "disposition.ui",
+    "default_text": "Records Manager correction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Records Manager correction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Manager correction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.manager_preparation",
+    "context_group": "disposition.ui",
+    "default_text": "Records Manager preparation",
+    "semantic_meaning": "Disposition eligibility and common job interface: Records Manager preparation",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Manager preparation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.members",
+    "context_group": "disposition.ui",
+    "default_text": "Membership history",
+    "semantic_meaning": "Disposition eligibility and common job interface: Membership history",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Membership history",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.membership",
+    "context_group": "disposition.ui",
+    "default_text": "Membership",
+    "semantic_meaning": "Disposition eligibility and common job interface: Membership",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Membership",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.more",
+    "context_group": "disposition.ui",
+    "default_text": "Load more blockers",
+    "semantic_meaning": "Load more blockers in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Load more blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.no",
+    "context_group": "disposition.ui",
+    "default_text": "No",
+    "semantic_meaning": "Disposition eligibility and common job interface: No",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.no_add",
+    "context_group": "disposition.ui",
+    "default_text": "No roots were added. Review the individual results.",
+    "semantic_meaning": "Membership addition completed with partial or no success; never imply rejected roots were saved.",
+    "common_locations": [
+      "Disposition eligibility addition feedback"
+    ],
+    "translator_guidance": "Explain that the listed individual admission failures remain unsaved.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No roots were added. Review the individual results.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.no_blockers",
+    "context_group": "disposition.ui",
+    "default_text": "No current protection blockers",
+    "semantic_meaning": "Disposition eligibility and common job interface: No current protection blockers",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No current protection blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.no_date",
+    "context_group": "disposition.ui",
+    "default_text": "No calculated due date",
+    "semantic_meaning": "Disposition eligibility and common job interface: No calculated due date",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No calculated due date",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.not_added",
+    "context_group": "disposition.ui",
+    "default_text": "Not added",
+    "semantic_meaning": "Disposition eligibility and common job interface: Not added",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Not added",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.number",
+    "context_group": "disposition.ui",
+    "default_text": "Number",
+    "semantic_meaning": "Disposition eligibility and common job interface: Number",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Number",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.occurred",
+    "context_group": "disposition.ui",
+    "default_text": "Occurred at",
+    "semantic_meaning": "Disposition eligibility and common job interface: Occurred at",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Occurred at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.officer_correction",
+    "context_group": "disposition.ui",
+    "default_text": "Records Officer correction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Records Officer correction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Officer correction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.officer_preparation",
+    "context_group": "disposition.ui",
+    "default_text": "Records Officer preparation",
+    "semantic_meaning": "Disposition eligibility and common job interface: Records Officer preparation",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Officer preparation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.open",
+    "context_group": "disposition.ui",
+    "default_text": "Open",
+    "semantic_meaning": "Disposition eligibility and common job interface: Open",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Open",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.operation",
+    "context_group": "disposition.ui",
+    "default_text": "Operation",
+    "semantic_meaning": "Disposition eligibility and common job interface: Operation",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Operation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.overdue",
+    "context_group": "disposition.ui",
+    "default_text": "Days overdue",
+    "semantic_meaning": "Disposition eligibility and common job interface: Days overdue",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Days overdue",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.overlap",
+    "context_group": "disposition.ui",
+    "default_text": "Daylight-saving overlap",
+    "semantic_meaning": "Explicit disambiguation of a repeated local clock time in disposition due-date filtering.",
+    "common_locations": [
+      "Disposition eligibility due-date filter"
+    ],
+    "translator_guidance": "Earlier and later identify the first or second occurrence of a repeated wall-clock time during a daylight-saving change.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Daylight-saving overlap",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.owner",
+    "context_group": "disposition.ui",
+    "default_text": "Owning organization unit",
+    "semantic_meaning": "Disposition eligibility and common job interface: Owning organization unit",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Owning organization unit",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.partial_add",
+    "context_group": "disposition.ui",
+    "default_text": "Some roots were not added. Review the individual results.",
+    "semantic_meaning": "Membership addition completed with partial or no success; never imply rejected roots were saved.",
+    "common_locations": [
+      "Disposition eligibility addition feedback"
+    ],
+    "translator_guidance": "Explain that the listed individual admission failures remain unsaved.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Some roots were not added. Review the individual results.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.permanent_transfer",
+    "context_group": "disposition.ui",
+    "default_text": "Permanent transfer",
+    "semantic_meaning": "Disposition eligibility and common job interface: Permanent transfer",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Permanent transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_destruction",
+    "context_group": "disposition.ui",
+    "default_text": "Physical destruction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Physical destruction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.ready",
+    "context_group": "disposition.ui",
+    "default_text": "Available for job admission",
+    "semantic_meaning": "Disposition eligibility and common job interface: Available for job admission",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Available for job admission",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reason",
+    "context_group": "disposition.ui",
+    "default_text": "Change reason",
+    "semantic_meaning": "Disposition eligibility and common job interface: Change reason",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Change reason",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.record",
+    "context_group": "disposition.ui",
+    "default_text": "Record",
+    "semantic_meaning": "Record in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Record",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.records_manager_review",
+    "context_group": "disposition.ui",
+    "default_text": "Records Manager review",
+    "semantic_meaning": "Disposition eligibility and common job interface: Records Manager review",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Manager review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.refresh",
+    "context_group": "disposition.ui",
+    "default_text": "Refresh",
+    "semantic_meaning": "Disposition eligibility and common job interface: Refresh",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Refresh",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.remove",
+    "context_group": "disposition.ui",
+    "default_text": "Remove from job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Remove from job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove from job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removed",
+    "context_group": "disposition.ui",
+    "default_text": "Removed",
+    "semantic_meaning": "Disposition eligibility and common job interface: Removed",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Removed at",
+    "semantic_meaning": "Disposition eligibility and common job interface: Removed at",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reopened",
+    "context_group": "disposition.ui",
+    "default_text": "Reopened — must be removed from this job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Reopened — must be removed from this job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reopened — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.required",
+    "context_group": "disposition.ui",
+    "default_text": "Provide a reason and complete the required fields. Changes have not been saved.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Provide a reason and complete the required fields. Changes have not been saved.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Provide a reason and complete the required fields. Changes have not been saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.restricted",
+    "context_group": "disposition.ui",
+    "default_text": "Restricted resource — insufficient access to add",
+    "semantic_meaning": "Disposition eligibility and common job interface: Restricted resource — insufficient access to add",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Restricted resource — insufficient access to add",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.results",
+    "context_group": "disposition.ui",
+    "default_text": "Addition results",
+    "semantic_meaning": "Disposition eligibility and common job interface: Addition results",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Addition results",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retention_rule_changed",
+    "context_group": "disposition.ui",
+    "default_text": "Retention rule changed — must be removed from this job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Retention rule changed — must be removed from this job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retention rule changed — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.role",
+    "context_group": "disposition.ui",
+    "default_text": "Acting information-governance role",
+    "semantic_meaning": "Disposition eligibility and common job interface: Acting information-governance role",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Acting information-governance role",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.rule",
+    "context_group": "disposition.ui",
+    "default_text": "Effective retention-rule source",
+    "semantic_meaning": "Disposition eligibility and common job interface: Effective retention-rule source",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Effective retention-rule source",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.save",
+    "context_group": "disposition.ui",
+    "default_text": "Save",
+    "semantic_meaning": "Disposition eligibility and common job interface: Save",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Save",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.saved",
+    "context_group": "disposition.ui",
+    "default_text": "Changes saved",
+    "semantic_meaning": "Disposition eligibility and common job interface: Changes saved",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Changes saved",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.search",
+    "context_group": "disposition.ui",
+    "default_text": "Search job number",
+    "semantic_meaning": "Disposition eligibility and common job interface: Search job number",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search job number",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.section",
+    "context_group": "disposition.ui",
+    "default_text": "Disposition",
+    "semantic_meaning": "Disposition eligibility and common job interface: Disposition",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.security",
+    "context_group": "disposition.ui",
+    "default_text": "Security blockers",
+    "semantic_meaning": "Disposition eligibility and common job interface: Security blockers",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Security blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.select_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Select accessible, unblocked closed roots. Each selected root is checked again when added.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Select accessible, unblocked closed roots. Each selected root is checked again when added.",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Select accessible, unblocked closed roots. Each selected root is checked again when added.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.select_job",
+    "context_group": "disposition.ui",
+    "default_text": "Choose a disposition job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Choose a disposition job",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Choose a disposition job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.selective_transfer",
+    "context_group": "disposition.ui",
+    "default_text": "Selective transfer",
+    "semantic_meaning": "Disposition eligibility and common job interface: Selective transfer",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Selective transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.selector_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Type at least two characters to search",
+    "semantic_meaning": "Disposition eligibility and common job interface: Type at least two characters to search",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Type at least two characters to search",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.sort",
+    "context_group": "disposition.ui",
+    "default_text": "Sort by",
+    "semantic_meaning": "Sort by in the common disposition workspace.",
+    "common_locations": [
+      "Disposition workspace"
+    ],
+    "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Sort by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.stage",
+    "context_group": "disposition.ui",
+    "default_text": "Workflow stage",
+    "semantic_meaning": "Disposition eligibility and common job interface: Workflow stage",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Workflow stage",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status",
+    "context_group": "disposition.ui",
+    "default_text": "Disposition status",
+    "semantic_meaning": "Disposition eligibility and common job interface: Disposition status",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition status",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_1",
+    "context_group": "disposition.ui",
+    "default_text": "Not ready for disposition",
+    "semantic_meaning": "Disposition eligibility and common job interface: Not ready for disposition",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Not ready for disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_10",
+    "context_group": "disposition.ui",
+    "default_text": "Destroyed",
+    "semantic_meaning": "Disposition eligibility and common job interface: Destroyed",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destroyed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_11",
+    "context_group": "disposition.ui",
+    "default_text": "Permanently transferred",
+    "semantic_meaning": "Disposition eligibility and common job interface: Permanently transferred",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Permanently transferred",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_12",
+    "context_group": "disposition.ui",
+    "default_text": "Retained as local archives",
+    "semantic_meaning": "Disposition eligibility and common job interface: Retained as local archives",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retained as local archives",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_13",
+    "context_group": "disposition.ui",
+    "default_text": "Partially disposed — action required",
+    "semantic_meaning": "Disposition eligibility and common job interface: Partially disposed — action required",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Partially disposed — action required",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_2",
+    "context_group": "disposition.ui",
+    "default_text": "Eligible for destruction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Eligible for destruction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Eligible for destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_3",
+    "context_group": "disposition.ui",
+    "default_text": "Eligible for permanent transfer",
+    "semantic_meaning": "Disposition eligibility and common job interface: Eligible for permanent transfer",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Eligible for permanent transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_4",
+    "context_group": "disposition.ui",
+    "default_text": "Eligible for selective transfer",
+    "semantic_meaning": "Disposition eligibility and common job interface: Eligible for selective transfer",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Eligible for selective transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_5",
+    "context_group": "disposition.ui",
+    "default_text": "Eligible for retention as local archives",
+    "semantic_meaning": "Disposition eligibility and common job interface: Eligible for retention as local archives",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Eligible for retention as local archives",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_6",
+    "context_group": "disposition.ui",
+    "default_text": "Pending destruction",
+    "semantic_meaning": "Disposition eligibility and common job interface: Pending destruction",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pending destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_7",
+    "context_group": "disposition.ui",
+    "default_text": "Pending permanent transfer",
+    "semantic_meaning": "Disposition eligibility and common job interface: Pending permanent transfer",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pending permanent transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_8",
+    "context_group": "disposition.ui",
+    "default_text": "Pending selective transfer",
+    "semantic_meaning": "Disposition eligibility and common job interface: Pending selective transfer",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pending selective transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.status_9",
+    "context_group": "disposition.ui",
+    "default_text": "Pending retention as local archives",
+    "semantic_meaning": "Disposition eligibility and common job interface: Pending retention as local archives",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pending retention as local archives",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.terminated",
+    "context_group": "disposition.ui",
+    "default_text": "Terminated",
+    "semantic_meaning": "Disposition eligibility and common job interface: Terminated",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Terminated",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.terminated_history",
+    "context_group": "disposition.ui",
+    "default_text": "Terminated membership",
+    "semantic_meaning": "Disposition eligibility and common job interface: Terminated membership",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Terminated membership",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.title",
+    "context_group": "disposition.ui",
+    "default_text": "Title",
+    "semantic_meaning": "Disposition eligibility and common job interface: Title",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Title",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.type",
+    "context_group": "disposition.ui",
+    "default_text": "Final disposition",
+    "semantic_meaning": "Disposition eligibility and common job interface: Final disposition",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Final disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.unassigned",
+    "context_group": "disposition.ui",
+    "default_text": "Unassigned",
+    "semantic_meaning": "Disposition eligibility and common job interface: Unassigned",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Unassigned",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.unit_manager_review",
+    "context_group": "disposition.ui",
+    "default_text": "Organization Unit Manager review",
+    "semantic_meaning": "Disposition eligibility and common job interface: Organization Unit Manager review",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Organization Unit Manager review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.vital",
+    "context_group": "disposition.ui",
+    "default_text": "Vital resources",
+    "semantic_meaning": "Disposition eligibility and common job interface: Vital resources",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Vital resources",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.yes",
+    "context_group": "disposition.ui",
+    "default_text": "Yes",
+    "semantic_meaning": "Disposition eligibility and common job interface: Yes",
+    "common_locations": [
+      "Disposition eligibility",
+      "Disposition jobs",
+      "Resource disposition metadata"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Yes",
     "is_html": false
   },
   {

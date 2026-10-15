@@ -41,9 +41,16 @@ def protection_page(connection,root_id,*,limit=25,offset=0):
     ids=sorted({hid for r in rows[:limit] if r['visible'] for hid in r['hold_ids'][:25]})
     holds={r['id']:{'id':r['id'],'code':r['code'],'name':r['name']} for r in connection.execute(
      f'SELECT hold.id,hold.code,hold.name FROM holds hold WHERE hold.id=ANY(%s::bigint[]) AND {hold_visibility_sql()}',(ids,)).fetchall()} if ids else {}
+    labels={}
+    for kind, table, number in [('aggregation','aggregations','aggregation_number'),('record','records','record_number')]:
+        visible_ids=[r['resource_id'] for r in rows[:limit] if r['visible'] and r['resource_kind']==kind]
+        if visible_ids:
+            for resource in connection.execute(f'SELECT id,{number} AS number,title FROM {table} WHERE id=ANY(%s::bigint[])',(visible_ids,)).fetchall():
+                labels[(kind,resource['id'])]=resource['number']+' · '+resource['title']
     items=[]
     for r in rows[:limit]:
         items.append({'resource_kind':r['resource_kind'],'resource_id':r['resource_id'] if r['visible'] else None,
+          'resource_label':labels.get((r['resource_kind'],r['resource_id'])) if r['visible'] else None,
           'redacted':not r['visible'],'is_vital':r['is_vital'],'security_blocked':r['security_blocked'],
           'legal_hold':bool(r['hold_ids']),
           'holds':[holds[hid] for hid in r['hold_ids'][:25] if hid in holds] if r['visible'] else [],

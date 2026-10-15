@@ -180,8 +180,8 @@ def test_catalogue_revision_refresh_does_not_force_a_full_page_reload():
     source = inspect.getsource(index)
     rebuild = source[source.index("needs_rebuild = ("):source.index("return needs_rebuild")]
     assert "catalogue_revision" not in rebuild
-    assert 'previous.get("effective_language")' in rebuild
-    assert 'previous.get("direction")' in rebuild
+    assert 'previous.get("effective_language", initial_language)' in rebuild
+    assert 'previous.get("direction", initial_direction)' in rebuild
 
 
 def test_dashboard_startup_defers_optional_assets_and_avoids_duplicate_favourites_call():
@@ -224,7 +224,7 @@ def test_dashboard_navigation_renders_cached_data_then_refreshes_in_background()
 def test_entity_page_startup_parallelizes_requests_and_bounds_relationship_resolution():
     source = inspect.getsource(index)
     assert "await asyncio.gather(*startup_requests)" in source
-    assert "activity = await api.recent_resource_activity(spec.key, limit=50, since=since)" in source
+    assert "activity = await api.recent_resource_activity(spec.key, limit=50)" in source
     assert "decorated = await decorate_for_spec(spec, activity)" in source
     assert "async def rows_by_id(" in source
     assert "async def org_unit_context(" in source

@@ -671,6 +671,8 @@ class BrowseAggregationNode(ApiModel):
     date_closed: datetime | None
     medium: Literal["digital", "physical", "mixed"] = "mixed"
     is_vital: bool = False
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    disposition_job_id: int | None = None
     has_vital_descendants: bool = False
     date_of_next_review: datetime | None = None
     assigned_location: str | None = None
@@ -700,6 +702,8 @@ class BrowseRecordNode(ApiModel):
     date_originated: datetime
     medium: Literal["digital", "physical", "mixed"] = "mixed"
     is_vital: bool = False
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    disposition_job_id: int | None = None
     date_of_next_review: datetime | None = None
     effective_assigned_location: str | None = None
     effective_current_location: str | None = None
@@ -1375,6 +1379,7 @@ class PrincipalRead(ApiModel):
     must_change_password: bool
     previous_login_at: datetime | None
     global_privileges: list[str]
+    can_manage_disposition: bool = False
 
 
 class LoginSessionRead(ApiModel):

@@ -75,6 +75,8 @@ SEARCH_FIELDS: dict[str, dict[str, SearchField]] = {
         "on_effective_hold": BOOLEAN,
         "resource_state_changes_blocked": BOOLEAN,
         "effective_hold_id": INTEGER,
+        "disposition_status": INTEGER,
+        "disposition_job_id": NULLABLE_INTEGER,
     },
     "records": {
         "id": INTEGER,
@@ -95,6 +97,8 @@ SEARCH_FIELDS: dict[str, dict[str, SearchField]] = {
         "on_effective_hold": BOOLEAN,
         "resource_state_changes_blocked": BOOLEAN,
         "effective_hold_id": INTEGER,
+        "disposition_status": INTEGER,
+        "disposition_job_id": NULLABLE_INTEGER,
     },
     "digital_components": {
         "id": INTEGER,

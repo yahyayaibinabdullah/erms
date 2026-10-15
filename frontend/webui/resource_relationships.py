@@ -1,7 +1,7 @@
 """Named-link panels and catalogue administration; no cross-page data cache."""
 import asyncio
 from html import escape
-from nicegui import ui
+from nicegui import ui, context
 from .api_client import ApiError
 from .i18n_catalogue import render_message_plain
 from .locale_services import current_locale_context
@@ -50,20 +50,30 @@ def link_row(item, can_link):
 
 class PageTable:
     """Server pagination with revision and active-page guards, no cached results."""
-    def __init__(self, *, columns, fetch, active, on_error, empty):
+    def __init__(self, *, columns, fetch, active, on_error, empty, empty_text=None, selection=None, on_loaded=None, loading_text=None, initial=None, wrap_cells=False):
+        self.client = context.client
         self.fetch, self.active, self.on_error = fetch, active, on_error
+        self.empty_text = empty_text
+        self.on_loaded = on_loaded
+        self.loading_text = loading_text
         self.revision = 0
-        self.page, self.size, self.sort, self.descending = 1, 25, '', False
+        initial = initial or {}
+        self.page = max(1, int(initial.get('page', 1)))
+        self.size = initial.get('size', 25) if initial.get('size', 25) in (10,25,50) else 25
+        self.sort = initial.get('sort', '')
+        self.descending = bool(initial.get('descending', False))
         self.status = ui.label('').classes('text-sm text-slate-500').props('role=status')
-        self.table = ui.table(columns=columns, rows=[], row_key='id', pagination={
-            'page': 1, 'rowsPerPage': 25, 'rowsNumber': 0,
+        self.table = ui.table(columns=columns, rows=[], row_key='id', selection=selection, pagination={
+            'page': self.page, 'rowsPerPage': self.size, 'rowsNumber': 0,
         }).props('flat bordered separator=horizontal :rows-per-page-options="[10,25,50]"').classes('erms-page-table w-full')
+        if wrap_cells:
+            self.table.props('wrap-cells')
         self.empty = empty
         self.total = 0
         self.table.props('hide-bottom')
         self.no_data = ui.label('').classes('text-sm text-slate-500').props('role=status')
         with ui.row().classes('w-full items-center justify-end gap-3'):
-            self.page_size = ui.select([10,25,50],value=25,label=text('page_size')).props('outlined dense').classes('w-40')
+            self.page_size = ui.select([10,25,50],value=self.size,label=text('page_size')).props('outlined dense').classes('w-40')
             self.count = ui.label('').classes('text-sm text-slate-500')
             self.previous = ui.button(text('previous'),icon='chevron_right' if language() == 'ar' else 'chevron_left',on_click=lambda:self.move(-1)).props('flat dense no-caps')
             self.next = ui.button(text('next'),icon='chevron_left' if language() == 'ar' else 'chevron_right',on_click=lambda:self.move(1)).props('flat dense no-caps')
@@ -90,6 +100,10 @@ class PageTable:
         await self.load()
 
     async def load(self, reset=False):
+        with self.client:
+            await self._load(reset)
+
+    async def _load(self, reset=False):
         if not self.active() or self.table._deleted:
             return
         if reset:
@@ -97,7 +111,7 @@ class PageTable:
         self.revision += 1
         revision = self.revision
         self.table.props('loading')
-        self.status.text = text('loading')
+        self.status.text = self.loading_text() if self.loading_text else text('loading')
         self.no_data.text = ''
         try:
             result = await self.fetch(self)
@@ -122,13 +136,15 @@ class PageTable:
             self.page = last_page
             await self.load()
             return
+        if self.on_loaded:
+            self.on_loaded(self, result)
         self.total = result['total']
         self.table.rows = result['items']
         self.table.pagination = {'page': self.page, 'rowsPerPage': self.size,
                                  'rowsNumber': result['total'], 'sortBy': self.sort,
                                  'descending': self.descending}
         self.status.text = ''
-        self.no_data.text = text(self.empty) if not self.total else ''
+        self.no_data.text = (self.empty_text() if self.empty_text else text(self.empty)) if not self.total else ''
         self.count.text = text('page_count', first=(self.page-1)*self.size+1 if self.total else 0, last=min(self.page*self.size,self.total),total=self.total)
         self.previous.set_enabled(self.page > 1)
         self.next.set_enabled(self.page*self.size < self.total)

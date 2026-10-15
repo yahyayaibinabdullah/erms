@@ -389,6 +389,19 @@ Total active time: **0.58 hours**. Phase 10 is next.
 
 ### Phase 10 Deliver eligibility and common job screens
 
+**Completed 2026-10-15.** Server-paged eligibility, owner grouping, protected
+blocker explanations, common job management/history and descendant status
+presentation are implemented. Real create/assign/add/remove/acceleration,
+mutation feedback/freshness, authorization/redaction and desktop/mobile
+LTR/RTL and keyboard checks passed. Final focused frontend checks: 110 passed;
+final read/filter cases: 10 plus 1 passed; catalogue/publication checks: 19
+passed; traceability checks: 24 passed. All 19 disposable databases were
+independently confirmed absent. All 3,204 existing Arabic items were preserved;
+133 new drafts retain human-review flags and require explicit review/publication.
+No persistent database or deployed service was changed. Evidence:
+[Phase 10 verification](../docs/disposition-phase-10.md) and the requirement ledger.
+Total active time: **1.83 hours**. Phase 11 is next.
+
 **Priority:** Disposition usability. **Dependencies:** Phase 9.
 
 **Scope:** Build the eligibility listing, required filters/grouping/sorting,

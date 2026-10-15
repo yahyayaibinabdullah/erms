@@ -1399,3 +1399,15 @@ class ErmsApiClient:
             f"/api/v1/user-role-assignments/{assignment_id}",
             headers={"If-Match": str(version)},
         )
+
+    async def disposition_page(self, path: str, **parameters: Any) -> dict[str, Any]:
+        """Live bounded pages; use the existing identity-scoped in-flight reads."""
+        return await self.request('GET', '/api/v1/disposition/' + path,
+                                  params={key: value for key, value in parameters.items() if value is not None})
+
+    async def disposition_command(self, path: str, payload: dict[str, Any], *, reason: str,
+                                  version: int | None = None) -> dict[str, Any]:
+        headers = {'X-Change-Reason': reason}
+        if version is not None:
+            headers['If-Match'] = str(version)
+        return await self.request('POST', '/api/v1/disposition/' + path, json=payload, headers=headers)

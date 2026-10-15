@@ -1,4 +1,6 @@
 from __future__ import annotations
+from frontend.webui.disposition.screens import eligibility_screen, jobs_screen, job_screen, accelerate_dialog
+from frontend.webui.disposition.messages import text as disposition_text, status_label as disposition_status_label
 
 from frontend.webui.event_labels import event_label
 
@@ -3774,6 +3776,9 @@ def index(q: str = "") -> None:
             drawer_toggle_tooltip = ui.tooltip(render_message("webui.index.tooltip.collapse_navigation_abf7124d"))
         navigation: dict[str, Any] = {}
         localized_navigation = {
+            "disposition_heading": disposition_text("section"),
+            "disposition-eligibility": disposition_text("eligibility"),
+            "disposition-jobs": disposition_text("jobs"),
             "records_heading": render_message("navigation.section.records"),
             "organization_heading": render_message("navigation.section.organization"),
             "messages_heading": render_message("messaging.navigation.messages"),
@@ -3798,6 +3803,7 @@ def index(q: str = "") -> None:
                 )
                 for heading_key, entries in (
                     ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"), ("relationship-types", "link"))),
+                    ("disposition_heading", (("disposition-eligibility", "event_available"), ("disposition-jobs", "work_outline"))),
                     ("messages_heading", (("messages-inbox", "inbox"), ("messages-outbox", "outbox"), ("messages-drafts", "drafts"), ("messages-monitor", "monitor_heart"), ("messages-notifications", "notifications"))),
                     ("organization_heading", (("org-units", "corporate_fare"), ("roles", "badge"), ("users", "group"))),
                 ):
@@ -3871,6 +3877,7 @@ def index(q: str = "") -> None:
             "org-unit-details": "org-units",
             "role-details": "roles",
             "user-details": "users",
+            "disposition-job": "disposition-jobs",
         }.get(page, page)
         for button, _, key in drawer_links:
             if key == navigation_key:
@@ -3897,7 +3904,7 @@ def index(q: str = "") -> None:
                 (auth_state.get("principal") or {}).get("global_privileges", [])
             )
         link_visibility = {
-            key: can_navigate(key, granted) for _, _, key in drawer_links
+            key: can_navigate(key, granted) and (not key.startswith("disposition-") or (auth_state.get("principal") or {}).get("can_manage_disposition", False)) for _, _, key in drawer_links
         }
         for button, _, key in drawer_links:
             # Holds visibility is resolved separately from assigned hold access.
@@ -4021,6 +4028,7 @@ def index(q: str = "") -> None:
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
             "aggregation_mode": state.get("aggregation_mode", "search"),
             "settings_category": state.get("settings_category", "general"),
+            "disposition_view": dict(state.get("disposition_view") or {}),
             "global_search_query": state.get("global_search_query", ""),
             "global_search_page": state.get("global_search_page", 1),
             "global_search_filter": state.get("global_search_filter", "all"),
@@ -4408,6 +4416,8 @@ def index(q: str = "") -> None:
             render_navigation_breadcrumbs()
 
     breadcrumb_message_keys = {
+        "disposition-eligibility": "disposition.ui.eligibility",
+        "disposition-jobs": "disposition.ui.jobs",
         "messages-inbox": "messaging.navigation.inbox",
         "messages-outbox": "messaging.navigation.outbox",
         "messages-drafts": "messaging.navigation.drafts",
@@ -4564,6 +4574,8 @@ def index(q: str = "") -> None:
                     await run_global_search(query)
             else:
                 await select_dashboard()
+        elif page in ("disposition-eligibility", "disposition-jobs", "disposition-job"):
+            await select_disposition(page, entity_id if page == "disposition-job" else None, saved.get("disposition_view"))
         elif page == "relationship-types":
             await select_relationship_types()
         elif page.startswith("messages-"):
@@ -4845,6 +4857,7 @@ def index(q: str = "") -> None:
                                 "text-sm font-semibold text-slate-800 truncate"
                             ).tooltip(item.get("title") or render_message("webui.render_compact_resource_result.tooltip.untitled_72cde12a"))
                         with ui.row().classes("compact-result-meta w-full items-center no-wrap gap-1"):
+                            ui.label(disposition_status_label(item.get("disposition_status", 1))).classes("text-xs text-slate-600").tooltip(disposition_text("status"))
                             ui.label(format_date(date_value)).classes(
                                 "compact-result-date"
                             ).tooltip(render_message("webui.render_compact_resource_result.tooltip.originated_d00c8b65") if is_record else render_message("webui.render_compact_resource_result.tooltip.opened_4b8fc56f"))
@@ -7430,6 +7443,7 @@ def index(q: str = "") -> None:
                                 ),
                             ])
                         record_metadata.extend([
+                            ("disposition_status", disposition_text("status"), disposition_status_label(record.get("disposition_status", 1))),
                             ("review", render_message("entity_metadata.field.review"), review_display(record.get("date_of_next_review"))),
                             # The state disambiguates a protected existing
                             # container from an absent relationship; records
@@ -9946,6 +9960,11 @@ def index(q: str = "") -> None:
                                 "aggregation-detail-header-actions items-center gap-2"
                             ):
                                 favourite_button("aggregations", current["id"])
+                                if current.get("parent_aggregation_id") is None and current.get("disposition_status",1)==1 and (auth_state.get("principal") or {}).get("can_manage_disposition"):
+                                    async def accelerated(result):await open_aggregation(await api.get("aggregations",current["id"]))
+                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
+                                        api=api,root=current,active=lambda:state.get("resource")=="aggregation-details" and (state.get("aggregation_detail") or {}).get("id")==current["id"],
+                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
                                 ui.button(
                                     render_message("webui.open_aggregation.button.back_4d496e53"),
                                     icon=None if current_direction["value"] == "rtl" else "arrow_back",
@@ -10067,6 +10086,7 @@ def index(q: str = "") -> None:
                                 )
                             )
                             aggregation_metadata.extend([
+                                ("disposition_status", disposition_text("status"), disposition_status_label(current.get("disposition_status", 1))),
                                 ("review", render_message("entity_metadata.field.review"), review_display(current.get("date_of_next_review"))),
                                 governing_relationship,
                                 (
@@ -19224,6 +19244,45 @@ def index(q: str = "") -> None:
             on_category=remember_settings_category,
         )
 
+    async def select_disposition(page="disposition-eligibility", identity=None, saved=None, target_job=None):
+        principal=auth_state.get("principal")
+        if not principal or not principal.get("can_manage_disposition"):
+            return
+        token=object()
+        label=disposition_text("eligibility" if page=="disposition-eligibility" else "jobs")
+        register_navigation(page,label,entity_id=identity)
+        state.update(resource=page, disposition_page_token=token, rows=[], searched=True,
+                     aggregation_detail=None, disposition_view=dict(saved or {}))
+        show_authenticated_view();title.text=label;subtitle.text="";guidance.text=""
+        for control in (search_bar,aggregation_mode_bar,add_button,add_record_button):control.set_visibility(False)
+        table_container.clear()
+        def active():
+            return auth_state.get("principal") is principal and state.get("resource")==page and state.get("disposition_page_token") is token
+        def remember(value):
+            if active():
+                state["disposition_view"]=value
+                if navigation_state["trail"] and navigation_state["trail"][-1]["page"]==page:
+                    navigation_state["trail"][-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
+        async def open_job(identity):await select_disposition("disposition-job",identity)
+        async def open_eligibility(job_id):await select_disposition("disposition-eligibility",target_job=job_id)
+        async def open_resource(kind,identity):await open_related_resource(kind,identity)
+        common=dict(api=api,container=table_container,active=active,on_error=error_message,
+                    bind_remote=bind_remote_relationship_select,open_job=open_job)
+        try:
+            if page=="disposition-job":
+                await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label)
+            elif page=="disposition-eligibility":
+                await eligibility_screen(**common,open_resource=open_resource,format_timestamp=format_timestamp,
+                                         saved=saved,remember=remember,target_job=target_job)
+            else:
+                await jobs_screen(**common,saved=saved,remember=remember)
+        except asyncio.CancelledError:
+            return
+        except ApiError as error:
+            if active():
+                with table_container:ui.label(error_message(error)).classes("text-negative").props("role=alert")
+
     async def select_relationship_types() -> None:
         principal = auth_state.get("principal")
         if not principal or not can_navigate("relationship-types", principal.get("global_privileges", [])):
@@ -20875,6 +20934,8 @@ def index(q: str = "") -> None:
             button.on("click", lambda: guarded_page_navigation(select_classification_workspace))
         elif key == "advanced-search":
             button.on("click", lambda: guarded_page_navigation(select_advanced_search))
+        elif key in ("disposition-eligibility", "disposition-jobs"):
+            button.on("click", lambda _, page=key: guarded_page_navigation(lambda: select_disposition(page)))
         elif key == "relationship-types":
             button.on("click", lambda: guarded_page_navigation(select_relationship_types))
         elif key == "translations":

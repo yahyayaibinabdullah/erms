@@ -10377,6 +10377,31 @@
             "backend/services/api/deploy/erms-disposition-eligibility.service"
           ],
           "details": "docs/disposition-phase-8.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -10408,6 +10433,28 @@
             "phase8-catalogue-20261015"
           ],
           "scope": "UTC database due calculation, effective local/classification rule provenance, complete-unit automated status transition, bounded repeatable worker, retries and concurrent-policy rechecks."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -10462,6 +10509,31 @@
             "backend/services/api/deploy/erms-disposition-eligibility.service"
           ],
           "details": "docs/disposition-phase-8.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -10493,6 +10565,28 @@
             "phase8-catalogue-20261015"
           ],
           "scope": "UTC database due calculation, effective local/classification rule provenance, complete-unit automated status transition, bounded repeatable worker, retries and concurrent-policy rechecks."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -10808,6 +10902,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -10857,6 +10976,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Protected common job/membership lifecycle, per-item savepoints, one active job, complete-unit propagation, immutable episode/history, current checks, exact retries and pre-irreversible termination."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -11524,6 +11665,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -11573,6 +11739,27 @@
             "phase9-labels-20261015"
           ],
           "scope": "Protected common job/membership lifecycle, per-item savepoints, one active job, complete-unit propagation, immutable episode/history, current checks, exact retries and pre-irreversible termination."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_descendant_search_and_browse_return_stored_pending_status_and_reopening_notice",
+            "frontend/webui/tests/test_disposition_screens.py::test_all_stored_statuses_have_contextual_labels"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition."
         }
       ],
       "baseline_refs": [
@@ -11634,6 +11821,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -11661,6 +11873,27 @@
             "phase9-labels-20261015"
           ],
           "scope": "Immediate UTC database-rule recalculation in the authorized policy/reopening/hierarchy transaction, unchanged-rule preservation, matching pending state and explicit removal/job blocking for reopened/not-due/incompatible members; final API status/version and all-or-nothing history."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_descendant_search_and_browse_return_stored_pending_status_and_reopening_notice",
+            "frontend/webui/tests/test_disposition_screens.py::test_all_stored_statuses_have_contextual_labels"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition."
         }
       ],
       "baseline_refs": [
@@ -11779,12 +12012,61 @@
           "phase_plans": [
             "phase_10"
           ],
-          "status": "planned"
+          "status": "passed"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "complete",
+      "implementation": [
+        {
+          "phase": 10,
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-filters-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_live_eligibility_dates_tie_break_filters_and_page_bounds",
+            "backend/services/api/tests/test_disposition_queries.py::test_hidden_root_envelope_and_separate_hidden_blockers_never_leak_identifiers",
+            "backend/services/api/tests/test_disposition_queries.py::test_all_filter_categories_sort_directions_and_grouping_are_server_applied"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants."
+        }
+      ],
       "baseline_refs": [
         "date-display"
       ]
@@ -11989,6 +12271,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -12034,6 +12341,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -12181,6 +12510,31 @@
             "backend/services/api/deploy/erms-disposition-eligibility.service"
           ],
           "details": "docs/disposition-phase-8.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -12205,6 +12559,28 @@
             "phase8-catalogue-20261015"
           ],
           "scope": "Current all-descendant vital/security/effective direct and inherited hold facts, bounded independently authorized/redacted details, pending-state preservation and coordinated protection-change locks. Admission/final command enforcement and detection events remain with their later owning phases."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -14956,6 +15332,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -15005,6 +15406,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Protected common job/membership lifecycle, per-item savepoints, one active job, complete-unit propagation, immutable episode/history, current checks, exact retries and pre-irreversible termination."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -15079,6 +15502,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -15128,6 +15576,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Protected common job/membership lifecycle, per-item savepoints, one active job, complete-unit propagation, immutable episode/history, current checks, exact retries and pre-irreversible termination."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -15684,6 +16154,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -15706,6 +16201,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Phase 9 supplies bounded 1–100 per-item command results and rejects inaccessible root selection; the server-paginated eligibility listing, filters/grouping/sorting and LTR/RTL screens remain Phase 10."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-filters-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_live_eligibility_dates_tie_break_filters_and_page_bounds",
+            "backend/services/api/tests/test_disposition_queries.py::test_hidden_root_envelope_and_separate_hidden_blockers_never_leak_identifiers",
+            "backend/services/api/tests/test_disposition_queries.py::test_all_filter_categories_sort_directions_and_grouping_are_server_applied"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants."
         }
       ],
       "baseline_refs": [
@@ -16530,6 +17047,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -16579,6 +17121,27 @@
             "phase9-labels-20261015"
           ],
           "scope": "Protected common job/membership lifecycle, per-item savepoints, one active job, complete-unit propagation, immutable episode/history, current checks, exact retries and pre-irreversible termination."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_descendant_search_and_browse_return_stored_pending_status_and_reopening_notice",
+            "frontend/webui/tests/test_disposition_screens.py::test_all_stored_statuses_have_contextual_labels"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition."
         }
       ],
       "baseline_refs": [
@@ -17206,6 +17769,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -17267,6 +17855,28 @@
             "phase9-constraints-upgrade-20261015"
           ],
           "scope": "Final removal-reason CHECK independently rejects true/NULL, unapproved reason and false/non-NULL, even with the stronger command trigger suppressed only by a disposable test fixture."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -17411,6 +18021,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -17433,6 +18068,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Protected common job/membership lifecycle, per-item savepoints, one active job, complete-unit propagation, immutable episode/history, current checks, exact retries and pre-irreversible termination."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-filters-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_live_eligibility_dates_tie_break_filters_and_page_bounds",
+            "backend/services/api/tests/test_disposition_queries.py::test_hidden_root_envelope_and_separate_hidden_blockers_never_leak_identifiers",
+            "backend/services/api/tests/test_disposition_queries.py::test_all_filter_categories_sort_directions_and_grouping_are_server_applied"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants."
         }
       ],
       "baseline_refs": [
@@ -17489,6 +18146,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -17512,6 +18194,28 @@
             "phase9-labels-20261015"
           ],
           "scope": "Current effective human IG role/privilege, specific authorized assignee and existing independent access; policy administration keeps existing authority, service accounts and GUC bypass rejected, committed retries recheck resource access."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-filters-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_live_eligibility_dates_tie_break_filters_and_page_bounds",
+            "backend/services/api/tests/test_disposition_queries.py::test_hidden_root_envelope_and_separate_hidden_blockers_never_leak_identifiers",
+            "backend/services/api/tests/test_disposition_queries.py::test_all_filter_categories_sort_directions_and_grouping_are_server_applied"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Server-paged eligibility/status/action, database due/overdue values, source/owner/protections/counts/current membership, every filter/sort, per-page owner grouping, inaccessible-root selection rejection and individual redacted blocking descendants."
         }
       ],
       "baseline_refs": [
@@ -18289,6 +18993,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -18350,6 +19079,28 @@
             "phase9-constraints-upgrade-20261015"
           ],
           "scope": "Final removal-reason CHECK independently rejects true/NULL, unapproved reason and false/non-NULL, even with the stronger command trigger suppressed only by a disposable test fixture."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -18424,6 +19175,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -18485,6 +19261,28 @@
             "phase9-constraints-upgrade-20261015"
           ],
           "scope": "Final removal-reason CHECK independently rejects true/NULL, unapproved reason and false/non-NULL, even with the stronger command trigger suppressed only by a disposable test fixture."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
         }
       ],
       "baseline_refs": [
@@ -18831,6 +19629,31 @@
             "backend/services/api/crud.py"
           ],
           "details": "docs/disposition-phase-9.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -18895,6 +19718,27 @@
             "phase9-constraints-upgrade-20261015"
           ],
           "scope": "Final removal-reason CHECK independently rejects true/NULL, unapproved reason and false/non-NULL, even with the stronger command trigger suppressed only by a disposable test fixture."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_descendant_search_and_browse_return_stored_pending_status_and_reopening_notice",
+            "frontend/webui/tests/test_disposition_screens.py::test_all_stored_statuses_have_contextual_labels"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Each resource’s stored status in metadata/inspector/search/browse, explicit reopened/removal-required notices, exceptional acceleration scope/reason/refresh and continued open-root admission prohibition."
         }
       ],
       "baseline_refs": [
@@ -19404,9 +20248,58 @@
           "status": "planned"
         }
       ],
-      "status": "planned",
-      "implementation": [],
-      "verification": [],
+      "status": "in_progress",
+      "implementation": [
+        {
+          "phase": 10,
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-api-reads-20261015",
+          "tests": [
+            "backend/services/api/tests/test_disposition_queries.py::test_job_membership_episodes_history_and_selector_contracts",
+            "backend/services/api/tests/test_disposition_queries.py::test_principal_capability_requires_manage_and_igu_role_intersection",
+            "backend/services/api/tests/test_disposition_queries.py::test_first_blocker_detection_is_permanent_deduplicated_and_never_changes_membership"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Common current-authorized creation/assignment/membership/owner controls using protected Phase 9 commands, per-item results, mandatory reason and feedback, stage/removal-required restrictions, immutable membership/history and live mutation freshness; later action workflows remain with their owners."
+        }
+      ],
       "baseline_refs": [
         "authorization",
         "audit",
@@ -32544,6 +33437,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -32600,6 +33518,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -32741,6 +33680,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -32797,6 +33761,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -32919,6 +33904,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -32955,6 +33965,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -33077,6 +34108,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -33113,6 +34169,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -33235,6 +34312,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -33271,6 +34373,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -33393,6 +34516,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -33429,6 +34577,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -33570,6 +34739,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -33626,6 +34820,27 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-localization-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice",
+            "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Contextual keys and shared status/audit labels, working-timezone instant filtering with DST choice, exact bilingual key coverage, preserved Arabic provenance, guarded draft publication and RTL with normal unpublished-key fallback."
         }
       ],
       "baseline_refs": [
@@ -33744,6 +34959,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -33782,6 +35022,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -33900,6 +35162,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -33938,6 +35225,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34056,6 +35365,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34094,6 +35428,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34212,6 +35568,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34250,6 +35631,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34368,6 +35771,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34406,6 +35834,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34524,6 +35974,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34562,6 +36037,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34680,6 +36177,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34718,6 +36240,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34836,6 +36380,31 @@
             "docs/application-settings-upgrade.md"
           ],
           "details": "docs/disposition-phase-6.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34874,6 +36443,28 @@
             "frontend/webui/tests/test_full_text_search_phase4_ui.py"
           ],
           "scope": "Phase 6 API-owned feature visibility through existing finite responses, bilingual native Settings grouping, no new text/cache/table/layout, guarded page freshness and abandoned response isolation."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-ui-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_job_page_loads_context_and_one_bounded_page_concurrently",
+            "frontend/webui/tests/test_disposition_screens.py::test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses",
+            "frontend/webui/tests/test_disposition_screens.py::test_restored_page_size_and_offset_make_exactly_one_page_request"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Bounded server pages and two-character remote selectors, retained/narrowly hydrated selected values, concurrent independent reads, dependent detection/history ordering, no new cache, captured client context and revision/page guards, single restored-page request and live mutation freshness."
         }
       ],
       "baseline_refs": [
@@ -34942,6 +36533,31 @@
           ],
           "evidence_group": "design",
           "details": "docs/disposition-phase-3.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Existing Wathiq PageTable styling and standard NiceGUI controls, deliberate loading/empty/error states, native responsive grid and wrap-cells configuration based on observed DOM causes, reason and success feedback, live desktop/mobile LTR/RTL and keyboard checks.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -34955,6 +36571,26 @@
             "browser::phase3_ltr_rtl_native_geometry"
           ],
           "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-browser-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_command_reason_warning_and_mixed_result_never_claim_total_success"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Existing Wathiq PageTable styling and standard NiceGUI controls, deliberate loading/empty/error states, native responsive grid and wrap-cells configuration based on observed DOM causes, reason and success feedback, live desktop/mobile LTR/RTL and keyboard checks."
         }
       ],
       "baseline_refs": [
@@ -35022,6 +36658,31 @@
           ],
           "evidence_group": "design",
           "details": "docs/disposition-phase-3.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Existing Wathiq PageTable styling and standard NiceGUI controls, deliberate loading/empty/error states, native responsive grid and wrap-cells configuration based on observed DOM causes, reason and success feedback, live desktop/mobile LTR/RTL and keyboard checks.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -35035,6 +36696,26 @@
             "browser::phase3_ltr_rtl_native_geometry"
           ],
           "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-browser-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_command_reason_warning_and_mixed_result_never_claim_total_success"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Existing Wathiq PageTable styling and standard NiceGUI controls, deliberate loading/empty/error states, native responsive grid and wrap-cells configuration based on observed DOM causes, reason and success feedback, live desktop/mobile LTR/RTL and keyboard checks."
         }
       ],
       "baseline_refs": [
@@ -35102,6 +36783,31 @@
           ],
           "evidence_group": "design",
           "details": "docs/disposition-phase-3.md"
+        },
+        {
+          "phase": 10,
+          "scope": "Existing Wathiq PageTable styling and standard NiceGUI controls, deliberate loading/empty/error states, native responsive grid and wrap-cells configuration based on observed DOM causes, reason and success feedback, live desktop/mobile LTR/RTL and keyboard checks.",
+          "locations": [
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/observations.py",
+            "backend/services/api/disposition/blockers.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/authentication.py",
+            "backend/services/api/search.py",
+            "backend/services/api/browse.py",
+            "backend/services/api/schemas.py",
+            "frontend/webui/disposition/screens.py",
+            "frontend/webui/disposition/messages.py",
+            "frontend/webui/api_client.py",
+            "frontend/webui/app.py",
+            "frontend/webui/resource_inspector.py",
+            "frontend/webui/resource_relationships.py",
+            "frontend/webui/capabilities.py",
+            "frontend/webui/event_labels.py",
+            "frontend/webui/i18n/messages.en.json",
+            "frontend/webui/i18n/messages.ar.generated.json"
+          ],
+          "details": "docs/disposition-phase-10.md"
         }
       ],
       "verification": [
@@ -35115,6 +36821,26 @@
             "browser::phase3_ltr_rtl_native_geometry"
           ],
           "scope": "Phase 3 native card/list/field/tab presentation and measured LTR/RTL geometry only; no new table."
+        },
+        {
+          "phase": 10,
+          "result": "passed",
+          "run": "phase10-browser-20261015",
+          "tests": [
+            "frontend/webui/tests/test_disposition_screens.py::test_command_reason_warning_and_mixed_result_never_claim_total_success"
+          ],
+          "additional_runs": [
+            "phase10-api-reads-20261015",
+            "phase10-api-filters-20261015",
+            "phase10-ui-20261015",
+            "phase10-dst-control-20261015",
+            "phase10-catalogue-20261015",
+            "phase10-localization-20261015",
+            "phase10-browser-20261015",
+            "phase10-tools-20261015",
+            "phase10-cleanup-20261015"
+          ],
+          "scope": "Existing Wathiq PageTable styling and standard NiceGUI controls, deliberate loading/empty/error states, native responsive grid and wrap-cells configuration based on observed DOM causes, reason and success feedback, live desktop/mobile LTR/RTL and keyboard checks."
         }
       ],
       "baseline_refs": [
@@ -44951,6 +46677,136 @@
         "complete runtime catalogue/import/export/seed/publication regressions included in phase9-regressions-20261015"
       ],
       "review_required": "Explicit deployment seeding then ordinary review/publication for ten new drafts; no administrator export promotion or persistent translation mutation."
+    },
+    "phase10-api-reads-20261015": {
+      "result": "passed",
+      "passed": 10,
+      "elapsed_seconds": 11.25,
+      "warnings": 2,
+      "database": "erms_messaging_test_acl_c238539d4aba45bfb46832badfbe32bd",
+      "initialization": "Canonical schema alone, then separate seeds",
+      "creation": "succeeded",
+      "cleanup": "succeeded; independently confirmed absent",
+      "targets": [
+        "backend/services/api/tests/test_disposition_queries.py"
+      ],
+      "scope": "Final read projections, person/IG/manage intersection, redaction, first-detection events, statuses/reopening, draft publication guard and offset-bearing filter instants. The later additional filter matrix is recorded separately."
+    },
+    "phase10-api-filters-20261015": {
+      "result": "passed",
+      "passed": 1,
+      "elapsed_seconds": 2.45,
+      "warnings": 2,
+      "database": "erms_messaging_test_acl_b6c9b6f7c08544618e0841238b0b7e74",
+      "initialization": "Canonical schema alone, then separate seeds",
+      "creation": "succeeded",
+      "cleanup": "succeeded; independently confirmed absent",
+      "targets": [
+        "backend/services/api/tests/test_disposition_queries.py::test_all_filter_categories_sort_directions_and_grouping_are_server_applied"
+      ]
+    },
+    "phase10-catalogue-20261015": {
+      "result": "passed",
+      "passed": 19,
+      "elapsed_seconds": 24.09,
+      "warnings": 2,
+      "database": "erms_messaging_test_acl_8e68fa487d384df08e422fe0c7fe1c08",
+      "initialization": "Canonical schema alone, then separate seeds",
+      "creation": "succeeded",
+      "cleanup": "succeeded; independently confirmed absent",
+      "targets": [
+        "backend/services/api/tests/test_localization_catalogue.py",
+        "backend/services/api/tests/test_disposition_queries.py::test_flagged_disposition_translations_remain_drafts_and_cannot_be_published"
+      ],
+      "scope": "Controlled export/import fixture preserves all real review flags and restores its active definition subset. Subsequent new DST keys also pass final full-artifact checks and the final read-suite publication guard."
+    },
+    "phase10-ui-20261015": {
+      "result": "passed",
+      "passed": 110,
+      "elapsed_seconds": 3.83,
+      "targets": [
+        "frontend/webui/tests/test_disposition_screens.py",
+        "frontend/webui/tests/test_resource_relationships.py",
+        "frontend/webui/tests/test_api_client.py",
+        "frontend/webui/tests/test_disposition_audit_labels.py",
+        "frontend/webui/tests/test_capabilities.py",
+        "frontend/webui/tests/test_locale_services.py"
+      ],
+      "scope": "Concurrency, restoration without duplicate requests, stale/abandoned responses, guarded callbacks, redacted selection, reason/partial-result feedback, all statuses, remote client behavior, locale/timezone and existing table behavior. Two stale source assertions were reconciled with already-committed HEAD behavior, without a product behavior change. Final regression also verifies a removed reopened episode no longer displays an outstanding-removal notice."
+    },
+    "phase10-dst-control-20261015": {
+      "result": "passed",
+      "passed": 1,
+      "elapsed_seconds": 0.52,
+      "targets": [
+        "frontend/webui/tests/test_disposition_screens.py::test_due_filters_use_working_timezone_and_require_explicit_overlap_choice"
+      ],
+      "scope": "Additional final assertion proves the explicit overlap-choice control is visible and resolves the selected occurrence."
+    },
+    "phase10-browser-20261015": {
+      "result": "passed",
+      "details": "docs/verification/disposition-phase-10/browser.json",
+      "scope": "Real create/assign/add/remove/acceleration, current metadata/history, reason and success toasts, per-item results, paged owner grouping and restored offset, separate hidden descendants, native table comparison, working-timezone filtering, desktop/mobile LTR and RTL, keyboard selection and off-screen action access. New Arabic drafts correctly retain English runtime fallback."
+    },
+    "phase10-localization-20261015": {
+      "result": "passed",
+      "active_keys_per_language": 3337,
+      "new_keys": 133,
+      "preserved_arabic_items": 3204,
+      "checks": [
+        "Source references and stale-key check",
+        "Exact key coverage and lexical ordering",
+        "Nonblank and placeholder contracts",
+        "Approved Arabic terminology for all new drafts",
+        "All baseline Arabic item wording/provenance preserved exactly",
+        "Current catalogue hash and per-item generation provenance",
+        "Flagged generated drafts remain unpublished"
+      ],
+      "human_review": "133 new Arabic drafts retain needs_human_review flags; no administrator export promotion or persistent publication"
+    },
+    "phase10-tools-20261015": {
+      "result": "passed",
+      "passed": 24,
+      "elapsed_seconds": 1.02,
+      "targets": [
+        "tools/tests/test_disposition_baseline.py"
+      ],
+      "additional_checks": [
+        "python3 tools/check_disposition_baseline.py",
+        "python3 tools/sync_api_env_template.py --check",
+        "Changed-module compilation",
+        "git diff --check"
+      ]
+    },
+    "phase10-cleanup-20261015": {
+      "result": "passed",
+      "details": "docs/verification/disposition-phase-10/cleanup.json",
+      "database_count": 19,
+      "remaining": [],
+      "scope": "All test and preview databases, including failed fixture runs; all owned preview processes stopped, browser viewport reset and owned tab closed"
+    },
+    "phase10-combined-regressions-20261015": {
+      "result": "failed_then_resolved",
+      "passed": 199,
+      "failed": 1,
+      "elapsed_seconds": 181.37,
+      "warnings": 2,
+      "database": "erms_messaging_test_acl_21c0d7ca2dfd413baac780dfac02286e",
+      "cleanup": "succeeded; independently confirmed absent",
+      "targets": [
+        "backend/services/api/tests/test_disposition_foundation.py",
+        "backend/services/api/tests/test_disposition_eligibility.py",
+        "backend/services/api/tests/test_disposition_membership.py",
+        "backend/services/api/tests/test_disposition_queries.py",
+        "backend/services/api/tests/test_localization_catalogue.py"
+      ],
+      "failure": "Existing complete-catalogue round-trip fixture assumed all new generated product translations were publication-ready. Runtime guards correctly rejected the new flagged drafts.",
+      "resolution": "phase10-catalogue-20261015; generic round-trip fixture now isolates four established active definitions and restores the original catalogue. No quality flag was cleared."
+    },
+    "phase10-fixture-history-20261015": {
+      "result": "resolved",
+      "details": "docs/disposition-phase-10.md",
+      "scope": "Initial sandbox connection was denied before database creation; approved disposable runs succeeded. Earlier preview fixtures failed actor selection, flagged-publication assumptions or security hierarchy checks. A filter fixture attempted a prohibited ownership edit and was corrected to set ownership at creation. Every created database was dropped, including these failed runs; independent audit covers all 19. Automated review rejected clearing Arabic review flags; that command was not executed. Flags remained intact and preview publication excluded those entries."
     }
   },
   "removed_setting": {
@@ -46397,6 +48253,83 @@
       "excluded_waiting_hours": 0.0,
       "quality": "measured",
       "note": "Final completion evidence bookkeeping follows captured end boundary."
+    }
+  },
+  "phase_10_completion": {
+    "status": "complete",
+    "details": "docs/disposition-phase-10.md",
+    "requirements": [
+      "DISP-S3.3",
+      "DISP-S3.4",
+      "DISP-S4",
+      "DISP-S6",
+      "DISP-S6.1",
+      "DISP-S8",
+      "DISP-S9.1",
+      "DISP-S9.3",
+      "DISP-01",
+      "DISP-02",
+      "DISP-07",
+      "DISP-17",
+      "DISP-25",
+      "DISP-27",
+      "DISP-28",
+      "DISP-37",
+      "DISP-38",
+      "DISP-42",
+      "DEST-S4",
+      "REF-i18n-7.5",
+      "REF-i18n-7.8",
+      "REF-i18n-14",
+      "REF-i18n-15",
+      "REF-i18n-16",
+      "REF-i18n-19",
+      "REF-i18n-21.1",
+      "REF-performance-3",
+      "REF-performance-4",
+      "REF-performance-5",
+      "REF-performance-6",
+      "REF-performance-7",
+      "REF-performance-8",
+      "REF-performance-9",
+      "REF-performance-10",
+      "REF-design-6",
+      "REF-design-7",
+      "REF-design-19.1"
+    ],
+    "evidence_runs": [
+      "phase10-api-reads-20261015",
+      "phase10-api-filters-20261015",
+      "phase10-catalogue-20261015",
+      "phase10-ui-20261015",
+      "phase10-dst-control-20261015",
+      "phase10-browser-20261015",
+      "phase10-localization-20261015",
+      "phase10-tools-20261015",
+      "phase10-cleanup-20261015"
+    ],
+    "requirements_gate": "Phase 10 common eligibility/workspace, status, current blocker explanation/detection, mutation feedback and specified UI contracts are implemented and verified. Multi-phase action/review/evidence/final-execution/recovery clauses retain their later owners. No irreversible execution is enabled.",
+    "persistent_database_changes": false,
+    "environment_template_changes": false,
+    "translation_artifact_changes": {
+      "new_keys": 133,
+      "new_prefix": "disposition.ui.* plus audit.event.disposition_blockers_detected/resolved",
+      "preserved_existing_arabic_items": 3204,
+      "active_keys_per_language": 3337,
+      "new_arabic_status": "Generated drafts with review flags retained; explicit seed/human review/publication pending",
+      "administrator_export_promoted": false
+    },
+    "schema_upgrade": null,
+    "operator_action": "Deploy/reload updated API and WebUI together on a database already at 053–055. Use existing explicit translation seed and review/publication workflow; no new environment setting or Phase 10 SQL migration.",
+    "next_phase": 11,
+    "cleanup_confirmation": "All 19 Phase 10 disposable databases independently confirmed absent; owned servers stopped and browser viewport/tab cleaned.",
+    "timing": {
+      "start_utc": "2026-10-15 06:16:18",
+      "end_utc": "2026-10-15 08:06:07",
+      "active_hours": 1.83,
+      "excluded_waiting_hours": 0.0,
+      "quality": "measured",
+      "note": "Includes final historical-removal-notice regression, implementation, live/automated checks, independent cleanup and traceability audit. Final handoff bookkeeping follows this boundary."
     }
   }
 }

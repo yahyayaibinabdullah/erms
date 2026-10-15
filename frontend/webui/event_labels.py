@@ -43,6 +43,8 @@ EVENT_MESSAGE_KEYS = {
     "DEFAULT_CHILD_AGGREGATION_ACL_REPLACED": "audit.event.default_child_aggregation_acl_replaced",
     "DEFAULT_CHILD_RECORD_ACL_REPLACED": "audit.event.default_child_record_acl_replaced",
     "DELETE": "audit.event.delete",
+    "DISPOSITION_BLOCKERS_DETECTED": "audit.event.disposition_blockers_detected",
+    "DISPOSITION_BLOCKERS_RESOLVED": "audit.event.disposition_blockers_resolved",
     "DISPOSITION_ELIGIBILITY_EVALUATED": "audit.event.disposition_eligibility_evaluated",
     "DISPOSITION_STATUS_CHANGED": "audit.event.disposition_status_changed",
     "GOVERNANCE_ROLE_CHANGED": "audit.event.governance_role_changed",

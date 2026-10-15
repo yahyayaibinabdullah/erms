@@ -1,0 +1,36 @@
+{
+  "environment": "Only fresh disposable PostgreSQL databases, canonical schema plus separate seeds, isolated UI storage/cookies; owned API 18030 and WebUI 18083",
+  "fixtures": {
+    "eligible_roots": 131,
+    "owners": 2,
+    "jobs": 28,
+    "hidden_blocking_records": 2,
+    "additional_open_acceleration_root": 1
+  },
+  "comparison": {
+    "screen": "Existing Relationship Types table inspected before implementation",
+    "header_background": "rgb(238, 247, 253)",
+    "header_border_pixels": 1,
+    "header_padding": "7px 16px"
+  },
+  "checks": {
+    "create_empty_unassigned_job": "passed; LIVE-PH10-CREATED persisted and displayed empty membership/history states",
+    "assign_authorized_person": "passed; assigned preview-officer through bounded remote selector; fresh job detail reflected assignment",
+    "add_member": "passed; per-item Added result, positive toast, root removed from eligibility, pending status and audit history",
+    "remove_member": "passed; explicit confirmation/reason, removed episode retained, eligible status and audit history refreshed",
+    "reason_required": "passed; no write, persistent alert, warning toast and reason focus",
+    "selectors": "passed; two-character owning-unit search and eligible assignee search returned bounded options",
+    "job_picker": "passed; 25 of 28 jobs with server pager",
+    "grouping_and_restore": "passed; page-local owner headers, offset 25 retained after job navigation and breadcrumb return",
+    "redaction": "passed; separate hidden blocking record copies, generic vital reason, no resource identity/title/hold names/Open/selection; hidden counts withheld",
+    "working_timezone_filter": "passed; 2025-01-01T04:01 Asia/Dubai submitted as 2025-01-01T00:01:00Z and displayed deliberate empty result",
+    "acceleration": "passed; open-root scope and target status shown; reasoned command persisted; metadata updated; button disappeared; open eligible root selection remained disabled with closure explanation",
+    "rtl": "passed; lang ar, document/body rtl, right-aligned headers, mirrored navigation/paging and Arabic timestamps; unpublished new drafts correctly use English fallback",
+    "keyboard": "passed; Space selected a root and enabled Add; Shift+Tab reached Open in off-screen RTL actions and scrolled the native table (-485.5 pixels)",
+    "desktop_wrapping": "passed; native wrap-cells, cell white-space normal; LTR and RTL table clientWidth=scrollWidth=982",
+    "mobile_ltr": "passed at 390x844; document width 390, single filter column 242 pixels, native table client 232/scroll 747",
+    "mobile_rtl": "passed at 390x844; document width 390, single filter column 242 pixels, native table client 232/scroll 734",
+    "cleanup": "Browser viewport override reset and owned tab closed; preview process/database cleanup audited separately"
+  },
+  "limitations": "New Arabic drafts were not approved or published. These checks verify RTL with the specified runtime English fallback, not reviewed final Arabic wording."
+}

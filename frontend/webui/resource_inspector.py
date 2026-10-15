@@ -1,5 +1,6 @@
 """Read-only, page-local metadata overlay; never navigates or mutates a resource."""
 import asyncio
+from .disposition.messages import text as disposition_text, status_label
 from nicegui import ui, context
 from .api_client import ApiError
 from .entities import ENTITIES, FieldSpec
@@ -61,6 +62,9 @@ async def resource_inspector(*, api, kind, identity, active, preview, field_labe
         title.text = row['title']
         content.clear()
         with content:
+            with ui.column().classes('detail-field w-full gap-1'):
+                ui.label(disposition_text('status')).classes('detail-field-label')
+                ui.label(status_label(row.get('disposition_status',1))).classes('detail-field-value')
             if kind == 'record' and row.get('medium') != 'physical' and capabilities.get('view_component'):
                 async def show_preview():
                     if current():

@@ -331,6 +331,10 @@ def principal_response(principal: Principal, connection: Connection) -> dict[str
         "session": {"id": principal.session_id},
         "must_change_password": principal.must_change_password,
         "previous_login_at": _previous_login_at(connection, principal),
+        "can_manage_disposition": principal.account_type == 'person' and any(
+            role.is_information_governance and 'disposition.jobs.manage' in role.privileges
+            for role in policy.effective_roles
+        ),
         "global_privileges": sorted({
             privilege
             for role in policy.effective_roles
