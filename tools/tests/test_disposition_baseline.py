@@ -89,6 +89,10 @@ def test_setting_omissions_and_changed_defaults_cannot_pass(ledger):
 def test_planned_checks_and_baseline_reuse_do_not_prove_product_completion(ledger):
     entry = next(row for row in ledger["requirements"] if row["id"] == "DISP-01")
     assert entry["baseline_refs"]
+    # Phase 7 now supplies real evidence. Model a claim based only on the
+    # original plans/reuse findings, which must still be rejected.
+    entry["implementation"] = []
+    entry["verification"] = []
     entry["status"] = "complete"
     assert any("completion without implementation and passing results" in error for error in check(ledger))
 

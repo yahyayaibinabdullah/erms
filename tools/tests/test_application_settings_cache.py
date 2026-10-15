@@ -106,6 +106,8 @@ def test_registry_is_complete_explicit_editable_and_defaults_are_valid():
 def test_canonical_and_upgrade_settings_ddl_are_identical_except_installation_kind():
     root = Path(__file__).resolve().parents[2]
     schema = (root / "database/schema.sql").read_text()
+    # Later independent disposition DDL is covered by its own parity gate.
+    schema = schema.split("-- Common disposition foundation (053).", 1)[0]
     upgrade = (root / "database/migrations/050_application_settings.sql").read_text()
     marker = "-- Shared configuration foundation."
     canonical = schema[schema.index(marker):].strip()

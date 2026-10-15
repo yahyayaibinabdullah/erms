@@ -30,8 +30,9 @@ def test_health(client: TestClient):
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "ok"
-    assert body["full_text_search_enabled"] is True
-    assert body["content_indexing_scheduling_enabled"] is True
+    # Phase 6 moved this policy to the database with an approved false default.
+    assert body["full_text_search_enabled"] is False
+    assert body["content_indexing_scheduling_enabled"] is False
     assert body["localization"]["ready"] is True
 
 

@@ -578,6 +578,13 @@ class AggregationRead(ApiModel):
     child_aggregation_acl_version: int
     child_record_acl_version: int
     version: int
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    final_disposition_at: datetime | None = None
+    final_disposition_by_user_id: int | None = None
+    disposition_job_id: int | None = None
+    destruction_number: str | None = None
+    transfer_number: str | None = None
+    final_disposition_event_id: int | None = None
 
     @model_validator(mode="after")
     def derive_parent_aggregation_state(self):
@@ -947,6 +954,13 @@ class RecordRead(ApiModel):
     inherit_acl_from_parent: bool
     resource_acl_version: int
     version: int
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    final_disposition_at: datetime | None = None
+    final_disposition_by_user_id: int | None = None
+    disposition_job_id: int | None = None
+    destruction_number: str | None = None
+    transfer_number: str | None = None
+    final_disposition_event_id: int | None = None
 
     @model_validator(mode="after")
     def derive_aggregation_state(self):
