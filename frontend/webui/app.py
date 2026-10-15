@@ -19271,7 +19271,7 @@ def index(q: str = "") -> None:
         try:
             if page=="disposition-job":
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
-                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label)
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components)
             elif page=="disposition-eligibility":
                 await eligibility_screen(**common,open_resource=open_resource,format_timestamp=format_timestamp,
                                          saved=saved,remember=remember,target_job=target_job)

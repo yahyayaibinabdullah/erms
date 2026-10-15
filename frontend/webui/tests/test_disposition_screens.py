@@ -132,6 +132,8 @@ async def test_removed_reopened_episode_does_not_still_request_removal(host):
     async def request(path,**params):
         if path=='context':return {'roles':[{'id':1,'name':'IG role'}]}
         if path=='jobs/1':return {'id':1,'job_number':'JOB','job_type':'destruction','lifecycle_state':'active','disposition_status':6,'workflow_stage':'officer_preparation','owner':'Owner','assignee':'Officer','assigned_user_id':1,'owning_org_unit_id':1,'version':2,'membership_editable':True,'owner_editable':True}
+        if path.endswith('/documents'):return {'items':[],'total':0,'correction_roles':[]}
+        if path.endswith('/artifact-destination'):return {'ready':False,'changed':False,'destination':None,'previous_destination':None,'warning':'disposition_destination_unset','token':'x'*64}
         if path.endswith('/memberships'):return {'items':[{'id':7,'root_aggregation_id':1,'root_version':2,'version':2,'aggregation_number':'ROOT','title':'Root','disposition_status':1,'membership_state':'removed','redacted':False,'added_at':'2026-01-01T00:00:00Z','removed_at':'2026-01-02T00:00:00Z','removal_required_reason':'reopened'}],'total':1}
         return {'items':[],'total':0}
     with host:

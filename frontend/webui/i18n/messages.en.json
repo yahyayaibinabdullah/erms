@@ -1360,6 +1360,21 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_artifact_saved",
+    "context_group": "audit.event",
+    "default_text": "Disposition Artifact Saved",
+    "semantic_meaning": "Readable label for immutable ARTIFACT_SAVED audit events, including previously stored events.",
+    "common_locations": [
+      "Disposition job history",
+      "Audit trail"
+    ],
+    "translator_guidance": "Translate the event label only; preserve the distinction between document storage and corrective evidence uploads.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Artifact Saved",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_blockers_detected",
     "context_group": "audit.event",
     "default_text": "Disposition blockers detected",
@@ -1388,6 +1403,21 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_document_saved",
+    "context_group": "audit.event",
+    "default_text": "Disposition Document Saved",
+    "semantic_meaning": "Readable label for immutable DOCUMENT_SAVE audit events, including previously stored events.",
+    "common_locations": [
+      "Disposition job history",
+      "Audit trail"
+    ],
+    "translator_guidance": "Translate the event label only; preserve the distinction between document storage and corrective evidence uploads.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Document Saved",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_eligibility_evaluated",
     "context_group": "audit.event",
     "default_text": "Disposition Eligibility Evaluated",
@@ -1399,6 +1429,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Eligibility Evaluated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_evidence_corrected",
+    "context_group": "audit.event",
+    "default_text": "Disposition Evidence Corrected",
+    "semantic_meaning": "Readable label for immutable EVIDENCE_CORRECTED audit events, including previously stored events.",
+    "common_locations": [
+      "Disposition job history",
+      "Audit trail"
+    ],
+    "translator_guidance": "Translate the event label only; preserve the distinction between document storage and corrective evidence uploads.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Evidence Corrected",
     "is_html": false
   },
   {
@@ -1539,6 +1584,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Status Changed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_template_revised",
+    "context_group": "audit.event",
+    "default_text": "Disposition Template Revised",
+    "semantic_meaning": "An authorized person uploaded a new organization-wide destruction Word template revision.",
+    "common_locations": [
+      "Audit trail and disposition job history"
+    ],
+    "translator_guidance": "A template revision, not a generated document or disposition decision.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Template Revised",
     "is_html": false
   },
   {
@@ -5930,6 +5989,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.close",
+    "context_group": "disposition.ui",
+    "default_text": "Close",
+    "semantic_meaning": "Controlled destruction document templates: Close",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Close",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.closed_required",
     "context_group": "disposition.ui",
     "default_text": "Close this root before adding it to a job",
@@ -5994,6 +6067,51 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.correct_evidence",
+    "context_group": "disposition.ui",
+    "default_text": "Correct uploaded evidence",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Correct uploaded evidence",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Correct uploaded evidence",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.corrected_file",
+    "context_group": "disposition.ui",
+    "default_text": "Corrected evidence file",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Corrected evidence file",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Corrected evidence file",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.correction_preserves",
+    "context_group": "disposition.ui",
+    "default_text": "This creates a new evidence version. Earlier files and records remain available; the original decision or confirmation is preserved.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: This creates a new evidence version. Earlier files and records remain available; the original decision or confirmation is preserved.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "This creates a new evidence version. Earlier files and records remain available; the original decision or confirmation is preserved.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.create",
     "context_group": "disposition.ui",
     "default_text": "Create job",
@@ -6010,6 +6128,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.current_version",
+    "context_group": "disposition.ui",
+    "default_text": "Current version",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Current version",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current version",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.descending",
     "context_group": "disposition.ui",
     "default_text": "Descending order",
@@ -6021,6 +6154,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Descending order",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.destination_changed_warning",
+    "context_group": "disposition.ui",
+    "default_text": "The destination has changed. This file will use the current destination; earlier records remain in their original destinations.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: The destination has changed. This file will use the current destination; earlier records remain in their original destinations.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The destination has changed. This file will use the current destination; earlier records remain in their original destinations.",
     "is_html": false
   },
   {
@@ -6040,6 +6188,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.destruction_request",
+    "context_group": "disposition.ui",
+    "default_text": "Request for Destruction Form",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Request for Destruction Form",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Request for Destruction Form",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.digital_destruction",
     "context_group": "disposition.ui",
     "default_text": "Digital destruction",
@@ -6053,6 +6216,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Digital destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital_destruction_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate of Destruction (Digital)",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Certificate of Destruction (Digital)",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate of Destruction (Digital)",
     "is_html": false
   },
   {
@@ -6117,6 +6295,183 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Assign an authorized person before adding members.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_destination_changed",
+    "context_group": "disposition.ui",
+    "default_text": "The destination changed while saving. Refresh the destination, review the warning and try again.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: The destination changed while saving. Refresh the destination, review the warning and try again.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The destination changed while saving. Refresh the destination, review the warning and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_destination_digital_required",
+    "context_group": "disposition.ui",
+    "default_text": "The destination aggregation must support digital content.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: The destination aggregation must support digital content.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The destination aggregation must support digital content.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_destination_open_root_missing",
+    "context_group": "disposition.ui",
+    "default_text": "No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_destination_unset",
+    "context_group": "disposition.ui",
+    "default_text": "Configure the classification scheme and this destination in Administration → Settings → Disposition before continuing.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Configure the classification scheme and this destination in Administration → Settings → Disposition before continuing.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Configure the classification scheme and this destination in Administration → Settings → Disposition before continuing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_document_render_failed",
+    "context_group": "disposition.ui",
+    "default_text": "The document could not be rendered. No artifact was saved.",
+    "semantic_meaning": "Controlled destruction document templates: The document could not be rendered. No artifact was saved.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The document could not be rendered. No artifact was saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_document_renderer_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "The Word-to-PDF renderer is unavailable. Try again after the service is restored.",
+    "semantic_meaning": "Controlled destruction document templates: The Word-to-PDF renderer is unavailable. Try again after the service is restored.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The Word-to-PDF renderer is unavailable. Try again after the service is restored.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_document_snapshot_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Document generation requires a complete, valid job snapshot.",
+    "semantic_meaning": "Controlled destruction document templates: Document generation requires a complete, valid job snapshot.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Document generation requires a complete, valid job snapshot.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_document_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "This document is unavailable or you do not have access.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: This document is unavailable or you do not have access.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This document is unavailable or you do not have access.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_evidence_correction_forbidden",
+    "context_group": "disposition.ui",
+    "default_text": "Only the assigned Records Officer or an authorized Records Manager may correct this evidence.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Only the assigned Records Officer or an authorized Records Manager may correct this evidence.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Only the assigned Records Officer or an authorized Records Manager may correct this evidence.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_evidence_inside_job",
+    "context_group": "disposition.ui",
+    "default_text": "Job evidence must remain outside the aggregations scheduled for destruction.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Job evidence must remain outside the aggregations scheduled for destruction.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Job evidence must remain outside the aggregations scheduled for destruction.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_evidence_version_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "This evidence has already been corrected. Refresh the job to use its current version.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: This evidence has already been corrected. Refresh the job to use its current version.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "This evidence has already been corrected. Refresh the job to use its current version.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_generated_correction_forbidden",
+    "context_group": "disposition.ui",
+    "default_text": "Generated documents cannot be replaced through an evidence correction.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Generated documents cannot be replaced through an evidence correction.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generated documents cannot be replaced through an evidence correction.",
     "is_html": false
   },
   {
@@ -6248,6 +6603,234 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_template_bilingual_required",
+    "context_group": "disposition.ui",
+    "default_text": "The template must contain Arabic and English, with Arabic first.",
+    "semantic_meaning": "Controlled destruction document templates: The template must contain Arabic and English, with Arabic first.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The template must contain Arabic and English, with Arabic first.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_changa_required",
+    "context_group": "disposition.ui",
+    "default_text": "Use Changa throughout the template. Generated PDFs must embed Changa without font substitution.",
+    "semantic_meaning": "Controlled destruction document templates: Use Changa throughout the template. Generated PDFs must embed Changa without font substitution.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Use Changa throughout the template. Generated PDFs must embed Changa without font substitution.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_direction_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Use right-to-left Arabic paragraphs and left-to-right data placeholders.",
+    "semantic_meaning": "Controlled destruction document templates: Use right-to-left Arabic paragraphs and left-to-right data placeholders.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Use right-to-left Arabic paragraphs and left-to-right data placeholders.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_fields_missing",
+    "context_group": "disposition.ui",
+    "default_text": "The template is missing required placeholders. Refer to the template README.",
+    "semantic_meaning": "Controlled destruction document templates: The template is missing required placeholders. Refer to the template README.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The template is missing required placeholders. Refer to the template README.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_forbidden",
+    "context_group": "disposition.ui",
+    "default_text": "Template changes require a current Records Officer or Records Manager role and job access.",
+    "semantic_meaning": "Controlled destruction document templates: Template changes require a current Records Officer or Records Manager role and job access.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Template changes require a current Records Officer or Records Manager role and job access.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_immutable",
+    "context_group": "disposition.ui",
+    "default_text": "Template revisions are retained and cannot be overwritten. Upload a new revision.",
+    "semantic_meaning": "Controlled destruction document templates: Template revisions are retained and cannot be overwritten. Upload a new revision.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Template revisions are retained and cannot be overwritten. Upload a new revision.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Choose a valid Word template with the documented placeholders and no external content or tracked changes.",
+    "semantic_meaning": "Controlled destruction document templates: Choose a valid Word template with the documented placeholders and no external content or tracked changes.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Choose a valid Word template with the documented placeholders and no external content or tracked changes.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_repeat_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Keep the documented repeating row and all its required fields together.",
+    "semantic_meaning": "Controlled destruction document templates: Keep the documented repeating row and all its required fields together.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Keep the documented repeating row and all its required fields together.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_size",
+    "context_group": "disposition.ui",
+    "default_text": "The template or generated PDF exceeds the configured size limit.",
+    "semantic_meaning": "Controlled destruction document templates: The template or generated PDF exceeds the configured size limit.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The template or generated PDF exceeds the configured size limit.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_stale",
+    "context_group": "disposition.ui",
+    "default_text": "A newer template revision is available. Refresh the workspace before uploading.",
+    "semantic_meaning": "Controlled destruction document templates: A newer template revision is available. Refresh the workspace before uploading.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "A newer template revision is available. Refresh the workspace before uploading.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_template_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "This template revision is unavailable.",
+    "semantic_meaning": "Controlled destruction document templates: This template revision is unavailable.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "This template revision is unavailable.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.document",
+    "context_group": "disposition.ui",
+    "default_text": "Document",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Document",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Document",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.document_type",
+    "context_group": "disposition.ui",
+    "default_text": "Document type",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Document type",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Document type",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.documents",
+    "context_group": "disposition.ui",
+    "default_text": "Evidence and documents",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Evidence and documents",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Evidence and documents",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.download_document",
+    "context_group": "disposition.ui",
+    "default_text": "Download document",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Download document",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Download document",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.download_template",
+    "context_group": "disposition.ui",
+    "default_text": "Download Word template",
+    "semantic_meaning": "Controlled destruction document templates: Download Word template",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Download Word template",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.due",
     "context_group": "disposition.ui",
     "default_text": "Due date",
@@ -6310,6 +6893,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.earlier_version",
+    "context_group": "disposition.ui",
+    "default_text": "Earlier version",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Earlier version",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Earlier version",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.eligibility",
     "context_group": "disposition.ui",
     "default_text": "Disposition eligibility",
@@ -6342,6 +6940,51 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.evidence_destination",
+    "context_group": "disposition.ui",
+    "default_text": "Uploaded evidence destination",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Uploaded evidence destination",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Uploaded evidence destination",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.evidence_version_state",
+    "context_group": "disposition.ui",
+    "default_text": "Version status",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Version status",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Version status",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_approval_letter",
+    "context_group": "disposition.ui",
+    "default_text": "External approval letter",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: External approval letter",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External approval letter",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.external_approval_pending",
     "context_group": "disposition.ui",
     "default_text": "External approval pending",
@@ -6355,6 +6998,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "External approval pending",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_rejection_letter",
+    "context_group": "disposition.ui",
+    "default_text": "External rejection letter",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: External rejection letter",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External rejection letter",
     "is_html": false
   },
   {
@@ -6736,6 +7394,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.no_documents",
+    "context_group": "disposition.ui",
+    "default_text": "No authorized documents are available for this job.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: No authorized documents are available for this job.",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No authorized documents are available for this job.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.not_added",
     "context_group": "disposition.ui",
     "default_text": "Not added",
@@ -6940,6 +7613,81 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.physical_destruction_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate of Destruction (Physical)",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Certificate of Destruction (Physical)",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate of Destruction (Physical)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_preparation_report",
+    "context_group": "disposition.ui",
+    "default_text": "Physical-destruction preparation report",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Physical-destruction preparation report",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical-destruction preparation report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preview_document",
+    "context_group": "disposition.ui",
+    "default_text": "Preview document",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Preview document",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preview document",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.previous_destination",
+    "context_group": "disposition.ui",
+    "default_text": "Previous destination",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Previous destination",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Previous destination",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_execution_report",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal execution report",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Proposal execution report",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal execution report",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.ready",
     "context_group": "disposition.ui",
     "default_text": "Available for job admission",
@@ -7018,6 +7766,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.refresh_destination",
+    "context_group": "disposition.ui",
+    "default_text": "Refresh destination",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Refresh destination",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Refresh destination",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.remove",
     "context_group": "disposition.ui",
     "default_text": "Remove from job",
@@ -7079,6 +7842,35 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Reopened — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reports_destination",
+    "context_group": "disposition.ui",
+    "default_text": "Generated reports destination",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Generated reports destination",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generated reports destination",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.repository_default",
+    "context_group": "disposition.ui",
+    "default_text": "Repository default v1",
+    "semantic_meaning": "Controlled destruction document templates: Repository default v1",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Repository default v1",
     "is_html": false
   },
   {
@@ -7576,6 +8368,76 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.template_checksum",
+    "context_group": "disposition.ui",
+    "default_text": "Template checksum",
+    "semantic_meaning": "Controlled destruction document templates: Template checksum",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Template checksum",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.template_file",
+    "context_group": "disposition.ui",
+    "default_text": "Revised Word template (.docx)",
+    "semantic_meaning": "Controlled destruction document templates: Revised Word template (.docx)",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Revised Word template (.docx)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.template_history",
+    "context_group": "disposition.ui",
+    "default_text": "Template revision history",
+    "semantic_meaning": "Controlled destruction document templates: Template revision history",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Template revision history",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.template_scope",
+    "context_group": "disposition.ui",
+    "default_text": "Template revisions apply organization-wide to future documents in every job. Existing PDFs keep their original revision.",
+    "semantic_meaning": "Controlled destruction document templates: Template revisions apply organization-wide to future documents in every job. Existing PDFs keep their original revision.",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Template revisions apply organization-wide to future documents in every job. Existing PDFs keep their original revision.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.templates",
+    "context_group": "disposition.ui",
+    "default_text": "Document templates",
+    "semantic_meaning": "Controlled destruction document templates: Document templates",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Document templates",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.terminated",
     "context_group": "disposition.ui",
     "default_text": "Terminated",
@@ -7669,6 +8531,35 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Organization Unit Manager review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.upload_template",
+    "context_group": "disposition.ui",
+    "default_text": "Upload template revision",
+    "semantic_meaning": "Controlled destruction document templates: Upload template revision",
+    "common_locations": [
+      "Disposition job workspace template controls"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Upload template revision",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.version",
+    "context_group": "disposition.ui",
+    "default_text": "Version",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: Version",
+    "common_locations": [
+      "Disposition job documents",
+      "Evidence correction dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Version",
     "is_html": false
   },
   {

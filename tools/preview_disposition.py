@@ -1,4 +1,4 @@
-"""Disposable-only Phase 10 browser fixture with isolated UI storage and cookies.
+"""Disposable-only disposition browser fixture with isolated UI storage and cookies.
 
 Run with the API Python environment. Ctrl-C stops owned servers and drops the
 new database. No persistent ERMS database is initialized, tested or migrated.
@@ -22,7 +22,24 @@ from cryptography.fernet import Fernet
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def seed(environment):
+def preview_pdf():
+    """Small valid PDF fixture, independent of document-generation tooling."""
+    stream=b'BT /F1 16 Tf 72 720 Td (Disposable governed evidence - Phase 11) Tj ET'
+    objects=[b'<< /Type /Catalog /Pages 2 0 R >>',
+      b'<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+      b'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+      b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+      b'<< /Length '+str(len(stream)).encode()+b' >>\nstream\n'+stream+b'\nendstream']
+    data=bytearray(b'%PDF-1.4\n');offsets=[]
+    for number,obj in enumerate(objects,1):
+        offsets.append(len(data));data.extend(str(number).encode()+b' 0 obj\n'+obj+b'\nendobj\n')
+    start=len(data);data.extend(b'xref\n0 6\n0000000000 65535 f \n')
+    for offset in offsets:data.extend(f'{offset:010} 00000 n \n'.encode())
+    data.extend(b'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+str(start).encode()+b'\n%%EOF\n')
+    return bytes(data)
+
+
+def seed(environment, phase=10):
     os.environ.update(environment)
     from backend.services.api.authentication import hash_password
     from backend.services.api.main import app
@@ -64,7 +81,8 @@ def seed(environment):
         actor(c,user); c.execute("SELECT set_config('app.event_source','seeding',true)")
         ensure_officer(c,user)
         classification=c.execute("SELECT id FROM classifications WHERE code='T0001'").fetchone()['id']
-        c.execute("DELETE FROM profile_privileges WHERE profile_id=(SELECT id FROM profiles WHERE code='INFO_GOV_OFFICER') AND privilege_id=(SELECT id FROM privileges WHERE code='record.view')")
+        if phase<11:
+            c.execute("DELETE FROM profile_privileges WHERE profile_id=(SELECT id FROM profiles WHERE code='INFO_GOV_OFFICER') AND privilege_id=(SELECT id FROM privileges WHERE code='record.view')")
         for index in range(1,132):
             root=c.execute("INSERT INTO aggregations(aggregation_number,title,classification_id,owning_org_unit_id,date_opened) VALUES(%s,%s,%s,%s,'1900-01-01') RETURNING id",(f'DISP-{index:04}',f'Disposition preview {index}',classification,1 if index<=65 else 2)).fetchone()['id']
             if index==1:
@@ -78,11 +96,53 @@ def seed(environment):
         c.execute("SELECT set_config('app.actor_name','preview-administrator',true),set_config('app.actor_email','admin@test.invalid',true)")
         for index in range(1,29):
             create_job(c,job_number=f'PREVIEW-JOB-{index:02}',job_type='destruction',owning_org_unit_id=1,assigned_user_id=user,acting_role_id=role,reason='Seed disposable job fixture',command_id=uuid4())
+        if phase>=11:
+            from backend.services.api.tests.test_disposition_artifacts import configure,seed_document,root
+            configure(c)
+            destination=root(c,opened='2026-01-01')
+            job=c.execute("SELECT * FROM disposition_jobs WHERE job_number='PREVIEW-JOB-28'").fetchone()
+            content=preview_pdf()
+            for index in range(1,29):
+                seed_document(c,job,content=content)
+            seed_document(c,job,'destruction_request',content=content)
+            # Different configured evidence destination exercises the warning;
+            # every earlier governed record retains the first root reference.
+            cl=c.execute("INSERT INTO classifications(classification_scheme_id,code,title,is_terminal) VALUES(1,'EVIDENCE-NEXT','Current evidence classification',true) RETURNING id").fetchone()['id']
+            root(c,cl,opened='2026-02-01');configure(c,evidence=cl)
+            manager=c.execute("INSERT INTO roles(org_unit_id,code,name,profile_id,is_information_governance) SELECT 1,'preview-records-manager','Preview Records Manager',id,true FROM profiles WHERE code='INFO_GOV_MGR' RETURNING id").fetchone()['id']
+            c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(user,manager))
+            from backend.services.api.disposition.membership import assign_job
+            assigned=c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
+            assign_job(c,job_id=job['id'],expected_version=job['version'],assigned_user_id=assigned,acting_role_id=role,reason='Seed assigned Arabic Officer preview',command_id=uuid4())
+            if phase>=12:
+                from backend.services.api.disposition import documents,document_snapshots
+                from backend.services.api.disposition.membership import add_many
+                from backend.services.api.application_settings import load_snapshot
+                root_row=c.execute("SELECT id,version FROM aggregations WHERE aggregation_number='DISP-0002'").fetchone()
+                job=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
+                add_many(c,job_id=job['id'],expected_version=job['version'],items=[{'root_id':root_row['id'],'expected_version':root_row['version']}],
+                  acting_role_id=role,reason='Seed disposable report membership',command_id=uuid4())
+                for index in range(28):
+                    original=documents.current(c,'destruction_request')
+                    documents.revise(c,job_id=job['id'],kind='destruction_request',expected_reference=original['reference'],command_id=uuid4(),
+                      acting_role_id=manager,reason='Seed retained template revision history',content=original['content'],
+                      filename=f'request-revision-{index+1:02}.docx',settings=load_snapshot(c))
+                snapshot=document_snapshots.request_snapshot(c,job['id'],authority_name='Disposable authority / جهة الاختبار',
+                  review_summaries={'file_administrator':'Fixture summary / ملخص الاختبار','unit_manager':'Fixture summary / ملخص الاختبار','records_manager':'Fixture summary / ملخص الاختبار'},
+                  review_round=1,form_version=1,generated_at='2026-10-15T10:00:00Z')
+                job=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone();c.commit();actor(c,user)
+                c.execute("SELECT set_config('app.event_source','seeding',true)")
+                documents.generate(c,job_id=job['id'],expected_version=job['version'],kind='destruction_request',snapshot=snapshot,
+                  command_id=uuid4(),acting_role_id=manager,reason='Seed representative Phase 12 snapshot PDF',
+                  preview=documents.artifacts.destination(c,job['id'],'destruction_request'),settings=load_snapshot(c),
+                  connection_factory=lambda:psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row))
+
+
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(10,),default=10)
+    parser.add_argument('--phase',type=int,choices=(10,11,12),default=12)
     phase=parser.parse_args().phase
     configuration={**dotenv_values(ROOT/'.env'),**os.environ}
     admin_url=make_conninfo(configuration['DATABASE_URL'],dbname='postgres')
@@ -105,7 +165,7 @@ def main():
                 WEBUI_API_URL='http://127.0.0.1:18030',WEBUI_PORT='18083',WEBUI_HOST='127.0.0.1',WEBUI_RELOAD='false',
                 NICEGUI_STORAGE_PATH=directory,WEBUI_STORAGE_SECRET=uuid4().hex,NICEGUI_REDIS_URL='',
                 PYTHONPATH=os.pathsep.join([str(ROOT),str(frontend_packages)]))
-            subprocess.run([sys.executable,'-c','from tools.preview_disposition import seed; import os; seed(dict(os.environ))'],cwd=ROOT,env=environment,check=True)
+            subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed; import os; seed(dict(os.environ),phase={phase})'],cwd=ROOT,env=environment,check=True)
             for label,command in [('api',[sys.executable,'-m','uvicorn','backend.services.api.main:app','--host','127.0.0.1','--port','18030']),
                 ('webui',[str(ROOT/'frontend/webui/.venv/bin/python'),'-c',"import os,runpy; from nicegui import app; from starlette.middleware.sessions import SessionMiddleware; app.add_middleware(SessionMiddleware,secret_key=os.environ['WEBUI_STORAGE_SECRET'],session_cookie='erms_settings_phase{phase}_preview'); runpy.run_module('frontend.webui.app',run_name='__main__')".replace("{phase}",str(phase))])]:
                 path=Path(directory)/(label+'.log');handle=path.open('w');logs.append(handle)

@@ -134,9 +134,11 @@ def history(c, identity, *, limit, offset):
     source=''' FROM event_history raw JOIN authorized_event_history e ON e.id=raw.id
       WHERE (raw.entity_type='disposition_job' AND raw.entity_id=%s)
       OR (raw.entity_type='disposition_job_membership' AND raw.entity_id IN
-        (SELECT id FROM disposition_job_memberships WHERE job_id=%s))'''
-    total=c.execute('SELECT count(*) total'+source,(identity,identity)).fetchone()['total']
-    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(identity,identity,limit,offset)).fetchall()}
+        (SELECT id FROM disposition_job_memberships WHERE job_id=%s))
+      OR (raw.entity_type='disposition_job_document' AND raw.entity_id IN
+        (SELECT id FROM disposition_job_documents WHERE job_id=%s))'''
+    total=c.execute('SELECT count(*) total'+source,(identity,identity,identity)).fetchone()['total']
+    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(identity,identity,identity,limit,offset)).fetchall()}
 
 
 def selector(c, kind, *, query='', selected=None, job_type='destruction'):

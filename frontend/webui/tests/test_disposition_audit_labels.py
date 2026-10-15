@@ -22,7 +22,7 @@ def test_disposition_audit_operations_have_contextual_labels(language):
 @pytest.mark.parametrize('language',['en','ar'])
 def test_membership_recalculation_and_acceleration_use_shared_readable_labels(language):
     from frontend.webui.event_labels import EVENT_MESSAGE_KEYS
-    operations=['JOB_CREATE','JOB_ASSIGN','JOB_OWNER_CHANGE','MEMBERSHIP_ADD','MEMBERSHIP_REMOVE',
+    operations=['DOCUMENT_SAVE','ARTIFACT_SAVED','EVIDENCE_CORRECTED','JOB_CREATE','JOB_ASSIGN','JOB_OWNER_CHANGE','MEMBERSHIP_ADD','MEMBERSHIP_REMOVE',
                 'JOB_TERMINATE','DISPOSITION_ACCELERATED','DISPOSITION_RECALCULATED',
                 'DISPOSITION_REOPENED','DISPOSITION_REMOVAL_REQUIRED']
     if language=='en':

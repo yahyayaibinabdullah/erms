@@ -14,3 +14,6 @@ Babel>=2.17,<3
 cryptography>=50,<51
 # Capture renderer is pinned: archival/tagged output is regression validated.
 weasyprint==68.1
+
+# Validate generated disposition PDFs and mandatory embedded Changa fonts.
+pypdf>=6,<7

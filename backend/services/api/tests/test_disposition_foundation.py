@@ -315,16 +315,25 @@ def test_round_snapshot_is_ordered_immutable_and_cannot_be_forged(client):
 
 
 def test_document_failure_retry_and_available_link_immutability(client,record):
+    from io import BytesIO
+    from fastapi import UploadFile
+    from backend.services.api.content_storage import configured_storage,inspect_upload
+    from backend.services.api.application_settings import load_snapshot
+    from backend.services.api.tests.test_disposition_artifacts import configure
     with db() as c:
-        actor(c); job=make_job(c)
-        component=c.execute("""INSERT INTO digital_components(record_id,component_order,file_name,mime_type,size_in_bytes,checksum_algo,checksum_value)
-         VALUES(%s,1,'proof.pdf','application/pdf',0,'sha256','empty') RETURNING id""",(record['id'],)).fetchone()['id']
+        actor(c); job=make_job(c);configure(c)
+        upload=UploadFile(BytesIO(b'proof'),filename='proof.pdf')
+        settings=load_snapshot(c);inspected=inspect_upload(upload,settings)
+        checksum=inspected.checksum_value
+        component=c.execute("""INSERT INTO digital_components(record_id,component_order,file_name,mime_type,size_in_bytes,checksum_algo,checksum_value,content_status)
+         VALUES(%s,1,'proof.pdf','application/pdf',5,'sha256',%s,'available') RETURNING id""",(record['id'],checksum)).fetchone()['id']
+        configured_storage().store_upload(c,component,upload,settings=settings)
         def create(c):
-            return dict(c.execute("INSERT INTO disposition_job_documents(job_id,document_type,document_state,created_by_user_id,template_version) VALUES(%s,'destruction_request','generating',1,'v1') RETURNING id",(job,)).fetchone())
+            return dict(c.execute("INSERT INTO disposition_job_documents(job_id,document_type,document_state,created_by_user_id,template_version,origin,acting_role_id) VALUES(%s,'destruction_request','generating',1,'v1','generated',1) RETURNING id",(job,)).fetchone())
         document=command(c,'document_save',create)['id']
         for state in ['failed','generating','available']:
             def update(c):
-                c.execute('UPDATE disposition_job_documents SET document_state=%s,record_id=%s,digital_component_id=%s,checksum_algo=%s,checksum=%s WHERE id=%s',(state,record['id'],component,'sha256','empty',document)); return {}
+                c.execute('UPDATE disposition_job_documents SET document_state=%s,record_id=%s,digital_component_id=%s,checksum_algo=%s,checksum=%s,classification_scheme_id=1,classification_id=1,aggregation_id=%s WHERE id=%s',(state,record['id'],component,'sha256',checksum,record['aggregation_id'],document)); return {}
             command(c,'document_save',update)
         with pytest.raises(psycopg.Error,match='disposition_history_immutable'):
             command(c,'document_save',lambda c:(c.execute("UPDATE disposition_job_documents SET checksum='replacement' WHERE id=%s",(document,)) and {}))

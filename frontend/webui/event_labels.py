@@ -6,6 +6,10 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'TEMPLATE_REVISED': 'audit.event.disposition_template_revised',
+    'EVIDENCE_CORRECTED': 'audit.event.disposition_evidence_corrected',
+    'ARTIFACT_SAVED': 'audit.event.disposition_artifact_saved',
+    'DOCUMENT_SAVE': 'audit.event.disposition_document_saved',
     "JOB_CREATE": "audit.event.disposition_job_created",
     "JOB_ASSIGN": "audit.event.disposition_job_assigned",
     "JOB_OWNER_CHANGE": "audit.event.disposition_job_owning_unit_changed",

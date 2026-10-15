@@ -47,7 +47,7 @@ def existing_membership(c):
 
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ};base=config['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text();old=schema.split(MARKER)[0]
+    schema=(ROOT/'database/schema.sql').read_text().split('-- Disposition governed artifacts (056).',1)[0].rstrip()+'\n';old=schema.split(MARKER)[0]
     migration=(ROOT/'database/migrations/055_disposition_membership.sql').read_text();assert schema.split(MARKER,1)[1]==migration
     names=[]
     try:

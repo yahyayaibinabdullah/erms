@@ -416,6 +416,14 @@ descendant status accuracy, repeat navigation, and LTR/RTL checks.
 
 ### Phase 11 Implement artifact destinations and governed evidence storage
 
+**Status:** Complete (15 October 2026). Governed artifact storage, current-settings
+destinations, versioned corrective uploads and authorized preview/history are
+implemented and verified. Migration 056 is ready; no persistent database upgrade
+was run. The 37 new Arabic entries remain flagged drafts for human review and
+publication. Evidence: [Phase 11 verification](../docs/disposition-phase-11.md).
+Total active time: **0.99 hours**; elapsed time: **1.36 hours**,
+including the separately recorded blocked browser-tool wait. Phase 12 is next.
+
 **Priority:** Workflow foundation. **Dependencies:** Phases 2, 3, and 7.
 
 **Scope:** Implement current-settings destination resolution: latest open root
@@ -438,6 +446,11 @@ warnings, rollback, retry deduplication, evidence-version authorization, and
 original-record preservation.
 
 ### Phase 12 Implement controlled Word templates and PDF generation
+
+**Status:** Complete (15 October 2026). See `docs/disposition-phase-12.md` and
+the requirement ledger for scoped verification. Measured elapsed/active effort: 1.31 hours.
+Migration 057 is ready but not applied to persistent databases; 24 new Arabic
+drafts require review/publication. Phase 13 is next.
 
 **Priority:** Workflow foundation. **Dependencies:** Phase 11.
 

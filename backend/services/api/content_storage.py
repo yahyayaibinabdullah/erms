@@ -1,6 +1,7 @@
 import hashlib
 import os
 from dataclasses import dataclass
+from contextlib import contextmanager
 from typing import BinaryIO, Iterator, Protocol
 
 from fastapi import HTTPException, UploadFile, status
@@ -286,3 +287,69 @@ def configured_storage() -> ContentStorage:
     if backend != "postgresql":
         raise RuntimeError(f"unsupported CONTENT_STORAGE_BACKEND: {backend}")
     return PostgreSQLContentStorage()
+
+
+@dataclass(frozen=True)
+class GovernedUpload:
+    """Server-owned staging reference; never accepted from an HTTP client."""
+    draft_id: int
+    component_id: int
+    file_name: str
+    mime_type: str
+    size_in_bytes: int
+    checksum_value: str
+
+
+@contextmanager
+def stage_governed_upload(upload: UploadFile, settings, *, connection_factory=None):
+    """Stage bounded segments before taking workflow/destination locks.
+
+    An ownerless, unplaced internal draft is invisible to personal draft APIs.
+    Each segment commits separately. Final record/component/document promotion
+    uses the caller's one domain transaction. Abandonment uses existing draft
+    and upload-session expiry cleanup; normal exit always removes the staging.
+    No filesystem storage, new setting or content bytes in audit metadata.
+    """
+    factory = connection_factory or pool.connection
+    inspected = inspect_upload(upload, settings)
+    name = (upload.filename or 'unnamed').replace('\\', '/').rsplit('/', 1)[-1] or 'unnamed'
+    mime = upload.content_type or 'application/octet-stream'
+    draft_id = None
+    try:
+        with factory() as c:
+            with c.transaction():
+                draft_id = c.execute("INSERT INTO record_drafts(owner_user_id,medium) VALUES(NULL,'digital') RETURNING id").fetchone()['id']
+                component_id = c.execute('''INSERT INTO record_draft_components
+                 (draft_id,component_order,file_name,mime_type,size_in_bytes,checksum_algo,checksum_value)
+                 VALUES(%s,1,%s,%s,%s,'sha256',%s) RETURNING id''',
+                 (draft_id,name,mime,inspected.size_in_bytes,inspected.checksum_value)).fetchone()['id']
+                session_id = c.execute('''INSERT INTO content_upload_sessions(draft_component_id,status,expires_at)
+                 VALUES(%s,'uploading',CURRENT_TIMESTAMP + (LEAST(%s::numeric,EXTRACT(EPOCH FROM
+                   (TIMESTAMPTZ '9999-12-31 00:00:00+00' - CURRENT_TIMESTAMP))) * interval '1 second')) RETURNING id''',
+                 (component_id,settings['CONTENT_UPLOAD_SESSION_TTL_SECONDS'])).fetchone()['id']
+            digest = hashlib.sha256(); count = 0; size = 0
+            while chunk := upload.file.read(settings['CONTENT_SEGMENT_SIZE_BYTES']):
+                size += len(chunk)
+                if size > settings['MAX_UPLOAD_SIZE_BYTES']:
+                    raise HTTPException(413, detail='file exceeds the configured upload limit')
+                digest.update(chunk)
+                algorithm, checksum = _segment_digest(chunk, settings)
+                with c.transaction():
+                    c.execute('''INSERT INTO record_draft_component_blobs
+                     (record_draft_component_id,segment_no,segment_size,segment_checksum_algo,segment_checksum_value,content)
+                     VALUES(%s,%s,%s,%s,%s,%s)''',(component_id,count,len(chunk),algorithm,checksum,chunk))
+                    count += 1
+                    c.execute('''UPDATE content_upload_sessions SET next_segment_no=%s,bytes_received=%s,
+                     date_updated=CURRENT_TIMESTAMP WHERE id=%s''',(count,size,session_id))
+            if size != inspected.size_in_bytes or digest.hexdigest() != inspected.checksum_value:
+                raise HTTPException(409, detail='upload changed while staging')
+            with c.transaction():
+                c.execute('''UPDATE record_draft_components SET content_status='available',segment_count=%s,
+                 upload_completed_at=CURRENT_TIMESTAMP WHERE id=%s''',(count,component_id))
+                c.execute("UPDATE content_upload_sessions SET status='completed',date_updated=CURRENT_TIMESTAMP WHERE id=%s",(session_id,))
+        yield GovernedUpload(draft_id,component_id,name,mime,size,inspected.checksum_value)
+    finally:
+        upload.file.seek(0)
+        if draft_id is not None:
+            with factory() as c:
+                c.execute('DELETE FROM record_drafts WHERE id=%s AND owner_user_id IS NULL',(draft_id,))

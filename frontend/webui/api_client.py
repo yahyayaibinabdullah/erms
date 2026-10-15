@@ -1411,3 +1411,17 @@ class ErmsApiClient:
         if version is not None:
             headers['If-Match'] = str(version)
         return await self.request('POST', '/api/v1/disposition/' + path, json=payload, headers=headers)
+
+
+    async def correct_disposition_evidence(self, job_id, document_id, *, version, command_id,
+                                           acting_role_id, destination_token, reason, name, content, mime_type):
+        return await self.request('POST',f'/api/v1/disposition/jobs/{job_id}/documents/{document_id}/corrections',
+          data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'destination_token':destination_token},
+          files={'file':(name,content,mime_type)},headers={'If-Match':str(version),'X-Change-Reason':reason})
+
+    async def revise_disposition_template(self, job_id, kind, *, command_id, acting_role_id,
+                                          expected_reference, reason, name, content):
+        return await self.request('POST',f'/api/v1/disposition/jobs/{job_id}/templates/{kind}/revisions',
+          data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'expected_reference':expected_reference},
+          files={'file':(name,content,'application/vnd.openxmlformats-officedocument.wordprocessingml.document')},
+          headers={'X-Change-Reason':reason})

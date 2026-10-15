@@ -1,0 +1,41 @@
+{
+  "renderer": "Bundled LibreOffice via existing LIBREOFFICE_BINARY; private Fontconfig using merged repository Changa",
+  "documents": [
+    {
+      "document_type": "destruction_request",
+      "pages": 2,
+      "sha256": "ffcba4c04a0d6afc8effa1a0032a1bf2870b7833aa976cd412b9a27989212713",
+      "font_report": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nBAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    328  0\nCAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    353  0\nDAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    358  0\nEAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    333  0\nFAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    338  0\nGAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    343  0\nHAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    348  0\n",
+      "visual_review": "All pages inspected: Arabic shaping and right alignment, English/data LTR, no unresolved placeholders/signatures, repeated headers, intact rows, long mixed text/checksum wrapping, no clipping/overflow."
+    },
+    {
+      "document_type": "digital_destruction_certificate",
+      "pages": 1,
+      "sha256": "94ae6de9a59742e7cfea7e36e84f7e4b2d63a2f701f2066cf2a774c88400ddae",
+      "font_report": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nBAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    133  0\nCAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    148  0\nDAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    153  0\nEAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    138  0\nFAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    143  0\n",
+      "visual_review": "All pages inspected: Arabic shaping and right alignment, English/data LTR, no unresolved placeholders/signatures, repeated headers, intact rows, long mixed text/checksum wrapping, no clipping/overflow."
+    },
+    {
+      "document_type": "physical_preparation_report",
+      "pages": 3,
+      "sha256": "83756e8cfd025f4200008ed150b785b7f783e18c272dac774e46643d96e178b6",
+      "font_report": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nBAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    284  0\nCAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    309  0\nDAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    314  0\nEAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    289  0\nFAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    294  0\nGAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    299  0\nHAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    304  0\n",
+      "visual_review": "All pages inspected: Arabic shaping and right alignment, English/data LTR, no unresolved placeholders/signatures, repeated headers, intact rows, long mixed text/checksum wrapping, no clipping/overflow."
+    },
+    {
+      "document_type": "proposal_execution_report",
+      "pages": 3,
+      "sha256": "0599e49483386e8bb1aed828074f31a871fa381baf1c0a04e00997843799bc71",
+      "font_report": "name                                 type              encoding         emb sub uni object ID\n------------------------------------ ----------------- ---------------- --- --- --- ---------\nBAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    252  0\nCAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    277  0\nDAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    282  0\nEAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    257  0\nFAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    262  0\nGAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    267  0\nHAAAAA+Changa-Regular                TrueType          WinAnsi          yes yes yes    272  0\n",
+      "visual_review": "All pages inspected: Arabic shaping and right alignment, English/data LTR, no unresolved placeholders/signatures, repeated headers, intact rows, long mixed text/checksum wrapping, no clipping/overflow."
+    }
+  ],
+  "default_manifest": {
+    "digital-destruction-certificate.default.v1.docx": "5027e393f7c0ce87c088a771b0c1c92c0cfdf2077ae4d1f11c1276e949ae8d3c",
+    "physical-preparation-report.default.v1.docx": "8afe1ebaa45c87ee05993a64fec8aa4d358101ecc8aa5fe2d5199c9d11d06354",
+    "proposal-execution-report.default.v1.docx": "d2ca719ed3caa8cba1ee18222591da8c00a0fb19ca7284df204d949b49b4e3de",
+    "request-for-destruction.default.v1.docx": "d15fb09790882f0a1e51313149ea4e0c3d39ac41b29f92fc187adfe2aae07143"
+  },
+  "default_build_reproducible": true,
+  "qa_files": "Temporary verification files only; generated PDFs are not repository defaults."
+}

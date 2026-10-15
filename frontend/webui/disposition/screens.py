@@ -321,7 +321,7 @@ async def choose_job_dialog(*, api, active, on_error, choose):
 
 
 async def job_screen(*, api, identity, container, active, on_error, bind_remote, open_job,
-                     open_eligibility, open_resource, format_timestamp, event_label):
+                     open_eligibility, open_resource, format_timestamp, event_label, preview=None):
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
         status=ui.label(text('loading')).props('role=status')
@@ -395,6 +395,10 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 return lambda:{'root_version':row['root_version']}
             await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='remove',confirm='confirm_remove',build=build,path=f"memberships/{row['id']}/remove",version=row['version'],after=reload)
         members.table.on('remove-member',remove_member)
+        from .artifacts import documents_panel
+        documents=documents_panel(api=api,job=job,active=alive,on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column)
+        from .templates import templates_panel
+        templates=templates_panel(api=api,job=job,context=context,active=alive,on_error=on_error,format_timestamp=format_timestamp,column=column,after=reload)
         ui.separator();ui.label(text('history')).classes('text-lg font-semibold')
         async def fetch_history(p):
             result=await api.disposition_page(f'jobs/{identity}/history',limit=p.size,offset=(p.page-1)*p.size)
@@ -405,7 +409,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         history=PageTable(columns=[column('time_label','occurred'),column('operation_label','operation'),column('actor_label','actor'),column('reason_label','reason')],fetch=fetch_history,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
         # Detection events commit with the member-page response; history must
         # follow that dependent read to show first-detected timed holds.
-        await members.load()
+        await asyncio.gather(members.load(),documents(),templates())
         await history.load()
 
 
