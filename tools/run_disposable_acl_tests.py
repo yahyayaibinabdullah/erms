@@ -16,12 +16,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     targets = sys.argv[1:]
     baseline_ref = None
-    migration_path = None
+    migration_paths = []
     if targets and targets[0].startswith("--baseline-ref="):
         baseline_ref = targets.pop(0).split("=", 1)[1]
         if not targets or not targets[0].startswith("--migration="):
             raise ValueError("A baseline schema requires an explicit upgrade migration")
-        migration_path = ROOT / targets.pop(0).split("=", 1)[1]
+        while targets and targets[0].startswith("--migration="):
+            migration_paths.append(ROOT / targets.pop(0).split("=", 1)[1])
     schema_source = (
         subprocess.check_output(["git", "show", f"{baseline_ref}:database/schema.sql"], cwd=ROOT, text=True)
         if baseline_ref else (ROOT / "database/schema.sql").read_text()
@@ -40,7 +41,7 @@ def main():
         print(f"Created disposable database {database_name}", flush=True)
         with psycopg.connect(test_url) as connection:
             connection.execute(schema_source, prepare=False)
-            if migration_path:
+            for migration_path in migration_paths:
                 connection.commit()
                 connection.execute(migration_path.read_text(), prepare=False)
             connection.commit()

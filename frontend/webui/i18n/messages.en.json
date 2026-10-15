@@ -1346,6 +1346,174 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_accelerated",
+    "context_group": "audit.event",
+    "default_text": "Disposition Eligibility Accelerated",
+    "semantic_meaning": "Readable audit-event label for the immutable DISPOSITION_ACCELERATED operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Eligibility Accelerated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_eligibility_evaluated",
+    "context_group": "audit.event",
+    "default_text": "Disposition Eligibility Evaluated",
+    "semantic_meaning": "A scheduled evaluation found that the governing root retention period has ended.",
+    "common_locations": [
+      "Audit Trail operation filter, timeline and event details"
+    ],
+    "translator_guidance": "Translate the human-readable audit event label. Disposition means the final governance action, not only destruction; retain the established term التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Eligibility Evaluated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_job_assigned",
+    "context_group": "audit.event",
+    "default_text": "Disposition Job Assigned",
+    "semantic_meaning": "Readable audit-event label for the immutable JOB_ASSIGN operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Job Assigned",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_job_created",
+    "context_group": "audit.event",
+    "default_text": "Disposition Job Created",
+    "semantic_meaning": "Readable audit-event label for the immutable JOB_CREATE operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Job Created",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_job_owning_unit_changed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Job Owning Unit Changed",
+    "semantic_meaning": "Readable audit-event label for the immutable JOB_OWNER_CHANGE operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Job Owning Unit Changed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_job_terminated",
+    "context_group": "audit.event",
+    "default_text": "Disposition Job Terminated",
+    "semantic_meaning": "Readable audit-event label for the immutable JOB_TERMINATE operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Job Terminated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_membership_added",
+    "context_group": "audit.event",
+    "default_text": "Added to Disposition Job",
+    "semantic_meaning": "Readable audit-event label for the immutable MEMBERSHIP_ADD operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Added to Disposition Job",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_membership_removed",
+    "context_group": "audit.event",
+    "default_text": "Removed from Disposition Job",
+    "semantic_meaning": "Readable audit-event label for the immutable MEMBERSHIP_REMOVE operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removed from Disposition Job",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_recalculated",
+    "context_group": "audit.event",
+    "default_text": "Disposition Recalculated",
+    "semantic_meaning": "Readable audit-event label for the immutable DISPOSITION_RECALCULATED operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Recalculated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_removal_required",
+    "context_group": "audit.event",
+    "default_text": "Removal from Disposition Job Required",
+    "semantic_meaning": "Readable audit-event label for the immutable DISPOSITION_REMOVAL_REQUIRED operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removal from Disposition Job Required",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_reopened",
+    "context_group": "audit.event",
+    "default_text": "Disposition Unit Reopened",
+    "semantic_meaning": "Readable audit-event label for the immutable DISPOSITION_REOPENED operation in disposition job history.",
+    "common_locations": [
+      "Audit trail list and event details"
+    ],
+    "translator_guidance": "Use the approved disposition and organizational-unit terminology. This is an audit action label, not an editable job state. Keep the distinction between job termination and final completion.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Unit Reopened",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_status_changed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Status Changed",
+    "semantic_meaning": "The protected disposition command changed a complete disposition unit status.",
+    "common_locations": [
+      "Audit Trail operation filter, timeline and event details"
+    ],
+    "translator_guidance": "Translate the human-readable audit event label. Disposition means the final governance action, not only destruction; retain the established term التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Status Changed",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.export",
     "context_group": "audit.event",
     "default_text": "Export",

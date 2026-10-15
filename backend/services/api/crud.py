@@ -189,6 +189,10 @@ def update_row(
                 "current_version": current["version"],
             },
         )
+    if table == "aggregations" and values.keys() & {"date_closed", "classification_id", "parent_aggregation_id"}:
+        # An AFTER-statement disposition hook can update this row again. Return
+        # its current status/version, not UPDATE RETURNING's earlier row image.
+        row = connection.execute("SELECT * FROM aggregations WHERE id=%s", (entity_id,)).fetchone()
     return redact_hidden_relationships(connection, table, [row])[0]
 
 

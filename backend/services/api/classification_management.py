@@ -363,6 +363,7 @@ def update_classification(
     version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     return update_row(connection, "classifications", classification_id, payload.model_dump(exclude_unset=True), version)
 
 
@@ -430,6 +431,7 @@ def put_classification_rule(
     version: int | None = Query(None, ge=1),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     get_or_404(connection, "classifications", classification_id)
     current = connection.execute("SELECT * FROM classification_retention_rules WHERE classification_id=%s", (classification_id,)).fetchone()
     if current is None:
@@ -444,6 +446,7 @@ def delete_classification_rule(
     classification_id: int, version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     row = connection.execute("SELECT id FROM classification_retention_rules WHERE classification_id=%s", (classification_id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="classification retention rule not found")
@@ -473,6 +476,7 @@ def put_aggregation_rule(
     reason: str | None = Header(None, alias="X-Change-Reason"),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     _required_reason(reason)
     aggregation = get_or_404(connection, "aggregations", aggregation_id)
     if aggregation["parent_aggregation_id"] is not None:
@@ -491,6 +495,7 @@ def delete_aggregation_rule(
     reason: str | None = Header(None, alias="X-Change-Reason"),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     _required_reason(reason)
     row = connection.execute("SELECT id FROM aggregation_retention_rules WHERE aggregation_id=%s", (aggregation_id,)).fetchone()
     if row is None:

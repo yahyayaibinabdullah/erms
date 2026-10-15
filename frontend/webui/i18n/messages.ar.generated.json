@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-  "catalogue_sha256": "6ffc52eee138082c3384700ebb48d7f366e347b57545394adfbb8507053168bc",
+  "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -1271,6 +1271,198 @@
         "source_status": "published",
         "date_reviewed": "2026-09-28T10:30:03.437443+00:00",
         "date_published": "2026-09-28T10:30:03.437443+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_accelerated",
+      "translated_text": "تعجيل أهلية التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_eligibility_evaluated",
+      "translated_text": "تقييم أهلية التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase8-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "2001d18c02f4e5e29d1dff5a2a9918decf3c20aa05e0c55ec999f7d973c65792",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase8-audit-20261015",
+        "generated_at": "2026-10-15T04:44:17.824409+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_job_assigned",
+      "translated_text": "إسناد مهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_job_created",
+      "translated_text": "إنشاء مهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_job_owning_unit_changed",
+      "translated_text": "تغيير الوحدة التنظيمية المالكة لمهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_job_terminated",
+      "translated_text": "إنهاء مهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_membership_added",
+      "translated_text": "إضافة إلى مهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_membership_removed",
+      "translated_text": "إزالة من مهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_recalculated",
+      "translated_text": "إعادة حساب التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_removal_required",
+      "translated_text": "تجب الإزالة من مهمة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_reopened",
+      "translated_text": "إعادة فتح وحدة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase9-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "b62de8c4aed7a19964f2928130dbe1011a3386f07894cdd2a6ae626100c31909",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase9-audit-20261015",
+        "generated_at": "2026-10-15T05:51:54.392806+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_status_changed",
+      "translated_text": "تغيير حالة التصرف النهائي",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "Codex contextual Arabic draft",
+        "model": "GPT-6",
+        "model_version": "gpt-6",
+        "prompt_version": "disposition-phase8-audit-v1",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "catalogue_sha256": "2001d18c02f4e5e29d1dff5a2a9918decf3c20aa05e0c55ec999f7d973c65792",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "batch_id": "disposition-phase8-audit-20261015",
+        "generated_at": "2026-10-15T04:44:17.824409+00:00"
       }
     },
     {

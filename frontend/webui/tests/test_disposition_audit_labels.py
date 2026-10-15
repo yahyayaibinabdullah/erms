@@ -1,0 +1,35 @@
+"""Eligibility events use shared labels, including existing stored events."""
+import json
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+from frontend.webui.event_labels import event_label
+
+ROOT=Path(__file__).parents[3]
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+def test_disposition_audit_operations_have_contextual_labels(language):
+    definitions=json.loads((ROOT/'frontend/webui/i18n/messages.en.json').read_text())
+    if language=='en': catalogue={r['message_key']:r['default_text'] for r in definitions}
+    else: catalogue={r['message_key']:r['translated_text'] for r in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
+    with patch('frontend.webui.event_labels.render_message',side_effect=catalogue.__getitem__):
+        assert event_label('DISPOSITION_ELIGIBILITY_EVALUATED')==catalogue['audit.event.disposition_eligibility_evaluated']
+        assert event_label('DISPOSITION_STATUS_CHANGED')==catalogue['audit.event.disposition_status_changed']
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+def test_membership_recalculation_and_acceleration_use_shared_readable_labels(language):
+    from frontend.webui.event_labels import EVENT_MESSAGE_KEYS
+    operations=['JOB_CREATE','JOB_ASSIGN','JOB_OWNER_CHANGE','MEMBERSHIP_ADD','MEMBERSHIP_REMOVE',
+                'JOB_TERMINATE','DISPOSITION_ACCELERATED','DISPOSITION_RECALCULATED',
+                'DISPOSITION_REOPENED','DISPOSITION_REMOVAL_REQUIRED']
+    if language=='en':
+        catalogue={r['message_key']:r['default_text'] for r in json.loads((ROOT/'frontend/webui/i18n/messages.en.json').read_text())}
+    else:
+        catalogue={r['message_key']:r['translated_text'] for r in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
+    with patch('frontend.webui.event_labels.render_message',side_effect=catalogue.__getitem__):
+        for operation in operations:
+            assert event_label(operation)==catalogue[EVENT_MESSAGE_KEYS[operation]]
+            assert event_label(operation)!=operation

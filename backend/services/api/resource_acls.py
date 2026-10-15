@@ -466,6 +466,8 @@ def aggregation_acl_move_preview(aggregation_id:int,destination_aggregation_id:i
 
 @router.post("/aggregations/{aggregation_id}/acl-move")
 def move_aggregation_with_acl(aggregation_id:int,payload:AclMoveRequest,connection:Connection=Depends(get_connection,scope="function")):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
+    connection.execute("SELECT lock_hold_policy_shared()")
     require_resource_operation(connection,"aggregation",aggregation_id,"aggregation.move","aggregation.move")
     require_resource_operation(connection,"aggregation",payload.destination_aggregation_id,"aggregation.move","aggregation.receive_child")
     aggregation=_resource(connection,"aggregations",aggregation_id); destination=_resource(connection,"aggregations",payload.destination_aggregation_id)

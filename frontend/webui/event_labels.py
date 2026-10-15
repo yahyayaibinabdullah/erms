@@ -6,6 +6,16 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    "JOB_CREATE": "audit.event.disposition_job_created",
+    "JOB_ASSIGN": "audit.event.disposition_job_assigned",
+    "JOB_OWNER_CHANGE": "audit.event.disposition_job_owning_unit_changed",
+    "MEMBERSHIP_ADD": "audit.event.disposition_membership_added",
+    "MEMBERSHIP_REMOVE": "audit.event.disposition_membership_removed",
+    "JOB_TERMINATE": "audit.event.disposition_job_terminated",
+    "DISPOSITION_ACCELERATED": "audit.event.disposition_accelerated",
+    "DISPOSITION_RECALCULATED": "audit.event.disposition_recalculated",
+    "DISPOSITION_REOPENED": "audit.event.disposition_reopened",
+    "DISPOSITION_REMOVAL_REQUIRED": "audit.event.disposition_removal_required",
     "APPLICATION_SETTING_CHANGED": "audit.event.application_setting_changed",
     "APPLICATION_SETTING_SEEDED": "audit.event.application_setting_seeded",
     "APPLICATION_SETTINGS_MIGRATION_COMPLETED": "audit.event.application_settings_migration_completed",
@@ -33,6 +43,8 @@ EVENT_MESSAGE_KEYS = {
     "DEFAULT_CHILD_AGGREGATION_ACL_REPLACED": "audit.event.default_child_aggregation_acl_replaced",
     "DEFAULT_CHILD_RECORD_ACL_REPLACED": "audit.event.default_child_record_acl_replaced",
     "DELETE": "audit.event.delete",
+    "DISPOSITION_ELIGIBILITY_EVALUATED": "audit.event.disposition_eligibility_evaluated",
+    "DISPOSITION_STATUS_CHANGED": "audit.event.disposition_status_changed",
     "GOVERNANCE_ROLE_CHANGED": "audit.event.governance_role_changed",
     "HELD_RESOURCE_MOVED": "audit.event.held_resource_moved",
     "HOLD_CONTRIBUTORS_REPLACED": "audit.event.hold_contributors_replaced",

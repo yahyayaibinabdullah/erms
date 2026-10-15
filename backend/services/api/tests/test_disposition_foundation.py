@@ -35,7 +35,15 @@ def version(c, root):
     return c.execute('SELECT version FROM aggregations WHERE id=%s',(root,)).fetchone()['version']
 
 
+def ensure_officer(c, user=1):
+    role=c.execute("SELECT id FROM roles WHERE code='fixture-records-officer'").fetchone()
+    if role is None:
+        role=c.execute("INSERT INTO roles(org_unit_id,code,name,is_information_governance,profile_id) SELECT 1,'fixture-records-officer','Records Officer',true,id FROM profiles WHERE code='INFO_GOV_OFFICER' RETURNING id").fetchone()
+    c.execute('INSERT INTO user_role_assignments(user_id,role_id) SELECT %s,%s WHERE NOT EXISTS(SELECT 1 FROM user_role_assignments WHERE user_id=%s AND role_id=%s)',(user,role['id'],user,role['id']))
+
+
 def make_job(c, number=None, *, assigned=1, kind='destruction'):
+    if kind=='destruction': ensure_officer(c)
     def apply(c):
         row=c.execute("""INSERT INTO disposition_jobs(job_number,job_type,workflow_stage,disposition_status,owning_org_unit_id,assigned_user_id,created_by_user_id)
          VALUES(%s,%s,%s,%s,1,%s,1) RETURNING id""",
@@ -225,7 +233,7 @@ def test_completed_jobs_require_consistent_fields_and_unimplemented_actions_fail
 def test_canonical_and_upgrade_have_the_same_foundation_ddl(client):
     migration=(ROOT/'database/migrations/053_disposition_foundation.sql').read_text()
     canonical=(ROOT/'database/schema.sql').read_text()
-    assert canonical.split('-- Common disposition foundation (053).\n',1)[1]==migration
+    assert canonical.split('-- Common disposition foundation (053).\n',1)[1].split('-- Disposition eligibility and current blockers (054).',1)[0].strip()==migration.strip()
     assert '\\i' not in migration
     assert 'UPDATE event_history' not in migration and 'DELETE FROM event_history' not in migration
 
@@ -444,7 +452,7 @@ def test_assignee_does_not_grant_root_access(client):
         # This removes only the acting user's view privilege; assignment and
         # disposition authority remain in place, so no resource access is added.
         with c.transaction(force_rollback=True):
-            c.execute("DELETE FROM profile_privileges WHERE profile_id=(SELECT profile_id FROM roles WHERE id=1) AND privilege_id=(SELECT id FROM privileges WHERE code='aggregation.view')")
+            c.execute("DELETE FROM profile_privileges WHERE profile_id IN (SELECT profile_id FROM roles WHERE id IN (SELECT role_id FROM user_role_assignments WHERE user_id=1)) AND privilege_id=(SELECT id FROM privileges WHERE code='aggregation.view')")
             with pytest.raises(psycopg.Error,match='disposition_resource_access_required'): add(c,job,root)
             assert states(c)==[2]*4
 
@@ -524,7 +532,7 @@ def test_workflow_mutations_and_audit_history_recheck_resource_access(client):
     with db() as c:
         actor(c); root,*_=prepare_unit(c); job=make_job(c); add(c,job,root)
         with c.transaction(force_rollback=True):
-            c.execute("DELETE FROM profile_privileges WHERE profile_id=(SELECT profile_id FROM roles WHERE id=1) AND privilege_id=(SELECT id FROM privileges WHERE code='aggregation.view')")
+            c.execute("DELETE FROM profile_privileges WHERE profile_id IN (SELECT profile_id FROM roles WHERE id IN (SELECT role_id FROM user_role_assignments WHERE user_id=1)) AND privilege_id=(SELECT id FROM privileges WHERE code='aggregation.view')")
             with pytest.raises(psycopg.Error,match='disposition_resource_access_required'):
                 command(c,'job_assign',lambda c:(c.execute('UPDATE disposition_jobs SET assigned_user_id=1 WHERE id=%s',(job,)) and {}))
             events=c.execute("SELECT metadata FROM authorized_event_history WHERE entity_type='disposition_job' AND entity_id=%s",(job,)).fetchall()
@@ -532,7 +540,7 @@ def test_workflow_mutations_and_audit_history_recheck_resource_access(client):
         with c.transaction(force_rollback=True):
             # A visible root does not reveal identifiers from a concealed record
             # in the immutable reviewed-membership snapshot or job history.
-            c.execute("DELETE FROM profile_privileges WHERE profile_id=(SELECT profile_id FROM roles WHERE id=1) AND privilege_id=(SELECT id FROM privileges WHERE code='record.view')")
+            c.execute("DELETE FROM profile_privileges WHERE profile_id IN (SELECT profile_id FROM roles WHERE id IN (SELECT role_id FROM user_role_assignments WHERE user_id=1)) AND privilege_id=(SELECT id FROM privileges WHERE code='record.view')")
             events=c.execute("SELECT metadata FROM authorized_event_history WHERE entity_type='disposition_job' AND entity_id=%s",(job,)).fetchall()
             assert events and all(e['metadata'].get('redacted') is True for e in events)
 
@@ -654,7 +662,10 @@ def test_review_decision_rejects_changed_membership_snapshot(client):
             task=c.execute("INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,destination_user_id,review_round) VALUES(%s,'records_manager_review','records_manager_review',1,1) RETURNING id",(job,)).fetchone()['id']
             return {'round':review,'task':task}
         review=command(c,'review_submit',submit)
-        remove(c,member,root)
+        # Phase 9 rejects removal while a reviewer holds the job. A current
+        # protective resource change still invalidates the reviewed versions.
+        c.execute("SELECT set_config('app.vital_status_change_authorized','authorized',true)")
+        c.execute("UPDATE records SET is_vital=true WHERE aggregation_id IN (SELECT disposition_private.unit_ids(%s))",(root,))
         def approve_stale(c):
             c.execute("""INSERT INTO disposition_review_decisions(job_id,round_id,review_stage,decision,task_id,actor_user_id,acting_role_id,reason,membership_snapshot)
              VALUES(%s,%s,'records_manager_review','approved',%s,1,1,'Outdated review',%s)""",(job,review['round'],review['task'],Jsonb(snapshot))); return {}

@@ -81,6 +81,7 @@ from .scheme_transfer.routes import router as scheme_transfer_router
 from .browse import router as browse_router
 from .favourites import router as favourites_router
 from .resource_relationships import router as resource_relationships_router
+from .disposition.routes import router as disposition_router
 from .application_settings_routes import router as application_settings_router
 from .application_configuration import router as application_configuration_router
 from .application_settings import cache as settings_cache
@@ -205,6 +206,7 @@ app.include_router(classification_management_router)
 app.include_router(browse_router)
 app.include_router(favourites_router)
 app.include_router(resource_relationships_router)
+app.include_router(disposition_router)
 app.include_router(application_settings_router)
 app.include_router(application_configuration_router)
 app.include_router(security_levels_router)
@@ -456,6 +458,9 @@ async def database_error_handler(_, exception: psycopg.Error):
                 )
         except psycopg.Error:
             pass
+    if primary.startswith("disposition_") and primary.replace("_", "").isalnum():
+        return JSONResponse(status_code=403 if sqlstate=="42501" else 409,
+                            content={"detail": {"code": primary}})
     if sqlstate == "23505" and constraint_name in {
         "aggregations_aggregation_number_key", "records_record_number_key",
     }:
@@ -822,6 +827,10 @@ def update_aggregation(
     version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    # Coordinate policy/closure changes before acquiring any resource row lock.
+    if payload.model_fields_set & {"classification_id", "parent_aggregation_id", "date_closed"}:
+        connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
+        connection.execute("SELECT lock_hold_policy_shared()")
     existing = lock_visible_resource(connection, "aggregation", aggregation_id)
     fields = payload.model_fields_set
     metadata_fields = {"aggregation_number", "title", "description", "date_opened"}

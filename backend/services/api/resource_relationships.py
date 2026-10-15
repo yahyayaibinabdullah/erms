@@ -1,4 +1,4 @@
-"""Named aggregation/record links. Disposition integration is deliberately deferred."""
+"""Named links; writes coordinate with protected disposition blocker checks."""
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -211,6 +211,7 @@ def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
              dependencies=[Depends(require_global_privilege('relationships.link'))])
 def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
                 c: Connection = Depends(get_connection, scope='function')):
+    c.execute('SELECT pg_advisory_xact_lock(7357,1)')
     require_endpoint(c, kind, resource_id)
     require_endpoint(c, kind, payload.target_id)
     source, target = (resource_id, payload.target_id) if payload.direction == 'forward' else (payload.target_id, resource_id)
@@ -226,6 +227,7 @@ def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
                dependencies=[Depends(require_global_privilege('relationships.link'))])
 def delete_link(kind: Kind, resource_id: int, link_id: int,
                 c: Connection = Depends(get_connection, scope='function')):
+    c.execute('SELECT pg_advisory_xact_lock(7357,1)')
     require_endpoint(c, kind, resource_id)
     try:
         with c.transaction():

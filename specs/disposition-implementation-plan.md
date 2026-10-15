@@ -342,6 +342,18 @@ final disposition. Include record endpoints, both directions, and all link types
 timezone display independence, local overrides, open roots, inherited holds,
 hidden descendants, same-job links, concurrent changes, and repeated worker runs.
 
+**Completed 2026-10-15.** Bounded database-clock eligibility and current
+all-descendant protection/relationship facts are implemented. The 57-case suite
+passed on both fresh and independent-upgrade paths; all 75 Phase 7 cases,
+53 affected regressions, 39 tool checks and three shared-label/export checks
+passed. Fresh/upgrade schema parity and existing-data preservation passed.
+All 20 disposable databases, including failed runs, were independently confirmed
+absent. Migration 054 is ready; no persistent database or service was changed.
+Two new Arabic audit-label drafts preserve all prior curated entries and require
+normal deployment seeding/review/publication. Evidence and operator steps:
+[Phase 8 verification](../docs/disposition-phase-8.md) and the requirement ledger.
+Total active time: **0.57 hours**. Phase 9 is next.
+
 ### Phase 9 Implement job membership and changing eligibility
 
 **Priority:** Disposition foundation. **Dependencies:** Phase 8.
@@ -359,6 +371,21 @@ pending status; incompatible members block progress.
 repeated add/remove, assignment without access, open/reclosed roots, matching
 and mismatching rule changes, unchanged inherited rules, required removal, and
 all-or-nothing propagation. Terminal units cannot be readmitted.
+
+**Completed 2026-10-15.** Protected job creation, specific assignment,
+per-item membership, owning-unit rules, acceleration, pre-irreversible
+termination and atomic reopening/rule/hierarchy recalculation are implemented.
+Matching members retain pending status; incompatible/reopened members require
+explicit removal and block progress. On each fresh/upgrade path, 201 full-suite
+cases and three final CHECK cases passed; 83 affected API regressions, 39 tool
+checks and five bilingual label/export checks passed. Final schema/055 catalogue
+parity and existing active-membership/data preservation passed. All 26 disposable
+databases were independently confirmed absent. Ten new Arabic audit-label drafts
+preserve every prior item/provenance and require normal review/publication.
+Migration 055 and deployment guidance are ready; no persistent database,
+private environment or deployed service was changed. Evidence:
+[Phase 9 verification](../docs/disposition-phase-9.md) and the requirement ledger.
+Total active time: **0.58 hours**. Phase 10 is next.
 
 ### Phase 10 Deliver eligibility and common job screens
 
@@ -769,6 +796,10 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 
 | 7 | 2026-10-15 03:28:46 | 2026-10-15 04:01:10 | 0.54 | 0.00 | Measured | Common schema/053 and private command/claim/unit foundation; 75 cases passed on each fresh/upgrade path, 91 affected regressions and 39 tools checks passed; exact database catalogue parity and prior resource/identity/settings/grant/history preservation. All 34 disposable databases confirmed absent. No persistent DB/environment/translation change; action-specific entry points/final execution stay closed. Final evidence bookkeeping follows captured end boundary. |
 
+| 8 | 2026-10-15 04:30:35 | 2026-10-15 05:04:59 | 0.57 | 0.00 | Measured | Database UTC eligibility/054, bounded worker, current protections and both-direction relationships with scoped redaction/coordination locks; 57 cases passed on fresh and upgrade paths, all 75 Phase 7 cases plus 53 affected regressions, 39 tools and three labels/export checks passed. Latest catalogue parity and existing data preserved; all 20 disposable databases independently confirmed absent. Two Arabic drafts added preserving all 3192 prior entries; no persistent DB/environment/service changes. Final completion bookkeeping follows captured end boundary. |
+
+| 9 | 2026-10-15 05:39:43 | 2026-10-15 06:14:25 | 0.58 | 0.00 | Measured | Protected common job/membership/assignment/owning-unit/acceleration/termination commands and atomic policy/reopening/hierarchy recalculation; 201 full-suite plus three final CHECK cases passed on each fresh/upgrade path, 83 API regressions, 39 tools and five labels/export checks passed. Exact final catalogue parity and prior active membership/data preserved; all 26 disposable databases independently absent. Ten Arabic drafts merged preserving all 3194 prior items; no persistent DB/environment/service change. Final evidence bookkeeping follows captured end boundary. |
+
 ### Phase totals
 
 A dash means no implementation time has been recorded, not zero hours worked.
@@ -783,8 +814,8 @@ Update status from actual progress; specification approval is not implementation
 | 5 | Complete | 2026-10-14 12:15:58 UTC | 2026-10-14 12:33:52 UTC | 0.30 | — | 0.00 |
 | 6 | Complete | 2026-10-14 13:22:58 UTC | 2026-10-14 13:51:03 UTC | 0.47 | — | 0.00 |
 | 7 | Complete | 2026-10-15 03:28:46 UTC | 2026-10-15 04:01:10 UTC | 0.54 | — | 0.00 |
-| 8 | Not started | — | — | — | — | — |
-| 9 | Not started | — | — | — | — | — |
+| 8 | Complete | 2026-10-15 04:30:35 UTC | 2026-10-15 05:04:59 UTC | 0.57 | — | 0.00 |
+| 9 | Complete | 2026-10-15 05:39:43 UTC | 2026-10-15 06:14:25 UTC | 0.58 | — | 0.00 |
 | 10 | Not started | — | — | — | — | — |
 | 11 | Not started | — | — | — | — | — |
 | 12 | Not started | — | — | — | — | — |
