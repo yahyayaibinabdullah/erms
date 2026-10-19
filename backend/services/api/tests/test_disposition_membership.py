@@ -361,4 +361,4 @@ def version_from_db(root):
 
 def test_canonical_and_independent_membership_migration_match_exactly(client):
     marker='-- Disposition membership and atomic recalculation (055).\n'
-    assert (ROOT/'database/schema.sql').read_text().split(marker,1)[1]==(ROOT/'database/migrations/055_disposition_membership.sql').read_text()
+    assert (ROOT/'database/schema.sql').read_text().split(marker,1)[1].split('\n-- Disposition governed artifacts (056).',1)[0]==(ROOT/'database/migrations/055_disposition_membership.sql').read_text()

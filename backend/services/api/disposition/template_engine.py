@@ -187,6 +187,11 @@ def fill(content,kind,snapshot,maximum):
                     row.addprevious(clone)
                 row.getparent().remove(row)
         for p in paragraphs(tree):_replace(p,scalar)
+        if (snapshot.get('source') or {}).get('job_snapshot',{}).get('review_route')=='records_manager_only':
+            # The approved Manager Only interpretation changes the assignee's
+            # duty label. Keep the controlled placeholder contract unchanged.
+            for node in tree.findall('.//w:t',NS):
+                if node.text:node.text=node.text.replace('Assigned Records Officer','Assigned Records Manager').replace('مسؤول الوثائق المكلّف','مدير الوثائق المكلّف')
         if '{{' in paragraph_text(tree) or '}}' in paragraph_text(tree):invalid('disposition_document_snapshot_invalid')
         values[name]=etree.tostring(tree,xml_declaration=True,encoding='UTF-8',standalone=True)
     stream=BytesIO()

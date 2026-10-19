@@ -114,7 +114,7 @@ def seed(environment, phase=10):
             from backend.services.api.disposition.membership import assign_job
             assigned=c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
             assign_job(c,job_id=job['id'],expected_version=job['version'],assigned_user_id=assigned,acting_role_id=role,reason='Seed assigned Arabic Officer preview',command_id=uuid4())
-            if phase>=12:
+            if phase==12:
                 from backend.services.api.disposition import documents,document_snapshots
                 from backend.services.api.disposition.membership import add_many
                 from backend.services.api.application_settings import load_snapshot
@@ -137,12 +137,43 @@ def seed(environment, phase=10):
                   preview=documents.artifacts.destination(c,job['id'],'destruction_request'),settings=load_snapshot(c),
                   connection_factory=lambda:psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row))
 
+    if phase>=16:
+        seed_review_workspace(environment)
 
+
+def seed_review_workspace(environment):
+    from backend.services.api.authentication import hash_password
+    from backend.services.api.disposition.membership import create_job,add_many
+    from backend.services.api.tests.test_disposition_membership import actor
+    from backend.services.api.tests.test_disposition_workflow import role,set_route
+    from backend.services.api.tests.test_disposition_artifacts import seed_document
+    with psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row) as c:
+        actor(c,1);c.execute("SELECT set_config('app.event_source','seeding',true)")
+        admin=c.execute("SELECT id FROM users WHERE email='admin@test.invalid'").fetchone()['id']
+        admin_role=c.execute("SELECT id FROM roles WHERE code='preview-administrator'").fetchone()['id']
+        identities={}
+        for email,profile,code in [('fa@test.invalid','FILE_ADMIN','preview-file-admin'),('unit@test.invalid','FILE_ADMIN','preview-unit-manager'),('manager@test.invalid','INFO_GOV_MGR','preview-manager')]:
+            user=c.execute('INSERT INTO users(name,email) VALUES(%s,%s) RETURNING id',(code,email)).fetchone()['id']
+            rid=role(c,code,profile,user=user);identities[email]=(user,rid)
+            c.execute('INSERT INTO user_credentials(user_id,password_hash,must_change_password) VALUES(%s,%s,false)',(user,hash_password('Temporary-Test-Password-123!')))
+        c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=1',(identities['fa@test.invalid'][1],identities['unit@test.invalid'][1]))
+        for route,start,end in [('standard',3,60),('simplified',61,80),('records_manager_only',81,100)]:
+            actor(c,admin);c.execute("SELECT set_config('app.event_source','seeding',true)");set_route(c,route)
+            assigned=identities['manager@test.invalid'][0] if route=='records_manager_only' else c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
+            job=create_job(c,job_number='PHASE16-'+route.upper(),job_type='destruction',owning_org_unit_id=1,assigned_user_id=assigned,acting_role_id=admin_role,reason='Seed disposable Phase 16 route workspace',command_id=uuid4())
+            rows=c.execute('SELECT id,version FROM aggregations WHERE aggregation_number=ANY(%s) ORDER BY id',([f'DISP-{i:04}' for i in range(start,end+1)],)).fetchall()
+            assigned_role=identities['manager@test.invalid'][1] if route=='records_manager_only' else c.execute("SELECT id FROM roles WHERE code='preview-officer'").fetchone()['id']
+            actor(c,assigned);c.execute("SELECT set_config('app.event_source','seeding',true)")
+            result=add_many(c,job_id=job['id'],expected_version=job['version'],items=[{'root_id':r['id'],'expected_version':r['version']} for r in rows],acting_role_id=assigned_role,reason='Seed disposable paginated membership',command_id=uuid4())
+            assert all(r['success'] for r in result['items']),result
+            if route=='standard':
+                actor(c,assigned);c.execute("SELECT set_config('app.event_source','seeding',true)");seed_document(c,c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone(),content=preview_pdf(),acting_role_id=assigned_role)
+        print('Phase 16 roles: fa@test.invalid, unit@test.invalid, manager@test.invalid; same disposable password.',flush=True)
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(10,11,12),default=12)
+    parser.add_argument('--phase',type=int,choices=(10,11,12,16),default=12)
     phase=parser.parse_args().phase
     configuration={**dotenv_values(ROOT/'.env'),**os.environ}
     admin_url=make_conninfo(configuration['DATABASE_URL'],dbname='postgres')

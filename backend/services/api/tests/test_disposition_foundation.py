@@ -240,9 +240,17 @@ def test_canonical_and_upgrade_have_the_same_foundation_ddl(client):
 
 def make_task(c, job, *, role=1, user=None):
     def apply(c):
+        stage='officer_preparation';kind='preparation'
+        if role is not None:
+            # Phase 13 prepares by direct assignment; queues belong to actual
+            # configured review stages, rather than synthetic preparation queues.
+            c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=1',(role,))
+            c.execute("UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s AND task_state IN ('open','claimed')",(job,))
+            c.execute("UPDATE disposition_jobs SET workflow_stage='file_administrator_review' WHERE id=%s",(job,))
+            stage=kind='file_administrator_review'
         return dict(c.execute("""INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,destination_role_id,destination_user_id)
-         VALUES(%s,'preparation','officer_preparation',%s,%s) RETURNING id""",(job,role,user)).fetchone())
-    return command(c,'job_create',apply)['id']
+         VALUES(%s,%s,%s,%s,%s) RETURNING id""",(job,kind,stage,role,user)).fetchone())
+    return command(c,'review_submit' if role is not None else 'job_create',apply)['id']
 
 
 def claim(c, task, expected=1):
@@ -291,7 +299,7 @@ def test_task_requires_exactly_one_destination(client,destination):
     with db() as c:
         actor(c); job=make_job(c)
         with pytest.raises(psycopg.Error): make_task(c,job,role=1 if destination=='both' else None,user=1 if destination=='both' else None)
-        assert c.execute('SELECT count(*) n FROM disposition_tasks').fetchone()['n']==0
+        assert c.execute('SELECT count(*) n FROM disposition_tasks').fetchone()['n']==1
 
 
 def test_round_snapshot_is_ordered_immutable_and_cannot_be_forged(client):
@@ -398,15 +406,18 @@ def test_round_decisions_keep_actor_role_snapshot_and_are_immutable(client):
     with db() as c:
         actor(c); root,*_=prepare_unit(c); job=make_job(c); add(c,job,root)
         snapshot=c.execute('SELECT disposition_private.membership_snapshot(%s) s',(job,)).fetchone()['s']
+        c.execute('UPDATE org_units SET managing_role_id=1 WHERE id=1')
         def submit(c):
-            c.execute("UPDATE disposition_jobs SET workflow_stage='records_manager_review' WHERE id=%s",(job,))
+            c.execute("UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s",(job,))
+            c.execute("UPDATE disposition_jobs SET workflow_stage='unit_manager_review' WHERE id=%s",(job,))
             round_id=c.execute('INSERT INTO disposition_review_rounds(job_id,round_number,started_by_user_id,membership_snapshot) VALUES(%s,1,1,%s) RETURNING id',(job,Jsonb(snapshot))).fetchone()['id']
-            task_id=c.execute("INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,destination_user_id,review_round) VALUES(%s,'records_manager_review','records_manager_review',1,1) RETURNING id",(job,)).fetchone()['id']
+            task_id=c.execute("INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,destination_role_id,review_round) VALUES(%s,'unit_manager_review','unit_manager_review',1,1) RETURNING id",(job,)).fetchone()['id']
             return {'round':round_id,'task':task_id}
         review=command(c,'review_submit',submit)
+        claim(c,review['task'])
         def decide(c):
             decision=c.execute("""INSERT INTO disposition_review_decisions(job_id,round_id,review_stage,decision,task_id,actor_user_id,acting_role_id,reason,membership_snapshot)
-             VALUES(%s,%s,'records_manager_review','approved',%s,1,1,'Overall approval',%s) RETURNING id""",(job,review['round'],review['task'],Jsonb(snapshot))).fetchone()['id']
+             VALUES(%s,%s,'unit_manager_review','approved',%s,1,1,'Overall approval',%s) RETURNING id""",(job,review['round'],review['task'],Jsonb(snapshot))).fetchone()['id']
             c.execute("UPDATE disposition_tasks SET task_state='completed' WHERE id=%s",(review['task'],))
             c.execute('UPDATE disposition_review_rounds SET completed_at=CURRENT_TIMESTAMP WHERE id=%s',(review['round'],))
             return {'id':decision}
@@ -490,14 +501,14 @@ def test_reassignment_preserves_task_events_and_clears_claim(client):
     with db() as c:
         actor(c); job=make_job(c); task=make_task(c,job); claim(c,task)
         def reassign(c):
-            c.execute("UPDATE disposition_tasks SET task_state='open',destination_role_id=NULL,destination_user_id=1 WHERE id=%s",(task,)); return {}
+            c.execute("UPDATE disposition_tasks SET task_state='open' WHERE id=%s",(task,)); return {}
         command(c,'task_reassign',reassign)
         current=c.execute('SELECT * FROM disposition_tasks WHERE id=%s',(task,)).fetchone()
-        assert current['destination_user_id']==1 and current['claimed_by_user_id'] is None
+        assert current['destination_role_id']==1 and current['claimed_by_user_id'] is None
         assert current['reassigned_by_user_id']==1 and current['reassigned_at'] is not None
         events=c.execute("SELECT metadata FROM event_history WHERE entity_type='disposition_task' AND entity_id=%s ORDER BY id",(task,)).fetchall()
         assert events[-1]['metadata']['before']['destination_role_id']==1
-        assert events[-1]['metadata']['after']['destination_user_id']==1
+        assert events[-1]['metadata']['after']['destination_role_id']==1
 
 
 def test_retry_rechecks_authority_after_privilege_loss(client):
@@ -665,18 +676,21 @@ def test_review_decision_rejects_changed_membership_snapshot(client):
     with db() as c:
         actor(c); root,*_=prepare_unit(c); job=make_job(c); member=add(c,job,root)
         snapshot=c.execute('SELECT disposition_private.membership_snapshot(%s) s',(job,)).fetchone()['s']
+        c.execute('UPDATE org_units SET managing_role_id=1 WHERE id=1')
         def submit(c):
-            c.execute("UPDATE disposition_jobs SET workflow_stage='records_manager_review' WHERE id=%s",(job,))
+            c.execute("UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s",(job,))
+            c.execute("UPDATE disposition_jobs SET workflow_stage='unit_manager_review' WHERE id=%s",(job,))
             review=c.execute('INSERT INTO disposition_review_rounds(job_id,round_number,started_by_user_id,membership_snapshot) VALUES(%s,1,1,%s) RETURNING id',(job,Jsonb(snapshot))).fetchone()['id']
-            task=c.execute("INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,destination_user_id,review_round) VALUES(%s,'records_manager_review','records_manager_review',1,1) RETURNING id",(job,)).fetchone()['id']
+            task=c.execute("INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,destination_role_id,review_round) VALUES(%s,'unit_manager_review','unit_manager_review',1,1) RETURNING id",(job,)).fetchone()['id']
             return {'round':review,'task':task}
         review=command(c,'review_submit',submit)
+        claim(c,review['task'])
         # Phase 9 rejects removal while a reviewer holds the job. A current
         # protective resource change still invalidates the reviewed versions.
         c.execute("SELECT set_config('app.vital_status_change_authorized','authorized',true)")
         c.execute("UPDATE records SET is_vital=true WHERE aggregation_id IN (SELECT disposition_private.unit_ids(%s))",(root,))
         def approve_stale(c):
             c.execute("""INSERT INTO disposition_review_decisions(job_id,round_id,review_stage,decision,task_id,actor_user_id,acting_role_id,reason,membership_snapshot)
-             VALUES(%s,%s,'records_manager_review','approved',%s,1,1,'Outdated review',%s)""",(job,review['round'],review['task'],Jsonb(snapshot))); return {}
+             VALUES(%s,%s,'unit_manager_review','approved',%s,1,1,'Outdated review',%s)""",(job,review['round'],review['task'],Jsonb(snapshot))); return {}
         with pytest.raises(psycopg.Error,match='disposition_review_snapshot_stale'): command(c,'review_decide',approve_stale)
         assert c.execute('SELECT count(*) n FROM disposition_review_decisions').fetchone()['n']==0

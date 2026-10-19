@@ -25,16 +25,20 @@ def evaluate_root(connection, root_id: int, *, command_id=None):
                               (root_id, command_id or uuid4())).fetchone()['result']
 
 
-def run_pass(database_url: str, *, batch_size: int = 100, after_id: int = 0):
-    if type(batch_size) is not int or not 1 <= batch_size <= 1000 or type(after_id) is not int or after_id < 0:
+def run_pass(database_url: str, *, batch_size: int = 100, after_id: int = 0, task_after_id: int = 0):
+    if type(batch_size) is not int or not 1 <= batch_size <= 1000 or type(after_id) is not int or after_id < 0 or type(task_after_id) is not int or task_after_id < 0:
         raise ValueError('Invalid eligibility batch bounds')
     with psycopg.connect(database_url, row_factory=dict_row, options='-c timezone=UTC') as connection:
-        if not connection.execute("SELECT 1 FROM schema_migrations WHERE version='054_disposition_eligibility'").fetchone():
-            raise RuntimeError('Apply disposition migration 054 before starting eligibility work')
+        connection.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE')
+        if not connection.execute("SELECT 1 FROM schema_migrations WHERE version='058_disposition_routing'").fetchone():
+            raise RuntimeError('Apply disposition migration 058 before starting eligibility work')
+        from .workflow import reconcile_claims
+        worker_actor(connection)
+        task_result=reconcile_claims(connection,limit=batch_size,after_id=task_after_id)
         candidates=connection.execute('''SELECT id FROM aggregations WHERE parent_aggregation_id IS NULL
           AND disposition_status=1 AND date_closed IS NOT NULL AND id>%s ORDER BY id LIMIT %s''',
           (after_id,batch_size)).fetchall()
-    result={'examined':len(candidates),'changed':0,'unchanged':0,'failures':[],
+    result={'next_task_after_id':task_result['next_after_id'],'released_tasks':task_result['released'],'examined':len(candidates),'changed':0,'unchanged':0,'failures':[],
             'next_after_id':candidates[-1]['id'] if len(candidates)==batch_size else 0}
     # A fresh transaction for each root gives failures independent rollback and
     # the next root a fresh database clock/snapshot. No batch-long business lock.
@@ -71,12 +75,14 @@ def main(argv=None):
     load_environment()
     database_url=required_environment('DATABASE_URL')
     cursor=args.after_id
+    task_cursor=0
     while True:
-        result=run_pass(database_url,batch_size=args.batch_size,after_id=cursor)
+        result=run_pass(database_url,batch_size=args.batch_size,after_id=cursor,task_after_id=task_cursor)
         print(json.dumps(result),flush=True)
         if not args.watch:
             return 1 if result['failures'] else 0
         cursor=result['next_after_id']
+        task_cursor=result['next_task_after_id']
         time.sleep(args.interval_seconds)
 
 

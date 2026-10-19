@@ -20,7 +20,7 @@ def snapshot(c):
 
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ};base=config['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text();migration=(ROOT/'database/migrations/057_disposition_templates.sql').read_text()
+    schema=(ROOT/'database/schema.sql').read_text().split('-- Destruction routing and shared tasks (058).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/057_disposition_templates.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
     names=[]
     try:

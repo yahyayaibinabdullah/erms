@@ -51,9 +51,11 @@ def test_job_membership_episodes_history_and_selector_contracts(client):
         assert queries.selector(c,'assignees',selected=1)['items'][0]['id']==1
         assert queries.context(c)['roles'][0]['id']==1
         c.execute("SELECT set_config('app.user_id','',true)")
-        for query in (lambda:page(c),lambda:queries.job(c,saved['id']),lambda:queries.selector(c,'owners',query='Te')):
+        # Workspace context has used a non-disclosing 404 since governed
+        # evidence/task recipients were introduced. Manager-only reads use 403.
+        for query,status in ((lambda:page(c),403),(lambda:queries.job(c,saved['id']),404),(lambda:queries.selector(c,'owners',query='Te'),403)):
             with pytest.raises(HTTPException) as e:query()
-            assert e.value.status_code==403
+            assert e.value.status_code==status
 
 
 def test_read_http_is_bounded_and_uses_authenticated_actor(client):

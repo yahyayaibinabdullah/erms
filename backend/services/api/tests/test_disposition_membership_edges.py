@@ -33,7 +33,7 @@ def test_assignment_and_admission_require_assignee_current_clearance_and_do_not_
         user,role=candidate(c)
         assert not c.execute('SELECT user_can_view_aggregation(%s,%s) allowed',(user,root)).fetchone()['allowed']
         service.assign_job(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),assigned_user_id=user))
-        assert admit(c,job['id'],[root])['items'][0]['code']=='disposition_assignee_access_required'
+        assert admit(c,job['id'],[root])['items'][0]['code']=='disposition_assigned_preparer_required'
         service.assign_job(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),assigned_user_id=1))
         assert admit(c,job['id'],[root])['items'][0]['success']
         with pytest.raises(psycopg.Error,match='disposition_assignee_access_required'):
@@ -91,10 +91,13 @@ def test_reviewer_stage_rejects_membership_edits_and_termination_is_explicit(cli
 
 def test_recalculated_member_can_be_corrected_explicitly_but_cannot_progress(client):
     with db() as c:
-        job=setup(c);root,*_=ready(c);admit(c,job['id'],[root])
-        command(c,'review_submit',lambda c:(c.execute("UPDATE disposition_jobs SET workflow_stage='records_manager_review' WHERE id=%s",(job['id'],)) and {}))
+        from backend.services.api.tests.test_disposition_review import seeded,submit,claim,decide
+        job,root,*_=seeded(c,'simplified')
+        submit(c,job);claim(c,job)
         rule_change(c,root,years=100)
-        command(c,'review_decide',lambda c:(c.execute("UPDATE disposition_jobs SET workflow_stage='officer_correction' WHERE id=%s",(job['id'],)) and {}))
+        # A real round and rejection create the assigned Officer's correction
+        # task. Changing only a stage column is not an authorized open task.
+        decide(c,job,'rejected','Correct the changed local retention rule')
         remove(c,root);assert statuses(c,root)==[1]*4
         assert not c.execute('SELECT removal_required FROM disposition_job_memberships WHERE membership_state=\'active\'').fetchone()
 

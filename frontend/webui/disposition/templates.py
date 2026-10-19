@@ -108,7 +108,7 @@ async def history_dialog(*,api,job,kind,active,on_error,format_timestamp,column)
     dialog.open();await table.load();return dialog
 
 
-def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,after=None):
+def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,after=None,can_mutate=lambda:True):
     from .screens import failure
     # No request for users whose already-loaded role context cannot use these
     # controls. The API independently rechecks effective roles on every read.
@@ -143,5 +143,8 @@ def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,af
                         async def saved(result):
                             if after:await after(result)
                             else:await load()
-                        ui.button(text('upload_template'),icon='upload_file',on_click=lambda row=row:upload_dialog(api=api,job=job,row=row,roles=result['roles'],active=alive,on_error=on_error,after=saved)).props('outline no-caps')
+                        async def upload(row=row):
+                            if not can_mutate():ui.notify(text('unsaved_warning'),type='warning');return
+                            await upload_dialog(api=api,job=job,row=row,roles=result['roles'],active=alive,on_error=on_error,after=saved)
+                        ui.button(text('upload_template'),icon='upload_file',on_click=upload).props('outline no-caps')
     return load

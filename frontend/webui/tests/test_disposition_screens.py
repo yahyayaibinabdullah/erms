@@ -131,12 +131,31 @@ async def test_removed_reopened_episode_does_not_still_request_removal(host):
     from frontend.webui.disposition.screens import job_screen
     async def request(path,**params):
         if path=='context':return {'roles':[{'id':1,'name':'IG role'}]}
-        if path=='jobs/1':return {'id':1,'job_number':'JOB','job_type':'destruction','lifecycle_state':'active','disposition_status':6,'workflow_stage':'officer_preparation','owner':'Owner','assignee':'Officer','assigned_user_id':1,'owning_org_unit_id':1,'version':2,'membership_editable':True,'owner_editable':True}
+        if path=='jobs/1/workspace':return {'job': {'id':1,'job_number':'JOB','job_type':'destruction','review_route':'standard','current_review_round':0,'lifecycle_state':'active','disposition_status':6,'workflow_stage':'officer_preparation','owner':'Owner','assignee':'Officer','assigned_user_id':1,'owning_org_unit_id':1,'version':2,'membership_editable':True,'owner_editable':True},'task':None,'actions':[],'roles':[],'management_roles':[]}
         if path.endswith('/documents'):return {'items':[],'total':0,'correction_roles':[]}
         if path.endswith('/artifact-destination'):return {'ready':False,'changed':False,'destination':None,'previous_destination':None,'warning':'disposition_destination_unset','token':'x'*64}
         if path.endswith('/memberships'):return {'items':[{'id':7,'root_aggregation_id':1,'root_version':2,'version':2,'aggregation_number':'ROOT','title':'Root','disposition_status':1,'membership_state':'removed','redacted':False,'added_at':'2026-01-01T00:00:00Z','removed_at':'2026-01-02T00:00:00Z','removal_required_reason':'reopened'}],'total':1}
         return {'items':[],'total':0}
     with host:
         await job_screen(api=SimpleNamespace(disposition_page=request),identity=1,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda identity:None,open_eligibility=lambda identity:None,open_resource=lambda *a:None,format_timestamp=str,event_label=str)
-    row=next(e for e in host.descendants() if isinstance(e,ui.table)).rows[0]
+    row=next(r for e in host.descendants() if isinstance(e,ui.table) for r in e.rows if r.get('root_aggregation_id')==1)
     assert row['membership_label']=='Removed' and row['notice']=='' and not row['can_remove']
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+@pytest.mark.asyncio
+async def test_existing_job_assignee_search_and_selected_hydration_use_saved_route_scope(host,language):
+    from frontend.webui.disposition.screens import selector
+    calls=[];callbacks={}
+    async def request(path,**params):
+        calls.append((path,params));return {'items':[{'id':7,'name':'Selected preparer'}]}
+    def bind(control,*args,**kw):callbacks.update(kw)
+    with host:
+        set_locale_context(language,'Asia/Dubai')
+        control=selector(api=SimpleNamespace(disposition_page=request),bind_remote=bind,
+          kind='assignees',label='assignee',active=lambda:True,job_id=42,
+          selected={'id':7,'name':'Selected preparer'})
+    assert control.value==7 and callbacks['min_query_length']==2
+    await callbacks['page_loader']('pr');await callbacks['selected_loader'](7)
+    assert calls==[('selectors/assignees',{'query':'pr','job_type':'destruction','job_id':42}),
+                   ('selectors/assignees',{'selected':7,'job_type':'destruction','job_id':42})]

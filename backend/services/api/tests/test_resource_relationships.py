@@ -282,3 +282,15 @@ def test_target_search_waits_for_two_characters_and_includes_description(client,
     url=f"/api/v1/relationships/aggregation/{aggregation['id']}/targets"
     assert client.get(url,params={'q':''}).json()['items']==[]
     assert [r['id'] for r in client.get(url,params={'q':'aggregationdescriptionneedle'}).json()['items']]==[target['id']]
+
+
+def test_selected_relationship_hydration_stays_bound_to_its_resource(client,aggregation,record):
+    other=another_record(client,aggregation,'REL-SELECTED')
+    third=another_record(client,aggregation,'REL-UNRELATED')
+    kind=types(client)['id'];base=f"/api/v1/relationships/record/{record['id']}"
+    response=client.post(base,json={'target_id':other['id'],'relationship_type_id':kind});assert response.status_code==201
+    identity=response.json()['id']
+    chosen=client.get(base,params={'selected_id':identity,'limit':1,'offset':0}).json()
+    assert chosen['total']==1 and chosen['items'][0]['id']==identity
+    assert client.get(f"/api/v1/relationships/record/{third['id']}",params={'selected_id':identity,'limit':1}).json()['items']==[]
+    assert client.get(base,params={'selected_id':0}).status_code==422

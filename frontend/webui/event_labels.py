@@ -6,6 +6,25 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'REVIEW_PROPOSALS_APPROVED': 'audit.event.disposition_proposals_approved',
+    'REVIEW_PROPOSAL_EXECUTED': 'audit.event.disposition_proposal_executed',
+    'REVIEW_EXECUTION_REPORT_PENDING': 'audit.event.disposition_execution_report_pending',
+
+    'REVIEW_SAVE': 'audit.event.disposition_review_saved',
+    'REVIEW_PROPOSAL_CREATED': 'audit.event.disposition_proposal_created',
+    'REVIEW_PROPOSAL_REVISED': 'audit.event.disposition_proposal_revised',
+    'REVIEW_PROPOSAL_WITHDRAWN': 'audit.event.disposition_proposal_withdrawn',
+    'REVIEW_PROPOSAL_CARRIED': 'audit.event.disposition_proposal_carried',
+    'REVIEW_NOTES_SAVED': 'audit.event.disposition_review_notes_saved',
+
+    'TASK_CLAIM': 'audit.event.disposition_task_claimed',
+    'TASK_RELEASE': 'audit.event.disposition_task_released',
+    'TASK_REASSIGN': 'audit.event.disposition_task_reassigned',
+    'TASK_COMPLETE': 'audit.event.disposition_task_completed',
+    'TASK_ROUTED': 'audit.event.disposition_task_routed',
+    'REVIEW_SUBMIT': 'audit.event.disposition_review_submitted',
+    'REVIEW_DECIDE': 'audit.event.disposition_review_decided',
+
     'TEMPLATE_REVISED': 'audit.event.disposition_template_revised',
     'EVIDENCE_CORRECTED': 'audit.event.disposition_evidence_corrected',
     'ARTIFACT_SAVED': 'audit.event.disposition_artifact_saved',

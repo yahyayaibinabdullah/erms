@@ -99,31 +99,49 @@ def jobs(c, *, limit, offset, query='', lifecycle=None, sort='id', descending=Tr
 
 
 def job(c, identity):
-    require_manager(c)
-    row=c.execute('''SELECT j.*,u.name AS assignee,o.name AS owner FROM disposition_jobs j
+    from .artifacts import require_workspace
+    row=c.execute('''SELECT j.*,u.name AS assignee,o.name AS owner,EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage AND t.destination_user_id=current_user_id() AND t.task_state='open' AND t.task_type IN ('preparation','correction')) AS own_preparation_task FROM disposition_jobs j
      LEFT JOIN users u ON u.id=j.assigned_user_id LEFT JOIN org_units o ON o.id=j.owning_org_unit_id WHERE j.id=%s''',(identity,)).fetchone()
+    if row and row['job_type']=='destruction':require_workspace(c,identity)
+    else:require_manager(c)
     if not row: raise HTTPException(404, detail='job not found')
-    row['owner_editable']=row['lifecycle_state']=='active' and row['job_type']=='destruction' and not row['current_review_round'] and not c.execute("SELECT 1 FROM disposition_job_memberships WHERE job_id=%s AND membership_state='active' UNION ALL SELECT 1 FROM disposition_review_rounds WHERE job_id=%s UNION ALL SELECT 1 FROM event_history WHERE entity_type='disposition_job' AND entity_id=%s AND operation='REVIEW_SUBMIT' LIMIT 1",(identity,identity,identity)).fetchone()
-    row['membership_editable']=row['lifecycle_state']=='active' and (row['job_type']!='destruction' or row['workflow_stage'] in ('officer_preparation','officer_correction','manager_preparation','manager_correction'))
+    manager=c.execute('SELECT disposition_private.can_manage() allowed').fetchone()['allowed']
+    row['assignment_editable']=manager and row['lifecycle_state']=='active'
+    row['owner_editable']=manager and row['lifecycle_state']=='active' and row['job_type']=='destruction' and not row['current_review_round'] and not c.execute("SELECT 1 FROM disposition_job_memberships WHERE job_id=%s AND membership_state='active' UNION ALL SELECT 1 FROM disposition_review_rounds WHERE job_id=%s UNION ALL SELECT 1 FROM event_history WHERE entity_type='disposition_job' AND entity_id=%s AND operation='REVIEW_SUBMIT' LIMIT 1",(identity,identity,identity)).fetchone()
+    preparer=c.execute("SELECT current_user_id()=%s AND disposition_private.governance_person(current_user_id(),%s) allowed",(row['assigned_user_id'],'INFO_GOV_MGR' if row.get('review_route')=='records_manager_only' else 'INFO_GOV_OFFICER')).fetchone()['allowed'] if row['job_type']=='destruction' else True
+    own_preparation_task=row.pop('own_preparation_task')
+    row['membership_editable']=row['lifecycle_state']=='active' and (row['job_type']!='destruction' or preparer and own_preparation_task and row['workflow_stage'] in ('officer_preparation','officer_correction','manager_preparation','manager_correction'))
     return row
 
 
-def members(c, identity, *, limit, offset):
+def members(c, identity, *, limit, offset, query='', sort='id', descending=True, state=None):
     job(c,identity)
-    total=c.execute('SELECT count(*) total FROM disposition_job_memberships WHERE job_id=%s',(identity,)).fetchone()['total']
-    rows=c.execute('''SELECT m.*,a.version AS root_version,a.aggregation_number,a.title,a.disposition_status,
+    orders={'id':'m.id','identity':'a.aggregation_number','owning_org_unit_name':'o.name','status_label':'a.disposition_status','membership_label':'m.membership_state','medium':'a.medium','classification_label':'cl.code'}
+    if sort not in orders:raise HTTPException(422,detail='invalid sort')
+    clauses=['m.job_id=%s'];params=[identity]
+    if query.strip():
+        clauses.append("current_user_can_view_aggregation(a.id) AND (a.aggregation_number ILIKE %s OR a.title ILIKE %s OR o.name ILIKE %s OR cl.code ILIKE %s OR cl.title ILIKE %s)")
+        params.extend(['%'+query.strip()+'%']*5)
+    if state:clauses.append('m.membership_state=%s');params.append(state)
+    source=' FROM disposition_job_memberships m JOIN aggregations a ON a.id=m.root_aggregation_id LEFT JOIN org_units o ON o.id=a.owning_org_unit_id LEFT JOIN classifications cl ON cl.id=a.classification_id WHERE '+' AND '.join(clauses)
+    total=c.execute('SELECT count(*) total'+source,params).fetchone()['total']
+    row_source=source.replace(' WHERE '," LEFT JOIN LATERAL disposition_private.eligibility(a.id) e ON true LEFT JOIN classifications rule_class ON rule_class.id=(e.rule_snapshot->>'defined_by_classification_id')::bigint WHERE ",1)
+    rows=c.execute('''SELECT m.*,a.version AS root_version,a.aggregation_number,a.title,a.disposition_status,a.owning_org_unit_id,
+      o.name AS owning_org_unit_name,a.medium,cl.code AS classification_code,cl.title AS classification_title,
+      e.rule_snapshot AS effective_rule,rule_class.code AS rule_source_code,rule_class.title AS rule_source_title,
+      (SELECT count(*) FROM disposition_review_proposals p WHERE p.job_id=m.job_id AND p.governing_root_id=m.root_aggregation_id AND p.review_round=disposition_private.review_round_for_work(m.job_id) AND p.proposal_state='active') AS proposal_count,
+      EXISTS(SELECT 1 FROM disposition_review_proposals p WHERE p.job_id=m.job_id AND p.governing_root_id=m.root_aggregation_id AND p.review_round=disposition_private.review_round_for_work(m.job_id) AND p.proposal_state='active' AND p.proposal_type='remove_from_job') AS removal_proposed,
       current_user_can_view_aggregation(a.id) AS visible,
       EXISTS(SELECT 1 FROM disposition_private.protection_blockers(a.id) WHERE is_vital) AS vital,
       EXISTS(SELECT 1 FROM disposition_private.protection_blockers(a.id) WHERE security_blocked) AS security,
       EXISTS(SELECT 1 FROM disposition_private.protection_blockers(a.id) WHERE cardinality(hold_ids)>0) AS held,
       EXISTS(SELECT 1 FROM disposition_private.relationship_scope(a.id) WHERE blocks_final) AS relationships_block_final
-      FROM disposition_job_memberships m JOIN aggregations a ON a.id=m.root_aggregation_id
-      WHERE m.job_id=%s ORDER BY m.id DESC LIMIT %s OFFSET %s''',(identity,limit,offset)).fetchall()
+      '''+row_source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+',m.id LIMIT %s OFFSET %s',(*params,limit,offset)).fetchall()
     for r in rows:
         if r['membership_state']=='active':observations.detect(c,identity,r['root_aggregation_id'])
         r['redacted']=not r.pop('visible')
         if r['redacted']:
-            for field in ('root_aggregation_id','root_version','aggregation_number','title','disposition_status','removal_reason','removal_required_reason','vital','security','held','relationships_block_final'): r[field]=None
+            for field in ('medium','classification_code','classification_title','rule_source_code','rule_source_title','effective_rule','proposal_count','removal_proposed','owning_org_unit_id','owning_org_unit_name','root_aggregation_id','root_version','aggregation_number','title','disposition_status','removal_reason','removal_required_reason','vital','security','held','relationships_block_final'): r[field]=None
     return {'items':rows,'total':total}
 
 
@@ -135,14 +153,23 @@ def history(c, identity, *, limit, offset):
       WHERE (raw.entity_type='disposition_job' AND raw.entity_id=%s)
       OR (raw.entity_type='disposition_job_membership' AND raw.entity_id IN
         (SELECT id FROM disposition_job_memberships WHERE job_id=%s))
+      OR (raw.entity_type IN ('disposition_task','disposition_review_round','disposition_review_decision') AND
+       ((raw.entity_type='disposition_task' AND raw.entity_id IN (SELECT id FROM disposition_tasks WHERE job_id=%s)) OR
+        (raw.entity_type='disposition_review_round' AND raw.entity_id IN (SELECT id FROM disposition_review_rounds WHERE job_id=%s)) OR
+        (raw.entity_type='disposition_review_decision' AND raw.entity_id IN (SELECT id FROM disposition_review_decisions WHERE job_id=%s))))
+      OR (raw.entity_type='disposition_review_proposal' AND raw.entity_id IN (SELECT id FROM disposition_review_proposals WHERE job_id=%s))
+      OR (raw.entity_type='disposition_review_note' AND raw.entity_id IN (SELECT id FROM disposition_review_notes WHERE job_id=%s))
       OR (raw.entity_type='disposition_job_document' AND raw.entity_id IN
         (SELECT id FROM disposition_job_documents WHERE job_id=%s))'''
-    total=c.execute('SELECT count(*) total'+source,(identity,identity,identity)).fetchone()['total']
-    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(identity,identity,identity,limit,offset)).fetchall()}
+    total=c.execute('SELECT count(*) total'+source,(identity,)*8).fetchone()['total']
+    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(*(identity,)*8,limit,offset)).fetchall()}
 
 
-def selector(c, kind, *, query='', selected=None, job_type='destruction'):
+def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id=None):
     require_manager(c)
+    saved=job(c,job_id) if job_id is not None else None
+    route=saved['review_route'] if saved else c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()['route']
+    if saved:job_type=saved['job_type']
     if selected is None and len(query.strip())<2: return {'items':[]}
     if kind=='owners':
         rows=c.execute('''SELECT id,name FROM org_units WHERE ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (name ILIKE %s OR code ILIKE %s)))
@@ -154,7 +181,7 @@ def selector(c, kind, *, query='', selected=None, job_type='destruction'):
           JOIN profiles profile ON profile.id=r.profile_id JOIN profile_privileges pp ON pp.profile_id=profile.id
           JOIN privileges p ON p.id=pp.privilege_id WHERE a.user_id=u.id AND r.is_information_governance
           AND role_effectively_active(r.id) AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP)
-          AND p.code='disposition.jobs.manage' AND (%s<>'destruction' OR profile.code='INFO_GOV_OFFICER'))
-          ORDER BY u.name,u.id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%',job_type)).fetchall()
+          AND p.code='disposition.jobs.manage' AND (%s<>'destruction' OR profile.code=CASE WHEN %s='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END))
+          ORDER BY u.name,u.id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%',job_type,route)).fetchall()
     else: raise HTTPException(404,detail='selector not found')
     return {'items':rows}

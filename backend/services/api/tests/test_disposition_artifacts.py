@@ -43,11 +43,11 @@ def officer(c):
     return c.execute("SELECT id FROM roles WHERE code='fixture-records-officer'").fetchone()['id']
 
 
-def seed_document(c, job, kind='external_approval_letter', *, content=b'original evidence', preview=None):
+def seed_document(c, job, kind='external_approval_letter', *, content=b'original evidence', preview=None, acting_role_id=None):
     settings=load_snapshot(c)
     with stage_governed_upload(uploaded(content),settings,connection_factory=db) as staged:
         return artifacts.register(c,command_id=uuid4(),job_id=job['id'],expected_version=job['version'],document_type=kind,
-          acting_role_id=officer(c),reason='Save governed evidence in isolated acceptance',staged=staged,
+          acting_role_id=acting_role_id or officer(c),reason='Save governed evidence in isolated acceptance',staged=staged,
           preview=preview or artifacts.destination(c,job['id'],kind),provenance={'source':'phase11 acceptance'})
 
 

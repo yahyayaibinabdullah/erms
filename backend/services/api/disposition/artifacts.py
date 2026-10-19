@@ -129,7 +129,7 @@ def page(c, job_id, *, limit, offset, sort='id', descending=True):
 
 
 def save(c, *, job_id, document_type, staged: GovernedUpload, preview, supersedes=None,
-         template_version=None, provenance=None):
+         template_version=None, provenance=None, review_round=None):
     """Private action primitive; caller's command saves outcome/history together.
 
     Staging is committed separately and invisible. All governed resources, link,
@@ -172,7 +172,7 @@ def save(c, *, job_id, document_type, staged: GovernedUpload, preview, supersede
      record_id,digital_component_id,created_by_user_id,checksum_algo,checksum,template_version,origin,
      supersedes_document_id,evidence_version,classification_scheme_id,classification_id,aggregation_id,acting_role_id,provenance)
      VALUES(%s,%s,'available',%s,%s,%s,current_user_id(),'sha256',%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING *''',
-     (job_id,document_type,prior['review_round'] if prior else (job['current_review_round'] or None),record['id'],component['id'],
+     (job_id,document_type,prior['review_round'] if prior else (review_round if review_round is not None else job['current_review_round'] or None),record['id'],component['id'],
       staged.checksum_value,template_version,'uploaded' if document_type in UPLOADED else 'generated',supersedes,
       prior['evidence_version']+1 if prior else 1,current['scheme_id'],current['classification_id'],parent['id'],role,Jsonb(provenance or {}))).fetchone()
     metadata={'job_id':job_id,'acting_role_id':role,'evidence_type':document_type,

@@ -25,13 +25,13 @@ def column(name, label=None, sortable=False):
             'align':'right' if current_locale_context()[0]=='ar' else 'left'}
 
 
-def selector(*, api, bind_remote, kind, label, active, job_type=lambda:'destruction', selected=None):
+def selector(*, api, bind_remote, kind, label, active, job_type=lambda:'destruction', selected=None, job_id=None):
     with ui.column().classes('w-full min-w-0 gap-1'):
         control=RemoteSelect({},label=text(label),value=None,with_input=True).props('outlined dense clearable').classes('w-full')
         async def load(query):
-            return await api.disposition_page('selectors/'+kind,query=query,job_type=job_type())
+            return await api.disposition_page('selectors/'+kind,query=query,job_type=job_type(),**({'job_id':job_id} if job_id is not None else {}))
         async def hydrate(identity):
-            response=await api.disposition_page('selectors/'+kind,selected=identity,job_type=job_type())
+            response=await api.disposition_page('selectors/'+kind,selected=identity,job_type=job_type(),**({'job_id':job_id} if job_id is not None else {}))
             if not response['items']:raise ApiError(404,{'code':'disposition_resource_access_required'})
             return response['items'][0]
         if selected:
@@ -321,68 +321,111 @@ async def choose_job_dialog(*, api, active, on_error, choose):
 
 
 async def job_screen(*, api, identity, container, active, on_error, bind_remote, open_job,
-                     open_eligibility, open_resource, format_timestamp, event_label, preview=None):
+                     open_eligibility, open_resource, format_timestamp, event_label, preview=None, task_id=None, register_dirty=None):
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
         status=ui.label(text('loading')).props('role=status')
         try:
-            job,context=await asyncio.gather(api.disposition_page(f'jobs/{identity}'),api.disposition_page('context'))
+            workspace=await api.disposition_page(f'jobs/{identity}/workspace',**({'task_id':task_id} if task_id else {}))
+            job=workspace['job'];context={'roles':workspace['management_roles']}
         except ApiError as error:
             if alive():status.text=failure(error,on_error)
             return
         if not alive():return
         status.text=''
+        review=None
+        async def refresh():
+            if review and review.dirty():ui.notify(text('unsaved_warning'),type='warning');return
+            await open_job(identity)
+        async def add_members():
+            if review and review.dirty():ui.notify(text('unsaved_warning'),type='warning');return
+            await open_eligibility(identity)
         with ui.row().classes('w-full items-center justify-between gap-3'):
             ui.label(job['job_number']).classes('text-xl font-semibold').props('dir=auto')
-            ui.button(text('refresh'),icon='refresh',on_click=lambda:open_job(identity)).props('outline no-caps')
+            ui.button(text('refresh'),icon='refresh',on_click=refresh).props('outline no-caps')
         with ui.grid().classes('w-full gap-3 grid-cols-1 md:grid-cols-2'):
             for label,value in [('job_type',text(job['job_type'])),('lifecycle',text(job['lifecycle_state'])),
                                 ('status',status_label(job['disposition_status'])),('stage',text(job['workflow_stage']) if job.get('workflow_stage') in KEYS else '—'),
-                                ('owner',job.get('owner') or '—'),('assignee',job.get('assignee') or text('unassigned'))]:
+                                ('owner',job.get('owner') or '—'),('assignee',job.get('assignee') or text('unassigned')),('current_round',str(job.get('current_review_round',0))),('destruction_number',job.get('destruction_number') or '—'),
+                                ('claimant',(workspace.get('task') or {}).get('claimant') or '—'),('action_required',' · '.join(text(k) for k,v in job.get('action_required',{}).items() if v) or '—')]:
                 with ui.column().classes('detail-field gap-1'):
                     ui.label(text(label)).classes('detail-field-label');ui.label(value).classes('detail-field-value').props('dir=auto')
-        async def reload(result):await open_job(identity)
+        async def reload(result):
+            if result.get('_saved_work'):
+                job['version']=result['job_version']
+                await members.load()
+                if alive():await history.load()
+            else:await open_job(identity)
         async def assign():
+            if review and review.dirty():ui.notify(text('unsaved_warning'),type='warning');return
             def build(dialog_active):
                 selected={'id':job['assigned_user_id'],'name':job['assignee']} if job['assigned_user_id'] else None
-                person=selector(api=api,bind_remote=bind_remote,kind='assignees',label='assignee',active=dialog_active,job_type=lambda:job['job_type'],selected=selected)
+                person=selector(api=api,bind_remote=bind_remote,kind='assignees',label='assignee',active=dialog_active,job_type=lambda:job['job_type'],selected=selected,job_id=identity)
                 return lambda:{'assigned_user_id':person.value}
             await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='assign',build=build,path=f'jobs/{identity}/assignment',version=job['version'],after=reload)
         async def change_owner():
+            if review and review.dirty():ui.notify(text('unsaved_warning'),type='warning');return
             def build(dialog_active):
                 owner=selector(api=api,bind_remote=bind_remote,kind='owners',label='owner',active=dialog_active,selected={'id':job['owning_org_unit_id'],'name':job['owner']})
                 return lambda:{'owning_org_unit_id':owner.value} if owner.value else None
             await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='change_owner',build=build,path=f'jobs/{identity}/owning-unit',version=job['version'],after=reload)
-        if job['lifecycle_state']=='active':
+        if job['lifecycle_state']=='active' and context['roles']:
             with ui.row().classes('w-full gap-3'):
-                ui.button(text('assign'),icon='person',on_click=assign).props('outline no-caps')
+                if job.get('assignment_editable'):ui.button(text('assign'),icon='person',on_click=assign).props('outline no-caps')
                 if job['owner_editable']:ui.button(text('change_owner'),icon='corporate_fare',on_click=change_owner).props('outline no-caps')
-                if job['membership_editable']:ui.button(text('add'),icon='playlist_add',on_click=lambda:open_eligibility(identity)).props('no-caps')
+                if job['membership_editable']:ui.button(text('add'),icon='playlist_add',on_click=add_members).props('no-caps')
+        review=None
+        if job['job_type']=='destruction':
+            from .review import ReviewForm,workflow_panel
+            workflow_panel(job)
+            review=ReviewForm(api=api,workspace=workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource)
+            if register_dirty:register_dirty(review.dirty)
         ui.separator();ui.label(text('members')).classes('text-lg font-semibold')
+        with ui.row().classes('w-full gap-3 items-end'):
+            member_query=ui.input(text('search')).props('outlined dense maxlength=200').classes('grow')
+            member_state=ui.select({'':text('any'),**{k:text(k) for k in ('active','removed','completed_history','terminated_history')}},label=text('membership'),value='').props('outlined dense')
         async def fetch_members(p):
-            result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size)
+            result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size,query=member_query.value,state=member_state.value or None,sort=p.sort or 'id',descending=p.descending if p.sort else True)
             for row in result['items']:
+                row['classification_label']=' · '.join(v for v in (row.get('classification_code'),row.get('classification_title')) if v) or '—'
+                rule=row.get('effective_rule') or {}
+                row['rule_label']=' · '.join(str(v) for v in (text('current_period_years')+': '+str(rule['current_period_years']) if rule.get('current_period_years') is not None else None,text('intermediate_period_years')+': '+str(rule['intermediate_period_years']) if rule.get('intermediate_period_years') is not None else None,text(ACTIONS[rule['final_disposition']]) if rule.get('final_disposition') in ACTIONS else None) if v is not None) or '—'
+                row['local_label']=text('local_override') if rule.get('rule_source')=='aggregation' else ' · '.join(v for v in (text('classification'),row.get('rule_source_code'),row.get('rule_source_title')) if v) if rule else '—'
+                row['medium_label']=text(row['medium']) if row.get('medium') in KEYS else '—'
                 row['identity']=text('restricted') if row['redacted'] else row['aggregation_number']+' · '+row['title']
                 row['membership_label']=text(row['membership_state'])
                 row['status_label']=status_label(row['disposition_status']) if not row['redacted'] else '—'
+                row['removal_label']=text('removal_proposed') if row.get('removal_proposed') and row['membership_state']=='active' else ''
                 row['notice']=text(row['removal_required_reason']) if row['membership_state']=='active' and row.get('removal_required_reason') in KEYS else ''
                 row['added_label']=format_timestamp(row['added_at']);row['removed_label']=format_timestamp(row.get('removed_at')) if row.get('removed_at') else '—'
                 row['blocked']=row['membership_state']=='active' and any(row.get(k) for k in ('vital','security','held','relationships_block_final'))
                 row['blocker_label']=' · '.join(text(k) for k in ('vital','security','held') if row.get(k))
                 if row.get('relationships_block_final'):row['blocker_label']+=' · '+text('final_blocked')
+                row['can_propose']=bool(review and 'propose' in review.actions and row['membership_state']=='active' and not row['redacted'])
                 row['can_remove']=job['membership_editable'] and row['membership_state']=='active' and not row['redacted']
             return result
-        members=PageTable(columns=[column('identity','aggregation'),column('membership_label','membership'),column('status_label','status'),column('added_label','added_at'),column('removed_label','removed_at'),column('actions')],fetch=fetch_members,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
-        members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
+        members=PageTable(columns=[column('identity','aggregation',True),column('owning_org_unit_name','owner',True),column('classification_label','classification',True),column('rule_label','rule'),column('local_label','local_override'),column('medium_label','medium'),column('proposal_count','proposals'),column('membership_label','membership',True),column('status_label','status',True),column('added_label','added_at'),column('removed_label','removed_at'),column('actions')],fetch=fetch_members,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+        members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.removal_label" class="text-amber-900 whitespace-normal"><q-icon name="remove_circle_outline"/> {{ props.row.removal_label }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
         members.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">
           <q-btn v-if="!props.row.redacted" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
           <q-btn v-if="!props.row.redacted && props.row.membership_state === 'active'" flat dense icon="info" aria-label="'''+escape(text('blockers'))+'''" @click="$parent.$emit('blockers',props.row.id)"><q-tooltip>'''+escape(text('blockers'))+'''</q-tooltip></q-btn>
+          <q-btn v-if="!props.row.redacted" flat dense icon="rule" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('show-proposals',props.row.id)"><q-tooltip>'''+escape(text('proposals'))+'''</q-tooltip></q-btn>
+          <q-btn v-if="props.row.can_propose" flat dense icon="playlist_add" aria-label="'''+escape(text('propose'))+'''" @click="$parent.$emit('propose',props.row.id)"><q-tooltip>'''+escape(text('propose'))+'''</q-tooltip></q-btn>
           <q-btn v-if="props.row.can_remove" flat dense color="negative" icon="remove_circle_outline" aria-label="'''+escape(text('remove'))+'''" @click="$parent.$emit('remove-member',props.row.id)"><q-tooltip>'''+escape(text('remove'))+'''</q-tooltip></q-btn>
           </div></q-td>''')
         async def open_member(event):
             row=next((r for r in members.table.rows if r['id']==event.args),None)
             if row and not row['redacted']:await open_resource('aggregation',row['root_aggregation_id'])
         members.table.on('open-root',open_member)
+        async def propose(event):
+            row=next((r for r in members.table.rows if r['id']==event.args and r.get('can_propose')),None)
+            if row:await review.edit(root=row)
+        members.table.on('propose',propose)
+        async def show_proposals(event):
+            row=next((r for r in members.table.rows if r['id']==event.args and not r['redacted']),None)
+            if row and review:await review.show_proposals(row)
+        members.table.on('show-proposals',show_proposals)
+        member_query.on('keydown.enter',lambda:members.load(reset=True));member_state.on_value_change(lambda:members.load(reset=True))
         async def protection(event):
             row=next((r for r in members.table.rows if r['id']==event.args),None)
             if row and not row['redacted']:await blockers_dialog(api=api,root={**row,'id':row['root_aggregation_id']},active=alive,on_error=on_error,open_resource=open_resource)
@@ -390,15 +433,17 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         async def remove_member(event):
             row=next((r for r in members.table.rows if r['id']==event.args and r['can_remove']),None)
             if not row:return
+            if review and review.dirty():ui.notify(text('unsaved_warning'),type='warning');return
             def build(dialog_active):
                 ui.label(row['identity']).props('dir=auto')
                 return lambda:{'root_version':row['root_version']}
             await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='remove',confirm='confirm_remove',build=build,path=f"memberships/{row['id']}/remove",version=row['version'],after=reload)
         members.table.on('remove-member',remove_member)
+        if review:review.host.move(host)
         from .artifacts import documents_panel
-        documents=documents_panel(api=api,job=job,active=alive,on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column)
+        documents=documents_panel(api=api,job=job,active=alive,on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column,can_mutate=lambda:not review or not review.dirty())
         from .templates import templates_panel
-        templates=templates_panel(api=api,job=job,context=context,active=alive,on_error=on_error,format_timestamp=format_timestamp,column=column,after=reload)
+        templates=templates_panel(api=api,job=job,context=context,active=alive,on_error=on_error,format_timestamp=format_timestamp,column=column,after=reload,can_mutate=lambda:not review or not review.dirty())
         ui.separator();ui.label(text('history')).classes('text-lg font-semibold')
         async def fetch_history(p):
             result=await api.disposition_page(f'jobs/{identity}/history',limit=p.size,offset=(p.page-1)*p.size)
@@ -406,10 +451,12 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 row['operation_label']=event_label(row['operation']);row['time_label']=format_timestamp(row['occurred_at'])
                 row['actor_label']=row.get('actor_name') or '—';row['reason_label']=row.get('reason') or '—'
             return result
-        history=PageTable(columns=[column('time_label','occurred'),column('operation_label','operation'),column('actor_label','actor'),column('reason_label','reason')],fetch=fetch_history,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+        history=PageTable(columns=[column('time_label','occurred'),column('operation_label','operation'),column('actor_label','actor'),column('reason_label','reason'),column('actions')],fetch=fetch_history,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+        from .history import details_action
+        details_action(history,format_timestamp)
         # Detection events commit with the member-page response; history must
         # follow that dependent read to show first-detected timed holds.
-        await asyncio.gather(members.load(),documents(),templates())
+        await asyncio.gather(members.load(),documents(),templates(),*( [review.load()] if review else []))
         await history.load()
 
 

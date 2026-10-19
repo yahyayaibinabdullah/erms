@@ -1447,6 +1447,20 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_execution_report_pending",
+    "context_group": "audit.event",
+    "default_text": "Disposition Proposal Execution Report Pending",
+    "semantic_meaning": "The Records Manager approved and applied the complete review proposal set, or its durable governed report awaits retry. Disposition Proposal Execution Report Pending.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Approval applies every active valid proposal atomically. A pending report does not mean execution failed and must not cause proposal replay. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Proposal Execution Report Pending",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_job_assigned",
     "context_group": "audit.event",
     "default_text": "Disposition Job Assigned",
@@ -1531,6 +1545,90 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_proposal_carried",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Proposal Carried to New Round",
+    "semantic_meaning": "The protected destruction review saved work without executing resource changes. Disposition Review Proposal Carried to New Round.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit operation. Preserve the difference between saving review work, revising or withdrawing a proposal, and carrying it to a new round. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Proposal Carried to New Round",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_proposal_created",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Proposal Created",
+    "semantic_meaning": "The protected destruction review saved work without executing resource changes. Disposition Review Proposal Created.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit operation. Preserve the difference between saving review work, revising or withdrawing a proposal, and carrying it to a new round. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Proposal Created",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_proposal_executed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Proposal Executed",
+    "semantic_meaning": "The Records Manager approved and applied the complete review proposal set, or its durable governed report awaits retry. Disposition Review Proposal Executed.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Approval applies every active valid proposal atomically. A pending report does not mean execution failed and must not cause proposal replay. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Proposal Executed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_proposal_revised",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Proposal Revised",
+    "semantic_meaning": "The protected destruction review saved work without executing resource changes. Disposition Review Proposal Revised.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit operation. Preserve the difference between saving review work, revising or withdrawing a proposal, and carrying it to a new round. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Proposal Revised",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_proposal_withdrawn",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Proposal Withdrawn",
+    "semantic_meaning": "The protected destruction review saved work without executing resource changes. Disposition Review Proposal Withdrawn.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit operation. Preserve the difference between saving review work, revising or withdrawing a proposal, and carrying it to a new round. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Proposal Withdrawn",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_proposals_approved",
+    "context_group": "audit.event",
+    "default_text": "Disposition Proposals Approved and Applied",
+    "semantic_meaning": "The Records Manager approved and applied the complete review proposal set, or its durable governed report awaits retry. Disposition Proposals Approved and Applied.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Approval applies every active valid proposal atomically. A pending report does not mean execution failed and must not cause proposal replay. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Proposals Approved and Applied",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_recalculated",
     "context_group": "audit.event",
     "default_text": "Disposition Recalculated",
@@ -1573,6 +1671,62 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_review_decided",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Decision Recorded",
+    "semantic_meaning": "The protected disposition workflow recorded disposition review decision recorded.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Decision Recorded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_review_notes_saved",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Notes Saved",
+    "semantic_meaning": "The protected destruction review saved work without executing resource changes. Disposition Review Notes Saved.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit operation. Preserve the difference between saving review work, revising or withdrawing a proposal, and carrying it to a new round. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Notes Saved",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_review_saved",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Work Saved",
+    "semantic_meaning": "The protected destruction review saved work without executing resource changes. Disposition Review Work Saved.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit operation. Preserve the difference between saving review work, revising or withdrawing a proposal, and carrying it to a new round. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Work Saved",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_review_submitted",
+    "context_group": "audit.event",
+    "default_text": "Disposition Review Submitted",
+    "semantic_meaning": "The protected disposition workflow recorded disposition review submitted.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Review Submitted",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_status_changed",
     "context_group": "audit.event",
     "default_text": "Disposition Status Changed",
@@ -1584,6 +1738,76 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Status Changed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_task_claimed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Task Claimed",
+    "semantic_meaning": "The protected disposition workflow recorded disposition task claimed.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Task Claimed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_task_completed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Task Completed",
+    "semantic_meaning": "The protected disposition workflow recorded disposition task completed.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Task Completed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_task_reassigned",
+    "context_group": "audit.event",
+    "default_text": "Disposition Task Reassigned",
+    "semantic_meaning": "The protected disposition workflow recorded disposition task reassigned.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Task Reassigned",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_task_released",
+    "context_group": "audit.event",
+    "default_text": "Disposition Task Released",
+    "semantic_meaning": "The protected disposition workflow recorded disposition task released.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Task Released",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_task_routed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Task Routed",
+    "semantic_meaning": "The protected disposition workflow recorded disposition task routed.",
+    "common_locations": [
+      "Audit Trail and disposition job history"
+    ],
+    "translator_guidance": "Human-readable audit action. Preserve the distinction between claiming responsibility, releasing to a role queue, and making a review decision. Disposition means التصرف النهائي.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Task Routed",
     "is_html": false
   },
   {
@@ -5717,6 +5941,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.acting_task_role",
+    "context_group": "disposition.ui",
+    "default_text": "Acting role",
+    "semantic_meaning": "Destruction task workspace: Acting role",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Acting role",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.action_required",
+    "context_group": "disposition.ui",
+    "default_text": "Action required",
+    "semantic_meaning": "Destruction task workspace: Action required",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Action required",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.actions",
     "context_group": "disposition.ui",
     "default_text": "Actions",
@@ -5797,6 +6049,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.add_to_holds",
+    "context_group": "disposition.ui",
+    "default_text": "Add aggregation to holds",
+    "semantic_meaning": "Destruction task workspace: Add aggregation to holds",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add aggregation to holds",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.added",
     "context_group": "disposition.ui",
     "default_text": "Added",
@@ -5826,6 +6092,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Added at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.after_values",
+    "context_group": "disposition.ui",
+    "default_text": "Saved values",
+    "semantic_meaning": "Destruction task workspace: Saved values",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Saved values",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.age",
+    "context_group": "disposition.ui",
+    "default_text": "Age in days",
+    "semantic_meaning": "Destruction task workspace: Age in days",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Age in days",
     "is_html": false
   },
   {
@@ -5861,6 +6155,62 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.apply_proposals",
+    "context_group": "disposition.ui",
+    "default_text": "Approve and execute all active proposals",
+    "semantic_meaning": "Destruction task workspace: Approve and execute all active proposals",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve and execute all active proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Approve the complete saved proposal set and apply its resource changes?",
+    "semantic_meaning": "Destruction task workspace: Approve the complete saved proposal set and apply its resource changes?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve the complete saved proposal set and apply its resource changes?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approve",
+    "context_group": "disposition.ui",
+    "default_text": "Approve and apply proposals",
+    "semantic_meaning": "Destruction task workspace: Approve and apply proposals",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve and apply proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approved",
+    "context_group": "disposition.ui",
+    "default_text": "Approved",
+    "semantic_meaning": "Destruction task workspace: Approved",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approved",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.assign",
     "context_group": "disposition.ui",
     "default_text": "Change assignment",
@@ -5890,6 +6240,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Assigned person",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.assignment_mode",
+    "context_group": "disposition.ui",
+    "default_text": "Assignment",
+    "semantic_meaning": "Destruction task workspace: Assignment",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Assignment",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.authority_decision",
+    "context_group": "disposition.ui",
+    "default_text": "External authority approves?",
+    "semantic_meaning": "Destruction task workspace: External authority approves?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External authority approves?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.before_values",
+    "context_group": "disposition.ui",
+    "default_text": "Previous values",
+    "semantic_meaning": "Destruction task workspace: Previous values",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Previous values",
     "is_html": false
   },
   {
@@ -5925,6 +6317,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.blocking_security",
+    "context_group": "disposition.ui",
+    "default_text": "Upgrade blocking security level",
+    "semantic_meaning": "Destruction task workspace: Upgrade blocking security level",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Upgrade blocking security level",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.cancel",
     "context_group": "disposition.ui",
     "default_text": "Cancel",
@@ -5938,6 +6344,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Cancel",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_download",
+    "context_group": "disposition.ui",
+    "default_text": "Download Certificate of Destruction (Digital)",
+    "semantic_meaning": "Destruction task workspace: Download Certificate of Destruction (Digital)",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Download Certificate of Destruction (Digital)",
     "is_html": false
   },
   {
@@ -5970,6 +6390,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Change owning unit",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim",
+    "context_group": "disposition.ui",
+    "default_text": "Claim task",
+    "semantic_meaning": "Destruction task workspace: Claim task",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Claim task",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claimant",
+    "context_group": "disposition.ui",
+    "default_text": "Claimant",
+    "semantic_meaning": "Destruction task workspace: Claimant",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Claimant",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claimed",
+    "context_group": "disposition.ui",
+    "default_text": "Claimed",
+    "semantic_meaning": "Destruction task workspace: Claimed",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Claimed",
     "is_html": false
   },
   {
@@ -6019,6 +6481,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.complete_review",
+    "context_group": "disposition.ui",
+    "default_text": "Complete review",
+    "semantic_meaning": "Destruction task workspace: Complete review",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Complete review",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.completed",
     "context_group": "disposition.ui",
     "default_text": "Completed",
@@ -6051,6 +6527,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.confirm_physical",
+    "context_group": "disposition.ui",
+    "default_text": "Confirm physical destruction and upload its certificate",
+    "semantic_meaning": "Destruction task workspace: Confirm physical destruction and upload its certificate",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Confirm physical destruction and upload its certificate",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.confirm_remove",
     "context_group": "disposition.ui",
     "default_text": "Remove this aggregation from the job? Its membership history will be retained.",
@@ -6064,6 +6554,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Remove this aggregation from the job? Its membership history will be retained.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.continue",
+    "context_group": "disposition.ui",
+    "default_text": "Continue",
+    "semantic_meaning": "Destruction task workspace: Continue",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Continue",
     "is_html": false
   },
   {
@@ -6094,6 +6598,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Corrected evidence file",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.correction",
+    "context_group": "disposition.ui",
+    "default_text": "Correct rejected destruction job",
+    "semantic_meaning": "Destruction task workspace: Correct rejected destruction job",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Correct rejected destruction job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.correction_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Review rejection reasons and resolve required removals before starting a new review round.",
+    "semantic_meaning": "Destruction task workspace: Review rejection reasons and resolve required removals before starting a new review round.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review rejection reasons and resolve required removals before starting a new review round.",
     "is_html": false
   },
   {
@@ -6128,6 +6660,76 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.create_aggregation_relationship",
+    "context_group": "disposition.ui",
+    "default_text": "Create aggregation relationship",
+    "semantic_meaning": "Destruction task workspace: Create aggregation relationship",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Create aggregation relationship",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.current_period_years",
+    "context_group": "disposition.ui",
+    "default_text": "Current retention years",
+    "semantic_meaning": "Destruction task workspace: Current retention years",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current retention years",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.current_round",
+    "context_group": "disposition.ui",
+    "default_text": "Current review round",
+    "semantic_meaning": "Destruction task workspace: Current review round",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current review round",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.current_task",
+    "context_group": "disposition.ui",
+    "default_text": "Current task",
+    "semantic_meaning": "Destruction task workspace: Current task",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current task",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.current_values",
+    "context_group": "disposition.ui",
+    "default_text": "Current values when proposed",
+    "semantic_meaning": "Destruction task workspace: Current values when proposed",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current values when proposed",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.current_version",
     "context_group": "disposition.ui",
     "default_text": "Current version",
@@ -6140,6 +6742,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Current version",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.decision_failed_saved",
+    "context_group": "disposition.ui",
+    "default_text": "Your work was saved. The requested decision did not complete; review the error before retrying.",
+    "semantic_meaning": "Destruction task workspace: Your work was saved. The requested decision did not complete; review the error before retrying.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Your work was saved. The requested decision did not complete; review the error before retrying.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.decision_reason",
+    "context_group": "disposition.ui",
+    "default_text": "Decision reason",
+    "semantic_meaning": "Destruction task workspace: Decision reason",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Decision reason",
     "is_html": false
   },
   {
@@ -6188,6 +6818,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.destruction_number",
+    "context_group": "disposition.ui",
+    "default_text": "Destruction number",
+    "semantic_meaning": "Destruction task workspace: Destruction number",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction number",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.destruction_request",
     "context_group": "disposition.ui",
     "default_text": "Request for Destruction Form",
@@ -6200,6 +6844,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Request for Destruction Form",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.details",
+    "context_group": "disposition.ui",
+    "default_text": "Details and revision history",
+    "semantic_meaning": "Destruction task workspace: Details and revision history",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Details and revision history",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital",
+    "context_group": "disposition.ui",
+    "default_text": "Digital",
+    "semantic_meaning": "Destruction task workspace: Digital",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital",
     "is_html": false
   },
   {
@@ -6231,6 +6903,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Certificate of Destruction (Digital)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital_scope",
+    "context_group": "disposition.ui",
+    "default_text": "Any digital content to destroy?",
+    "semantic_meaning": "Destruction task workspace: Any digital content to destroy?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Any digital content to destroy?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.direct_assignee",
+    "context_group": "disposition.ui",
+    "default_text": "Direct assignee",
+    "semantic_meaning": "Destruction task workspace: Direct assignee",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Direct assignee",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.direction",
+    "context_group": "disposition.ui",
+    "default_text": "Direction",
+    "semantic_meaning": "Destruction task workspace: Direction",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Direction",
     "is_html": false
   },
   {
@@ -6295,6 +7009,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Assign an authorized person before adding members.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_blocking_security_required",
+    "context_group": "disposition.ui",
+    "default_text": "Choose a higher security level that prevents disposition.",
+    "semantic_meaning": "Destruction task workspace: Choose a higher security level that prevents disposition.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Choose a higher security level that prevents disposition.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_decision_reason_required",
+    "context_group": "disposition.ui",
+    "default_text": "Enter a reason for rejecting this job.",
+    "semantic_meaning": "Destruction task workspace: Enter a reason for rejecting this job.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enter a reason for rejecting this job.",
     "is_html": false
   },
   {
@@ -6475,6 +7217,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_hold_access_required",
+    "context_group": "disposition.ui",
+    "default_text": "A selected hold is no longer available to you. Review the selection.",
+    "semantic_meaning": "Destruction task workspace: A selected hold is no longer available to you. Review the selection.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "A selected hold is no longer available to you. Review the selection.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_inactive_job",
     "context_group": "disposition.ui",
     "default_text": "This job is no longer active.",
@@ -6507,6 +7263,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_marked_removals_require_correction",
+    "context_group": "disposition.ui",
+    "default_text": "Resolve marked removals before submitting or approving.",
+    "semantic_meaning": "Destruction task workspace: Resolve marked removals before submitting or approving.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resolve marked removals before submitting or approving.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_marked_removals_require_rejection",
+    "context_group": "disposition.ui",
+    "default_text": "Marked removals require rejection for correction.",
+    "semantic_meaning": "Destruction task workspace: Marked removals require rejection for correction.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Marked removals require rejection for correction.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_membership_stage_invalid",
     "context_group": "disposition.ui",
     "default_text": "Membership cannot change at this workflow stage.",
@@ -6536,6 +7320,104 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "The root is outside this destruction job’s owning unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_proposal_closed",
+    "context_group": "disposition.ui",
+    "default_text": "This proposal is closed and cannot be changed.",
+    "semantic_meaning": "Destruction task workspace: This proposal is closed and cannot be changed.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This proposal is closed and cannot be changed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_proposal_conflict",
+    "context_group": "disposition.ui",
+    "default_text": "Resolve conflicting proposals before approval.",
+    "semantic_meaning": "Destruction task workspace: Resolve conflicting proposals before approval.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resolve conflicting proposals before approval.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_proposal_payload_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Complete the proposal fields with valid values.",
+    "semantic_meaning": "Destruction task workspace: Complete the proposal fields with valid values.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Complete the proposal fields with valid values.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_proposal_round_closed",
+    "context_group": "disposition.ui",
+    "default_text": "This review round is closed. Open the current task to continue.",
+    "semantic_meaning": "Destruction task workspace: This review round is closed. Open the current task to continue.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This review round is closed. Open the current task to continue.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_proposal_target_scope_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Choose a target within this governing disposition unit.",
+    "semantic_meaning": "Destruction task workspace: Choose a target within this governing disposition unit.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Choose a target within this governing disposition unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_relationship_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "This relationship is no longer available. Choose a current relationship.",
+    "semantic_meaning": "Destruction task workspace: This relationship is no longer available. Choose a current relationship.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This relationship is no longer available. Choose a current relationship.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_removal_reason_required",
+    "context_group": "disposition.ui",
+    "default_text": "Enter a reason for the proposed removal.",
+    "semantic_meaning": "Destruction task workspace: Enter a reason for the proposed removal.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enter a reason for the proposed removal.",
     "is_html": false
   },
   {
@@ -6587,6 +7469,62 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_stale_notes",
+    "context_group": "disposition.ui",
+    "default_text": "Your notes changed in another session. Refresh before saving again.",
+    "semantic_meaning": "Destruction task workspace: Your notes changed in another session. Refresh before saving again.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Your notes changed in another session. Refresh before saving again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_stale_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "This proposal changed in another session. Refresh before saving again.",
+    "semantic_meaning": "Destruction task workspace: This proposal changed in another session. Refresh before saving again.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This proposal changed in another session. Refresh before saving again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_stale_target",
+    "context_group": "disposition.ui",
+    "default_text": "The proposal target changed. Refresh and review its current values.",
+    "semantic_meaning": "Destruction task workspace: The proposal target changed. Refresh and review its current values.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The proposal target changed. Refresh and review its current values.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_stale_task",
+    "context_group": "disposition.ui",
+    "default_text": "This task changed. Refresh before saving again.",
+    "semantic_meaning": "Destruction task workspace: This task changed. Refresh before saving again.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This task changed. Refresh before saving again.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_stale_version",
     "context_group": "disposition.ui",
     "default_text": "This item changed. Refresh before trying again.",
@@ -6600,6 +7538,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "This item changed. Refresh before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_submission_reason_required",
+    "context_group": "disposition.ui",
+    "default_text": "Enter an overall job reason before submitting or approving.",
+    "semantic_meaning": "Destruction task workspace: Enter an overall job reason before submitting or approving.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enter an overall job reason before submitting or approving.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_task_claim_required",
+    "context_group": "disposition.ui",
+    "default_text": "Claim this task before editing.",
+    "semantic_meaning": "Destruction task workspace: Claim this task before editing.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Claim this task before editing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_task_ineligible",
+    "context_group": "disposition.ui",
+    "default_text": "This task is no longer available to you.",
+    "semantic_meaning": "Destruction task workspace: This task is no longer available to you.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This task is no longer available to you.",
     "is_html": false
   },
   {
@@ -6831,6 +7811,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.draft_added",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal change added. Select Save to persist it.",
+    "semantic_meaning": "Destruction task workspace: Proposal change added. Select Save to persist it.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal change added. Select Save to persist it.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.due",
     "context_group": "disposition.ui",
     "default_text": "Due date",
@@ -6940,6 +7934,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.empty_after_execution",
+    "context_group": "disposition.ui",
+    "default_text": "No governing roots remain: return to assigned preparer",
+    "semantic_meaning": "Destruction task workspace: No governing roots remain: return to assigned preparer",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No governing roots remain: return to assigned preparer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.end",
+    "context_group": "disposition.ui",
+    "default_text": "End",
+    "semantic_meaning": "Destruction task workspace: End",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "End",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.evidence_destination",
     "context_group": "disposition.ui",
     "default_text": "Uploaded evidence destination",
@@ -6967,6 +7989,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Version status",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.executed",
+    "context_group": "disposition.ui",
+    "default_text": "Executed",
+    "semantic_meaning": "Destruction task workspace: Executed",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Executed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_result",
+    "context_group": "disposition.ui",
+    "default_text": "Execution result",
+    "semantic_meaning": "Destruction task workspace: Execution result",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Execution result",
     "is_html": false
   },
   {
@@ -7016,6 +8066,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.fa_configured",
+    "context_group": "disposition.ui",
+    "default_text": "File Administrator role configured on owning unit or an ancestor?",
+    "semantic_meaning": "Destruction task workspace: File Administrator role configured on owning unit or an ancestor?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "File Administrator role configured on owning unit or an ancestor?",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.failed",
     "context_group": "disposition.ui",
     "default_text": "The operation could not be completed. Refresh and try again.",
@@ -7029,6 +8093,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "The operation could not be completed. Refresh and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.failed_reports",
+    "context_group": "disposition.ui",
+    "default_text": "Report generation failed or pending",
+    "semantic_meaning": "Destruction task workspace: Report generation failed or pending",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Report generation failed or pending",
     "is_html": false
   },
   {
@@ -7080,6 +8158,90 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.final_disposition",
+    "context_group": "disposition.ui",
+    "default_text": "Final disposition",
+    "semantic_meaning": "Destruction task workspace: Final disposition",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Final disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.form_file_review",
+    "context_group": "disposition.ui",
+    "default_text": "Review aggregations proposed for destruction",
+    "semantic_meaning": "Destruction task workspace: Review aggregations proposed for destruction",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review aggregations proposed for destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.form_manager_review",
+    "context_group": "disposition.ui",
+    "default_text": "Approve destruction request",
+    "semantic_meaning": "Destruction task workspace: Approve destruction request",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve destruction request",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.form_unit_review",
+    "context_group": "disposition.ui",
+    "default_text": "Review destruction proposal",
+    "semantic_meaning": "Destruction task workspace: Review destruction proposal",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review destruction proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.generate_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Generate and save digital certificate",
+    "semantic_meaning": "Destruction task workspace: Generate and save digital certificate",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generate and save digital certificate",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.generate_request",
+    "context_group": "disposition.ui",
+    "default_text": "Generate Request for Destruction Form",
+    "semantic_meaning": "Destruction task workspace: Generate Request for Destruction Form",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generate Request for Destruction Form",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.group_owner",
     "context_group": "disposition.ui",
     "default_text": "Group this page by owner",
@@ -7093,6 +8255,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Group this page by owner",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.has_claimant",
+    "context_group": "disposition.ui",
+    "default_text": "Claimed by a person",
+    "semantic_meaning": "Destruction task workspace: Claimed by a person",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Claimed by a person",
     "is_html": false
   },
   {
@@ -7144,6 +8320,76 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.hold_ids",
+    "context_group": "disposition.ui",
+    "default_text": "Legal holds",
+    "semantic_meaning": "Destruction task workspace: Legal holds",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Legal holds",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.incoming",
+    "context_group": "disposition.ui",
+    "default_text": "Incoming",
+    "semantic_meaning": "Destruction task workspace: Incoming",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Incoming",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.instructions",
+    "context_group": "disposition.ui",
+    "default_text": "Instructions",
+    "semantic_meaning": "Destruction task workspace: Instructions",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Instructions",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.intermediate_period_years",
+    "context_group": "disposition.ui",
+    "default_text": "Intermediate retention years",
+    "semantic_meaning": "Destruction task workspace: Intermediate retention years",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Intermediate retention years",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.job_created",
+    "context_group": "disposition.ui",
+    "default_text": "Active job created",
+    "semantic_meaning": "Destruction task workspace: Active job created",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Active job created",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.job_number",
     "context_group": "disposition.ui",
     "default_text": "Job number",
@@ -7189,6 +8435,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition jobs",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.last_editor",
+    "context_group": "disposition.ui",
+    "default_text": "Last revised by",
+    "semantic_meaning": "Destruction task workspace: Last revised by",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Last revised by",
     "is_html": false
   },
   {
@@ -7254,6 +8514,48 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.local_override",
+    "context_group": "disposition.ui",
+    "default_text": "Local override",
+    "semantic_meaning": "Destruction task workspace: Local override",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Local override",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.local_retention_override",
+    "context_group": "disposition.ui",
+    "default_text": "Local retention override",
+    "semantic_meaning": "Destruction task workspace: Local retention override",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Local retention override",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.make_vital",
+    "context_group": "disposition.ui",
+    "default_text": "Mark aggregation as vital",
+    "semantic_meaning": "Destruction task workspace: Mark aggregation as vital",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Mark aggregation as vital",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.manager_correction",
     "context_group": "disposition.ui",
     "default_text": "Records Manager correction",
@@ -7270,6 +8572,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.manager_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Review the complete proposal set before approval. Approval applies all active saved proposals.",
+    "semantic_meaning": "Destruction task workspace: Review the complete proposal set before approval. Approval applies all active saved proposals.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review the complete proposal set before approval. Approval applies all active saved proposals.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.manager_preparation",
     "context_group": "disposition.ui",
     "default_text": "Records Manager preparation",
@@ -7283,6 +8599,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Records Manager preparation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.marked_removals",
+    "context_group": "disposition.ui",
+    "default_text": "Any aggregation marked not for destruction?",
+    "semantic_meaning": "Destruction task workspace: Any aggregation marked not for destruction?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Any aggregation marked not for destruction?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.medium",
+    "context_group": "disposition.ui",
+    "default_text": "Medium",
+    "semantic_meaning": "Destruction task workspace: Medium",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Medium",
     "is_html": false
   },
   {
@@ -7318,6 +8662,48 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.min_priority",
+    "context_group": "disposition.ui",
+    "default_text": "Minimum priority",
+    "semantic_meaning": "Destruction task workspace: Minimum priority",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Minimum priority",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.min_roots",
+    "context_group": "disposition.ui",
+    "default_text": "Minimum governing roots",
+    "semantic_meaning": "Destruction task workspace: Minimum governing roots",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Minimum governing roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.mixed",
+    "context_group": "disposition.ui",
+    "default_text": "Mixed",
+    "semantic_meaning": "Destruction task workspace: Mixed",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Mixed",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.more",
     "context_group": "disposition.ui",
     "default_text": "Load more blockers",
@@ -7329,6 +8715,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Load more blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.my_tasks",
+    "context_group": "disposition.ui",
+    "default_text": "My tasks",
+    "semantic_meaning": "Destruction task workspace: My tasks",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "My tasks",
     "is_html": false
   },
   {
@@ -7375,6 +8775,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "No current protection blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.no_current_task",
+    "context_group": "disposition.ui",
+    "default_text": "No current task is available to you.",
+    "semantic_meaning": "Destruction task workspace: No current task is available to you.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No current task is available to you.",
     "is_html": false
   },
   {
@@ -7521,6 +8935,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.outgoing",
+    "context_group": "disposition.ui",
+    "default_text": "Outgoing",
+    "semantic_meaning": "Destruction task workspace: Outgoing",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Outgoing",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.overall_reason",
+    "context_group": "disposition.ui",
+    "default_text": "Overall job reason",
+    "semantic_meaning": "Destruction task workspace: Overall job reason",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Overall job reason",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.overdue",
     "context_group": "disposition.ui",
     "default_text": "Days overdue",
@@ -7581,6 +9023,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.pending_changes",
+    "context_group": "disposition.ui",
+    "default_text": "Unsaved proposal changes",
+    "semantic_meaning": "Destruction task workspace: Unsaved proposal changes",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Unsaved proposal changes",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.permanent_transfer",
     "context_group": "disposition.ui",
     "default_text": "Permanent transfer",
@@ -7594,6 +9050,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Permanent transfer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical",
+    "context_group": "disposition.ui",
+    "default_text": "Physical",
+    "semantic_meaning": "Destruction task workspace: Physical",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical",
     "is_html": false
   },
   {
@@ -7643,6 +9113,48 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.physical_scope",
+    "context_group": "disposition.ui",
+    "default_text": "Any physical or mixed material?",
+    "semantic_meaning": "Destruction task workspace: Any physical or mixed material?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Any physical or mixed material?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparation",
+    "context_group": "disposition.ui",
+    "default_text": "Prepare destruction job",
+    "semantic_meaning": "Destruction task workspace: Prepare destruction job",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Prepare destruction job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.prepare_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Review membership and proposals, then enter an overall job reason before submitting.",
+    "semantic_meaning": "Destruction task workspace: Review membership and proposals, then enter an overall job reason before submitting.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review membership and proposals, then enter an overall job reason before submitting.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.preview_document",
     "context_group": "disposition.ui",
     "default_text": "Preview document",
@@ -7673,6 +9185,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.priority",
+    "context_group": "disposition.ui",
+    "default_text": "Priority",
+    "semantic_meaning": "Destruction task workspace: Priority",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Priority",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.proposal_execution_report",
     "context_group": "disposition.ui",
     "default_text": "Proposal execution report",
@@ -7685,6 +9211,90 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Proposal execution report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_state",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal state",
+    "semantic_meaning": "Destruction task workspace: Proposal state",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_type",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal type",
+    "semantic_meaning": "Destruction task workspace: Proposal type",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal type",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposals",
+    "context_group": "disposition.ui",
+    "default_text": "Review proposals",
+    "semantic_meaning": "Destruction task workspace: Review proposals",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.propose",
+    "context_group": "disposition.ui",
+    "default_text": "Add proposal",
+    "semantic_meaning": "Destruction task workspace: Add proposal",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposed_values",
+    "context_group": "disposition.ui",
+    "default_text": "Proposed values",
+    "semantic_meaning": "Destruction task workspace: Proposed values",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposed values",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposer",
+    "context_group": "disposition.ui",
+    "default_text": "Original proposer",
+    "semantic_meaning": "Destruction task workspace: Original proposer",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Original proposer",
     "is_html": false
   },
   {
@@ -7720,6 +9330,62 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.reassign",
+    "context_group": "disposition.ui",
+    "default_text": "Reassign task",
+    "semantic_meaning": "Destruction task workspace: Reassign task",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reassign task",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reassign_person",
+    "context_group": "disposition.ui",
+    "default_text": "Assign to an eligible person in this queue",
+    "semantic_meaning": "Destruction task workspace: Assign to an eligible person in this queue",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Assign to an eligible person in this queue",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reassign_queue",
+    "context_group": "disposition.ui",
+    "default_text": "Return to a role queue",
+    "semantic_meaning": "Destruction task workspace: Return to a role queue",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Return to a role queue",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.received",
+    "context_group": "disposition.ui",
+    "default_text": "Received",
+    "semantic_meaning": "Destruction task workspace: Received",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Received",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.record",
     "context_group": "disposition.ui",
     "default_text": "Record",
@@ -7731,6 +9397,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Record",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.record_approval",
+    "context_group": "disposition.ui",
+    "default_text": "Save destruction number and approval letter",
+    "semantic_meaning": "Save the external approval number and its governed letter in the destruction workflow.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Save destruction number and approval letter",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.records_manager_only",
+    "context_group": "disposition.ui",
+    "default_text": "Records Manager Only",
+    "semantic_meaning": "Destruction task workspace: Records Manager Only",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Manager Only",
     "is_html": false
   },
   {
@@ -7781,6 +9475,118 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.reject",
+    "context_group": "disposition.ui",
+    "default_text": "Reject for correction",
+    "semantic_meaning": "Destruction task workspace: Reject for correction",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reject for correction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.rejected",
+    "context_group": "disposition.ui",
+    "default_text": "Rejected",
+    "semantic_meaning": "Destruction task workspace: Rejected",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Rejected",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.related_aggregation_id",
+    "context_group": "disposition.ui",
+    "default_text": "Related aggregation",
+    "semantic_meaning": "Destruction task workspace: Related aggregation",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Related aggregation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.relationship_id",
+    "context_group": "disposition.ui",
+    "default_text": "Existing relationship",
+    "semantic_meaning": "Destruction task workspace: Existing relationship",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Existing relationship",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.relationship_type_id",
+    "context_group": "disposition.ui",
+    "default_text": "Relationship type",
+    "semantic_meaning": "Destruction task workspace: Relationship type",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationship type",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.release",
+    "context_group": "disposition.ui",
+    "default_text": "Release task",
+    "semantic_meaning": "Destruction task workspace: Release task",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Release task",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removal_proposed",
+    "context_group": "disposition.ui",
+    "default_text": "Proposed for removal",
+    "semantic_meaning": "Destruction task workspace: Proposed for removal",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposed for removal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removal_required",
+    "context_group": "disposition.ui",
+    "default_text": "Removal required",
+    "semantic_meaning": "Destruction task workspace: Removal required",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removal required",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.remove",
     "context_group": "disposition.ui",
     "default_text": "Remove from job",
@@ -7794,6 +9600,62 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Remove from job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.remove_aggregation_relationship",
+    "context_group": "disposition.ui",
+    "default_text": "Remove aggregation relationship",
+    "semantic_meaning": "Destruction task workspace: Remove aggregation relationship",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove aggregation relationship",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.remove_blocked_units",
+    "context_group": "disposition.ui",
+    "default_text": "Remove proposal-blocked disposition units",
+    "semantic_meaning": "Destruction task workspace: Remove proposal-blocked disposition units",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove proposal-blocked disposition units",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.remove_from_job",
+    "context_group": "disposition.ui",
+    "default_text": "Mark for removal from job",
+    "semantic_meaning": "Destruction task workspace: Mark for removal from job",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Mark for removal from job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.remove_record_relationship",
+    "context_group": "disposition.ui",
+    "default_text": "Remove record relationship",
+    "semantic_meaning": "Destruction task workspace: Remove record relationship",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove record relationship",
     "is_html": false
   },
   {
@@ -7842,6 +9704,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Reopened — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.report_pending",
+    "context_group": "disposition.ui",
+    "default_text": "Approval saved. The execution report needs generation; retry from review history.",
+    "semantic_meaning": "Destruction task workspace: Approval saved. The execution report needs generation; retry from review history.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approval saved. The execution report needs generation; retry from review history.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.report_ready",
+    "context_group": "disposition.ui",
+    "default_text": "Execution report is available in documents.",
+    "semantic_meaning": "Destruction task workspace: Execution report is available in documents.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Execution report is available in documents.",
     "is_html": false
   },
   {
@@ -7938,6 +9828,132 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.retry_report",
+    "context_group": "disposition.ui",
+    "default_text": "Generate execution report",
+    "semantic_meaning": "Destruction task workspace: Generate execution report",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generate execution report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_decisions",
+    "context_group": "disposition.ui",
+    "default_text": "Review decisions",
+    "semantic_meaning": "Destruction task workspace: Review decisions",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review decisions",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Review current and proposed values. Claim a queue task before saving changes or completing review.",
+    "semantic_meaning": "Destruction task workspace: Review current and proposed values. Claim a queue task before saving changes or completing review.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review current and proposed values. Claim a queue task before saving changes or completing review.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_notes",
+    "context_group": "disposition.ui",
+    "default_text": "Review notes",
+    "semantic_meaning": "Destruction task workspace: Review notes",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review notes",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_round",
+    "context_group": "disposition.ui",
+    "default_text": "Review round",
+    "semantic_meaning": "Destruction task workspace: Review round",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review round",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_route",
+    "context_group": "disposition.ui",
+    "default_text": "Saved review route",
+    "semantic_meaning": "Destruction task workspace: Saved review route",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Saved review route",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_route_question",
+    "context_group": "disposition.ui",
+    "default_text": "Saved review route?",
+    "semantic_meaning": "Destruction task workspace: Saved review route?",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Saved review route?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.revise",
+    "context_group": "disposition.ui",
+    "default_text": "Revise proposal",
+    "semantic_meaning": "Destruction task workspace: Revise proposal",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Revise proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.revision_history",
+    "context_group": "disposition.ui",
+    "default_text": "Revision history",
+    "semantic_meaning": "Destruction task workspace: Revision history",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Revision history",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.role",
     "context_group": "disposition.ui",
     "default_text": "Acting information-governance role",
@@ -7951,6 +9967,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Acting information-governance role",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.role_queue",
+    "context_group": "disposition.ui",
+    "default_text": "Role queue",
+    "semantic_meaning": "Destruction task workspace: Role queue",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Role queue",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.root_count",
+    "context_group": "disposition.ui",
+    "default_text": "Governing roots",
+    "semantic_meaning": "Destruction task workspace: Governing roots",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Governing roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.round_history",
+    "context_group": "disposition.ui",
+    "default_text": "Review rounds",
+    "semantic_meaning": "Destruction task workspace: Review rounds",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review rounds",
     "is_html": false
   },
   {
@@ -7983,6 +10041,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Save",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.save_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Save persists work without submitting or applying proposals.",
+    "semantic_meaning": "Destruction task workspace: Save persists work without submitting or applying proposals.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Save persists work without submitting or applying proposals.",
     "is_html": false
   },
   {
@@ -8050,6 +10122,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.security_level_id",
+    "context_group": "disposition.ui",
+    "default_text": "Security level",
+    "semantic_meaning": "Destruction task workspace: Security level",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Security level",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.select_hint",
     "context_group": "disposition.ui",
     "default_text": "Select accessible, unblocked closed roots. Each selected root is checked again when added.",
@@ -8114,6 +10200,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.simplified",
+    "context_group": "disposition.ui",
+    "default_text": "Simplified",
+    "semantic_meaning": "Destruction task workspace: Simplified",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Simplified",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.skipped",
+    "context_group": "disposition.ui",
+    "default_text": "Skipped",
+    "semantic_meaning": "Destruction task workspace: Skipped",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Skipped",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.sort",
     "context_group": "disposition.ui",
     "default_text": "Sort by",
@@ -8141,6 +10255,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Workflow stage",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.standard",
+    "context_group": "disposition.ui",
+    "default_text": "Standard",
+    "semantic_meaning": "Destruction task workspace: Standard",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Standard",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.start",
+    "context_group": "disposition.ui",
+    "default_text": "Start",
+    "semantic_meaning": "Destruction task workspace: Start",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Start",
     "is_html": false
   },
   {
@@ -8368,6 +10510,76 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.submit",
+    "context_group": "disposition.ui",
+    "default_text": "Submit for review",
+    "semantic_meaning": "Destruction task workspace: Submit for review",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Submit for review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.target",
+    "context_group": "disposition.ui",
+    "default_text": "Target",
+    "semantic_meaning": "Destruction task workspace: Target",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Target",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.task",
+    "context_group": "disposition.ui",
+    "default_text": "Task",
+    "semantic_meaning": "Destruction task workspace: Task",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Task",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.task_state",
+    "context_group": "disposition.ui",
+    "default_text": "Task state",
+    "semantic_meaning": "Destruction task workspace: Task state",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Task state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.task_type",
+    "context_group": "disposition.ui",
+    "default_text": "Required action",
+    "semantic_meaning": "Destruction task workspace: Required action",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Required action",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.template_checksum",
     "context_group": "disposition.ui",
     "default_text": "Template checksum",
@@ -8534,6 +10746,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.unsaved_warning",
+    "context_group": "disposition.ui",
+    "default_text": "There are unsaved changes. Save before leaving this task.",
+    "semantic_meaning": "Destruction task workspace: There are unsaved changes. Save before leaving this task.",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "There are unsaved changes. Save before leaving this task.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.upload_template",
     "context_group": "disposition.ui",
     "default_text": "Upload template revision",
@@ -8576,6 +10802,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Vital resources",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.withdraw",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw proposal",
+    "semantic_meaning": "Destruction task workspace: Withdraw proposal",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Withdraw proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.withdrawn",
+    "context_group": "disposition.ui",
+    "default_text": "Withdrawn",
+    "semantic_meaning": "Destruction task workspace: Withdrawn",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Withdrawn",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.workflow",
+    "context_group": "disposition.ui",
+    "default_text": "Workflow progress",
+    "semantic_meaning": "Destruction task workspace: Workflow progress",
+    "common_locations": [
+      "Disposition task inbox and review workspace"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Workflow progress",
     "is_html": false
   },
   {

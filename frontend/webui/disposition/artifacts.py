@@ -97,7 +97,7 @@ async def correction_dialog(*, api, job, row, roles, active, on_error, after):
     return dialog
 
 
-def documents_panel(*, api, job, active, on_error, after, open_resource, preview, format_timestamp, column):
+def documents_panel(*, api, job, active, on_error, after, open_resource, preview, format_timestamp, column, can_mutate=lambda:True):
     from .screens import failure
     ui.separator();ui.label(text('documents')).classes('text-lg font-semibold')
     warnings=ui.column().classes('w-full gap-3')
@@ -133,6 +133,7 @@ def documents_panel(*, api, job, active, on_error, after, open_resource, preview
             return
         if active():ui.download(content,row['file_name'])
     async def correct(event):
+        if not can_mutate():ui.notify(text('unsaved_warning'),type='warning');return
         row=selected(event)
         if row and row['can_correct']:await correction_dialog(api=api,job=job,row=row,roles=roles,active=active,on_error=on_error,after=after)
     for name,handler in [('open-record',open_record),('preview',view),('download',download),('correct',correct)]:table.table.on(name,handler)

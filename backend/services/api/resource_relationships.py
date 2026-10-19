@@ -246,13 +246,13 @@ def delete_link(kind: Kind, resource_id: int, link_id: int,
 @router.get('/{kind}/{resource_id}')
 def list_links(kind: Kind, resource_id: int, language_tag: Language = 'en',
                limit: int = Query(25, ge=1, le=100), offset: int = Query(0, ge=0),
-               type_id: int | None = Query(None, gt=0),
+               type_id: int | None = Query(None, gt=0), selected_id: int | None = Query(None,gt=0),
                sort: Literal['id', 'type'] = 'id', descending: bool = False,
                c: Connection = Depends(get_connection, scope='function')):
     require_endpoint(c, kind, resource_id)
     table, number = tables(kind)
-    where = '(link.source_id=%s OR link.target_id=%s) AND (%s::bigint IS NULL OR link.relationship_type_id=%s)'
-    params = (resource_id, resource_id, type_id, type_id)
+    where = '(link.source_id=%s OR link.target_id=%s) AND (%s::bigint IS NULL OR link.relationship_type_id=%s) AND (%s::bigint IS NULL OR link.id=%s)'
+    params = (resource_id, resource_id, type_id, type_id, selected_id, selected_id)
     total = c.execute(f'SELECT count(*) AS total FROM {kind}_relationships link WHERE {where}', params).fetchone()['total']
     order = 'definition.code,link.id' if sort == 'type' else 'link.id'
     order = ','.join(column + (' DESC' if descending else ' ASC') for column in order.split(','))
