@@ -167,6 +167,8 @@ async def lifespan(application: FastAPI):
     try:
         with pool.connection() as connection:
             settings_cache.for_connection(connection)  # Fail on missing/invalid rows.
+            from .processing_copies import recover_renditions
+            recover_renditions()
             from .application_settings_migration import readiness
             if not readiness(connection)["ready"]:
                 raise RuntimeError("application_settings_migration_incomplete; run the reviewed preview/apply command")
@@ -1984,8 +1986,12 @@ def download_digital_component_content(
     )
 
 
+from .processing_copies import protect_response
+
+
+@protect_response
 def _component_rendition_response(
-    component: dict, request: Request, connection: Connection,
+    component: dict, request: Request, connection: Connection, *, _temporary_root=None,
 ):
     storage = configured_storage()
     component_id = component["id"]
@@ -2015,6 +2021,7 @@ def _component_rendition_response(
             "Accept-Ranges": "bytes",
             "ETag": f'"sha256-{component["checksum_value"]}"',
             "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store",
             "Content-Security-Policy": "sandbox",
         }
         if response_status == 206:
@@ -2043,7 +2050,7 @@ def _component_rendition_response(
     if content is None:
         raise HTTPException(status_code=404, detail="digital component content not found")
     try:
-        rendition, method = pdf_rendition(content, component["file_name"], mime_type, settings=content_settings)
+        rendition, method = pdf_rendition(content, component["file_name"], mime_type, settings=content_settings,temporary_root=_temporary_root)
     except UnsupportedPreview as error:
         raise HTTPException(status_code=415, detail=str(error)) from error
     except ConversionUnavailable as error:
@@ -2059,6 +2066,7 @@ def _component_rendition_response(
         headers={
             "Content-Disposition": f"inline; filename*=UTF-8''{encoded_name}",
             "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store",
             "Content-Security-Policy": "sandbox",
         },
     )
@@ -2077,6 +2085,7 @@ def view_digital_component_rendition(
     request: Request,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     component, _ = require_component_operation(
         connection, component_id, "record.component.view", "record.component.view")
     return _component_rendition_response(component, request, connection)
@@ -2096,6 +2105,7 @@ def print_digital_component_rendition(
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     """Return a printable rendition only when the print operation is authorized."""
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     component, _ = require_component_operation(
         connection, component_id, "record.component.print", "record.component.print")
     return _component_rendition_response(component, request, connection)

@@ -69,6 +69,7 @@ def reconcile_claims(c, *, limit=100, after_id=0):
 def action_indicator_sql():
     """The same current action-required facts in inbox and workspace header."""
     return {
+        'destruction_failed':"j.lifecycle_state='active' AND j.workflow_stage='digital_destruction' AND (SELECT state FROM disposition_destruction_runs WHERE job_id=j.id ORDER BY run_number DESC LIMIT 1)='failed'",
         'blocked':"EXISTS(SELECT 1 FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state='active' AND (EXISTS(SELECT 1 FROM disposition_private.protection_blockers(m.root_aggregation_id)) OR EXISTS(SELECT 1 FROM disposition_private.relationship_scope(m.root_aggregation_id) WHERE blocks_final)))",
         'removal_required':"EXISTS(SELECT 1 FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state='active' AND (m.removal_required OR EXISTS(SELECT 1 FROM disposition_review_proposals p WHERE p.job_id=m.job_id AND p.governing_root_id=m.root_aggregation_id AND p.review_round=disposition_private.review_round_for_work(m.job_id) AND p.proposal_type='remove_from_job' AND p.proposal_state='active')))",
         'failed_reports':"EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.job_id=j.id AND d.document_state='failed') OR EXISTS(SELECT 1 FROM disposition_review_rounds r WHERE r.job_id=j.id AND r.approval_execution IS NOT NULL AND NOT EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.job_id=j.id AND d.provenance->>'approval_round_id'=r.id::text AND d.document_state='available'))"}
@@ -83,7 +84,7 @@ def tasks(c, *, limit, offset, sort='received', descending=False, state=None, jo
     """
     root_count="(SELECT count(*) FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state='active')"
     indicators=action_indicator_sql()
-    orders = {'job_type':'j.job_type','age':'t.date_created','id': 't.id', 'received': 't.date_created', 'priority': 't.priority',
+    orders = {'digital_state':"(SELECT state FROM disposition_destruction_runs WHERE job_id=j.id ORDER BY run_number DESC LIMIT 1)",'job_type':'j.job_type','age':'t.date_created','id': 't.id', 'received': 't.date_created', 'priority': 't.priority',
               'task_type': 't.task_type', 'job_number': 'j.job_number',
               'owner': 'o.name', 'workflow_stage': 't.workflow_stage', 'state': 't.task_state', 'direct_assignee':'direct.name', 'role_queue':'queue.name', 'claimant':'claimant.name', 'root_count':"(SELECT count(*) FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state='active')"}
     if sort not in orders:
@@ -112,7 +113,10 @@ def tasks(c, *, limit, offset, sort='received', descending=False, state=None, jo
       LEFT JOIN users claimant ON claimant.id=t.claimed_by_user_id
       LEFT JOIN roles queue ON queue.id=t.destination_role_id WHERE ''' + ' AND '.join(clauses)
     total = c.execute('SELECT count(*) total'+source, params).fetchone()['total']
-    rows = c.execute('''SELECT ('''+indicators['blocked']+''') AS blocked,('''+indicators['failed_reports']+''') AS failed_reports,('''+indicators['removal_required']+''') AS action_removal_required,t.*,j.job_number,j.job_type,j.review_route,j.owning_org_unit_id,o.name AS owner,
+    rows = c.execute('''SELECT ('''+indicators['destruction_failed']+''') AS destruction_failed,(SELECT state FROM disposition_destruction_runs WHERE job_id=j.id ORDER BY run_number DESC LIMIT 1) AS digital_state,
+      (SELECT count(*) FROM disposition_job_memberships m JOIN aggregations a ON a.id=m.root_aggregation_id WHERE m.job_id=j.id AND a.disposition_status=10) AS digital_completed,
+      (SELECT count(*) FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state IN ('active','completed_history')) AS digital_total,
+      ('''+indicators['blocked']+''') AS blocked,('''+indicators['failed_reports']+''') AS failed_reports,('''+indicators['removal_required']+''') AS action_removal_required,t.*,j.job_number,j.job_type,j.review_route,j.owning_org_unit_id,o.name AS owner,
       direct.name AS direct_assignee,queue.name AS role_queue,claimant.name AS claimant,
       extract(epoch FROM (CURRENT_TIMESTAMP-t.date_created))::bigint AS age_seconds,
       (SELECT count(*) FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state='active') AS root_count,

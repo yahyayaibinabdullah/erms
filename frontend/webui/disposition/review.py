@@ -41,6 +41,7 @@ class ReviewForm:
             form_key={'physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
             ui.label(text(form_key)).classes('font-semibold')
             hint='disposition_physical_release_pending' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
+            if self.task['task_type']=='digital_destruction':hint='disposition_digital_confirmation_required' if (workspace.get('destruction') or {}).get('released') else 'disposition_digital_release_pending'
             ui.label(text(hint)).classes('text-sm text-slate-600')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
@@ -73,6 +74,8 @@ class ReviewForm:
         request_controls(self)
         from .physical import controls as physical_controls,task_form as physical_task_form
         physical_controls(self)
+        from .destruction import controls as destruction_controls
+        destruction_controls(self)
         from .email import controls as email_controls
         email_controls(self)
         if not self.task or not self.roles:
@@ -80,7 +83,8 @@ class ReviewForm:
                 self.history_sections()
                 await self.proposals_panel()
             return
-        if self.task.get('task_type') in ('physical_destruction','digital_destruction'):
+        if self.task.get('task_type')=='digital_destruction':return
+        if self.task.get('task_type')=='physical_destruction':
             await physical_task_form(self)
             return
         if self.task.get('task_type')=='external_approval':

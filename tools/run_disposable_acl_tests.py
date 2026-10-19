@@ -17,12 +17,15 @@ def main():
     targets = sys.argv[1:]
     baseline_ref = None
     migration_paths = []
+    defer_migrations = False
     if targets and targets[0].startswith("--baseline-ref="):
         baseline_ref = targets.pop(0).split("=", 1)[1]
         if not targets or not targets[0].startswith("--migration="):
             raise ValueError("A baseline schema requires an explicit upgrade migration")
         while targets and targets[0].startswith("--migration="):
             migration_paths.append(ROOT / targets.pop(0).split("=", 1)[1])
+    if targets and targets[0]=='--defer-migrations-to-test':
+        targets.pop(0);defer_migrations=True
     schema_source = (
         subprocess.check_output(["git", "show", f"{baseline_ref}:database/schema.sql"], cwd=ROOT, text=True)
         if baseline_ref else (ROOT / "database/schema.sql").read_text()
@@ -41,7 +44,7 @@ def main():
         print(f"Created disposable database {database_name}", flush=True)
         with psycopg.connect(test_url) as connection:
             connection.execute(schema_source, prepare=False)
-            for migration_path in migration_paths:
+            for migration_path in ([] if defer_migrations else migration_paths):
                 connection.commit()
                 connection.execute(migration_path.read_text(), prepare=False)
             connection.commit()
@@ -51,6 +54,7 @@ def main():
         environment = {key: str(value) for key, value in configuration.items() if value is not None}
         environment["DATABASE_URL"] = test_url
         environment["AUTH_COOKIE_SECURE"] = "false"
+        if defer_migrations:environment["ERMS_TEST_DEFERRED_MIGRATIONS"] = os.pathsep.join(str(p) for p in migration_paths)
         # API regressions also exercise shared WebUI policy/catalogue modules.
         frontend_packages = ROOT / "frontend/webui/.venv/lib/python3.11/site-packages"
         environment["PYTHONPATH"] = os.pathsep.join([str(ROOT), str(frontend_packages), environment.get("PYTHONPATH", "")])

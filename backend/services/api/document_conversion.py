@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from backend.services.processing_workspace import working_copy_fds
+
 import os
 import shutil
 import subprocess
@@ -7,6 +9,10 @@ import sys
 import tempfile
 from pathlib import Path
 
+
+
+def _run(*args,**kwargs):
+    return subprocess.run(*args,pass_fds=working_copy_fds(),**kwargs)
 
 
 class ConversionUnavailable(RuntimeError):
@@ -35,7 +41,7 @@ def _libreoffice_binary() -> str:
     return binary
 
 
-def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings) -> tuple[bytes, str]:
+def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings, temporary_root=None) -> tuple[bytes, str]:
     """Return PDF bytes and the rendering method used."""
     if mime_type.lower() == "application/pdf" or content.startswith(b"%PDF-"):
         return content, "original"
@@ -46,7 +52,7 @@ def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings) -
 
     timeout = settings["DOCUMENT_CONVERSION_TIMEOUT_SECONDS"]
     maximum = settings["MAX_RENDITION_SIZE_BYTES"]
-    with tempfile.TemporaryDirectory(prefix="erms-rendition-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="erms-rendition-",dir=temporary_root) as temporary:
         workspace = Path(temporary)
         source = workspace / f"source{suffix}"
         output = workspace / "output"
@@ -77,7 +83,7 @@ def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings) -
             if suffix != ".xlsx":
                 conversion_source = workspace / "source.html"
             try:
-                extraction = subprocess.run(
+                extraction = _run(
                     [
                         sys.executable,
                         str(Path(__file__).with_name(intermediary)),
@@ -107,7 +113,7 @@ def pdf_rendition(content: bytes, file_name: str, mime_type: str, *, settings) -
             "--convert-to", "pdf", "--outdir", str(output), str(conversion_source),
         ]
         try:
-            completed = subprocess.run(
+            completed = _run(
                 command, check=False, capture_output=True, timeout=timeout,
                 env={**os.environ, "SAL_DISABLE_OPENCL": "1"},
             )

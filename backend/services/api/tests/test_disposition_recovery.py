@@ -55,7 +55,7 @@ def test_individual_resolution_selected_status_then_matching_job(client,status):
         assert c.execute("SELECT count(*) n FROM disposition_job_memberships WHERE root_aggregation_id=%s AND membership_state='terminated_history'",(root,)).fetchone()['n']==1
 
 
-def make_unit(c,medium='mixed',private_child=False):
+def make_unit(c,medium='mixed',private_child=False,before_close=None):
     from backend.services.api.application_settings import load_snapshot
     from backend.services.api.content_storage import PostgreSQLContentStorage
     from backend.services.api.tests.test_disposition_artifacts import uploaded
@@ -73,6 +73,7 @@ def make_unit(c,medium='mixed',private_child=False):
         component=c.execute("INSERT INTO digital_components(record_id,component_order,file_name,mime_type,size_in_bytes,checksum_algo,checksum_value,storage_backend,content_status) VALUES(%s,1,'remaining.pdf','application/pdf',%s,'sha256',%s,'postgresql','available') RETURNING id",(record,len(content),hashlib.sha256(content).hexdigest())).fetchone()['id']
         PostgreSQLContentStorage().store_upload(c,component,uploaded(content),settings=load_snapshot(c))
     c.execute("INSERT INTO aggregation_retention_rules(aggregation_id,current_period_years,intermediate_period_years,final_disposition,justification) VALUES(%s,5,0,'destruction','Isolated recovery fixture')",(root,))
+    if before_close:before_close(c,root,record)
     c.execute("UPDATE aggregations SET date_closed='2020-01-01' WHERE id=%s",(root,));worker_actor(c);evaluate_root(c,root);actor(c)
     return root,child,leaf,record
 

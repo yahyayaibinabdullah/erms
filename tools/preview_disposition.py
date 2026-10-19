@@ -89,7 +89,14 @@ def seed(environment, phase=10):
                 child=c.execute("INSERT INTO aggregations(parent_aggregation_id,aggregation_number,title,is_vital) VALUES(%s,'BLOCKING-CHILD','Vital blocking child',true) RETURNING id",(root,)).fetchone()['id']
                 c.execute("INSERT INTO records(aggregation_id,record_number,title,is_vital) VALUES(%s,'BLOCKING-RECORD','Vital blocking record',true)",(child,))
                 c.execute("INSERT INTO records(aggregation_id,record_number,title,is_vital) VALUES(%s,'BLOCKING-RECORD-2','Second vital blocking record',true)",(child,))
-            if phase==20:c.execute("UPDATE aggregations SET medium='mixed' WHERE id=%s",(root,))
+            if phase>=20:c.execute("UPDATE aggregations SET medium='mixed' WHERE id=%s",(root,))
+            if phase==21 and index in (3,4,5,61,62,63,81,82,83):
+                from backend.services.api.content_storage import PostgreSQLContentStorage
+                from backend.services.api.application_settings import load_snapshot
+                from backend.services.api.tests.test_disposition_artifacts import uploaded
+                record=c.execute("INSERT INTO records(aggregation_id,record_number,title) VALUES(%s,%s,'Disposable digital source') RETURNING id",(root,f'DISP21-R-{index}')).fetchone()['id']
+                component=c.execute("INSERT INTO digital_components(record_id,component_order,file_name,mime_type,size_in_bytes,checksum_algo,checksum_value,storage_backend,storage_key) VALUES(%s,1,'synthetic-source.pdf','application/pdf',1,'sha256','fixture','postgresql',NULL) RETURNING id",(record,)).fetchone()['id']
+                PostgreSQLContentStorage().store_upload(c,component,uploaded(preview_pdf()),settings=load_snapshot(c))
             c.execute("UPDATE aggregations SET date_closed='2020-01-01T00:00:00Z' WHERE id=%s",(root,))
             worker_actor(c); evaluate_root(c,root); actor(c,user)
             c.execute("SELECT set_config('app.event_source','seeding',true)")
@@ -157,6 +164,9 @@ def seed_review_workspace(environment,phase=16):
             user=c.execute('INSERT INTO users(name,email) VALUES(%s,%s) RETURNING id',(code,email)).fetchone()['id']
             rid=role(c,code,profile,user=user);identities[email]=(user,rid)
             c.execute('INSERT INTO user_credentials(user_id,password_hash,must_change_password) VALUES(%s,%s,false)',(user,hash_password('Temporary-Test-Password-123!')))
+        if phase==21:
+            arabic=c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
+            c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(arabic,identities['manager@test.invalid'][1]))
         c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=1',(identities['fa@test.invalid'][1],identities['unit@test.invalid'][1]))
         for route,start,end in [('standard',3,60),('simplified',61,80),('records_manager_only',81,100)]:
             actor(c,admin);c.execute("SELECT set_config('app.event_source','seeding',true)");set_route(c,route)
@@ -176,7 +186,7 @@ def seed_review_workspace(environment,phase=16):
 def seed_external_requests(environment,phase):
     from backend.services.api.main import app
     from fastapi.testclient import TestClient
-    if phase==20:
+    if phase>=20:
         from backend.services.api.disposition import documents
         documents.engine.render=lambda *a:(preview_pdf(),{'renderer':'synthetic recovery preview'})
     with TestClient(app) as client:
@@ -222,7 +232,7 @@ def seed_external_requests(environment,phase):
         print('Phase 17 governed request PDFs and external waiting tasks ready.',flush=True)
 
 
-def seed_recovery(environment):
+def seed_recovery(environment,phase=20):
     """Synthetic confirmations in this disposable DB; restore the closed gate
     before any preview server starts, including when fixture creation fails."""
     from backend.services.api.tests.test_disposition_membership import actor,job_version
@@ -239,7 +249,7 @@ def seed_recovery(environment):
         with connect() as c:
             uid=c.execute("SELECT id FROM users WHERE email='manager@test.invalid'").fetchone()['id']
             role=c.execute("SELECT id FROM roles WHERE code='preview-manager'").fetchone()['id']
-            jobs=c.execute("SELECT * FROM disposition_jobs WHERE job_number LIKE 'PHASE20-%' ORDER BY id").fetchall()
+            jobs=c.execute("SELECT * FROM disposition_jobs WHERE job_number LIKE %s ORDER BY id",(f'PHASE{phase}-%',)).fetchall()
             for job in jobs:
                 actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
                 current=task(c,job['id'])
@@ -248,17 +258,19 @@ def seed_recovery(environment):
                 current=task(c,job['id'])
                 with stage_governed_upload(uploaded(preview_pdf()),load_snapshot(c),connection_factory=connect) as staged:
                     physical.confirm(c,task_id=current['id'],expected_version=job_version(c,job['id']),task_version=current['version'],successful=True,certificate_reference='SYNTHETIC20-'+str(job['id']),staged=staged,preview=artifacts.destination_token(artifacts.destination(c,job['id'],'physical_destruction_certificate')),acting_role_id=role,command_id=uuid4())
-                if job['review_route']!='standard':
+                if phase==20 and job['review_route']!='standard':
                     membership.terminate_job(c,job_id=job['id'],expected_version=job_version(c,job['id']),confirmed=True,acting_role_id=role,command_id=uuid4(),reason='Seed terminated synthetic recovery job')
                 c.commit()
     finally:
         with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
-    print('Phase 20 synthetic recovery fixtures ready; operational release gate closed.',flush=True)
+    if phase==21:
+        with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
+    print(f'Phase {phase} synthetic fixtures ready; digital gate enabled only in this disposable Phase 21 preview.' if phase==21 else 'Phase 20 synthetic recovery fixtures ready; operational release gate closed.',flush=True)
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19,20),default=12)
+    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19,20,21),default=12)
     parser.add_argument('--maildev',action='store_true',help='Phase 18 only: verified temporary TLS bridge to localhost MailDev:1025')
     args=parser.parse_args();phase=args.phase
     if args.maildev and phase!=18:parser.error('--maildev requires --phase 18')
@@ -286,8 +298,8 @@ def main():
             subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed; import os; seed(dict(os.environ),phase={phase})'],cwd=ROOT,env=environment,check=True)
             if phase>=17:
                 subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_external_requests; import os; seed_external_requests(dict(os.environ),{phase})'],cwd=ROOT,env=environment,check=True)
-            if phase==20:
-                subprocess.run([sys.executable,'-c','from tools.preview_disposition import seed_recovery; import os; seed_recovery(dict(os.environ))'],cwd=ROOT,env=environment,check=True)
+            if phase>=20:
+                subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_recovery; import os; seed_recovery(dict(os.environ),phase={phase})'],cwd=ROOT,env=environment,check=True)
             if phase==18:
                 if args.maildev:
                     sys.path.insert(0,str(ROOT))

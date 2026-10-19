@@ -1374,6 +1374,76 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.digital_destruction_failed",
+    "context_group": "audit.event",
+    "default_text": "Digital Destruction Requires Action",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital Destruction Requires Action",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Destruction Requires Action",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_destruction_progress",
+    "context_group": "audit.event",
+    "default_text": "Digital Destruction Progress Saved",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital Destruction Progress Saved",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Destruction Progress Saved",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_destruction_requested",
+    "context_group": "audit.event",
+    "default_text": "Digital Destruction Requested",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital Destruction Requested",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Destruction Requested",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_destruction_succeeded",
+    "context_group": "audit.event",
+    "default_text": "Required Digital Destruction Succeeded",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Required Digital Destruction Succeeded",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Required Digital Destruction Succeeded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_destruction_unit_completed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Unit Digitally Destroyed",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Disposition Unit Digitally Destroyed",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Unit Digitally Destroyed",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_accelerated",
     "context_group": "audit.event",
     "default_text": "Disposition Eligibility Accelerated",
@@ -1766,6 +1836,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Unit Reopened",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_retained_record_migrated",
+    "context_group": "audit.event",
+    "default_text": "Retained Disposition Record Migrated",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Retained Disposition Record Migrated",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retained Disposition Record Migrated",
     "is_html": false
   },
   {
@@ -7082,6 +7166,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.destroy_digital",
+    "context_group": "disposition.ui",
+    "default_text": "Destroy digital content",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Destroy digital content",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Destroy digital content",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.destruction",
     "context_group": "disposition.ui",
     "default_text": "Destruction",
@@ -7095,6 +7193,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.destruction_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction requires action",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction requires action",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction requires action",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.destruction_manifest",
+    "context_group": "disposition.ui",
+    "default_text": "Destruction manifest",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Destruction manifest",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction manifest",
     "is_html": false
   },
   {
@@ -7155,6 +7281,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.digital_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "I confirm that Wathiq should destroy the digital content",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: I confirm that Wathiq should destroy the digital content",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "I confirm that Wathiq should destroy the digital content",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.digital_destruction",
     "context_group": "disposition.ui",
     "default_text": "Digital destruction",
@@ -7183,6 +7323,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Certificate of Destruction (Digital)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital_done_completion_pending",
+    "context_group": "disposition.ui",
+    "default_text": "Required digital destruction succeeded. The job remains incomplete until its completion evidence is saved.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Required digital destruction succeeded. The job remains incomplete until its completion evidence is saved.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Required digital destruction succeeded. The job remains incomplete until its completion evidence is saved.",
     "is_html": false
   },
   {
@@ -7408,6 +7562,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_destruction_command_required",
+    "context_group": "disposition.ui",
+    "default_text": "Use the authorized disposition action for this operation.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Use the authorized disposition action for this operation.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Use the authorized disposition action for this operation.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_destruction_history_immutable",
+    "context_group": "disposition.ui",
+    "default_text": "Saved destruction outcomes cannot be changed.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Saved destruction outcomes cannot be changed.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Saved destruction outcomes cannot be changed.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_destruction_number_invalid",
     "context_group": "disposition.ui",
     "default_text": "Enter the supplied destruction number, using between 1 and 20 characters.",
@@ -7433,6 +7615,146 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "This destruction number is reserved for another job and cannot be reused.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_already_running",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction is already queued or running. View its current progress.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction is already queued or running. View its current progress.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction is already queued or running. View its current progress.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_already_succeeded",
+    "context_group": "disposition.ui",
+    "default_text": "Required digital destruction already succeeded. Completion evidence is still required.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Required digital destruction already succeeded. Completion evidence is still required.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Required digital destruction already succeeded. Completion evidence is still required.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "A current protection or relationship blocks destruction. Resolve it and explicitly request a retry.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: A current protection or relationship blocks destruction. Resolve it and explicitly request a retry.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "A current protection or relationship blocks destruction. Resolve it and explicitly request a retry.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_claim_lost",
+    "context_group": "disposition.ui",
+    "default_text": "This execution is no longer current. Refresh to see its saved progress.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: This execution is no longer current. Refresh to see its saved progress.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This execution is no longer current. Refresh to see its saved progress.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_confirmation_required",
+    "context_group": "disposition.ui",
+    "default_text": "Confirm that Wathiq should destroy the digital content before requesting execution.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Confirm that Wathiq should destroy the digital content before requesting execution.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Confirm that Wathiq should destroy the digital content before requesting execution.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_interrupted",
+    "context_group": "disposition.ui",
+    "default_text": "Execution was interrupted. Exact progress is preserved; an authorized retry is required.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Execution was interrupted. Exact progress is preserved; an authorized retry is required.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Execution was interrupted. Exact progress is preserved; an authorized retry is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_release_pending",
+    "context_group": "disposition.ui",
+    "default_text": "Digital execution remains unavailable until completion and release verification pass.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital execution remains unavailable until completion and release verification pass.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital execution remains unavailable until completion and release verification pass.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_scope_changed",
+    "context_group": "disposition.ui",
+    "default_text": "The approved unit has changed. Refresh and review its current disposition scope.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: The approved unit has changed. Refresh and review its current disposition scope.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The approved unit has changed. Refresh and review its current disposition scope.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_stage_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "This job is not at the digital destruction stage.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: This job is not at the digital destruction stage.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This job is not at the digital destruction stage.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_digital_storage_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction did not finish. Resolve the cause and request an authorized retry.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction did not finish. Resolve the cause and request an authorized retry.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction did not finish. Resolve the cause and request an authorized retry.",
     "is_html": false
   },
   {
@@ -7827,6 +8149,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_physical_confirmation_required",
+    "context_group": "disposition.ui",
+    "default_text": "Record the required physical-destruction confirmation before proceeding.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Record the required physical-destruction confirmation before proceeding.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "action guidance",
+    "parameter_schema": {},
+    "rendered_example": "Record the required physical-destruction confirmation before proceeding.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_physical_immutable",
     "context_group": "disposition.ui",
     "default_text": "A physical destruction confirmation cannot be changed or removed.",
@@ -7950,6 +8286,20 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "This job is not awaiting physical destruction confirmation. Refresh the workspace.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_processing_cleanup_required",
+    "context_group": "disposition.ui",
+    "default_text": "A working copy still needs cleanup. Remaining destruction has not proceeded.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: A working copy still needs cleanup. Remaining destruction has not proceeded.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "A working copy still needs cleanup. Remaining destruction has not proceeded.",
     "is_html": false
   },
   {
@@ -8209,6 +8559,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_retained_record_immutable",
+    "context_group": "disposition.ui",
+    "default_text": "Retained disposition records are read-only.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Retained disposition records are read-only.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retained disposition records are read-only.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_retained_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "The retained disposition record is unavailable under your current access.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: The retained disposition record is unavailable under your current access.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The retained disposition record is unavailable under your current access.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_root_not_closed",
     "context_group": "disposition.ui",
     "default_text": "The root must be closed before admission.",
@@ -8294,6 +8672,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "This item changed. Refresh before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_storage_backend_unsupported",
+    "context_group": "disposition.ui",
+    "default_text": "Wathiq cannot erase this storage backend. No unit was marked destroyed.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Wathiq cannot erase this storage backend. No unit was marked destroyed.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Wathiq cannot erase this storage backend. No unit was marked destroyed.",
     "is_html": false
   },
   {
@@ -8972,6 +9364,111 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.execution_action_required",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction requires authorized action. Completed work is preserved.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction requires authorized action. Completed work is preserved.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction requires authorized action. Completed work is preserved.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_counts",
+    "context_group": "disposition.ui",
+    "default_text": "{state} · {completed} of {total} units completed · {queued} queued · {running} running · {failed} failed",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: {state} · {completed} of {total} units completed · {queued} queued · {running} running · {failed} failed",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "state": "text",
+      "completed": "integer",
+      "total": "integer",
+      "queued": "integer",
+      "running": "integer",
+      "failed": "integer"
+    },
+    "rendered_example": "Running · 1 of 1 units completed · 1 queued · 1 running · 1 failed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Failed",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Failed",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Failed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_not_requested",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction has not been requested.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction has not been requested.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction has not been requested.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_progress",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction progress",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction progress",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction progress",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_queued",
+    "context_group": "disposition.ui",
+    "default_text": "Queued",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Queued",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Queued",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_requested",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction was queued. You may leave this page and return to its current progress.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital destruction was queued. You may leave this page and return to its current progress.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction was queued. You may leave this page and return to its current progress.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.execution_result",
     "context_group": "disposition.ui",
     "default_text": "Execution result",
@@ -8983,6 +9480,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Execution result",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_running",
+    "context_group": "disposition.ui",
+    "default_text": "Running",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Running",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Running",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.execution_succeeded",
+    "context_group": "disposition.ui",
+    "default_text": "Succeeded",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Succeeded",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Succeeded",
     "is_html": false
   },
   {
@@ -9719,6 +10244,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Records Manager preparation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.manifest_checksum",
+    "context_group": "disposition.ui",
+    "default_text": "Checksum",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Checksum",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Checksum",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.manifest_size",
+    "context_group": "disposition.ui",
+    "default_text": "Bytes",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Bytes",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Bytes",
     "is_html": false
   },
   {
@@ -11228,6 +11781,106 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.retained_component",
+    "context_group": "disposition.ui",
+    "default_text": "Digital component",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital component",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital component",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retained_executor",
+    "context_group": "disposition.ui",
+    "default_text": "Executor at destruction",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Executor at destruction",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Executor at destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retained_identifier",
+    "context_group": "disposition.ui",
+    "default_text": "Resource identifier",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Resource identifier",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resource identifier",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retained_kind",
+    "context_group": "disposition.ui",
+    "default_text": "Resource type",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Resource type",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resource type",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retained_read_only",
+    "context_group": "disposition.ui",
+    "default_text": "This permanent disposition proof is read-only. The destroyed content is unavailable.",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: This permanent disposition proof is read-only. The destroyed content is unavailable.",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This permanent disposition proof is read-only. The destroyed content is unavailable.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retained_record",
+    "context_group": "disposition.ui",
+    "default_text": "Retained disposition record",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Retained disposition record",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retained disposition record",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retained_unit",
+    "context_group": "disposition.ui",
+    "default_text": "Destroyed aggregation #{id}",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Destroyed aggregation #{id}",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "id": "integer"
+    },
+    "rendered_example": "Destroyed aggregation #1",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.retention_rule_changed",
     "context_group": "disposition.ui",
     "default_text": "Retention rule changed — must be removed from this job",
@@ -11241,6 +11894,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Retention rule changed — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retry_digital",
+    "context_group": "disposition.ui",
+    "default_text": "Retry digital destruction",
+    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Retry digital destruction",
+    "common_locations": [
+      "Disposition task workspace, retained proof and audit history"
+    ],
+    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Retry digital destruction",
     "is_html": false
   },
   {

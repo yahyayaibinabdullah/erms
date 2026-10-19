@@ -122,7 +122,7 @@ class TextPolicyTests(unittest.TestCase):
             settings=Settings("http://127.0.0.1:8000","wti_x","test",Path("/tika"),4,5,60,120,
                               100,1000,100,200,10,1000,root,1,100)
             worker=object.__new__(Worker); worker.settings=settings
-            self.assertEqual(worker.recover_temporary_files(),1)
+            with self.assertRaisesRegex(RuntimeError,'legacy_indexer_temporary_cleanup_required'):worker.recover_temporary_files()
             self.assertFalse(stale.exists()); self.assertTrue(recent.exists()); self.assertTrue(unrelated.exists())
 
     def test_startup_recovery_is_bounded(self):
@@ -134,8 +134,10 @@ class TextPolicyTests(unittest.TestCase):
             settings=Settings("http://127.0.0.1:8000","wti_x","test",Path("/tika"),4,5,60,120,
                               100,1000,100,200,10,1000,root,1,2)
             worker=object.__new__(Worker); worker.settings=settings
-            self.assertEqual(worker.recover_temporary_files(),2)
+            with self.assertRaisesRegex(RuntimeError,'legacy_indexer_temporary_cleanup_required'):worker.recover_temporary_files()
             self.assertEqual(len(list(root.iterdir())),1)
+            self.assertEqual(worker.recover_temporary_files(),1)
+            self.assertFalse(list(root.iterdir()))
 
     def test_startup_recovery_tolerates_another_worker_removing_candidate(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -145,7 +147,7 @@ class TextPolicyTests(unittest.TestCase):
                               100,1000,100,200,10,1000,root,1,100)
             worker=object.__new__(Worker); worker.settings=settings
             with patch("backend.services.text_indexer.worker.shutil.rmtree", side_effect=FileNotFoundError):
-                self.assertEqual(worker.recover_temporary_files(),0)
+                with self.assertRaisesRegex(RuntimeError,'legacy_indexer_temporary_cleanup_required'):worker.recover_temporary_files()
 
 
 if __name__ == "__main__":

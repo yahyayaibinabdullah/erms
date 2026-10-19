@@ -245,6 +245,9 @@ class PostgreSQLContentStorage:
             return
         offset = 0
         with pool.connection() as connection:
+            # Keep an authorized in-flight stream ahead of the erasure lock;
+            # a stream starting after deletion cannot recover an old snapshot.
+            if not connection.execute("""SELECT r.id FROM records r JOIN digital_components d ON d.record_id=r.id JOIN digital_component_content_sets s ON s.digital_component_id=d.id WHERE s.id=%s AND r.disposition_status<>10 FOR SHARE OF r""",(location.content_set_id,)).fetchone():return
             with connection.cursor(name=f"content_stream_{location.content_set_id}") as cursor:
                 cursor.execute(
                     """SELECT segment_size, content FROM digital_component_blobs

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from backend.services.processing_workspace import working_copy_fds
+
 import os
 import hashlib
 import logging
@@ -20,6 +22,10 @@ logger = logging.getLogger(__name__)
 # path used for scanned and text-poor PDFs.
 PDF_NATIVE_MIN_CHARACTERS = 200
 PDF_NATIVE_MIN_CHARACTERS_PER_PAGE = 100
+
+
+def _run(*args,**kwargs):
+    return subprocess.run(*args,pass_fds=working_copy_fds(),**kwargs)
 
 
 class ExtractionError(RuntimeError):
@@ -47,10 +53,10 @@ def self_test(home: Path) -> None:
         raise RuntimeError("Tika app jar checksum does not match the pinned official distribution")
     if shutil.which("java") is None:
         raise RuntimeError("Java 17 or newer is required")
-    version = subprocess.run(["java", "-version"], capture_output=True, text=True, timeout=10)
+    version = _run(["java", "-version"], capture_output=True, text=True, timeout=10)
     if version.returncode:
         raise RuntimeError("Java is not runnable")
-    listing = subprocess.run(["jar", "tf", str(jar)], capture_output=True, text=True, timeout=20)
+    listing = _run(["jar", "tf", str(jar)], capture_output=True, text=True, timeout=20)
     combined = listing.stdout
     for library in (home / "lib").glob("*.jar"):
         if "tika-pipes-fork-parser" in library.name:
@@ -129,7 +135,7 @@ def extract(home: Path, source: Path, timeout: int) -> str:
     # The Tika Pipes fork isolates parser work. Deployment-level egress denial is
     # additionally mandatory; this worker itself never supplies network inputs.
     try:
-        result = subprocess.run(
+        result = _run(
             command, cwd=home, capture_output=True, text=True, timeout=timeout,
             preexec_fn=_limits if os.name == "posix" else None,
             env={"PATH": os.environ.get("PATH", ""), "LANG": "C.UTF-8", "TMPDIR": str(source.parent)},
@@ -155,7 +161,7 @@ def extract_image_ocr(source: Path, timeout: int) -> str:
     if shutil.which("tesseract") is None:
         raise ExtractionError("extractor_unavailable", "Tesseract is not runnable", True)
     try:
-        result = subprocess.run(
+        result = _run(
             ["tesseract", str(source), "stdout", "-l", "eng+ara", "--psm", "6"],
             capture_output=True,text=True,timeout=timeout,
             preexec_fn=_limits if os.name=="posix" else None,
@@ -170,7 +176,7 @@ def extract_image_ocr(source: Path, timeout: int) -> str:
 
 def pdf_page_count(source: Path, timeout: int = 20) -> int:
     try:
-        result=subprocess.run(
+        result=_run(
             ["pdfinfo",str(source)],capture_output=True,text=True,timeout=timeout,
             preexec_fn=_limits if os.name=="posix" else None,
             env={"PATH":os.environ.get("PATH",""),"LANG":"C.UTF-8","TMPDIR":str(source.parent)},
@@ -204,7 +210,7 @@ def extract_pdf(home: Path,source: Path,timeout: int,max_pages: int,max_temp_byt
     with tempfile.TemporaryDirectory(prefix="pdf-ocr-",dir=source.parent) as directory:
         prefix=Path(directory)/"page"
         try:
-            rendered=subprocess.run(
+            rendered=_run(
                 ["pdftoppm","-png","-r","200","-f","1","-l",str(pages),str(source),str(prefix)],
                 capture_output=True,text=True,timeout=timeout,
                 preexec_fn=_limits if os.name=="posix" else None,

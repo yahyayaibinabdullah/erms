@@ -260,7 +260,7 @@ class ReassignTask(Command):
 @router.get('/tasks')
 def read_tasks(limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
                sort: str='received',descending: bool=False,
-               state: Literal['open','claimed'] | None=None,job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),stage: str | None=Query(None,max_length=100),task_type: str | None=Query(None,max_length=100),indicator: Literal['blocked','removal_required','failed_reports'] | None=None,min_priority: int | None=None,min_roots: int | None=Query(None,ge=0),has_claimant: bool | None=None,
+               state: Literal['open','claimed'] | None=None,job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),stage: str | None=Query(None,max_length=100),task_type: str | None=Query(None,max_length=100),indicator: Literal['blocked','removal_required','failed_reports','destruction_failed'] | None=None,min_priority: int | None=None,min_roots: int | None=Query(None,ge=0),has_claimant: bool | None=None,
                c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workflow
     return workflow.tasks(c,limit=limit,offset=offset,sort=sort,descending=descending,state=state,job_id=job_id,query=query,stage=stage,task_type=task_type,indicator=indicator,min_priority=min_priority,min_roots=min_roots,has_claimant=has_claimant)
@@ -665,3 +665,38 @@ def resolve_partial_unit(job_id: int,root_id: int,payload: PartialRecovery,reque
 def resolve_partial_job(job_id: int,payload: BulkPartialRecovery,request: Request,c: Connection=Depends(get_connection,scope='function')):
     from . import recovery
     return _command(c,request,payload,recovery.resolve,job_id=job_id,**payload.model_dump(exclude={'command_id','acting_role_id'}))
+
+
+class DigitalDestruction(Command):
+    task_version: StrictInt=Field(ge=1)
+    confirmed: StrictBool
+
+
+@router.post('/tasks/{task_id}/digital-destruction')
+def request_digital_destruction(task_id:int,payload:DigitalDestruction,request:Request,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
+    from . import destruction
+    return _command(c,request,payload,destruction.request,task_id=task_id,expected_version=version,task_version=payload.task_version,confirmed=payload.confirmed)
+
+
+@router.get('/jobs/{job_id}/destruction-progress')
+def read_destruction_progress(job_id:int,c:Connection=Depends(get_connection,scope='function')):
+    from . import destruction
+    return destruction.progress(c,job_id)
+
+
+@router.get('/retained/{kind}/{identity}')
+def read_retained(kind:Literal['aggregation','record','digital_component'],identity:int,audit:bool=False,c:Connection=Depends(get_connection,scope='function')):
+    from . import destruction
+    return destruction.retained(c,kind,identity,audit=audit)
+
+
+@router.get('/jobs/{job_id}/retained-records')
+def read_retained_page(job_id:int,root_id:int|None=Query(None,ge=1),limit:int=Query(25,ge=1,le=100),offset:int=Query(0,ge=0),sort:str='resource_id',descending:bool=False,c:Connection=Depends(get_connection,scope='function')):
+    from . import destruction
+    return destruction.retained_page(c,job_id,root_id=root_id,limit=limit,offset=offset,sort=sort,descending=descending)
+
+
+@router.get('/jobs/{job_id}/destruction-manifest')
+def read_destruction_manifest(job_id:int,root_id:int=Query(ge=1),limit:int=Query(25,ge=1,le=100),offset:int=Query(0,ge=0),sort:str='id',descending:bool=False,c:Connection=Depends(get_connection,scope='function')):
+    from . import destruction
+    return destruction.manifest_page(c,job_id,root_id=root_id,limit=limit,offset=offset,sort=sort,descending=descending)

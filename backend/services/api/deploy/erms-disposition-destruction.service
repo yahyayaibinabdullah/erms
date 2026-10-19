@@ -1,0 +1,21 @@
+[Unit]
+Description=ERMS durable digital destruction worker
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=erms
+Group=erms
+WorkingDirectory=/opt/erms
+EnvironmentFile=/etc/erms/api.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/erms/backend/services/api/.venv/bin/python -m backend.services.api.disposition.destruction_worker --watch --batch-size 1 --interval-seconds 5
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -264,7 +264,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
           <template v-else-if="col.name === 'owner_label'"><span dir="auto">{{ props.row.owner_label }}</span><div class="text-xs">{{ props.row.rule_label }}</div></template>
           <template v-else-if="col.name === 'protection_label'">{{ props.row.admission_label }}<div class="text-xs">{{ props.row.protection_label }}</div></template>
           <template v-else-if="col.name === 'actions'"><div class="row no-wrap gap-1">
-           <q-btn v-if="!props.row.redacted" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
+           <q-btn v-if="!props.row.redacted && !props.row.destroyed" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
            <q-btn v-if="!props.row.redacted" flat dense icon="info" aria-label="'''+escape(text('blockers'))+'''" @click="$parent.$emit('blockers',props.row.id)"><q-tooltip>'''+escape(text('blockers'))+'''</q-tooltip></q-btn></div></template>
           <template v-else-if="col.name === 'job_label' && props.row.job_id"><q-btn flat dense no-caps :label="props.row.job_label" @click="$parent.$emit('open-job',props.row.job_id)" /></template>
           <span v-else dir="auto">{{ col.value }}</span>
@@ -394,7 +394,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 row['rule_label']=' · '.join(str(v) for v in (text('current_period_years')+': '+str(rule['current_period_years']) if rule.get('current_period_years') is not None else None,text('intermediate_period_years')+': '+str(rule['intermediate_period_years']) if rule.get('intermediate_period_years') is not None else None,text(ACTIONS[rule['final_disposition']]) if rule.get('final_disposition') in ACTIONS else None) if v is not None) or '—'
                 row['local_label']=text('local_override') if rule.get('rule_source')=='aggregation' else ' · '.join(v for v in (text('classification'),row.get('rule_source_code'),row.get('rule_source_title')) if v) if rule else '—'
                 row['medium_label']=text(row['medium']) if row.get('medium') in KEYS else '—'
-                row['identity']=text('restricted') if row['redacted'] else row['aggregation_number']+' · '+row['title']
+                row['identity']=text('restricted') if row['redacted'] else text('retained_unit',id=row['root_aggregation_id']) if row.get('destroyed') else row['aggregation_number']+' · '+row['title']
                 row['membership_label']=text(row['membership_state'])
                 row['status_label']=status_label(row['disposition_status']) if not row['redacted'] else '—'
                 row['removal_label']=text('removal_proposed') if row.get('removal_proposed') and row['membership_state']=='active' else ''
@@ -410,10 +410,11 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         members=PageTable(columns=[column('identity','aggregation',True),column('owning_org_unit_name','owner',True),column('classification_label','classification',True),column('rule_label','rule'),column('local_label','local_override'),column('medium_label','medium'),column('proposal_count','proposals'),column('membership_label','membership',True),column('status_label','status',True),column('added_label','added_at'),column('removed_label','removed_at'),column('actions')],fetch=fetch_members,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
         members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div v-if="props.row.partial_label" class="text-amber-900 whitespace-normal">{{ props.row.partial_label }}</div><div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.removal_label" class="text-amber-900 whitespace-normal"><q-icon name="remove_circle_outline"/> {{ props.row.removal_label }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
         members.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">
-          <q-btn v-if="!props.row.redacted" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
+          <q-btn v-if="!props.row.redacted && !props.row.destroyed" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
           <q-btn v-if="!props.row.redacted && props.row.membership_state === 'active'" flat dense icon="info" aria-label="'''+escape(text('blockers'))+'''" @click="$parent.$emit('blockers',props.row.id)"><q-tooltip>'''+escape(text('blockers'))+'''</q-tooltip></q-btn>
           <q-btn v-if="!props.row.redacted" flat dense icon="rule" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('show-proposals',props.row.id)"><q-tooltip>'''+escape(text('proposals'))+'''</q-tooltip></q-btn>
           <q-btn v-if="props.row.can_propose" flat dense icon="playlist_add" aria-label="'''+escape(text('propose'))+'''" @click="$parent.$emit('propose',props.row.id)"><q-tooltip>'''+escape(text('propose'))+'''</q-tooltip></q-btn>
+          <q-btn v-if="props.row.destroyed && !props.row.redacted" flat dense icon="inventory_2" aria-label="'''+escape(text('retained_record'))+'''" @click="$parent.$emit('retained-unit',props.row.id)"><q-tooltip>'''+escape(text('retained_record'))+'''</q-tooltip></q-btn>
           <q-btn v-if="props.row.can_recover" flat dense icon="restore" aria-label="'''+escape(text('recover_unit'))+'''" @click="$parent.$emit('recover-unit',props.row.id)"><q-tooltip>'''+escape(text('recover_unit'))+'''</q-tooltip></q-btn>
           <q-btn v-if="props.row.can_remove" flat dense color="negative" icon="remove_circle_outline" aria-label="'''+escape(text('remove'))+'''" @click="$parent.$emit('remove-member',props.row.id)"><q-tooltip>'''+escape(text('remove'))+'''</q-tooltip></q-btn>
           </div></q-td>''')
@@ -447,6 +448,13 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             row=next((r for r in members.table.rows if r['id']==event.args and r.get('can_recover')),None)
             if row:await resolve_unit(api=api,job=job,row=row,roles=(workspace.get('recovery') or {}).get('roles',[]),active=alive,on_error=on_error,after=reload)
         members.table.on('recover-unit',recover_unit)
+        async def retained(event):
+            row=next((r for r in members.table.rows if r['id']==event.args and r.get('destroyed') and not r['redacted']),None)
+            if row:
+                from .destruction import retained_unit
+                await retained_unit(api=api,root_id=row['root_aggregation_id'],active=alive,on_error=on_error,format_timestamp=format_timestamp)
+        members.table.on('retained-unit',retained)
+
         if review:review.host.move(host)
         from .artifacts import documents_panel
         documents=documents_panel(api=api,job=job,active=alive,on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column,can_mutate=lambda:not review or not review.dirty())

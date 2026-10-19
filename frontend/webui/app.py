@@ -5096,6 +5096,13 @@ def index(q: str = "") -> None:
                 event["_current_entity"] = entity
             except ApiError as error:
                 if error.status_code == 404:
+                    if event['entity_type'] in ('aggregation','record','digital_component'):
+                        try:proof=await api.disposition_page(f"retained/{event['entity_type']}/{event['entity_id']}",audit=True)
+                        except ApiError:proof=None
+                        if proof:
+                            from .disposition.destruction import retained_detail
+                            await retained_detail(api=api,proof=proof,active=lambda:True,on_error=error_message,format_timestamp=format_timestamp)
+                            return
                     ui.notify(render_message("webui.navigate_to_event_entity.notify.this_entity_no_longer_exists_its_historica_a20fef91"), color="warning")
                 else:
                     ui.notify(error_message(error), color="negative", close_button=True)

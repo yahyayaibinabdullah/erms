@@ -14,10 +14,10 @@ def controls(form):
     if not value:return
     with form.host:
         if not value.get('physical_required',True):
-            if not value['released']:ui.label(text('disposition_physical_release_pending')).props('role=status').classes('text-amber-900')
+            if not value['released'] and not value.get('confirmation'):ui.label(text('disposition_physical_release_pending')).props('role=status').classes('text-amber-900')
             return
         ui.label(text('physical_preparation_report')).classes('text-lg font-semibold')
-        if not value['released']:ui.label(text('disposition_physical_release_pending')).props('role=status').classes('text-amber-900')
+        if not value['released'] and not value.get('confirmation'):ui.label(text('disposition_physical_release_pending')).props('role=status').classes('text-amber-900')
         report=value.get('report')
         if report:
             ui.label(report['file_name']).props('dir=auto')
