@@ -56,7 +56,9 @@ def read(c, job_id, task_id=None):
     from . import physical
     physical_view=physical.view(c,job) if job['job_type']=='destruction' else None
     if task and current and working and physical_view and physical_view['released'] and task['task_type']=='physical_destruction':actions.extend(('check_physical_work','confirm_physical'))
-    return {'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
+    from . import recovery
+    recovery_view=recovery.view(c,job)
+    return {'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
 
 
 def targets(c, task_id, *, acting_role_id, root_id, kind, query='', selected=None):

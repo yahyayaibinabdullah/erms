@@ -135,13 +135,15 @@ def members(c, identity, *, limit, offset, query='', sort='id', descending=True,
       EXISTS(SELECT 1 FROM disposition_private.protection_blockers(a.id) WHERE is_vital) AS vital,
       EXISTS(SELECT 1 FROM disposition_private.protection_blockers(a.id) WHERE security_blocked) AS security,
       EXISTS(SELECT 1 FROM disposition_private.protection_blockers(a.id) WHERE cardinality(hold_ids)>0) AS held,
-      EXISTS(SELECT 1 FROM disposition_private.relationship_scope(a.id) WHERE blocks_final) AS relationships_block_final
+      EXISTS(SELECT 1 FROM disposition_private.relationship_scope(a.id) WHERE blocks_final) AS relationships_block_final,
+      a.disposition_status NOT IN (10,11,12) AND disposition_private.unit_has_digital(a.id) AND EXISTS(SELECT 1 FROM disposition_private.unit_ids(a.id) u(id) WHERE NOT disposition_private.physical_item_remaining('aggregations',u.id) OR EXISTS(SELECT 1 FROM records r WHERE r.aggregation_id=u.id AND NOT disposition_private.physical_item_remaining('records',r.id))) AS partially_destroyed,
+      EXISTS(SELECT 1 FROM disposition_private.recovery_roots(m.job_id) rr WHERE rr.root_id=a.id) AND disposition_private.recovery_unit_visible(a.id) AND disposition_private.can_manage() AS can_recover
       '''+row_source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+',m.id LIMIT %s OFFSET %s',(*params,limit,offset)).fetchall()
     for r in rows:
         if r['membership_state']=='active':observations.detect(c,identity,r['root_aggregation_id'])
         r['redacted']=not r.pop('visible')
         if r['redacted']:
-            for field in ('medium','classification_code','classification_title','rule_source_code','rule_source_title','effective_rule','proposal_count','removal_proposed','owning_org_unit_id','owning_org_unit_name','root_aggregation_id','root_version','aggregation_number','title','disposition_status','removal_reason','removal_required_reason','vital','security','held','relationships_block_final'): r[field]=None
+            for field in ('medium','classification_code','classification_title','rule_source_code','rule_source_title','effective_rule','proposal_count','removal_proposed','owning_org_unit_id','owning_org_unit_name','root_aggregation_id','root_version','aggregation_number','title','disposition_status','removal_reason','removal_required_reason','vital','security','held','relationships_block_final','partially_destroyed','can_recover'): r[field]=None
     return {'items':rows,'total':total}
 
 
@@ -150,7 +152,7 @@ def history(c, identity, *, limit, offset):
     # Join by event ID before projection: filtering a redacted entity_id would
     # accidentally hide the immutable redacted event envelope itself.
     source=''' FROM event_history raw JOIN authorized_event_history e ON e.id=raw.id
-      WHERE (raw.entity_type='disposition_job' AND raw.entity_id=%s)
+      WHERE (raw.entity_type='aggregation' AND raw.metadata->>'recovery_job_id'=%s::text) OR (raw.entity_type='disposition_job' AND raw.entity_id=%s)
       OR (raw.entity_type='disposition_job_membership' AND raw.entity_id IN
         (SELECT id FROM disposition_job_memberships WHERE job_id=%s))
       OR (raw.entity_type IN ('disposition_task','disposition_review_round','disposition_review_decision') AND
@@ -161,8 +163,8 @@ def history(c, identity, *, limit, offset):
       OR (raw.entity_type='disposition_review_note' AND raw.entity_id IN (SELECT id FROM disposition_review_notes WHERE job_id=%s))
       OR (raw.entity_type='disposition_job_document' AND raw.entity_id IN
         (SELECT id FROM disposition_job_documents WHERE job_id=%s))'''
-    total=c.execute('SELECT count(*) total'+source,(identity,)*8).fetchone()['total']
-    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(*(identity,)*8,limit,offset)).fetchall()}
+    total=c.execute('SELECT count(*) total'+source,(identity,)*9).fetchone()['total']
+    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(*(identity,)*9,limit,offset)).fetchall()}
 
 
 def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id=None):

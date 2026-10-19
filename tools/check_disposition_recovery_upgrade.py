@@ -1,0 +1,62 @@
+"""065 parity and historical row preservation, exclusively in disposable databases."""
+from pathlib import Path
+from uuid import uuid4
+import os,sys,subprocess
+ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
+import psycopg
+from psycopg import sql
+from psycopg.conninfo import make_conninfo
+from dotenv import dotenv_values
+from tools.check_disposition_approval_upgrade import full_catalogue as prior_catalogue
+from tools.check_disposition_routing_upgrade import fixtures
+MARKER='-- Termination and partial recovery (065).\n'
+
+
+def full_catalogue(c):
+    result=prior_catalogue(c)
+    result['hold_guard']=c.execute("SELECT pg_get_functiondef('protect_held_resource()'::regprocedure)").fetchall()
+    result['private_table_privileges']=c.execute("SELECT c.relname,c.relacl::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='disposition_private' AND c.relkind='r' ORDER BY 1").fetchall()
+    return result
+
+
+def snapshot(c):
+    # Compare every field of every pre-existing row, including request linkage.
+    result={}
+    for schema,table in c.execute("SELECT schemaname,tablename FROM pg_tables WHERE schemaname IN ('public','disposition_private') AND tablename<>'schema_migrations' ORDER BY 1,2").fetchall():
+        result[schema+'.'+table]=c.execute(sql.SQL('SELECT to_jsonb(r) FROM {}.{} r ORDER BY to_jsonb(r)::text').format(sql.Identifier(schema),sql.Identifier(table))).fetchall()
+    return result
+
+
+def main():
+    base={**dotenv_values(ROOT/'.env'),**os.environ}['DATABASE_URL'];admin=make_conninfo(base,dbname='postgres')
+    schema=(ROOT/'database/schema.sql').read_text();migration=(ROOT/'database/migrations/065_disposition_recovery.sql').read_text()
+    baseline=subprocess.check_output(['git','show','HEAD:database/schema.sql'],cwd=ROOT,text=True)
+    assert schema.split(MARKER,1)[1]==migration
+    assert schema.split(MARKER,1)[0].rstrip()==baseline.rstrip(),'Earlier canonical schema changed'
+    names=[]
+    try:
+        for kind in ('fresh','upgrade'):
+            name='erms_disposition20_test_'+kind+'_'+uuid4().hex
+            with psycopg.connect(admin,autocommit=True) as c:c.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
+            names.append(name);print('Created disposable database '+name,flush=True)
+            with psycopg.connect(make_conninfo(base,dbname=name)) as c:
+                if kind=='fresh':c.execute(schema,prepare=False);c.commit();catalogue=full_catalogue(c)
+                else:
+                    c.execute(baseline.split('-- Disposition governed artifacts (056).',1)[0],prepare=False);c.commit();fixtures(c)
+                    for version in ('058_disposition_routing','059_disposition_review','060_disposition_approval','061_disposition_review_save','062_disposition_external_approval','063_disposition_communications','064_disposition_physical'):
+                        c.execute((ROOT/'database/migrations'/f'{version}.sql').read_text(),prepare=False);c.commit()
+                    before=snapshot(c);c.execute(migration,prepare=False);c.commit();after=snapshot(c)
+                    assert all(after[table]==rows for table,rows in before.items()),'Pre-existing rows changed'
+                    assert full_catalogue(c)==catalogue,'Canonical/upgraded catalogue mismatch'
+                    print('Passed: canonical/065 complete catalogue parity and every prior public/private row preserved.',flush=True)
+    finally:
+        failures=[]
+        for name in reversed(names):
+            try:
+                with psycopg.connect(admin,autocommit=True) as c:c.execute(sql.SQL('DROP DATABASE {} WITH (FORCE)').format(sql.Identifier(name)))
+                print('Dropped disposable database '+name,flush=True)
+            except Exception as error:failures.append((name,type(error).__name__))
+        if failures:raise RuntimeError('Disposable cleanup failed: '+repr(failures))
+
+
+if __name__=='__main__':main()

@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-  "catalogue_sha256": "40ca877d7d404ebd9d055bf6fe5962817662ee6ea720c054535729e9f4ddccb3",
+  "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -1602,6 +1602,66 @@
       }
     },
     {
+      "message_key": "audit.event.disposition_partial_bulk_resolved",
+      "translated_text": "تمت معالجة التصرف الجزئي جماعياً",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.737743+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_partial_resolved",
+      "translated_text": "تمت معالجة التصرف الجزئي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.737476+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_partially_disposed",
+      "translated_text": "تم التصرف الجزئي في وحدة التصرف",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.737190+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "audit.event.disposition_proposal_carried",
       "translated_text": "ترحيل مقترح مراجعة التصرف النهائي إلى جولة جديدة",
       "quality_flags": [
@@ -2003,6 +2063,46 @@
         "catalogue_sha256": "0b6d05638a4c5273cf2e38bce76bf54a16c6a73e8c1662a6e5cf7ba7e4b8552f",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_termination_outcomes",
+      "translated_text": "تم تسجيل نتائج إنهاء مهمة التصرف",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.738252+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_unit_destroyed",
+      "translated_text": "تم حفظ نتيجة إتلاف وحدة التصرف",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.736892+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -7654,6 +7754,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.disposition_partial_history_required",
+      "translated_text": "يجب أن تحتفظ وحدة التصرف الجزئي بسجل المهمة المنتهية والإتلاف الورقي.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.736565+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "disposition.ui.disposition_physical_blocked",
       "translated_text": "تمنع الحماية أو العلاقات الحالية الإتلاف الورقي. عالج الموانع قبل المتابعة.",
       "quality_flags": [
@@ -7971,6 +8091,146 @@
         "catalogue_sha256": "a81f5438ad4bdf9604a132d19192315afd33943096e60150ba9bfe86ca4f7ce5",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_access_required",
+      "translated_text": "لا يمكنك الوصول إلى جميع الموارد اللازمة لإجراء المعالجة هذا. لم تُحفظ أي تغييرات.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.734391+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_command_required",
+      "translated_text": "تتطلب وحدة التصرف الجزئي إجراء المعالجة المحمي.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.736289+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_empty",
+      "translated_text": "لم تعد هناك وحدات تصرف جزئي لإجراء المعالجة عليها.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.735710+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_job_required",
+      "translated_text": "تتطلب المعالجة مهمة منتهية. حدّث مساحة العمل.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.734736+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_scope_invalid",
+      "translated_text": "لا يتطابق سجل الإتلاف الورقي المحفوظ مع نطاق المعالجة هذا.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.735379+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_stale",
+      "translated_text": "تغيرت الوحدات المتأثرة. حدّث المعاينة وأكد النطاق الحالي.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.735995+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_status_invalid",
+      "translated_text": "اختر حالة الأهلية 2 أو 3 أو 4 أو 5.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.735066+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -10774,6 +11034,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.partially_destroyed",
+      "translated_text": "أُتلفت المواد الورقية بالفعل؛ والمواد المتبقية محفوظة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.734024+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "disposition.ui.pending_changes",
       "translated_text": "تغييرات المقترحات غير المحفوظة",
       "quality_flags": [
@@ -10951,6 +11231,26 @@
         "catalogue_sha256": "0d7ccadbbdd5dc422983bf7e45891387c6218f358a419c4fd4e399b3c772ad82",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.physical_recovery_warning",
+      "translated_text": "لا يمكن التراجع عن الإتلاف الورقي. إذا منعت الموانع أو التصحيحات المطلوبة متابعة المهمة، فأنهها وعالج المواد المتبقية. الأعطال التقنية القابلة للاستئناف وحدها لا تستلزم إنهاء المهمة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.731835+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -11491,6 +11791,126 @@
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.recover_all",
+      "translated_text": "معالجة جميع وحدات التصرف الجزئي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.732169+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.recover_all_confirm",
+      "translated_text": "أؤكد تطبيق الحالة المختارة والسبب نفسه على كل وحدة متأثرة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.733729+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.recover_count",
+      "translated_text": "عدد الملفات الجذرية الحاكمة المتأثرة: {count}",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.733443+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.recover_unit",
+      "translated_text": "معالجة وحدة التصرف الجزئي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.732482+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.recovery_hint",
+      "translated_text": "اختر حالة أهلية المواد المتبقية ووضح كيفية معالجتها. يظل الإتلاف الورقي السابق وسجل المهمة المنتهية محفوظين بصورة دائمة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.733104+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.recovery_status",
+      "translated_text": "حالة أهلية التصرف الجديدة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.732793+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -13211,6 +13631,66 @@
         "catalogue_sha256": "0b6d05638a4c5273cf2e38bce76bf54a16c6a73e8c1662a6e5cf7ba7e4b8552f",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.terminate_confirm",
+      "translated_text": "أؤكد إنهاء هذه المهمة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.730887+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.terminate_hint",
+      "translated_text": "يحتفظ إنهاء المهمة بسجلها ويعيد الوحدات التي لم يُنفذ عليها إجراء نهائي إلى حالة الأهلية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.731419+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.terminate_job",
+      "translated_text": "إنهاء المهمة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase20-v1",
+        "generated_at": "2026-10-19T17:13:00.728286+00:00",
+        "batch_id": "disposition-phase20-20261019",
+        "catalogue_sha256": "94a1ed992f7dc5efbdebe39d5f3a4db5294e01f4f8e618c9ca0d0e6d80d93fea",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {

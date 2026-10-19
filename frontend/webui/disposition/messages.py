@@ -1,7 +1,26 @@
 """Contextual disposition text; no catalogue parsing on rendering paths."""
 from ..i18n_catalogue import render_message_plain
 
-DISPOSITION_MESSAGE_KEYS = {'check_physical_work': 'disposition.ui.check_physical_work',
+DISPOSITION_MESSAGE_KEYS = {'terminate_job': 'disposition.ui.terminate_job',
+ 'terminate_confirm': 'disposition.ui.terminate_confirm',
+ 'terminate_hint': 'disposition.ui.terminate_hint',
+ 'physical_recovery_warning': 'disposition.ui.physical_recovery_warning',
+ 'recover_all': 'disposition.ui.recover_all',
+ 'recover_unit': 'disposition.ui.recover_unit',
+ 'recovery_status': 'disposition.ui.recovery_status',
+ 'recovery_hint': 'disposition.ui.recovery_hint',
+ 'recover_count': 'disposition.ui.recover_count',
+ 'recover_all_confirm': 'disposition.ui.recover_all_confirm',
+ 'partially_destroyed': 'disposition.ui.partially_destroyed',
+ 'disposition_recovery_access_required': 'disposition.ui.disposition_recovery_access_required',
+ 'disposition_recovery_job_required': 'disposition.ui.disposition_recovery_job_required',
+ 'disposition_recovery_status_invalid': 'disposition.ui.disposition_recovery_status_invalid',
+ 'disposition_recovery_scope_invalid': 'disposition.ui.disposition_recovery_scope_invalid',
+ 'disposition_recovery_empty': 'disposition.ui.disposition_recovery_empty',
+ 'disposition_recovery_stale': 'disposition.ui.disposition_recovery_stale',
+ 'disposition_recovery_command_required': 'disposition.ui.disposition_recovery_command_required',
+ 'disposition_partial_history_required': 'disposition.ui.disposition_partial_history_required',
+ 'check_physical_work': 'disposition.ui.check_physical_work',
  'disposition_physical_blocked': 'disposition.ui.disposition_physical_blocked',
  'disposition_physical_certificate_required': 'disposition.ui.disposition_physical_certificate_required',
  'disposition_physical_immutable': 'disposition.ui.disposition_physical_immutable',
@@ -409,8 +428,8 @@ DISPOSITION_MESSAGE_KEYS = {'check_physical_work': 'disposition.ui.check_physica
  'yes': 'disposition.ui.yes'}
 KEYS = DISPOSITION_MESSAGE_KEYS
 
-def text(name):
-    return render_message_plain(DISPOSITION_MESSAGE_KEYS[name])
+def text(name, **parameters):
+    return render_message_plain(DISPOSITION_MESSAGE_KEYS[name], **parameters)
 
 def status_label(value):
     return text("status_"+str(value)) if value in range(1,14) else "—"

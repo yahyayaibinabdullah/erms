@@ -391,15 +391,23 @@ def test_all_shared_tables_deny_direct_insert_without_private_command(client,tab
 def test_external_numbers_preserve_characters_length_and_uniqueness(client,number,valid):
     with db() as c:
         actor(c); job=make_job(c)
-        def set_number(c): c.execute('UPDATE disposition_jobs SET destruction_number=%s WHERE id=%s',(number,job)); return {}
+        def set_number(c,identity=job):
+            # Constraint fixture only, in this runner-owned database. Phase 17
+            # now requires private external scope even for a number-only update;
+            # real evidence/authority gates are tested by test_disposition_external.
+            c.execute("INSERT INTO disposition_private.external_context SELECT transaction_id,backend_id,command_id,%s,'decision' FROM disposition_private.command_context WHERE transaction_id=txid_current()",(identity,))
+            c.execute('UPDATE disposition_jobs SET destruction_number=%s WHERE id=%s',(number,identity))
+            c.execute('DELETE FROM disposition_private.external_context WHERE transaction_id=txid_current()')
+            return {}
         if valid:
             command(c,'job_assign',set_number)
             assert c.execute('SELECT destruction_number FROM disposition_jobs WHERE id=%s',(job,)).fetchone()['destruction_number']==number
             other=make_job(c)
             with pytest.raises(psycopg.errors.UniqueViolation):
-                command(c,'job_assign',lambda c:(c.execute('UPDATE disposition_jobs SET destruction_number=%s WHERE id=%s',(number,other)) and {}))
+                command(c,'job_assign',lambda x:set_number(x,other))
         else:
             with pytest.raises(psycopg.errors.CheckViolation): command(c,'job_assign',set_number)
+
 
 
 def test_round_decisions_keep_actor_role_snapshot_and_are_immutable(client):

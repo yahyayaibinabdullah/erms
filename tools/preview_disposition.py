@@ -89,6 +89,7 @@ def seed(environment, phase=10):
                 child=c.execute("INSERT INTO aggregations(parent_aggregation_id,aggregation_number,title,is_vital) VALUES(%s,'BLOCKING-CHILD','Vital blocking child',true) RETURNING id",(root,)).fetchone()['id']
                 c.execute("INSERT INTO records(aggregation_id,record_number,title,is_vital) VALUES(%s,'BLOCKING-RECORD','Vital blocking record',true)",(child,))
                 c.execute("INSERT INTO records(aggregation_id,record_number,title,is_vital) VALUES(%s,'BLOCKING-RECORD-2','Second vital blocking record',true)",(child,))
+            if phase==20:c.execute("UPDATE aggregations SET medium='mixed' WHERE id=%s",(root,))
             c.execute("UPDATE aggregations SET date_closed='2020-01-01T00:00:00Z' WHERE id=%s",(root,))
             worker_actor(c); evaluate_root(c,root); actor(c,user)
             c.execute("SELECT set_config('app.event_source','seeding',true)")
@@ -162,7 +163,7 @@ def seed_review_workspace(environment,phase=16):
             assigned=identities['manager@test.invalid'][0] if route=='records_manager_only' else c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
             job=create_job(c,job_number=f'PHASE{phase}-'+route.upper(),job_type='destruction',owning_org_unit_id=1,assigned_user_id=assigned,acting_role_id=admin_role,reason='Seed disposable Phase 16 route workspace',command_id=uuid4())
             rows=c.execute('SELECT id,version FROM aggregations WHERE aggregation_number=ANY(%s) ORDER BY id',([f'DISP-{i:04}' for i in range(start,end+1)],)).fetchall()
-            if phase==19:rows=rows[:3]  # Focused report UI; large/deep coverage lives in acceptance tests.
+            if phase>=19:rows=rows[:3]  # Focused report UI; large/deep coverage lives in acceptance tests.
             assigned_role=identities['manager@test.invalid'][1] if route=='records_manager_only' else c.execute("SELECT id FROM roles WHERE code='preview-officer'").fetchone()['id']
             actor(c,assigned);c.execute("SELECT set_config('app.event_source','seeding',true)")
             result=add_many(c,job_id=job['id'],expected_version=job['version'],items=[{'root_id':r['id'],'expected_version':r['version']} for r in rows],acting_role_id=assigned_role,reason='Seed disposable paginated membership',command_id=uuid4())
@@ -175,6 +176,9 @@ def seed_review_workspace(environment,phase=16):
 def seed_external_requests(environment,phase):
     from backend.services.api.main import app
     from fastapi.testclient import TestClient
+    if phase==20:
+        from backend.services.api.disposition import documents
+        documents.engine.render=lambda *a:(preview_pdf(),{'renderer':'synthetic recovery preview'})
     with TestClient(app) as client:
         client.headers['X-Event-Source']='seeding'
         def login(email):
@@ -208,7 +212,7 @@ def seed_external_requests(environment,phase):
             preview=response.json()
             result=post(f"tasks/{task['id']}/approve-proposals",{'acting_role_id':acting,'task_version':task['version'],'membership_token':preview['membership_token'],'proposals_token':preview['proposals_token'],'overall_reason':'Seed combined approval and request' if route=='records_manager_only' else None},preview['job_version'])
             assert result['request_status']=='available',result
-            if phase==19:
+            if phase>=19:
                 login('manager@test.invalid' if route=='records_manager_only' else 'officer@test.invalid');w=workspace(job_id)
                 destination=client.get(f'/api/v1/disposition/jobs/{job_id}/artifact-destination',params={'document_type':'external_approval_letter'}).json()
                 response=client.post(f"/api/v1/disposition/tasks/{w['task']['id']}/external-decision",data={'command_id':str(uuid4()),'acting_role_id':str(w['roles'][0]['id']),'task_version':str(w['task']['version']),'request_document_id':str(w['task']['request_document_id']),'decision':'approved','destruction_number':'PREVIEW19-'+str(job_id),'destination_token':destination['token']},files={'file':('synthetic-approval.pdf',preview_pdf(),'application/pdf')},headers={'If-Match':str(w['job']['version'])})
@@ -218,9 +222,43 @@ def seed_external_requests(environment,phase):
         print('Phase 17 governed request PDFs and external waiting tasks ready.',flush=True)
 
 
+def seed_recovery(environment):
+    """Synthetic confirmations in this disposable DB; restore the closed gate
+    before any preview server starts, including when fixture creation fails."""
+    from backend.services.api.tests.test_disposition_membership import actor,job_version
+    from backend.services.api.tests.test_disposition_review import task
+    from backend.services.api.disposition import workflow,membership,physical,artifacts
+    from backend.services.api.application_settings import load_snapshot
+    from backend.services.api.content_storage import stage_governed_upload
+    from backend.services.api.tests.test_disposition_artifacts import uploaded
+    def connect():return psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row)
+    with connect() as c:
+        assert c.info.dbname.startswith('erms_messaging_test_acl_')
+        c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
+    try:
+        with connect() as c:
+            uid=c.execute("SELECT id FROM users WHERE email='manager@test.invalid'").fetchone()['id']
+            role=c.execute("SELECT id FROM roles WHERE code='preview-manager'").fetchone()['id']
+            jobs=c.execute("SELECT * FROM disposition_jobs WHERE job_number LIKE 'PHASE20-%' ORDER BY id").fetchall()
+            for job in jobs:
+                actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
+                current=task(c,job['id'])
+                workflow.task_command(c,action='claim',task_id=current['id'],expected_version=current['version'],acting_role_id=role,command_id=uuid4(),reason='Seed synthetic physical confirmation')
+                c.commit();actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
+                current=task(c,job['id'])
+                with stage_governed_upload(uploaded(preview_pdf()),load_snapshot(c),connection_factory=connect) as staged:
+                    physical.confirm(c,task_id=current['id'],expected_version=job_version(c,job['id']),task_version=current['version'],successful=True,certificate_reference='SYNTHETIC20-'+str(job['id']),staged=staged,preview=artifacts.destination_token(artifacts.destination(c,job['id'],'physical_destruction_certificate')),acting_role_id=role,command_id=uuid4())
+                if job['review_route']!='standard':
+                    membership.terminate_job(c,job_id=job['id'],expected_version=job_version(c,job['id']),confirmed=True,acting_role_id=role,command_id=uuid4(),reason='Seed terminated synthetic recovery job')
+                c.commit()
+    finally:
+        with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
+    print('Phase 20 synthetic recovery fixtures ready; operational release gate closed.',flush=True)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19),default=12)
+    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19,20),default=12)
     parser.add_argument('--maildev',action='store_true',help='Phase 18 only: verified temporary TLS bridge to localhost MailDev:1025')
     args=parser.parse_args();phase=args.phase
     if args.maildev and phase!=18:parser.error('--maildev requires --phase 18')
@@ -248,6 +286,8 @@ def main():
             subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed; import os; seed(dict(os.environ),phase={phase})'],cwd=ROOT,env=environment,check=True)
             if phase>=17:
                 subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_external_requests; import os; seed_external_requests(dict(os.environ),{phase})'],cwd=ROOT,env=environment,check=True)
+            if phase==20:
+                subprocess.run([sys.executable,'-c','from tools.preview_disposition import seed_recovery; import os; seed_recovery(dict(os.environ))'],cwd=ROOT,env=environment,check=True)
             if phase==18:
                 if args.maildev:
                     sys.path.insert(0,str(ROOT))

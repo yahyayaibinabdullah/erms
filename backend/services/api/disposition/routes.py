@@ -632,3 +632,36 @@ def confirm_physical(task_id: int,request: Request,command_id: UUID=Form(...),ac
     payload=Command(command_id=command_id,acting_role_id=acting_role_id)
     with stage_governed_upload(file,cache.for_connection(c)) as staged:
         return _command(c,request,payload,physical.confirm,audit_reason='Confirm physical destruction',task_id=task_id,expected_version=version,task_version=task_version,successful=successful,certificate_reference=certificate_reference,staged=staged,preview=destination_token)
+
+
+class PartialRecovery(Command):
+    target_status: StrictInt=Field(ge=2,le=5)
+    root_version: StrictInt=Field(ge=1)
+
+
+class BulkPartialRecovery(Command):
+    target_status: StrictInt=Field(ge=2,le=5)
+    confirmed: StrictBool
+    affected_count: StrictInt=Field(ge=1)
+    scope_token: str=Field(pattern=r'^[0-9a-f]{32}$')
+
+
+@router.get('/jobs/{job_id}/partial-recovery-preview')
+def partial_recovery_preview(job_id: int,c: Connection=Depends(get_connection,scope='function')):
+    from . import recovery
+    try:return recovery.preview(c,job_id)
+    except psycopg.Error as error:
+        code=error.diag.message_primary or ''
+        raise HTTPException(403 if error.sqlstate=='42501' else 409,detail={'code':code if code.startswith('disposition_') else 'disposition_command_failed'}) from None
+
+
+@router.post('/jobs/{job_id}/partial-recovery/{root_id}')
+def resolve_partial_unit(job_id: int,root_id: int,payload: PartialRecovery,request: Request,c: Connection=Depends(get_connection,scope='function')):
+    from . import recovery
+    return _command(c,request,payload,recovery.resolve,job_id=job_id,root_id=root_id,target_status=payload.target_status,root_version=payload.root_version)
+
+
+@router.post('/jobs/{job_id}/partial-recovery')
+def resolve_partial_job(job_id: int,payload: BulkPartialRecovery,request: Request,c: Connection=Depends(get_connection,scope='function')):
+    from . import recovery
+    return _command(c,request,payload,recovery.resolve,job_id=job_id,**payload.model_dump(exclude={'command_id','acting_role_id'}))

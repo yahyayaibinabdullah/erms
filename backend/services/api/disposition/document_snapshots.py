@@ -17,7 +17,7 @@ def capture(c,job_id):
     roots=c.execute('''SELECT m.root_aggregation_id AS id,e.rule_snapshot FROM disposition_job_memberships m
       CROSS JOIN LATERAL disposition_private.eligibility(m.root_aggregation_id) e
       WHERE m.job_id=%s AND m.membership_state='active' ORDER BY m.root_aggregation_id''',(job_id,)).fetchall()
-    aggregations=c.execute('''SELECT a.id,a.parent_aggregation_id,a.aggregation_number,a.title,a.medium,
+    aggregations=c.execute('''SELECT a.id,a.parent_aggregation_id,a.aggregation_number,a.title,a.medium,disposition_private.physical_item_remaining('aggregations',a.id) AS physical_remaining,
       root.id AS root_id,cl.id AS classification_id,cl.code AS classification_code,cl.title AS classification_title,
       o.name AS owner,aggregation_effective_assigned_location(a.id) AS assigned_location,
       aggregation_effective_current_location(a.id) AS current_location,current_user_can_view_aggregation(a.id) AS visible
@@ -25,7 +25,7 @@ def capture(c,job_id):
       JOIN aggregations a ON a.id=unit.id JOIN aggregations root ON root.id=m.root_aggregation_id
       JOIN classifications cl ON cl.id=root.classification_id JOIN org_units o ON o.id=a.owning_org_unit_id
       WHERE m.job_id=%s AND m.membership_state='active' ORDER BY a.id''',(job_id,)).fetchall()
-    records=c.execute('''SELECT r.id,r.aggregation_id,r.medium,current_user_can_view_record(r.id) AS visible
+    records=c.execute('''SELECT r.id,r.aggregation_id,r.medium,disposition_private.physical_item_remaining('records',r.id) AS physical_remaining,current_user_can_view_record(r.id) AS visible
       FROM disposition_job_memberships m CROSS JOIN LATERAL disposition_private.unit_ids(m.root_aggregation_id) unit(id)
       JOIN records r ON r.aggregation_id=unit.id WHERE m.job_id=%s AND m.membership_state='active' ORDER BY r.id''',(job_id,)).fetchall()
     if not all(x['visible'] for x in aggregations+records):invalid('disposition_resource_access_required',403)
@@ -58,8 +58,8 @@ def request_groups(source):
 
 
 def physical_counts(aggregations,records):
-    return {**{medium+'_aggregations':sum(a['medium']==medium for a in aggregations) for medium in ('physical','mixed')},
-      **{medium+'_records':sum(r['medium']==medium for r in records) for medium in ('physical','mixed')}}
+    return {**{medium+'_aggregations':sum(a['medium']==medium and a.get('physical_remaining',True) for a in aggregations) for medium in ('physical','mixed')},
+      **{medium+'_records':sum(r['medium']==medium and r.get('physical_remaining',True) for r in records) for medium in ('physical','mixed')}}
 
 
 def physical_rows(source):
@@ -69,7 +69,7 @@ def physical_rows(source):
     detail_by_id={a['id']:{k:0 for k in PHYSICAL_COUNTS} for a in aggs}
     for a in aggs:children[a['parent_aggregation_id']].append(a['id'])
     for r in records:
-        if r['medium'] in ('physical','mixed'):detail_by_id[r['aggregation_id']][r['medium']+'_records']+=1
+        if r['medium'] in ('physical','mixed') and r.get('physical_remaining',True):detail_by_id[r['aggregation_id']][r['medium']+'_records']+=1
     pending=[a['id'] for a in aggs if a['parent_aggregation_id'] not in by_id];ordered=[]
     while pending:
         current=pending.pop();ordered.append(current);pending.extend(children[current])
@@ -77,9 +77,9 @@ def physical_rows(source):
         a=by_id[current];parent=a['parent_aggregation_id']
         if parent in by_id:
             for k,v in detail_by_id[current].items():detail_by_id[parent][k]+=v
-            if a['medium'] in ('physical','mixed'):detail_by_id[parent][a['medium']+'_aggregations']+=1
+            if a['medium'] in ('physical','mixed') and a.get('physical_remaining',True):detail_by_id[parent][a['medium']+'_aggregations']+=1
     for a in sorted(aggs,key=lambda a:(a['classification_code'],a['classification_id'],a['aggregation_number'],a['id'])):
-        if a['medium'] not in ('physical','mixed'):continue
+        if a['medium'] not in ('physical','mixed') or not a.get('physical_remaining',True):continue
         detail=detail_by_id[a['id']]
         rows.append({'aggregation.classification_code':a['classification_code'],'aggregation.classification_title':a['classification_title'],
           'aggregation.identifier':a['aggregation_number'],'aggregation.title':a['title'],'aggregation.owner':a['owner'],
@@ -91,9 +91,9 @@ def physical_rows(source):
     grouped=defaultdict(lambda:{k:0 for k in PHYSICAL_COUNTS});labels={}
     for a in aggs:
         cid=a['classification_id'];labels[cid]=a['classification_code']+' · '+a['classification_title']
-        if a['medium'] in ('physical','mixed'):grouped[cid][a['medium']+'_aggregations']+=1
+        if a['medium'] in ('physical','mixed') and a.get('physical_remaining',True):grouped[cid][a['medium']+'_aggregations']+=1
     for r in records:
-        if r['medium'] in ('physical','mixed'):grouped[by_id[r['aggregation_id']]['classification_id']][r['medium']+'_records']+=1
+        if r['medium'] in ('physical','mixed') and r.get('physical_remaining',True):grouped[by_id[r['aggregation_id']]['classification_id']][r['medium']+'_records']+=1
     for cid in sorted(grouped):
         values=grouped[cid]
         class_totals.append(labels[cid]+': '+'; '.join(PHYSICAL_COUNTS[k][0]+' / '+PHYSICAL_COUNTS[k][1]+': '+str(v) for k,v in values.items()))

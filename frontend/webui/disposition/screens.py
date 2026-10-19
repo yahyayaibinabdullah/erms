@@ -380,6 +380,8 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             workflow_panel(job)
             review=ReviewForm(api=api,workspace=workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource,preview=preview)
             if register_dirty:register_dirty(review.dirty)
+        from .recovery import controls as recovery_controls,resolve_unit
+        recovery_controls(api=api,job=job,value=workspace.get('recovery'),active=alive,on_error=on_error,after=reload,can_mutate=lambda:not review or not review.dirty())
         ui.separator();ui.label(text('members')).classes('text-lg font-semibold')
         with ui.row().classes('w-full gap-3 items-end'):
             member_query=ui.input(text('search')).props('outlined dense maxlength=200').classes('grow')
@@ -398,6 +400,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 row['removal_label']=text('removal_proposed') if row.get('removal_proposed') and row['membership_state']=='active' else ''
                 row['notice']=text(row['removal_required_reason']) if row['membership_state']=='active' and row.get('removal_required_reason') in KEYS else ''
                 row['added_label']=format_timestamp(row['added_at']);row['removed_label']=format_timestamp(row.get('removed_at')) if row.get('removed_at') else '—'
+                row['partial_label']=text('partially_destroyed') if row.get('partially_destroyed') else ''
                 row['blocked']=row['membership_state']=='active' and any(row.get(k) for k in ('vital','security','held','relationships_block_final'))
                 row['blocker_label']=' · '.join(text(k) for k in ('vital','security','held') if row.get(k))
                 if row.get('relationships_block_final'):row['blocker_label']+=' · '+text('final_blocked')
@@ -405,12 +408,13 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 row['can_remove']=job['membership_editable'] and row['membership_state']=='active' and not row['redacted']
             return result
         members=PageTable(columns=[column('identity','aggregation',True),column('owning_org_unit_name','owner',True),column('classification_label','classification',True),column('rule_label','rule'),column('local_label','local_override'),column('medium_label','medium'),column('proposal_count','proposals'),column('membership_label','membership',True),column('status_label','status',True),column('added_label','added_at'),column('removed_label','removed_at'),column('actions')],fetch=fetch_members,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
-        members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.removal_label" class="text-amber-900 whitespace-normal"><q-icon name="remove_circle_outline"/> {{ props.row.removal_label }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
+        members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div v-if="props.row.partial_label" class="text-amber-900 whitespace-normal">{{ props.row.partial_label }}</div><div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.removal_label" class="text-amber-900 whitespace-normal"><q-icon name="remove_circle_outline"/> {{ props.row.removal_label }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
         members.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">
           <q-btn v-if="!props.row.redacted" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
           <q-btn v-if="!props.row.redacted && props.row.membership_state === 'active'" flat dense icon="info" aria-label="'''+escape(text('blockers'))+'''" @click="$parent.$emit('blockers',props.row.id)"><q-tooltip>'''+escape(text('blockers'))+'''</q-tooltip></q-btn>
           <q-btn v-if="!props.row.redacted" flat dense icon="rule" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('show-proposals',props.row.id)"><q-tooltip>'''+escape(text('proposals'))+'''</q-tooltip></q-btn>
           <q-btn v-if="props.row.can_propose" flat dense icon="playlist_add" aria-label="'''+escape(text('propose'))+'''" @click="$parent.$emit('propose',props.row.id)"><q-tooltip>'''+escape(text('propose'))+'''</q-tooltip></q-btn>
+          <q-btn v-if="props.row.can_recover" flat dense icon="restore" aria-label="'''+escape(text('recover_unit'))+'''" @click="$parent.$emit('recover-unit',props.row.id)"><q-tooltip>'''+escape(text('recover_unit'))+'''</q-tooltip></q-btn>
           <q-btn v-if="props.row.can_remove" flat dense color="negative" icon="remove_circle_outline" aria-label="'''+escape(text('remove'))+'''" @click="$parent.$emit('remove-member',props.row.id)"><q-tooltip>'''+escape(text('remove'))+'''</q-tooltip></q-btn>
           </div></q-td>''')
         async def open_member(event):
@@ -439,6 +443,10 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 return lambda:{'root_version':row['root_version']}
             await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='remove',confirm='confirm_remove',build=build,path=f"memberships/{row['id']}/remove",version=row['version'],after=reload)
         members.table.on('remove-member',remove_member)
+        async def recover_unit(event):
+            row=next((r for r in members.table.rows if r['id']==event.args and r.get('can_recover')),None)
+            if row:await resolve_unit(api=api,job=job,row=row,roles=(workspace.get('recovery') or {}).get('roles',[]),active=alive,on_error=on_error,after=reload)
+        members.table.on('recover-unit',recover_unit)
         if review:review.host.move(host)
         from .artifacts import documents_panel
         documents=documents_panel(api=api,job=job,active=alive,on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column,can_mutate=lambda:not review or not review.dirty())

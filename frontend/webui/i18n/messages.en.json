@@ -1601,6 +1601,48 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_partial_bulk_resolved",
+    "context_group": "audit.event",
+    "default_text": "Partial Disposition Bulk Resolved",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Partial Disposition Bulk Resolved",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Partial Disposition Bulk Resolved",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_partial_resolved",
+    "context_group": "audit.event",
+    "default_text": "Partial Disposition Resolved",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Partial Disposition Resolved",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Partial Disposition Resolved",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_partially_disposed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Unit Partially Disposed",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Disposition Unit Partially Disposed",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Unit Partially Disposed",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_proposal_carried",
     "context_group": "audit.event",
     "default_text": "Disposition Review Proposal Carried to New Round",
@@ -1892,6 +1934,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Template Revised",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_termination_outcomes",
+    "context_group": "audit.event",
+    "default_text": "Disposition Termination Outcomes Recorded",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Disposition Termination Outcomes Recorded",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Termination Outcomes Recorded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_unit_destroyed",
+    "context_group": "audit.event",
+    "default_text": "Disposition Unit Destruction Retained",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Disposition Unit Destruction Retained",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition Unit Destruction Retained",
     "is_html": false
   },
   {
@@ -7715,6 +7785,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_partial_history_required",
+    "context_group": "disposition.ui",
+    "default_text": "The partially disposed unit must retain its terminated-job and physical-destruction history.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: The partially disposed unit must retain its terminated-job and physical-destruction history.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The partially disposed unit must retain its terminated-job and physical-destruction history.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_physical_blocked",
     "context_group": "disposition.ui",
     "default_text": "Current protection or relationships prevent physical work. Resolve the blockers before proceeding.",
@@ -7936,6 +8020,104 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Choose a target within this governing disposition unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_access_required",
+    "context_group": "disposition.ui",
+    "default_text": "You cannot access every resource required for this recovery action. No changes were saved.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: You cannot access every resource required for this recovery action. No changes were saved.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "You cannot access every resource required for this recovery action. No changes were saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_command_required",
+    "context_group": "disposition.ui",
+    "default_text": "A partially disposed unit requires the protected recovery action.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: A partially disposed unit requires the protected recovery action.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "A partially disposed unit requires the protected recovery action.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_empty",
+    "context_group": "disposition.ui",
+    "default_text": "No partially disposed units remain for this action.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: No partially disposed units remain for this action.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No partially disposed units remain for this action.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_job_required",
+    "context_group": "disposition.ui",
+    "default_text": "Recovery requires a terminated job. Refresh the workspace.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Recovery requires a terminated job. Refresh the workspace.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Recovery requires a terminated job. Refresh the workspace.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_scope_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "The preserved physical-destruction history does not match this recovery scope.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: The preserved physical-destruction history does not match this recovery scope.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The preserved physical-destruction history does not match this recovery scope.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_stale",
+    "context_group": "disposition.ui",
+    "default_text": "The affected units changed. Refresh the preview and confirm the current scope.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: The affected units changed. Refresh the preview and confirm the current scope.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The affected units changed. Refresh the preview and confirm the current scope.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_recovery_status_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Choose eligible status 2, 3, 4 or 5.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Choose eligible status 2, 3, 4 or 5.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Choose eligible status 2, 3, 4 or 5.",
     "is_html": false
   },
   {
@@ -9989,6 +10171,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.partially_destroyed",
+    "context_group": "disposition.ui",
+    "default_text": "Physical material already destroyed; remaining material preserved.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Physical material already destroyed; remaining material preserved.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Physical material already destroyed; remaining material preserved.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.pending_changes",
     "context_group": "disposition.ui",
     "default_text": "Unsaved proposal changes",
@@ -10118,6 +10314,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Physical-destruction preparation report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_recovery_warning",
+    "context_group": "disposition.ui",
+    "default_text": "Physical destruction cannot be undone. If blockers or required corrections prevent continuing, terminate this job and resolve the remaining material. Resumable technical failures alone do not require termination.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Physical destruction cannot be undone. If blockers or required corrections prevent continuing, terminate this job and resolve the remaining material. Resumable technical failures alone do not require termination.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Physical destruction cannot be undone. If blockers or required corrections prevent continuing, terminate this job and resolve the remaining material. Resumable technical failures alone do not require termination.",
     "is_html": false
   },
   {
@@ -10505,6 +10715,92 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Records Manager review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recover_all",
+    "context_group": "disposition.ui",
+    "default_text": "Resolve all partially disposed units",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Resolve all partially disposed units",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resolve all partially disposed units",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recover_all_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "I confirm applying one selected status and this reason to every affected unit.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: I confirm applying one selected status and this reason to every affected unit.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "I confirm applying one selected status and this reason to every affected unit.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recover_count",
+    "context_group": "disposition.ui",
+    "default_text": "Affected governing root aggregations: {count}",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Affected governing root aggregations: {count}",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Affected governing root aggregations: 3",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recover_unit",
+    "context_group": "disposition.ui",
+    "default_text": "Resolve partially disposed unit",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Resolve partially disposed unit",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Resolve partially disposed unit",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recovery_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Choose the eligible status for the remaining material and explain its treatment. Earlier physical destruction and terminated-job history remain permanent.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Choose the eligible status for the remaining material and explain its treatment. Earlier physical destruction and terminated-job history remain permanent.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Choose the eligible status for the remaining material and explain its treatment. Earlier physical destruction and terminated-job history remain permanent.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recovery_status",
+    "context_group": "disposition.ui",
+    "default_text": "New eligible disposition status",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: New eligible disposition status",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "New eligible disposition status",
     "is_html": false
   },
   {
@@ -11781,6 +12077,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Document templates",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.terminate_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "I confirm termination of this job.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: I confirm termination of this job.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "I confirm termination of this job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.terminate_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Termination preserves job history and returns untouched units to their eligible status.",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Termination preserves job history and returns untouched units to their eligible status.",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Termination preserves job history and returns untouched units to their eligible status.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.terminate_job",
+    "context_group": "disposition.ui",
+    "default_text": "Terminate job",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Terminate job",
+    "common_locations": [
+      "Disposition job workspace and audit history"
+    ],
+    "translator_guidance": "Use approved disposition terminology. Recovery changes eligibility of remaining material; physical destruction is irreversible. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Terminate job",
     "is_html": false
   },
   {
