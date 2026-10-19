@@ -22,13 +22,14 @@ def audience(c, context):
 
 
 def definitions():
+    from .reminders import definition
     return (SystemNotificationDefinition(
         producer_code=ASSIGNED,feature_code='disposition',event_type='task_assigned',
         contract_version=1,required_for_business_commit=False,allow_static_audience=False,
         placeholders={'task_id':Placeholder(type='integer')},
         audience_resolvers={'current_eligible_task_recipients':audience},
         sample_context={'task_id':1},
-    ),)
+    ),definition())
 
 
 def publish_command_tasks(c, command_id=None):

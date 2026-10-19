@@ -19412,6 +19412,7 @@ def index(q: str = "") -> None:
             relationship_select=relationship_select,
             bind_relationship=bind_remote_relationship_select,
             open_resource=open_message_resource, format_timestamp=format_timestamp,
+            open_disposition_eligibility=lambda:guarded_page_navigation(lambda:select_disposition("disposition-eligibility")),
             open_disposition_task=lambda job_id,task_id:guarded_page_navigation(lambda:select_disposition("disposition-job",job_id,task_id=task_id)),
             inspect_resource=inspect_message_resource,
             on_read=refresh_message_unread,

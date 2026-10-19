@@ -1,0 +1,8 @@
+{
+  "database": "erms_messaging_test_acl_9c48131888d34f52b61463e39ebf731c",
+  "observed_status": "failed",
+  "observed_smtp_code": 503,
+  "cause": "Implicit-TLS unauthenticated envelope lacked EHLO",
+  "correction": "Explicit EHLO on both TLS paths; regression fake refuses ungreeted envelope",
+  "evidence": "Live failed history and read-only disposable-attempt query; subsequent final communications acceptance and real MailDev capture passed"
+}

@@ -17,7 +17,7 @@ OUTPUT = ROOT / "frontend/webui/i18n/messages.ar.generated.json"
 PLACEHOLDER = re.compile(r"\{[a-z][a-z0-9_]*\}")
 LATIN_TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9_.:/-]*")
 ALLOWED_LATIN = {
-    "ACL", "API", "CASE-2026", "HTTP", "HTTPS", "IANA", "ID", "IP",
+    "ACL", "API", "CASE-2026", "SMTP", "HTTP", "HTTPS", "IANA", "ID", "IP",
     "ISO", "JSON", "MIME", "PDF", "POST", "SQL", "UTC", "health", "wti_",
     "application/octet-stream",
     "CSV", "MS", "Word", "DOCX", "docx", "Changa",  # Format/product/font names retain their spelling.
@@ -94,7 +94,13 @@ def validate(definitions: list[dict], candidates: list[dict]) -> None:
                 failures.append(
                     f"{definition['message_key']}: violates approved Aggregation → ملف/ملفات terminology"
                 )
-        if re.search(r"\bRecords?\b", source, re.IGNORECASE):
+        # In an explicitly described imperative, initial "Record" is a verb
+        # (تسجيل), not the governed document noun (وثيقة). Remaining noun uses
+        # still require the approved terminology; no message-key exceptions.
+        record_source = source
+        if definition.get('grammatical_role') in {'action', 'action label', 'imperative sentence', 'action guidance', 'dialog-title action'}:
+            record_source = re.sub(r'^Record\b\s*', '', source, count=1)
+        if re.search(r"\bRecords?\b", record_source, re.IGNORECASE):
             if "وث" not in text or "سجل" in text:
                 failures.append(
                     f"{definition['message_key']}: violates approved Record → وثيقة/وثائق terminology"

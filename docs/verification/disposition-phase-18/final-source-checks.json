@@ -1,0 +1,18 @@
+{
+  "result": "passed",
+  "checks": [
+    "requirement ledger baseline",
+    "catalogue source/stale references",
+    "3619 EN/AR aligned keys and 22 new drafts; exact 3597 previous-item preservation",
+    "API environment template synchronization: 36 unchanged settings",
+    "canonical 063 DDL equals portable standalone migration",
+    "new/changed implementation modules compile",
+    "git diff whitespace",
+    "all evidence links exist",
+    "MailDev captures match stored RFC Message-IDs and exact PDF checksums",
+    "independent disposable database/port cleanup"
+  ],
+  "persistent_erms_databases_changed": false,
+  "new_environment_variables": false,
+  "committed": false
+}

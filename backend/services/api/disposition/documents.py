@@ -127,7 +127,7 @@ def revise(c,*,job_id,kind,expected_reference,command_id,acting_role_id,reason,c
       acting_role_id=acting_role_id,reason=reason,apply=apply)
 
 
-def generate(c,*,job_id,expected_version,kind,snapshot,command_id,acting_role_id,reason,preview,settings,connection_factory=None,review_round=None,approval_round_id=None):
+def generate(c,*,job_id,expected_version,kind,snapshot,command_id,acting_role_id,reason,preview,settings,connection_factory=None,review_round=None,approval_round_id=None,before_save=None):
     """Render an action-owned snapshot and save once, retaining its exact input.
 
     Render/stage before workflow locks. Retried committed generations bypass
@@ -157,6 +157,7 @@ def generate(c,*,job_id,expected_version,kind,snapshot,command_id,acting_role_id
     upload=UploadFile(BytesIO(pdf),filename=f"{kind}-{job_id}.pdf",headers=Headers({'content-type':'application/pdf'}))
     with stage_governed_upload(upload,settings,connection_factory=connection_factory) as staged:
         def apply(c):
+            if before_save:before_save(c)
             lock_job(c,job_id,expected_version)
             return artifacts.save(c,job_id=job_id,document_type=kind,staged=staged,preview=token,
               template_version=revision['reference'],provenance=provenance,review_round=review_round)

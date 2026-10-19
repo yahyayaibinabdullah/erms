@@ -114,16 +114,17 @@ def page(c, job_id, *, limit, offset, sort='id', descending=True):
     source = ''' FROM disposition_job_documents d JOIN digital_components c ON c.id=d.digital_component_id
      WHERE d.job_id=%s AND current_user_can_view_record(d.record_id)
      AND current_user_can_list_record_components(d.record_id)'''
-    orders={'id':'d.id','file_name':'c.file_name','type_label':'d.document_type','evidence_version':'d.evidence_version','created_label':'d.date_created'}
+    orders={'id':'d.id','file_name':'c.file_name','type_label':'d.document_type','evidence_version':"CASE WHEN d.document_type='physical_preparation_report' THEN COALESCE((d.provenance#>>'{snapshot,fields,report.version}')::bigint,d.evidence_version) ELSE d.evidence_version END",'created_label':'d.date_created'}
     if sort not in orders:raise HTTPException(422,detail={'code':'disposition_document_type_invalid'})
     total=c.execute('SELECT count(*) total'+source,(job_id,)).fetchone()['total']
     rows=c.execute('''SELECT d.*,c.file_name,c.mime_type,
-     NOT EXISTS(SELECT 1 FROM disposition_job_documents next WHERE next.supersedes_document_id=d.id) AS is_current,
+     NOT EXISTS(SELECT 1 FROM disposition_job_documents next WHERE next.supersedes_document_id=d.id OR d.document_type='physical_preparation_report' AND next.job_id=d.job_id AND next.document_type=d.document_type AND next.id>d.id) AS is_current,
      current_user_can_record_component_operation(d.record_id,'record.component.view','record.component.view') AS can_preview,
      current_user_can_record_component_operation(d.record_id,'record.component.download','record.component.download') AS can_download'''+source+
      ' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+',d.id DESC LIMIT %s OFFSET %s',(job_id,limit,offset)).fetchall()
     roles=correction_roles(c,job_id)
     for row in rows:
+        if row['document_type']=='physical_preparation_report':row['evidence_version']=int(row['provenance'].get('snapshot',{}).get('fields',{}).get('report.version',row['evidence_version']))
         row['can_correct']=bool(roles) and row['can_preview'] and row['origin']=='uploaded' and row['is_current'] and row['document_state']=='available'
     return {'items':rows,'total':total,'correction_roles':roles}
 

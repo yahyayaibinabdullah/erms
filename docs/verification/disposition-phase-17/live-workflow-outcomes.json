@@ -1,0 +1,138 @@
+{
+  "result": "passed",
+  "database": "erms_messaging_test_acl_4761fbc651cf4a4884b4d8b3cd259852",
+  "jobs": [
+    {
+      "id": 29,
+      "job_number": "PHASE17-STANDARD",
+      "review_route": "standard",
+      "workflow_stage": "external_approval_pending",
+      "current_review_round": 2,
+      "destruction_number": "  SA/2026-#A_1+()!  "
+    },
+    {
+      "id": 30,
+      "job_number": "PHASE17-SIMPLIFIED",
+      "review_route": "simplified",
+      "workflow_stage": "external_approval_pending",
+      "current_review_round": 1,
+      "destruction_number": null
+    },
+    {
+      "id": 31,
+      "job_number": "PHASE17-RECORDS_MANAGER_ONLY",
+      "review_route": "records_manager_only",
+      "workflow_stage": "external_approval_pending",
+      "current_review_round": 1,
+      "destruction_number": "MGR/2026-#1"
+    }
+  ],
+  "received_decisions": [
+    {
+      "id": 1,
+      "job_id": 29,
+      "round_id": 1,
+      "request_document_id": 32,
+      "task_id": 37,
+      "decision": "rejected",
+      "correction_notes": "ملاحظات الجهة: صحح جدول الإتلاف وأعد المراجعة الكاملة.",
+      "destruction_number": null,
+      "approval_letter_document_id": null,
+      "rejection_letter_document_id": 37,
+      "recorded_by_user_id": 2,
+      "acting_role_id": 3,
+      "recorded_at": "2026-10-19 14:08:50.148695+04:00",
+      "version": 1,
+      "job_number": "PHASE17-STANDARD",
+      "actor": "preview-officer",
+      "role": "preview-officer"
+    },
+    {
+      "id": 2,
+      "job_id": 29,
+      "round_id": 4,
+      "request_document_id": 39,
+      "task_id": 47,
+      "decision": "approved",
+      "correction_notes": null,
+      "destruction_number": "  SA/2026-#A_1+()!  ",
+      "approval_letter_document_id": 40,
+      "rejection_letter_document_id": null,
+      "recorded_by_user_id": 2,
+      "acting_role_id": 3,
+      "recorded_at": "2026-10-19 14:23:57.735765+04:00",
+      "version": 1,
+      "job_number": "PHASE17-STANDARD",
+      "actor": "preview-officer",
+      "role": "preview-officer"
+    },
+    {
+      "id": 3,
+      "job_id": 31,
+      "round_id": 3,
+      "request_document_id": 36,
+      "task_id": 41,
+      "decision": "approved",
+      "correction_notes": null,
+      "destruction_number": "MGR/2026-#1",
+      "approval_letter_document_id": 42,
+      "rejection_letter_document_id": null,
+      "recorded_by_user_id": 5,
+      "acting_role_id": 8,
+      "recorded_at": "2026-10-19 14:25:47.842505+04:00",
+      "version": 1,
+      "job_number": "PHASE17-RECORDS_MANAGER_ONLY",
+      "actor": "preview-manager",
+      "role": "preview-manager"
+    }
+  ],
+  "immutable_requests": [
+    {
+      "id": 29,
+      "job_id": 28,
+      "review_round": null,
+      "checksum": "f1e64ea9060fb0d56d417d85bbfc8f6b86d54e985ba9afc2a4109f518c64dcf1",
+      "round_id": null
+    },
+    {
+      "id": 32,
+      "job_id": 29,
+      "review_round": 1,
+      "checksum": "25c1032b3b2030d2294530a74e59915fb082def04599c06cc3bb56e278297a53",
+      "round_id": "1"
+    },
+    {
+      "id": 34,
+      "job_id": 30,
+      "review_round": 1,
+      "checksum": "cd26fc361a035c5da6cced9a24407c56451a6328531082b13a46c01508cdf9a8",
+      "round_id": "2"
+    },
+    {
+      "id": 36,
+      "job_id": 31,
+      "review_round": 1,
+      "checksum": "bec32bf8051eedc3f71e674785e26fd8d165142d452d53e292b2c2d19f161eeb",
+      "round_id": "3"
+    },
+    {
+      "id": 39,
+      "job_id": 29,
+      "review_round": 2,
+      "checksum": "39149db62ab51136c891643075ac2a657dfd9f7b986518021cfcf89b2c7d93b5",
+      "round_id": "4"
+    }
+  ],
+  "live_checks": [
+    "Standard authority rejection with Arabic notes and letter",
+    "required-field warning/toast without save",
+    "Officer correction repeats File Administrator then Unit Manager then Records Manager",
+    "new round-two request with old form/letter retained",
+    "exact 20-character external number including outer spaces",
+    "duplicate across jobs rejected; input and file retained",
+    "Manager Only current Manager records approval",
+    "sortable lazy standard history and evidence filenames",
+    "fresh workspace state after decisions"
+  ],
+  "translations": "Existing published Arabic and English fallback; new drafts not published"
+}

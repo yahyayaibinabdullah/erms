@@ -301,17 +301,18 @@ def test_content_set_and_segment_mutations_cannot_remove_original_upload():
 def test_manager_can_correct_in_later_task_and_previous_record_redacts_history():
     from backend.services.api.tests.test_disposition_foundation import command
     from backend.services.api.disposition import queries
+    from backend.services.api.tests.test_disposition_external import prepared,generate
     with db() as c:
-        job,dest=fixture(c);old=seed_document(c,job)
-        # Valid protected transitions build a later-stage fixture. These are
-        # private foundation commands, never public review endpoints.
-        for stage in ('records_manager_review','external_approval_pending'):
-            command(c,'review_decide',lambda c,stage=stage:dict(c.execute('UPDATE disposition_jobs SET workflow_stage=%s WHERE id=%s RETURNING version',(stage,job['id'])).fetchone()))
+        job,resource,approver,rid=prepared(c)
+        generate(c,job,approver,rid)
+        current=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
+        old=seed_document(c,current)
+        dest=c.execute('SELECT aggregation_id FROM records WHERE id=%s',(old['record_id'],)).fetchone()['aggregation_id']
         current_job=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
         other=c.execute("INSERT INTO users(name,email) VALUES('Other person','other@test.invalid') RETURNING id").fetchone()['id']
         mgr=c.execute("INSERT INTO roles(org_unit_id,code,name,is_information_governance,profile_id) SELECT 1,'manager-correction','Records Manager',true,id FROM profiles WHERE code='INFO_GOV_MGR' RETURNING id").fetchone()['id']
         c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s),(%s,%s)',(other,mgr,other,officer(c)))
-        actor(c,other)
+        c.commit();actor(c,other)
         assert not c.execute('SELECT disposition_private.can_correct_evidence(%s,%s) allowed',(job['id'],officer(c))).fetchone()['allowed']
         with stage_governed_upload(uploaded(b'manager correction'),load_snapshot(c),connection_factory=db) as staged:
             corrected=artifacts.correct(c,job_id=job['id'],document_id=old['id'],expected_version=current_job['version'],command_id=uuid4(),acting_role_id=mgr,reason='Correct in later external approval task',staged=staged,preview=artifacts.public_destination(c,job['id'],'external_approval_letter')['token'])

@@ -288,7 +288,13 @@ def test_limited_reviewer_can_read_job_members_and_history_without_management(cl
         assert queries.history(c,job['id'],limit=100,offset=0)['items']
 
 
-def test_manager_only_combined_round_boundary_locks_owner_and_external_correction(client):
+def test_manager_only_combined_round_boundary_locks_owner_and_external_correction(client,monkeypatch):
+    from backend.services.api.tests.test_disposition_external import generate,decision
+    from backend.services.api.tests.test_disposition_artifacts import configure,root as destination_root
+    from backend.services.api.tests.test_disposition_approval import approve
+    from backend.services.api.disposition import documents
+    from tools.preview_disposition import preview_pdf
+    monkeypatch.setattr(documents.engine,'render',lambda *args:(preview_pdf(),{}))
     with db() as c:
         job,root,um,fa,mgr=seeded(c,'records_manager_only')
         def boundary(x):
@@ -302,10 +308,10 @@ def test_manager_only_combined_round_boundary_locks_owner_and_external_correctio
         with pytest.raises(psycopg.Error,match='disposition_owning_unit_change_invalid'):
             membership.change_job_owner(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),owning_org_unit_id=owner))
         assert admit(c,job['id'],[root])['items'][0]['success']
-        def correction(x):
-            x.execute("UPDATE disposition_jobs SET workflow_stage='external_approval_pending' WHERE id=%s",(job['id'],))
-            workflow.route_correction(x,job_id=job['id']);return {}
-        execute_command(c,**{**kwargs(),'acting_role_id':mgr},operation='review_decide',payload={'job_id':job['id']},apply=correction)
+        configure(c);destination_root(c)
+        approved=approve(c,job,mgr,overall_reason='Approve the corrected Manager Only membership')
+        generate(c,job,mgr,approved['round_id'])
+        decision(c,job,outcome='rejected',notes='Authority correction for the assigned Manager',acting=mgr)
         assert task(c,job['id'])['workflow_stage']=='manager_correction'
         assert task(c,job['id'])['destination_user_id']==1
 

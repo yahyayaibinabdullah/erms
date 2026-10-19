@@ -138,10 +138,10 @@ def seed(environment, phase=10):
                   connection_factory=lambda:psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row))
 
     if phase>=16:
-        seed_review_workspace(environment)
+        seed_review_workspace(environment,phase=phase)
 
 
-def seed_review_workspace(environment):
+def seed_review_workspace(environment,phase=16):
     from backend.services.api.authentication import hash_password
     from backend.services.api.disposition.membership import create_job,add_many
     from backend.services.api.tests.test_disposition_membership import actor
@@ -160,26 +160,75 @@ def seed_review_workspace(environment):
         for route,start,end in [('standard',3,60),('simplified',61,80),('records_manager_only',81,100)]:
             actor(c,admin);c.execute("SELECT set_config('app.event_source','seeding',true)");set_route(c,route)
             assigned=identities['manager@test.invalid'][0] if route=='records_manager_only' else c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
-            job=create_job(c,job_number='PHASE16-'+route.upper(),job_type='destruction',owning_org_unit_id=1,assigned_user_id=assigned,acting_role_id=admin_role,reason='Seed disposable Phase 16 route workspace',command_id=uuid4())
+            job=create_job(c,job_number=f'PHASE{phase}-'+route.upper(),job_type='destruction',owning_org_unit_id=1,assigned_user_id=assigned,acting_role_id=admin_role,reason='Seed disposable Phase 16 route workspace',command_id=uuid4())
             rows=c.execute('SELECT id,version FROM aggregations WHERE aggregation_number=ANY(%s) ORDER BY id',([f'DISP-{i:04}' for i in range(start,end+1)],)).fetchall()
+            if phase==19:rows=rows[:3]  # Focused report UI; large/deep coverage lives in acceptance tests.
             assigned_role=identities['manager@test.invalid'][1] if route=='records_manager_only' else c.execute("SELECT id FROM roles WHERE code='preview-officer'").fetchone()['id']
             actor(c,assigned);c.execute("SELECT set_config('app.event_source','seeding',true)")
             result=add_many(c,job_id=job['id'],expected_version=job['version'],items=[{'root_id':r['id'],'expected_version':r['version']} for r in rows],acting_role_id=assigned_role,reason='Seed disposable paginated membership',command_id=uuid4())
             assert all(r['success'] for r in result['items']),result
             if route=='standard':
                 actor(c,assigned);c.execute("SELECT set_config('app.event_source','seeding',true)");seed_document(c,c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone(),content=preview_pdf(),acting_role_id=assigned_role)
-        print('Phase 16 roles: fa@test.invalid, unit@test.invalid, manager@test.invalid; same disposable password.',flush=True)
+        print(f'Phase {phase} roles: fa@test.invalid, unit@test.invalid, manager@test.invalid; same disposable password.',flush=True)
+
+
+def seed_external_requests(environment,phase):
+    from backend.services.api.main import app
+    from fastapi.testclient import TestClient
+    with TestClient(app) as client:
+        client.headers['X-Event-Source']='seeding'
+        def login(email):
+            response=client.post('/api/v1/auth/login',json={'email':email,'password':'Temporary-Test-Password-123!'})
+            assert response.status_code==200,response.text
+            client.headers['X-CSRF-Token']=client.cookies.get('erms_csrf')
+        def workspace(job_id):
+            response=client.get(f'/api/v1/disposition/jobs/{job_id}/workspace');assert response.status_code==200,response.text
+            return response.json()
+        def post(path,values,version):
+            response=client.post('/api/v1/disposition/'+path,json={'command_id':str(uuid4()),**values},headers={'If-Match':str(version),'X-Change-Reason':'Seed disposable external request'})
+            assert response.status_code==200,response.text
+            return response.json()
+        with psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row) as c:
+            jobs=c.execute("SELECT id,review_route FROM disposition_jobs WHERE job_number LIKE %s ORDER BY id",(f'PHASE{phase}-%',)).fetchall()
+        for job in jobs:
+            job_id=job['id'];route=job['review_route']
+            if route!='records_manager_only':
+                login('officer@test.invalid');w=workspace(job_id)
+                post(f"tasks/{w['task']['id']}/submit-review",{'acting_role_id':w['roles'][0]['id'],'task_version':w['task']['version'],'overall_reason':'Seed reviewed external request for browser acceptance'},w['job']['version'])
+                if route=='standard':
+                    for email in ('fa@test.invalid','unit@test.invalid'):
+                        login(email);w=workspace(job_id)
+                        post(f"tasks/{w['task']['id']}/claim",{'acting_role_id':w['roles'][0]['id']},w['task']['version']);w=workspace(job_id)
+                        post(f"tasks/{w['task']['id']}/review-decision",{'acting_role_id':w['roles'][0]['id'],'task_version':w['task']['version'],'decision':'approved','decision_reason':''},w['job']['version'])
+            login('manager@test.invalid');w=workspace(job_id)
+            if route!='records_manager_only':
+                post(f"tasks/{w['task']['id']}/claim",{'acting_role_id':w['roles'][0]['id']},w['task']['version']);w=workspace(job_id)
+            acting=w['roles'][0]['id'];task=w['task']
+            response=client.get(f"/api/v1/disposition/tasks/{task['id']}/approval-preview",params={'acting_role_id':acting});assert response.status_code==200,response.text
+            preview=response.json()
+            result=post(f"tasks/{task['id']}/approve-proposals",{'acting_role_id':acting,'task_version':task['version'],'membership_token':preview['membership_token'],'proposals_token':preview['proposals_token'],'overall_reason':'Seed combined approval and request' if route=='records_manager_only' else None},preview['job_version'])
+            assert result['request_status']=='available',result
+            if phase==19:
+                login('manager@test.invalid' if route=='records_manager_only' else 'officer@test.invalid');w=workspace(job_id)
+                destination=client.get(f'/api/v1/disposition/jobs/{job_id}/artifact-destination',params={'document_type':'external_approval_letter'}).json()
+                response=client.post(f"/api/v1/disposition/tasks/{w['task']['id']}/external-decision",data={'command_id':str(uuid4()),'acting_role_id':str(w['roles'][0]['id']),'task_version':str(w['task']['version']),'request_document_id':str(w['task']['request_document_id']),'decision':'approved','destruction_number':'PREVIEW19-'+str(job_id),'destination_token':destination['token']},files={'file':('synthetic-approval.pdf',preview_pdf(),'application/pdf')},headers={'If-Match':str(w['job']['version'])})
+                assert response.status_code==200,response.text
+                assert response.json().get('physical_report_status')=='available',response.text
+
+        print('Phase 17 governed request PDFs and external waiting tasks ready.',flush=True)
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(10,11,12,16),default=12)
-    phase=parser.parse_args().phase
+    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19),default=12)
+    parser.add_argument('--maildev',action='store_true',help='Phase 18 only: verified temporary TLS bridge to localhost MailDev:1025')
+    args=parser.parse_args();phase=args.phase
+    if args.maildev and phase!=18:parser.error('--maildev requires --phase 18')
     configuration={**dotenv_values(ROOT/'.env'),**os.environ}
     admin_url=make_conninfo(configuration['DATABASE_URL'],dbname='postgres')
     name='erms_messaging_test_acl_'+uuid4().hex
     url=make_conninfo(configuration['DATABASE_URL'],dbname=name)
-    created=False;processes=[];logs=[]
+    created=False;processes=[];logs=[];maildev_bridge=None
     with tempfile.TemporaryDirectory(prefix='erms-disposition-preview-',dir='/private/tmp') as directory:
         try:
             with psycopg.connect(admin_url,autocommit=True) as c:
@@ -197,10 +246,22 @@ def main():
                 NICEGUI_STORAGE_PATH=directory,WEBUI_STORAGE_SECRET=uuid4().hex,NICEGUI_REDIS_URL='',
                 PYTHONPATH=os.pathsep.join([str(ROOT),str(frontend_packages)]))
             subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed; import os; seed(dict(os.environ),phase={phase})'],cwd=ROOT,env=environment,check=True)
+            if phase>=17:
+                subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_external_requests; import os; seed_external_requests(dict(os.environ),{phase})'],cwd=ROOT,env=environment,check=True)
+            if phase==18:
+                if args.maildev:
+                    sys.path.insert(0,str(ROOT))
+                    from tools.maildev_tls_preview import MailDevBridge
+                    maildev_bridge=MailDevBridge(directory)
+                port=maildev_bridge.port if maildev_bridge else None
+                subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_communications; import os; seed_communications(dict(os.environ),maildev_port={port!r})'],cwd=ROOT,env=environment,check=True)
             for label,command in [('api',[sys.executable,'-m','uvicorn','backend.services.api.main:app','--host','127.0.0.1','--port','18030']),
                 ('webui',[str(ROOT/'frontend/webui/.venv/bin/python'),'-c',"import os,runpy; from nicegui import app; from starlette.middleware.sessions import SessionMiddleware; app.add_middleware(SessionMiddleware,secret_key=os.environ['WEBUI_STORAGE_SECRET'],session_cookie='erms_settings_phase{phase}_preview'); runpy.run_module('frontend.webui.app',run_name='__main__')".replace("{phase}",str(phase))])]:
                 path=Path(directory)/(label+'.log');handle=path.open('w');logs.append(handle)
                 processes.append(subprocess.Popen(command,cwd=ROOT,env=environment,stdout=handle,stderr=subprocess.STDOUT))
+            if phase==18:
+                path=Path(directory)/'communications.log';handle=path.open('w');logs.append(handle)
+                processes.append(subprocess.Popen([sys.executable,'-c',f'from tools.preview_disposition import preview_communications; preview_communications(certificate={str(maildev_bridge.certificate) if maildev_bridge else None!r})'],cwd=ROOT,env=environment,stdout=handle,stderr=subprocess.STDOUT))
             print('Disposable Disposition preview: http://127.0.0.1:18083/',flush=True)
             print('Isolated log directory: '+directory,flush=True)
             print('Fixture identities: admin@test.invalid (English), officer@test.invalid (Arabic); standard disposable test password.',flush=True)
@@ -217,11 +278,50 @@ def main():
                 try:p.wait(timeout=10)
                 except subprocess.TimeoutExpired:p.kill();p.wait()
             for handle in logs:handle.close()
+            if maildev_bridge:maildev_bridge.close()
             if created:
                 with psycopg.connect(admin_url,autocommit=True) as c:
                     c.execute(sql.SQL('DROP DATABASE {} WITH (FORCE)').format(sql.Identifier(name)))
                 print('Dropped disposable database '+name,flush=True)
     return 0
 
+
+
+def seed_communications(environment,maildev_port=None):
+    from backend.services.api.application_settings import apply_changes
+    from backend.services.api.application_settings_registry import GROUPS
+    from backend.services.api.application_settings_routes import SettingChange
+    with psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row) as c:
+        assert c.info.dbname.startswith('erms_messaging_test_acl_')
+        c.execute("SELECT set_config('app.user_id','1',true),set_config('app.actor_type','user',true),set_config('app.event_source','seeding',true)")
+        values={'DISPOSITION_EXTERNAL_AUTHORITY_EMAIL':'archives@test.invalid','SMTP_HOST':'localhost' if maildev_port else 'synthetic.preview.invalid','SMTP_SECURITY':'implicit_tls' if maildev_port else 'starttls','SMTP_PORT':maildev_port or 587,'SMTP_AUTH_ENABLED':False,'SMTP_SENDER_EMAIL':('phase18-'+c.info.dbname.rsplit('_',1)[-1]+'@test.invalid') if maildev_port else 'wathiq@test.invalid'}
+        keys=set(values)|GROUPS['smtp'];changes=[]
+        for key in sorted(keys):
+            change={'key':key,'expected_version':c.execute('SELECT version FROM application_settings WHERE key=%s',(key,)).fetchone()['version']}
+            if key in values:change['value']=values[key]
+            changes.append(SettingChange(**change))
+        apply_changes(c,changes,'Configure disposable synthetic email transport')
+
+
+def preview_communications(certificate=None):
+    from backend.services.api.disposition.email import process_one,smtp_send
+    from backend.services.api.disposition.reminders import run_batch
+    from backend.services.api.messaging.notification_registry import initialize_registry
+    from backend.services.api.config import required_environment
+    url=required_environment('DATABASE_URL');initialize_registry()
+    def connection():return psycopg.connect(url,row_factory=dict_row)
+    with connection() as c:assert c.info.dbname.startswith('erms_messaging_test_acl_')
+    def synthetic(settings,message):
+        assert settings['host']=='synthetic.preview.invalid' and settings['recipient'].endswith('@test.invalid')
+        print('Synthetic isolated acceptance: '+str(message['Message-ID']),flush=True)
+        return ('smtp_accepted',None,250,'SYNTHETIC_PREVIEW')
+    context=None
+    if certificate:
+        import ssl
+        context=ssl.create_default_context(cafile=certificate)
+    def transport(settings,message):
+        return smtp_send(settings,message,tls_context=context) if context else synthetic(settings,message)
+    while True:
+        process_one(connection,transport=transport);run_batch(connection);time.sleep(1)
 
 if __name__=='__main__':sys.exit(main())

@@ -39,17 +39,20 @@ def counts(aggregations,records,roots=0):
 
 def request_groups(source):
     groups={}
+    by_root=defaultdict(list);by_aggregation=defaultdict(list)
+    for a in source['aggregations']:by_root[a['root_id']].append(a)
+    for r in source['records']:by_aggregation[r['aggregation_id']].append(r)
     for root in source['roots']:
-        aggs=[a for a in source['aggregations'] if a['root_id']==root['id']]
+        aggs=by_root[root['id']]
         root_row=next(a for a in aggs if a['id']==root['id']);rule=root['rule_snapshot']
         local=rule['rule_source']=='aggregation'
-        key=(root_row['classification_id'],local,rule['current_period_years'],rule['intermediate_period_years'],rule['final_disposition'])
+        key=(root_row['classification_id'],local,rule['current_period_years'],rule['intermediate_period_years'],rule['final_disposition'],rule.get('instructions') or '')
         if key not in groups:
             groups[key]={'group.classification_code':root_row['classification_code'],'group.classification_title':root_row['classification_title'],
               'group.rule_source':'قاعدة حفظ محلية / Local retention override' if local else 'قاعدة التصنيف / Classification retention rule',
               'group.final_disposition':rule['final_disposition'],'group.current_years':rule['current_period_years'],
               'group.intermediate_years':rule['intermediate_period_years'],**{'group.'+k:0 for k in counts([],[])}}
-        ids={a['id'] for a in aggs};records=[r for r in source['records'] if r['aggregation_id'] in ids]
+        records=[r for a in aggs for r in by_aggregation[a['id']]]
         for k,v in counts(aggs,records,1).items():groups[key]['group.'+k]+=v
     return [groups[k] for k in sorted(groups)]
 
@@ -61,15 +64,23 @@ def physical_counts(aggregations,records):
 
 def physical_rows(source):
     aggs=source['aggregations'];records=source['records'];rows=[]
+    # Bottom-up subtree counts, indexed once; no recursion or repeated scans.
+    by_id={a['id']:a for a in aggs};children=defaultdict(list)
+    detail_by_id={a['id']:{k:0 for k in PHYSICAL_COUNTS} for a in aggs}
+    for a in aggs:children[a['parent_aggregation_id']].append(a['id'])
+    for r in records:
+        if r['medium'] in ('physical','mixed'):detail_by_id[r['aggregation_id']][r['medium']+'_records']+=1
+    pending=[a['id'] for a in aggs if a['parent_aggregation_id'] not in by_id];ordered=[]
+    while pending:
+        current=pending.pop();ordered.append(current);pending.extend(children[current])
+    for current in reversed(ordered):
+        a=by_id[current];parent=a['parent_aggregation_id']
+        if parent in by_id:
+            for k,v in detail_by_id[current].items():detail_by_id[parent][k]+=v
+            if a['medium'] in ('physical','mixed'):detail_by_id[parent][a['medium']+'_aggregations']+=1
     for a in sorted(aggs,key=lambda a:(a['classification_code'],a['classification_id'],a['aggregation_number'],a['id'])):
         if a['medium'] not in ('physical','mixed'):continue
-        descendants=set();pending=[a['id']]
-        while pending:
-            parent=pending.pop();children=[x['id'] for x in aggs if x['parent_aggregation_id']==parent and x['id'] not in descendants]
-            descendants.update(children);pending.extend(children)
-        # Records directly in the listed aggregation are its descendants too.
-        detail=physical_counts([x for x in aggs if x['id'] in descendants],
-          [r for r in records if r['aggregation_id'] in descendants|{a['id']}])
+        detail=detail_by_id[a['id']]
         rows.append({'aggregation.classification_code':a['classification_code'],'aggregation.classification_title':a['classification_title'],
           'aggregation.identifier':a['aggregation_number'],'aggregation.title':a['title'],'aggregation.owner':a['owner'],
           'aggregation.assigned_location':a['assigned_location'] or NOT_SPECIFIED,
@@ -77,13 +88,15 @@ def physical_rows(source):
           **{'aggregation.descendants.'+k:v for k,v in detail.items()}})
     # Count direct members once; never sum overlapping per-row descendant counts.
     totals=physical_counts(aggs,records);class_totals=[]
-    by_id={a['id']:a for a in aggs}
-    for classification_id in sorted({a['classification_id'] for a in aggs}):
-        group_aggs=[a for a in aggs if a['classification_id']==classification_id]
-        code=group_aggs[0]['classification_code']+' · '+group_aggs[0]['classification_title']
-        group_records=[r for r in records if by_id[r['aggregation_id']]['classification_id']==classification_id]
-        values=physical_counts(group_aggs,group_records)
-        if any(values.values()):class_totals.append(code+': '+'; '.join(PHYSICAL_COUNTS[k][0]+' / '+PHYSICAL_COUNTS[k][1]+': '+str(v) for k,v in values.items()))
+    grouped=defaultdict(lambda:{k:0 for k in PHYSICAL_COUNTS});labels={}
+    for a in aggs:
+        cid=a['classification_id'];labels[cid]=a['classification_code']+' · '+a['classification_title']
+        if a['medium'] in ('physical','mixed'):grouped[cid][a['medium']+'_aggregations']+=1
+    for r in records:
+        if r['medium'] in ('physical','mixed'):grouped[by_id[r['aggregation_id']]['classification_id']][r['medium']+'_records']+=1
+    for cid in sorted(grouped):
+        values=grouped[cid]
+        class_totals.append(labels[cid]+': '+'; '.join(PHYSICAL_COUNTS[k][0]+' / '+PHYSICAL_COUNTS[k][1]+': '+str(v) for k,v in values.items()))
     return rows,totals,'; '.join(class_totals) or NOT_SPECIFIED
 
 

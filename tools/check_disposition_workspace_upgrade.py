@@ -25,7 +25,7 @@ def snapshot(c):
 
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ};base=config['DATABASE_URL'];admin=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text();migration=(ROOT/'database/migrations/061_disposition_review_save.sql').read_text();assert schema.split(MARKER,1)[1]==migration
+    schema=(ROOT/'database/schema.sql').read_text().split('-- External requests and decisions (062).\n',1)[0];migration=(ROOT/'database/migrations/061_disposition_review_save.sql').read_text();assert schema.split(MARKER,1)[1]==migration
     names=[]
     try:
         for kind in ('fresh','upgrade'):

@@ -23,10 +23,11 @@ def workflow_panel(job):
 
 
 class ReviewForm:
-    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource):
+    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None):
         self.api,self.view,self.active,self.on_error=api,workspace,active,on_error
         self.bind_remote,self.after,self.format_timestamp=bind_remote,after,format_timestamp
         self.open_resource=open_resource
+        self.preview=preview
         self.job=workspace['job'];self.task=workspace['task'];self.actions=set(workspace['actions'])
         self.pending=[];self.pending_meta={};self.retry={};self.busy=False;self.proposal_filter=None;self.proposal_round=None
         self.work=None;self.note=None;self.overall=None
@@ -34,17 +35,17 @@ class ReviewForm:
         self.host=ui.column().classes('w-full gap-4')
         with self.host:
             ui.label(text('current_task')).classes('text-lg font-semibold')
+            self.feedback=ui.label('').props('role=alert').classes('text-negative')
             if not self.task:
                 ui.label(text('no_current_task')).props('role=status');return
-            form_key={'file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
+            form_key={'physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
             ui.label(text(form_key)).classes('font-semibold')
-            hint='correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
+            hint='disposition_physical_release_pending' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
             ui.label(text(hint)).classes('text-sm text-slate-600')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
             self.role=ui.select(self.roles,label=text('acting_task_role'),value=next(iter(self.roles),None)).props('outlined dense').classes('w-full')
             self.role.set_visibility(bool(self.roles))
-            self.feedback=ui.label('').props('role=alert').classes('text-negative')
             if 'claim' in self.actions:ui.button(text('claim'),icon='assignment_ind',on_click=lambda:self.queue_action('claim')).props('no-caps')
             if 'reassign' in self.actions:ui.button(text('reassign'),icon='person_add',on_click=self.reassign).props('outline no-caps')
             if 'release' in self.actions:ui.button(text('release'),icon='undo',on_click=lambda:self.queue_action('release')).props('outline no-caps')
@@ -68,10 +69,22 @@ class ReviewForm:
         await command_dialog(api=self.api,context={'roles':list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after)
 
     async def load(self):
+        from .external import request_controls,task_form
+        request_controls(self)
+        from .physical import controls as physical_controls,task_form as physical_task_form
+        physical_controls(self)
+        from .email import controls as email_controls
+        email_controls(self)
         if not self.task or not self.roles:
             with self.host:
                 self.history_sections()
                 await self.proposals_panel()
+            return
+        if self.task.get('task_type') in ('physical_destruction','digital_destruction'):
+            await physical_task_form(self)
+            return
+        if self.task.get('task_type')=='external_approval':
+            await task_form(self)
             return
         try:work=await self.api.disposition_page(f"tasks/{self.task['id']}/review-work")
         except ApiError as error:self.error(error);return
@@ -94,7 +107,8 @@ class ReviewForm:
                 with ui.row().classes('w-full gap-2 flex-wrap'):
                     for action in ('save','submit','complete_review','reject','approve'):
                         if action in self.actions:
-                            self.buttons.append(ui.button(text(action),icon={'save':'save','submit':'send','complete_review':'done','reject':'assignment_return','approve':'verified'}[action],on_click=lambda _,a=action:self.perform(a)).props('no-caps'+(' outline' if action=='reject' else '')))
+                            label='approve_generate_request' if action=='approve' and self.job['review_route']=='records_manager_only' else action
+                            self.buttons.append(ui.button(text(label),icon={'save':'save','submit':'send','complete_review':'done','reject':'assignment_return','approve':'verified'}[action],on_click=lambda _,a=action:self.perform(a)).props('no-caps'+(' outline' if action=='reject' else '')))
             self.history_sections()
             await self.proposals_panel(host=self.proposal_host if 'save' in self.actions else None)
 
@@ -150,7 +164,8 @@ class ReviewForm:
                 payload.update(membership_token=preview['membership_token'],proposals_token=preview['proposals_token'],overall_reason=self.overall.value if self.overall is not None else None);endpoint='approve-proposals'
             result=await self.send(f"tasks/{self.task['id']}/{endpoint}",payload,self.work['job_version'])
             if not self.alive():return
-            ui.notify(text('report_pending' if result.get('report_status')=='pending' else 'saved'),type='warning' if result.get('report_status')=='pending' else 'positive')
+            pending=result.get('request_status')=='pending' or result.get('report_status')=='pending'
+            ui.notify(text('request_pending' if result.get('request_status')=='pending' else 'report_pending' if pending else 'saved'),type='warning' if pending else 'positive')
             await self.after(result)
         except ApiError as error:
             if not self.alive():return
@@ -477,7 +492,11 @@ class ReviewForm:
     def history_sections(self):
         """Retained page controls, with fresh server data on every expansion."""
         with self.host:
-            for label,method in [('review_notes',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel)]:
+            from .external import decisions_panel
+            from .email import attempts_panel
+            async def email_attempts(**kwargs):return await attempts_panel(self,**kwargs)
+            async def external_decisions(**kwargs):return await decisions_panel(self,**kwargs)
+            for label,method in [('review_notes',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel),('external_decisions',external_decisions),('email_attempts',email_attempts)]:
                 with ui.expansion(text(label),icon='history').classes('w-full') as expansion:
                     host=ui.column().classes('w-full gap-3');state={'page':None}
                 def alive(expansion=expansion):return self.alive() and expansion.value and not expansion._deleted

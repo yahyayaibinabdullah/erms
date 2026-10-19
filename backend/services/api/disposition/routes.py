@@ -455,7 +455,9 @@ def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request
         task_id=task_id,expected_version=version,task_version=payload.task_version,membership_token=payload.membership_token,
         proposals_token=payload.proposals_token,overall_reason=payload.overall_reason)
     c.commit()
-    return {**result,**_execution_report_after_commit(result['job_id'],result['round_id'],payload.acting_role_id)}
+    report=_execution_report_after_commit(result['job_id'],result['round_id'],payload.acting_role_id)
+    generated=_request_after_commit(result['job_id'],result['round_id'],payload.acting_role_id) if result['remaining_units'] else {'request_status':'not_required'}
+    return {**result,**report,**generated}
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/execution-report')
@@ -495,3 +497,138 @@ def read_task_assignment_candidates(task_id: int,kind: Literal['users','roles'],
 def read_review_history(job_id: int,kind: Literal['proposal','note'],identity: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
     return workspace.review_history(c,job_id,kind=kind,identity=identity,limit=limit,offset=offset)
+
+
+class GenerateRequest(Command):
+    destination_token: str | None=Field(default=None,pattern=r'^[0-9a-f]{64}$')
+
+
+def _request_after_commit(job_id,round_id,acting_role_id,preview=None):
+    from contextlib import contextmanager
+    from ..application_settings import cache
+    from . import external
+    try:
+        with contextmanager(get_connection)() as c:
+            return external.generate_request(c,job_id=job_id,round_id=round_id,acting_role_id=acting_role_id,
+              settings=cache.for_connection(c),preview=preview)
+    except HTTPException as error:
+        code=error.detail.get('code','disposition_request_generation_pending') if isinstance(error.detail,dict) else 'disposition_request_generation_pending'
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception('Approved destruction request generation remains pending')
+        code='disposition_request_generation_pending'
+    try:
+        from psycopg.types.json import Jsonb
+        with contextmanager(get_connection)() as c:
+            external.require_manager(c,job_id,acting_role_id)
+            c.execute("SELECT append_domain_event('disposition_job',%s,'DESTRUCTION_REQUEST_PENDING',%s)",(job_id,Jsonb({'round_id':round_id,'acting_role_id':acting_role_id,'code':code})))
+    except Exception:
+        raise HTTPException(503,detail={'code':'disposition_request_audit_unavailable','approval_committed':True,'round_id':round_id,'request_status':'pending'}) from None
+    return {'request_status':'pending','request_error':code}
+
+
+@router.post('/jobs/{job_id}/review-rounds/{round_id}/request')
+def generate_destruction_request(job_id: int,round_id: int,payload: GenerateRequest,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
+    from . import external
+    external.require_manager(c,job_id,payload.acting_role_id)
+    c.commit()
+    return _request_after_commit(job_id,round_id,payload.acting_role_id,payload.destination_token)
+
+
+@router.post('/tasks/{task_id}/external-decision')
+def record_external_decision(task_id: int,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),
+        task_version: int=Form(...,ge=1),request_document_id: int=Form(...,ge=1),decision: Literal['approved','rejected']=Form(...),
+        correction_notes: str | None=Form(None),destruction_number: str | None=Form(None,max_length=20),
+        destination_token: str=Form(...,min_length=64,max_length=64),file: UploadFile=File(...),
+        version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
+    from . import external
+    from ..content_storage import stage_governed_upload
+    from ..application_settings import cache
+    try:
+        with c.transaction():external.require_external_task(c,task_id,acting_role_id,working=False)
+    except psycopg.Error:
+        raise HTTPException(403,detail={'code':'disposition_task_ineligible'}) from None
+    payload=Command(command_id=command_id,acting_role_id=acting_role_id)
+    reason='Record received external approval' if decision=='approved' else (correction_notes or '').strip()
+    if not reason:raise HTTPException(422,detail={'code':'disposition_external_notes_required'})
+    with stage_governed_upload(file,cache.for_connection(c)) as staged:
+        result=_command(c,request,payload,external.decide,audit_reason=reason,task_id=task_id,expected_version=version,
+          task_version=task_version,request_document_id=request_document_id,decision=decision,correction_notes=correction_notes,
+          destruction_number=destruction_number,staged=staged,preview=destination_token)
+    c.commit()
+    if decision=='approved' and result['workflow_stage']=='physical_destruction':result.update(_physical_after_commit(result['job_id'],acting_role_id,command_id))
+    return result
+
+
+@router.post('/jobs/{job_id}/review-rounds/{round_id}/renew-review')
+def renew_approved_review(job_id: int,round_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
+    from . import external
+    return _command(c,request,payload,external.renew,audit_reason='Approved facts changed; renew review',job_id=job_id,round_id=round_id,expected_version=version)
+
+
+@router.get('/jobs/{job_id}/external-decisions')
+def read_external_decisions(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),sort: Literal['recorded_at','decision','review_round','destruction_number']='recorded_at',descending: bool=True,c: Connection=Depends(get_connection,scope='function')):
+    from . import external
+    return external.history(c,job_id,limit=limit,offset=offset,sort=sort,descending=descending)
+
+
+class EmailSend(Command):
+    expected_recipient: str | None=Field(default=None,max_length=320)
+
+
+@router.post('/jobs/{job_id}/documents/{document_id}/email',status_code=202)
+def send_document_email(job_id: int,document_id: int,payload: EmailSend,request: Request,c: Connection=Depends(get_connection,scope='function')):
+    from . import email
+    return _command(c,request,payload,email.enqueue,job_id=job_id,document_id=document_id,expected_recipient=payload.expected_recipient,audit_reason='Send saved destruction document by email')
+
+
+@router.get('/jobs/{job_id}/email-attempts')
+def email_attempts(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
+                   sort: Literal['requested_at','status','recipient']='requested_at',descending: bool=True,c: Connection=Depends(get_connection,scope='function')):
+    from . import email
+    return email.page(c,job_id,limit=limit,offset=offset,sort=sort,descending=descending)
+
+
+class PhysicalWork(Command):
+    task_version: StrictInt=Field(ge=1)
+
+
+def _physical_after_commit(job_id,acting_role_id,external_command):
+    from contextlib import contextmanager
+    from uuid import uuid5
+    from ..application_settings import cache
+    from . import physical
+    try:
+        with contextmanager(get_connection)() as c:
+            job=c.execute('SELECT version FROM disposition_jobs WHERE id=%s',(job_id,)).fetchone()
+            result=physical.generate_report(c,job_id=job_id,expected_version=job['version'],command_id=uuid5(external_command,'physical-report'),acting_role_id=acting_role_id,settings=cache.for_connection(c),automatic=True)
+            return {'physical_report_status':'available','physical_report_id':result['id']}
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception('Physical preparation report remains pending; external approval retained')
+        return {'physical_report_status':'pending'}
+
+
+@router.post('/jobs/{job_id}/physical-preparation-report')
+def generate_physical_report(job_id: int,payload: GenerateRequest,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
+    from . import physical
+    from ..application_settings import cache
+    return _command(c,request,payload,physical.generate_report,audit_reason='Generate physical preparation report',job_id=job_id,expected_version=version,settings=cache.for_connection(c),preview=payload.destination_token)
+
+
+@router.post('/tasks/{task_id}/physical-work-check')
+def check_physical_work(task_id: int,payload: PhysicalWork,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
+    from . import physical
+    return _command(c,request,payload,physical.check_work,audit_reason='Check before physical work',task_id=task_id,expected_version=version,task_version=payload.task_version)
+
+
+@router.post('/tasks/{task_id}/physical-confirmation')
+def confirm_physical(task_id: int,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),task_version: int=Form(...,ge=1),successful: bool=Form(...),certificate_reference: str=Form(...,min_length=1),destination_token: str=Form(...,min_length=64,max_length=64),file: UploadFile=File(...),version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
+    from . import physical
+    from ..content_storage import stage_governed_upload
+    from ..application_settings import cache
+    # Fail before staging any bytes while operational release is closed.
+    if not c.execute('SELECT disposition_private.physical_execution_released() allowed').fetchone()['allowed']:raise HTTPException(409,detail={'code':'disposition_physical_release_pending'})
+    payload=Command(command_id=command_id,acting_role_id=acting_role_id)
+    with stage_governed_upload(file,cache.for_connection(c)) as staged:
+        return _command(c,request,payload,physical.confirm,audit_reason='Confirm physical destruction',task_id=task_id,expected_version=version,task_version=task_version,successful=successful,certificate_reference=certificate_reference,staged=staged,preview=destination_token)

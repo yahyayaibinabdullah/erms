@@ -1,0 +1,21 @@
+[Unit]
+Description=ERMS external document email and eligibility reminders
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=erms
+Group=erms
+WorkingDirectory=/opt/erms
+EnvironmentFile=/etc/erms/api.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/erms/backend/services/api/.venv/bin/python -m backend.services.api.disposition.communications --watch --batch-size 100 --interval-seconds 30
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

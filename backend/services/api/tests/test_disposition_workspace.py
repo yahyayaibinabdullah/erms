@@ -135,3 +135,16 @@ def test_committed_claim_preserves_timestamp_when_saving_in_a_new_transaction(cl
         after=task(c,job['id']);assert after['claimed_at']==claimed['claimed_at'] and after['claimed_by_user_id']==person_id and after['task_state']=='claimed'
         row=proposals.page(c,job['id'],limit=1,offset=0)['items'][0]
         assert row['proposer_user_id']==1 and row['last_revised_by_user_id']==person_id and row['editor_name']=='Committed claimant'
+
+
+def test_workspace_prefers_own_eligible_manager_queue_over_a_managed_queue(client):
+    with db() as c:
+        job,root,*_=seeded(c,'simplified',manager=False)
+        other=person(c,'Earlier manager queue')
+        role(c,'other-first-manager','INFO_GOV_MGR',user=other)
+        own=role(c,'own-second-manager','INFO_GOV_MGR')
+        submit(c,job)
+        view=workspace.read(c,job['id'])
+        assert view['task']['destination_role_id']==own
+        assert view['roles']==[{'id':own,'name':'own-second-manager'}]
+        assert 'claim' in view['actions']

@@ -18,7 +18,7 @@ def read(c, job_id, task_id=None):
         t.claimed_by_user_id=current_user_id() AS own_claim
         FROM disposition_tasks t LEFT JOIN users d ON d.id=t.destination_user_id
         LEFT JOIN roles q ON q.id=t.destination_role_id LEFT JOIN users u ON u.id=t.claimed_by_user_id
-        WHERE '''+where+' ORDER BY (t.claimed_by_user_id=current_user_id()) DESC NULLS LAST,t.id LIMIT 1',params).fetchone()
+        WHERE '''+where+' ORDER BY disposition_private.task_eligible(current_user_id(),t.id) DESC,(t.claimed_by_user_id=current_user_id()) DESC NULLS LAST,t.id LIMIT 1',params).fetchone()
     if task_id is not None and not task:raise HTTPException(404,detail={'code':'disposition_review_task_unavailable'})
     roles=[];actions=[];management_roles=[]
     if task:
@@ -47,7 +47,16 @@ def read(c, job_id, task_id=None):
     job['action_required']=dict(c.execute('SELECT '+','.join('('+expression+') AS '+key for key,expression in indicators.items())+' FROM disposition_jobs j WHERE j.id=%s',(job_id,)).fetchone())
     job['assignment_editable']=manager and job['lifecycle_state']=='active'
     job['owner_editable']=manager and job['owner_editable']
-    return {'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles}
+    from . import external
+    external_view=external.view(c,job) if job['job_type']=='destruction' else None
+    if task and current and working and job['workflow_stage']=='external_approval_pending' and external_view and external_view['approval_current']:
+        actions.append('external_decide')
+    from . import email
+    email_view=email.controls(c,job_id) if job['job_type']=='destruction' else None
+    from . import physical
+    physical_view=physical.view(c,job) if job['job_type']=='destruction' else None
+    if task and current and working and physical_view and physical_view['released'] and task['task_type']=='physical_destruction':actions.extend(('check_physical_work','confirm_physical'))
+    return {'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
 
 
 def targets(c, task_id, *, acting_role_id, root_id, kind, query='', selected=None):

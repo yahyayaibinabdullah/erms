@@ -1425,3 +1425,15 @@ class ErmsApiClient:
           data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'expected_reference':expected_reference},
           files={'file':(name,content,'application/vnd.openxmlformats-officedocument.wordprocessingml.document')},
           headers={'X-Change-Reason':reason})
+
+    async def record_external_decision(self,task_id,*,version,command_id,acting_role_id,task_version,request_document_id,
+            decision,correction_notes,destruction_number,destination_token,name,content,mime_type):
+        data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'task_version':str(task_version),
+          'request_document_id':str(request_document_id),'decision':decision,'destination_token':destination_token}
+        if correction_notes is not None:data['correction_notes']=correction_notes
+        if destruction_number is not None:data['destruction_number']=destruction_number
+        return await self.request('POST',f'/api/v1/disposition/tasks/{task_id}/external-decision',data=data,
+          files={'file':(name,content,mime_type)},headers={'If-Match':str(version)})
+
+    async def confirm_physical(self,task_id,*,version,command_id,acting_role_id,task_version,successful,certificate_reference,destination_token,name,content,mime_type):
+        return await self.request('POST',f'/api/v1/disposition/tasks/{task_id}/physical-confirmation',data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'task_version':str(task_version),'successful':str(successful).lower(),'certificate_reference':certificate_reference,'destination_token':destination_token},files={'file':(name,content,mime_type)},headers={'If-Match':str(version)})

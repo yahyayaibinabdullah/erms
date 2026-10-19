@@ -6,6 +6,18 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'PHYSICAL_DESTRUCTION_CONFIRMED': 'audit.event.physical_destruction_confirmed',
+    'PHYSICAL_WORK_CHECKED': 'audit.event.physical_work_checked',
+    'DISPOSITION_EMAIL_REQUESTED': 'audit.event.disposition_email_requested',
+    'DISPOSITION_EMAIL_OUTCOME': 'audit.event.disposition_email_outcome',
+
+
+    'DESTRUCTION_REQUEST_GENERATED': 'audit.event.destruction_request_generated',
+    'DESTRUCTION_REQUEST_PENDING': 'audit.event.destruction_request_pending',
+    'EXTERNAL_APPROVAL_RECORDED': 'audit.event.external_approval_recorded',
+    'EXTERNAL_REJECTION_RECORDED': 'audit.event.external_rejection_recorded',
+    'REVIEW_APPROVAL_INVALIDATED': 'audit.event.disposition_review_approval_invalidated',
+
     'REVIEW_PROPOSALS_APPROVED': 'audit.event.disposition_proposals_approved',
     'REVIEW_PROPOSAL_EXECUTED': 'audit.event.disposition_proposal_executed',
     'REVIEW_EXECUTION_REPORT_PENDING': 'audit.event.disposition_execution_report_pending',

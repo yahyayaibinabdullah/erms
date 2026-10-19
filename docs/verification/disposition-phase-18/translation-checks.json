@@ -1,0 +1,38 @@
+{
+  "result": "passed",
+  "active_keys_per_language": 3619,
+  "new_keys": [
+    "audit.event.disposition_email_outcome",
+    "audit.event.disposition_email_requested",
+    "disposition.ui.disposition_email_configuration",
+    "disposition.ui.disposition_email_failed",
+    "disposition.ui.disposition_email_not_authorized",
+    "disposition.ui.disposition_email_recipient_changed",
+    "disposition.ui.disposition_email_unknown",
+    "disposition.ui.email_acceptance_hint",
+    "disposition.ui.email_attempts",
+    "disposition.ui.email_failed",
+    "disposition.ui.email_outcome",
+    "disposition.ui.email_queued",
+    "disposition.ui.email_recipient",
+    "disposition.ui.email_requested",
+    "disposition.ui.email_sender",
+    "disposition.ui.email_sending",
+    "disposition.ui.email_smtp_accepted",
+    "disposition.ui.email_status",
+    "disposition.ui.email_unknown",
+    "disposition.ui.error",
+    "disposition.ui.not_configured",
+    "disposition.ui.send_email"
+  ],
+  "preserved_previous_arabic_items": 3597,
+  "checks": [
+    "coverage/order",
+    "placeholder parity",
+    "nonblank",
+    "new-key terminology and quality",
+    "provenance/timestamps/hash",
+    "exact prior item preservation"
+  ],
+  "publication": "Not performed; new drafts require human review"
+}

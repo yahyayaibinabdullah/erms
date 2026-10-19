@@ -1346,6 +1346,34 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.destruction_request_generated",
+    "context_group": "audit.event",
+    "default_text": "Destruction Request Generated",
+    "semantic_meaning": "Destruction external request and received authority decision: Destruction Request Generated",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction Request Generated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.destruction_request_pending",
+    "context_group": "audit.event",
+    "default_text": "Destruction Request Generation Pending",
+    "semantic_meaning": "Destruction external request and received authority decision: Destruction Request Generation Pending",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction Request Generation Pending",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_accelerated",
     "context_group": "audit.event",
     "default_text": "Disposition Eligibility Accelerated",
@@ -1429,6 +1457,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Eligibility Evaluated",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_email_outcome",
+    "context_group": "audit.event",
+    "default_text": "External Document Email Outcome Recorded",
+    "semantic_meaning": "External saved-document SMTP attempt: External Document Email Outcome Recorded",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External Document Email Outcome Recorded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_email_requested",
+    "context_group": "audit.event",
+    "default_text": "External Document Email Requested",
+    "semantic_meaning": "External saved-document SMTP attempt: External Document Email Requested",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External Document Email Requested",
     "is_html": false
   },
   {
@@ -1671,6 +1727,20 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_review_approval_invalidated",
+    "context_group": "audit.event",
+    "default_text": "Review Approval Invalidated",
+    "semantic_meaning": "Destruction external request and received authority decision: Review Approval Invalidated",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review Approval Invalidated",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_review_decided",
     "context_group": "audit.event",
     "default_text": "Disposition Review Decision Recorded",
@@ -1836,6 +1906,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Export",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.external_approval_recorded",
+    "context_group": "audit.event",
+    "default_text": "External Approval Recorded",
+    "semantic_meaning": "Destruction external request and received authority decision: External Approval Recorded",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External Approval Recorded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.external_rejection_recorded",
+    "context_group": "audit.event",
+    "default_text": "External Rejection Recorded",
+    "semantic_meaning": "Destruction external request and received authority decision: External Rejection Recorded",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External Rejection Recorded",
     "is_html": false
   },
   {
@@ -2084,6 +2182,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Password Reset",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.physical_destruction_confirmed",
+    "context_group": "audit.event",
+    "default_text": "Physical Destruction Confirmed",
+    "semantic_meaning": "Readable immutable audit operation label: Physical Destruction Confirmed",
+    "common_locations": [
+      "Audit trail and disposition job history"
+    ],
+    "translator_guidance": "Use approved disposition terminology; keep a concise audit event label.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical Destruction Confirmed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.physical_work_checked",
+    "context_group": "audit.event",
+    "default_text": "Physical Work Checked",
+    "semantic_meaning": "Readable immutable audit operation label: Physical Work Checked",
+    "common_locations": [
+      "Audit trail and disposition job history"
+    ],
+    "translator_guidance": "Use approved disposition terminology; keep a concise audit event label.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical Work Checked",
     "is_html": false
   },
   {
@@ -6169,6 +6295,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_changed",
+    "context_group": "disposition.ui",
+    "default_text": "Approved job facts have changed. A new complete review round is required before this request can be approved or used.",
+    "semantic_meaning": "Destruction external request and received authority decision: Approved job facts have changed. A new complete review round is required before this request can be approved or used.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approved job facts have changed. A new complete review round is required before this request can be approved or used.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approval_confirm",
     "context_group": "disposition.ui",
     "default_text": "Approve the complete saved proposal set and apply its resource changes?",
@@ -6183,6 +6323,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_letter",
+    "context_group": "disposition.ui",
+    "default_text": "Approval letter (required)",
+    "semantic_meaning": "Destruction external request and received authority decision: Approval letter (required)",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approval letter (required)",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approve",
     "context_group": "disposition.ui",
     "default_text": "Approve and apply proposals",
@@ -6194,6 +6348,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Approve and apply proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approve_generate_request",
+    "context_group": "disposition.ui",
+    "default_text": "Approve and generate request",
+    "semantic_meaning": "Destruction external request and received authority decision: Approve and generate request",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve and generate request",
     "is_html": false
   },
   {
@@ -6268,6 +6436,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "External authority approves?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.authority_notes",
+    "context_group": "disposition.ui",
+    "default_text": "Authority correction notes",
+    "semantic_meaning": "Destruction external request and received authority decision: Authority correction notes",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Authority correction notes",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.await_external",
+    "context_group": "disposition.ui",
+    "default_text": "Awaiting external archival authority approval",
+    "semantic_meaning": "Destruction external request and received authority decision: Awaiting external archival authority approval",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Awaiting external archival authority approval",
     "is_html": false
   },
   {
@@ -6390,6 +6586,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Change owning unit",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.check_physical_work",
+    "context_group": "disposition.ui",
+    "default_text": "Check blockers before physical work",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Check blockers before physical work",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Check blockers before physical work",
     "is_html": false
   },
   {
@@ -6964,6 +7174,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_approval_invalidated",
+    "context_group": "disposition.ui",
+    "default_text": "Approved facts changed. Return this job for a new complete review round.",
+    "semantic_meaning": "Destruction external request and received authority decision: Approved facts changed. Return this job for a new complete review round.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approved facts changed. Return this job for a new complete review round.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_approval_still_current",
+    "context_group": "disposition.ui",
+    "default_text": "The approved facts are unchanged; renewed review is not required.",
+    "semantic_meaning": "Destruction external request and received authority decision: The approved facts are unchanged; renewed review is not required.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The approved facts are unchanged; renewed review is not required.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_assignee_access_required",
     "context_group": "disposition.ui",
     "default_text": "The assigned person cannot access one or more selected roots.",
@@ -7100,6 +7338,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_destruction_number_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Enter the supplied destruction number, using between 1 and 20 characters.",
+    "semantic_meaning": "Destruction external request and received authority decision: Enter the supplied destruction number, using between 1 and 20 characters.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enter the supplied destruction number, using between 1 and 20 characters.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_destruction_number_used",
+    "context_group": "disposition.ui",
+    "default_text": "This destruction number is reserved for another job and cannot be reused.",
+    "semantic_meaning": "Destruction external request and received authority decision: This destruction number is reserved for another job and cannot be reused.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This destruction number is reserved for another job and cannot be reused.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_document_render_failed",
     "context_group": "disposition.ui",
     "default_text": "The document could not be rendered. No artifact was saved.",
@@ -7157,6 +7423,76 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_email_configuration",
+    "context_group": "disposition.ui",
+    "default_text": "Configure the external authority address and complete valid SMTP settings before sending.",
+    "semantic_meaning": "External saved-document SMTP attempt: Configure the external authority address and complete valid SMTP settings before sending.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Configure the external authority address and complete valid SMTP settings before sending.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_email_failed",
+    "context_group": "disposition.ui",
+    "default_text": "The mail service did not accept this attempt. Check the configuration before deliberately sending again.",
+    "semantic_meaning": "External saved-document SMTP attempt: The mail service did not accept this attempt. Check the configuration before deliberately sending again.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The mail service did not accept this attempt. Check the configuration before deliberately sending again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_email_not_authorized",
+    "context_group": "disposition.ui",
+    "default_text": "Your current role or task does not authorize sending this saved document.",
+    "semantic_meaning": "External saved-document SMTP attempt: Your current role or task does not authorize sending this saved document.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Your current role or task does not authorize sending this saved document.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_email_recipient_changed",
+    "context_group": "disposition.ui",
+    "default_text": "The configured recipient changed. Refresh the workspace and check the address before sending.",
+    "semantic_meaning": "External saved-document SMTP attempt: The configured recipient changed. Refresh the workspace and check the address before sending.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The configured recipient changed. Refresh the workspace and check the address before sending.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_email_unknown",
+    "context_group": "disposition.ui",
+    "default_text": "SMTP acceptance could not be determined. Check with the authority before deliberately sending again.",
+    "semantic_meaning": "External saved-document SMTP attempt: SMTP acceptance could not be determined. Check with the authority before deliberately sending again.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP acceptance could not be determined. Check with the authority before deliberately sending again.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_evidence_correction_forbidden",
     "context_group": "disposition.ui",
     "default_text": "Only the assigned Records Officer or an authorized Records Manager may correct this evidence.",
@@ -7199,6 +7535,62 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "This evidence has already been corrected. Refresh the job to use its current version.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_external_decision_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Choose approval or rejection and complete its required fields.",
+    "semantic_meaning": "Destruction external request and received authority decision: Choose approval or rejection and complete its required fields.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Choose approval or rejection and complete its required fields.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_external_letter_required",
+    "context_group": "disposition.ui",
+    "default_text": "Upload the required letter for this request and decision.",
+    "semantic_meaning": "Destruction external request and received authority decision: Upload the required letter for this request and decision.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Upload the required letter for this request and decision.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_external_notes_required",
+    "context_group": "disposition.ui",
+    "default_text": "Enter the authority’s correction notes before recording rejection.",
+    "semantic_meaning": "Destruction external request and received authority decision: Enter the authority’s correction notes before recording rejection.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enter the authority’s correction notes before recording rejection.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_external_request_mismatch",
+    "context_group": "disposition.ui",
+    "default_text": "This task or request changed. Refresh the workspace before recording the decision.",
+    "semantic_meaning": "Destruction external request and received authority decision: This task or request changed. Refresh the workspace before recording the decision.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This task or request changed. Refresh the workspace before recording the decision.",
     "is_html": false
   },
   {
@@ -7323,6 +7715,160 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_physical_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "Current protection or relationships prevent physical work. Resolve the blockers before proceeding.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Current protection or relationships prevent physical work. Resolve the blockers before proceeding.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Current protection or relationships prevent physical work. Resolve the blockers before proceeding.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_certificate_required",
+    "context_group": "disposition.ui",
+    "default_text": "A governed physical destruction certificate is required.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: A governed physical destruction certificate is required.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "A governed physical destruction certificate is required.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_immutable",
+    "context_group": "disposition.ui",
+    "default_text": "A physical destruction confirmation cannot be changed or removed.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: A physical destruction confirmation cannot be changed or removed.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "A physical destruction confirmation cannot be changed or removed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_recovery_required",
+    "context_group": "disposition.ui",
+    "default_text": "Physical destruction is already confirmed. Corrections require termination and partial disposition recovery.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Physical destruction is already confirmed. Corrections require termination and partial disposition recovery.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Physical destruction is already confirmed. Corrections require termination and partial disposition recovery.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_reference_used",
+    "context_group": "disposition.ui",
+    "default_text": "This physical certificate reference has already been used.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: This physical certificate reference has already been used.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This physical certificate reference has already been used.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_release_pending",
+    "context_group": "disposition.ui",
+    "default_text": "Physical and digital destruction remain unavailable until recovery and completion verification passes. Preparation reports are available.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Physical and digital destruction remain unavailable until recovery and completion verification passes. Preparation reports are available.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Physical and digital destruction remain unavailable until recovery and completion verification passes. Preparation reports are available.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_report_required",
+    "context_group": "disposition.ui",
+    "default_text": "Generate the physical preparation report before physical work.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Generate the physical preparation report before physical work.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generate the physical preparation report before physical work.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_report_stale",
+    "context_group": "disposition.ui",
+    "default_text": "Report facts changed during generation. Refresh and generate a new report.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Report facts changed during generation. Refresh and generate a new report.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Report facts changed during generation. Refresh and generate a new report.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_required",
+    "context_group": "disposition.ui",
+    "default_text": "Confirm successful physical destruction, enter its certificate reference, and upload the certificate.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Confirm successful physical destruction, enter its certificate reference, and upload the certificate.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Confirm successful physical destruction, enter its certificate reference, and upload the certificate.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_scope_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "The physical confirmation scope no longer matches the job. Refresh the workspace.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: The physical confirmation scope no longer matches the job. Refresh the workspace.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The physical confirmation scope no longer matches the job. Refresh the workspace.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_physical_stage_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "This job is not awaiting physical destruction confirmation. Refresh the workspace.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: This job is not awaiting physical destruction confirmation. Refresh the workspace.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "This job is not awaiting physical destruction confirmation. Refresh the workspace.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_proposal_closed",
     "context_group": "disposition.ui",
     "default_text": "This proposal is closed and cannot be changed.",
@@ -7434,6 +7980,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Remove the marked members before continuing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_request_generation_pending",
+    "context_group": "disposition.ui",
+    "default_text": "The request is not available yet. Retry generation from this workspace.",
+    "semantic_meaning": "Destruction external request and received authority decision: The request is not available yet. Retry generation from this workspace.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The request is not available yet. Retry generation from this workspace.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_request_stage_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "This job is no longer waiting for request generation. Refresh the workspace.",
+    "semantic_meaning": "Destruction external request and received authority decision: This job is no longer waiting for request generation. Refresh the workspace.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This job is no longer waiting for request generation. Refresh the workspace.",
     "is_html": false
   },
   {
@@ -7797,6 +8371,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.download_physical_report",
+    "context_group": "disposition.ui",
+    "default_text": "Download preparation report",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Download preparation report",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Download preparation report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.download_request",
+    "context_group": "disposition.ui",
+    "default_text": "Download request",
+    "semantic_meaning": "Destruction external request and received authority decision: Download request",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Download request",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.download_template",
     "context_group": "disposition.ui",
     "default_text": "Download Word template",
@@ -7918,6 +8520,174 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.email_acceptance_hint",
+    "context_group": "disposition.ui",
+    "default_text": "SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. An unknown outcome may already have been accepted; check before deliberately sending again.",
+    "semantic_meaning": "External saved-document SMTP attempt: SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. An unknown outcome may already have been accepted; check before deliberately sending again.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. An unknown outcome may already have been accepted; check before deliberately sending again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_attempts",
+    "context_group": "disposition.ui",
+    "default_text": "Email attempts",
+    "semantic_meaning": "External saved-document SMTP attempt: Email attempts",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Email attempts",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Failed",
+    "semantic_meaning": "External saved-document SMTP attempt: Failed",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Failed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_outcome",
+    "context_group": "disposition.ui",
+    "default_text": "Outcome at",
+    "semantic_meaning": "External saved-document SMTP attempt: Outcome at",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Outcome at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_queued",
+    "context_group": "disposition.ui",
+    "default_text": "The email attempt was saved and queued. Open Email attempts to check its outcome.",
+    "semantic_meaning": "External saved-document SMTP attempt: The email attempt was saved and queued. Open Email attempts to check its outcome.",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The email attempt was saved and queued. Open Email attempts to check its outcome.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_recipient",
+    "context_group": "disposition.ui",
+    "default_text": "External authority email address",
+    "semantic_meaning": "External saved-document SMTP attempt: External authority email address",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External authority email address",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_requested",
+    "context_group": "disposition.ui",
+    "default_text": "Requested at",
+    "semantic_meaning": "External saved-document SMTP attempt: Requested at",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Requested at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_sender",
+    "context_group": "disposition.ui",
+    "default_text": "Sender email address",
+    "semantic_meaning": "External saved-document SMTP attempt: Sender email address",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Sender email address",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_sending",
+    "context_group": "disposition.ui",
+    "default_text": "Sending",
+    "semantic_meaning": "External saved-document SMTP attempt: Sending",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Sending",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_smtp_accepted",
+    "context_group": "disposition.ui",
+    "default_text": "Accepted by SMTP server",
+    "semantic_meaning": "External saved-document SMTP attempt: Accepted by SMTP server",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Accepted by SMTP server",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_status",
+    "context_group": "disposition.ui",
+    "default_text": "Email status",
+    "semantic_meaning": "External saved-document SMTP attempt: Email status",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Email status",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_unknown",
+    "context_group": "disposition.ui",
+    "default_text": "Outcome unknown",
+    "semantic_meaning": "External saved-document SMTP attempt: Outcome unknown",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Outcome unknown",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.empty",
     "context_group": "disposition.ui",
     "default_text": "No matching items",
@@ -7959,6 +8729,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "End",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.error",
+    "context_group": "disposition.ui",
+    "default_text": "Error",
+    "semantic_meaning": "External saved-document SMTP attempt: Error",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Error",
     "is_html": false
   },
   {
@@ -8051,6 +8835,132 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.external_approve",
+    "context_group": "disposition.ui",
+    "default_text": "Record external approval",
+    "semantic_meaning": "Destruction external request and received authority decision: Record external approval",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval. Record is an imperative verb meaning تسجيل, not the document noun وثيقة.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Record external approval",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_approved",
+    "context_group": "disposition.ui",
+    "default_text": "External approval and its letter were saved.",
+    "semantic_meaning": "Destruction external request and received authority decision: External approval and its letter were saved.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External approval and its letter were saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_decision",
+    "context_group": "disposition.ui",
+    "default_text": "External decision",
+    "semantic_meaning": "Destruction external request and received authority decision: External decision",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External decision",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_decisions",
+    "context_group": "disposition.ui",
+    "default_text": "External decisions",
+    "semantic_meaning": "Destruction external request and received authority decision: External decisions",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "External decisions",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_form",
+    "context_group": "disposition.ui",
+    "default_text": "Record external destruction approval",
+    "semantic_meaning": "Destruction external request and received authority decision: Record external destruction approval",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval. Record is an imperative verb meaning تسجيل, not the document noun وثيقة.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Record external destruction approval",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Record the received decision against this request. Approval requires its destruction number and letter; rejection requires the authority’s notes and letter.",
+    "semantic_meaning": "Destruction external request and received authority decision: Record the received decision against this request. Approval requires its destruction number and letter; rejection requires the authority’s notes and letter.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval. Initial Record is an imperative verb meaning تسجيل.",
+    "grammatical_role": "imperative sentence",
+    "parameter_schema": {},
+    "rendered_example": "Record the received decision against this request. Approval requires its destruction number and letter; rejection requires the authority’s notes and letter.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_letter",
+    "context_group": "disposition.ui",
+    "default_text": "Authority letter",
+    "semantic_meaning": "Destruction external request and received authority decision: Authority letter",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Authority letter",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_reject",
+    "context_group": "disposition.ui",
+    "default_text": "Record external rejection",
+    "semantic_meaning": "Destruction external request and received authority decision: Record external rejection",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval. Record is an imperative verb meaning تسجيل, not the document noun وثيقة.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Record external rejection",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_rejected",
+    "context_group": "disposition.ui",
+    "default_text": "Rejection and its letter were saved. The job has returned for correction.",
+    "semantic_meaning": "Destruction external request and received authority decision: Rejection and its letter were saved. The job has returned for correction.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Rejection and its letter were saved. The job has returned for correction.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.external_rejection_letter",
     "context_group": "disposition.ui",
     "default_text": "External rejection letter",
@@ -8063,6 +8973,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "External rejection letter",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.external_required",
+    "context_group": "disposition.ui",
+    "default_text": "Complete the required fields and upload the authority’s letter. Nothing has been saved.",
+    "semantic_meaning": "Destruction external request and received authority decision: Complete the required fields and upload the authority’s letter. Nothing has been saved.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Complete the required fields and upload the authority’s letter. Nothing has been saved.",
     "is_html": false
   },
   {
@@ -8225,6 +9149,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Generate and save digital certificate",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.generate_physical_report",
+    "context_group": "disposition.ui",
+    "default_text": "Generate a new preparation report",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Generate a new preparation report",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Generate a new preparation report",
     "is_html": false
   },
   {
@@ -8839,6 +9777,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.not_configured",
+    "context_group": "disposition.ui",
+    "default_text": "Not configured",
+    "semantic_meaning": "External saved-document SMTP attempt: Not configured",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Not configured",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.number",
     "context_group": "disposition.ui",
     "default_text": "Number",
@@ -8852,6 +9804,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Number",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.number_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Enter the number exactly as supplied. Up to 20 characters; letters, numbers and special characters are accepted.",
+    "semantic_meaning": "Destruction external request and received authority decision: Enter the number exactly as supplied. Up to 20 characters; letters, numbers and special characters are accepted.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Enter the number exactly as supplied. Up to 20 characters; letters, numbers and special characters are accepted.",
     "is_html": false
   },
   {
@@ -9067,6 +10033,48 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.physical_certificate_reference",
+    "context_group": "disposition.ui",
+    "default_text": "Physical destruction certificate reference",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Physical destruction certificate reference",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical destruction certificate reference",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_confirmation_text",
+    "context_group": "disposition.ui",
+    "default_text": "I confirm that physical destruction was completed successfully.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: I confirm that physical destruction was completed successfully.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "I confirm that physical destruction was completed successfully.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_confirmed",
+    "context_group": "disposition.ui",
+    "default_text": "Physical destruction confirmed; this outcome cannot be reversed.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Physical destruction confirmed; this outcome cannot be reversed.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical destruction confirmed; this outcome cannot be reversed.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.physical_destruction",
     "context_group": "disposition.ui",
     "default_text": "Physical destruction",
@@ -9113,6 +10121,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.physical_report_pending",
+    "context_group": "disposition.ui",
+    "default_text": "The physical preparation report is pending. A Records Manager can generate it here.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: The physical preparation report is pending. A Records Manager can generate it here.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The physical preparation report is pending. A Records Manager can generate it here.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.physical_scope",
     "context_group": "disposition.ui",
     "default_text": "Any physical or mixed material?",
@@ -9124,6 +10146,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Any physical or mixed material?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_work_checked",
+    "context_group": "disposition.ui",
+    "default_text": "Current checks passed. Physical work must follow the checked scope.",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Current checks passed. Physical work must follow the checked scope.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current checks passed. Physical work must follow the checked scope.",
     "is_html": false
   },
   {
@@ -9167,6 +10203,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Preview document",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preview_physical_report",
+    "context_group": "disposition.ui",
+    "default_text": "Preview preparation report",
+    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Preview preparation report",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preview preparation report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preview_request",
+    "context_group": "disposition.ui",
+    "default_text": "Preview request",
+    "semantic_meaning": "Destruction external request and received authority decision: Preview request",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preview request",
     "is_html": false
   },
   {
@@ -9503,6 +10567,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.rejection_letter",
+    "context_group": "disposition.ui",
+    "default_text": "Rejection letter (required)",
+    "semantic_meaning": "Destruction external request and received authority decision: Rejection letter (required)",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Rejection letter (required)",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.related_aggregation_id",
     "context_group": "disposition.ui",
     "default_text": "Related aggregation",
@@ -9691,6 +10769,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.renew_review",
+    "context_group": "disposition.ui",
+    "default_text": "Return for renewed review",
+    "semantic_meaning": "Destruction external request and received authority decision: Return for renewed review",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Return for renewed review",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.reopened",
     "context_group": "disposition.ui",
     "default_text": "Reopened — must be removed from this job",
@@ -9761,6 +10853,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Repository default v1",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.request_form",
+    "context_group": "disposition.ui",
+    "default_text": "Request for Destruction Form",
+    "semantic_meaning": "Destruction external request and received authority decision: Request for Destruction Form",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Request for Destruction Form",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.request_pending",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal approval was saved. The request could not be generated; review the error or retry from this workspace.",
+    "semantic_meaning": "Destruction external request and received authority decision: Proposal approval was saved. The request could not be generated; review the error or retry from this workspace.",
+    "common_locations": [
+      "Destruction workspace, external decision form and history"
+    ],
+    "translator_guidance": "Use approved records terminology. A received decision and letter are distinct from internal proposal approval.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal approval was saved. The request could not be generated; review the error or retry from this workspace.",
     "is_html": false
   },
   {
@@ -10197,6 +11317,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Type at least two characters to search",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.send_email",
+    "context_group": "disposition.ui",
+    "default_text": "Send by email",
+    "semantic_meaning": "External saved-document SMTP attempt: Send by email",
+    "common_locations": [
+      "Destruction workspace, email controls and attempt history"
+    ],
+    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Send by email",
     "is_html": false
   },
   {

@@ -378,7 +378,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         if job['job_type']=='destruction':
             from .review import ReviewForm,workflow_panel
             workflow_panel(job)
-            review=ReviewForm(api=api,workspace=workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource)
+            review=ReviewForm(api=api,workspace=workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource,preview=preview)
             if register_dirty:register_dirty(review.dirty)
         ui.separator();ui.label(text('members')).classes('text-lg font-semibold')
         with ui.row().classes('w-full gap-3 items-end'):
