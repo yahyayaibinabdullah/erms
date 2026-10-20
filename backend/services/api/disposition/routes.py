@@ -204,10 +204,14 @@ def correct_evidence(job_id: int,document_id: int,request: Request,
 
 
 @router.get('/jobs/{job_id}/documents/{document_id}/content')
-def document_content(job_id: int,document_id: int,request: Request,c: Connection=Depends(get_connection,scope='function')):
+def document_content(job_id: int,document_id: int,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     from ..main import download_digital_component_content
     row=artifacts.document(c,job_id,document_id)
-    return download_digital_component_content(row['digital_component_id'],request,c)
+    response=download_digital_component_content(row['digital_component_id'],request,c)
+    if row['document_type']=='digital_destruction_certificate':
+        from .completion import downloaded
+        downloaded(c,job_id,document_id)
+    return response
 
 
 @router.get('/jobs/{job_id}/documents/{document_id}/preview')
@@ -260,7 +264,7 @@ class ReassignTask(Command):
 @router.get('/tasks')
 def read_tasks(limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
                sort: str='received',descending: bool=False,
-               state: Literal['open','claimed'] | None=None,job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),stage: str | None=Query(None,max_length=100),task_type: str | None=Query(None,max_length=100),indicator: Literal['blocked','removal_required','failed_reports','destruction_failed'] | None=None,min_priority: int | None=None,min_roots: int | None=Query(None,ge=0),has_claimant: bool | None=None,
+               state: Literal['open','claimed'] | None=None,job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),stage: str | None=Query(None,max_length=100),task_type: str | None=Query(None,max_length=100),indicator: Literal['blocked','removal_required','failed_reports','destruction_failed','certificate_failed'] | None=None,min_priority: int | None=None,min_roots: int | None=Query(None,ge=0),has_claimant: bool | None=None,
                c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workflow
     return workflow.tasks(c,limit=limit,offset=offset,sort=sort,descending=descending,state=state,job_id=job_id,query=query,stage=stage,task_type=task_type,indicator=indicator,min_priority=min_priority,min_roots=min_roots,has_claimant=has_claimant)
@@ -670,6 +674,23 @@ def resolve_partial_job(job_id: int,payload: BulkPartialRecovery,request: Reques
 class DigitalDestruction(Command):
     task_version: StrictInt=Field(ge=1)
     confirmed: StrictBool
+
+
+class RetryCertificate(Command):
+    task_id: StrictInt=Field(ge=1)
+    task_version: StrictInt=Field(ge=1)
+
+
+@router.post('/jobs/{job_id}/retry-certificate')
+def retry_certificate(job_id:int,payload:RetryCertificate,request:Request,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
+    from . import completion
+    return _command(c,request,payload,completion.retry,job_id=job_id,task_id=payload.task_id,task_version=payload.task_version,expected_version=version)
+
+
+@router.get('/jobs/{job_id}/completion-progress')
+def read_completion_progress(job_id:int,c:Connection=Depends(get_consistent_connection,scope='function')):
+    from . import completion
+    return completion.view(c,artifacts.require_workspace(c,job_id))
 
 
 @router.post('/tasks/{task_id}/digital-destruction')

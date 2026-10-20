@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-  "catalogue_sha256": "0072bfeb848e4d9ec5406f5e6e685a0a59111b8cc592cba1bee8fdbbdee83fd5",
+  "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -154,6 +154,27 @@
     "relationships.ui.symmetric": [
       "العلاقة نفسها في كلا الاتجاهين",
       "استخدم الاسم نفسه في كلا الاتجاهين."
+    ],
+    "disposition.ui.blocking_security": [
+      "رفع المستوى الأمني المانع للإتلاف"
+    ],
+    "disposition.ui.disposition_blocking_security_required": [
+      "اختر مستوى أمنياً أعلى يمنع التصرف النهائي."
+    ],
+    "disposition.ui.disposition_destination_unset": [
+      "اضبط مخطط التصنيف وهذه الوجهة في الإدارة ← الإعدادات ← التصرف قبل المتابعة."
+    ],
+    "disposition.ui.held": [
+      "التعليقات القانونية"
+    ],
+    "disposition.ui.hold_ids": [
+      "أوامر التعليق القانونية"
+    ],
+    "disposition.ui.mixed": [
+      "مختلط"
+    ],
+    "disposition.ui.security_level_id": [
+      "المستوى الأمني"
     ]
   },
   "items": [
@@ -1274,6 +1295,26 @@
       }
     },
     {
+      "message_key": "audit.event.destruction_job_completed",
+      "translated_text": "اكتملت عملية الإتلاف",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "audit.event.destruction_request_generated",
       "translated_text": "إنشاء طلب الإتلاف",
       "quality_flags": [
@@ -1311,6 +1352,66 @@
         "catalogue_sha256": "c6cb41cfaf54b9e90648ec8ecdf5da595ed38336216657752baa459860a9cccf",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "audit.event.digital_certificate_downloaded",
+      "translated_text": "نُزّلت شهادة الإتلاف الرقمي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "audit.event.digital_certificate_failed",
+      "translated_text": "تعذر إنشاء شهادة الإتلاف الرقمي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "audit.event.digital_certificate_retry_requested",
+      "translated_text": "طُلبت إعادة محاولة شهادة الإتلاف الرقمي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -6235,7 +6336,7 @@
     },
     {
       "message_key": "disposition.ui.blocking_security",
-      "translated_text": "رفع المستوى الأمني المانع للإتلاف",
+      "translated_text": "رفع درجة السرية المانعة للإتلاف",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -6250,7 +6351,13 @@
         "batch_id": "disposition-phase16-20261019",
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "رفع المستوى الأمني المانع للإتلاف",
+          "review_required": true
+        }
       }
     },
     {
@@ -6294,6 +6401,66 @@
       }
     },
     {
+      "message_key": "disposition.ui.certificate_download_hint",
+      "translated_text": "اكتملت العملية. نزّل الشهادة المحفوظة للجهة الأرشيفية الخارجية، أو أرسلها بالبريد الإلكتروني. ويظل التسليم والاستلام خارج وثيق مسؤولية الجهات الخارجية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.certificate_download_recorded",
+      "translated_text": "سُجّل تنزيل الشهادة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.certificate_failed",
+      "translated_text": "استرداد الشهادة مطلوب",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "disposition.ui.certificate_generation",
       "translated_text": "إنشاء الشهادة",
       "quality_flags": [
@@ -6311,6 +6478,86 @@
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.certificate_queued",
+      "translated_text": "اكتمل الإتلاف الرقمي. إنشاء الشهادة في قائمة الانتظار.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.certificate_retry_requested",
+      "translated_text": "طُلبت إعادة محاولة الشهادة فقط.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.certificate_running",
+      "translated_text": "اكتمل الإتلاف الرقمي. يجري إنشاء الشهادة وحفظها.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.certificate_succeeded",
+      "translated_text": "تكتمل عملية الإتلاف هذه بشهادة الإتلاف الرقمي المحفوظة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -6531,6 +6778,26 @@
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.completion_external_copies_warning",
+      "translated_text": "يجب أيضًا إتلاف النسخ الاحتياطية والنسخ المحفوظة خارج وثيق. ويقع ضمان إتلافها خارج مسؤولية وثيق.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -7335,7 +7602,7 @@
     },
     {
       "message_key": "disposition.ui.disposition_blocking_security_required",
-      "translated_text": "اختر مستوى أمنياً أعلى يمنع التصرف النهائي.",
+      "translated_text": "اختر درجة سرية أعلى تمنع التصرف النهائي.",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -7350,7 +7617,233 @@
         "batch_id": "disposition-phase16-20261019",
         "catalogue_sha256": "a81f5438ad4bdf9604a132d19192315afd33943096e60150ba9bfe86ca4f7ce5",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "اختر مستوى أمنياً أعلى يمنع التصرف النهائي.",
+          "review_required": true
+        }
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_claim_lost",
+      "translated_text": "تغيرت مسؤولية معالجة الشهادة. حدّث العملية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_download_required",
+      "translated_text": "نزّل الشهادة المحفوظة لإكمال مهمة تنزيلها.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_generation_failed",
+      "translated_text": "تعذر إنشاء شهادة الإتلاف الرقمي أو حفظها. حُفظ تقدم الإتلاف؛ ويمكن لمدير وثائق مخوّل إعادة محاولة الشهادة فقط.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_interrupted",
+      "translated_text": "انقطعت معالجة الشهادة. يجب على مدير وثائق مخوّل إعادة محاولة إنشاء الشهادة وحفظها فقط.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_required",
+      "translated_text": "لا يمكن إكمال العملية دون شهادة الإتلاف الرقمي المحفوظة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_retry_unavailable",
+      "translated_text": "لا تتاح إعادة محاولة الشهادة فقط. حدّث العملية لعرض تقدمها الحالي.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_snapshot_changed",
+      "translated_text": "تغيرت بيانات الشهادة. حدّث العملية قبل إعادة المحاولة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_certificate_task_unavailable",
+      "translated_text": "لم تعد مهمة تنزيل الشهادة متاحة. حدّث العملية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_completion_command_required",
+      "translated_text": "لا يجوز حفظ الشهادة أو إكمال هذه العملية إلا عبر إجراء الإكمال المحمي.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_completion_stage_invalid",
+      "translated_text": "لا يتاح إكمال الشهادة في المرحلة الحالية للعملية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_completion_unfinished",
+      "translated_text": "يجب إتمام إتلاف جميع وحدات التصرف قبل إكمال العملية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -7435,7 +7928,7 @@
     },
     {
       "message_key": "disposition.ui.disposition_destination_unset",
-      "translated_text": "اضبط مخطط التصنيف وهذه الوجهة في الإدارة ← الإعدادات ← التصرف قبل المتابعة.",
+      "translated_text": "اضبط نظام التصنيف وهذه الوجهة في الإدارة ← الإعدادات ← التصرف قبل المتابعة.",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -7450,7 +7943,13 @@
         "batch_id": "disposition-phase11-20261015",
         "catalogue_sha256": "0d7ccadbbdd5dc422983bf7e45891387c6218f358a419c4fd4e399b3c772ad82",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "اضبط مخطط التصنيف وهذه الوجهة في الإدارة ← الإعدادات ← التصرف قبل المتابعة.",
+          "review_required": true
+        }
       }
     },
     {
@@ -9374,6 +9873,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.download_digital_certificate",
+      "translated_text": "تنزيل شهادة الإتلاف الرقمي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "disposition.ui.download_document",
       "translated_text": "تنزيل المستند",
       "quality_flags": [
@@ -10735,7 +11254,7 @@
     },
     {
       "message_key": "disposition.ui.held",
-      "translated_text": "التعليقات القانونية",
+      "translated_text": "تعليقات قنونية",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -10750,7 +11269,13 @@
         "batch_id": "disposition-phase10-20261015",
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "التعليقات القانونية",
+          "review_required": true
+        }
       }
     },
     {
@@ -10795,7 +11320,7 @@
     },
     {
       "message_key": "disposition.ui.hold_ids",
-      "translated_text": "أوامر التعليق القانونية",
+      "translated_text": "تعليقات قنونية",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -10810,7 +11335,13 @@
         "batch_id": "disposition-phase16-20261019",
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "أوامر التعليق القانونية",
+          "review_required": true
+        }
       }
     },
     {
@@ -11335,7 +11866,7 @@
     },
     {
       "message_key": "disposition.ui.mixed",
-      "translated_text": "مختلط",
+      "translated_text": "هجين",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -11350,7 +11881,13 @@
         "batch_id": "disposition-phase16-20261019",
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "مختلط",
+          "review_required": true
+        }
       }
     },
     {
@@ -13434,6 +13971,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.retry_certificate",
+      "translated_text": "إعادة محاولة إنشاء الشهادة وحفظها",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase22-v1",
+        "generated_at": "2026-10-19T19:43:11.046855+00:00",
+        "batch_id": "disposition-phase22-20261019",
+        "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "disposition.ui.retry_digital",
       "translated_text": "إعادة محاولة الإتلاف الرقمي",
       "origin": "generated",
@@ -13855,7 +14412,7 @@
     },
     {
       "message_key": "disposition.ui.security_level_id",
-      "translated_text": "المستوى الأمني",
+      "translated_text": "درجة السرية",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -13870,7 +14427,13 @@
         "batch_id": "disposition-phase16-20261019",
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+        "terminology_correction": {
+          "phase": 23,
+          "reason": "Invalidated machine terminology; approved glossary correction",
+          "previous_text": "المستوى الأمني",
+          "review_required": true
+        }
       }
     },
     {

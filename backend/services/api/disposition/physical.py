@@ -62,6 +62,9 @@ def confirm(c,*,task_id,expected_version,task_version,successful,certificate_ref
               reason='Store completed physical destruction certificate',staged=staged,preview=preview,provenance={'physical_command_id':str(command_id),'certificate_reference':certificate_reference})
         result=execute_command(c,command_id=command_id,operation='review_decide',payload=payload,acting_role_id=acting_role_id,reason='Confirm successful offline physical destruction',
           apply=lambda x:x.execute('SELECT disposition_private.confirm_physical(%s,%s,%s,%s,%s,%s) result',(task_id,expected_version,task_version,successful,certificate_reference,certificate['id'])).fetchone()['result'])
+        if result['workflow_stage']=='physical_destruction':
+            completed=execute_command(c,command_id=uuid5(command_id,'physical-completion'),operation='final_complete',payload={'job_id':t['job_id'],'physical_confirmation_id':result['id']},acting_role_id=acting_role_id,reason='Complete physical-only destruction with saved physical evidence',apply=lambda x:x.execute('SELECT disposition_private.finish_destruction_job(%s) result',(t['job_id'],)).fetchone()['result'])
+            result={**result,**completed}
         artifacts.document(c,t['job_id'],result['certificate_document_id']);return result
 
 

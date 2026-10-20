@@ -247,21 +247,20 @@ def test_http_enqueue_idempotence_bounded_history_and_received_task_closure(clie
 
 
 def test_certificate_shared_sender_after_completion_requires_actual_manager(client,monkeypatch):
-    from backend.services.api.tests.test_disposition_templates import sample
-    from backend.services.api.application_settings import load_snapshot
-    from backend.services.api.disposition import artifacts
-    from backend.services.api.tests.test_disposition_membership import job_version
+    from backend.services.api.tests.test_disposition_destruction import prepared as digital_prepared,request as destroy_request,release_fixture
+    from backend.services.api.disposition.destruction_worker import run_pass
+    monkeypatch.setattr(documents.engine,'render',lambda *a:(preview_pdf(),{}))
+    try:
+        with db() as c:
+            job,root,manager_role=digital_prepared(c,monkeypatch)
+            officer_role=officer(c);smtp(c);release_fixture(c);destroy_request(c,job,manager_role)
+        assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    finally:
+        with db() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
     with db() as c:
-        job,request_doc,officer_role=request(c,monkeypatch)
-        manager_role=c.execute("SELECT r.id FROM roles r JOIN profiles p ON p.id=r.profile_id WHERE p.code='INFO_GOV_MGR' ORDER BY r.id LIMIT 1").fetchone()['id']
-        settings_value=load_snapshot(c);c.commit();actor(c)
-        cert=documents.generate(c,job_id=job['id'],expected_version=job_version(c,job['id']),kind='digital_destruction_certificate',snapshot=sample('digital_destruction_certificate',job['id']),command_id=uuid4(),acting_role_id=manager_role,reason='Synthetic future certificate fixture',preview=artifacts.destination(c,job['id'],'digital_destruction_certificate'),settings=settings_value,connection_factory=db)
-        c.commit();actor(c)
-        # Synthetic terminal-state fixture only. Phase 22 owns the real final
-        # action/generation/completion integration; no deletion is implemented.
-        c.execute('ALTER TABLE disposition_jobs DISABLE TRIGGER USER')
-        c.execute("""UPDATE disposition_jobs SET lifecycle_state='completed',disposition_status=10,destruction_number='CERT-18',completed_at=CURRENT_TIMESTAMP,completed_by_user_id=1,completed_by_name='Synthetic acceptance',final_event_id=(SELECT max(id) FROM event_history WHERE entity_type='disposition_job' AND entity_id=%s) WHERE id=%s""",(job['id'],job['id']))
-        c.execute('ALTER TABLE disposition_jobs ENABLE TRIGGER USER');c.commit();actor(c)
+        actor(c)
+        cert=c.execute("SELECT id FROM disposition_job_documents WHERE job_id=%s AND document_type='digital_destruction_certificate'",(job['id'],)).fetchone()
+        assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['lifecycle_state']=='completed'
         with pytest.raises(Exception,match='disposition_email_not_authorized'):enqueue(c,job,cert['id'],officer_role)
         first=enqueue(c,job,cert['id'],manager_role);second=enqueue(c,job,cert['id'],manager_role);assert first!=second
         before=c.execute('SELECT to_jsonb(j) value FROM disposition_jobs j WHERE id=%s',(job['id'],)).fetchone()['value']

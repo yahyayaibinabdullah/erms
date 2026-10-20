@@ -2,8 +2,8 @@
 
 **Status:** Approved implementation plan
 **Approved:** 12 October 2026
-**Revision:** 1.2
-**Amendment approved:** 13 October 2026
+**Revision:** 1.3
+**Amendment approved:** 20 October 2026
 **Date:** 12 October 2026
 
 ## 1. Purpose and scope
@@ -637,6 +637,14 @@ disposition/audit access. Do not rely solely on mocked file deletion.
 
 ### Phase 22 Complete certificates and final task behavior
 
+**Status:** Complete (20 October 2026). See `docs/disposition-phase-22.md` for
+automated, English and Arabic live verification evidence. Operational release
+remains subject to Phase 23.
+
+**Scope clarification approved:** 20 October 2026. Separate evidence-file expiry
+and deletion are outside this phase; protected governed evidence and permanent
+provenance/history remain required.
+
 **Priority:** Destruction completion. **Dependencies:** Phases 18 and 21.
 
 **Scope:** Generate and save exactly one digital certificate as evidence before
@@ -651,10 +659,13 @@ completion, failure, or required action through existing notifications.
 certificate storage failure after successful deletion; missing destinations;
 retry deduplication; complete final fields; download not gating completion;
 post-completion send history; completion warnings; and evidence surviving unit
-destruction. Verify evidence-retention expiry preserves permanent provenance
-and deletion history under the existing approved retention policy.
+destruction. Verify supporting evidence and its permanent provenance/history
+survive the original unit's destruction. A separate evidence-file expiry or
+deletion workflow is outside this phase.
 
 ### Phase 23 Run complete workflow and upgrade acceptance
+
+**Status:** Complete (20 October 2026). See `docs/disposition-phase-23.md`.
 
 **Priority:** Release gate. **Dependencies:** All applicable preceding phases.
 
@@ -673,6 +684,10 @@ translation, pagination and performance verification. Resolve failures at their
 owning phase; do not waive them as integration follow-ups.
 
 ### Phase 24 Prepare the controlled rollout and implementation handoff
+
+**Status:** Complete (20 October 2026). See `docs/disposition-phase-24.md` and
+`docs/disposition-rollout.md`. Preparation only; persistent deployment and
+operational destruction require separate authorization.
 
 **Priority:** Delivery. **Dependencies:** Phase 23.
 
@@ -826,6 +841,8 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 
 | 9 | 2026-10-15 05:39:43 | 2026-10-15 06:14:25 | 0.58 | 0.00 | Measured | Protected common job/membership/assignment/owning-unit/acceleration/termination commands and atomic policy/reopening/hierarchy recalculation; 201 full-suite plus three final CHECK cases passed on each fresh/upgrade path, 83 API regressions, 39 tools and five labels/export checks passed. Exact final catalogue parity and prior active membership/data preserved; all 26 disposable databases independently absent. Ten Arabic drafts merged preserving all 3194 prior items; no persistent DB/environment/service change. Final evidence bookkeeping follows captured end boundary. |
 
+| 22 | Not captured | 2026-10-19 20:59:12 | — | — | Incomplete timing | Certificate-only recovery, digital/mixed and physical-only completion, final download/email behavior, notification and upgrade tests; English browser and MailDev checks passed. Live Arabic connection unavailable; DISP-35 policy unresolved. No measured active-hours claim. See docs/disposition-phase-22.md. |
+
 ### Phase totals
 
 A dash means no implementation time has been recorded, not zero hours worked.
@@ -842,18 +859,18 @@ Update status from actual progress; specification approval is not implementation
 | 7 | Complete | 2026-10-15 03:28:46 UTC | 2026-10-15 04:01:10 UTC | 0.54 | — | 0.00 |
 | 8 | Complete | 2026-10-15 04:30:35 UTC | 2026-10-15 05:04:59 UTC | 0.57 | — | 0.00 |
 | 9 | Complete | 2026-10-15 05:39:43 UTC | 2026-10-15 06:14:25 UTC | 0.58 | — | 0.00 |
-| 10 | Not started | — | — | — | — | — |
-| 11 | Not started | — | — | — | — | — |
-| 12 | Not started | — | — | — | — | — |
-| 13 | Not started | — | — | — | — | — |
-| 14 | Not started | — | — | — | — | — |
-| 15 | Not started | — | — | — | — | — |
-| 16 | Not started | — | — | — | — | — |
-| 17 | Not started | — | — | — | — | — |
-| 18 | Not started | — | — | — | — | — |
-| 19 | Not started | — | — | — | — | — |
-| 20 | Not started | — | — | — | — | — |
-| 21 | Not started | — | — | — | — | — |
-| 22 | Not started | — | — | — | — | — |
-| 23 | Not started | — | — | — | — | — |
-| 24 | Not started | — | — | — | — | — |
+| 10 | Complete | 2026-10-15 06:16:18 | 2026-10-15 08:06:07 | 1.83 | — | 0.0 |
+| 11 | Complete | 2026-10-15 08:10:36 | 2026-10-15 09:31:56 | 0.99 | — | 0.3625 |
+| 12 | Complete | 2026-10-15 09:55:03 | 2026-10-15 11:13:53 | 1.31 | — | — |
+| 13 | Complete | 2026-10-19 05:06:47 | 2026-10-19 05:43:40 | 0.61 | — | — |
+| 14 | Complete | 2026-10-19 05:44:21 | 2026-10-19 06:19:31 | 0.59 | — | — |
+| 15 | Complete | — | 2026-10-19T07:21:16.948547+00:00 | — | — | — |
+| 16 | Complete | — | 2026-10-19T09:34:41.191119+00:00 | — | — | — |
+| 17 | Complete | — | 2026-10-19T10:29:02.932984+00:00 | — | — | — |
+| 18 | Complete | — | 2026-10-19T15:06:17.058127+00:00 | — | — | — |
+| 19 | Complete | — | — | — | — | — |
+| 20 | Complete | — | — | — | — | — |
+| 21 | Complete | — | — | — | — | — |
+| 22 | Complete | 2026-10-19 (time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
+| 23 | Complete | 2026-10-20 (initial time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
+| 24 | Complete | 2026-10-20 (initial time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |

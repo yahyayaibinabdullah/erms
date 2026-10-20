@@ -923,3 +923,12 @@ longer enable scheduling or search. The removed WebUI flag has no authority.
 See [application-settings-upgrade.md](application-settings-upgrade.md) for the
 reviewed 34-key upgrade and [configuration-authority-inventory.json](configuration-authority-inventory.json)
 for ownership, defaults, consumers, service templates and restart requirements.
+
+## Disposition controlled rollout (through migration 070)
+
+Use [the Phase 24 colleague runbook](disposition-rollout.md) for ordered existing
+schema upgrades, fresh installation, per-database reviewed settings migration,
+role/destination/SMTP/template prerequisites, worker startup and recovery. See
+[the disposable rehearsal evidence](disposition-phase-24.md). This is rollout
+preparation; persistent deployment and physical/digital destruction still require
+explicit authorization. The delivered operational release gates remain false.

@@ -30,6 +30,7 @@ def process_source(job):
     active={'officer_preparation':'A','manager_preparation':'A','officer_correction':'T','manager_correction':'MC',
         'file_administrator_review':'B','unit_manager_review':'C','records_manager_review':'F','external_approval_pending':'I',
         'physical_destruction':'L','digital_destruction':'M','certificate_generation':'N','completed':'P'}.get(job.get('workflow_stage'))
+    if job.get('lifecycle_state')=='completed':active='P'
     if active:lines+=['classDef current stroke:#1565c0,stroke-width:4px;','class '+active+' current;']
     return '\n'.join(lines)
 

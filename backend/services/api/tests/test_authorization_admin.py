@@ -27,7 +27,8 @@ def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient
         "messaging.user_messages.exchange", "messaging.monitor",
         "messaging.notifications.administer",
     }
-    assert len(set(privileges) - separately_seeded) == 61
+    assert len(set(privileges) - separately_seeded) == 65
+    assert {"relationships.link", "relationships.administer", "app.settings.manage", "disposition.jobs.manage"} <= set(privileges)
     assert privileges["localization.administer"]["is_reserved"] is True
     assert {
         "classification_scheme.modify_metadata", "classification.modify_metadata",

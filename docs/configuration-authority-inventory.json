@@ -559,7 +559,7 @@
       "consumers": [
         {
           "path": "backend/services/api/content_storage.py",
-          "line": 285
+          "line": 289
         }
       ],
       "templates": [
@@ -754,6 +754,18 @@
           "line": 71
         },
         {
+          "path": "backend/services/api/disposition/destruction_worker.py",
+          "line": 26
+        },
+        {
+          "path": "backend/services/api/disposition/communications.py",
+          "line": 14
+        },
+        {
+          "path": "backend/services/api/disposition/eligibility.py",
+          "line": 76
+        },
+        {
           "path": "frontend/webui/scripts/sync_privilege_translation_keys.py",
           "line": 140
         }
@@ -882,13 +894,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Scheme for both disposition destinations; unset blocks the relevant artifact tasks.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -900,13 +916,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/reminders.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Calendar months between future eligibility reminders; no historical reminders are sent.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -917,14 +937,12 @@
       "default_or_requirement": "Standard",
       "category": "disposition",
       "consumers": [
-        {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
-        }
+        "database/migrations/058_disposition_routing.sql: job creation and saved-route workflow",
+        "backend/services/api/disposition/queries.py: new-job and saved-job assignee selectors"
       ],
       "templates": [],
       "purpose": "New jobs capture this route permanently. Records Manager Only omits independent internal review.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "captured_on_job_creation; immutable_saved_route_and_all_three_routes_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -936,13 +954,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Recipient for subsequent document email attempts; unset prevents sending.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -954,13 +976,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Recipient authority on new request forms; earlier forms retain their original name.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -972,13 +998,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Terminal classification in the selected scheme for generated reports, excluding the digital destruction certificate.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -990,13 +1020,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Terminal classification in the selected scheme for uploads and the digital destruction certificate.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1067,7 +1101,7 @@
       "consumers": [
         {
           "path": "backend/services/api/document_conversion.py",
-          "line": 29
+          "line": 35
         }
       ],
       "templates": [
@@ -1699,13 +1733,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Configure whether authentication is needed; enabled requires username and password.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1717,13 +1755,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Outgoing mail server; unset prevents sending.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1735,13 +1777,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Protected credential replacement; saved passwords are never readable. Required when authentication is enabled.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1753,13 +1799,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Port from 1 to 65535; untouched default follows security mode: 587 for STARTTLS or 465 for implicit TLS.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1771,13 +1821,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Optional reply-to address for outgoing document email.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1789,13 +1843,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Configure STARTTLS or implicit TLS; certificate verification stays enabled.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1807,13 +1865,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Sender address required for outgoing document email.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1825,13 +1887,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Optional sender display name.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1843,13 +1909,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Positive connection and send timeout in seconds.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1861,13 +1931,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11\u201323; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Username required when SMTP authentication is enabled.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },

@@ -99,15 +99,15 @@ def release(c,run_id):c.execute('SELECT pg_advisory_unlock(hashtextextended(%s,0
 SAFE_ERRORS=frozenset(('disposition_task_claim_required','disposition_task_ineligible','disposition_digital_interrupted','disposition_digital_scope_changed','disposition_digital_blocked','disposition_physical_recovery_required','disposition_processing_cleanup_required','disposition_storage_backend_unsupported','disposition_authorization_required','disposition_manager_role_required','disposition_resource_access_required','disposition_inactive_job','disposition_digital_stage_invalid','disposition_approval_invalidated','disposition_assignee_not_authorized','disposition_removal_required'))
 
 
-def execute_unit(c,unit):
+def execute_unit(c,unit,*,event_source='scheduled_job'):
     # A worker acts for the actual authenticated requester and rechecks that
     # person's present authority; no service account is recorded as executor.
-    c.execute("SELECT set_config('app.user_id',%s,true),set_config('app.actor_type','user',true),set_config('app.event_source','scheduled_job',true)",(str(unit['requested_by_user_id']),))
+    c.execute("SELECT set_config('app.user_id',%s,true),set_config('app.actor_type','user',true),set_config('app.event_source',%s,true)",(str(unit['requested_by_user_id']),event_source))
     return execute_command(c,command_id=uuid4(),operation='final_complete',payload={'job_id':unit['job_id'],'run_id':unit['id'],'root_id':unit['root_id']},acting_role_id=unit['acting_role_id'],reason='Execute confirmed digital destruction',
       apply=lambda x:x.execute('SELECT disposition_private.finish_digital_unit(%s,%s,%s) result',(unit['id'],unit['root_id'],unit['claim_token'])).fetchone()['result'])
 
 
-def process_one(factory):
+def process_one(factory,*,event_source='scheduled_job'):
     # Dedicated connection: the session mutex survives the claim commit and is
     # always released before returning the connection to a pool.
     with factory() as c:
@@ -122,7 +122,7 @@ def process_one(factory):
             if not unit:return False
             try:
                 c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE')
-                execute_unit(c,unit);c.commit()
+                execute_unit(c,unit,event_source=event_source);c.commit()
             except Exception as error:
                 c.rollback()
                 c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE')

@@ -57,6 +57,15 @@ RULES = (
 )
 
 
+def is_record_verb(source: str) -> bool:
+    """The glossary's Record noun does not translate the imperative verb."""
+    return bool(re.match(
+        r'^Record (?:external (?:approval|rejection|destruction approval)|'
+        r'the required physical-destruction confirmation|the received decision)\b',
+        source,
+    ))
+
+
 def main() -> None:
     definitions = json.loads(ENGLISH.read_text(encoding="utf-8"))
     artifact = json.loads(ARABIC.read_text(encoding="utf-8"))
@@ -70,6 +79,8 @@ def main() -> None:
         target = re.sub(r"[\u0610-\u061a\u064b-\u065f\u0670\u06d6-\u06ed]", "",
                         translations[definition["message_key"]])
         for rule in RULES:
+            if rule.term == 'Record' and is_record_verb(source):
+                continue
             if not re.search(rule.source, source, re.IGNORECASE):
                 continue
             matched[rule.term] += 1

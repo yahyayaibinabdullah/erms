@@ -1,7 +1,7 @@
 # ERMS Operational Tools Catalogue
 
 **Audience:** DevOps engineers, system administrators, and release engineers  
-**Last reviewed:** 25 September 2026
+**Last reviewed:** 20 October 2026
 
 ## 1. Purpose
 
@@ -79,6 +79,12 @@ cleanup merely because dependent rows cascade.
 | `backend.services.api.manage_auth` | Implemented | One shot | Bootstrap authentication and perform deliberate credential recovery | [Section 8](#8-authentication-bootstrap-and-credential-recovery) |
 | Database migration commands | Implemented | One shot | Upgrade the schema exactly once per database | [Section 9](#9-database-migrations) |
 | Database seed commands | Implemented | One shot | Install optional reference, demonstration, or load-test data | [Section 10](#10-optional-database-seeds) |
+| `tools/migrate_application_settings.py` | Implemented | Explicit preview/apply/check | Review and migrate legacy settings independently for each database; never imports on startup | [Settings migration](#general-settings-migration-and-readiness), [rollout instructions](disposition-rollout.md#3-preview-review-apply-and-verify-local-settings-per-database) |
+| `backend.services.api.application_settings_secret --init-local-key` | Implemented | Explicit one shot | Initialize a missing local API encryption-key assignment without printing or replacing an existing key | [Disposition setup](#141-initial-setup-and-configuration) |
+| `backend.services.api.disposition.eligibility` | Implemented | One shot or supervised `--watch` | Evaluate bounded eligible roots and task eligibility | [Disposition workers](#142-worker-startup-and-verification) |
+| `backend.services.api.disposition.communications` | Implemented | One shot or supervised `--watch` | Process queued document email and disposition reminders | [Disposition workers](#142-worker-startup-and-verification) |
+| `backend.services.api.disposition.destruction_worker` | Implemented; operational release disabled | One shot or supervised `--watch` | Resume durable authorized digital work and certificate-only completion | [Disposition workers](#142-worker-startup-and-verification), [recovery](#143-recovery-and-rollback) |
+| `tools/rehearse_disposition_rollout.py` | Implemented | Disposable rehearsal | Create fresh/two upgrade test databases, rehearse setup, and drop all created databases | [Phase 24 verification](disposition-phase-24.md) |
 | Pre-production database reset | Planned | One shot, destructive | Recreate a not-yet-operational environment after setup or smoke testing | [Section 11](#11-pre-production-database-reset) |
 
 ## 5. Segmented-content cleanup
@@ -635,3 +641,132 @@ Search, manual reindex and indexer request rates are API database settings.
 The Audit Trail cap uses one captured value for count lookahead, page bounds and
 `result_cap`. Apply schema migration 051 and a reviewed 34-key preview/apply
 before deployment; see application-settings-upgrade.md.
+
+## 14. Disposition and destruction operations
+
+This section is the operational starting point for initial setup, configuration,
+worker supervision and recovery. For installation or an upgrade, first follow
+[the ordered deployment instructions](disposition-rollout.md): select the database,
+apply only missing schema migrations, run separate seeds, and review/apply/check
+legacy settings independently for every intended database. A “runbook” simply
+means those step-by-step operating instructions.
+
+Disposition/destruction workers implement governed workflow actions; they are
+not general retention cleanup services in section 3. Do not assume they accept
+cleanup workers' `--dry-run` flag. Their commands below support bounded one-shot
+runs and dedicated supervised watch processes. Preparing or starting services
+does not authorize physical destruction or digital deletion.
+
+### 14.1 Initial setup and configuration
+
+Use Administration → Settings with a person holding `app.settings.manage`.
+That privilege does not grant Records Officer/Manager duties. Confirm current
+organizational role assignments: Officer and Manager IGU roles, owning-unit
+managing role and, for Standard, the nearest configured File Administrator role.
+`disposition.jobs.manage` is already granted to the approved IGU profiles and
+compatibility All Privileges profile; System Administrator alone is not an IGU.
+Ordinary resource authorization, role eligibility, security, holds and vital
+blockers still apply. Assignment never grants content access.
+
+Set the classification scheme and the uploaded-evidence/generated-report
+classifications together. Each must be a valid terminal classification in that
+scheme. Provide an authorized **open root** for each destination outside the
+units being destroyed. Selection uses the current latest open root, with stable
+ID tie-breaking; closing a root changes availability. Request/execution/physical
+preparation reports use the report destination; external letters, physical
+certificates and the digital certificate use the evidence destination. Preserve
+evidence and provenance; no separate evidence-expiry deletion was approved.
+Uploaded evidence/report roots must be set up before the corresponding tasks can succeed.
+Unset destinations warn and block the dependent action; missing roots do not
+fall back to another classification or cause partial workflow advancement.
+
+Choose the review route (Standard default, Simplified or Records Manager Only),
+authority and reminder policy in Settings. A job keeps its captured route after
+the global default changes. Verify initial settings values against each reviewed
+plan and their provenance in Settings; check audit reasons and safe reference
+snapshots. Keep full-text/index scheduling disabled until its separate readiness
+procedure is met.
+
+SMTP host, port, TLS mode, authentication, username, sender/reply-to, timeout and
+**encrypted password** are database settings. Authentication requires a username
+and password. The only encryption secret in the API environment is
+`APPLICATION_SETTINGS_ENCRYPTION_KEY`; share the same key among API instances
+serving the same database and retain it with backups. A production shell/service
+value overrides `.env`. Preserve an existing key; replacing it alone cannot
+recover saved SMTP passwords. For a missing local key, the existing helper is:
+
+```sh
+backend/services/api/.venv/bin/python -m backend.services.api.application_settings_secret --init-local-key
+```
+
+The helper preserves existing assignments, including empty ones. An empty or
+invalid key needs deliberate operator correction and an API restart. No
+`SMTP_PASSWORD` environment assignment or extra key-file setting is introduced.
+STARTTLS/implicit TLS with certificate verification are the supported SMTP
+modes; a plain MailDev listener on port 1025 alone is not a production TLS
+configuration. Unconfigured SMTP/key state permits startup but blocks dependent
+sends safely; it must not be “fixed” by disabling transport verification.
+
+### 14.2 Worker startup and verification
+
+Restart API/WebUI after code/schema/dependency deployment. Local development
+uses `./run-local-stack.sh` for its existing services; it checks selected-database
+migration readiness without importing values. It preserves existing private
+environment values and appends only missing safe deployment defaults. Do not run
+that launcher against a persistent database as part of a test rehearsal.
+
+Disposition workers have their own existing service units. On a systemd host,
+install/review the checked-in units, `/etc/erms/api.env`, service account and
+`/opt/erms` paths before starting them; follow deployment.md for the ordinary
+API/WebUI/indexer/cleanup units. Local workers can run from separate terminals
+with the same selected `DATABASE_URL`; their existing dotenv loader preserves
+exported environment precedence:
+
+```sh
+backend/services/api/.venv/bin/python -m backend.services.api.disposition.eligibility --watch --batch-size 100 --interval-seconds 60
+backend/services/api/.venv/bin/python -m backend.services.api.disposition.communications --watch --batch-size 100 --interval-seconds 30
+backend/services/api/.venv/bin/python -m backend.services.api.disposition.destruction_worker --watch --batch-size 1 --interval-seconds 5
+```
+
+Run one command per supervised process; do not run a second local copy alongside
+its service unit. Omit `--watch` for a bounded one-pass readiness probe. Startup
+of the destruction/completion worker is not operational destruction approval.
+Both SQL execution release functions remain **false** in the delivered schema;
+this guide deliberately supplies no command to change them. Obtain separate
+deployment/destruction authorization and an agreed release procedure before any
+operational physical confirmation or digital deletion.
+
+Check `/health`, sign-in, Settings readiness/provenance, destination warnings,
+role/task visibility, worker output and audit evidence. Use synthetic rehearsal
+material for approved acceptance; never use live records to test deletion.
+
+| Change | Reload/restart and effect |
+| --- | --- |
+| Database application settings | No service restart; API general cache converges within 30 seconds. Saving invalidates the saving process; other instances expire normally. |
+| Job route | Captured at job creation; edits affect subsequent jobs. |
+| Artifact destination/template and email capture | Fresh committed checks at the defined operation boundary; earlier saved bytes/facts stay retained. |
+| Deployment environment, API key, executable, process paths or service units | Restart/relaunch the consuming API/WebUI/indexer/worker; reload systemd units after unit edits. |
+| Code, requirements, canonical template/font assets | Deploy together and restart consumers. Never overwrite retained uploaded revisions. |
+
+### 14.3 Recovery and rollback
+
+| Condition | Recovery |
+| --- | --- |
+| Migration/readiness fails | Keep writers stopped; inspect receipts, fix cause and resume missing DDL. Make a new settings preview for changed inputs/versions. Never mark migration complete manually. |
+| Destination/root unavailable | Configure the correct scheme/classifications/open roots and access, refresh the task, then retry the intended action. Earlier evidence remains in its original governed location. |
+| Conversion/template failure | Repair dependencies or upload an authorized valid template revision; retry the blocked action. Retained prior versions/PDFs remain unchanged. |
+| SMTP failed/unknown | Inspect saved attempt status. SMTP acceptance is not inbox receipt. An uncertain attempt is not automatically replayed; use the authorized deliberate resend flow after checking the recipient. |
+| Worker stops or database/storage is unavailable | Restore connectivity/dependencies, restart the dedicated worker and inspect durable progress. Preserve leases/checkpoints/receipts; do not delete rows to force a rerun. |
+| Content erased but certificate failed | Use the Manager's certificate-only recovery task after fixing the destination/template/rendering issue. Retry completion, never repeat content deletion; final download/email uses the saved certificate. |
+| Role/access lost or stale task | Restore the appropriate assignment/access through approved administration or use authorized task release/reassignment; refresh versions and revalidate blockers. Do not bypass authorization. |
+| Termination after mixed physical destruction | Preserve digital material/status 13. An authorized IGU resolves a permitted eligible status with a reason, using the all-or-nothing bulk flow where applicable; only then admit to a matching new job. |
+
+Code, service configuration and reversible setting changes can be rolled back
+only to a schema-compatible version, with the corresponding previous configuration.
+This is not a reverse-migration promise. Restore a database backup only under the
+established incident/restore procedure and with coordinated writers. Physical
+material and erased digital content cannot be restored by reverting code or
+settings. External recipients' copies are outside application deletion control.
+Do not reopen/reuse destroyed retained records or reset finalization to pretend
+action did not happen. Preserve protected evidence, minimal permanent records,
+identities, rationales and audit provenance.

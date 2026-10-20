@@ -842,10 +842,34 @@ def test_messaging_translation_artifact_valid_and_curated_items_preserved(client
     )
     current = {x["message_key"]: x for x in artifact["items"]}
     for row in baseline["items"]:
-        assert current[row["message_key"]] == row
+        candidate = current[row['message_key']]
+        if candidate != row:
+            # Only explicitly invalidated, unreviewed machine drafts may be
+            # corrected. Administrator export provenance remains byte-for-byte.
+            assert row.get('origin') == candidate.get('origin') == 'generated'
+            assert row.get('status') == candidate.get('status') == 'draft'
+            assert 'provenance' not in row and 'provenance' not in candidate
+            assert row['translated_text'] in artifact['superseded_translations'][row['message_key']]
+            assert candidate['generation_metadata']['terminology_correction']['previous_text'] == row['translated_text']
+            assert candidate['quality_flags'] == ['needs_human_review']
     with db() as c:
         _, _, summary = _translation_import_plan(c, "ar", artifact)
-        assert summary["complete"], summary
+        # New feature candidates deliberately remain draft until human review.
+        # The importer must block exactly those marked candidates, while key,
+        # placeholder, ordering and hash validation remain valid for all items.
+        pending = {
+            row['message_key'] for row in artifact['items']
+            if row.get('quality_flags') == ['needs_human_review']
+        }
+        assert not summary['missing_keys'], summary
+        assert summary['invalid_keys'] == [
+            {'message_key': row['message_key'], 'code': 'generation_quality_attention'}
+            for row in artifact['items'] if row['message_key'] in pending
+        ], json.dumps(summary, ensure_ascii=False, indent=2)
+        assert summary['complete'] == (not pending)
+        for row in artifact['items']:
+            if row['message_key'] in pending:
+                assert row['status'] == 'draft' and row['origin'] == 'generated'
     # Curated baseline rows were compared exactly above. Older approved exports
     # need not carry the generation-only review_required field; new generated
     # messaging candidates must still be explicitly marked for review.

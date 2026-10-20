@@ -4,13 +4,14 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.6
-**Amendment approved:** 13 October 2026
+**Revision:** 1.7
+**Amendment approved:** 20 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.7 | 20 October 2026 | Approved clarification of section 14.2 and DISP-35: preserve protected governed evidence and permanent provenance; defer a separate evidence-expiry/deletion workflow pending an approved policy |
 | 1.5 | 12 October 2026 | Reconciled destruction-specific review, membership, proposal execution, reason fallback, dual-role authorization, and post-physical termination rules |
 | 1.4 | 12 October 2026 | Required all disposition system notifications to reuse the existing messaging and notifications subsystem |
 | 1.3 | 12 October 2026 | Aligned the common authorization contract with agreed limited File Administrator and Unit Manager destruction-review task authority; resource-changing execution remains subject to Records Manager privileges |
@@ -1057,10 +1058,12 @@ retain these fields merely because they existed before destruction.
 
 Uploaded approval documents, destruction certificates, photographs or videos
 of physical destruction, correspondence with the external archival authority,
-and other supporting evidence files are retained for the period required by
-the approved evidence-retention policy. If an evidence file is later deleted
-under that policy, Wathiq permanently retains its identifier, provenance,
-descriptive metadata, deletion date, deletion authority, and deletion event.
+and other supporting evidence files remain protected governed Wathiq records,
+stored separately from the destroyed disposition units. A separate evidence-file
+expiry or deletion workflow is outside the current implementation scope.
+Any future approved evidence-deletion policy must permanently preserve each
+file's identifier, provenance, descriptive metadata, deletion date, deletion
+authority, and deletion event.
 
 Wathiq must not retain:
 
@@ -1523,7 +1526,7 @@ are required at a minimum:
 | DISP-32 | A hierarchy change that preserves the effective retention rule preserves disposition status and job membership; a hierarchy change that alters the rule applies the complete recalculation and active-job handling in Section 12 | Authorized hierarchy-change, effective-rule comparison, matching and non-matching job, rollback, job-blocking, and event-history tests |
 | DISP-33 | Destruction and transfer numbers are unique externally supplied values, accept letters, numbers, and special characters, contain at most 20 characters, and are never generated or allocated by Wathiq | Boundary, character-preservation, uniqueness, API, database, and final-action tests |
 | DISP-34 | A job is active upon creation, completed only when its final action completes, and terminated only when an authorized IGU terminates it before completion | Job-creation, completion, termination, invalid-transition, API, database, and event-history tests |
-| DISP-35 | Supporting destruction evidence follows the approved evidence-retention policy, while its identifier, provenance, descriptive metadata, deletion details, and deletion event remain permanent | Retention-expiry, evidence deletion, audit-history, authorization, and rollback tests |
+| DISP-35 | Supporting destruction evidence remains protected as governed records outside the destroyed units, with permanent identifiers, provenance and event history; a separate evidence-expiry/deletion workflow is deferred pending an approved policy | Evidence survival, storage-boundary, provenance, authorization and immutability tests; expiry/deletion acceptance is outside the current implementation scope |
 | DISP-36 | Aggregation and record relationships allow job admission and acceleration but outside-job links block final disposition until authorized removal, regardless of eligibility; links within one unit or the same job do not block or require removal; removal from either endpoint clears the link blocker for both units | Admission, acceleration, descendant, both-direction, all-type, same-job, authorization, redaction, audit, removal-refresh, concurrency, and live-browser Officer/Manager review tests |
 | DISP-37 | Shared jobs enforce controlled type, lifecycle, action-specific stage, assignment, status, completion, termination, and optimistic-concurrency fields without a generic workflow engine | Schema, constraint, transition, API, and stale-version tests |
 | DISP-38 | Membership episodes preserve every addition and removal and permit no more than one active job per governing root | Partial-uniqueness, repeated-membership, termination, completion, concurrency, and history tests |

@@ -1456,8 +1456,8 @@ def test_login_session_statuses_and_security_operations_use_compact_cards():
     assert 'drawer.props(remove="mini")' in source
     assert 'drawer.classes(add="erms-drawer--collapsed p-0")' in source
     assert 'icon="chevron_right" if initial_direction == "rtl" else "chevron_left"' in source
-    assert 'icon=chevron_right' in source
-    assert 'icon="menu"' not in source
+    assert "('chevron_left' if initial_direction == 'rtl' else 'chevron_right')" in source
+    assert 'mobile_navigation = navigation_menu(' in source
     assert "erms-drawer-toggle" in source
     assert "erms-profile-action" in source
     assert "erms-profile-menu" in source

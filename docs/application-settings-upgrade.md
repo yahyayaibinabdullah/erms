@@ -1,5 +1,9 @@
 # Application settings upgrade (Disposition Phases 2–6)
 
+For the complete current installation/050–070 rollout, use
+[the Phase 24 colleague runbook](disposition-rollout.md). The sections below
+retain the detailed settings foundation/cutover semantics.
+
 The shared registry/API/schema is Phase 2, Settings UI is Phase 3, and general
 application/WebUI consumer cutover and reviewed migration/readiness are Phase 4.
 Content/authentication consumer cutovers are Phase 5. Search/indexing cutover and final deployment reconciliation are Phase 6; actual

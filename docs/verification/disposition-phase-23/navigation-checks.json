@@ -1,0 +1,17 @@
+{
+  "result": "passed",
+  "browser": "Codex In-app Browser",
+  "fixture_database": "erms_messaging_test_acl_d8f2488e5a40469db3abf4277d8145b4",
+  "checks": [
+    "Before fix: at 390px drawer translated -300px and only navigation toggle was inside hidden drawer",
+    "Native header button reopens drawer at 390px in English and Arabic; keyboard Enter closes it and aria-expanded follows native drawer value",
+    "English and Arabic disposition jobs reached through reopened drawer",
+    "Header button hidden at 1280px and after sign out",
+    "Arabic lang=ar dir=rtl and right-side drawer; body scrollWidth equals 390px viewport",
+    "Desktop Arabic mini toggle preserves translated labels and mirrored chevrons",
+    "No console warnings or errors"
+  ],
+  "new_css": false,
+  "new_catalogue_keys": 0,
+  "source_artifact_changed": false
+}

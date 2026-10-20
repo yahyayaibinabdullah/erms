@@ -1,0 +1,21 @@
+{
+  "database": "erms_messaging_test_acl_166ca6cfe7c04fe1b2ded20facbba67f",
+  "fresh_api_process": true,
+  "checks": [
+    {
+      "user": "manager@test.invalid",
+      "job_id": 31,
+      "notes_restored": true,
+      "round": 0,
+      "stage": "manager_preparation"
+    },
+    {
+      "user": "officer@test.invalid",
+      "job_id": 29,
+      "notes_restored": true,
+      "round": 0,
+      "stage": "officer_preparation"
+    }
+  ],
+  "persistent_database_access": false
+}

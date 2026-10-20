@@ -1,0 +1,37 @@
+{
+  "result": "passed",
+  "browser": "Codex In-app Browser",
+  "date": "2026-10-20",
+  "languages": [
+    "en",
+    "ar"
+  ],
+  "fixture_database": "erms_messaging_test_acl_166ca6cfe7c04fe1b2ded20facbba67f",
+  "checks": [
+    "English Manager keyboard Save with blank overall reason; draft persisted without stage advance",
+    "Arabic Officer keyboard focus reaches Save after reason; partial reason and Arabic note persisted",
+    "Arabic actual 58-member server pages show 25,25,8 rows, last Next disabled",
+    "English page 2 has 25 different memberships with same 58 total",
+    "Arabic draft survives reload and switching to English; language/direction change together",
+    "Separate fresh API process restores both identities drafts without advancing round",
+    "Leave while membership page request in flight: dashboard remains mounted, old fields absent",
+    "No console errors or warnings observed",
+    "RTL and LTR standard light-blue tables, borders, wrapping, labeled controls and pagination inspected",
+    "lang=ar dir=rtl; lang=en dir=ltr; no page-level horizontal overflow in RTL"
+  ],
+  "screenshots": [
+    "save-ltr.jpg",
+    "save-rtl.jpg",
+    "membership-page2-ltr.jpg",
+    "membership-page2-rtl.jpg",
+    "navigation-abandonment-ltr.jpg",
+    "navigation-jobs-rtl.jpg",
+    "navigation-desktop-rtl.jpg"
+  ],
+  "performance_evidence": "browser-api-requests.json and API/UI concurrency/abandonment tests; no wall-clock latency claim under concurrent test load",
+  "scope": "Together with Phase22 live completion/recovery/download/email evidence, verifies both review/preparation and final task surfaces. Existing Arabic drafts rendered only in disposable DB; no persistent publication or human wording approval.",
+  "tab_closed": true,
+  "viewport_reset": true,
+  "production_release_enabled": false,
+  "responsive_navigation": "navigation-checks.json"
+}

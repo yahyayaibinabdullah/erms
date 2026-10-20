@@ -22,6 +22,81 @@ OUTPUT = PROJECT_ROOT / "security" / "operation-policy-registry.json"
 HTTP_METHODS = {"get", "post", "put", "patch", "delete"}
 
 
+# Explicit closed inventory of the approved disposition routes. A future route
+# still fails classification until its authorization impact is reviewed.
+DISPOSITION_MANAGEMENT_OPERATIONS = {
+    ('GET', '/api/v1/disposition/context'),
+    ('GET', '/api/v1/disposition/eligibility'),
+    ('GET', '/api/v1/disposition/jobs'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/partial-recovery-preview'),
+    ('GET', '/api/v1/disposition/selectors/{kind}'),
+    ('POST', '/api/v1/disposition/aggregations/{root_id}/accelerate'),
+    ('POST', '/api/v1/disposition/jobs'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/assignment'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/memberships'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/owning-unit'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/partial-recovery'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/partial-recovery/{root_id}'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/terminate'),
+    ('POST', '/api/v1/disposition/memberships/{membership_id}/remove'),
+}
+DISPOSITION_ROOT_OPERATIONS = {
+    ('GET', '/api/v1/disposition/aggregations/{root_id}/blockers'),
+    ('GET', '/api/v1/disposition/aggregations/{root_id}/eligibility'),
+}
+DISPOSITION_SCOPED_OPERATIONS = {
+    ('GET', '/api/v1/disposition/jobs/{job_id}'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/artifact-destination'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/completion-progress'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/destruction-manifest'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/destruction-progress'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/documents'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/documents/{document_id}/content'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/documents/{document_id}/preview'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/email-attempts'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/external-decisions'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/history'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/memberships'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/proposal-effects'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/proposals'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/retained-records'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/review-decisions'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/review-history/{kind}/{identity}'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/review-notes'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/review-rounds'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/templates'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/templates/{kind}/content'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/templates/{kind}/revisions'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/workspace'),
+    ('GET', '/api/v1/disposition/retained/{kind}/{identity}'),
+    ('GET', '/api/v1/disposition/tasks'),
+    ('GET', '/api/v1/disposition/tasks/{task_id}/approval-preview'),
+    ('GET', '/api/v1/disposition/tasks/{task_id}/assignment-candidates/{kind}'),
+    ('GET', '/api/v1/disposition/tasks/{task_id}/proposal-targets/{kind}'),
+    ('GET', '/api/v1/disposition/tasks/{task_id}/review-candidates/{kind}'),
+    ('GET', '/api/v1/disposition/tasks/{task_id}/review-work'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/documents/{document_id}/corrections'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/documents/{document_id}/email'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/physical-preparation-report'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/retry-certificate'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/review-rounds/{round_id}/execution-report'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/review-rounds/{round_id}/renew-review'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/review-rounds/{round_id}/request'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/templates/{kind}/revisions'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/approve-proposals'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/claim'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/digital-destruction'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/external-decision'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/physical-confirmation'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/physical-work-check'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/reassignment'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/release'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/review-decision'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/review-work'),
+    ('POST', '/api/v1/disposition/tasks/{task_id}/submit-review'),
+}
+
+
 def _current_access(method: str, path: str) -> str:
     if path == "/health" or (method == "POST" and path == "/api/v1/auth/login"):
         return "public"
@@ -41,6 +116,19 @@ def _target_policy(method: str, path: str) -> tuple[str, str | None, str | None]
     """
     if path == "/health" or (method == "POST" and path == "/api/v1/auth/login"):
         return "public", None, None
+    if (method, path) in DISPOSITION_MANAGEMENT_OPERATIONS:
+        return "globally_privileged", "disposition.jobs.manage", None
+    if (method, path) in DISPOSITION_ROOT_OPERATIONS:
+        return "resource_scoped", "disposition.jobs.manage", "aggregation.view"
+    if (method, path) in DISPOSITION_SCOPED_OPERATIONS:
+        # Actual task/role eligibility and job/content scope remain authoritative.
+        # Limited FA/UM review never acquires the management privilege. Artifact
+        # content also retains the ordinary component authorization boundary.
+        if path.endswith("/documents/{document_id}/content"):
+            return "resource_scoped", "record.component.download", "record.component.download"
+        if path.endswith("/documents/{document_id}/preview"):
+            return "resource_scoped", "record.component.view", "record.component.view"
+        return "relationship_scoped", None, None
     if path == "/api/v1/application-settings":
         return "globally_privileged", "app.settings.manage", None
     # Reconcile the generator with the already committed relationship policies.

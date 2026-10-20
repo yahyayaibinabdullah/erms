@@ -6,6 +6,18 @@ from psycopg.rows import dict_row
 from ..config import load_environment,required_environment
 from ..messaging.notification_registry import initialize_registry
 from .destruction import process_one
+from .completion import process_one as complete_one
+
+
+def run_pass(connection,batch_size):
+    units=certificates=0
+    for _ in range(batch_size):
+        if not process_one(connection):break
+        units+=1
+    for _ in range(batch_size):
+        if not complete_one(connection):break
+        certificates+=1
+    return {'units_processed':units,'certificates_processed':certificates}
 
 
 def main(argv=None):
@@ -16,14 +28,10 @@ def main(argv=None):
     def connection():
         with psycopg.connect(url,row_factory=dict_row,options='-c timezone=UTC') as c:yield c
     with connection() as c:
-        if not c.execute("SELECT 1 FROM schema_migrations WHERE version='068_disposition_retained_records'").fetchone():raise RuntimeError('Apply migrations066–068 before starting destruction')
+        if not c.execute("SELECT 1 FROM schema_migrations WHERE version='069_disposition_completion'").fetchone():raise RuntimeError('Apply migrations066–069 before starting destruction')
     while True:
-        completed=0
         try:
-            for _ in range(args.batch_size):
-                if not process_one(connection):break
-                completed+=1
-            print(json.dumps({'units_processed':completed}),flush=True)
+            print(json.dumps(run_pass(connection,args.batch_size)),flush=True)
         except Exception:
             print(json.dumps({'error':'disposition_destruction_pass_failed'}),flush=True)
             if not args.watch:return 1

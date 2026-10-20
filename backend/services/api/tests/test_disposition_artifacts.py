@@ -375,15 +375,17 @@ def test_initial_artifact_retry_binds_bytes_type_and_provenance():
                   acting_role_id=officer(c),reason='Save original evidence',staged=staged,preview=preview,provenance={'source':'acceptance'})
 
 
-def test_generated_report_and_digital_certificate_store_in_distinct_governed_destinations():
+def test_report_destination_is_separate_and_certificate_requires_completion():
     with db() as c:
         job,evidence_root=fixture(c)
         cl=c.execute("INSERT INTO classifications(classification_scheme_id,code,title,is_terminal) VALUES(1,'REPORTS','Generated reports',true) RETURNING id").fetchone()['id']
         report_root=root(c,cl);configure(c,reports=cl)
-        report=seed_document(c,job,'destruction_request');certificate=seed_document(c,job,'digital_destruction_certificate')
+        report=seed_document(c,job,'destruction_request')
+        with pytest.raises(psycopg.Error,match='completion_command_required'),c.transaction():seed_document(c,job,'digital_destruction_certificate')
+        assert artifacts.destination(c,job['id'],'digital_destruction_certificate',locked=True)['aggregation_id']==evidence_root
         rows=c.execute('SELECT d.*,r.aggregation_id actual_root FROM disposition_job_documents d JOIN records r ON r.id=d.record_id ORDER BY d.id').fetchall()
         assert [(x['origin'],x['aggregation_id'],x['actual_root'],x['classification_id']) for x in rows]==[
-          ('generated',report_root,report_root,cl),('generated',evidence_root,evidence_root,1)]
+          ('generated',report_root,report_root,cl)]
         assert all(x['classification_scheme_id']==1 and x['acting_role_id']==officer(c) and x['provenance']=={'source':'phase11 acceptance'} for x in rows)
 
 

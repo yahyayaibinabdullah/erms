@@ -63,7 +63,17 @@ def test_oversight_catalogue_covers_both_languages_and_preserves_curated_rows():
     current = json.loads(artifact_path.read_text())
     original = json.loads(subprocess.check_output(["git", "show", "HEAD:frontend/webui/i18n/messages.ar.generated.json"], cwd=ROOT))
     current_by_key = {item["message_key"]: item for item in current["items"]}
-    assert all(current_by_key[item["message_key"]] == item for item in original["items"])
+    for item in original['items']:
+        candidate = current_by_key[item['message_key']]
+        if candidate == item:
+            continue
+        assert item.get('origin') == candidate.get('origin') == 'generated'
+        assert item.get('status') == candidate.get('status') == 'draft'
+        assert 'provenance' not in item and 'provenance' not in candidate
+        assert not item['message_key'].startswith('authorization.oversight.')
+        assert item['translated_text'] in current['superseded_translations'][item['message_key']]
+        assert candidate['generation_metadata']['terminology_correction']['previous_text'] == item['translated_text']
+        assert candidate['quality_flags'] == ['needs_human_review']
     assert current["catalogue_sha256"] == hashlib.sha256(source_path.read_bytes()).hexdigest()
     assert [item["message_key"] for item in current["items"]] == sorted(manifest)
     for key in manifest:

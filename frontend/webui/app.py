@@ -20,6 +20,7 @@ from nicegui import app, background_tasks, context, events, ui
 
 from .api_client import ApiError, ErmsApiClient
 from .remote_select import RemoteSelect
+from .navigation_drawer import navigation_menu
 from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .classification_workspace import classification_workspace
 from .application_settings import settings_page, disposition_warning_panel
@@ -3650,7 +3651,7 @@ def index(q: str = "") -> None:
         }
     """)
 
-    with ui.header().classes("erms-header items-center gap-3"):
+    with ui.header().classes("erms-header items-center gap-3") as shell_header:
         header_network = ui.element("canvas").classes(
             "wathiq-network-canvas wathiq-header-network"
         ).props("aria-hidden=true")
@@ -3890,6 +3891,14 @@ def index(q: str = "") -> None:
                 button.props(remove="aria-current")
             button.update()
 
+    with shell_header:
+        mobile_navigation = navigation_menu(
+            drawer,
+            expand_label=render_message("webui.toggle_navigation_drawer.text.expand_navigation_65731dae"),
+            collapse_label=render_message("webui.toggle_navigation_drawer.text.collapse_navigation_1f139a52"),
+        )
+        mobile_navigation.move(target_index=1)
+
     drawer_collapsed = False
 
     def refresh_drawer_headings() -> None:
@@ -3922,7 +3931,8 @@ def index(q: str = "") -> None:
             drawer.classes(add="erms-drawer--collapsed p-0")
             drawer_toggle_button.props(
                 remove="aria-label icon",
-                add="aria-label='Expand navigation' icon=chevron_right",
+                add='aria-label=' + json.dumps(render_message("webui.toggle_navigation_drawer.text.expand_navigation_65731dae"), ensure_ascii=False)
+                    + ' icon=' + ('chevron_left' if initial_direction == 'rtl' else 'chevron_right'),
             )
             drawer_toggle_tooltip.text = render_message("webui.toggle_navigation_drawer.text.expand_navigation_65731dae")
             for heading in drawer_headings:
@@ -3936,7 +3946,8 @@ def index(q: str = "") -> None:
             drawer.classes(remove="erms-drawer--collapsed p-0")
             drawer_toggle_button.props(
                 remove="aria-label icon",
-                add="aria-label='Collapse navigation' icon=chevron_left",
+                add='aria-label=' + json.dumps(render_message("webui.toggle_navigation_drawer.text.collapse_navigation_1f139a52"), ensure_ascii=False)
+                    + ' icon=' + ('chevron_right' if initial_direction == 'rtl' else 'chevron_left'),
             )
             drawer_toggle_tooltip.text = render_message("webui.toggle_navigation_drawer.text.collapse_navigation_1f139a52")
             for button, label, _ in drawer_links:
@@ -4696,6 +4707,7 @@ def index(q: str = "") -> None:
         state.pop("classification_workspace_token", None)
         api.cancel_pending_reads()
         drawer.hide()
+        mobile_navigation.set_visibility(False)
         user_menu.close()
         diagnostics_separator.set_visibility(False)
         diagnostics_section.set_visibility(False)
@@ -12085,6 +12097,7 @@ def index(q: str = "") -> None:
 
     def populate_user_menu(principal: dict[str, Any]) -> None:
         drawer.show()
+        mobile_navigation.set_visibility(True)
         header_network.set_visibility(True)
         auth_state["principal"] = principal
         privileges = set(principal.get("global_privileges", []))

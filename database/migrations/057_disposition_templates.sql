@@ -64,4 +64,6 @@ END $$;
 CREATE TRIGGER disposition_template_audit AFTER INSERT ON disposition_template_revisions
 FOR EACH ROW EXECUTE FUNCTION disposition_private.audit_template_revision();
 
+INSERT INTO schema_migrations(version) VALUES('057_disposition_templates') ON CONFLICT DO NOTHING;
+
 COMMIT;

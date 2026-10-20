@@ -90,7 +90,7 @@ def seed(environment, phase=10):
                 c.execute("INSERT INTO records(aggregation_id,record_number,title,is_vital) VALUES(%s,'BLOCKING-RECORD','Vital blocking record',true)",(child,))
                 c.execute("INSERT INTO records(aggregation_id,record_number,title,is_vital) VALUES(%s,'BLOCKING-RECORD-2','Second vital blocking record',true)",(child,))
             if phase>=20:c.execute("UPDATE aggregations SET medium='mixed' WHERE id=%s",(root,))
-            if phase==21 and index in (3,4,5,61,62,63,81,82,83):
+            if phase>=21 and index in (3,4,5,61,62,63,81,82,83):
                 from backend.services.api.content_storage import PostgreSQLContentStorage
                 from backend.services.api.application_settings import load_snapshot
                 from backend.services.api.tests.test_disposition_artifacts import uploaded
@@ -164,7 +164,7 @@ def seed_review_workspace(environment,phase=16):
             user=c.execute('INSERT INTO users(name,email) VALUES(%s,%s) RETURNING id',(code,email)).fetchone()['id']
             rid=role(c,code,profile,user=user);identities[email]=(user,rid)
             c.execute('INSERT INTO user_credentials(user_id,password_hash,must_change_password) VALUES(%s,%s,false)',(user,hash_password('Temporary-Test-Password-123!')))
-        if phase==21:
+        if phase>=21:
             arabic=c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
             c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(arabic,identities['manager@test.invalid'][1]))
         c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=1',(identities['fa@test.invalid'][1],identities['unit@test.invalid'][1]))
@@ -263,17 +263,46 @@ def seed_recovery(environment,phase=20):
                 c.commit()
     finally:
         with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
-    if phase==21:
+    if phase>=21:
         with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
-    print(f'Phase {phase} synthetic fixtures ready; digital gate enabled only in this disposable Phase 21 preview.' if phase==21 else 'Phase 20 synthetic recovery fixtures ready; operational release gate closed.',flush=True)
+    print(f'Phase {phase} synthetic fixtures ready; digital gate enabled only in this disposable preview.' if phase>=21 else 'Phase 20 synthetic recovery fixtures ready; operational release gate closed.',flush=True)
+
+
+def seed_completion(environment):
+    """Execute synthetic approved units, then retain one completed and two
+    certificate-only failure fixtures. Real PDF recovery runs in the worker."""
+    from backend.services.api.disposition import destruction,completion,workflow,documents
+    from backend.services.api.tests.test_disposition_membership import actor,job_version
+    from backend.services.api.tests.test_disposition_review import task
+    def connect():return psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row)
+    with connect() as c:
+        assert c.info.dbname.startswith('erms_messaging_test_acl_')
+        uid=c.execute("SELECT id FROM users WHERE email='manager@test.invalid'").fetchone()['id']
+        role=c.execute("SELECT id FROM roles WHERE code='preview-manager'").fetchone()['id']
+        arabic=c.execute("SELECT id FROM users WHERE email='officer@test.invalid'").fetchone()['id']
+        jobs=c.execute("SELECT * FROM disposition_jobs WHERE job_number LIKE 'PHASE22-%' ORDER BY id").fetchall()
+        for job in jobs:
+            actor(c,arabic if job['review_route']=='records_manager_only' else uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
+            t=task(c,job['id'])
+            workflow.task_command(c,action='claim',task_id=t['id'],expected_version=t['version'],acting_role_id=role,command_id=uuid4(),reason='Seed synthetic certificate completion')
+            t=task(c,job['id'])
+            destruction.request(c,task_id=t['id'],expected_version=job_version(c,job['id']),task_version=t['version'],confirmed=True,acting_role_id=role,command_id=uuid4())
+    while destruction.process_one(connect,event_source='seeding'):pass
+    assert completion.process_one(connect,event_source='seeding')
+    original=documents.engine.render
+    try:
+        documents.engine.render=lambda *a:(_ for _ in ()).throw(RuntimeError('Synthetic recoverable certificate failure'))
+        while completion.process_one(connect,event_source='seeding'):pass
+    finally:documents.engine.render=original
+    print('Phase 22: real completed certificate and certificate-only recovery fixtures ready.',flush=True)
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19,20,21),default=12)
-    parser.add_argument('--maildev',action='store_true',help='Phase 18 only: verified temporary TLS bridge to localhost MailDev:1025')
+    parser.add_argument('--phase',type=int,choices=(10,11,12,16,17,18,19,20,21,22),default=12)
+    parser.add_argument('--maildev',action='store_true',help='Phases 18/22: verified temporary TLS bridge to localhost MailDev:1025')
     args=parser.parse_args();phase=args.phase
-    if args.maildev and phase!=18:parser.error('--maildev requires --phase 18')
+    if args.maildev and phase not in (18,22):parser.error('--maildev requires --phase 18 or 22')
     configuration={**dotenv_values(ROOT/'.env'),**os.environ}
     admin_url=make_conninfo(configuration['DATABASE_URL'],dbname='postgres')
     name='erms_messaging_test_acl_'+uuid4().hex
@@ -300,7 +329,9 @@ def main():
                 subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_external_requests; import os; seed_external_requests(dict(os.environ),{phase})'],cwd=ROOT,env=environment,check=True)
             if phase>=20:
                 subprocess.run([sys.executable,'-c',f'from tools.preview_disposition import seed_recovery; import os; seed_recovery(dict(os.environ),phase={phase})'],cwd=ROOT,env=environment,check=True)
-            if phase==18:
+            if phase==22:
+                subprocess.run([sys.executable,'-c','from tools.preview_disposition import seed_completion; import os; seed_completion(dict(os.environ))'],cwd=ROOT,env=environment,check=True)
+            if phase in (18,22):
                 if args.maildev:
                     sys.path.insert(0,str(ROOT))
                     from tools.maildev_tls_preview import MailDevBridge
@@ -311,7 +342,10 @@ def main():
                 ('webui',[str(ROOT/'frontend/webui/.venv/bin/python'),'-c',"import os,runpy; from nicegui import app; from starlette.middleware.sessions import SessionMiddleware; app.add_middleware(SessionMiddleware,secret_key=os.environ['WEBUI_STORAGE_SECRET'],session_cookie='erms_settings_phase{phase}_preview'); runpy.run_module('frontend.webui.app',run_name='__main__')".replace("{phase}",str(phase))])]:
                 path=Path(directory)/(label+'.log');handle=path.open('w');logs.append(handle)
                 processes.append(subprocess.Popen(command,cwd=ROOT,env=environment,stdout=handle,stderr=subprocess.STDOUT))
-            if phase==18:
+            if phase==22:
+                path=Path(directory)/'completion.log';handle=path.open('w');logs.append(handle)
+                processes.append(subprocess.Popen([sys.executable,'-m','backend.services.api.disposition.destruction_worker','--watch','--batch-size','1'],cwd=ROOT,env=environment,stdout=handle,stderr=subprocess.STDOUT))
+            if phase in (18,22):
                 path=Path(directory)/'communications.log';handle=path.open('w');logs.append(handle)
                 processes.append(subprocess.Popen([sys.executable,'-c',f'from tools.preview_disposition import preview_communications; preview_communications(certificate={str(maildev_bridge.certificate) if maildev_bridge else None!r})'],cwd=ROOT,env=environment,stdout=handle,stderr=subprocess.STDOUT))
             print('Disposable Disposition preview: http://127.0.0.1:18083/',flush=True)

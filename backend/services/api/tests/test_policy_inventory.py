@@ -99,6 +99,17 @@ def test_unclassified_api_operation_is_rejected_instead_of_getting_a_fallback():
         _target_policy("POST", "/api/v1/new-unreviewed-operation")
 
 
+def test_disposition_policy_distinguishes_management_and_limited_task_scope():
+    assert _target_policy('POST', '/api/v1/disposition/jobs') == (
+        'globally_privileged', 'disposition.jobs.manage', None,
+    )
+    assert _target_policy('POST', '/api/v1/disposition/tasks/{task_id}/claim') == (
+        'relationship_scoped', None, None,
+    )
+    with pytest.raises(ValueError, match='has no explicit policy classification'):
+        _target_policy('POST', '/api/v1/disposition/future-unreviewed-command')
+
+
 def test_number_suggestions_have_explicit_relationship_scoped_policy():
     assert _target_policy("GET", "/api/v1/number-suggestions/{resource}") == (
         "relationship_scoped",

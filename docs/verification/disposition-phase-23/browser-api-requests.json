@@ -1,0 +1,276 @@
+{
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/tasks?limit=25&offset=0&sort=received&descending=false&query=",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/workspace?task_id=32",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/templates",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/tasks/32/review-work",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/disposition/tasks/32/review-work",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/31/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/tasks?limit=25&offset=0&sort=received&descending=false&query=",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/workspace?task_id=30",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/templates",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/tasks/30/review-work",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/disposition/tasks/30/review-work",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=25&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=50&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/templates",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/tasks/30/review-work",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/templates",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/tasks/30/review-work",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/proposals?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=25&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/29/memberships?limit=25&offset=50&query=&sort=id&descending=true",
+      "status": 200
+    }
+  ],
+  "bounded_pages": 31,
+  "maximum_requested_page_size": 25,
+  "observed_membership_offsets": [
+    0,
+    25,
+    50
+  ]
+}

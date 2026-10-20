@@ -8,6 +8,7 @@
     {"code": "TS", "name": "Top Secret", "level_number": 100, "prevents_disposition": true}
   ],
   "privileges": [
+    {"code": "disposition.jobs.manage", "category": "administration", "reserved": false},
     {"code": "app.settings.manage", "category": "administration", "reserved": false},
     {"code": "relationships.link", "category": "record", "reserved": false},
     {"code": "relationships.administer", "category": "administration", "reserved": false},
@@ -216,7 +217,8 @@
         "security.resource.downgrade",
         "closure.correct_record_placement",
         "relationships.link",
-        "relationships.administer"
+        "relationships.administer",
+        "disposition.jobs.manage"
       ]
     },
     {
@@ -265,7 +267,8 @@
         "security.resource.downgrade",
         "closure.correct_record_placement",
         "relationships.link",
-        "relationships.administer"
+        "relationships.administer",
+        "disposition.jobs.manage"
       ]
     }
   ]

@@ -1346,6 +1346,21 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.destruction_job_completed",
+    "context_group": "audit.event",
+    "default_text": "Destruction Job Completed",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Destruction Job Completed",
+    "common_locations": [
+      "Audit history",
+      "Destruction job history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction Job Completed",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.destruction_request_generated",
     "context_group": "audit.event",
     "default_text": "Destruction Request Generated",
@@ -1371,6 +1386,51 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Destruction Request Generation Pending",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_certificate_downloaded",
+    "context_group": "audit.event",
+    "default_text": "Digital Destruction Certificate Downloaded",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Digital Destruction Certificate Downloaded",
+    "common_locations": [
+      "Audit history",
+      "Destruction job history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Destruction Certificate Downloaded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_certificate_failed",
+    "context_group": "audit.event",
+    "default_text": "Digital Certificate Generation Failed",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Digital Certificate Generation Failed",
+    "common_locations": [
+      "Audit history",
+      "Destruction job history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Certificate Generation Failed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.digital_certificate_retry_requested",
+    "context_group": "audit.event",
+    "default_text": "Digital Certificate Retry Requested",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Digital Certificate Retry Requested",
+    "common_locations": [
+      "Audit history",
+      "Destruction job history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Certificate Retry Requested",
     "is_html": false
   },
   {
@@ -6711,6 +6771,54 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.certificate_download_hint",
+    "context_group": "disposition.ui",
+    "default_text": "The job is complete. Download the saved certificate for the external archival authority, or send it by email. Delivery and receipt outside Wathiq remain external responsibilities.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: The job is complete. Download the saved certificate for the external archival authority, or send it by email. Delivery and receipt outside Wathiq remain external responsibilities.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The job is complete. Download the saved certificate for the external archival authority, or send it by email. Delivery and receipt outside Wathiq remain external responsibilities.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_download_recorded",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate download recorded.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate download recorded.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate download recorded.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate recovery required",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate generation or storage needs attention. Completed destruction will not be repeated.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate recovery required",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.certificate_generation",
     "context_group": "disposition.ui",
     "default_text": "Certificate generation",
@@ -6724,6 +6832,70 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Certificate generation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_queued",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction is complete. Certificate generation is queued.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Digital destruction is complete. Certificate generation is queued.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction is complete. Certificate generation is queued.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_retry_requested",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate-only retry requested.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate-only retry requested.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate-only retry requested.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_running",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction is complete. The certificate is being generated and saved.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Digital destruction is complete. The certificate is being generated and saved.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction is complete. The certificate is being generated and saved.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_succeeded",
+    "context_group": "disposition.ui",
+    "default_text": "The saved digital certificate completes this destruction job.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: The saved digital certificate completes this destruction job.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The saved digital certificate completes this destruction job.",
     "is_html": false
   },
   {
@@ -6888,6 +7060,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Completed membership",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.completion_external_copies_warning",
+    "context_group": "disposition.ui",
+    "default_text": "Backups and copies held outside Wathiq must also be destroyed. Ensuring their destruction is outside Wathiq’s responsibility.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Backups and copies held outside Wathiq must also be destroyed. Ensuring their destruction is outside Wathiq’s responsibility.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Backups and copies held outside Wathiq must also be destroyed. Ensuring their destruction is outside Wathiq’s responsibility.",
     "is_html": false
   },
   {
@@ -7485,6 +7673,182 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Choose a higher security level that prevents disposition.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_claim_lost",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate processing ownership changed. Refresh the job.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate processing ownership changed. Refresh the job.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate processing ownership changed. Refresh the job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_download_required",
+    "context_group": "disposition.ui",
+    "default_text": "Download the saved certificate to complete its download task.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Download the saved certificate to complete its download task.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Download the saved certificate to complete its download task.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_generation_failed",
+    "context_group": "disposition.ui",
+    "default_text": "The digital certificate could not be generated or saved. Destruction progress is preserved; an authorized Records Manager can retry the certificate only.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: The digital certificate could not be generated or saved. Destruction progress is preserved; an authorized Records Manager can retry the certificate only.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The digital certificate could not be generated or saved. Destruction progress is preserved; an authorized Records Manager can retry the certificate only.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_interrupted",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate processing was interrupted. An authorized Records Manager must retry certificate generation and storage only.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate processing was interrupted. An authorized Records Manager must retry certificate generation and storage only.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate processing was interrupted. An authorized Records Manager must retry certificate generation and storage only.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_required",
+    "context_group": "disposition.ui",
+    "default_text": "The job cannot complete without its saved digital destruction certificate.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: The job cannot complete without its saved digital destruction certificate.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The job cannot complete without its saved digital destruction certificate.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_retry_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "A certificate-only retry is not available. Refresh the job to see its current progress.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: A certificate-only retry is not available. Refresh the job to see its current progress.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "A certificate-only retry is not available. Refresh the job to see its current progress.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_snapshot_changed",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate facts changed. Refresh the job before retrying.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate facts changed. Refresh the job before retrying.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate facts changed. Refresh the job before retrying.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_certificate_task_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "The certificate download task is no longer available. Refresh the job.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: The certificate download task is no longer available. Refresh the job.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The certificate download task is no longer available. Refresh the job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_completion_command_required",
+    "context_group": "disposition.ui",
+    "default_text": "Only the protected completion operation may save the certificate or complete this job.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Only the protected completion operation may save the certificate or complete this job.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Only the protected completion operation may save the certificate or complete this job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_completion_stage_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate completion is unavailable at the job’s current stage.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Certificate completion is unavailable at the job’s current stage.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Certificate completion is unavailable at the job’s current stage.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_completion_unfinished",
+    "context_group": "disposition.ui",
+    "default_text": "All disposition units must finish destruction before the job can complete.",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: All disposition units must finish destruction before the job can complete.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "All disposition units must finish destruction before the job can complete.",
     "is_html": false
   },
   {
@@ -8927,6 +9291,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Evidence and documents",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.download_digital_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Download digital destruction certificate",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Download digital destruction certificate",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Download digital destruction certificate",
     "is_html": false
   },
   {
@@ -11894,6 +12274,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Retention rule changed — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retry_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Retry certificate generation and storage",
+    "semantic_meaning": "Destruction certificate completion, certificate-only recovery, or permanent audit presentation: Retry certificate generation and storage",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Retry certificate generation and storage",
     "is_html": false
   },
   {

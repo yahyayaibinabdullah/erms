@@ -206,4 +206,6 @@ BEGIN
   RETURN false;
 END $$;
 
+INSERT INTO schema_migrations(version) VALUES('056_disposition_artifacts') ON CONFLICT DO NOTHING;
+
 COMMIT;

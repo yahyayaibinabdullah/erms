@@ -1,3 +1,4 @@
+BEGIN;
 -- Physical preparation and immutable offline confirmation. Operational release
 -- remains closed until the recovery AND completion implementations pass.
 CREATE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$;
@@ -271,3 +272,5 @@ BEGIN
 END $$;
 CREATE TRIGGER disposition_physical_task_guard BEFORE INSERT OR UPDATE ON disposition_tasks FOR EACH ROW EXECUTE FUNCTION disposition_private.guard_physical_task();
 REVOKE ALL ON ALL FUNCTIONS IN SCHEMA disposition_private FROM PUBLIC;
+INSERT INTO schema_migrations(version) VALUES('064_disposition_physical') ON CONFLICT DO NOTHING;
+COMMIT;

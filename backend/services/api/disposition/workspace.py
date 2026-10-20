@@ -60,8 +60,11 @@ def read(c, job_id, task_id=None):
     recovery_view=recovery.view(c,job)
     from . import destruction
     destruction_view=destruction.view(c,job)
+    from . import completion
+    completion_view=completion.view(c,job)
     if task and current and working and task['task_type']=='digital_destruction' and destruction_view and destruction_view['released'] and (not destruction_view['progress'] or destruction_view['progress']['state']=='failed'):actions.append('destroy_digital')
-    return {'destruction':destruction_view,'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
+    if task and current and working and destruction_view and destruction_view['released'] and completion_view and completion_view['progress'] and completion_view['progress']['state']=='failed':actions.append('retry_certificate')
+    return {'completion':completion_view,'destruction':destruction_view,'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
 
 
 def targets(c, task_id, *, acting_role_id, root_id, kind, query='', selected=None):

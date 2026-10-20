@@ -1,0 +1,53 @@
+{
+  "result": "passed",
+  "scope": "Complete API file inventory divided deterministically into four fresh-schema disposable database shards; initial failures preserved and all corrected selectors passed in the listed targeted reruns. No original failed run is relabelled as passed.",
+  "shards": [
+    {
+      "shard": 1,
+      "evidence": "docs/verification/disposition-phase-23/backend-shard-1.log",
+      "original_result": "failed",
+      "original_failures": [
+        "backend/services/api/tests/test_global_privilege_enforcement.py::test_governance_labels_are_readable_without_catalogue_administration"
+      ],
+      "summary": "1 failed, 290 passed, 2 warnings in 1895.40s (0:31:35)"
+    },
+    {
+      "shard": 2,
+      "evidence": "docs/verification/disposition-phase-23/backend-shard-2.log",
+      "original_result": "failed",
+      "original_failures": [
+        "backend/services/api/tests/test_authorization_admin.py::test_seeded_catalogue_profiles_and_existing_role_backfill",
+        "backend/services/api/tests/test_messaging_phase2.py::test_messaging_translation_artifact_valid_and_curated_items_preserved",
+        "backend/services/api/tests/test_security_levels.py::test_seeded_catalogue_and_lowest_level_defaults"
+      ],
+      "summary": "3 failed, 573 passed, 2 warnings in 2596.70s (0:43:16)"
+    },
+    {
+      "shard": 3,
+      "evidence": "docs/verification/disposition-phase-23/backend-shard-3.log",
+      "original_result": "passed",
+      "original_failures": [],
+      "summary": "231 passed, 1 skipped, 2 warnings in 2038.26s (0:33:58)"
+    },
+    {
+      "shard": 4,
+      "evidence": "docs/verification/disposition-phase-23/backend-shard-4.log",
+      "original_result": "failed",
+      "original_failures": [
+        "backend/services/api/tests/test_gateway_health.py::test_new_arabic_entries_seed_with_their_own_generation_provenance",
+        "backend/services/api/tests/test_phase6_read_authorization.py::test_hidden_resources_are_non_disclosing_across_read_surfaces",
+        "backend/services/api/tests/test_policy_inventory.py::test_api_operation_inventory_is_complete_and_current",
+        "backend/services/api/tests/test_policy_inventory.py::test_registry_declares_every_policy_class_it_uses",
+        "backend/services/api/tests/test_policy_inventory.py::test_permission_catalogue_records_conditional_policy"
+      ],
+      "summary": "5 failed, 279 passed, 2 warnings in 2252.05s (0:37:32)"
+    }
+  ],
+  "correction_evidence": [
+    "docs/verification/disposition-phase-23/acceptance-corrections-final.log",
+    "docs/verification/disposition-phase-23/governance-label-regression.log"
+  ],
+  "legacy_skip_resolution": "docs/verification/disposition-phase-23/legacy-physical-upgrade.log",
+  "note": "The one intentionally skipped deferred old-schema test passed separately using the required legacy migration path. New policy regression also passes. No full-suite failure was waived.",
+  "final_translation_correction_evidence": "docs/verification/disposition-phase-23/translation-preservation-final.log"
+}

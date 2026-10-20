@@ -1,0 +1,32 @@
+{
+  "approved_date": "2026-10-20",
+  "authority": "Explicit user approval in this session",
+  "decision": "I approve the proposed clarification, removing that undefined separate expiry feature from Phase 22 while preserving protected evidence and provenance.",
+  "applied_proposal": "docs/verification/disposition-phase-22/evidence-retention-clarification.proposed.patch",
+  "specification": "specs/disposition.md revision 1.7, section 14.2 and DISP-35",
+  "plan": "specs/disposition-implementation-plan.md revision 1.3, Phase 22",
+  "scope": "Approved clarification, 20 October 2026: evidence remains protected as governed records outside destroyed units, with permanent identifiers, provenance and event history. Separate expiry/deletion is outside Phase 22 pending an approved policy.",
+  "runtime_changes_for_clarification": false,
+  "remaining_phase_22_verification": "Resolved: live Arabic browser verification passed on 2026-10-20; see browser-checks.json",
+  "verification": [
+    {
+      "command": "python3 tools/check_disposition_baseline.py",
+      "result": "passed",
+      "scope": "369 owned entries, 94 settings, four approved configuration decisions; source hashes and locators reconciled"
+    },
+    {
+      "command": "backend/services/api/.venv/bin/python -m pytest tools/tests/test_disposition_baseline.py -q",
+      "result": "passed",
+      "tests": 24,
+      "database_access": false
+    },
+    {
+      "command": "python3 tools/sync_api_env_template.py --check",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ]
+}

@@ -253,3 +253,12 @@ Actor suggestions query only current users and return at most 25 matches after
 two characters. Unselected text on Apply searches historical snapshots, including
 deleted accounts. Apply API configuration
 changes by restarting the API process.
+
+## Disposition/application-settings upgrades through 070
+
+For an existing database current through 049, follow the ordered missing-only
+050–070 procedure and separate seeds in [the controlled rollout runbook](../docs/disposition-rollout.md).
+New empty databases still use `schema.sql` alone. The runbook includes explicit
+settings preview/apply/check for each database; applying schema is not a legacy
+settings import. No persistent deployment or destruction release is authorized
+by the documentation or disposable rehearsal.

@@ -6,6 +6,11 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'DESTRUCTION_JOB_COMPLETED': 'audit.event.destruction_job_completed',
+    'DIGITAL_CERTIFICATE_FAILED': 'audit.event.digital_certificate_failed',
+    'DIGITAL_CERTIFICATE_RETRY_REQUESTED': 'audit.event.digital_certificate_retry_requested',
+    'DIGITAL_CERTIFICATE_DOWNLOADED': 'audit.event.digital_certificate_downloaded',
+
     'DIGITAL_DESTRUCTION_REQUESTED': 'audit.event.digital_destruction_requested',
     'DIGITAL_DESTRUCTION_FAILED': 'audit.event.digital_destruction_failed',
     'DIGITAL_DESTRUCTION_UNIT_COMPLETED': 'audit.event.digital_destruction_unit_completed',
