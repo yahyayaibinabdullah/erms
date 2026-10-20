@@ -842,6 +842,10 @@ def test_messaging_translation_artifact_valid_and_curated_items_preserved(client
     )
     current = {x["message_key"]: x for x in artifact["items"]}
     for row in baseline["items"]:
+        if row['message_key'] not in current:
+            assert row in artifact.get('deprecated_items', [])
+            assert row['message_key'] not in {r['message_key'] for r in definitions}
+            continue
         candidate = current[row['message_key']]
         if candidate != row:
             # Only explicitly invalidated, unreviewed machine drafts may be

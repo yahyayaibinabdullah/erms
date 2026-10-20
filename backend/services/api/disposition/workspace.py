@@ -55,15 +55,15 @@ def read(c, job_id, task_id=None):
     email_view=email.controls(c,job_id) if job['job_type']=='destruction' else None
     from . import physical
     physical_view=physical.view(c,job) if job['job_type']=='destruction' else None
-    if task and current and working and physical_view and physical_view['released'] and task['task_type']=='physical_destruction':actions.extend(('check_physical_work','confirm_physical'))
+    if task and current and working and physical_view and task['task_type']=='physical_destruction':actions.extend(('check_physical_work','confirm_physical'))
     from . import recovery
     recovery_view=recovery.view(c,job)
     from . import destruction
     destruction_view=destruction.view(c,job)
     from . import completion
     completion_view=completion.view(c,job)
-    if task and current and working and task['task_type']=='digital_destruction' and destruction_view and destruction_view['released'] and (not destruction_view['progress'] or destruction_view['progress']['state']=='failed'):actions.append('destroy_digital')
-    if task and current and working and destruction_view and destruction_view['released'] and completion_view and completion_view['progress'] and completion_view['progress']['state']=='failed':actions.append('retry_certificate')
+    if task and current and working and task['task_type']=='digital_destruction' and destruction_view and (not destruction_view['progress'] or destruction_view['progress']['state']=='failed'):actions.append('destroy_digital')
+    if task and current and working and destruction_view and completion_view and completion_view['progress'] and completion_view['progress']['state']=='failed':actions.append('retry_certificate')
     return {'completion':completion_view,'destruction':destruction_view,'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
 
 

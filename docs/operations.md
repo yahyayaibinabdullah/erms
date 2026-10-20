@@ -10,6 +10,10 @@ workers intended for operational use. It identifies what each tool changes, how
 it is invoked, whether it runs once or continuously, required safeguards, and
 whether it is currently implemented or planned.
 
+For the complete frontend/backend/infrastructure inventory and production setup
+order, start with the [production deployment guide](deployment.md#production-service-inventory).
+This catalogue supplies the detailed worker and scheduler procedures linked there.
+
 Feature documentation may explain why an operation exists, but deployment and
 runbook procedures must link back to this catalogue. A new operational command,
 scheduled worker, repair utility, or destructive environment tool must be added
@@ -73,6 +77,8 @@ cleanup merely because dependent rows cascade.
 
 | Tool | Status | Default mode | Purpose | Specialized documentation |
 | --- | --- | --- | --- | --- |
+| `./run-local-stack.sh` | Implemented; local development only | Foreground without arguments; explicit `up`, `down`, `status`, `restart` | Manage local services and workers; append logs under `.runtime/local-stack/`; production uses separate supervisors | [Local lifecycle](local-tooling.md#local-stack-lifecycle) |
+| `./run-maildev.py` | Implemented; local development only | Explicit `up`, `down`, `status`, `restart` | Manage loopback MailDev with implicit TLS and MCP; no database access | [Local MailDev](#15-local-development-maildev) |
 | `backend.services.api.content_cleanup` | Implemented | One shot | Remove abandoned uploads, expired drafts, and unreferenced content sets | [Section 5](#5-segmented-content-cleanup) |
 | `backend.services.api.session_cleanup` | Implemented | One shot | Audit and remove expired or long-revoked login sessions | [Section 6](#6-login-session-cleanup) |
 | `backend.services.api.text_indexing_maintenance cleanup` | Implemented | One shot or supervised `--watch` | Remove expired terminal indexing history/jobs, abandoned result staging, and retained revoked/expired text-indexer credentials | [Section 7](#7-full-text-indexing-history-and-staging-cleanup) |
@@ -83,7 +89,7 @@ cleanup merely because dependent rows cascade.
 | `backend.services.api.application_settings_secret --init-local-key` | Implemented | Explicit one shot | Initialize a missing local API encryption-key assignment without printing or replacing an existing key | [Disposition setup](#141-initial-setup-and-configuration) |
 | `backend.services.api.disposition.eligibility` | Implemented | One shot or supervised `--watch` | Evaluate bounded eligible roots and task eligibility | [Disposition workers](#142-worker-startup-and-verification) |
 | `backend.services.api.disposition.communications` | Implemented | One shot or supervised `--watch` | Process queued document email and disposition reminders | [Disposition workers](#142-worker-startup-and-verification) |
-| `backend.services.api.disposition.destruction_worker` | Implemented; operational release disabled | One shot or supervised `--watch` | Resume durable authorized digital work and certificate-only completion | [Disposition workers](#142-worker-startup-and-verification), [recovery](#143-recovery-and-rollback) |
+| `backend.services.api.disposition.destruction_worker` | Implemented | One shot or supervised `--watch` | Resume durable authorized digital work and certificate-only completion | [Disposition workers](#142-worker-startup-and-verification), [recovery](#143-recovery-and-rollback) |
 | `tools/rehearse_disposition_rollout.py` | Implemented | Disposable rehearsal | Create fresh/two upgrade test databases, rehearse setup, and drop all created databases | [Phase 24 verification](disposition-phase-24.md) |
 | Pre-production database reset | Planned | One shot, destructive | Recreate a not-yet-operational environment after setup or smoke testing | [Section 11](#11-pre-production-database-reset) |
 
@@ -91,6 +97,15 @@ cleanup merely because dependent rows cascade.
 
 **Status:** Implemented
 **Module:** `backend.services.api.content_cleanup`
+
+Production systemd packaging is provided by
+[`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service).
+Install/enable it using the [production deployment guide](deployment.md#separate-systemd-services),
+or schedule the one-shot command instead. The unit follows the database cleanup
+interval (default 3,600 seconds). Run one instance per logical database.
+For local development, `run-local-stack.sh` now starts and supervises this worker
+automatically and stops it on exit. Do not run a separate scheduled or manual
+copy alongside it.
 
 This worker removes expired or failed upload sessions, expired record drafts and
 their staged data, and superseded or failed content sets that are not active.
@@ -114,6 +129,12 @@ domain event when committed work occurs. See
 
 **Status:** Implemented
 **Module:** `backend.services.api.session_cleanup`
+
+`run-local-stack.sh` starts this worker automatically with `--watch`, inherits
+the selected database and uses database retention, batch-size and interval
+defaults. The launcher supervises it and stops it on exit. Do not also run a
+manual copy or scheduled session-cleanup job against that database. Production
+uses the packaged `erms-session-cleanup.service` or its scheduled alternative.
 
 This worker treats `login_sessions` as transient operational security data
 while preserving `event_history` as the durable authentication audit trail.
@@ -715,10 +736,23 @@ migration readiness without importing values. It preserves existing private
 environment values and appends only missing safe deployment defaults. Do not run
 that launcher against a persistent database as part of a test rehearsal.
 
+For local development, `./run-local-stack.sh` automatically starts all three
+disposition workers as separate managed processes, including when it reuses an
+existing API/WebUI. It checks migration 071 before launching them, inherits the
+selected `DATABASE_URL` and exported TLS trust, and stops its workers on Ctrl-C
+or if a managed process exits unexpectedly. Their output appears in the stack
+terminal. Starting the API alone does not start disposition workers. Do not run
+manual worker copies or service units alongside the local stack.
+The local stack also starts/reuses MailDev before the API and disposition
+workers; see [local MailDev](#15-local-development-maildev). It only stops a
+MailDev instance carrying its own lifecycle owner token. Existing instances
+managed separately are left running. Startup failure aborts stack startup;
+database SMTP configuration is never modified.
+
 Disposition workers have their own existing service units. On a systemd host,
 install/review the checked-in units, `/etc/erms/api.env`, service account and
 `/opt/erms` paths before starting them; follow deployment.md for the ordinary
-API/WebUI/indexer/cleanup units. Local workers can run from separate terminals
+API/WebUI/indexer/cleanup units. As an alternative to the local stack, workers can run from separate terminals
 with the same selected `DATABASE_URL`; their existing dotenv loader preserves
 exported environment precedence:
 
@@ -730,11 +764,21 @@ backend/services/api/.venv/bin/python -m backend.services.api.disposition.destru
 
 Run one command per supervised process; do not run a second local copy alongside
 its service unit. Omit `--watch` for a bounded one-pass readiness probe. Startup
-of the destruction/completion worker is not operational destruction approval.
-Both SQL execution release functions remain **false** in the delivered schema;
-this guide deliberately supplies no command to change them. Obtain separate
-deployment/destruction authorization and an agreed release procedure before any
-operational physical confirmation or digital deletion.
+of the destruction/completion worker does not itself authorize a workflow action.
+After migration **071**, physical and digital destruction use the existing
+permissions and workflow checks directly. There is no separate enable/disable
+step, release function or application setting. Do not create or rewrite gate
+functions. Migrations 064/066 introduced temporary gates; 071 removes them and
+all callers, regardless of whether they previously returned true or false.
+
+Apply all missing migrations through 071 before deploying the matching API and
+WebUI code, then restart those services and the disposition workers. New empty
+databases use the current canonical schema alone. Do not replay the historical
+064/066 migrations to configure destruction. Existing actor/role and content
+permissions, task claims, current approvals, workflow stages, confirmations,
+versions, holds, security/vital blockers and physical-before-digital ordering
+remain mandatory. Migration 071 changes no job, evidence or content rows and
+neither starts workers nor performs destruction.
 
 Check `/health`, sign-in, Settings readiness/provenance, destination warnings,
 role/task visibility, worker output and audit evidence. Use synthetic rehearsal
@@ -770,3 +814,30 @@ settings. External recipients' copies are outside application deletion control.
 Do not reopen/reuse destroyed retained records or reset finalization to pretend
 action did not happen. Preserve protected evidence, minimal permanent records,
 identities, rationales and audit provenance.
+
+## 15. Local development MailDev
+
+**Status:** Implemented; local testing only. **Command:** `./run-maildev.py`.
+This helper is independent of ERMS workers, uses no database and does not load
+application environment files. It manages one project-local MailDev instance
+with implicit-TLS SMTP, a mailbox and MCP bound to loopback:
+
+```bash
+./run-maildev.py up
+./run-maildev.py status
+./run-maildev.py restart
+./run-maildev.py down
+```
+
+`./run-local-stack.sh` invokes this helper automatically. Standalone commands
+remain available. Internal `--owner` tokens ensure stack cleanup cannot stop
+an independently started or subsequently restarted instance.
+
+Defaults are SMTP port 1025 and mailbox/MCP port 1080. Flags `--smtp-port`,
+`--web-port`, `--node` and `--maildev` override defaults and are retained across
+restarts. Certificates/keys, PID identity, captured mail and append-only logs
+live in gitignored `.runtime/maildev/`. It refuses occupied ports and only stops
+its recorded process. Startup/status probe verified TLS SMTP, mailbox HTTP and
+MCP initialization. No relay is configured, and no production trust or SMTP
+configuration is changed. See [local tooling](local-tooling.md#local-maildev-with-tls-and-mcp)
+for dependencies, local certificate trust, retention and reset procedures.

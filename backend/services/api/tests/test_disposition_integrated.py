@@ -16,12 +16,12 @@ from backend.services.api.tests.test_disposition_artifacts import configure, roo
 from backend.services.api.tests.test_disposition_communications import smtp, enqueue
 from backend.services.api.tests.test_disposition_external import generate, decision
 from backend.services.api.tests.test_disposition_membership import actor, db, job_version
-from backend.services.api.tests.test_disposition_physical import report, confirmation, release_for_test
+from backend.services.api.tests.test_disposition_physical import report, confirmation
 from backend.services.api.tests.test_disposition_recovery import make_unit
 from backend.services.api.tests.test_disposition_review import (
     seeded, save, create, submit, claim, decide, task, officer, version,
 )
-from backend.services.api.tests.test_disposition_destruction import release_fixture, request
+from backend.services.api.tests.test_disposition_destruction import request
 
 
 def reach_manager(c, job, route):
@@ -39,10 +39,6 @@ def isolated_journey(monkeypatch):
     from tools.preview_disposition import preview_pdf
     monkeypatch.setattr(documents.engine, 'render', lambda *args: (preview_pdf(), {'renderer': 'integrated-fixture'}))
     yield
-    with db() as c:
-        assert c.info.dbname.startswith('erms_messaging_test_acl_')
-        for gate in ('physical', 'digital'):
-            c.execute(f'CREATE OR REPLACE FUNCTION disposition_private.{gate}_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
 
 
 @pytest.mark.parametrize('route,file_admin', [
@@ -117,7 +113,7 @@ def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(c
         if medium != 'digital':
             report(c, job, mgr)
             claim(c, job)
-            release_for_test(c)
+
             c.commit()
             actor(c)
             confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
@@ -125,7 +121,7 @@ def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(c
             actor(c)
         if medium != 'physical':
             claim(c, job)
-            release_fixture(c)
+
             request(c, job, mgr)
     if medium != 'physical':
         assert destruction.process_one(db)

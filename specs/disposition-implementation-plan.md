@@ -710,6 +710,15 @@ already destroyed, which cannot be restored by code rollback. Applying changes
 to persistent databases or enabling operational destruction requires the user's
 deployment authorization; producing this plan does not provide it.
 
+## Approved operational simplification — 20 October 2026
+
+The user approved removing the temporary physical/digital implementation release
+gates. After all migrations through 071, destruction is available subject to the
+existing permissions and workflow checks. No per-database function rewrite or
+separate enablement setting is required. Existing release-acceptance evidence
+is retained; historical statements about temporary disabled execution describe
+the earlier rollout only. See `docs/disposition-release-gate-removal.md`.
+
 ## 4. Requirement coverage index
 
 The approved Records Manager Only and Save amendment extends these phases:

@@ -1,9 +1,61 @@
 # Linux deployment
 
-ERMS has four independently managed components: the FastAPI backend, the
-NiceGUI web UI, the REST-only text indexer, and PostgreSQL. Use separate systemd units for the API, UI, and indexer
-for an ongoing Linux deployment. They can run on the same server or on separate
-servers; PostgreSQL can also be hosted independently.
+This is the production deployment entry point for the frontend, backend,
+background workers and supporting infrastructure. Services can share a server
+or run on separate servers; PostgreSQL can also be independently hosted.
+Use the inventory below when planning the deployment, then follow this guide
+for installation and the linked [Operations catalogue](operations.md) for
+worker configuration, scheduling and recovery procedures.
+
+## Production service inventory
+
+| Service or responsibility | When needed | Production process and ownership |
+| --- | --- | --- |
+| PostgreSQL | Core application | Independently managed database service; initialize from the canonical schema or apply pending migrations for an existing database. |
+| FastAPI backend | Core application | [`erms-api.service`](../backend/services/api/deploy/erms-api.service); may have multiple API processes/instances sharing one database. |
+| NiceGUI frontend | Browser application | [`erms-webui.service`](../frontend/webui/deploy/erms-webui.service); calls the API. Multiple instances require session affinity and WebSocket support. |
+| HTTPS reverse proxy/load balancer | Public browser access | Operator-managed TLS endpoint in front of the frontend; route WebSockets and provide affinity when using multiple frontend instances. |
+| Login-session cleanup | Authentication retention | One [`erms-session-cleanup.service`](../backend/services/api/deploy/erms-session-cleanup.service) per logical database, or a scheduler running the one-shot command; [procedure](operations.md#6-login-session-cleanup). |
+| Segmented-content cleanup | Stored-content retention and abandoned upload cleanup | One [`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service) per logical database, or deployment scheduler running the one-shot command; [procedure](operations.md#5-segmented-content-cleanup). |
+| Text indexer | Full-text extraction/indexing | [`erms-text-indexer.service`](../backend/services/text_indexer/deploy/erms-text-indexer.service); REST-only service with its own process pool and API identity. Follow the staged rollout below. |
+| Indexing/credential maintenance | Indexing history, staging and retained indexer credentials | One [`erms-text-indexing-maintenance.service`](../backend/services/api/deploy/erms-text-indexing-maintenance.service) per logical database, or one-shot scheduled cleanup; [procedure](operations.md#7-full-text-indexing-history-and-staging-cleanup). |
+| Disposition eligibility | Disposition workflows | One [`erms-disposition-eligibility.service`](../backend/services/api/deploy/erms-disposition-eligibility.service) per logical database; evaluates eligibility and reconciles task claims. |
+| Disposition communications | Disposition email and reminders | One [`erms-disposition-communications.service`](../backend/services/api/deploy/erms-disposition-communications.service) per logical database; processes queued email and reminders. |
+| Destruction/completion | Authorized digital destruction and completion certificates | One [`erms-disposition-destruction.service`](../backend/services/api/deploy/erms-disposition-destruction.service) per logical database; executes authorized queued work and certificate completion. |
+| SMTP service | Outgoing disposition email | Operator-provided SMTP endpoint with verified TLS; configure database application settings and the shared deployment encryption key. MailDev is for local testing only. |
+| Redis | Optional shared NiceGUI user storage | Operator-managed service; not required for a single frontend and does not remove multi-instance affinity requirements. |
+
+The API does **not** start these standalone workers. Run each worker once per
+logical database, separately from API replica scaling; choose either a
+continuous cleanup worker or its scheduled one-shot alternative, not both.
+The text indexer's temporary-file cleanup is internal to that service and needs
+no separate daemon. LibreOffice, veraPDF/Java and the indexer's Tika installation
+are feature dependencies described below, rather than additional ERMS services.
+`run-local-stack.sh` and MailDev are development tools, not production
+supervisors or mail infrastructure.
+
+### Production setup order
+
+1. Prepare PostgreSQL, the service account, Python environments and the feature
+   dependencies described under [server preparation](#server-preparation-and-configuration).
+2. Initialize an empty database from `database/schema.sql`, or apply all pending
+   upgrades through migration 071 for an existing database. Follow
+   [database instructions](../database/README.md) and the reviewed
+   [settings migration/readiness procedure](application-settings-upgrade.md).
+3. Configure the service environment files, database application settings,
+   authentication/bootstrap, encryption key and required seeds. For disposition,
+   complete the [initial configuration checklist](operations.md#141-initial-setup-and-configuration),
+   including roles, destinations, classifications, document templates and SMTP.
+4. Start and verify the API, then the frontend/proxy. Install the independent
+   cleanup workers or schedules. Provision and start indexing according to the
+   staged rollout when using full-text search.
+5. After disposition setup, start its three independent workers and verify their
+   output and audit evidence using [worker operations](operations.md#142-worker-startup-and-verification).
+   Destruction remains subject to the existing permissions and workflow checks.
+
+The [systemd section](#separate-systemd-services) below lists the packaged units
+and install/start commands. Keep this inventory and the Operations catalogue
+updated whenever a production process or scheduled responsibility changes.
 
 ## Deployment options
 
@@ -130,6 +182,43 @@ their API requests consume the API pools already counted above.
 The repository defaults are `DB_POOL_MIN_SIZE=1` and `DB_POOL_MAX_SIZE=10`.
 Budget against the maximum, even though pools can use fewer connections when
 idle. At these defaults, each API worker can use up to **11 database connections**.
+
+### Initial sizing with the current background workers
+
+For an initial small production deployment, retain `DB_POOL_MIN_SIZE=1`,
+`DB_POOL_MAX_SIZE=10` and `DB_POOL_TIMEOUT=10` seconds **per API process**.
+These are API deployment environment settings, not database-backed Application
+Settings. Restart API processes after changing them. Keep PostgreSQL
+`max_connections=100` as an initial server budget if the server has sufficient
+memory and no competing applications; measure before increasing pool limits.
+This is a starting recommendation, not a measured workload capacity guarantee.
+
+With one instance of each of the six standalone database workers (content
+cleanup, session cleanup, indexing maintenance, disposition eligibility,
+communications and destruction/completion), budget six additional concurrent
+connections for their current sequential work. These workers open direct
+connections for work rather than maintaining six API-sized pools; they do not
+necessarily hold a connection while sleeping. UI, MailDev and REST text-indexer
+processes add no direct database connections.
+
+| Example allocation | One API process | Two API processes |
+| --- | ---: | ---: |
+| API pools at maximum plus messaging listeners | 11 | 22 |
+| Six standalone workers active together | 6 | 6 |
+| Application subtotal | **17** | **28** |
+| Illustrative monitoring/admin/upgrade and other headroom | 20 | 20 |
+| Default superuser reserve | 3 | 3 |
+| Illustrative total budget | **40** | **51** |
+
+Add connections for other applications/databases, scheduled jobs, concurrent
+deployment copies and any different PostgreSQL reserved-slot configuration.
+For example, temporarily doubling two API processes during a rolling deployment
+raises the application subtotal to `4 × 11 + 6 = 50`. Track pool wait/timeouts,
+query latency and database CPU/memory before tuning; a larger pool alone does
+not increase database throughput. PostgreSQL allocates resources based on
+`max_connections`; see its [connection settings](https://www.postgresql.org/docs/18/runtime-config-connection.html).
+
+### Example connection budget
 
 Worked example (illustrative allocation, not a measured user-capacity guarantee):
 
@@ -453,6 +542,11 @@ within each service’s `deploy` directory:
 
 - [`erms-api.service`](../backend/services/api/deploy/erms-api.service)
 - [`erms-session-cleanup.service`](../backend/services/api/deploy/erms-session-cleanup.service)
+- [`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service)
+- [`erms-text-indexing-maintenance.service`](../backend/services/api/deploy/erms-text-indexing-maintenance.service)
+- [`erms-disposition-eligibility.service`](../backend/services/api/deploy/erms-disposition-eligibility.service)
+- [`erms-disposition-communications.service`](../backend/services/api/deploy/erms-disposition-communications.service)
+- [`erms-disposition-destruction.service`](../backend/services/api/deploy/erms-disposition-destruction.service)
 - [`erms-webui.service`](../frontend/webui/deploy/erms-webui.service)
 - [`erms-text-indexer.service`](../backend/services/text_indexer/deploy/erms-text-indexer.service)
 - [`api.env.example`](../backend/services/api/deploy/api.env.example)
@@ -461,9 +555,13 @@ within each service’s `deploy` directory:
 
 They assume `/opt/erms`, a service account and group named `erms`, and
 `/etc/erms/api.env` and `/etc/erms/webui.env`. Adapt paths and account names
-if needed. The repository currently has one backend application service:
-FastAPI. Authentication, search, and document conversion run within it and do
-not need separate units. PostgreSQL uses its independently managed service.
+if needed. FastAPI hosts the backend request handlers, including authentication,
+search queries and document conversion. The indexer, maintenance and disposition
+workers listed above run separately and do not start with FastAPI. API-owned
+workers share `/etc/erms/api.env` and the API Python environment; install its
+dependencies before starting them. PostgreSQL uses its independently managed
+service. Use either the packaged content-cleanup service or its scheduled
+one-shot alternative, never both.
 
 On Ubuntu with Python 3.11 or newer available, prepare the service account:
 
@@ -495,6 +593,11 @@ From the deployed project root, install the units and initial configuration:
 ```bash
 sudo install -m 0644 backend/services/api/deploy/erms-api.service /etc/systemd/system/erms-api.service
 sudo install -m 0644 backend/services/api/deploy/erms-session-cleanup.service /etc/systemd/system/erms-session-cleanup.service
+sudo install -m 0644 backend/services/api/deploy/erms-content-cleanup.service /etc/systemd/system/erms-content-cleanup.service
+sudo install -m 0644 backend/services/api/deploy/erms-text-indexing-maintenance.service /etc/systemd/system/erms-text-indexing-maintenance.service
+sudo install -m 0644 backend/services/api/deploy/erms-disposition-eligibility.service /etc/systemd/system/erms-disposition-eligibility.service
+sudo install -m 0644 backend/services/api/deploy/erms-disposition-communications.service /etc/systemd/system/erms-disposition-communications.service
+sudo install -m 0644 backend/services/api/deploy/erms-disposition-destruction.service /etc/systemd/system/erms-disposition-destruction.service
 sudo install -m 0644 frontend/webui/deploy/erms-webui.service /etc/systemd/system/erms-webui.service
 sudo install -m 0644 backend/services/text_indexer/deploy/erms-text-indexer.service /etc/systemd/system/erms-text-indexer.service
 sudo install -m 0600 backend/services/api/deploy/api.env.example /etc/erms/api.env
@@ -517,6 +620,8 @@ the installed unit configuration on Ubuntu before enabling it:
 ```bash
 sudo systemd-analyze verify /etc/systemd/system/erms-api.service /etc/systemd/system/erms-session-cleanup.service /etc/systemd/system/erms-webui.service
 sudo systemd-analyze verify /etc/systemd/system/erms-text-indexer.service
+sudo systemd-analyze verify /etc/systemd/system/erms-content-cleanup.service
+sudo systemd-analyze verify /etc/systemd/system/erms-text-indexing-maintenance.service /etc/systemd/system/erms-disposition-eligibility.service /etc/systemd/system/erms-disposition-communications.service /etc/systemd/system/erms-disposition-destruction.service
 ```
 
 ### Text-indexer process-pool examples
@@ -617,6 +722,36 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now erms-api.service erms-session-cleanup.service erms-webui.service
 sudo systemctl status erms-api.service erms-session-cleanup.service erms-webui.service
 ```
+
+Unless using its scheduled alternative, activate segmented-content cleanup:
+
+```bash
+sudo systemctl enable --now erms-content-cleanup.service
+sudo systemctl status erms-content-cleanup.service
+```
+
+The unit follows the database `CONTENT_CLEANUP_INTERVAL_SECONDS` policy (default
+3,600 seconds); it does not hard-code an interval override.
+
+Unless using its scheduled alternative, start the indexing/credential
+maintenance worker:
+
+```bash
+sudo systemctl enable --now erms-text-indexing-maintenance.service
+sudo systemctl status erms-text-indexing-maintenance.service
+```
+
+After completing the disposition configuration checklist and applying migrations
+through 071, start its three independent workers:
+
+```bash
+sudo systemctl enable --now erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
+sudo systemctl status erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
+```
+
+Start the text indexer using the staged-rollout procedure above. Verify each
+configured cleanup service or its scheduled alternative. Where session cleanup is
+scheduled instead, omit `erms-session-cleanup.service` from the activation command.
 
 On separate servers, use only the service installed on that server. Logs and
 routine lifecycle operations are independent:
@@ -924,11 +1059,12 @@ See [application-settings-upgrade.md](application-settings-upgrade.md) for the
 reviewed 34-key upgrade and [configuration-authority-inventory.json](configuration-authority-inventory.json)
 for ownership, defaults, consumers, service templates and restart requirements.
 
-## Disposition controlled rollout (through migration 070)
+## Disposition controlled rollout (through migration 071)
 
 Use [the Phase 24 colleague runbook](disposition-rollout.md) for ordered existing
 schema upgrades, fresh installation, per-database reviewed settings migration,
 role/destination/SMTP/template prerequisites, worker startup and recovery. See
 [the disposable rehearsal evidence](disposition-phase-24.md). This is rollout
-preparation; persistent deployment and physical/digital destruction still require
-explicit authorization. The delivered operational release gates remain false.
+preparation; persistent deployment requires explicit authorization. Migration 071
+removes the temporary gates; destruction then uses the existing permissions and
+workflow safeguards without a separate enablement step.

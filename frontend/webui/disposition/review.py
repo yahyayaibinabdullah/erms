@@ -40,8 +40,8 @@ class ReviewForm:
                 ui.label(text('no_current_task')).props('role=status');return
             form_key={'certificate_generation':'certificate_download','physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
             ui.label(text(form_key)).classes('font-semibold')
-            hint='disposition_physical_release_pending' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
-            if self.task['task_type']=='digital_destruction':hint='disposition_digital_confirmation_required' if (workspace.get('destruction') or {}).get('released') else 'disposition_digital_release_pending'
+            hint='disposition_physical_required' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
+            if self.task['task_type']=='digital_destruction':hint='disposition_digital_confirmation_required'
             if self.task['task_type']=='digital_destruction' and ((workspace.get('destruction') or {}).get('progress') or {}).get('state')=='succeeded':hint='digital_done_completion_pending'
             if self.task['task_type']=='certificate_download':hint='certificate_download_hint'
             ui.label(text(hint)).classes('text-sm text-slate-600')

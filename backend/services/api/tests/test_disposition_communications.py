@@ -247,16 +247,13 @@ def test_http_enqueue_idempotence_bounded_history_and_received_task_closure(clie
 
 
 def test_certificate_shared_sender_after_completion_requires_actual_manager(client,monkeypatch):
-    from backend.services.api.tests.test_disposition_destruction import prepared as digital_prepared,request as destroy_request,release_fixture
+    from backend.services.api.tests.test_disposition_destruction import prepared as digital_prepared,request as destroy_request
     from backend.services.api.disposition.destruction_worker import run_pass
     monkeypatch.setattr(documents.engine,'render',lambda *a:(preview_pdf(),{}))
-    try:
-        with db() as c:
-            job,root,manager_role=digital_prepared(c,monkeypatch)
-            officer_role=officer(c);smtp(c);release_fixture(c);destroy_request(c,job,manager_role)
-        assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
-    finally:
-        with db() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
+    with db() as c:
+        job,root,manager_role=digital_prepared(c,monkeypatch)
+        officer_role=officer(c);smtp(c);destroy_request(c,job,manager_role)
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
     with db() as c:
         actor(c)
         cert=c.execute("SELECT id FROM disposition_job_documents WHERE job_id=%s AND document_type='digital_destruction_certificate'",(job['id'],)).fetchone()

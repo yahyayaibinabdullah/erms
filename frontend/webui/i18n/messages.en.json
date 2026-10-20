@@ -8066,20 +8066,6 @@
     "is_html": false
   },
   {
-    "message_key": "disposition.ui.disposition_digital_release_pending",
-    "context_group": "disposition.ui",
-    "default_text": "Digital execution remains unavailable until completion and release verification pass.",
-    "semantic_meaning": "Durable destruction progress and restricted permanent disposition proof: Digital execution remains unavailable until completion and release verification pass.",
-    "common_locations": [
-      "Disposition task workspace, retained proof and audit history"
-    ],
-    "translator_guidance": "Use approved disposition and resource terminology. Distinguish unit/run success from final job completion. Preserve named placeholders.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Digital execution remains unavailable until completion and release verification pass.",
-    "is_html": false
-  },
-  {
     "message_key": "disposition.ui.disposition_digital_scope_changed",
     "context_group": "disposition.ui",
     "default_text": "The approved unit has changed. Refresh and review its current disposition scope.",
@@ -8566,20 +8552,6 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "This physical certificate reference has already been used.",
-    "is_html": false
-  },
-  {
-    "message_key": "disposition.ui.disposition_physical_release_pending",
-    "context_group": "disposition.ui",
-    "default_text": "Physical and digital destruction remain unavailable until recovery and completion verification passes. Preparation reports are available.",
-    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Physical and digital destruction remain unavailable until recovery and completion verification passes. Preparation reports are available.",
-    "common_locations": [
-      "Disposition physical preparation workspace"
-    ],
-    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
-    "grammatical_role": "message",
-    "parameter_schema": {},
-    "rendered_example": "Physical and digital destruction remain unavailable until recovery and completion verification passes. Preparation reports are available.",
     "is_html": false
   },
   {

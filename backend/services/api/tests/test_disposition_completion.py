@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from backend.services.api.disposition import completion, destruction, documents
 from backend.services.api.disposition.destruction_worker import run_pass
-from backend.services.api.tests.test_disposition_destruction import prepared, request, release_fixture, guarded_fixture
+from backend.services.api.tests.test_disposition_destruction import prepared, request, guarded_fixture
 from backend.services.api.tests.test_disposition_membership import actor, job_version, db
 from backend.services.api.tests.test_disposition_review import task, claim
 
@@ -13,7 +13,7 @@ REAL_RENDER=documents.engine.render
 def ready(monkeypatch):
     with db() as c:
         job, root, mgr = prepared(c, monkeypatch)
-        release_fixture(c)
+
         request(c, job, mgr)
     return job, root, mgr
 
@@ -58,9 +58,7 @@ def test_certificate_failure_retains_erasure_and_retry_saves_once(client,monkeyp
         assert not c.execute("SELECT 1 FROM disposition_job_documents WHERE document_type='digital_destruction_certificate'").fetchone()
         t=task(c,job['id']);key=uuid4()
         kwargs=dict(job_id=job['id'],task_id=t['id'],task_version=t['version'],expected_version=job_version(c,job['id']),acting_role_id=mgr,command_id=key)
-        c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
-        with pytest.raises(Exception,match='disposition_digital_release_pending'),c.transaction():completion.retry(c,**kwargs)
-        release_fixture(c)
+
         result=completion.retry(c,**kwargs);assert completion.retry(c,**kwargs)==result
     monkeypatch.setattr(documents.engine,'render',original)
     assert completion.process_one(db)
@@ -74,10 +72,10 @@ def test_certificate_failure_retains_erasure_and_retry_saves_once(client,monkeyp
 def test_physical_only_completes_with_original_evidence(client,monkeypatch):
     from backend.services.api.tests import test_disposition_workflow as fixtures
     from backend.services.api.tests.test_disposition_recovery import make_unit
-    from backend.services.api.tests.test_disposition_physical import approved,report,release_for_test,confirmation
+    from backend.services.api.tests.test_disposition_physical import approved,report,confirmation
     monkeypatch.setattr(fixtures,'ready',lambda c:make_unit(c,'physical'))
     with db() as c:
-        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);release_for_test(c);c.commit();actor(c)
+        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);c.commit();actor(c)
         from backend.services.api.disposition import physical,artifacts
         from backend.services.api.application_settings import load_snapshot
         from backend.services.api.content_storage import stage_governed_upload
@@ -172,7 +170,7 @@ def test_mixed_job_completes_all_units_with_one_certificate(client,monkeypatch):
     from backend.services.api.tests.test_disposition_recovery import mixed_done
     with db() as c:
         job,first,second,fully,untouched,mgr=mixed_done(c,monkeypatch)
-        claim(c,job);release_fixture(c);request(c,job,mgr)
+        claim(c,job);request(c,job,mgr)
     result=run_pass(db,10)
     assert result['units_processed']==4 and result['certificates_processed']==1,result
     with db() as c:

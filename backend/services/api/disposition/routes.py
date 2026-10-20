@@ -632,7 +632,6 @@ def confirm_physical(task_id: int,request: Request,command_id: UUID=Form(...),ac
     from ..content_storage import stage_governed_upload
     from ..application_settings import cache
     # Fail before staging any bytes while operational release is closed.
-    if not c.execute('SELECT disposition_private.physical_execution_released() allowed').fetchone()['allowed']:raise HTTPException(409,detail={'code':'disposition_physical_release_pending'})
     payload=Command(command_id=command_id,acting_role_id=acting_role_id)
     with stage_governed_upload(file,cache.for_connection(c)) as staged:
         return _command(c,request,payload,physical.confirm,audit_reason='Confirm physical destruction',task_id=task_id,expected_version=version,task_version=task_version,successful=successful,certificate_reference=certificate_reference,staged=staged,preview=destination_token)

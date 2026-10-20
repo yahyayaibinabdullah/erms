@@ -1,4 +1,4 @@
-"""Native physical preparation controls; operational actions remain release-gated."""
+"""Native physical preparation controls; workflow actions require existing authorization and confirmation."""
 import hashlib
 import shutil
 import tempfile
@@ -14,10 +14,8 @@ def controls(form):
     if not value:return
     with form.host:
         if not value.get('physical_required',True):
-            if not value['released'] and not value.get('confirmation'):ui.label(text('disposition_physical_release_pending')).props('role=status').classes('text-amber-900')
             return
         ui.label(text('physical_preparation_report')).classes('text-lg font-semibold')
-        if not value['released'] and not value.get('confirmation'):ui.label(text('disposition_physical_release_pending')).props('role=status').classes('text-amber-900')
         report=value.get('report')
         if report:
             ui.label(report['file_name']).props('dir=auto')

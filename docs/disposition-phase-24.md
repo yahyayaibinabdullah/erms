@@ -67,3 +67,17 @@ code/settings cannot restore physical or digitally erased material.
 
 Independent cleanup confirmed all nine Phase 24 databases absent. Source/template
 checks and the full 369-entry acceptance gate through Phase 24 passed.
+
+## Subsequent authorized demo schema upgrade
+
+On 20 October 2026, the user separately authorized migrations 053–070 on demo.
+See [the upgrade record](verification/disposition-phase-24/demo-schema-upgrade-20261020.md)
+for the completed upgrade and receipt corrections. This later authorization did
+not enable operational destruction.
+
+## Approved removal of temporary gates
+
+The subsequent user-approved simplification removes the temporary release
+functions through migration 071. [The current implementation and verification](disposition-release-gate-removal.md)
+supersede this report's historical disabled-gate statements. Operations section 14
+is authoritative for current startup/setup; no separate enablement is required.

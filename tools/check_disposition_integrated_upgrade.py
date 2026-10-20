@@ -26,8 +26,8 @@ def main():
     schema = (ROOT / 'database/schema.sql').read_text()
     old = schema.split('-- Shared configuration foundation.', 1)[0]
     migrations = sorted((ROOT / 'database/migrations').glob('*.sql'))
-    migrations = [p for p in migrations if 50 <= int(p.name.split('_', 1)[0]) <= 70]
-    assert len(migrations) == 21
+    migrations = [p for p in migrations if 50 <= int(p.name.split('_', 1)[0]) <= 71]
+    assert len(migrations) == 22
     names = []
     try:
         for kind in ('fresh', 'populated_upgrade'):
@@ -57,10 +57,10 @@ def main():
                         assert any(all(row.get(k) == v for k, v in prior.items()) for row in upgraded), table
                 actual = full_catalogue(c)
                 differing = [key for key in canonical if canonical[key] != actual[key]]
-                assert not differing, 'Canonical/050–070 catalogue differences: ' + repr(differing)
+                assert not differing, 'Canonical/050–071 catalogue differences: ' + repr(differing)
                 assert c.execute('SELECT installation_kind FROM application_settings_state').fetchone()[0] == 'upgrade'
-                assert c.execute('SELECT disposition_private.digital_execution_released(), disposition_private.physical_execution_released()').fetchone() == (False, False)
-                print('Passed: populated 050–070 upgrade; complete schema/function/view/privilege parity; all original data, settings, grants and events preserved; execution closed.', flush=True)
+                assert c.execute("SELECT to_regprocedure('disposition_private.physical_execution_released()'),to_regprocedure('disposition_private.digital_execution_released()')").fetchone() == (None, None)
+                print('Passed: populated 050–071 upgrade; complete schema/function/view/privilege parity; all original data, settings, grants and events preserved; temporary gates absent; workflow guards preserved.', flush=True)
     finally:
         failures = []
         for name in reversed(names):

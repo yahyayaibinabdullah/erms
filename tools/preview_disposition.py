@@ -233,8 +233,7 @@ def seed_external_requests(environment,phase):
 
 
 def seed_recovery(environment,phase=20):
-    """Synthetic confirmations in this disposable DB; restore the closed gate
-    before any preview server starts, including when fixture creation fails."""
+    """Synthetic confirmations through normal workflow checks in this disposable DB."""
     from backend.services.api.tests.test_disposition_membership import actor,job_version
     from backend.services.api.tests.test_disposition_review import task
     from backend.services.api.disposition import workflow,membership,physical,artifacts
@@ -244,28 +243,22 @@ def seed_recovery(environment,phase=20):
     def connect():return psycopg.connect(environment['DATABASE_URL'],row_factory=dict_row)
     with connect() as c:
         assert c.info.dbname.startswith('erms_messaging_test_acl_')
-        c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
-    try:
-        with connect() as c:
-            uid=c.execute("SELECT id FROM users WHERE email='manager@test.invalid'").fetchone()['id']
-            role=c.execute("SELECT id FROM roles WHERE code='preview-manager'").fetchone()['id']
-            jobs=c.execute("SELECT * FROM disposition_jobs WHERE job_number LIKE %s ORDER BY id",(f'PHASE{phase}-%',)).fetchall()
-            for job in jobs:
-                actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
-                current=task(c,job['id'])
-                workflow.task_command(c,action='claim',task_id=current['id'],expected_version=current['version'],acting_role_id=role,command_id=uuid4(),reason='Seed synthetic physical confirmation')
-                c.commit();actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
-                current=task(c,job['id'])
-                with stage_governed_upload(uploaded(preview_pdf()),load_snapshot(c),connection_factory=connect) as staged:
-                    physical.confirm(c,task_id=current['id'],expected_version=job_version(c,job['id']),task_version=current['version'],successful=True,certificate_reference='SYNTHETIC20-'+str(job['id']),staged=staged,preview=artifacts.destination_token(artifacts.destination(c,job['id'],'physical_destruction_certificate')),acting_role_id=role,command_id=uuid4())
-                if phase==20 and job['review_route']!='standard':
-                    membership.terminate_job(c,job_id=job['id'],expected_version=job_version(c,job['id']),confirmed=True,acting_role_id=role,command_id=uuid4(),reason='Seed terminated synthetic recovery job')
-                c.commit()
-    finally:
-        with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
-    if phase>=21:
-        with connect() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
-    print(f'Phase {phase} synthetic fixtures ready; digital gate enabled only in this disposable preview.' if phase>=21 else 'Phase 20 synthetic recovery fixtures ready; operational release gate closed.',flush=True)
+    with connect() as c:
+        uid=c.execute("SELECT id FROM users WHERE email='manager@test.invalid'").fetchone()['id']
+        role=c.execute("SELECT id FROM roles WHERE code='preview-manager'").fetchone()['id']
+        jobs=c.execute("SELECT * FROM disposition_jobs WHERE job_number LIKE %s ORDER BY id",(f'PHASE{phase}-%',)).fetchall()
+        for job in jobs:
+            actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
+            current=task(c,job['id'])
+            workflow.task_command(c,action='claim',task_id=current['id'],expected_version=current['version'],acting_role_id=role,command_id=uuid4(),reason='Seed synthetic physical confirmation')
+            c.commit();actor(c,uid);c.execute("SELECT set_config('app.event_source','seeding',true)")
+            current=task(c,job['id'])
+            with stage_governed_upload(uploaded(preview_pdf()),load_snapshot(c),connection_factory=connect) as staged:
+                physical.confirm(c,task_id=current['id'],expected_version=job_version(c,job['id']),task_version=current['version'],successful=True,certificate_reference='SYNTHETIC20-'+str(job['id']),staged=staged,preview=artifacts.destination_token(artifacts.destination(c,job['id'],'physical_destruction_certificate')),acting_role_id=role,command_id=uuid4())
+            if phase==20 and job['review_route']!='standard':
+                membership.terminate_job(c,job_id=job['id'],expected_version=job_version(c,job['id']),confirmed=True,acting_role_id=role,command_id=uuid4(),reason='Seed terminated synthetic recovery job')
+            c.commit()
+    print(f'Phase {phase} synthetic workflow fixtures ready in the disposable preview.',flush=True)
 
 
 def seed_completion(environment):

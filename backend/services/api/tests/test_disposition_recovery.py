@@ -1,9 +1,9 @@
-"""Phase 20, owned disposable PostgreSQL only; production release stays closed."""
+"""Phase 20, owned disposable PostgreSQL only; recovery requires current authorization."""
 from uuid import uuid4
 import pytest
 import psycopg
 from backend.services.api.disposition import documents,membership,recovery,artifacts
-from backend.services.api.tests.test_disposition_physical import approved,report,confirmation,release_for_test
+from backend.services.api.tests.test_disposition_physical import approved,report,confirmation
 from backend.services.api.tests.test_disposition_review import db,claim
 from backend.services.api.tests.test_disposition_membership import actor,job_version,kwargs,setup,admit
 from backend.services.api.tests.test_disposition_eligibility import statuses
@@ -13,11 +13,10 @@ def renderer(monkeypatch):
     from tools.preview_disposition import preview_pdf
     monkeypatch.setattr(documents.engine,'render',lambda *a:(preview_pdf(),{}))
     yield
-    with db() as c:c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
 
 
 def physical_done(c):
-    job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);release_for_test(c);c.commit();actor(c)
+    job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);c.commit();actor(c)
     confirmation(c,job,mgr);c.commit();actor(c)
     return job,root,mgr
 
@@ -88,7 +87,7 @@ def mixed_done(c,monkeypatch,private_child=False):
     second,*_=make_unit(c);fully,*_=make_unit(c,'physical');untouched,*_=make_unit(c,'digital')
     assert all(r['success'] for r in admit(c,job['id'],[second,fully,untouched])['items'])
     reach_manager(c,job,'simplified');rid=approve(c,job,mgr)['round_id'];generate(c,job,mgr,rid);decision(c,job);c.commit();actor(c)
-    report(c,job,mgr);claim(c,job);release_for_test(c);c.commit();actor(c);confirmation(c,job,mgr);c.commit();actor(c)
+    report(c,job,mgr);claim(c,job);c.commit();actor(c);confirmation(c,job,mgr);c.commit();actor(c)
     return job,first,second,fully,untouched,mgr
 
 

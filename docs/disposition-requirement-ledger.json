@@ -3920,6 +3920,14 @@
             "docs/operations.md"
           ],
           "scope": "Controlled rollout instructions and disposable fresh/multi-database rehearsal only. Existing deployment/environment ownership, safe reviewed per-database migration, role/destination/SMTP/templates/workers/recovery. Persistent deployment and execution release excluded."
+        },
+        {
+          "phase": 24,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -3999,6 +4007,20 @@
             "tools/tests/test_reconcile_local_env.py"
           ],
           "scope": "Actual independent fresh and two populated upgrades and CLI/worker/API startup, supplemented by current source-contract/environment preservation acceptance. See source-contracts.log and cleanup.json."
+        },
+        {
+          "phase": 24,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -18927,6 +18949,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -19280,6 +19310,20 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -19532,6 +19576,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -20046,6 +20098,20 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -21581,6 +21647,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -21803,6 +21877,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -24151,6 +24239,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -24284,6 +24380,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -24394,6 +24504,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -24576,6 +24694,20 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -24686,6 +24818,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -24868,6 +25008,20 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -25929,6 +26083,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -26111,6 +26273,20 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -27088,6 +27264,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -27192,6 +27376,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -28142,6 +28340,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -28425,6 +28631,20 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -28970,6 +29190,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -29076,6 +29304,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -30789,6 +31031,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -31007,6 +31257,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -38006,6 +38270,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -38140,6 +38412,20 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -40767,6 +41053,14 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -41093,6 +41387,20 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -44013,6 +44321,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -44117,6 +44433,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -44746,6 +45076,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -44887,6 +45225,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -45130,6 +45482,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -45271,6 +45631,20 @@
             "phase22-browser-20261019"
           ],
           "scope": "Implemented portions tested; full phase sign-off remains pending policy clarification and live Arabic verification."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -45750,6 +46124,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -46461,6 +46843,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -47302,6 +47698,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -47357,6 +47761,20 @@
           "run": "phase22-browser-arabic-20261020",
           "tests": [],
           "scope": "Live Arabic and RTL acceptance completed; existing automated results and earlier English browser evidence retained. See browser-checks.json for exercised paths and screenshots."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -47615,6 +48033,14 @@
             "frontend/webui/disposition/completion.py",
             "docs/disposition-phase-22.md"
           ]
+        },
+        {
+          "phase": 22,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -47670,6 +48096,20 @@
           "run": "phase22-browser-arabic-20261020",
           "tests": [],
           "scope": "Live Arabic and RTL acceptance completed; existing automated results and earlier English browser evidence retained. See browser-checks.json for exercised paths and screenshots."
+        },
+        {
+          "phase": 22,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -63655,6 +64095,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -63886,6 +64334,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -64008,6 +64470,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -64239,6 +64709,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -64361,6 +64845,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -64592,6 +65084,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -64714,6 +65220,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -64945,6 +65459,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -65067,6 +65595,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -65298,6 +65834,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -65420,6 +65970,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -65651,6 +66209,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -65773,6 +66345,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -66004,6 +66584,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -66126,6 +66720,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -66357,6 +66959,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -66479,6 +67095,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -66710,6 +67334,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -72523,6 +73161,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -72872,6 +73518,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -73115,6 +73775,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -73464,6 +74132,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -73688,6 +74370,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -74009,6 +74699,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -74233,6 +74937,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -74554,6 +75266,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -74778,6 +75504,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -75099,6 +75833,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -75323,6 +76071,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -75644,6 +76400,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -75887,6 +76657,14 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 23,
+          "locations": [
+            "database/migrations/071_remove_destruction_release_gates.sql",
+            "docs/disposition-release-gate-removal.md"
+          ],
+          "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
         }
       ],
       "verification": [
@@ -76236,6 +77014,20 @@
             "tools/tests/test_disposition_acceptance.py"
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+        },
+        {
+          "phase": 23,
+          "result": "passed",
+          "run": "destruction-gate-removal-20261020",
+          "tests": [
+            "backend/services/api/tests/test_disposition_gate_removal.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_integrated.py",
+            "tools/rehearse_disposition_rollout.py"
+          ],
+          "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
         }
       ],
       "baseline_refs": [
@@ -95545,6 +96337,11 @@
       "result": "passed",
       "evidence": "docs/verification/disposition-phase-24/source-contracts.log",
       "scope": "38 source traceability/settings ownership/private environment preservation/gate tests."
+    },
+    "destruction-gate-removal-20261020": {
+      "result": "passed",
+      "evidence": "docs/verification/disposition-release-gate-removal/summary.json",
+      "scope": "Approved removal of temporary physical/digital release gates. Canonical and prior-schema integrated workflows, both old gate values, role/access/approval/blocker/confirmation/recovery regressions, both-language UI tests and live physical confirmation, translation preservation and independent disposal. 071 applied to demo with unchanged workflow permissions/business counts and no destruction."
     }
   },
   "removed_setting": {
@@ -98380,5 +99177,23 @@
       "note": "Exact phase start/active-hours not captured; individual test durations retained. No reconstructed total."
     },
     "operations_guide": "docs/operations.md#14-disposition-and-destruction-operations"
+  },
+  "approved_release_gate_removal": {
+    "approved_date": "2026-10-20",
+    "user_request": "Remove temporary release gates; destruction works after migrations subject to existing permissions/workflow checks.",
+    "status": "complete",
+    "details": "docs/disposition-release-gate-removal.md",
+    "migration": "database/migrations/071_remove_destruction_release_gates.sql",
+    "verification_run": "destruction-gate-removal-20261020",
+    "demo_applied": true,
+    "separate_enablement_required": false,
+    "new_environment_variables": [],
+    "new_application_settings": [],
+    "retired_translation_keys": [
+      "disposition.ui.disposition_digital_release_pending",
+      "disposition.ui.disposition_physical_release_pending"
+    ],
+    "active_keys_per_language": 3735,
+    "human_review_candidates": 531
   }
 }

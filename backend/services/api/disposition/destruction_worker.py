@@ -28,7 +28,7 @@ def main(argv=None):
     def connection():
         with psycopg.connect(url,row_factory=dict_row,options='-c timezone=UTC') as c:yield c
     with connection() as c:
-        if not c.execute("SELECT 1 FROM schema_migrations WHERE version='069_disposition_completion'").fetchone():raise RuntimeError('Apply migrations066–069 before starting destruction')
+        if not c.execute("SELECT 1 FROM schema_migrations WHERE version='071_remove_destruction_release_gates'").fetchone():raise RuntimeError('Apply migration 071 before starting destruction/completion')
     while True:
         try:
             print(json.dumps(run_pass(connection,args.batch_size)),flush=True)

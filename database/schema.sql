@@ -12903,9 +12903,8 @@ COMMIT;
 
 -- Physical preparation and confirmation (064).
 BEGIN;
--- Physical preparation and immutable offline confirmation. Operational release
--- remains closed until the recovery AND completion implementations pass.
-CREATE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$;
+-- Physical preparation and immutable offline confirmation. Existing workflow
+-- authorization, evidence and confirmation requirements apply.
 CREATE TABLE disposition_physical_confirmations (
  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  job_id bigint NOT NULL UNIQUE REFERENCES disposition_jobs(id),
@@ -12955,8 +12954,6 @@ END $$;
 CREATE FUNCTION disposition_private.check_physical_work(p_task bigint,p_job_version integer,p_task_version integer,p_role bigint) RETURNS jsonb LANGUAGE plpgsql AS $$
 DECLARE j disposition_jobs%ROWTYPE;t disposition_tasks%ROWTYPE;root bigint;
 BEGIN
- -- A code release boundary, deliberately not an operator-controlled setting.
- IF NOT disposition_private.physical_execution_released() THEN RAISE EXCEPTION 'disposition_physical_release_pending'; END IF;
  PERFORM pg_advisory_xact_lock(7357,1);
  SELECT * INTO t FROM disposition_tasks WHERE id=p_task;
  PERFORM disposition_private.lock_request_facts(t.job_id);
@@ -12980,7 +12977,7 @@ DECLARE acting bigint;key uuid;t disposition_tasks%ROWTYPE;doc disposition_job_d
 BEGIN
  PERFORM disposition_private.require_command();
  IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'disposition_physical_immutable'; END IF;
- IF NOT disposition_private.physical_execution_released() OR NOT disposition_private.physical_active(NEW.job_id) OR disposition_private.context_operation()<>'review_decide' THEN RAISE EXCEPTION 'disposition_physical_release_pending'; END IF;
+ IF NOT disposition_private.physical_active(NEW.job_id) OR disposition_private.context_operation()<>'review_decide' THEN RAISE EXCEPTION 'disposition_physical_required'; END IF;
  SELECT acting_role_id,command_id INTO acting,key FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
  SELECT * INTO t FROM disposition_tasks WHERE id=NEW.task_id;
  PERFORM disposition_private.check_physical_work(t.id,(SELECT version FROM disposition_jobs WHERE id=NEW.job_id),t.version,acting);
@@ -13758,7 +13755,6 @@ CREATE TABLE disposition_private.destruction_scopes (
  root_id bigint NOT NULL REFERENCES aggregations(id) ON DELETE RESTRICT,scope jsonb NOT NULL,
  PRIMARY KEY(run_id,root_id)
 );
-CREATE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$;
 CREATE FUNCTION disposition_private.destruction_active(p_mode text DEFAULT NULL,p_root bigint DEFAULT NULL) RETURNS boolean LANGUAGE sql STABLE AS $$
  SELECT EXISTS(SELECT 1 FROM disposition_private.destruction_context d WHERE d.transaction_id=txid_current() AND d.backend_id=pg_backend_pid()
  AND (p_mode IS NULL OR d.mode=p_mode) AND (p_root IS NULL OR d.root_id=p_root)
@@ -13812,7 +13808,6 @@ CREATE FUNCTION disposition_private.request_digital(p_task bigint,p_job_version 
 DECLARE j disposition_jobs%ROWTYPE;t disposition_tasks%ROWTYPE;acting bigint;key uuid;previous disposition_destruction_runs%ROWTYPE;created bigint;root bigint;total integer;
 BEGIN
  PERFORM disposition_private.require_command();
- IF NOT disposition_private.digital_execution_released() THEN RAISE EXCEPTION 'disposition_digital_release_pending'; END IF;
  IF disposition_private.context_operation()<>'final_complete' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
  SELECT acting_role_id,command_id INTO acting,key FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
  SELECT * INTO t FROM disposition_tasks WHERE id=p_task FOR UPDATE;
@@ -14793,7 +14788,6 @@ CREATE FUNCTION disposition_private.finish_digital_unit(p_run bigint,p_root bigi
 DECLARE run disposition_destruction_runs%ROWTYPE;at_time timestamptz:=clock_timestamp();key uuid;event_id bigint;name text;finished boolean;physical disposition_physical_confirmations%ROWTYPE;proof_at timestamptz;proof_user bigint;
 BEGIN
  PERFORM disposition_private.require_command();
- IF NOT disposition_private.digital_execution_released() THEN RAISE EXCEPTION 'disposition_digital_release_pending'; END IF;
  SELECT * INTO run FROM disposition_destruction_runs WHERE id=p_run FOR UPDATE;
  IF NOT EXISTS(SELECT 1 FROM disposition_destruction_run_units WHERE run_id=p_run AND root_id=p_root AND state='running' AND claim_token=p_token) THEN RAISE EXCEPTION 'disposition_digital_claim_lost'; END IF;
  IF run.requested_by_user_id IS DISTINCT FROM current_user_id() THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_authorization_required'; END IF;
@@ -15031,12 +15025,10 @@ BEGIN
  PERFORM disposition_private.require_job_access(p_job);
  IF NOT disposition_private.review_role(p_job,'records_manager_review',acting) OR NOT disposition_private.person_role(current_user_id(),acting) OR NOT disposition_private.can_review_content(current_user_id(),p_job) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_manager_role_required'; END IF;
  IF p_document IS NOT NULL THEN
-  IF NOT disposition_private.digital_execution_released() THEN RAISE EXCEPTION 'disposition_digital_release_pending'; END IF;
   SELECT task_id INTO download_id FROM disposition_private.completion_work WHERE job_id=p_job AND state='running' AND requested_by_user_id=current_user_id() AND acting_role_id=acting;
   PERFORM disposition_private.check_completion(p_job,download_id,acting);
   IF NOT EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.id=p_document AND d.job_id=p_job AND d.document_type='digital_destruction_certificate' AND d.document_state='available' AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id) AND d.provenance->>'completion_request_id'=(SELECT request_id::text FROM disposition_private.completion_work WHERE job_id=p_job)) THEN RAISE EXCEPTION 'disposition_certificate_required'; END IF;
  ELSE
-  IF NOT disposition_private.physical_execution_released() THEN RAISE EXCEPTION 'disposition_physical_release_pending'; END IF;
   SELECT * INTO physical FROM disposition_physical_confirmations WHERE job_id=p_job;
   IF j.workflow_stage<>'physical_destruction' OR physical.id IS NULL OR physical.confirmed_by_user_id<>current_user_id() OR disposition_private.has_digital_material(p_job) OR NOT EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.id=physical.certificate_document_id AND d.document_state='available' AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id)) THEN RAISE EXCEPTION 'disposition_physical_certificate_required'; END IF;
  END IF;
@@ -15423,7 +15415,6 @@ CREATE OR REPLACE FUNCTION disposition_private.finish_digital_unit(p_run bigint,
 DECLARE run disposition_destruction_runs%ROWTYPE;at_time timestamptz:=clock_timestamp();key uuid;event_id bigint;name text;finished boolean;physical disposition_physical_confirmations%ROWTYPE;proof_at timestamptz;proof_user bigint;
 BEGIN
  PERFORM disposition_private.require_command();
- IF NOT disposition_private.digital_execution_released() THEN RAISE EXCEPTION 'disposition_digital_release_pending'; END IF;
  SELECT * INTO run FROM disposition_destruction_runs WHERE id=p_run FOR UPDATE;
  IF NOT EXISTS(SELECT 1 FROM disposition_destruction_run_units WHERE run_id=p_run AND root_id=p_root AND state='running' AND claim_token=p_token) THEN RAISE EXCEPTION 'disposition_digital_claim_lost'; END IF;
  IF run.requested_by_user_id IS DISTINCT FROM current_user_id() THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_authorization_required'; END IF;
@@ -15548,3 +15539,6 @@ END $$;
 
 INSERT INTO schema_migrations(version) VALUES('070_disposition_decision_minimization') ON CONFLICT DO NOTHING;
 COMMIT;
+
+-- Temporary destruction release gates removed (071).
+INSERT INTO schema_migrations(version) VALUES('071_remove_destruction_release_gates') ON CONFLICT DO NOTHING;

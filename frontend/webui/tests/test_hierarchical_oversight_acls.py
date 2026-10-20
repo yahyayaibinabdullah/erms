@@ -64,6 +64,10 @@ def test_oversight_catalogue_covers_both_languages_and_preserves_curated_rows():
     original = json.loads(subprocess.check_output(["git", "show", "HEAD:frontend/webui/i18n/messages.ar.generated.json"], cwd=ROOT))
     current_by_key = {item["message_key"]: item for item in current["items"]}
     for item in original['items']:
+        if item['message_key'] not in current_by_key:
+            assert item in current.get('deprecated_items', [])
+            assert item['message_key'] not in manifest
+            continue
         candidate = current_by_key[item['message_key']]
         if candidate == item:
             continue

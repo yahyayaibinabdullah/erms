@@ -4,13 +4,41 @@ set -Eeuo pipefail
 readonly PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ENV_FILE="${PROJECT_DIR}/.env"
 
+case "${1:-}" in
+    up|down|status|restart)
+        exec python3 "${PROJECT_DIR}/tools/local_stack_control.py" "$@"
+        ;;
+    ""|__managed|__logging) ;;
+    *) echo "Usage: $0 [up|down|status|restart] (no mode: foreground)" >&2; exit 2 ;;
+esac
+
+# Install the log pipe before taking the process-lifetime lock. The reader must
+# not inherit that lock, or it could delay restart after the launcher exits.
+if [[ " $* " != *" __logging "* ]]; then
+    umask 077
+    mkdir -p "${PROJECT_DIR}/.runtime/local-stack"
+    chmod 700 "${PROJECT_DIR}/.runtime/local-stack"
+    if [[ "${1:-}" == __managed ]]; then
+        exec > >(python3 -u "${PROJECT_DIR}/tools/local_stack_log.py" \
+            "${PROJECT_DIR}/.runtime/local-stack/stack.log") 2>&1
+    else
+        exec > >(python3 -u "${PROJECT_DIR}/tools/local_stack_log.py" \
+            "${PROJECT_DIR}/.runtime/local-stack/stack.log" --console) 2>&1
+    fi
+fi
+
 # Serialize launchers before provisioning rotates the shared indexer key.
 # The kernel releases this lock on exit, including an unexpected termination.
 if [[ "${ERMS_LOCAL_STACK_LOCK_PID:-}" != "$$" ]]; then
     exec python3 "${PROJECT_DIR}/tools/local_stack_lock.py" \
-        "${PROJECT_DIR}/.cache/local-stack.lock" bash "${BASH_SOURCE[0]}" "$@"
+        "${PROJECT_DIR}/.cache/local-stack.lock" bash "${BASH_SOURCE[0]}" "$@" __logging
 fi
 unset ERMS_LOCAL_STACK_LOCK_PID
+
+umask 077
+mkdir -p "${PROJECT_DIR}/.runtime/local-stack"
+chmod 700 "${PROJECT_DIR}/.runtime/local-stack"
+python3 "${PROJECT_DIR}/tools/local_stack_control.py" _register "$$"
 
 # Reconcile before loading defaults, under the launcher lock. Existing values
 # (including deliberately empty values) remain untouched.
@@ -60,12 +88,34 @@ API_PID=""
 UI_PID=""
 INDEXER_PID=""
 INDEXING_MAINTENANCE_PID=""
+CONTENT_CLEANUP_PID=""
+SESSION_CLEANUP_PID=""
+DISPOSITION_ELIGIBILITY_PID=""
+DISPOSITION_COMMUNICATIONS_PID=""
+DISPOSITION_DESTRUCTION_PID=""
+readonly MAILDEV_OWNER="local-stack-$$"
+MANAGED_MAILDEV=false
 MANAGED_DATABASE=false
 
 cleanup() {
     local exit_code=$?
     trap - EXIT INT TERM
 
+    local worker_pid
+    if [[ -n "${SESSION_CLEANUP_PID}" ]] && kill -0 "${SESSION_CLEANUP_PID}" 2>/dev/null; then
+        kill "${SESSION_CLEANUP_PID}" 2>/dev/null || true
+        wait "${SESSION_CLEANUP_PID}" 2>/dev/null || true
+    fi
+    if [[ -n "${CONTENT_CLEANUP_PID}" ]] && kill -0 "${CONTENT_CLEANUP_PID}" 2>/dev/null; then
+        kill "${CONTENT_CLEANUP_PID}" 2>/dev/null || true
+        wait "${CONTENT_CLEANUP_PID}" 2>/dev/null || true
+    fi
+    for worker_pid in "${DISPOSITION_ELIGIBILITY_PID}" "${DISPOSITION_COMMUNICATIONS_PID}" "${DISPOSITION_DESTRUCTION_PID}"; do
+        if [[ -n "${worker_pid}" ]] && kill -0 "${worker_pid}" 2>/dev/null; then
+            kill "${worker_pid}" 2>/dev/null || true
+            wait "${worker_pid}" 2>/dev/null || true
+        fi
+    done
     if [[ -n "${INDEXING_MAINTENANCE_PID}" ]] && kill -0 "${INDEXING_MAINTENANCE_PID}" 2>/dev/null; then
         kill "${INDEXING_MAINTENANCE_PID}" 2>/dev/null || true
         wait "${INDEXING_MAINTENANCE_PID}" 2>/dev/null || true
@@ -82,10 +132,14 @@ cleanup() {
         kill "${API_PID}" 2>/dev/null || true
         wait "${API_PID}" 2>/dev/null || true
     fi
+    if [[ "${MANAGED_MAILDEV}" == true ]]; then
+        "${PROJECT_DIR}/run-maildev.py" down --owner "${MAILDEV_OWNER}" || true
+    fi
     if [[ "${MANAGED_DATABASE}" == true ]]; then
         echo "Stopping local PostgreSQL container (data remains in ${STACK_DB_VOLUME})"
         docker stop "${STACK_DB_CONTAINER}" >/dev/null 2>&1 || true
     fi
+    python3 "${PROJECT_DIR}/tools/local_stack_control.py" _stopped "$$" || true
     exit "${exit_code}"
 }
 trap cleanup EXIT INT TERM
@@ -101,8 +155,16 @@ database_ready() {
     psql "${STACK_DATABASE_URL}" -v ON_ERROR_STOP=1 -Atc "SELECT 1" >/dev/null 2>&1
 }
 
+HTTP_PROBE_ERROR=""
 http_ready() {
-    curl --fail --silent --max-time 2 "$1" >/dev/null 2>&1
+    # Readiness is a direct service check. User curl configuration or proxy
+    # settings must not route a loopback/private endpoint through a proxy.
+    if HTTP_PROBE_ERROR="$(curl -q --noproxy '*' --fail --silent --show-error \
+        --max-time 2 "$1" --output /dev/null 2>&1)"; then
+        HTTP_PROBE_ERROR=""
+        return 0
+    fi
+    return 1
 }
 
 wait_for_database() {
@@ -152,9 +214,13 @@ wait_for_http() {
         if http_ready "${url}"; then
             return 0
         fi
+        if (( attempt == 1 || attempt % 10 == 0 )); then
+            echo "Waiting for ${name}: ${HTTP_PROBE_ERROR:-HTTP readiness check failed}." >&2
+        fi
         sleep 1
     done
     echo "${name} did not become ready at ${url} within 60 seconds." >&2
+    echo "Last ${name} probe: ${HTTP_PROBE_ERROR:-HTTP readiness check failed}." >&2
     return 1
 }
 
@@ -209,6 +275,34 @@ start_database
     "${PROJECT_DIR}/tools/migrate_application_settings.py" --check \
     --database-url "${STACK_DATABASE_URL}" --source-env "${PROJECT_ENV_FILE}"
 
+# All three workers use the current disposition schema. Check before starting
+# any of them; never apply migrations automatically from a local launcher.
+if [[ "$(psql "${STACK_DATABASE_URL}" -v ON_ERROR_STOP=1 -Atc \
+    "SELECT EXISTS (SELECT 1 FROM schema_migrations WHERE version='071_remove_destruction_release_gates')")" != t ]]; then
+    echo "Apply pending database migrations through 071 before starting disposition workers." >&2
+    exit 1
+fi
+
+python3 "${PROJECT_DIR}/tools/local_stack_preflight.py" \
+    --api-url "${STACK_API_URL}" --api-host "${API_HOST:-0.0.0.0}" --api-port "${API_PORT:-8000}" \
+    --ui-url "${STACK_UI_URL}" --ui-host "${WEBUI_HOST:-0.0.0.0}" --ui-port "${WEBUI_PORT:-8080}"
+
+echo "Starting or reusing local MailDev (implicit TLS and MCP)."
+# The helper serializes ownership with startup. A reused instance retains its
+# existing owner, so cleanup cannot stop a separately started/restarted service.
+MANAGED_MAILDEV=true
+"${PROJECT_DIR}/run-maildev.py" up --owner "${MAILDEV_OWNER}"
+
+echo "Starting API-owned segmented-content cleanup worker."
+PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" -u \
+    -m backend.services.api.content_cleanup --watch &
+CONTENT_CLEANUP_PID=$!
+
+echo "Starting API-owned login-session cleanup worker."
+PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" -u \
+    -m backend.services.api.session_cleanup --watch &
+SESSION_CLEANUP_PID=$!
+
 if [[ "${STACK_INDEXING_MAINTENANCE_ENABLED}" == true ]]; then
     echo "Starting API-owned text-indexing maintenance worker."
     PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" \
@@ -258,17 +352,58 @@ else
     wait_for_http "Web UI" "${STACK_UI_URL}"
 fi
 
+echo "Starting disposition eligibility, communications and destruction/completion workers."
+PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" -u \
+    -m backend.services.api.disposition.eligibility --watch --batch-size 100 --interval-seconds 60 &
+DISPOSITION_ELIGIBILITY_PID=$!
+PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" -u \
+    -m backend.services.api.disposition.communications --watch --batch-size 100 --interval-seconds 30 &
+DISPOSITION_COMMUNICATIONS_PID=$!
+PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" -u \
+    -m backend.services.api.disposition.destruction_worker --watch --batch-size 1 --interval-seconds 5 &
+DISPOSITION_DESTRUCTION_PID=$!
+
 echo
 echo "ERMS local stack is ready:"
 echo "  Web UI:  ${STACK_UI_URL}"
 echo "  API:     ${STACK_API_URL}"
 echo "  API docs:${STACK_API_URL}/docs"
+echo "  Disposition: eligibility, communications and destruction/completion workers are managed"
+echo "  Content: segmented-content cleanup is running"
+echo "  Sessions: login-session cleanup is running"
+echo "  MailDev: mailbox/MCP URLs printed above; logs in .runtime/maildev/"
 if [[ -n "${INDEXING_MAINTENANCE_PID}" ]]; then
     echo "  Cleanup: API-owned indexing/credential maintenance is running"
 fi
 echo "Press Ctrl-C to stop services started by this script."
 
+python3 "${PROJECT_DIR}/tools/local_stack_control.py" _ready "$$" \
+    --api-url "${STACK_API_URL}" --ui-url "${STACK_UI_URL}" \
+    --process "api=${API_PID}" --process "webui=${UI_PID}" \
+    --process "text-indexer=${INDEXER_PID}" --process "indexing-maintenance=${INDEXING_MAINTENANCE_PID}" \
+    --process "content-cleanup=${CONTENT_CLEANUP_PID}" --process "session-cleanup=${SESSION_CLEANUP_PID}" \
+    --process "disposition-eligibility=${DISPOSITION_ELIGIBILITY_PID}" \
+    --process "disposition-communications=${DISPOSITION_COMMUNICATIONS_PID}" \
+    --process "disposition-destruction=${DISPOSITION_DESTRUCTION_PID}"
+
 while true; do
+    if ! kill -0 "${SESSION_CLEANUP_PID}" 2>/dev/null; then
+        wait "${SESSION_CLEANUP_PID}" || true
+        echo "The managed login-session cleanup worker stopped unexpectedly." >&2
+        exit 1
+    fi
+    if ! kill -0 "${CONTENT_CLEANUP_PID}" 2>/dev/null; then
+        wait "${CONTENT_CLEANUP_PID}" || true
+        echo "The managed segmented-content cleanup worker stopped unexpectedly." >&2
+        exit 1
+    fi
+    for worker_pid in "${DISPOSITION_ELIGIBILITY_PID}" "${DISPOSITION_COMMUNICATIONS_PID}" "${DISPOSITION_DESTRUCTION_PID}"; do
+        if ! kill -0 "${worker_pid}" 2>/dev/null; then
+            wait "${worker_pid}" || true
+            echo "A managed disposition worker stopped unexpectedly (PID ${worker_pid}); stopping the local stack." >&2
+            exit 1
+        fi
+    done
     if [[ -n "${API_PID}" ]] && ! kill -0 "${API_PID}" 2>/dev/null; then
         wait "${API_PID}" || true
         echo "The API process stopped unexpectedly." >&2

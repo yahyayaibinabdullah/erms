@@ -24,7 +24,6 @@ def controls(form):
             summary.text=text('execution_counts',state=text('execution_'+progress['state']),completed=progress['overall_completed_units'],total=progress['overall_total_units'],queued=progress['queued_units'],running=progress['running_units'],failed=progress['failed_units'])
             error.text=text(progress['last_error_code']) if progress.get('last_error_code') in KEYS else text('execution_action_required') if progress['state']=='failed' else ''
         render(state['progress'])
-        if not value['released']:ui.label(text('disposition_digital_release_pending')).props('role=status')
         if 'destroy_digital' in form.actions:
             confirmed=ui.checkbox(text('digital_confirm'),value=False)
             async def execute(_=None):

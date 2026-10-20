@@ -1,7 +1,7 @@
 # Disposition controlled rollout and colleague handoff
 
 This is the Phase 24 preparation runbook. It does **not** authorize applying
-changes to demo, staging or production, or enabling physical/digital destruction.
+changes to demo, staging or production, or performing destruction.
 Select the database and obtain deployment authorization before the write steps.
 The implementation through Phase 23 has been verified; see
 [acceptance](disposition-phase-23.md) and [Phase 24 rehearsal](disposition-phase-24.md).
@@ -96,6 +96,7 @@ blindly replay all DDL: several migrations are intentionally non-repeatable.
 | 068 | `database/migrations/068_disposition_retained_records.sql` |
 | 069 | `database/migrations/069_disposition_completion.sql` |
 | 070 | `database/migrations/070_disposition_decision_minimization.sql` |
+| 071 | `database/migrations/071_remove_destruction_release_gates.sql` |
 
 For each missing file, the exact invocation is:
 
@@ -107,7 +108,9 @@ Replace that filename with the next missing file from the table. Stop at the
 first error, preserve the error privately, inspect receipts and transaction
 outcome, and repair the cause before resuming. Do not stamp receipts manually.
 070 corrects decision snapshot minimization; it must accompany 069 completion.
-The populated 050–070 rehearsal verifies schema parity and preservation of
+071 removes the temporary physical/digital release gates; apply it before using
+the matching API/WebUI code. No separate database enablement is required.
+The populated 050–071 rehearsal verifies schema parity and preservation of
 existing rows, fields, grants and history, rather than assuming a fresh install
 proves an upgrade.
 
@@ -200,8 +203,8 @@ PYTHONPATH=. backend/services/api/.venv/bin/python \
 This preserves protected database translations; it does not silently promote
 an administrator export or authorize publication. Review seed results. If newer
 administrator edits exist only in a database, deliberately export/promote them
-before replacing the canonical artifact. Current English/Arabic have 3737 keys;
-533 machine candidates remain subject to human review. Phase 23 corrected seven
+before replacing the canonical artifact. Current English/Arabic have 3735 keys;
+531 machine candidates remain subject to human review. Phase 23 corrected seven
 unreviewed glossary values and preserved curated entries/provenance.
 
 ## 5. Operational setup, startup and recovery
@@ -213,5 +216,7 @@ reference for ongoing operation:
 - [Worker startup and verification](operations.md#142-worker-startup-and-verification): the three dedicated processes, service units, readiness checks and restart behavior.
 - [Operator recovery and rollback](operations.md#143-recovery-and-rollback): blocked tasks, SMTP uncertainty, durable work, certificate-only retries and irreversible destruction.
 
-The operational execution gates remain false. Persistent deployment and any
-operational destruction still require explicit authorization.
+After migration 071 there are no temporary execution gates. Destruction is
+available subject to the existing permissions, approvals, workflow checks and
+explicit confirmations; applying this upgrade does not perform destruction.
+Persistent deployment still requires operator authorization.

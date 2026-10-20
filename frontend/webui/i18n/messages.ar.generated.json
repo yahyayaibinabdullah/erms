@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-  "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
+  "catalogue_sha256": "dcbdc538b28aba522a29ee4aa9bd6d49127ad132529c838f32f86b373e9d24e6",
   "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -8153,26 +8153,6 @@
       }
     },
     {
-      "message_key": "disposition.ui.disposition_digital_release_pending",
-      "translated_text": "يبقى التنفيذ الرقمي غير متاح حتى اجتياز التحقق من الإتمام والإتاحة.",
-      "origin": "generated",
-      "status": "draft",
-      "quality_flags": [
-        "needs_human_review"
-      ],
-      "generation_metadata": {
-        "generator": "OpenAI Codex",
-        "model": "GPT-6",
-        "model_version": "6",
-        "prompt_version": "disposition-phase21-v1",
-        "generated_at": "2026-10-19T18:14:22.440744+00:00",
-        "batch_id": "disposition-phase21-20261019",
-        "catalogue_sha256": "0072bfeb848e4d9ec5406f5e6e685a0a59111b8cc592cba1bee8fdbbdee83fd5",
-        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
-      }
-    },
-    {
       "message_key": "disposition.ui.disposition_digital_scope_changed",
       "translated_text": "تغيرت الوحدة المعتمدة. حدّث الصفحة وراجع نطاق التصرف الحالي.",
       "origin": "generated",
@@ -8835,26 +8815,6 @@
     {
       "message_key": "disposition.ui.disposition_physical_reference_used",
       "translated_text": "سبق استخدام رقم مرجع شهادة الإتلاف الورقي هذا.",
-      "quality_flags": [
-        "needs_human_review"
-      ],
-      "origin": "generated",
-      "status": "draft",
-      "generation_metadata": {
-        "generator": "OpenAI Codex",
-        "model": "GPT-6",
-        "model_version": "6",
-        "prompt_version": "disposition-phase19-v1",
-        "generated_at": "2026-10-19T15:27:10.831975+00:00",
-        "batch_id": "disposition-phase19-20261019",
-        "catalogue_sha256": "720b1f8073a7e9514168bd2ad857ed151993d84e98de31ca98bdc17ee0dcddc4",
-        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
-      }
-    },
-    {
-      "message_key": "disposition.ui.disposition_physical_release_pending",
-      "translated_text": "يظل الإتلاف الورقي والرقمي غير متاحين حتى اكتمال التحقق من الاستعادة والإتمام. تقارير التحضير متاحة.",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -49374,6 +49334,48 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
         "date_published": "2026-09-26T16:20:14.562571+00:00"
+      }
+    }
+  ],
+  "deprecated_items": [
+    {
+      "message_key": "disposition.ui.disposition_digital_release_pending",
+      "translated_text": "يبقى التنفيذ الرقمي غير متاح حتى اجتياز التحقق من الإتمام والإتاحة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase21-v1",
+        "generated_at": "2026-10-19T18:14:22.440744+00:00",
+        "batch_id": "disposition-phase21-20261019",
+        "catalogue_sha256": "0072bfeb848e4d9ec5406f5e6e685a0a59111b8cc592cba1bee8fdbbdee83fd5",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_physical_release_pending",
+      "translated_text": "يظل الإتلاف الورقي والرقمي غير متاحين حتى اكتمال التحقق من الاستعادة والإتمام. تقارير التحضير متاحة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-phase19-v1",
+        "generated_at": "2026-10-19T15:27:10.831975+00:00",
+        "batch_id": "disposition-phase19-20261019",
+        "catalogue_sha256": "720b1f8073a7e9514168bd2ad857ed151993d84e98de31ca98bdc17ee0dcddc4",
+        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     }
   ]

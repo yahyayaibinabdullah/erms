@@ -11,12 +11,12 @@ from frontend.webui.disposition.physical import confirmation_dialog
 from frontend.webui.disposition.messages import text
 from frontend.webui.api_client import ApiError
 
-async def build(host,*,released=False):
+async def build(host,*,authorized=False):
     api=Api();saved=[]
     async def after(result):saved.append(result)
-    v=view(actions=('check_physical_work','confirm_physical') if released else ())
+    v=view(actions=('check_physical_work','confirm_physical') if authorized else ())
     v['job'].update(workflow_stage='physical_destruction');v['task'].update(task_type='physical_destruction')
-    v['physical']={'report':None,'released':released,'confirmation':None,'can_generate':True,'manager_roles':[{'id':7,'name':'Manager'}]}
+    v['physical']={'report':None,'confirmation':None,'can_generate':True,'manager_roles':[{'id':7,'name':'Manager'}]}
     with host:
         f=ReviewForm(api=api,workspace=v,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=after,format_timestamp=str,open_resource=None)
         await f.load()
@@ -29,12 +29,12 @@ async def test_release_gate_preparation_no_internal_review_downloads_or_confirma
     labels=[e.text for e in host.descendants() if isinstance(e,ui.button)]
     assert text('generate_physical_report') in labels
     assert text('confirm_physical') not in labels and text('check_physical_work') not in labels
-    assert any(e.text==text('disposition_physical_release_pending') for e in host.descendants() if isinstance(e,ui.label))
+    assert not any('release' in (e.text or '').lower() for e in host.descendants() if isinstance(e,ui.label))
 
 @pytest.mark.asyncio
 async def test_native_form_requires_checkbox_reference_and_file_and_keeps_retry(host,monkeypatch):
     notices=[];monkeypatch.setattr(ui,'notify',lambda *a,**kw:notices.append(kw));monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
-    f,api,saved=await build(host,released=True);calls=[]
+    f,api,saved=await build(host,authorized=True);calls=[]
     async def destination(*a,**k):return {'ready':True,'token':'a'*64,'warning':None,'changed':False,'destination':None,'previous_destination':None}
     async def confirm(task_id,**kwargs):
         calls.append({k:v for k,v in kwargs.items() if k!='content'})

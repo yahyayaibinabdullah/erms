@@ -254,11 +254,12 @@ two characters. Unselected text on Apply searches historical snapshots, includin
 deleted accounts. Apply API configuration
 changes by restarting the API process.
 
-## Disposition/application-settings upgrades through 070
+## Disposition/application-settings upgrades through 071
 
 For an existing database current through 049, follow the ordered missing-only
-050–070 procedure and separate seeds in [the controlled rollout runbook](../docs/disposition-rollout.md).
+050–071 procedure and separate seeds in [the controlled rollout runbook](../docs/disposition-rollout.md).
 New empty databases still use `schema.sql` alone. The runbook includes explicit
 settings preview/apply/check for each database; applying schema is not a legacy
-settings import. No persistent deployment or destruction release is authorized
-by the documentation or disposable rehearsal.
+settings import. Persistent deployment requires explicit authorization. Migration 071 removes
+temporary release gates; existing workflow/permission checks still authorize
+each destruction action. No destruction occurs merely by applying migrations.

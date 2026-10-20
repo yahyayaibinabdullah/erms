@@ -14,7 +14,6 @@ def guarded_fixture(monkeypatch):
     yield
     with db() as c:
         for row in security:c.execute('UPDATE security_levels SET prevents_disposition=%s WHERE id=%s',(row['prevents_disposition'],row['id']))
-        for gate in ('digital','physical'):c.execute(f'CREATE OR REPLACE FUNCTION disposition_private.{gate}_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
 
 
 def prepared(c,monkeypatch,before_close=None):
@@ -30,16 +29,11 @@ def request(c,job,mgr,confirmed=True,key=None):
     return destruction.request(c,task_id=t['id'],expected_version=job_version(c,job['id']),task_version=t['version'],confirmed=confirmed,acting_role_id=mgr,command_id=key or uuid4())
 
 
-def release_fixture(c):
-    assert c.info.dbname.startswith('erms_messaging_test_acl_')
-    c.execute('CREATE OR REPLACE FUNCTION disposition_private.digital_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
-
-
 def test_request_gate_confirmation_exact_retry_and_single_run(client,monkeypatch):
     with db() as c:
         job,root,mgr=prepared(c,monkeypatch)
-        with pytest.raises(psycopg.Error,match='digital_release_pending'):request(c,job,mgr)
-        release_fixture(c)
+        assert c.execute("SELECT to_regprocedure('disposition_private.digital_execution_released()') IS NULL yes").fetchone()['yes']
+
         with pytest.raises(psycopg.Error,match='digital_confirmation_required'):request(c,job,mgr,False)
         key=uuid4();result=request(c,job,mgr,key=key);assert request(c,job,mgr,key=key)==result
         with pytest.raises(psycopg.Error,match='digital_already_running'):request(c,job,mgr)
@@ -49,7 +43,7 @@ def test_request_gate_confirmation_exact_retry_and_single_run(client,monkeypatch
 
 def test_manifest_has_proof_only_and_crashed_claim_requires_explicit_retry(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);result=request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);result=request(c,job,mgr)
     with db() as c:
         c.execute("SET timezone='Pacific/Auckland'")
         owned=destruction.claim(c);assert owned and owned['root_id']==root;c.commit()
@@ -65,7 +59,7 @@ def test_manifest_has_proof_only_and_crashed_claim_requires_explicit_retry(clien
 
 def test_destruction_tables_reject_ordinary_writes(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
         with pytest.raises(psycopg.Error,match='destruction_command_required'),c.transaction():c.execute("UPDATE disposition_destruction_runs SET state='succeeded'")
 
 
@@ -90,7 +84,7 @@ def copies_and_indexes(c,root,record):
 
 def test_real_storage_all_versions_ocr_indexes_and_evidence_isolation(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch,before_close=copies_and_indexes);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch,before_close=copies_and_indexes);request(c,job,mgr)
         evidence=c.execute('SELECT d.id,b.content FROM digital_components d JOIN records r ON r.id=d.record_id JOIN digital_component_content_sets s ON s.digital_component_id=d.id JOIN digital_component_blobs b ON b.content_set_id=s.id WHERE r.aggregation_id NOT IN (SELECT disposition_private.unit_ids(%s)) ORDER BY d.id,b.id',(root,)).fetchall()
     with db() as c:
         run=destruction.claim(c);c.commit();actor(c);erase_fixture(c,run)
@@ -112,7 +106,7 @@ def test_owned_files_cleanup_ack_blocks_erasure_until_real_cleanup(client,monkey
     def unavailable(meta):raise OSError('Synthetic ack outage')
     with pytest.raises(OSError),workspace(tmp_path,{},register,unavailable) as directory:
         (directory/'source.bin').write_bytes(b'Confidential temporary working copy')
-        with db() as c:actor(c);release_fixture(c);request(c,job,mgr)
+        with db() as c:actor(c);request(c,job,mgr)
         with db() as c:
             run=destruction.claim(c);c.commit();actor(c)
             with pytest.raises(psycopg.Error,match='processing_cleanup_required'):erase_fixture(c,run)
@@ -126,7 +120,7 @@ def test_owned_files_cleanup_ack_blocks_erasure_until_real_cleanup(client,monkey
 
 def test_complete_unit_real_erasure_minimal_retained_proof_and_pending_job(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch,before_close=copies_and_indexes);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch,before_close=copies_and_indexes);request(c,job,mgr)
         record=c.execute('SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(%s))',(root,)).fetchone()['id']
     assert destruction.process_one(db)
     with db() as c:
@@ -146,7 +140,7 @@ def test_complete_unit_real_erasure_minimal_retained_proof_and_pending_job(clien
 
 def test_worker_failure_rolls_back_storage_and_hides_raw_error_then_retry(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
         c.execute("CREATE FUNCTION fail_erasure_fixture() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF OLD.record_id IN (SELECT id FROM records WHERE title='Remaining material') THEN RAISE EXCEPTION 'secret filesystem path /private/sensitive-content'; END IF; RETURN OLD; END $$")
         c.execute('CREATE TRIGGER fail_erasure_fixture BEFORE DELETE ON digital_components FOR EACH ROW EXECUTE FUNCTION fail_erasure_fixture()')
         before=c.execute('SELECT content FROM digital_component_blobs ORDER BY id').fetchall()
@@ -164,7 +158,7 @@ def test_worker_failure_rolls_back_storage_and_hides_raw_error_then_retry(client
 
 def test_authority_loss_after_queue_preserves_content_and_safe_failure(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
         c.execute('DELETE FROM user_role_assignments WHERE user_id=1 AND role_id=%s',(mgr,))
     assert destruction.process_one(db)
     with db() as c:
@@ -176,7 +170,7 @@ def test_authority_loss_after_queue_preserves_content_and_safe_failure(client,mo
 def test_current_hold_stops_before_irreversible_boundary_and_explicit_retry(client,monkeypatch):
     from backend.services.api.tests.test_disposition_eligibility import make_hold
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr);hold=make_hold(c,'aggregation',root)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr);hold=make_hold(c,'aggregation',root)
     assert destruction.process_one(db)
     with db() as c:
         actor(c);assert c.execute('SELECT last_error_code FROM disposition_destruction_runs').fetchone()['last_error_code']=='disposition_digital_blocked'
@@ -194,7 +188,7 @@ def test_partial_job_retry_skips_succeeded_unit_and_retains_same_job_links(clien
         # Real immutable physical confirmation; the default digital release is
         # still closed until this owned test fixture enables it.
         from backend.services.api.tests.test_disposition_review import claim as claim_task
-        claim_task(c,job);release_fixture(c);request(c,job,mgr)
+        claim_task(c,job);request(c,job,mgr)
         typ=c.execute("SELECT id FROM relationship_types WHERE resource_kind='aggregation' LIMIT 1").fetchone()['id']
         c.execute('INSERT INTO aggregation_relationships(source_id,target_id,relationship_type_id) VALUES(%s,%s,%s)',(a,b,typ))
     assert destruction.process_one(db)
@@ -219,7 +213,7 @@ def test_partial_job_retry_skips_succeeded_unit_and_retains_same_job_links(clien
 
 
 def test_terminal_rows_and_events_reject_mutation_outside_erasure(client,monkeypatch):
-    with db() as c:job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+    with db() as c:job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
     assert destruction.process_one(db)
     with db() as c:
         actor(c)
@@ -231,7 +225,7 @@ def test_terminal_rows_and_events_reject_mutation_outside_erasure(client,monkeyp
 def test_actual_process_death_before_commit_rolls_back_and_requires_retry(client,monkeypatch):
     import os,subprocess,sys
     from pathlib import Path
-    with db() as c:job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+    with db() as c:job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
     code='''from backend.services.api.tests.test_disposition_membership import db
 from backend.services.api.disposition import destruction
 import os
@@ -280,7 +274,7 @@ with workspace(sys.argv[1],{},register,lambda m:None) as directory:
 
 
 def test_retained_routes_require_disposition_or_audit_and_current_resource_access(client,monkeypatch):
-    with db() as c:job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+    with db() as c:job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
     assert destruction.process_one(db)
     single=client.get(f'/api/v1/disposition/retained/aggregation/{root}')
     assert single.status_code==200,single.text
@@ -306,7 +300,7 @@ def test_retained_routes_require_disposition_or_audit_and_current_resource_acces
 
 def test_worker_rechecks_new_relationship_after_request(client,monkeypatch):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
         other,*_=make_unit(c,'digital')
         typ=c.execute("SELECT id FROM relationship_types WHERE resource_kind='aggregation' LIMIT 1").fetchone()['id']
         c.execute('INSERT INTO aggregation_relationships(source_id,target_id,relationship_type_id) VALUES(%s,%s,%s)',(root,other,typ))
@@ -321,7 +315,7 @@ def test_progress_outcome_notifications_are_attributed_and_not_repeated(client,m
     from backend.services.api.disposition import notifications
     from backend.services.api.messaging import notification_configuration as config,notification_registry as registry
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c)
+        job,root,mgr=prepared(c,monkeypatch)
         c.execute((Path(__file__).parents[4]/'database/seeds/disposition-notification-producers.sql').read_text());c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');actor(c)
         payload=config.Configuration(expected_version=0,enabled=True,audience_mode='current_eligible_managers',operational_owner='Disposable execution acceptance',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Digital destruction outcome','<p>Digital destruction run {run_id} has an outcome.</p>'),('ar','نتيجة الإتلاف الرقمي','<p>أصبحت نتيجة تنفيذ الإتلاف الرقمي {run_id} متاحة.</p>')]])
         version=config.save(c,1,notifications.DESTRUCTION_OUTCOME,payload,'Configure disposable execution notifications')
@@ -338,7 +332,7 @@ def test_progress_outcome_notifications_are_attributed_and_not_repeated(client,m
 
 
 def test_two_live_workers_cannot_claim_same_unit(client,monkeypatch):
-    with db() as c:job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+    with db() as c:job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
     with db() as first,db() as second:
         unit=destruction.claim(first);first.commit()
         assert destruction.claim(second) is None;second.commit()
@@ -391,7 +385,7 @@ def test_scratch_recovery_does_not_delete_live_converter_children(tmp_path):
 @pytest.mark.parametrize('change',['vital','security'])
 def test_current_vital_and_clearance_changes_block_execution(client,monkeypatch,change):
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
         if change=='vital':
             c.execute("SELECT set_config('app.vital_status_change_authorized','authorized',true)");c.execute('UPDATE aggregations SET is_vital=true WHERE id=%s',(root,))
         else:c.execute('UPDATE security_levels SET prevents_disposition=true WHERE id=(SELECT security_level_id FROM aggregations WHERE id=%s)',(root,))
@@ -408,7 +402,7 @@ def test_concurrent_hold_committed_while_worker_waits_is_visible(client,monkeypa
     from concurrent.futures import ThreadPoolExecutor
     from contextlib import contextmanager
     from backend.services.api.tests.test_disposition_eligibility import make_hold
-    with db() as c:job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+    with db() as c:job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
     started=threading.Event()
     @contextmanager
     def factory():
@@ -433,7 +427,7 @@ def test_concurrent_hold_committed_while_worker_waits_is_visible(client,monkeypa
 def test_released_task_after_queue_requires_current_manager_claim(client,monkeypatch):
     from backend.services.api.disposition import workflow
     with db() as c:
-        job,root,mgr=prepared(c,monkeypatch);release_fixture(c);request(c,job,mgr)
+        job,root,mgr=prepared(c,monkeypatch);request(c,job,mgr)
         current=task(c,job['id'])
         workflow.task_command(c,action='release',task_id=current['id'],expected_version=current['version'],acting_role_id=mgr,command_id=uuid4(),reason='Return synthetic task to its role queue')
     assert destruction.process_one(db)

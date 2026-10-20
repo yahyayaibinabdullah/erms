@@ -1,0 +1,21 @@
+[Unit]
+Description=ERMS segmented-content cleanup worker
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=erms
+Group=erms
+WorkingDirectory=/opt/erms
+EnvironmentFile=/etc/erms/api.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/erms/backend/services/api/.venv/bin/python -m backend.services.api.content_cleanup --watch
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+KillMode=control-group
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -10,10 +10,10 @@ from frontend.webui.disposition.messages import text
 from frontend.webui.api_client import ApiError
 
 
-def form(host,*,progress=None,alive=lambda:True,released=True):
+def form(host,*,progress=None,alive=lambda:True,authorized=True):
     api=Api();saved=[]
     async def after(value):saved.append(value)
-    f=SimpleNamespace(api=api,view={'destruction':{'released':released,'progress':progress}},job={'id':7,'version':5,'workflow_stage':'digital_destruction'},task={'id':9,'version':3},actions={'destroy_digital'} if released and not progress else set(),retry={},busy=False,host=host,alive=alive,after=after)
+    f=SimpleNamespace(api=api,view={'destruction':{'progress':progress}},job={'id':7,'version':5,'workflow_stage':'digital_destruction'},task={'id':9,'version':3},actions={'destroy_digital'} if authorized and not progress else set(),retry={},busy=False,host=host,alive=alive,after=after)
     with host:
         f.role=ui.select({2:'Current Manager'},value=2)
         f.error=lambda error:ui.notify(str(error),type='negative')
@@ -63,9 +63,9 @@ async def test_progress_is_server_fresh_and_abandoned_response_does_not_reload(h
 
 
 def test_closed_release_shows_progress_without_execution_control(host):
-    f,_=form(host,released=False)
+    f,_=form(host,authorized=False)
     assert not any(isinstance(e,ui.checkbox) for e in host.descendants())
-    assert any(isinstance(e,ui.label) and e.text==text('disposition_digital_release_pending') for e in host.descendants())
+    assert not f.api.writes
 
 
 @pytest.mark.asyncio

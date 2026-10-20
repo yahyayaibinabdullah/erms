@@ -1,4 +1,4 @@
-"""Phase 19: canonical disposable database only; operational release stays closed."""
+"""Phase 19: canonical disposable database; workflow authorization and confirmations remain required."""
 from uuid import uuid4
 import pytest
 import psycopg
@@ -15,15 +15,9 @@ from backend.services.api.tests.test_disposition_artifacts import uploaded
 def renderer(monkeypatch):
     from tools.preview_disposition import preview_pdf
     monkeypatch.setattr(documents.engine,'render',lambda *a:(preview_pdf(),{'renderer':'test'}))
-    def close_release():
-        with db() as c:
-            assert c.info.dbname.startswith('erms_messaging_test_acl_')
-            c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT false $$')
-    close_release()
     with db() as c:security=c.execute('SELECT id,prevents_disposition FROM security_levels').fetchall()
     try:yield
     finally:
-        close_release()
         with db() as c:
             for row in security:c.execute('UPDATE security_levels SET prevents_disposition=%s WHERE id=%s',(row['prevents_disposition'],row['id']))
 
@@ -36,12 +30,6 @@ def approved(c):
 
 def report(c,job,mgr,key=None):
     return physical.generate_report(c,job_id=job['id'],expected_version=job_version(c,job['id']),command_id=key or uuid4(),acting_role_id=mgr,settings=load_snapshot(c),connection_factory=db)
-
-
-def release_for_test(c):
-    # Owned disposable acceptance DB ONLY; production SQL always returns false.
-    assert c.info.dbname.startswith('erms_messaging_test_acl_')
-    c.execute('CREATE OR REPLACE FUNCTION disposition_private.physical_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
 
 
 def confirmation(c,job,mgr,key=None,ref='PHYS/2026/1',successful=True):
@@ -65,14 +53,13 @@ def test_routes_all_hierarchy_and_report_versions_keep_snapshots(client):
         listed=artifacts.page(c,job['id'],limit=25,offset=0,sort='evidence_version')['items']
         reports=[d for d in listed if d['document_type']=='physical_preparation_report']
         assert [d['evidence_version'] for d in reports]==[2,1] and reports[0]['is_current'] and not reports[1]['is_current']
-        assert not c.execute('SELECT disposition_private.physical_execution_released() yes').fetchone()['yes']
+        assert c.execute("SELECT to_regprocedure('disposition_private.physical_execution_released()') IS NULL yes").fetchone()['yes']
 
 
 def test_release_gate_missing_confirmation_and_exact_retry(client):
     with db() as c:
         job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);c.commit();actor(c)
-        with pytest.raises(psycopg.Error,match='physical_release_pending'),c.transaction():confirmation(c,job,mgr)
-        release_for_test(c);c.commit();actor(c)
+        c.commit();actor(c)
         with pytest.raises(HTTPException),c.transaction():confirmation(c,job,mgr,successful=False)
         t=task(c,job['id']);version=job_version(c,job['id']);key=uuid4();dest=artifacts.destination_token(artifacts.destination(c,job['id'],'physical_destruction_certificate'))
         args=dict(task_id=t['id'],expected_version=version,task_version=t['version'],successful=True,certificate_reference='REF / ١',preview=dest,acting_role_id=mgr,command_id=key)
@@ -123,7 +110,7 @@ def test_routing_uses_every_item_not_just_roots(client,monkeypatch,mode,stage):
 def test_prework_check_rechecks_blockers_even_on_retried_check(client,kind):
     from backend.services.api.tests.test_disposition_eligibility import link,unit
     with db() as c:
-        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);release_for_test(c);c.commit();actor(c)
+        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);c.commit();actor(c)
         t=task(c,job['id']);args=dict(task_id=t['id'],expected_version=job_version(c,job['id']),task_version=t['version'],acting_role_id=mgr,command_id=uuid4())
         assert physical.check_work(c,**args)['authorized'];c.commit();actor(c)
         if kind=='vital':
@@ -146,7 +133,7 @@ def test_prework_check_rechecks_blockers_even_on_retried_check(client,kind):
 def test_confirmation_correction_preserves_original_and_later_failure_rolls_everything_back(client):
     from backend.services.api.disposition.commands import execute_command
     with db() as c:
-        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);release_for_test(c);c.commit();actor(c)
+        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);c.commit();actor(c)
         before=c.execute('SELECT count(*) n FROM records').fetchone()['n']
         with pytest.raises(RuntimeError),c.transaction():
             confirmation(c,job,mgr);raise RuntimeError('Simulated final outcome failure')
@@ -165,7 +152,7 @@ def test_duplicate_reference_is_global_and_does_not_save_second_evidence(client)
     with db() as c:
         first,*_=approved(c)
         mgr=c.execute("SELECT id FROM roles WHERE profile_id=(SELECT id FROM profiles WHERE code='INFO_GOV_MGR') ORDER BY id LIMIT 1").fetchone()['id']
-        report(c,first,mgr);claim(c,first);release_for_test(c);c.commit();actor(c);confirmation(c,first,mgr);c.commit();actor(c)
+        report(c,first,mgr);claim(c,first);c.commit();actor(c);confirmation(c,first,mgr);c.commit();actor(c)
         from backend.services.api.tests.test_disposition_membership import setup,ready,admit
         from backend.services.api.tests.test_disposition_approval import reach_manager,approve
         second=setup(c);new_root,*_=ready(c);admit(c,second['id'],[new_root]);reach_manager(c,second,'simplified');rid=approve(c,second,mgr)['round_id'];generate(c,second,mgr,rid);decision(c,second,number='External 2');c.commit();actor(c)
@@ -181,7 +168,7 @@ def test_concurrent_relationship_commit_is_seen_before_authorizing_work(client):
     from queue import Queue
     from backend.services.api.tests.test_disposition_eligibility import unit,link,wait_for_waiter
     with db() as c:
-        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);release_for_test(c)
+        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job)
         outside,*_=unit(c);t=task(c,job['id']);v=job_version(c,job['id'])
     started=Queue()
     def check():
@@ -230,7 +217,7 @@ def test_every_eligible_manager_queue_receives_one_task_and_confirm_closes_sibli
         assert {t['destination_role_id'] for t in tasks}=={mgr,other}
         report(c,job,mgr)
         # claim() chooses the newest offered queue; use its actual Manager role.
-        claim(c,job);release_for_test(c);c.commit();actor(c)
+        claim(c,job);c.commit();actor(c)
         confirmation(c,job,other)
         states=[r['task_state'] for r in c.execute("SELECT task_state FROM disposition_tasks WHERE job_id=%s AND task_type='physical_destruction' ORDER BY id",(job['id'],))]
         assert sorted(states)==['cancelled','completed']
@@ -245,7 +232,7 @@ def test_report_and_certificate_use_different_current_governed_destinations(clie
         dest=destination_root(c,other);configure(c,evidence=1,reports=other);c.commit();actor(c)
         report_doc=artifacts.document(c,job['id'],report(c,job,mgr)['id'])
         assert report_doc['classification_id']==other and report_doc['aggregation_id']==dest
-        claim(c,job);release_for_test(c);c.commit();actor(c)
+        claim(c,job);c.commit();actor(c)
         cert=artifacts.document(c,job['id'],confirmation(c,job,mgr)['certificate_document_id'])
         assert cert['classification_id']==1 and cert['aggregation_id']!=dest and cert['origin']=='uploaded'
 
@@ -260,10 +247,10 @@ def test_http_operational_release_and_missing_file_never_save_evidence(client):
     headers={'If-Match':str(v),'X-CSRF-Token':client.cookies.get('erms_csrf')}
     assert client.post(path,data=data,headers=headers).status_code==422
     response=client.post(path,data=data,files={'file':('certificate.pdf',b'Certificate','application/pdf')},headers=headers)
-    assert response.status_code==409 and response.json()['detail']['code']=='disposition_physical_release_pending'
+    assert response.status_code==200,response.text
     with db() as c:
-        assert c.execute('SELECT count(*) n FROM records').fetchone()['n']==before
-        assert not c.execute('SELECT 1 FROM disposition_physical_confirmations').fetchone()
+        assert c.execute('SELECT count(*) n FROM records').fetchone()['n']==before+1
+        assert c.execute('SELECT 1 FROM disposition_physical_confirmations').fetchone()
 
 
 def test_real_inherited_locations_and_report_totals_are_frozen(client):
@@ -285,7 +272,7 @@ def test_real_inherited_locations_and_report_totals_are_frozen(client):
 def test_current_holds_and_security_block_before_offline_work(client,kind):
     from backend.services.api.tests.test_disposition_eligibility import make_hold
     with db() as c:
-        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);release_for_test(c);c.commit();actor(c)
+        job,root,mgr,_=approved(c);report(c,job,mgr);claim(c,job);c.commit();actor(c)
         if kind=='hold':make_hold(c,'aggregation',root)
         elif kind=='record_hold':
             record=c.execute('SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(%s)) LIMIT 1',(root,)).fetchone()['id'];make_hold(c,'record',record)
@@ -297,7 +284,7 @@ def test_current_holds_and_security_block_before_offline_work(client,kind):
 def test_confirmation_requires_real_manager_and_own_claim(client):
     from backend.services.api.tests.test_disposition_review import officer
     with db() as c:
-        job,root,mgr,_=approved(c);report(c,job,mgr);release_for_test(c);c.commit();actor(c)
+        job,root,mgr,_=approved(c);report(c,job,mgr);c.commit();actor(c)
         with pytest.raises(HTTPException) as error,c.transaction():confirmation(c,job,officer(c))
         assert error.value.status_code==403
         with pytest.raises(psycopg.Error,match='task_claim_required'),c.transaction():confirmation(c,job,mgr)

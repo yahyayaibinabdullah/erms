@@ -91,5 +91,5 @@ if __name__ == '__main__':
     if errors:
         print('\n'.join(errors))
         raise SystemExit(1)
-    boundary = 'rollout remains Phase 24' if args.through_phase == 23 else 'rollout preparation complete; persistent deployment and destruction remain unauthorized'
+    boundary = 'rollout remains Phase 24' if args.through_phase == 23 else 'rollout preparation complete; deployment is separate and destruction requires normal workflow authorization'
     print(f"Disposition acceptance valid: {len(ledger['requirements'])} requirements have named passing evidence for every phase through {args.through_phase}; {boundary}.")

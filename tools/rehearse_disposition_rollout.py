@@ -27,8 +27,8 @@ def main():
     admin = make_conninfo(base, dbname='postgres')
     schema = (ROOT / 'database/schema.sql').read_text()
     migrations = sorted(p for p in (ROOT / 'database/migrations').glob('*.sql')
-                        if 50 <= int(p.name.split('_', 1)[0]) <= 70)
-    assert len(migrations) == 21
+                        if 50 <= int(p.name.split('_', 1)[0]) <= 71)
+    assert len(migrations) == 22
     names = []
     reports = []
     try:
@@ -68,6 +68,11 @@ def main():
                     before = snapshot(c)
                     if kind != 'fresh':
                         for migration in migrations:
+                            if kind == 'upgrade_b' and migration.stem == '071_remove_destruction_release_gates':
+                                # Rehearse an older database whose temporary
+                                # gates had already been enabled by an operator.
+                                for gate in ('physical', 'digital'):
+                                    c.execute(f'CREATE OR REPLACE FUNCTION disposition_private.{gate}_execution_released() RETURNS boolean LANGUAGE sql IMMUTABLE AS $$ SELECT true $$')
                             c.execute(migration.read_text(), prepare=False); c.commit()
                     after = snapshot(c)
                     for table, rows in before.items():
@@ -79,7 +84,7 @@ def main():
                     assert {migration.stem for migration in migrations} <= installed, 'Missing migration receipts'
                     if kind == 'fresh': canonical = actual
                     else: assert actual == canonical, 'Fresh/upgrade catalogue mismatch'
-                    assert c.execute('SELECT disposition_private.physical_execution_released(),disposition_private.digital_execution_released()').fetchone() == (False, False)
+                    assert c.execute("SELECT to_regprocedure('disposition_private.physical_execution_released()'),to_regprocedure('disposition_private.digital_execution_released()')").fetchone() == (None, None)
                     actor = c.execute("SELECT id FROM users WHERE email='upgrade@example.invalid'").fetchone()[0]
                     for seed in ('messaging.sql', 'hold-notification-producers.sql', 'relationship-types.sql', 'disposition-notification-producers.sql'):
                         c.execute((ROOT / 'database/seeds' / seed).read_text(), prepare=False)
@@ -109,7 +114,7 @@ def main():
                 # Actual API lifespan and health on the selected disposable target.
                 run(['-c', 'from fastapi.testclient import TestClient; from backend.services.api.main import app;\nwith TestClient(app) as client:\n r=client.get("/health"); assert r.status_code==200, r.status_code'])
                 assert source.read_bytes() == original
-                reports.append({'installation': kind, 'database': name, 'result': 'passed', 'data_grants_events_preserved': True, 'api_lifespan_health': 'passed', 'three_worker_one_shots': 'passed', 'execution_gates': False})
+                reports.append({'installation': kind, 'database': name, 'result': 'passed', 'data_grants_events_preserved': True, 'api_lifespan_health': 'passed', 'three_worker_one_shots': 'passed', 'temporary_execution_gates': 'absent'})
                 print('Passed ' + kind + ': schema/data/grant preservation, settings readiness, actual CLI, workers and API startup', flush=True)
     finally:
         failures = []

@@ -1,5 +1,25 @@
 # Project instructions
 
+## Local stack lifecycle
+
+- `./run-local-stack.sh` without a mode retains foreground/Ctrl-C operation;
+  `up`, `down`, `status` and `restart` manage the recorded stack. See
+  `docs/local-tooling.md` for ownership, health and timeout behavior.
+- Stack logs and process state belong in gitignored `.runtime/local-stack/`.
+  Preserve process identity checks and do not stop reused external services.
+
+## Local email testing
+
+- Use root `./run-maildev.py up|down|status|restart` for local MailDev testing;
+  setup, TLS trust and runtime options are documented in
+  `docs/local-tooling.md` under “Local MailDev with TLS and MCP”.
+- `./run-local-stack.sh` starts/reuses MailDev automatically and stops only an
+  instance it started. Keep the helper's lifecycle ownership checks intact.
+- Keep certificates, keys, captured messages and logs in gitignored
+  `.runtime/maildev/`. Never disable SMTP certificate validation or change
+  persistent database settings merely to run a test. Never stop an unrelated
+  MailDev process to free a port; use the launcher's port options instead.
+
 ## Specification fidelity
 
 - An approved specification is the authoritative product contract. Implement

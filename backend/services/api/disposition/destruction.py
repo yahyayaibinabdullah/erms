@@ -64,7 +64,6 @@ def claim(c):
     Persist failure instead of silently resuming it without a Manager retry.
     """
     c.execute('SELECT pg_advisory_xact_lock(7357,1)')
-    if not c.execute('SELECT disposition_private.digital_execution_released() yes').fetchone()['yes']:return None
     runs=c.execute("SELECT * FROM disposition_destruction_runs WHERE state IN ('queued','running') ORDER BY id LIMIT 100 FOR UPDATE SKIP LOCKED").fetchall()
     for run in runs:
         key='destruction-run/'+str(run['id'])
@@ -137,8 +136,7 @@ def process_one(factory,*,event_source='scheduled_job'):
 
 def view(c,job):
     if job['job_type']!='destruction':return None
-    released=c.execute('SELECT disposition_private.digital_execution_released() yes').fetchone()['yes']
-    return {'released':released,'progress':progress(c,job['id'])}
+    return {'progress':progress(c,job['id'])}
 
 
 def retained(c,kind,identity,*,audit=False):

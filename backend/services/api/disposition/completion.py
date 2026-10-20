@@ -65,8 +65,6 @@ def snapshot(c, job_id):
 def retry(c, *, job_id, task_id, task_version, expected_version, acting_role_id, command_id, reason=None):
     external.require_manager(c, job_id, acting_role_id)
     def apply(x):
-        if not x.execute('SELECT disposition_private.digital_execution_released() yes').fetchone()['yes']:
-            raise HTTPException(409, detail={'code': 'disposition_digital_release_pending'})
         x.execute('SELECT disposition_private.check_completion(%s,%s,%s)', (job_id, task_id, acting_role_id))
         versions = x.execute('SELECT j.version AS job_version,t.version AS task_version FROM disposition_jobs j JOIN disposition_tasks t ON t.job_id=j.id WHERE j.id=%s AND t.id=%s', (job_id, task_id)).fetchone()
         if not versions or (versions['job_version'], versions['task_version']) != (expected_version, task_version):
@@ -123,8 +121,6 @@ def process_one(factory,*,event_source='scheduled_job'):
     with factory() as c:
         work = None
         try:
-            if not c.execute('SELECT disposition_private.digital_execution_released() yes').fetchone()['yes']:
-                return False
             rows = c.execute("SELECT * FROM disposition_private.completion_work WHERE state IN ('queued','running') ORDER BY job_id LIMIT 100").fetchall()
             for row in rows:
                 if not c.execute('SELECT pg_try_advisory_lock(hashtextextended(%s,0)) yes', ('completion/' + str(row['job_id']),)).fetchone()['yes']:
