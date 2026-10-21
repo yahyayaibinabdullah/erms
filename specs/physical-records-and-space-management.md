@@ -1,27 +1,30 @@
 # Physical Records and Space Management — Specification
 
-**Status:** Review draft — D1–D10 and explicit additions approved; detailed recommendations remain for specification refinement; no implementation authorized  
+**Status:** Approved — ready for phased implementation; implementation and verification pending
+**Approved:** 21 October 2026
 **Prepared:** 21 October 2026  
 **Project:** ERMS / Wathiq  
-**Revision:** 0.27 — Scanner hardware note and application workflow explanations for bulk scan operations
+**Revision:** 1.0 — Specification and phased implementation plan approved
 
 ## 1. Purpose and authority
 
 Manage physical storage spaces, aggregation placement, inventory, movement,
-requests, delivery, and return. This draft captures the requested capabilities
-and proposes the detailed rules needed to implement them. Recommendations and
-open decisions require approval before they become a product contract.
+requests, delivery, and return. This specification and its linked phased
+implementation plan were approved by the user on 21 October 2026. The documented
+design, including its recommended implementation approach and additional scan
+actions, is approved. Explicitly optional fields and capabilities remain optional.
+Approval does not claim implementation or verification completion.
 
-The [security specification](security-and-authorization-subsystem.md),ƒ
+The [security specification](security-and-authorization-subsystem.md),
 [location and medium draft](resource-medium-vital-status-review-and-location.md),
 [event-history design](../docs/event-history.md),
 [notifications specification](notifications-and-messaging.md), and
 [WebUI performance contract](../docs/webui-performance.md) supply the existing
-terminology and constraints. This document proposes replacing temporary
-aggregation location codes with space references. It does not silently approve
-or amend another draft or approved specification.
+terminology and constraints. This specification replaces temporary aggregation
+location codes with space references for the new subsystem. Other specifications
+remain authoritative for behavior not expressly superseded by this specification.
 
-Requirement IDs identify proposed requirements for later implementation and
+Requirement IDs identify approved requirements for implementation and
 verification traceability. No requirement in this document is implemented or
 verified merely by its inclusion here.
 
@@ -35,10 +38,10 @@ is not terminal merely because it currently has no children.
 An **aggregation** is an individually requestable physical unit; its filing
 hierarchy does not establish physical containment. D2 includes optional movable
 **boxes** containing multiple aggregations, separate from fixed spaces, with
-box scanning and movement subject to the recommendations below. Individual
+box scanning and movement governed by the requirements below. Individual
 record checkout, physical dimensions packing, RFID, offline synchronization,
 external courier integration, and building access control remain outside the
-proposed first release.
+first release.
 A worker badge identifies a user; it does not authenticate that user.
 
 **Assigned location** is an aggregation's normal storage destination.
@@ -157,9 +160,8 @@ to a JSON file and import that definition into another Wathiq instance. Export
 and import transfer space definitions, not the aggregations or boxes assigned
 to them. The source Site need not be empty of holdings to export its definition.
 
-The following transfer details are specification recommendations supporting the
-approved requirement; they do not introduce another decision in the D1–D10 list
-or authorize changes to the existing classification import/export contract.
+The following transfer details are approved with this specification. They do
+not change the existing classification import/export contract.
 
 **Transfer contents:** preserve the Site's code, name, address, telephone, contact
 reference (subject to the export choice below), selected hierarchy types, and Site
@@ -228,7 +230,7 @@ not authorize creating an incomplete Site. Other configured external references,
 such as responsible notification recipients, still require valid destination
 mapping; source permissions and governance status are never imported.
 
-**Destination identity and collisions:** recommend importing as a new Site,
+**Destination identity and collisions:** import as a new Site,
 with newly allocated destination IDs and scan identifiers; retain source-to-local
 mapping as import provenance. Readable codes and names are preserved unless a
 collision requires an explicitly reviewed replacement. Source printed labels
@@ -243,7 +245,7 @@ ordered-type, parent, uniqueness, security, capacity-setting, and Box usage
 validation as normal creation. Reject unsupported format versions, broken
 references, cycles, invalid counts/settings, and unexpected operational holdings
 in the package rather than importing them. Validate the whole Site before
-creating it; recommend atomic import per Site and idempotent retry. A failed
+creating it; use atomic import per Site and idempotent retry. A failed
 validation must leave no partially imported hierarchy. Define resource limits
 and clear oversized-file errors in the implementation contract.
 
@@ -257,7 +259,7 @@ under section 4.2.1 before it or its sub-spaces can be used operationally.
 Preserve exported deactivation flags independently; import and later publication
 do not implicitly reactivate spaces.
 
-**Authority and audit:** recommend using `spaces.administer` with the applicable
+**Authority and audit:** use `spaces.administer` with the applicable
 Site administration scope for export and normal authorized Site-creation rules
 for import, without new import/export privileges. The imported file does not supply authorization grants or governance status.
 The normal approved creation rules in section 9.1.1 establish initial Site
@@ -568,7 +570,7 @@ an explicit value. Records expose read-only effective parent locations. An
 explicit child override is never overwritten by changing its parent. Clearing
 an override restores inheritance and therefore requires the same impact checks
 as assigning a location. Existing digital-medium location values must be
-reconciled explicitly; this draft does not silently prohibit them.
+reconciled explicitly; this specification does not prohibit them.
 
 Determine separate physical tracking from existing metadata, without introducing
 a separate physical-item flag. A physical or mixed aggregation with its own
@@ -786,10 +788,10 @@ inventory; record the limited scope explicitly.
 
 Scan destination, scan units, scan worker, review source/destination and conflicts,
 and confirm. Apply section 6's mode, mapping, transaction, and validation rules.
-Use move-now as the proposed default; permanent reassignment is an explicit mode.
+Use move-now as the default; permanent reassignment is an explicit mode.
 A scan cannot check out an already loaned unit or silently receive a return.
 
-### 7.3 Additional recommended scan actions
+### 7.3 Approved additional scan actions
 
 - Pick-list verification before dispatch: confirm the requested units were picked.
 - Delivery/return verification: match units and recipient or receiving worker to
@@ -799,15 +801,16 @@ A scan cannot check out an already loaned unit or silently receive a return.
   identity; replacing the physical box uses a new identity and the audited
   transfer/retirement process in section 4.3.
 
-These recommendations require approval with the rest of this draft. A scan of a
+These additional scan actions are included in the approved scope. A scan of a
 worker or recipient badge alone does not prove physical handover; confirmation
 records the authenticated operator's attestation.
 
 ### 7.4 Scanner hardware and application workflow note
 
 This note explains how the section 7 workflows operate with scanner hardware.
-It does not introduce a scanner-specific authorization system or expand the
-status of the additional actions in section 7.3, which remain recommendations.
+It does not introduce a scanner-specific authorization system. The additional
+scan actions in section 7.3 are included in the approved scope; explicitly
+optional camera support retains its optional status.
 
 #### 7.4.1 Hardware and connection requirements
 
@@ -886,11 +889,11 @@ failed items from the group the worker confirmed.
 | --- | --- | --- |
 | **Inventory** — section 7.1 | Choose inventory and direct-space/subtree scope; scan scope space; scan each observed aggregation and any box being checked; finish scanning; scan own badge; review expected/found/unscanned/discrepancy results; submit | Save the observed inventory and attributed result. A box scan records the container, not proof of every expected content. Corrections or Missing declarations require the separate authorized reasoned action; no automatic movement follows inventory. |
 | **Bulk assignment or movement** — sections 6 and 7.2 | Choose current/home/permanent mode; scan destination and successive boxes/aggregations; for several terminal destinations review the per-item mapping and scan/verify its spaces; finish; scan own badge; review; confirm | Recheck every item, placement, membership, permission, capacity, and reservation, then commit all selected assignments or none. A single slot cannot accept several boxes; an intermediate-space scan can scope mapping but cannot become the stored location. New home assignment alone never claims a physical move. |
-| **Pick-list verification** — section 7.3 recommendation | Open the approved request/pick list; scan selected items as picked; finish; scan own badge; review mismatches and confirm verification | Record which approved items were picked. Picking alone does not prove dispatch, handover, or borrower receipt and does not start the four-day dispatch-relative clock. |
+| **Pick-list verification** — section 7.3 approved action | Open the approved request/pick list; scan selected items as picked; finish; scan own badge; review mismatches and confirm verification | Record which approved items were picked. Picking alone does not prove dispatch, handover, or borrower receipt and does not start the four-day dispatch-relative clock. |
 | **Dispatch** — section 8 | Open the eligible request and selected dispatch lines; scan/verify each departing item; finish; scan own badge; review destination/Taken to, custody, and dispatch details; confirm | Record actual dispatch, outside-space current state and custody for departing items, clear current box for individually removed items while retaining assigned membership/home, and establish each dispatched line's due timestamp under D5. Unapproved or conflicting requests cannot bypass review through scanning. |
-| **Delivery/handover verification** — section 7.3 recommendation | Open the dispatched request lines; scan delivered items and verify the intended recipient, using a badge when available; scan performing worker's own badge; review and confirm actual handover | Record recipient, time, custody and delivered item lines. A recipient badge is an identifier, not authentication or proof that delivery happened; the authenticated worker confirms that fact. |
-| **Return receipt verification** — section 7.3 recommendation | Open the outstanding loan lines; scan returned items and the receiving location when it is a registered space; scan receiving worker's own badge; review condition/discrepancies and confirm physical receipt | Record actual receipt and actual registered location or custody. Stop borrower return reminders for received items. Preserve assigned homes and keep reshelving outstanding until placement is confirmed. Returning to a retained home in a deactivated branch remains allowed. |
-| **Reshelving verification** — section 7.3 recommendation | Scan the destination terminal space, the returned items, and the box when restoring box membership; repeat for distinct destinations; scan own badge; review against current assigned home/box and confirm | Verify actual placement and restore current space/box membership as applicable; mark only the confirmed lines reshelved. A different home requires the governed reassignment action, not silent acceptance of a mismatched scan. |
+| **Delivery/handover verification** — section 7.3 approved action | Open the dispatched request lines; scan delivered items and verify the intended recipient, using a badge when available; scan performing worker's own badge; review and confirm actual handover | Record recipient, time, custody and delivered item lines. A recipient badge is an identifier, not authentication or proof that delivery happened; the authenticated worker confirms that fact. |
+| **Return receipt verification** — section 7.3 approved action | Open the outstanding loan lines; scan returned items and the receiving location when it is a registered space; scan receiving worker's own badge; review condition/discrepancies and confirm physical receipt | Record actual receipt and actual registered location or custody. Stop borrower return reminders for received items. Preserve assigned homes and keep reshelving outstanding until placement is confirmed. Returning to a retained home in a deactivated branch remains allowed. |
+| **Reshelving verification** — section 7.3 approved action | Scan the destination terminal space, the returned items, and the box when restoring box membership; repeat for distinct destinations; scan own badge; review against current assigned home/box and confirm | Verify actual placement and restore current space/box membership as applicable; mark only the confirmed lines reshelved. A different home requires the governed reassignment action, not silent acceptance of a mismatched scan. |
 | **Label reprint** — sections 4.3 and 7.3 | Identify the existing entity by scanning or authorized lookup; select reprint; review identity and print | Produce a replacement label for the same registered identity. Reprinting does not move holdings or create a new physical box. |
 | **Physical box replacement** — section 4.3 | Identify the old box and newly registered replacement; review actual contents and assigned members, including those away; scan/check transferred items, verify placement and own badge, then confirm replacement | Transfer the applicable current/assigned memberships, preserve absent items' actual custody/location, and retire the old box with linked history. The replacement has a new code/scan identity; apply the approved capacity, slot occupancy, reservation, and transaction rules. |
 
@@ -917,7 +920,7 @@ rules do not remove legacy location metadata from digital-only aggregations.
 
 Maintain a request header and independently tracked item lines; partial approval,
 delivery, and return are possible and must not close outstanding lines.
-Recommended line lifecycle:
+Approved line lifecycle:
 
 `submitted → under_review → awaiting_approval (optional) → approved → preparing
 → in_transit → on_loan → return_in_transit → received → reshelved`.
@@ -1254,9 +1257,10 @@ migrations must preserve existing data. Seed event source is `seeding`. Any new
 settings require all consumer-appropriate environment templates and documented
 operator/restart guidance. Future UI catalogue changes must preserve curated
 Arabic wording and provenance under the internationalization specification.
-This draft changes no runtime configuration, schema, or translation artifacts.
+Approval of this document does not itself change runtime configuration, schema,
+or translation artifacts; those changes belong to the implementation phases.
 
-## 12. Decisions required before approval
+## 12. Approval record and agreed decisions
 
 Review protocol requested by the user: present the existing D1–D10 decisions in
 order, one at a time, with clarifications. Record the user's decision before
@@ -1302,19 +1306,21 @@ for separately committed batches within a single bulk assignment.
 | D10 — Approved, subsequently amended | Bulk transaction boundary | Preview/mapping and fresh checks; later requirement makes the entire confirmed bulk assignment atomic, including recommended or manual destinations; no partial batch commits; retry-safe confirmation |
 
 The D1–D10 review is complete; do not reopen it or invent additional decision IDs.
-Recommendations elsewhere not expressly covered by those approvals, including
-detailed JSON interchange mechanics, remain identified as recommendations.
+The user approved the complete specification and phased implementation plan on
+21 October 2026, including the documented JSON interchange approach and
+additional scan actions. Explicitly optional fields/capabilities remain optional.
 `SPACE_MANAGER` receives its approved section 9 capabilities; grants to other
 existing Profiles are not automatic. API routes, payload schemas, hard batch
-limits, and setting names remain technical specification work. No implementation
-or verification completion is implied by approval of these product decisions.
+limits, and setting names remain technical implementation work within this
+approved contract. Implementation and verification have not started under this
+plan; approval alone is not completion evidence.
 
 ## 13. Requirement-to-verification plan
 
 Execution order, bounded phase scope, dependencies, and completion gates are
 specified in the [phased implementation plan](physical-records-and-space-management-implementation-plan.md).
-The plan does not itself authorize implementation or approve remaining product
-recommendations.
+Both documents were approved on 21 October 2026. Execution follows the plan
+and must preserve the approved product behavior.
 
 All rows below are **planned; implementation and verification pending**. Future
 handoff must link concrete schema/API/UI changes and executed evidence per ID.

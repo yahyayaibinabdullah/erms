@@ -1,20 +1,23 @@
 # Physical Records and Space Management — Phased Implementation Plan
 
-**Status:** Proposed implementation plan; no implementation started or authorized by this document  
+**Status:** Approved implementation plan — implementation pending
+**Approved:** 21 October 2026
 **Prepared:** 21 October 2026  
 **Project:** ERMS / Wathiq  
-**Revision:** 0.1
+**Revision:** 1.0 — Specification and plan approved
 
 ## 1. Authority and approach
 
 Implement the approved requirements in the
 [Physical Records and Space Management specification](physical-records-and-space-management.md).
+The user approved the complete specification and this plan on 21 October 2026.
 The product specification, its recorded approvals, and subsequent explicit user
-instructions remain authoritative. This plan sequences implementation; it does
-not approve recommendations still identified as recommendations in that source.
-Do not turn those recommendations into mandatory functionality merely because
-a phase has an integration point for them. Required physical box replacement
-and label reprint behavior remain included independently of optional scan shortcuts.
+instructions remain authoritative. The documented implementation approach and
+additional scan actions are included in that approval. Explicitly optional
+fields/capabilities, including optional camera support, remain optional. Physical
+box replacement, label reprint, and the additional approved scan actions are
+included in their owning phases below. Approval does not claim that any phase
+has been implemented or verified.
 
 Use nine phases. Each phase has a bounded responsibility, stable inputs from
 its predecessors, and one consolidated completion gate. The first phase builds
@@ -276,7 +279,7 @@ post-mutation freshness are verified in both directions.
 - Connect box replacement and label reprint to the workbench where required.
   Keep request-related scan actions for Phase 7; the shared session/step contract
   already supports them without a new scanner implementation. Camera input is
-  included only if adopted as specified, not silently added as a release gate.
+  optional as specified and is not a mandatory release gate.
 
 **Gate:** Real keyboard-wedge or equivalent HID/manual input path works; Enter
 only completes one scan; correct/wrong/retired/duplicate codes and badge mismatch
@@ -329,7 +332,8 @@ reservation, box and scan integration in SPM-03/04/06/08/11/12.
 - Implement pick/dispatch/handover, in-transit/on-loan and return transitions,
 actual custody, Taken to, physical receipt and confirmed reshelving through the
 existing location/group commands. Expose manual and required scanner actions;
-request-related optional verification shortcuts retain their specified status.
+the approved pick-list, delivery/return and reshelving verification actions
+use that same workbench.
 - Handle explicit item subsets, failed delivery, partial returns, extension,
 recall and reapproval without losing outstanding obligations. Preserve home
 claims and assigned box membership while an individually loaned item is away.
@@ -373,8 +377,8 @@ the required-field rules. Do not create accounts/security levels or reuse IDs.
 - Deliver complete preview, conflict/reference mapping, whole-Site validation,
 atomic creation and retry-safe import. Reuse normal Site creation/bootstrap,
 structure/settings validation and per-space history, not a bypassing import path.
-Implement only the approved transfer behavior; source-marked recommendations
-remain recommendations until adopted, rather than silently creating sync/merge.
+Implement the approved transfer approach without adding synchronization or
+merge functionality.
 - Start every imported Site/sub-space as Draft regardless of source publication,
 with independent deactivation flags. Keep printed identifiers separate from new
 destination scan identities and require destination publication before use.
@@ -408,7 +412,8 @@ regressions justified by the changes. Measure realistic pagination/hierarchy,
 bulk preview, inherited effects and scanner responsiveness. Check no optional
 scan/camera assets or duplicate requests burden authenticated startup.
 - Reconcile the requirement ledger: no source requirement is missing, no
-recommendation is misreported as approved, and no unresolved failure is hidden.
+optional capability is misreported as mandatory, and no unresolved failure
+is hidden.
 Complete final translation/artifact and applicable environment-template checks;
 document actual device coverage and remaining maintained-language review.
 - Write deployment/upgrade and recovery guidance, manual legacy-mapping actions,
