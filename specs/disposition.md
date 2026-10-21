@@ -4,13 +4,15 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.7
-**Amendment approved:** 20 October 2026
+**Revision:** 1.9
+**Amendment approved:** 21 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.9 | 21 October 2026 | Clarified closure as a prerequisite for all eligibility, retention starting at closure, and atomic closure during exceptional acceleration; placed acceleration in the effective retention-rule section |
+| 1.8 | 21 October 2026 | Require immediate exceptional-acceleration notifications to all Information Governance users and the governing root aggregation’s owning Unit Manager through the existing notification subsystem |
 | 1.7 | 20 October 2026 | Approved clarification of section 14.2 and DISP-35: preserve protected governed evidence and permanent provenance; defer a separate evidence-expiry/deletion workflow pending an approved policy |
 | 1.5 | 12 October 2026 | Reconciled destruction-specific review, membership, proposal execution, reason fallback, dual-role authorization, and post-physical termination rules |
 | 1.4 | 12 October 2026 | Required all disposition system notifications to reuse the existing messaging and notifications subsystem |
@@ -62,9 +64,17 @@ UI, see [Record and Aggregation Relationships, section 7](record-and-aggregation
 2. The effective retention rule is resolved in this order:
    - a local retention rule on the governing root aggregation; otherwise
    - the root aggregation's effective classification retention rule.
-3. The due-date calculation uses the governing root's closure date plus the
-   effective current and intermediate retention periods.
-4. An open governing root has no disposition due date and remains not ready.
+3. Retention starts only when the governing root is closed. The current and
+   intermediate retention periods run from that closure timestamp; time spent
+   open does not count toward either period. The due date is the closure
+   timestamp plus both effective retention periods.
+4. An open governing root has no disposition due date and must remain in
+   status 1 (not ready), never an eligible status (2–5). This invariant applies
+   to every eligibility path, including scheduled evaluation, recalculation,
+   recovery and exceptional acceleration. Normal eligibility requires completion
+   of both retention periods under the strict boundary in Section 7.
+   Acceleration may waive the wait, but never closure: Section 11 requires
+   closing an open root atomically before making it eligible.
 5. Legal holds work as defined in the Legal Holds specification, including
    protection inherited from a parent aggregation. When adding an aggregation
    to a disposition job and before completing the final action, Wathiq must
@@ -96,8 +106,11 @@ digital components. This complete group is processed together.
 
 ### 3.3 Eligible aggregation
 
-A root aggregation whose retention periods have ended and whose disposition
-status is 2, 3, 4, or 5. Eligible does not mean ready for the final action. A
+A closed root aggregation whose current and intermediate retention periods
+have ended, or whose remaining wait has been explicitly waived by authorized
+acceleration under Section 11, and whose disposition status is 2, 3, 4, or 5.
+Its descendants are effectively closed under the existing closure rules;
+individual descendant closure timestamps are not required. Eligible does not mean ready for the final action. A
 vital record, a security level, a legal hold, missing approval, missing
 evidence, or an action-specific rule may still block it.
 
@@ -828,8 +841,18 @@ withdrawal, delegation, expiry, and controls for each disposition action.
 
 An IGU with `disposition.jobs.manage` may make a root aggregation eligible
 early. The aggregation moves from status 1 to status 2, 3, 4, or 5 according to
-its retention rule. The IGU does not need to wait for the aggregation to close
-or for its retention periods to end.
+its retention rule without waiting for its retention periods to end. If the
+governing root is open, acceleration closes it at the current database time
+before changing eligibility, using the existing closure authorization and
+integrity rules. Closure and eligibility form one atomic action: failure rolls
+back both changes and their events. An existing closure date is preserved.
+Closing the root makes its descendants effectively closed under the existing
+closure rules; their individual closure dates are not overwritten. Acceleration
+must never leave an open governing root in an eligible status.
+
+The **Accelerate disposition eligibility** action belongs in the **Effective
+retention rule** section of Aggregation overview. Its confirmation explains
+that an open aggregation will be closed as part of the action.
 
 Acceleration:
 
@@ -849,6 +872,35 @@ and direct or inherited effective legal holds. If any blocker exists, Wathiq
 rejects the acceleration and leaves the complete disposition unit in status 1.
 Relationships do not prevent acceleration; their final-action blockers remain
 in force. Acceleration never bypasses or weakens an execution blocker.
+
+### 11.1 Acceleration notifications
+
+Every successful exceptional acceleration must trigger an immediate system
+notification through Wathiq's existing messaging and notifications subsystem.
+This requirement applies to all four eligible disposition outcomes. Delivery
+must follow the committed acceleration; it must not wait for the periodic
+destruction-eligibility reminder.
+
+The recipient audience is the union of:
+
+- all active people with a currently effective assignment to an active
+  Information Governance role; and
+- all active people with a currently effective assignment to the active managing
+  role designated by `org_units.managing_role_id` on the governing root
+  aggregation's owning organizational unit.
+
+The Information Governance audience is organization-wide, not limited to the
+initiator or to the aggregation's owning unit. The Unit Manager is resolved
+from that owning unit, not from a disposition job's owning unit, a role name,
+or a profile name. A person qualifying through multiple roles or both audiences
+receives only one notification for the same acceleration. Notification receipt
+does not grant access to the aggregation or its history; notification content
+and linked views must respect existing access and confidentiality rules.
+
+A rejected or rolled-back acceleration must not produce a success notification.
+Retries and overlapping delivery attempts must not create duplicate
+notifications for the same acceleration and recipient. The mandatory reason and
+other acceleration provenance remain recorded as required by Section 11.
 
 ## 12. Local retention-rule override
 
@@ -909,8 +961,11 @@ membership, or event-history record is deleted or changed.
 
 ### 12.1 Hierarchy changes
 
-An authorized hierarchy change is allowed while an aggregation is eligible or
-belongs to an active disposition job. Before committing the change, Wathiq
+Disposition eligibility or active-job membership does not authorize a hierarchy
+change that existing closure rules prohibit. Eligible roots are closed, and
+their descendants are effectively closed. If existing rules permit a hierarchy
+change, it must preserve the closure prerequisite for eligibility. Before
+committing an authorized change, Wathiq
 determines the aggregation's effective retention rule before and after the
 change.
 
@@ -1494,7 +1549,7 @@ are required at a minimum:
 | --- | --- | --- |
 | DISP-01 | Controlled statuses and allowed transitions | Database constraint/trigger and API tests |
 | DISP-02 | The root and every descendant change status together, and descendant metadata shows the status of the root disposition unit | Disposable-database hierarchy, rollback, search, browse, and metadata-view tests |
-| DISP-03 | Due-date mapping and the strict eligibility boundary use the UTC calculated-disposition value and current timestamp returned by the database; user timezone affects display only | Clock-controlled database and service tests across UTC boundaries and leap years, plus display-timezone tests |
+| DISP-03 | Retention starts only at closure; open roots remain status 1 on every eligibility path, and ordinary eligibility requires both retention periods to finish. Due-date mapping and the strict eligibility boundary use the UTC calculated-disposition value and current timestamp returned by the database; user timezone affects display only | Clock-controlled database and service tests across UTC boundaries and leap years, plus display-timezone tests |
 | DISP-04 | Open roots remain status 1 | Service and database tests |
 | DISP-05 | Local rule takes precedence | Rule-resolution and rescheduling tests |
 | DISP-06 | The eligibility service works in limited batches, is safe to repeat, and handles simultaneous changes | Disposable-database concurrency tests |
@@ -1504,7 +1559,7 @@ are required at a minimum:
 | DISP-10 | Direct and inherited legal holds block addition to a job and the final action, with a visible reason but protected hold details redacted | Disposable-database hold-boundary and redaction tests |
 | DISP-11 | An aggregation can be in only one active job of the correct type, must leave that active job before joining another, may remain a member of terminated jobs, and can never join another job after completion | Database uniqueness, simultaneous-addition, removal, terminated-membership, and final-status tests |
 | DISP-12 | Assignment grants responsibility, not access | Authorization tests |
-| DISP-13 | Acceleration follows the effective disposition action, requires a reason, and is rejected without a status change when any vital, security, or legal-hold blocker applies to the root or a descendant | API, disposable-database blocker, concurrency, and event-history tests |
+| DISP-13 | Acceleration follows the effective disposition action, requires a reason, atomically closes an open root before eligibility using existing closure authorization, preserves existing closure dates, and is rejected without closure or status changes when any check fails; its action appears in the effective retention-rule section | API, disposable-database closure, authorization, blocker, rollback, concurrency, event-history, and LTR/RTL action-location tests |
 | DISP-14 | Final fields and identifiers are complete and consistent | All-or-nothing update and rollback tests |
 | DISP-15 | Mixed destruction confirms physical before digital | Workflow, retry, and partial-failure tests |
 | DISP-16 | Destroyed content and prohibited derivatives are removed; the approved permanent disposition record remains auditable, read-only, excluded from ordinary resource views, and protected by both privilege and existing access rules | Storage, search/index, browse, hierarchy, API, authorization-intersection, immutability, metadata-minimization, and event-content tests |
@@ -1534,6 +1589,7 @@ are required at a minimum:
 | DISP-40 | Review rounds and decisions preserve ordered rounds, membership/version snapshots, stage decisions, actors, acting roles, invalidation, and history | Snapshot, repeat-round, stale-membership, invalidation, authorization, and history tests |
 | DISP-41 | Shared document links connect job evidence to governed records and components with controlled state, provenance, checksums, and action-defined transaction boundaries | Upload, generation, governed-record, failure, retry, authorization, and rollback tests |
 | DISP-42 | Common protected operations cannot be bypassed through general CRUD or direct SQL, and canonical schema and migration produce equivalent logical structures and constraints | API negative, direct-database, schema-from-empty, migration, catalogue-parity, and rollback tests |
+| DISP-43 | Every committed exceptional acceleration immediately notifies all active Information Governance role holders and the governing root’s owning Unit Manager through the existing subsystem, once per person per acceleration, respecting access rules | All-outcome audience, owning-unit designation, effective-assignment, dual-audience deduplication, rollback, retry, privacy, and live-notification tests |
 
 Every database-backed test must use a newly created disposable PostgreSQL
 database initialized from the canonical schema or required migration path and

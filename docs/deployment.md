@@ -39,7 +39,7 @@ supervisors or mail infrastructure.
 1. Prepare PostgreSQL, the service account, Python environments and the feature
    dependencies described under [server preparation](#server-preparation-and-configuration).
 2. Initialize an empty database from `database/schema.sql`, or apply all pending
-   upgrades through migration 071 for an existing database. Follow
+   upgrades through migration 072 for an existing database. Follow
    [database instructions](../database/README.md) and the reviewed
    [settings migration/readiness procedure](application-settings-upgrade.md).
 3. Configure the service environment files, database application settings,
@@ -741,8 +741,16 @@ sudo systemctl enable --now erms-text-indexing-maintenance.service
 sudo systemctl status erms-text-indexing-maintenance.service
 ```
 
+Migration `072_acceleration_closes_root.sql` makes exceptional acceleration
+close an open governing aggregation atomically before changing eligibility.
+Apply it before deploying the matching API/WebUI. Open roots require the
+existing aggregation-close authorization as well as disposition authorization;
+existing closure timestamps are preserved. Normal retention begins at closure.
+This migration does not rewrite historical events or backdate closure on legacy
+open eligible roots; review any such pre-upgrade roots before operational use.
+
 After completing the disposition configuration checklist and applying migrations
-through 071, start its three independent workers:
+through 072, start its three independent workers:
 
 ```bash
 sudo systemctl enable --now erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
@@ -1059,7 +1067,7 @@ See [application-settings-upgrade.md](application-settings-upgrade.md) for the
 reviewed 34-key upgrade and [configuration-authority-inventory.json](configuration-authority-inventory.json)
 for ownership, defaults, consumers, service templates and restart requirements.
 
-## Disposition controlled rollout (through migration 071)
+## Disposition controlled rollout (through migration 072)
 
 Use [the Phase 24 colleague runbook](disposition-rollout.md) for ordered existing
 schema upgrades, fresh installation, per-database reviewed settings migration,
@@ -1068,3 +1076,91 @@ role/destination/SMTP/template prerequisites, worker startup and recovery. See
 preparation; persistent deployment requires explicit authorization. Migration 071
 removes the temporary gates; destruction then uses the existing permissions and
 workflow safeguards without a separate enablement step.
+
+### Built-in File Administrator profile (migration 073)
+
+New databases initialized from `database/schema.sql` include `FILE_ADMIN`
+(File Administrator) with the approved 34-privilege baseline from demo. Existing
+installations apply `073_file_administrator_profile.sql` after preceding
+migrations. An exact existing profile is promoted in place, preserving its ID,
+role assignments, metadata and translations. A conflicting code, name or privilege
+set stops the transaction for explicit administrator reconciliation; the migration
+never overwrites a customized profile. Reapplying an unchanged migration is safe.
+
+This profile includes ACL management, security downgrading and correction of
+record placement in closed aggregations. Existing resource permissions, clearance
+and workflow checks still apply. Assigning this profile does not designate a role
+as File Administrator: configure the organization's File Administrator role
+separately. The migration does not assign roles or grant Information Governance
+status. As with other built-in profiles, it cannot be deleted through the API;
+its privilege composition remains administratively editable.
+
+Verify standalone provisioning and upgrade safety with
+`backend/services/api/.venv/bin/python tools/verify_file_administrator_profile.py`.
+This creates and drops a uniquely named disposable database and checks all 34
+privileges, dependency validity, exact-match promotion, migration reapplication,
+and rollback on customized-profile conflicts. Canonical provisioning also
+includes the existing `messaging.user_messages.exchange` privilege needed by
+this profile; the optional messaging seed remains compatible.
+
+The default Arabic profile name is **مسؤول الملفات**, matching the existing
+File Administrator terminology. Schema provisioning and migration 073 fill a
+missing Arabic name while preserving existing administrator translations,
+Arabic descriptions, and other languages. Deployment security review may tailor
+the default privilege set, including ACL management and security downgrading.
+
+### SA classification disposition reconciliation (migration 074)
+
+`074_sa_terminal_disposition_actions.sql` contains the 254 code/action pairs
+approved in `examples/fileplans/Sheet2.csv` (source SHA256 recorded in the SQL).
+It changes only matching terminal classifications in scheme `SA`, preserving
+retention periods and instructions. It does not create a scheme, classifications,
+or missing retention rules. Databases without `SA` receive no classification
+changes. Codes absent from either side remain unchanged; matching terminals
+without direct retention rules stop the transaction for explicit reconciliation.
+Repeated execution changes only mismatching actions.
+
+The existing audit and disposition-recalculation triggers remain enabled.
+When affected classifications have live aggregations, set the migration session's
+`app.user_id` to an existing administrator with `classifications.administer`;
+the migration supplies its audit source and change reason. Do not disable
+triggers to bypass this requirement. Inherited resource eligibility may be
+recalculated through the normal policy-change hooks; explicit aggregation
+retention overrides remain unchanged.
+
+This is an upgrade to existing file-plan data, not canonical schema DDL or a
+file-plan seed. Validate it with
+`backend/services/api/.venv/bin/python tools/verify_sa_disposition_migration.py`,
+which creates and removes its own disposable database.
+
+### SA retention instructions reconciliation (migration 075)
+
+`075_sa_terminal_retention_instructions.sql` reconciles the instructions field
+of matching SA terminal classification retention rules with the third column
+of `examples/fileplans/Sheet3.csv`. The SQL records the CSV hash and embeds all
+254 mappings, including multiline Arabic notes. Blank cells map to NULL.
+Retention periods and disposition actions are preserved. Other schemes,
+nonterminal classifications, and codes not in the CSV remain unchanged.
+The migration is safe to repeat and does not create missing classification data.
+A matching terminal without a direct retention rule stops the transaction.
+
+As with migration 074, normal audit and policy-recalculation triggers remain
+active; supply an existing `classifications.administer` user through the migration
+session's `app.user_id` when affected live roots require that authorization.
+Use `backend/services/api/.venv/bin/python tools/verify_sa_retention_instructions_migration.py`
+for verification in an automatically created and removed disposable database.
+
+### SA retention periods reconciliation (migration 076)
+
+`076_sa_terminal_retention_periods.sql` embeds the 254 approved current and
+intermediate period pairs from `examples/fileplans/Sheet4.csv`, with its source
+hash. It updates only mismatching periods on matching SA terminal rules and
+preserves instructions, final actions and all other schemes. Missing direct
+rules require explicit reconciliation; missing schemes or unmatched codes are
+not created. Repeated execution is a no-op once periods match.
+
+Use the same authorized migration-session context described for migrations
+074–075 when affected live roots require policy recalculation. Existing audit
+and recalculation triggers remain enabled. Verify with
+`backend/services/api/.venv/bin/python tools/verify_sa_retention_periods_migration.py`;
+this creates and removes a disposable test database.

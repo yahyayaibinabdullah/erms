@@ -2,8 +2,8 @@
 
 **Status:** Approved implementation plan
 **Approved:** 12 October 2026
-**Revision:** 1.3
-**Amendment approved:** 20 October 2026
+**Revision:** 1.4
+**Amendment approved:** 21 October 2026
 **Date:** 12 October 2026
 
 ## 1. Purpose and scope
@@ -18,8 +18,8 @@ This plan follows these specifications:
 
 - [Administration Settings](administration-settings.md), revision 1.1;
 - [Application Configuration](application-configuration.md), revision 1.1;
-- [Disposition](disposition.md), revision 1.6; and
-- [Destruction Process](destruction-process.md), revision 1.1.
+- [Disposition](disposition.md), revision 1.9; and
+- [Destruction Process](destruction-process.md), revision 1.2.
 
 The destruction specification is named `destruction-process.md` in this
 repository. All four specifications and this implementation plan are approved
@@ -353,6 +353,48 @@ Two new Arabic audit-label drafts preserve all prior curated entries and require
 normal deployment seeding/review/publication. Evidence and operator steps:
 [Phase 8 verification](../docs/disposition-phase-8.md) and the requirement ledger.
 Total active time: **0.57 hours**. Phase 9 is next.
+
+### Approved amendment: closure is required for all eligibility
+
+**Approved:** 21 October 2026. **Requirements:** DISP-03 and DISP-13, Disposition Sections 2, 3, 6, 7 and 11.
+
+Retention starts at closure; time spent open never counts. Every eligibility
+path must keep open roots in status 1. Verify normal eligibility, recalculation
+and reopening against this invariant and the strict due-date boundary.
+Close an open root at database time in the same transaction as acceleration,
+with existing closure authorization, unchanged prior closure dates, effective
+subtree closure, and rollback of both changes on any failure. Move the action
+to the effective retention-rule section and explain automatic closure in its
+confirmation. Verify fresh-schema and migration paths, closure and permission
+failures, blockers, retries and LTR/RTL presentation. The notification follow-up
+below remains separately pending.
+
+Implementation evidence (21 October 2026): canonical schema and migration
+`072_acceleration_closes_root.sql`; 128 fresh-schema membership/eligibility
+checks, 71 prior-schema-plus-migration checks, and an additional forced-failure
+rollback check passed in disposable databases. Live preview confirmed closure
+and eligibility together, reopening resets status 1, and the action's retention
+card location in [English](../docs/verification/acceleration-closure/english.png)
+and [RTL](../docs/verification/acceleration-closure/rtl.png). RTL uses English
+fallback for unpublished disposition translations; revised Arabic confirmation
+remains a generated draft requiring human review and publication. Catalogue
+coverage/order, terminology and artifact-hash checks passed. Migration 072 has
+not been applied to the persistent demo database.
+
+### Approved follow-up: exceptional-acceleration notifications
+
+**Approved:** 21 October 2026. **Status:** Implementation and verification pending.
+**Requirement:** DISP-43, Disposition Section 11.1, and Destruction Process Section 3.
+
+The existing acceleration action, reason capture, authorization and blocker
+checks are implemented. Extend successful acceleration to trigger immediate
+notifications through the existing subsystem to all active Information
+Governance role holders and the accelerated root's owning Unit Manager.
+Cover all four outcomes, authoritative owning-unit manager resolution,
+effective role assignments, per-person deduplication across both audiences,
+rollback, retries, confidentiality and live delivery. Keep the periodic
+destruction-eligibility reminder independent. Historical phase completion
+records below predate this amendment and do not certify this new requirement.
 
 ### Phase 9 Implement job membership and changing eligibility
 

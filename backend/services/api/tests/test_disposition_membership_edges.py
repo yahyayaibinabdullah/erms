@@ -177,14 +177,16 @@ def test_http_reopening_and_retention_edit_apply_immediate_unit_changes_with_exi
     with db() as c:assert statuses(c,root)==[1]*4 and member(c,root)['removal_required_reason']=='reopened'
 
 
-def test_new_descendants_of_open_accelerated_unit_inherit_its_stored_status(client):
+def test_acceleration_closes_unit_and_rejects_new_descendants(client):
     with db() as c:
-        setup(c);root,*_=ready(c,closed=None)
+        setup(c);root,child,*_=ready(c,closed=None)
         service.accelerate(c,**kwargs(root_id=root,expected_version=version(c,root)))
-        child=c.execute("INSERT INTO aggregations(parent_aggregation_id,aggregation_number,title) VALUES(%s,%s,'Later child') RETURNING *",(root,str(uuid4()))).fetchone()
-        record=c.execute("INSERT INTO records(aggregation_id,record_number,title) VALUES(%s,%s,'Later record') RETURNING *",(child['id'],str(uuid4()))).fetchone()
-        assert child['disposition_status']==record['disposition_status']==2
-        c.execute('SELECT disposition_private.assert_unit(%s)',(root,))
+        for statement,parameters in [
+            ("INSERT INTO aggregations(parent_aggregation_id,aggregation_number,title) VALUES(%s,%s,'Later child')",(root,str(uuid4()))),
+            ("INSERT INTO records(aggregation_id,record_number,title) VALUES(%s,%s,'Later record')",(child,str(uuid4())))]:
+            with pytest.raises(psycopg.Error,match='closed'):
+                with c.transaction():c.execute(statement,parameters)
+        assert statuses(c,root)==[2]*4
 
 
 def test_invalid_due_date_policy_rolls_back_immediately_instead_of_saving_inconsistent_state(client):
@@ -212,27 +214,16 @@ def test_termination_failure_rolls_back_every_unit_job_episode_and_event(client)
         finally:c.execute('DROP TRIGGER fail_phase9_terminate ON records');c.execute('DROP FUNCTION fail_phase9_terminate()')
 
 
-@pytest.mark.parametrize('different_rule',[False,True])
-def test_open_accelerated_subtree_move_aligns_destination_unit_and_preserves_unchanged_rule(client,different_rule):
+@pytest.mark.parametrize('detach',[False,True])
+def test_accelerated_closed_subtree_cannot_move_or_detach(client,detach):
     with db() as c:
-        setup(c);source,child,leaf,record=ready(c,closed=None);destination,*_=ready(c,closed=None)
+        setup(c);source,child,*_=ready(c,closed=None);destination,*_=ready(c,closed=None)
         service.accelerate(c,**kwargs(root_id=source,expected_version=version(c,source)))
-        if different_rule:rule_change(c,destination,years=10,action='retain_as_local_archives')
-        c.execute('UPDATE aggregations SET parent_aggregation_id=%s WHERE id=%s',(destination,child))
-        assert statuses(c,source)==[2]
-        assert statuses(c,destination)==[1]*7
-        c.execute('SET CONSTRAINTS ALL IMMEDIATE')
-
-
-def test_detaching_open_accelerated_subtree_with_changed_rule_recalculates_new_governing_unit(client):
-    with db() as c:
-        setup(c);source,child,leaf,record=ready(c,closed=None)
-        service.accelerate(c,**kwargs(root_id=source,expected_version=version(c,source)))
-        # The source has a local override; the new root inherits classification
-        # policy. Even equal durations are a changed source/rule identity.
-        c.execute('UPDATE aggregations SET parent_aggregation_id=NULL,classification_id=1 WHERE id=%s',(child,))
-        assert statuses(c,source)==[2] and statuses(c,child)==[1]*3
-        c.execute('SET CONSTRAINTS ALL IMMEDIATE')
+        with pytest.raises(psycopg.Error,match='closed'):
+            with c.transaction():
+                if detach:c.execute('UPDATE aggregations SET parent_aggregation_id=NULL,classification_id=1 WHERE id=%s',(child,))
+                else:c.execute('UPDATE aggregations SET parent_aggregation_id=%s WHERE id=%s',(destination,child))
+        assert statuses(c,source)==[2]*4 and statuses(c,destination)==[1]*4
 
 
 def test_committed_retry_rechecks_current_resource_access_without_granting_assignment_access(client):

@@ -4,13 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.1
-**Amendment approved:** 13 October 2026
+**Revision:** 1.2
+**Amendment approved:** 21 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.2 | 21 October 2026 | Apply common immediate exceptional-acceleration notifications independently of periodic destruction-eligibility reminders |
 | 1.1 | 13 October 2026 | Added Records Manager Only routing and explicit Save without submission for every review participant |
 | 1.0 | 12 October 2026 | Approved specification, including the agreed workflow, configuration, evidence, recovery, and verification requirements |
 | 0.1 | 6 October 2026 | Initial destruction-process extension covering reminders, job ownership, internal review and approval, the external request, approval evidence, physical and digital destruction, and destruction certificates |
@@ -71,6 +72,13 @@ of type **destruction**. The common specification remains authoritative for
 eligibility, blockers, job membership, status propagation, termination,
 partially disposed units, authorization, audit, and metadata retained after
 destruction.
+
+Only closed governing aggregations may be eligible for destruction. Retention
+starts at closure, and ordinary eligibility follows completion of both current
+and intermediate periods under the common specification's strict due boundary.
+Exceptional acceleration may waive the remaining wait but must atomically close
+an open root first. Reopening resets the whole unit to not ready and blocks its
+active job as specified in Disposition Section 6.1.
 
 This extension defines what happens after eligible aggregations are selected
 for a destruction job. It does not govern permanent transfer, selective
@@ -143,6 +151,15 @@ which task is currently required inside an active destruction job. Workflow
 stages do not add more lifecycle states.
 
 ## 3. Destruction-eligibility reminder
+
+Exceptional acceleration into destruction eligibility also requires the
+immediate notification specified in [Disposition Section 11.1](disposition.md#111-acceleration-notifications):
+all Information Governance users and the accelerated root aggregation's owning
+Unit Manager must be notified. This event-driven notification is required for
+all review routes, including Simplified and Records Manager Only. It is
+independent of the periodic reminder below; the reminder does not satisfy or
+replace it. Recipient resolution, deduplication, committed-state delivery and
+access protections follow the common requirement DISP-43.
 
 Wathiq registers a system-notification producer for destruction eligibility.
 Its initial interval is six calendar months. An authorized administrator may
@@ -466,6 +483,14 @@ The **Disposition** area provides:
 - **Jobs**, containing active, completed, and terminated jobs the user is
   authorized to see; and
 - **Reports**, containing authorized disposition and audit reports.
+
+**My tasks** is visible only to a person who currently qualifies for Information
+Governance disposition management, or holds an effective role configured as a
+File Administrator or Unit Manager on an organization unit. Role names alone do
+not qualify a user. Visibility does not depend on whether tasks currently exist.
+Users outside these groups cannot navigate to this page. The Disposition heading
+is hidden when none of its destinations are accessible. Existing task-level
+assignment, scope, and workflow authorization checks continue to apply.
 
 Notifications supplement the task inbox; they do not replace it. A notification
 must be produced and delivered through Wathiq's existing messaging and

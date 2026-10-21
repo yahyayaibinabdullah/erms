@@ -534,6 +534,13 @@ The workflow uses the same rules for every supported language:
    and published together. Non-source-language source copies are excluded and
    reported as awaiting translation. If any selected eligible draft is invalid,
    nothing is published.
+   The routine generated-draft flag `needs_human_review` is a review reminder,
+   not a translation defect. It must not block this explicit review-and-publish
+   action or its preview. Successful publication removes that marker, preserves
+   the remaining generation provenance, and records the reviewer and publisher.
+   Other quality flags (including unknown flags), invalid placeholders, blank
+   text and malformed markup still block the complete selected batch. Failed
+   or stale submissions must leave flags, publication and revision unchanged.
 5. Context-level bulk actions apply to the language and context visibly being
    viewed. They use the same validation and all-or-nothing behavior.
 6. English definitions are the original application wording and may be

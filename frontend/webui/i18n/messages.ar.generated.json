@@ -3,9 +3,9 @@
   "model": "database-reviewed-translations",
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
-  "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-  "catalogue_sha256": "dcbdc538b28aba522a29ee4aa9bd6d49127ad132529c838f32f86b373e9d24e6",
-  "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c",
+  "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+  "catalogue_sha256": "9723acdbcd66c33c81daebc91865c2d44fc14c2c369253df26186d58d0f35781",
+  "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
   "artifact_type": "wathiq_translation_administration_export",
@@ -175,6 +175,9 @@
     ],
     "disposition.ui.security_level_id": [
       "المستوى الأمني"
+    ],
+    "disposition.ui.accelerate_scope": [
+      "يغير هذا الإجراء الاستثنائي حالة أهلية الملف الجذري وجميع عناصره التابعة. تظل الإضافة مشروطة بإغلاق الملف وعدم وجود موانع وشخص مخول مسند إليه."
     ]
   },
   "items": [
@@ -4219,6 +4222,86 @@
       }
     },
     {
+      "message_key": "authorization.profile.error.missing_prerequisite",
+      "translated_text": "يتطلب {privilege} الصلاحية {required}. حدد الصلاحية المطلوبة قبل الحفظ.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "catalogue_sha256": "7afa776daf8a3dfeda4a3d3465759f8ba609671481472f76bb0f03be067abb85",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "privilege-disposition-contextual-v1",
+        "batch_id": "privilege-disposition-20261021",
+        "generated_at": "2026-10-21T07:08:26.905263+00:00"
+      }
+    },
+    {
+      "message_key": "authorization.profile.prerequisites_added",
+      "translated_text": "تم تحديد الصلاحيات المطلوبة تلقائيًا: {privileges}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "catalogue_sha256": "9723acdbcd66c33c81daebc91865c2d44fc14c2c369253df26186d58d0f35781",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "privilege-disposition-contextual-v1",
+        "batch_id": "privilege-disposition-20261021",
+        "generated_at": "2026-10-21T07:08:26.905263+00:00"
+      }
+    },
+    {
+      "message_key": "authorization.profile.remove_dependents",
+      "translated_text": "هل تريد إزالة الصلاحيات التابعة التالية أيضًا؟ {privileges}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "catalogue_sha256": "9723acdbcd66c33c81daebc91865c2d44fc14c2c369253df26186d58d0f35781",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "privilege-disposition-contextual-v1",
+        "batch_id": "privilege-disposition-20261021",
+        "generated_at": "2026-10-21T07:08:26.905263+00:00"
+      }
+    },
+    {
+      "message_key": "authorization.profile.remove_together",
+      "translated_text": "إزالة معًا",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "catalogue_sha256": "9723acdbcd66c33c81daebc91865c2d44fc14c2c369253df26186d58d0f35781",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "privilege-disposition-contextual-v1",
+        "batch_id": "privilege-disposition-20261021",
+        "generated_at": "2026-10-21T07:08:26.905263+00:00"
+      }
+    },
+    {
       "message_key": "classification_browser.add_child",
       "translated_text": "تصنيف فرعي",
       "quality_flags": [],
@@ -5716,7 +5799,7 @@
     },
     {
       "message_key": "disposition.ui.accelerate_scope",
-      "translated_text": "يغير هذا الإجراء الاستثنائي حالة أهلية الملف الجذري وجميع عناصره التابعة. تظل الإضافة مشروطة بإغلاق الملف وعدم وجود موانع وشخص مخول مسند إليه.",
+      "translated_text": "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل صلاحيات الإغلاق وموانع التصرف المعمول بها سارية.",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -5726,10 +5809,10 @@
         "generator": "OpenAI Codex",
         "model": "GPT-6",
         "model_version": "6",
-        "prompt_version": "disposition-phase10-contextual-v1",
-        "generated_at": "2026-10-15T06:16:18Z",
-        "batch_id": "disposition-phase10-20261015",
-        "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
+        "prompt_version": "acceleration-closure-v1",
+        "generated_at": "2026-10-21T04:54:58.644117+00:00",
+        "batch_id": "acceleration-closure-20261021",
+        "catalogue_sha256": "470a60e10ae330f901123b91ec8c77d28a88d5a701e7ecfaa7396a8706a26a49",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
       }
@@ -22418,6 +22501,46 @@
         "source_status": "published",
         "date_reviewed": "2026-09-27T08:04:19.834791+00:00",
         "date_published": "2026-09-27T08:04:19.834791+00:00"
+      }
+    },
+    {
+      "message_key": "privilege.disposition.jobs.manage.description",
+      "translated_text": "تنفيذ أعمال التصرف المصرح بها دون منح صلاحية الوصول إلى الموارد أو تجاوز الحماية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "catalogue_sha256": "a7a931e79893b298ea021b401e4d0bf2fa1cc0d6c1d0ce486f9fadd55757ff01",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "privilege-disposition-contextual-v1",
+        "batch_id": "privilege-disposition-20261021",
+        "generated_at": "2026-10-21T07:08:26.905530+00:00"
+      }
+    },
+    {
+      "message_key": "privilege.disposition.jobs.manage.name",
+      "translated_text": "إدارة مهام التصرف",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "catalogue_sha256": "a7a931e79893b298ea021b401e4d0bf2fa1cc0d6c1d0ce486f9fadd55757ff01",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "privilege-disposition-contextual-v1",
+        "batch_id": "privilege-disposition-20261021",
+        "generated_at": "2026-10-21T07:08:26.905263+00:00"
       }
     },
     {

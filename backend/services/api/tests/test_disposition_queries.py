@@ -49,7 +49,9 @@ def test_job_membership_episodes_history_and_selector_contracts(client):
         assert history['total']>=3 and any(r['operation']=='MEMBERSHIP_ADD' for r in history['items'])
         assert queries.selector(c,'assignees',query='T')['items']==[]
         assert queries.selector(c,'assignees',selected=1)['items'][0]['id']==1
-        assert queries.context(c)['roles'][0]['id']==1
+        context=queries.context(c)
+        assert context['roles'][0]['id']==1
+        assert context['destruction_review_route']==c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()['route']
         c.execute("SELECT set_config('app.user_id','',true)")
         # Workspace context has used a non-disclosing 404 since governed
         # evidence/task recipients were introduced. Manager-only reads use 403.

@@ -78,6 +78,7 @@ def test_seeded_catalogue_profiles_and_existing_role_backfill(client: TestClient
 def test_composite_profile_dependencies_preview_assignment_and_audit(client: TestClient):
     privileges = _by_code(client, "/api/v1/privileges?limit=500")
     profile = _create_profile(client)
+    assert privileges["record.view"]["id"] in privileges["record.modify"]["required_privilege_ids"]
 
     invalid = client.put(
         f"/api/v1/profiles/{profile['id']}/privileges",

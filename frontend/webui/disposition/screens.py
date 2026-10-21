@@ -67,7 +67,7 @@ def wall_filter(name, saved):
 
 
 async def command_dialog(*, api, context, active, on_error, title, build, path, version=None,
-                         after, confirm=None):
+                         after, confirm=None, configure_role=None):
     """A retry retains its UUID for the exact payload/reason, including failures."""
     if not active(): return
     with ui.dialog() as dialog, ui.card().classes('messaging-workspace w-[600px] max-w-full gap-4'):
@@ -77,6 +77,7 @@ async def command_dialog(*, api, context, active, on_error, title, build, path, 
         collect=build(alive)
         roles={r['id']:r['name'] for r in context['roles']}
         role=ui.select(roles,label=text('role'),value=next(iter(roles),None)).props('outlined dense').classes('w-full')
+        if configure_role:configure_role(role)
         reason=ui.textarea(label=text('reason')).props('outlined autogrow').classes('w-full')
         feedback=ui.label('').classes('text-negative').props('role=alert')
         retry={'signature':None,'id':None}
@@ -108,10 +109,23 @@ async def command_dialog(*, api, context, active, on_error, title, build, path, 
 
 
 async def create_dialog(*, api, context, bind_remote, active, on_error, after):
+    controls={}
+    preparer_profile='INFO_GOV_MGR' if context.get('destruction_review_route')=='records_manager_only' else 'INFO_GOV_OFFICER'
+    def eligible_roles(kind):
+        return {r['id']:r['name'] for r in context['roles']
+                if kind!='destruction' or r.get('profile_code')==preparer_profile}
+    def configure_role(role):
+        def refresh_role():
+            options=eligible_roles(controls['kind'].value)
+            role.set_options(options,value=role.value if role.value in options else next(iter(options),None))
+            role.set_visibility(len(options)>1)
+        controls['kind'].on_value_change(refresh_role)
+        refresh_role()
     def build(alive):
         number=ui.input(text('job_number')).props('outlined dense maxlength=200').classes('w-full')
-        allowed=TYPES if any(role.get('profile_code')=='INFO_GOV_OFFICER' for role in context['roles']) else TYPES[1:]
+        allowed=TYPES if context.get('destruction_review_route') and eligible_roles('destruction') else TYPES[1:]
         kind=ui.select({k:text(k) for k in allowed},value=allowed[0],label=text('job_type')).props('outlined dense').classes('w-full')
+        controls['kind']=kind
         owner=selector(api=api,bind_remote=bind_remote,kind='owners',label='owner',active=alive)
         assigned=selector(api=api,bind_remote=bind_remote,kind='assignees',label='assignee',active=alive,job_type=lambda:kind.value)
         def changed():
@@ -121,7 +135,7 @@ async def create_dialog(*, api, context, bind_remote, active, on_error, after):
         return lambda:({'job_number':str(number.value).strip(),'job_type':kind.value,
                         'owning_org_unit_id':owner.value if kind.value=='destruction' else None,
                         'assigned_user_id':assigned.value} if str(number.value or '').strip() and (kind.value!='destruction' or owner.value) else None)
-    await command_dialog(api=api,context=context,active=active,on_error=on_error,title='create',build=build,path='jobs',after=after)
+    await command_dialog(api=api,context=context,active=active,on_error=on_error,title='create',build=build,path='jobs',after=after,configure_role=configure_role)
 
 
 async def blockers_dialog(*, api, root, active, on_error, open_resource):
@@ -193,14 +207,18 @@ async def jobs_screen(*, api, container, active, on_error, bind_remote, open_job
 
 
 async def eligibility_screen(*, api, container, active, on_error, bind_remote, open_job, open_resource,
-                             format_timestamp, saved=None, remember=lambda value:None, target_job=None):
+                             format_timestamp, saved=None, remember=lambda value:None, target_job=None,
+                             filters_expanded=False, remember_filters=lambda value:None):
     saved=saved or {};filters=saved.get('filters',{})
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
         context_task=asyncio.create_task(api.disposition_page('context'))
         context={}
         ui.label(text('select_hint')).classes('text-sm text-slate-500')
-        with ui.expansion(text('filters'),icon='filter_alt',value=True).classes('w-full'):
+        def disclosure_changed(event):
+            if alive():remember_filters(bool(event.value))
+        with ui.expansion(text('filters'),icon='filter_alt',value=bool(filters_expanded),
+                          on_value_change=disclosure_changed).classes('w-full'):
             with ui.grid().classes('w-full gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3').props('dir='+('rtl' if current_locale_context()[0]=='ar' else 'ltr')):
                 owner=selector(api=api,bind_remote=bind_remote,kind='owners',label='owner',active=alive,selected=filters.get('owner_selected'))
                 status=ui.select({'':text('any'),**{i:status_label(i) for i in range(2,6)}},value=filters.get('status',''),label=text('status')).props('outlined dense')
@@ -251,7 +269,9 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
             return result
         def loaded(p,result):
             p.table.selected=[];add_button.disable();remember(result['_view'])
-        page=PageTable(columns=[column('identity','aggregation',True),column('state_label','status',True),column('due_label','due',True),column('owner_label','owner',True),column('protection_label','blockers'),column('job_label','active_job'),column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),selection='multiple',on_loaded=loaded,initial=saved)
+        def eligibility_column(*args, **kwargs):
+            return {**column(*args, **kwargs), 'headerStyle': 'vertical-align: top'}
+        page=PageTable(columns=[eligibility_column('identity','aggregation',True),eligibility_column('state_label','status',True),eligibility_column('due_label','due',True),eligibility_column('owner_label','owner',True),eligibility_column('protection_label','blockers'),eligibility_column('job_label','active_job'),eligibility_column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),selection='multiple',on_loaded=loaded,initial=saved)
         restore_page(page,saved)
         # Standard NiceGUI table slots provide per-row selection and page-local
         # grouping. No CSS overrides or client-side full-collection grouping.
@@ -489,4 +509,5 @@ async def accelerate_dialog(*, api, root, active, on_error, after):
         ui.label(text('accelerate_scope')).classes('text-sm')
         return lambda:{}
     await command_dialog(api=api,context=context,active=active,on_error=on_error,title='accelerate',build=build,
-                         path=f"aggregations/{root['id']}/accelerate",version=facts['version'],after=after)
+                         path=f"aggregations/{root['id']}/accelerate",version=facts['version'],after=after,
+                         configure_role=lambda role:role.set_visibility(len(role.options)>1))

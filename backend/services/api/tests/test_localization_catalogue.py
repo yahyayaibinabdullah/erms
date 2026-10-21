@@ -835,3 +835,45 @@ def test_arabic_change_reason_limit_counts_characters_not_utf8_bytes(client):
     headers['X-Change-Reason'] = ('ع' * 2000).encode('utf-8')
     accepted = client.put(path, headers=headers, json=payload)
     assert accepted.status_code == 200, accepted.text
+
+
+def test_bulk_review_acknowledges_review_marker_but_blocks_real_quality_flags(client):
+    synchronize_generated_arabic_drafts()
+    key='disposition.ui.accelerate'
+    other='disposition.ui.accelerate_scope'
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        connection.execute("SELECT set_config('app.change_reason','Prepare review-marker regression',true)")
+        connection.execute("UPDATE ui_message_translations SET generation_metadata=jsonb_set(generation_metadata,'{quality_flags}','[\"needs_human_review\",\"unknown_quality_defect\"]'::jsonb) WHERE message_key=%s AND language_tag='ar'",(other,))
+        before=connection.execute("SELECT message_key,version,generation_metadata FROM ui_message_translations WHERE message_key=ANY(%s) AND language_tag='ar' ORDER BY message_key",([key,other],)).fetchall()
+        revision=connection.execute("SELECT catalogue_revision FROM supported_languages WHERE language_tag='ar'").fetchone()[0]
+    preview=client.get('/api/v1/admin/i18n/translations/ar/bulk-publication-preview').json()
+    assert not any(e['message_key']==key for e in preview['invalid'])
+    assert {'message_key':other,'code':'generation_quality_attention'} in preview['invalid']
+    selected=[i for i in preview['items'] if i['message_key'] in (key,other)]
+    blocked=client.post('/api/v1/admin/i18n/translations/ar/bulk-review-publish',json={'items':selected},headers={'X-Change-Reason':'Review mixed valid and invalid drafts'})
+    assert blocked.status_code==422
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        assert connection.execute("SELECT message_key,version,generation_metadata FROM ui_message_translations WHERE message_key=ANY(%s) AND language_tag='ar' ORDER BY message_key",([key,other],)).fetchall()==before
+        assert connection.execute("SELECT catalogue_revision FROM supported_languages WHERE language_tag='ar'").fetchone()[0]==revision
+    result=client.post('/api/v1/admin/i18n/translations/ar/bulk-review-publish',json={'items':[i for i in selected if i['message_key']==key]},headers={'X-Change-Reason':'Explicitly review generated Arabic draft','X-Event-Source':'web_ui'})
+    assert result.status_code==200,result.text
+    assert result.json()['catalogue_revision']==revision+1
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        row=connection.execute("SELECT status,generation_metadata,reviewed_by_user_id,published_by_user_id,date_reviewed,date_published,needs_review FROM ui_message_translations WHERE message_key=%s AND language_tag='ar'",(key,)).fetchone()
+        expected=dict(next(r[2] for r in before if r[0]==key));expected['quality_flags']=[]
+        assert row[0]=='published' and row[1]==expected
+        assert row[2] is not None and row[2]==row[3] and row[4]==row[5] and not row[6]
+        event=connection.execute("SELECT before_state,after_state FROM event_history WHERE entity_type='ui_message_translation' AND reason='Explicitly review generated Arabic draft' AND source='web_ui'").fetchone()
+        assert event[0]['generation_metadata']['quality_flags']==['needs_human_review']
+        assert event[1]['generation_metadata']['quality_flags']==[]
+
+
+@pytest.mark.parametrize('text,flags',[
+    ('', ['needs_human_review']),
+    ('نص {unexpected}', ['needs_human_review']),
+    ('<script>نص</script>', ['needs_human_review']),
+    ('نص', ['needs_human_review','placeholder_mismatch']),
+])
+def test_review_marker_never_bypasses_translation_validation(text,flags):
+    from backend.services.api.localization import _bulk_validation_errors
+    assert _bulk_validation_errors([{'message_key':'test','translated_text':text,'parameter_schema':{},'is_html':False,'generation_metadata':{'quality_flags':flags}}])

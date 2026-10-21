@@ -135,7 +135,37 @@ async def test_inbox_requests_real_offsets_and_keeps_server_claimant(host):
     assert table.rows[0]['claimant']=='Another reviewer' and table.rows[0]['age_days']==2
     assert calls[0][1]['limit']==10 and calls[0][1]['offset']==10
     assert 'erms-page-table' in table.classes
+    assert all(c['headerStyle']=='vertical-align: top' for c in table.columns)
     assert all(c['align']==('right' if text('my_tasks')=='مهامي' else 'left') for c in table.columns)
+
+
+@pytest.mark.asyncio
+async def test_task_filters_default_collapsed_remember_choice_without_refetch(host):
+    api=Api();choices=[];current={'active':True}
+    async def opened(*args):pass
+    with host:
+        await tasks_screen(api=api,container=host,active=lambda:current['active'],on_error=str,
+                           open_task=opened,format_timestamp=str,remember_filters=choices.append)
+    disclosure=next(e for e in host.descendants() if isinstance(e,ui.expansion))
+    assert disclosure.value is False
+    disclosure.open();await asyncio.sleep(0)
+    assert choices==[True]
+    disclosure.close();await asyncio.sleep(0)
+    assert choices==[True,False]
+    assert len(api.reads)==1
+    current['active']=False
+    disclosure.open();await asyncio.sleep(0)
+    assert choices==[True,False]
+
+
+@pytest.mark.asyncio
+async def test_task_filters_restore_expanded_choice(host):
+    api=Api()
+    async def opened(*args):pass
+    with host:
+        await tasks_screen(api=api,container=host,active=lambda:True,on_error=str,
+                           open_task=opened,format_timestamp=str,filters_expanded=True)
+    assert next(e for e in host.descendants() if isinstance(e,ui.expansion)).value is True
 
 
 def test_workflow_has_start_creation_preparation_completed_end_and_saved_bypass(host):

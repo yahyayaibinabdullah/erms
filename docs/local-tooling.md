@@ -301,3 +301,53 @@ Launcher safety checks run without a database or external services:
 Local integration verification on 20 October 2026 covered SMTP delivery with
 certificate validation, mailbox capture, MCP initialization, idempotent
 up/down, restart mail persistence, key reuse and occupied-port refusal.
+
+## Domestic-official meeting demo dataset through APIs
+
+Run from the project root, with the local API connected to **demo**:
+
+```bash
+backend/services/api/.venv/bin/python tools/seed_aggregations_for_disposition_testing.py --confirm-demo
+```
+
+The script prompts securely for `omi@sa.gov.ae` and `yya@sa.gov.ae` passwords.
+For automation, use `--credentials-file /private/path/accounts.json`, a private
+JSON object mapping those two email addresses to passwords. Keep it outside Git
+(or under `.secrets/`), mode 0600. Passwords and login tokens are never written to
+the run manifest. No new environment variables are required.
+
+Each fresh run creates 100 root aggregations under code 1141, with 200 records and 200 synthetic meeting-related text files of exactly
+100 words about code 1141 (Meetings with Officials from Within the Country). Security distribution is 40 General, 40 Restricted, 15 Secret and
+5 Top Secret, shuffled per run. Ten roots are vital; the first twenty form a
+20-link `related_to` ring; the first ten are assigned to `Test Legal Hold`.
+Records use the draft → upload → commit API workflow, so initial file creation
+does not require permission to append components to an existing record.
+Omi creates General content; Yahya creates Restricted, Secret and Top Secret
+content using an existing suitable role (prefer the same unit, otherwise Records
+Manager). All relationship links use Yahya, whose existing privileges permit linking. Yahya also creates or
+reuses the active hold and
+assigns the held roots. Existing permissions, clearance and workflow checks
+apply unchanged. The script never adjusts user authority or writes directly to
+the database. Its authenticated writes use audit source `seeding`.
+
+The default API is `http://127.0.0.1:8000`; `--api-url` overrides it.
+`--confirm-demo` is an explicit operator assertion about that API's database;
+the API does not disclose its database connection. If code 1141 or creation
+roles are ambiguous, specify `--classification-id` or `--creator-role-id`.
+Missing required configuration or authorization stops the run.
+
+Run manifests live under `.runtime/property-demo/<run>/manifest.json`.
+A fresh invocation creates a new dataset. Use `--resume <manifest>` to continue
+a partial run against the same API. Every successful write is recorded. An
+interrupted request, server error, or crash between a committed write and its
+manifest update leaves a pending marker: inspect the API state before reconciling
+that marker, rather than blindly retrying a potentially committed operation.
+The script does not roll back or delete partial datasets. After creation it reads
+back every root and record and downloads every file to verify its word count.
+
+The disposition-testing seed uses aggregation numbers
+`1141/DEMO/<serial-number>/<year>` (serial padded to at least three digits; year
+in Asia/Dubai). It checks existing numbers through Yahya's bounded search API
+and skips occupied serials. Assigned numbers are checkpointed for resume. Run
+one seeder at a time: numbering is checked, not reserved across concurrent runs;
+a conflicting API write stops rather than overwriting an existing aggregation.

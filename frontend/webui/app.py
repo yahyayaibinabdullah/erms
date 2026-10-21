@@ -36,8 +36,10 @@ from .capabilities import (
     capability_allowed,
     can_add_from_collection,
     can_navigate,
+    can_navigate_disposition,
     can_open_organization_detail,
 )
+from .profile_privileges import closure as privilege_closure, dependents as privilege_dependents
 from .acl_editor import acl_grants_payload, dependents_of, permission_closure
 from .authorization_ui import (
     gate_label, OPERATIONS, acl_source_label, aggregation_reference_label,
@@ -1011,6 +1013,12 @@ def error_message(error: ApiError) -> str:
     if "saved_searches_owner_name_ci_unique" in error.message:
         return render_message_plain("saved_search.error.name_exists")
     if isinstance(error.detail, dict):
+        if error.detail.get("code") == "privilege_dependency_violation":
+            return "\n".join(
+                render_message_plain("authorization.profile.error.missing_prerequisite",
+                                     privilege=item["privilege_code"], required=item["required_code"])
+                for item in error.detail.get("missing", [])
+            )
         if error.detail.get("message_key"):
             return render_message_plain(
                 error.detail["message_key"], **(error.detail.get("parameters") or {}),
@@ -3915,7 +3923,9 @@ def index(q: str = "") -> None:
                 (auth_state.get("principal") or {}).get("global_privileges", [])
             )
         link_visibility = {
-            key: can_navigate(key, granted) and (key=="disposition-tasks" or not key.startswith("disposition-") or (auth_state.get("principal") or {}).get("can_manage_disposition", False)) for _, _, key in drawer_links
+            key: can_navigate(key, granted)
+            and can_navigate_disposition(key, auth_state.get("principal"))
+            for _, _, key in drawer_links
         }
         for button, _, key in drawer_links:
             # Holds visibility is resolved separately from assigned hold access.
@@ -4606,6 +4616,10 @@ def index(q: str = "") -> None:
             if page == "aggregations":
                 state["aggregation_mode"] = saved.get("aggregation_mode", "search")
             await select_entity(page)
+            # Browse restores its own expanded branches, selection and scroll.
+            # A search made before switching modes must not replace that tree.
+            if page == "aggregations" and state.get("aggregation_mode") == "browse":
+                return
             search_input.value = saved.get("search_text", "")
             state["lifecycle_filter"] = saved.get("lifecycle_filter", "all")
             if saved.get("searched") and search_input.value and ENTITIES[page].search_first:
@@ -9982,11 +9996,6 @@ def index(q: str = "") -> None:
                                 "aggregation-detail-header-actions items-center gap-2"
                             ):
                                 favourite_button("aggregations", current["id"])
-                                if current.get("parent_aggregation_id") is None and current.get("disposition_status",1)==1 and (auth_state.get("principal") or {}).get("can_manage_disposition"):
-                                    async def accelerated(result):await open_aggregation(await api.get("aggregations",current["id"]))
-                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
-                                        api=api,root=current,active=lambda:state.get("resource")=="aggregation-details" and (state.get("aggregation_detail") or {}).get("id")==current["id"],
-                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
                                 ui.button(
                                     render_message("webui.open_aggregation.button.back_4d496e53"),
                                     icon=None if current_direction["value"] == "rtl" else "arrow_back",
@@ -10401,7 +10410,7 @@ def index(q: str = "") -> None:
                         with ui.card().classes(
                             "retention-card aggregation-retention-compact shadow-none p-4 gap-3"
                         ):
-                            with ui.row().classes("w-full items-center gap-3"):
+                            with ui.row().classes("detail-action-row w-full items-center gap-3"):
                                 ui.avatar(icon="schedule", color="blue-1", text_color="primary", size="38px")
                                 with ui.column().classes("gap-0 grow"):
                                     ui.label(render_message("webui.open_aggregation.label.effective_retention_rule_4dce9765")).classes("text-base font-semibold text-slate-900")
@@ -10431,13 +10440,18 @@ def index(q: str = "") -> None:
                                         )
                                     ui.label(source_text).classes("text-xs text-sky-700")
                                 ui.badge(render_message("webui.open_aggregation.badge.effective_a28f890c"), color="primary").props("outline")
+                                if current.get("parent_aggregation_id") is None and current.get("disposition_status",1)==1 and (auth_state.get("principal") or {}).get("can_manage_disposition"):
+                                    async def accelerated(result):await open_aggregation(await api.get("aggregations",current["id"]))
+                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
+                                        api=api,root=current,active=lambda:state.get("resource")=="aggregation-details" and (state.get("aggregation_detail") or {}).get("id")==current["id"],
+                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
                             render_retention_stages(effective_rule, localized_disposition_value)
                             render_disposition_date(
                                 effective_rule,
                                 aggregation_context_by_id.get(effective_rule["governing_root_aggregation_id"]),
                                 *current_locale_context(),
                             )
-                            with ui.element("div").classes("aggregation-retention-footer w-full"):
+                            with ui.element("div").classes("aggregation-retention-footer detail-action-row w-full"):
                                 if classification_path:
                                     classification_text = " › ".join(
                                         f"{item['code']} — {item['title']}" for item in classification_path
@@ -11053,16 +11067,65 @@ def index(q: str = "") -> None:
                     bool(controls) and all(control.value for control in controls.values())
                 )
 
-            for privilege_control in controls.values():
+            dependencies = {item["id"]: set(item["required_privilege_ids"]) for item in all_privileges}
+            selection = set(selected_ids)
+            applying_selection = False
+
+            def apply_selection(updated):
+                nonlocal applying_selection
+                applying_selection = True
+                try:
+                    selection.clear()
+                    selection.update(updated)
+                    for identifier, control in controls.items():
+                        control.set_value(identifier in selection)
+                finally:
+                    applying_selection = False
+                update_unrestricted_profile_warning()
+
+            def selection_changed(identifier, checked):
+                if applying_selection:
+                    return
+                if checked:
+                    updated = privilege_closure(selection | {identifier}, dependencies)
+                    added = updated - selection - {identifier}
+                    apply_selection(updated)
+                    if added:
+                        names = ", ".join(item["code"] for item in all_privileges if item["id"] in added)
+                        ui.notify(render_message("authorization.profile.prerequisites_added", privileges=names), color="info")
+                    return
+                affected = privilege_dependents(identifier, selection, dependencies)
+                if not affected:
+                    apply_selection(selection - {identifier})
+                    return
+                # Keep the valid selection until the user confirms removal.
+                apply_selection(set(selection))
+                with ui.dialog().props("persistent") as confirm, ui.card():
+                    names = ", ".join(item["code"] for item in all_privileges if item["id"] in affected)
+                    ui.label(render_message("authorization.profile.remove_dependents", privileges=names))
+                    with ui.row():
+                        ui.button(render_message("webui.show_profile_privilege_editor.button.cancel_d03380ff"), on_click=confirm.close).props("flat")
+                        def remove_together():
+                            apply_selection(selection - affected - {identifier})
+                            confirm.close()
+                        ui.button(render_message("authorization.profile.remove_together"), on_click=remove_together)
+                confirm.open()
+
+            for identifier, privilege_control in controls.items():
                 privilege_control.on_value_change(
-                    lambda _: update_unrestricted_profile_warning()
+                    lambda event, identifier=identifier: selection_changed(identifier, event.value)
                 )
             update_unrestricted_profile_warning()
             reason = ui.textarea(render_message("webui.show_profile_privilege_editor.textarea.reason_for_changing_this_profile_6813db02"), placeholder=render_message("webui.show_profile_privilege_editor.textarea.required_e75da8d4")).props(
                 "outlined autogrow"
             ).classes("w-full")
 
+            dependency_feedback = ui.column().classes("w-full gap-1")
+
             async def save_privileges() -> None:
+                dependency_feedback.clear()
+                for control in controls.values():
+                    control.props(remove="error error-message")
                 change_reason = (reason.value or "").strip()
                 if not change_reason:
                     ui.notify(render_message("webui.save_privileges.notify.a_reason_is_required_ae7186e1"), color="warning")
@@ -11077,6 +11140,20 @@ def index(q: str = "") -> None:
                     ui.notify(render_message("webui.save_privileges.notify.profile_privileges_saved_3a8e587a"), color="positive")
                     await select_entity("profiles")
                 except ApiError as error:
+                    if isinstance(error.detail, dict) and error.detail.get("code") == "privilege_dependency_violation":
+                        missing = error.detail.get("missing", [])
+                        required_codes = {item["required_code"] for item in missing}
+                        privilege_search.set_value("")
+                        filter_privileges()
+                        for privilege, _ in privilege_entries:
+                            if privilege["code"] in required_codes:
+                                controls[privilege["id"]].props("error")
+                        with dependency_feedback:
+                            for item in missing:
+                                ui.label(render_message(
+                                    "authorization.profile.error.missing_prerequisite",
+                                    privilege=item["privilege_code"], required=item["required_code"],
+                                )).classes("text-negative").props('role="alert"')
                     show_api_error(error)
 
             with ui.row().classes("w-full justify-end gap-2"):
@@ -19269,7 +19346,7 @@ def index(q: str = "") -> None:
 
     async def select_disposition(page="disposition-eligibility", identity=None, saved=None, target_job=None, task_id=None):
         principal=auth_state.get("principal")
-        if not principal or page in ("disposition-eligibility","disposition-jobs") and not principal.get("can_manage_disposition"):
+        if not principal or not can_navigate_disposition(page, principal):
             return
         token=object()
         label=disposition_text("my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
@@ -19303,10 +19380,22 @@ def index(q: str = "") -> None:
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
                                  open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty)
             elif page=="disposition-tasks":
-                await tasks_screen(**common,open_task=open_task,format_timestamp=format_timestamp,saved=saved,remember=remember)
+                filter_preference_key=f"disposition_task_filters:{principal['user']['id']}"
+                def remember_task_filters(expanded):
+                    if active():
+                        app.storage.user[filter_preference_key]=bool(expanded)
+                await tasks_screen(**common,open_task=open_task,format_timestamp=format_timestamp,saved=saved,remember=remember,
+                                   filters_expanded=app.storage.user.get(filter_preference_key,False),
+                                   remember_filters=remember_task_filters)
             elif page=="disposition-eligibility":
+                filter_preference_key=f"disposition_eligibility_filters:{principal['user']['id']}"
+                def remember_eligibility_filters(expanded):
+                    if active():
+                        app.storage.user[filter_preference_key]=bool(expanded)
                 await eligibility_screen(**common,open_resource=open_resource,format_timestamp=format_timestamp,
-                                         saved=saved,remember=remember,target_job=target_job)
+                                         saved=saved,remember=remember,target_job=target_job,
+                                         filters_expanded=app.storage.user.get(filter_preference_key,False),
+                                         remember_filters=remember_eligibility_filters)
             else:
                 await jobs_screen(**common,saved=saved,remember=remember)
         except asyncio.CancelledError:
@@ -19503,7 +19592,9 @@ def index(q: str = "") -> None:
                             ui.notify(error_message(error), color="negative", close_button=True)
                     finally:
                         state["personal_sections_loading"][resource_key] = False
-                    if state.get("resource") == resource_key:
+                    if state.get("resource") == resource_key and not (
+                        resource_key == "aggregations" and state.get("aggregation_mode") == "browse"
+                    ):
                         personal_host = state["personal_section_hosts"].get(resource_key)
                         if personal_host is not None and not getattr(personal_host, "_deleted", False):
                             render_resource_personal_sections(

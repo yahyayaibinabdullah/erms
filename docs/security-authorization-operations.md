@@ -5,6 +5,24 @@ This is the operational reference for monitoring, reconciling, backing up, and r
 For administrator-facing privilege and ACL recipes, see
 [Authorization configuration scenarios](security-authorization-scenarios.md).
 
+## Role governance designation and Profiles
+
+Keep **Information-governance role** (`roles.is_information_governance`) on the
+Role. A Profile supplies reusable action capabilities; a Role identifies an
+organizational responsibility with its own clearance and assigned people. Two
+roles can therefore share one Profile while only one is designated for
+information governance. Moving the flag to a shared Profile would couple that
+designation across every attached role and require Profile duplication when
+their responsibilities differ.
+
+Configure the role flag explicitly; do not infer it from a role name, a Profile
+name, or assignment of a governance Profile. Changing a Profile can change
+capabilities and qualification for operations, but must not implicitly toggle
+the role flag. Existing governance checks, clearance requirements, and continuity
+safeguards continue to apply. Run reconciliation after relevant configuration
+changes as described below. This guidance changes no stored data or access rule.
+See the [governance designation rationale](../specs/security-and-authorization-subsystem.md#371-why-governance-status-belongs-to-the-role).
+
 ## Daily monitoring
 
 The **Security operations** page requires `audit.view`. It reports a rolling 24-hour aggregate of authorization denials, authentication failures, lockouts, governance bypasses, access explanations, security-level changes, ACL changes, and profile changes. It never returns event snapshots, request bodies, credentials, tokens, component content, or protected resource metadata.

@@ -151,8 +151,13 @@ def test_acceleration_uses_effective_action_including_open_root_and_saves_reason
         event=c.execute("SELECT * FROM event_history WHERE operation='DISPOSITION_ACCELERATED' AND entity_id=%s",(root,)).fetchone()
         assert event['actor_user_id']==1 and event['reason']=='Authorized Phase 9 acceptance reason'
         assert event['metadata']['rule_snapshot']['final_disposition']==action
-        assert (event['metadata']['calculated_disposition_at'] is None)==(closed is None)
-        if closed is None:assert not admit(c,c.execute('SELECT id FROM disposition_jobs').fetchone()['id'],[root])['items'][0]['success']
+        assert event['metadata']['calculated_disposition_at'] is not None
+        row=c.execute('SELECT date_closed,CURRENT_TIMESTAMP AS now FROM aggregations WHERE id=%s',(root,)).fetchone()
+        if closed is None:
+            assert row['date_closed']==row['now']
+            if action=='destruction':assert admit(c,c.execute('SELECT id FROM disposition_jobs').fetchone()['id'],[root])['items'][0]['success']
+        else:
+            assert row['date_closed'].isoformat().startswith('2025-01-01')
 
 
 def test_outside_relationships_allow_acceleration_and_admission(client):
@@ -362,3 +367,25 @@ def version_from_db(root):
 def test_canonical_and_independent_membership_migration_match_exactly(client):
     marker='-- Disposition membership and atomic recalculation (055).\n'
     assert (ROOT/'database/schema.sql').read_text().split(marker,1)[1].split('\n-- Disposition governed artifacts (056).',1)[0]==(ROOT/'database/migrations/055_disposition_membership.sql').read_text()
+
+
+def test_acceleration_failure_after_closure_rolls_back_entire_unit(client):
+    with db() as c:
+        setup(c);root,*_=ready(c,closed=None)
+        before_version=version(c,root)
+        before_events=c.execute('SELECT count(*) AS n FROM event_history').fetchone()['n']
+        c.execute("""CREATE FUNCTION pg_temp.reject_acceleration_status() RETURNS trigger
+            LANGUAGE plpgsql AS $$ BEGIN
+            IF NEW.disposition_status<>OLD.disposition_status THEN
+                RAISE EXCEPTION 'test_acceleration_failure_after_closure';
+            END IF;
+            RETURN NEW; END $$""")
+        c.execute('CREATE TRIGGER test_acceleration_status BEFORE UPDATE ON aggregations FOR EACH ROW EXECUTE FUNCTION pg_temp.reject_acceleration_status()')
+        try:
+            with pytest.raises(psycopg.Error,match='test_acceleration_failure_after_closure'):
+                service.accelerate(c,**kwargs(root_id=root,expected_version=before_version))
+            assert c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed'] is None
+            assert version(c,root)==before_version and statuses(c,root)==[1]*4
+            assert c.execute('SELECT count(*) AS n FROM event_history').fetchone()['n']==before_events
+        finally:
+            c.execute('DROP TRIGGER test_acceleration_status ON aggregations')

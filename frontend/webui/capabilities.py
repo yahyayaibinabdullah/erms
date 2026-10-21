@@ -74,3 +74,13 @@ def dashboard_administration_resources(privileges: Iterable[str]) -> tuple[str, 
 def capability_allowed(capabilities: Mapping[str, bool] | None, name: str) -> bool:
     """Draft-only callers may omit capabilities; governed responses fail closed."""
     return capabilities is None or capabilities.get(name) is True
+
+
+def can_navigate_disposition(navigation_key: str, principal: Mapping | None) -> bool:
+    """Use server-derived, current role eligibility; missing capabilities fail closed."""
+    principal = principal or {}
+    if navigation_key == "disposition-tasks":
+        return principal.get("can_access_disposition_tasks") is True
+    if navigation_key in {"disposition-eligibility", "disposition-jobs"}:
+        return principal.get("can_manage_disposition") is True
+    return True

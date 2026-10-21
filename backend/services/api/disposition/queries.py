@@ -15,7 +15,8 @@ def require_manager(c):
 
 def context(c):
     require_manager(c)
-    return {'roles': c.execute('''SELECT DISTINCT r.id,r.name,profile.code AS profile_code FROM roles r JOIN profiles profile ON profile.id=r.profile_id
+    route=c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()
+    return {'destruction_review_route':route['route'] if route else None, 'roles': c.execute('''SELECT DISTINCT r.id,r.name,profile.code AS profile_code FROM roles r JOIN profiles profile ON profile.id=r.profile_id
       JOIN user_role_assignments a ON a.role_id=r.id
       JOIN profile_privileges pp ON pp.profile_id=r.profile_id
       JOIN privileges p ON p.id=pp.privilege_id

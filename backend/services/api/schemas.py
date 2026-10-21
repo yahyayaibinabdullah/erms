@@ -47,6 +47,7 @@ class SecurityLevelRead(SecurityLevelCreate):
 
 
 class PrivilegeRead(ApiModel):
+    required_privilege_ids: list[int] = Field(default_factory=list)
     id: int
     code: str
     name: str
@@ -1380,6 +1381,7 @@ class PrincipalRead(ApiModel):
     previous_login_at: datetime | None
     global_privileges: list[str]
     can_manage_disposition: bool = False
+    can_access_disposition_tasks: bool = False
 
 
 class LoginSessionRead(ApiModel):

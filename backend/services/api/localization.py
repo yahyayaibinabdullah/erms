@@ -1622,7 +1622,9 @@ def _bulk_validation_errors(rows: list[dict]) -> list[dict[str, str]]:
             errors.append({"message_key":row["message_key"],"code":str(detail.get("code") or "invalid_translation")})
             continue
         flags = (row.get("generation_metadata") or {}).get("quality_flags") or []
-        if flags:
+        # This endpoint performs the human review. The routine review marker
+        # is acknowledged by publication; concrete or unknown defects still block.
+        if any(flag != "needs_human_review" for flag in flags):
             errors.append({"message_key":row["message_key"],"code":"generation_quality_attention"})
     return errors
 
@@ -1676,6 +1678,10 @@ def bulk_review_publish_translations(
         connection.execute(
             """UPDATE ui_message_translations
                   SET translated_text=%s,published_text=%s,status='published',needs_review=false,
+                      generation_metadata=CASE WHEN generation_metadata ? 'quality_flags'
+                        THEN jsonb_set(generation_metadata,'{quality_flags}',
+                          (generation_metadata->'quality_flags')-'needs_human_review')
+                        ELSE generation_metadata END,
                       reviewed_by_user_id=%s,date_reviewed=%s,
                       published_by_user_id=%s,date_published=%s,updated_by_user_id=%s
                 WHERE message_key=%s AND language_tag=%s""",

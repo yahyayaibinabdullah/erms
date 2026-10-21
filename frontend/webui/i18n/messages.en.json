@@ -4419,6 +4419,69 @@
     "is_html": false
   },
   {
+    "message_key": "authorization.profile.error.missing_prerequisite",
+    "context_group": "authorization.profile",
+    "default_text": "{privilege} requires {required}. Select the required privilege before saving.",
+    "semantic_meaning": "Explains a rejected profile privilege selection and names its missing prerequisite.",
+    "common_locations": [
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Keep privilege codes in placeholders unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "privilege": "text",
+      "required": "text"
+    },
+    "rendered_example": "record.modify requires record.view. Select the required privilege before saving.",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.profile.prerequisites_added",
+    "context_group": "authorization.profile",
+    "default_text": "Required privileges were selected automatically: {privileges}",
+    "semantic_meaning": "Profile privilege dependency selection feedback or confirmation.",
+    "common_locations": [
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Preserve privilege codes in placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "privileges": "text"
+    },
+    "rendered_example": "Required privileges were selected automatically: record.view",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.profile.remove_dependents",
+    "context_group": "authorization.profile",
+    "default_text": "Remove these dependent privileges as well? {privileges}",
+    "semantic_meaning": "Profile privilege dependency selection feedback or confirmation.",
+    "common_locations": [
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Preserve privilege codes in placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "privileges": "text"
+    },
+    "rendered_example": "Remove these dependent privileges as well? record.view",
+    "is_html": false
+  },
+  {
+    "message_key": "authorization.profile.remove_together",
+    "context_group": "authorization.profile",
+    "default_text": "Remove together",
+    "semantic_meaning": "Profile privilege dependency selection feedback or confirmation.",
+    "common_locations": [
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Preserve privilege codes in placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remove together",
+    "is_html": false
+  },
+  {
     "message_key": "classification_browser.add_child",
     "context_group": "classification_browser",
     "default_text": "Child classification",
@@ -6269,15 +6332,15 @@
   {
     "message_key": "disposition.ui.accelerate_scope",
     "context_group": "disposition.ui",
-    "default_text": "This exceptional action changes the eligibility status of this root and all descendants. Admission still requires a closed, unblocked root and an authorized assignee.",
-    "semantic_meaning": "This exceptional action changes the eligibility status of this root and all descendants. Admission still requires a closed, unblocked root and an authorized assignee. in the common disposition workspace.",
+    "default_text": "This exceptional action closes this root if it is open and makes it and all descendants eligible under the effective retention rule. Existing closure permissions and disposition blockers still apply.",
+    "semantic_meaning": "Confirmation of atomic closure and exceptional early eligibility for the governing aggregation and its disposition unit.",
     "common_locations": [
       "Disposition workspace"
     ],
     "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "This exceptional action changes the eligibility status of this root and all descendants. Admission still requires a closed, unblocked root and an authorized assignee.",
+    "rendered_example": "This exceptional action closes this root if it is open and makes it and all descendants eligible under the effective retention rule. Existing closure permissions and disposition blockers still apply.",
     "is_html": false
   },
   {
@@ -21861,6 +21924,36 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Execute Content Indexing",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.disposition.jobs.manage.description",
+    "context_group": "privilege.disposition.jobs.manage",
+    "default_text": "Perform authorized disposition work without granting resource access or bypassing protection.",
+    "semantic_meaning": "Accessible explanation of what the immutable system privilege disposition.jobs.manage permits.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Perform authorized disposition work without granting resource access or bypassing protection.",
+    "is_html": false
+  },
+  {
+    "message_key": "privilege.disposition.jobs.manage.name",
+    "context_group": "privilege.disposition.jobs.manage",
+    "default_text": "Manage Disposition Jobs",
+    "semantic_meaning": "Friendly name of the immutable system privilege disposition.jobs.manage.",
+    "common_locations": [
+      "Role details",
+      "Profile privilege editor"
+    ],
+    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Manage Disposition Jobs",
     "is_html": false
   },
   {

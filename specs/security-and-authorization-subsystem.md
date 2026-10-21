@@ -136,6 +136,33 @@ resource ACL for governed content, subject to the restrictions in Section 12.
 It is not a system-administrator role and is not a universal authorization
 bypass.
 
+### 3.7.1 Why governance status belongs to the Role
+
+`is_information_governance` remains an explicit attribute of the Role, not the
+Profile. This placement is reaffirmed on 21 October 2026; it clarifies the
+existing model without changing authorization behavior.
+
+A Profile defines reusable action capabilities. A Role defines an organizational
+responsibility, with its own clearance, organizational owner, and assignments.
+Information-governance status designates that responsibility and its qualified
+access treatment; it is not implied by possession of a particular capability
+set or by a role or Profile display name.
+
+Two roles may deliberately share a Profile while only one is designated for
+information governance. Placing the flag on the Profile would force all roles
+using it to share that status, or require duplicate Profiles merely to preserve
+the distinction. Editing or replacing a shared capability Profile must not
+implicitly confer or remove a role's governance designation. Profile changes
+can still affect privileges and therefore whether the role qualifies for a
+particular operation or continuity safeguard.
+
+Retain the existing effective-assignment, role/organization activation, global
+privilege, clearance, and resource-state checks. In particular, the governance
+role used for ACL bypass must itself supply the required clearance; governance
+status is not a universal bypass. Assigning `INFO_GOV_MGR`, `INFO_GOV_OFFICER`, or
+a custom Profile does not itself replace the explicit role flag. Existing
+operation-specific Profile checks remain applicable where separately specified.
+
 ## 4. Security levels
 
 ### 4.1 Data and ordering
@@ -2229,3 +2256,13 @@ human messages, as specified in notifications-and-messaging.md. This does not
 create a role, grant privileges, change ACL matching, or bypass effective-role
 and security-clearance gates. Messaging expansion uses its own recipient
 eligibility rules; ACL matching still represents all authenticated accounts.
+
+### Built-in File Administrator profile
+
+`FILE_ADMIN` (File Administrator) is a built-in profile using the 34 privileges
+approved from the demo profile on 2026-10-21, enumerated in canonical schema SQL
+and migration 073. Its creation does not assign users, designate an organization
+unit's File Administrator role, or confer Information Governance status. Existing
+resource authorization and workflow checks remain mandatory. Upgrade migration
+073 promotes an exact existing match in place; conflicting profiles require
+explicit reconciliation rather than automatic privilege replacement.

@@ -44,6 +44,32 @@ async def test_eligibility_redacted_rows_disable_selection_and_never_hydrate_hid
     assert tables[0].rows[0]['identity'].startswith('Restricted')
     assert '!props.row.selectable' in tables[0].slots['body'].template
     assert {x[0] for x in calls}=={'context','eligibility'}
+    assert all(c['headerStyle']=='vertical-align: top' for c in tables[0].columns)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('language',['en','ar'])
+@pytest.mark.parametrize('expanded',[False,True])
+async def test_eligibility_filter_disclosure_remembers_only_active_changes(host,language,expanded):
+    calls=[];choices=[];current={'active':True}
+    async def request(path,**params):
+        calls.append(path)
+        return {'roles':[]} if path=='context' else {'items':[],'total':0}
+    with host:
+        set_locale_context(language,'Asia/Dubai')
+        await eligibility_screen(api=SimpleNamespace(disposition_page=request),container=host,
+            active=lambda:current['active'],on_error=str,bind_remote=lambda *a,**k:None,
+            open_job=lambda *a:None,open_resource=lambda *a:None,format_timestamp=str,
+            filters_expanded=expanded,remember_filters=choices.append)
+    disclosure=next(e for e in host.descendants() if isinstance(e,ui.expansion))
+    assert disclosure.value is expanded
+    disclosure.value=not expanded;await asyncio.sleep(0)
+    disclosure.value=expanded;await asyncio.sleep(0)
+    assert choices==[not expanded,expanded]
+    assert sorted(calls)==['context','eligibility']
+    current['active']=False
+    disclosure.value=not expanded;await asyncio.sleep(0)
+    assert choices==[not expanded,expanded]
 
 
 @pytest.mark.asyncio
@@ -66,6 +92,52 @@ async def test_guarded_loaded_callback_ignores_abandoned_and_obsolete_responses(
 def test_all_stored_statuses_have_contextual_labels():
     assert all('status_'+str(i) in KEYS for i in range(1,14))
     assert status_label(6)=='Pending destruction'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('language',['en','ar'])
+@pytest.mark.parametrize('route,profile,destruction',[
+    ('standard','INFO_GOV_OFFICER',True),('simplified','INFO_GOV_OFFICER',True),
+    ('records_manager_only','INFO_GOV_MGR',True),('standard','INFO_GOV_MGR',False),
+    ('records_manager_only','INFO_GOV_OFFICER',False)])
+async def test_create_job_uses_route_and_auto_selects_single_role(host,monkeypatch,route,profile,destruction,language):
+    from nicegui import core
+    from frontend.webui.disposition.screens import create_dialog
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    with host:
+        set_locale_context(language,'Asia/Dubai')
+        await create_dialog(api=None,context={'destruction_review_route':route,
+            'roles':[{'id':7,'name':'Governance role','profile_code':profile}]},
+            bind_remote=lambda *a,**k:None,active=lambda:True,on_error=str,after=lambda *a:None)
+    selects=[e for e in host.descendants() if isinstance(e,ui.select)]
+    from frontend.webui.disposition.messages import text
+    kind=next(e for e in selects if e.label==text('job_type'))
+    assert ('destruction' in kind.options) is destruction
+    from frontend.webui.disposition.messages import text
+    role=next(e for e in selects if e.label==text('role'))
+    assert role.value==7 and not role.visible
+
+
+@pytest.mark.asyncio
+async def test_create_job_role_choices_follow_type_and_preserve_valid_selection(host,monkeypatch):
+    from nicegui import core
+    from frontend.webui.disposition.screens import create_dialog
+    from frontend.webui.disposition.messages import text
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    with host:
+        await create_dialog(api=None,context={'destruction_review_route':'records_manager_only',
+            'roles':[{'id':1,'name':'Officer','profile_code':'INFO_GOV_OFFICER'},
+                     {'id':2,'name':'Manager','profile_code':'INFO_GOV_MGR'}]},
+            bind_remote=lambda *a,**k:None,active=lambda:True,on_error=str,after=lambda *a:None)
+    selects=[e for e in host.descendants() if isinstance(e,ui.select)]
+    kind=next(e for e in selects if e.label==text('job_type'))
+    role=next(e for e in selects if e.label==text('role'))
+    assert role.options=={2:'Manager'} and role.value==2 and not role.visible
+    kind.value='permanent_transfer';await asyncio.sleep(0)
+    assert role.visible and set(role.options)=={1,2} and role.value==2
+    role.value=1
+    kind.value='destruction';await asyncio.sleep(0)
+    assert role.value==2 and not role.visible
 
 
 @pytest.mark.asyncio

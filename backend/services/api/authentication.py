@@ -325,16 +325,27 @@ def principal_response(principal: Principal, connection: Connection) -> dict[str
         role["org_unit"] = {key: value for key, value in unit.items() if key != "translations"}
         role["org_unit"]["localized"] = localized_projection(unit, language, "name")
         roles.append(role)
+    can_manage_disposition = principal.account_type == 'person' and any(
+        role.is_information_governance and 'disposition.jobs.manage' in role.privileges
+        for role in policy.effective_roles
+    )
+    # Use the same current person-role eligibility as workflow task routing.
+    can_access_disposition_tasks = can_manage_disposition or connection.execute(
+        """SELECT EXISTS (
+            SELECT 1 FROM org_units unit
+            WHERE disposition_private.person_role(%s, unit.file_administrator_role_id)
+               OR disposition_private.person_role(%s, unit.managing_role_id)
+        ) AS allowed""",
+        (principal.user_id, principal.user_id),
+    ).fetchone()["allowed"]
     return {
         "user": user,
         "roles": roles,
         "session": {"id": principal.session_id},
         "must_change_password": principal.must_change_password,
         "previous_login_at": _previous_login_at(connection, principal),
-        "can_manage_disposition": principal.account_type == 'person' and any(
-            role.is_information_governance and 'disposition.jobs.manage' in role.privileges
-            for role in policy.effective_roles
-        ),
+        "can_manage_disposition": can_manage_disposition,
+        "can_access_disposition_tasks": can_access_disposition_tasks,
         "global_privileges": sorted({
             privilege
             for role in policy.effective_roles
