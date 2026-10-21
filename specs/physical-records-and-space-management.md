@@ -1311,6 +1311,11 @@ or verification completion is implied by approval of these product decisions.
 
 ## 13. Requirement-to-verification plan
 
+Execution order, bounded phase scope, dependencies, and completion gates are
+specified in the [phased implementation plan](physical-records-and-space-management-implementation-plan.md).
+The plan does not itself authorize implementation or approve remaining product
+recommendations.
+
 All rows below are **planned; implementation and verification pending**. Future
 handoff must link concrete schema/API/UI changes and executed evidence per ID.
 
