@@ -258,3 +258,37 @@ def test_http_submission_with_enabled_task_notifications_is_atomic_and_retryable
     with db() as c:
         assert c.execute('SELECT count(*) n FROM message_request_receipts WHERE producer_code=%s',(notifications.ASSIGNED,)).fetchone()['n']==before+1
         assert c.execute('SELECT count(*) n FROM disposition_review_rounds').fetchone()['n']==1
+
+
+def test_security_candidates_open_bounded_dropdown_and_filter(client):
+    with db() as c,c.transaction(force_rollback=True):
+        job,*_=seeded(c)
+        ids=[]
+        for i in range(30):
+            ids.append(c.execute("INSERT INTO security_levels(level_number,code,name,prevents_disposition) SELECT max(level_number)+1,%s,%s,true FROM security_levels RETURNING id",(f'PICK{i:02}',f'Picker {i:02}')).fetchone()['id'])
+        tid=task(c,job['id'])['id'];acting=officer(c)
+        found=service.candidates(c,tid,acting_role_id=acting,kind='security_levels')
+        assert len(found['items'])==25
+        assert service.candidates(c,tid,acting_role_id=acting,kind='security_levels',query='PICK29')['items'][0]['id']==ids[-1]
+        assert service.candidates(c,tid,acting_role_id=acting,kind='security_levels',selected=ids[-1])['items'][0]['id']==ids[-1]
+        assert service.candidates(c,tid,acting_role_id=acting,kind='holds',query='')['items']==[]
+        types=service.candidates(c,tid,acting_role_id=acting,kind='relationship_types')['items']
+        assert 0<len(types)<=25
+        assert service.candidates(c,tid,acting_role_id=acting,kind='relationship_types',selected=types[0]['id'])['items'][0]==types[0]
+
+
+def test_relationship_candidate_direction_and_localized_search(client):
+    with db() as c,c.transaction(force_rollback=True):
+        job,*_=seeded(c)
+        tid=task(c,job['id'])['id'];acting=officer(c)
+        rid=c.execute("""INSERT INTO relationship_types(resource_kind,code,forward_name,reverse_name,is_symmetric,translations)
+          VALUES ('aggregation','direction_test','Supersedes','Is superseded by',false,
+          '{"ar":{"forward_name":"يحل محل","reverse_name":"يحل محله"}}') RETURNING id""").fetchone()['id']
+        def get(**kw):return service.candidates(c,tid,acting_role_id=acting,kind='relationship_types',**kw)['items']
+        assert get(selected=rid)[0]['name']=='Supersedes'
+        assert get(selected=rid,direction='incoming')[0]['name']=='Is superseded by'
+        assert get(selected=rid,direction='incoming',language_tag='ar')[0]['name']=='يحل محله'
+        assert get(query='يحل محله',direction='incoming',language_tag='ar')[0]['id']==rid
+        assert not get(query='يحل محله',direction='outgoing',language_tag='ar')
+        rid=c.execute("""INSERT INTO relationship_types(resource_kind,code,forward_name,reverse_name,is_symmetric,translations) VALUES ('aggregation','symmetric_test','Related to','Related to',true,'{"ar":{"forward_name":"مرتبط بـ","reverse_name":"مرتبط بـ"}}') RETURNING id""").fetchone()['id']
+        assert get(selected=rid,direction='incoming')[0]['name']=='Related to'

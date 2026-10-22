@@ -75,17 +75,28 @@ workflow until approved. The exact fields covered must be confirmed in section 7
   ordering, and deactivation choices. Startup must not recreate or overwrite
   customized defaults. Any seed-created event-history rows use source `seeding`.
 
-The following is the initial candidate explicitly raised by the requester;
-its inclusion remains subject to approval of this draft:
+The complete proposed initial list below includes the requester's suggestion
+and all additional candidates discussed. Each reason and its Arabic wording
+is presented for approval; inclusion in this draft does not approve it as a
+default.
 
 | English | Arabic |
 | --- | --- |
 | For testing purposes | لأغراض الاختبار |
+| Created or submitted in error | تم الإنشاء أو التقديم عن طريق الخطأ |
+| Duplicate entry | إدخال مكرر |
+| Incorrect or incomplete information | معلومات غير صحيحة أو غير مكتملة |
+| No longer required | لم تعد هناك حاجة إليه |
+| Superseded by a newer version | تم استبداله بإصدار أحدث |
+| Requested by the responsible department | بناءً على طلب الإدارة المعنية |
+| To comply with an internal policy | للامتثال لسياسة داخلية |
+| Supporting documents are missing | نقص المستندات الداعمة |
+| Submitted to the wrong department | تم التقديم إلى إدارة غير مختصة |
+| Outside the scope of responsibility | خارج نطاق الاختصاص |
+| Does not meet the applicable requirements | عدم استيفاء المتطلبات المعمول بها |
+| To correct an error | لتصحيح خطأ |
+| To comply with a court order | امتثالًا لأمر قضائي |
 
-Other candidates for discussion are **Created or submitted in error**
-(تم الإنشاء أو التقديم عن طريق الخطأ), **Duplicate entry** (إدخال مكرر),
-**Incorrect or incomplete information** (معلومات غير صحيحة أو غير مكتملة),
-and **To correct an administrative error** (لتصحيح خطأ إداري).
 These are suggestions, not approved defaults or a universal standard list.
 Final wording and relevance depend on the actions covered.
 

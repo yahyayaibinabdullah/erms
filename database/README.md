@@ -14,6 +14,13 @@ client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited
 
 ## Existing database
 
+Migration `080_fix_held_component_trigger.sql` fixes table-specific field access in
+legal-hold protection without weakening holds. Apply it after migration 079,
+then restart the API-owned content cleanup worker (or local stack) with the
+updated cleanup code. Cleanup retains upload sessions for held records and
+reclaims eligible expired sessions after the hold is released.
+
+
 Migration `050_application_settings.sql` installs the typed application-settings
 foundation and protected administration privilege without importing environment
 values or overwriting configured settings. Apply it after migration 049 and

@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
-  "catalogue_sha256": "d23290187d22b855ecb6c74ddd5cb7b65206adcd6dbdd37568e3b31fcac3b213",
+  "catalogue_sha256": "34f5ba57e3b5428bf1705bb6f7e6805610d14f3ab67e5aa8274d9e6b6a344462",
   "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -5819,6 +5819,23 @@
       }
     },
     {
+      "message_key": "disposition.ui.accelerated_badge",
+      "translated_text": "تم التعجيل · {date}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "eligibility-acceleration-v1",
+        "batch_id": "eligibility-acceleration-20261022",
+        "generated_at": "2026-10-22T06:01:27.220266+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.acting_task_role",
       "translated_text": "الدور الذي يتم العمل بموجبه",
       "quality_flags": [
@@ -6442,6 +6459,23 @@
           "previous_text": "رفع المستوى الأمني المانع للإتلاف",
           "review_required": true
         }
+      }
+    },
+    {
+      "message_key": "disposition.ui.browse",
+      "translated_text": "استعراض",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "review-selector-v1",
+        "batch_id": "review-selector-20261022",
+        "generated_at": "2026-10-22T16:30:00+00:00"
       }
     },
     {
@@ -11389,6 +11423,23 @@
       }
     },
     {
+      "message_key": "disposition.ui.in_active_job",
+      "translated_text": "ضمن مهمة نشطة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "eligibility-job-filter-v1",
+        "batch_id": "eligibility-acceleration-20261022",
+        "generated_at": "2026-10-22T06:01:27.220841+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.incoming",
       "translated_text": "واردة",
       "quality_flags": [
@@ -11995,6 +12046,23 @@
       }
     },
     {
+      "message_key": "disposition.ui.no_active_job",
+      "translated_text": "لا توجد مهمة نشطة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "eligibility-job-filter-v1",
+        "batch_id": "eligibility-acceleration-20261022",
+        "generated_at": "2026-10-22T06:01:27.220841+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.no_add",
       "translated_text": "لم تُضف أي ملفات جذرية. راجع النتائج الفردية.",
       "origin": "generated",
@@ -12372,6 +12440,40 @@
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.owner_common_ancestor",
+      "translated_text": "تم اقتراح الوحدة الأم المشتركة للملفات المحددة. تحدد هذه الوحدة مسار المراجعة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "job-owner-suggestion-v1",
+        "batch_id": "job-owner-20261022",
+        "generated_at": "2026-10-22T09:00:00+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.owner_no_common_ancestor",
+      "translated_text": "لا توجد وحدة أم مشتركة للملفات المحددة. قسّم الملفات المحددة إلى مهام منفصلة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "job-owner-suggestion-v1",
+        "batch_id": "job-owner-20261022",
+        "generated_at": "2026-10-22T09:00:00+00:00"
       }
     },
     {
@@ -14012,6 +14114,23 @@
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.retention_wait_waived",
+      "translated_text": "تم الإعفاء من مدة الحفظ المتبقية",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-22",
+        "prompt_version": "eligibility-acceleration-v1",
+        "batch_id": "eligibility-acceleration-20261022",
+        "generated_at": "2026-10-22T06:01:27.220841+00:00"
       }
     },
     {
@@ -32961,6 +33080,66 @@
       }
     },
     {
+      "message_key": "webui.open_aggregation.retention.accelerated_by",
+      "translated_text": "تم التعجيل بواسطة:",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "prompt_version": "retention-acceleration-v1",
+        "generated_at": "2026-10-22T05:39:17.477189+00:00",
+        "batch_id": "retention-acceleration-20261022"
+      }
+    },
+    {
+      "message_key": "webui.open_aggregation.retention.accelerated_on",
+      "translated_text": "تم تعجيل أهلية التصرف في {date}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "prompt_version": "retention-acceleration-v1",
+        "generated_at": "2026-10-22T05:39:17.476532+00:00",
+        "batch_id": "retention-acceleration-20261022"
+      }
+    },
+    {
+      "message_key": "webui.open_aggregation.retention.acceleration_effect",
+      "translated_text": "تم الإعفاء من مدة الحفظ المتبقية. وتظل إجراءات الحماية وضوابط التصرف القائمة سارية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "prompt_version": "retention-acceleration-v1",
+        "generated_at": "2026-10-22T05:39:17.477194+00:00",
+        "batch_id": "retention-acceleration-20261022"
+      }
+    },
+    {
+      "message_key": "webui.open_aggregation.retention.acceleration_reason",
+      "translated_text": "السبب:",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "prompt_version": "retention-acceleration-v1",
+        "generated_at": "2026-10-22T05:39:17.477192+00:00",
+        "batch_id": "retention-acceleration-20261022"
+      }
+    },
+    {
       "message_key": "webui.open_aggregation.retention.business_unit",
       "translated_text": "الوحدة التنظيمية",
       "quality_flags": [],
@@ -32982,6 +33161,21 @@
         "source_status": "published",
         "date_reviewed": "2026-09-30T03:27:04.918935+00:00",
         "date_published": "2026-09-30T03:27:04.918935+00:00"
+      }
+    },
+    {
+      "message_key": "webui.open_aggregation.retention.normal_disposition_date",
+      "translated_text": "تاريخ انتهاء مدة الحفظ المعتادة",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "prompt_version": "retention-acceleration-v1",
+        "generated_at": "2026-10-22T05:39:17.477196+00:00",
+        "batch_id": "retention-acceleration-20261022"
       }
     },
     {

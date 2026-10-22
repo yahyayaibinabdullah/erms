@@ -109,7 +109,10 @@ A person with a currently effective information-governance role whose profile
 is **Information Governance Officer** (`INFO_GOV_OFFICER`) and that supplies
 `disposition.jobs.manage`.
 
-The Records Officer creates and prepares destruction jobs, is assigned to a
+Both Records Officers and Records Managers may create destruction jobs with
+`disposition.jobs.manage`, regardless of the review route. Creation is separate
+from preparation, review and approval. The Records Officer prepares jobs under
+the Standard and Simplified routes, is assigned to a
 job, responds to rejected reviews, records the external authority's destruction
 number, and uploads its approval letter.
 
@@ -447,7 +450,7 @@ the Manager to submit work to themselves. Standard remains the default.
 For this route, all references in this specification to duties, direct task
 assignment, required job assignee, forms, notifications, external-decision
 recording, request sending, and correction work of the assigned Records Officer
-mean the assigned Records Manager instead. This includes job creation, eligibility
+mean the assigned Records Manager instead. This includes preparation, eligibility
 listing access, membership management, proposal preparation, evidence handling,
 and correspondence with the authority. The user needs the Records Manager
 profile, `disposition.jobs.manage`, and the existing access and underlying
@@ -1932,3 +1935,54 @@ certificate-only or resumable technical recovery with correction.
 All database-backed tests must use a newly created disposable PostgreSQL
 database initialized from the canonical schema or required migration path and
 must drop that database after the run, including after failure.
+
+### Job creation usability clarification (22 October 2026)
+
+Disposition §10.1.0 governs automatic numbers (`DT-<year>-<sequence>` for
+destruction), reason-free creation, and the editable creator-assignee default.
+Records Manager Only changes preparation and subsequent workflow duties, not
+which governance profile may create an empty job. Under Standard/Simplified a
+Manager creating a destruction job is not automatically assigned unless also
+eligible as an Officer; under Records Manager Only the corresponding Officer
+must choose an eligible Manager or leave the empty job unassigned. This does
+not change review, approval, membership or execution authorization.
+
+### 5.1.1 Suggested owner when creating from selected roots
+
+When creating a destruction job from the eligibility job chooser, Wathiq
+suggests the selected roots' common owning unit. If their owners differ, it
+suggests the nearest common ancestor in the current organizational hierarchy.
+The server computes this from the current ownership of accessible selected
+roots; the suggestion grants no additional resource access or admission rights.
+The owner remains editable. A common-ancestor suggestion explains that the
+suggested unit determines review routing. If no common ancestor exists, the
+field remains blank and the form explains that the selection needs separate
+jobs. Creation from the Jobs page has no selected roots and no inferred owner.
+
+The suggestion is advisory, not a reservation or a cached hierarchy snapshot.
+Admission rechecks current ownership, hierarchy, assignment, eligibility and
+blockers as usual. An inaccessible or missing selected root fails suggestion
+without disclosing its ownership. A response after leaving the dialog/page must
+not reopen it. Suggested unit names follow the viewer's language with the usual
+fallback. Cancellation preserves the original selection and chooser search.
+
+Routine root additions require no reason, as defined in Disposition §10.2.
+The chooser disables jobs whose owning-unit subtree does not contain every
+selected root and displays the mismatch explanation before confirmation.
+The server still revalidates admission on saving; this preview grants no rights.
+
+Review-proposal relationship fields use standard searchable selectors. Security
+Level and Relationship Type offer bounded initial choices and filtering; Legal
+Holds and Related Aggregation provide bounded two-character remote search.
+Related Aggregation additionally offers the existing paged classification and
+aggregation browser, with candidate authorization rechecked after selection.
+
+### Relationship proposal direction (22 October 2026)
+
+In the relationship proposal form, Related aggregation and its Browse action
+precede Direction, which sits immediately above Relationship type. Type names
+are shown from the target aggregation's perspective: outgoing uses the forward
+name, incoming uses the reverse name, and symmetric types retain their name.
+The selector searches the displayed localized name or code and retains the
+selected type ID when direction changes. Existing authorization and relationship
+endpoint orientation remain unchanged.

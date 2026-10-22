@@ -1,7 +1,19 @@
 """Contextual disposition text; no catalogue parsing on rendering paths."""
 from ..i18n_catalogue import render_message_plain
 
-DISPOSITION_MESSAGE_KEYS = {'completion_external_copies_warning': 'disposition.ui.completion_external_copies_warning',
+DISPOSITION_MESSAGE_KEYS = {
+ 'browse': 'disposition.ui.browse',
+ 'owner_common_ancestor': 'disposition.ui.owner_common_ancestor',
+ 'owner_no_common_ancestor': 'disposition.ui.owner_no_common_ancestor',
+
+ 'in_active_job': 'disposition.ui.in_active_job',
+ 'no_active_job': 'disposition.ui.no_active_job',
+ 'accelerated_badge': 'disposition.ui.accelerated_badge',
+ 'retention_wait_waived': 'disposition.ui.retention_wait_waived',
+ 'normal_due': 'webui.open_aggregation.retention.normal_disposition_date',
+ 'accelerated_by': 'webui.open_aggregation.retention.accelerated_by',
+ 'acceleration_reason': 'webui.open_aggregation.retention.acceleration_reason',
+'completion_external_copies_warning': 'disposition.ui.completion_external_copies_warning',
 'certificate_queued': 'disposition.ui.certificate_queued',
 'certificate_running': 'disposition.ui.certificate_running',
 'certificate_failed': 'disposition.ui.certificate_failed',

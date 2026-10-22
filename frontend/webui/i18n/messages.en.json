@@ -6344,6 +6344,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.accelerated_badge",
+    "context_group": "disposition.ui",
+    "default_text": "Accelerated · {date}",
+    "semantic_meaning": "Exceptional early eligibility shown separately from the normal retention due date.",
+    "common_locations": [
+      "Disposition eligibility table"
+    ],
+    "translator_guidance": "Acceleration waives the retention wait, not admission or execution safeguards. Keep the date placeholder unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "date": "text"
+    },
+    "rendered_example": "Accelerated · 22 Oct 2026",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.acting_task_role",
     "context_group": "disposition.ui",
     "default_text": "Acting role",
@@ -6801,6 +6817,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Upgrade blocking security level",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.browse",
+    "context_group": "disposition.ui",
+    "default_text": "Browse",
+    "semantic_meaning": "Open the classification and aggregation browser to select a related aggregation for a review proposal.",
+    "common_locations": [
+      "Disposition review proposal"
+    ],
+    "translator_guidance": "Action to browse a hierarchy and select a related aggregation.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Browse",
     "is_html": false
   },
   {
@@ -10394,6 +10424,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.in_active_job",
+    "context_group": "disposition.ui",
+    "default_text": "In an active job",
+    "semantic_meaning": "Active disposition-job membership filter and admission explanation.",
+    "common_locations": [
+      "Disposition eligibility"
+    ],
+    "translator_guidance": "Job means a disposition workflow job; preserve the active membership meaning.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "In an active job",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.incoming",
     "context_group": "disposition.ui",
     "default_text": "Incoming",
@@ -10836,6 +10880,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.no_active_job",
+    "context_group": "disposition.ui",
+    "default_text": "No active job",
+    "semantic_meaning": "Active disposition-job membership filter and admission explanation.",
+    "common_locations": [
+      "Disposition eligibility"
+    ],
+    "translator_guidance": "Job means a disposition workflow job; preserve the active membership meaning.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No active job",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.no_add",
     "context_group": "disposition.ui",
     "default_text": "No roots were added. Review the individual results.",
@@ -11122,6 +11180,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Owning organization unit",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.owner_common_ancestor",
+    "context_group": "disposition.ui",
+    "default_text": "Suggested from the selected aggregations’ common parent unit. This unit determines review routing.",
+    "semantic_meaning": "Explanation of the suggested destruction job owner based on selected roots.",
+    "common_locations": [
+      "Create job from eligibility"
+    ],
+    "translator_guidance": "Unit means organizational unit. Job means disposition workflow job.",
+    "grammatical_role": "sentence",
+    "parameter_schema": {},
+    "rendered_example": "Suggested from the selected aggregations’ common parent unit. This unit determines review routing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.owner_no_common_ancestor",
+    "context_group": "disposition.ui",
+    "default_text": "The selected aggregations have no common parent unit. Split the selection into separate jobs.",
+    "semantic_meaning": "Explanation of the suggested destruction job owner based on selected roots.",
+    "common_locations": [
+      "Create job from eligibility"
+    ],
+    "translator_guidance": "Unit means organizational unit. Job means disposition workflow job.",
+    "grammatical_role": "sentence",
+    "parameter_schema": {},
+    "rendered_example": "The selected aggregations have no common parent unit. Split the selection into separate jobs.",
     "is_html": false
   },
   {
@@ -12309,6 +12395,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Retention rule changed — must be removed from this job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.retention_wait_waived",
+    "context_group": "disposition.ui",
+    "default_text": "Remaining retention period waived",
+    "semantic_meaning": "Exceptional early eligibility shown separately from the normal retention due date.",
+    "common_locations": [
+      "Disposition eligibility table"
+    ],
+    "translator_guidance": "Acceleration waives the retention wait, not admission or execution safeguards. Keep the date placeholder unchanged.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remaining retention period waived",
     "is_html": false
   },
   {
@@ -34476,6 +34576,64 @@
     "is_html": false
   },
   {
+    "message_key": "webui.open_aggregation.retention.accelerated_by",
+    "context_group": "webui.open_aggregation.retention",
+    "default_text": "Accelerated by:",
+    "semantic_meaning": "Current exceptional eligibility acceleration provenance and distinction from the unchanged normal retention due date.",
+    "common_locations": [
+      "Aggregation details retention section"
+    ],
+    "translator_guidance": "Acceleration waives only the remaining retention wait, never legal holds or other disposition safeguards. Preserve placeholders and distinguish eligibility from execution.",
+    "grammatical_role": "explanatory text",
+    "parameter_schema": {},
+    "rendered_example": "Accelerated by:",
+    "is_html": false
+  },
+  {
+    "message_key": "webui.open_aggregation.retention.accelerated_on",
+    "context_group": "webui.open_aggregation.retention",
+    "default_text": "Eligibility accelerated on {date}",
+    "semantic_meaning": "Current exceptional eligibility acceleration provenance and distinction from the unchanged normal retention due date.",
+    "common_locations": [
+      "Aggregation details retention section"
+    ],
+    "translator_guidance": "Acceleration waives only the remaining retention wait, never legal holds or other disposition safeguards. Preserve placeholders and distinguish eligibility from execution.",
+    "grammatical_role": "explanatory text",
+    "parameter_schema": {
+      "date": "text"
+    },
+    "rendered_example": "Eligibility accelerated on 22 Oct 2026, 09:33 AM",
+    "is_html": false
+  },
+  {
+    "message_key": "webui.open_aggregation.retention.acceleration_effect",
+    "context_group": "webui.open_aggregation.retention",
+    "default_text": "The remaining retention wait was waived. Existing protections and disposition checks still apply.",
+    "semantic_meaning": "Current exceptional eligibility acceleration provenance and distinction from the unchanged normal retention due date.",
+    "common_locations": [
+      "Aggregation details retention section"
+    ],
+    "translator_guidance": "Acceleration waives only the remaining retention wait, never legal holds or other disposition safeguards. Preserve placeholders and distinguish eligibility from execution.",
+    "grammatical_role": "explanatory text",
+    "parameter_schema": {},
+    "rendered_example": "The remaining retention wait was waived. Existing protections and disposition checks still apply.",
+    "is_html": false
+  },
+  {
+    "message_key": "webui.open_aggregation.retention.acceleration_reason",
+    "context_group": "webui.open_aggregation.retention",
+    "default_text": "Reason:",
+    "semantic_meaning": "Current exceptional eligibility acceleration provenance and distinction from the unchanged normal retention due date.",
+    "common_locations": [
+      "Aggregation details retention section"
+    ],
+    "translator_guidance": "Acceleration waives only the remaining retention wait, never legal holds or other disposition safeguards. Preserve placeholders and distinguish eligibility from execution.",
+    "grammatical_role": "explanatory text",
+    "parameter_schema": {},
+    "rendered_example": "Reason:",
+    "is_html": false
+  },
+  {
     "message_key": "webui.open_aggregation.retention.business_unit",
     "context_group": "webui.open_aggregation.retention",
     "default_text": "Business unit",
@@ -34501,6 +34659,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Calculated disposition date",
+    "is_html": false
+  },
+  {
+    "message_key": "webui.open_aggregation.retention.normal_disposition_date",
+    "context_group": "webui.open_aggregation.retention",
+    "default_text": "Normal retention due date",
+    "semantic_meaning": "Current exceptional eligibility acceleration provenance and distinction from the unchanged normal retention due date.",
+    "common_locations": [
+      "Aggregation details retention section"
+    ],
+    "translator_guidance": "Acceleration waives only the remaining retention wait, never legal holds or other disposition safeguards. Preserve placeholders and distinguish eligibility from execution.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Normal retention due date",
     "is_html": false
   },
   {

@@ -382,6 +382,12 @@ Wathiq's existing closure rules already prohibit creating, moving, or editing
 content in a closed aggregation. This specification does not create another
 content-editing rule or a disposition override to the closure rules.
 
+Ordinary closure does not require clearing vital status or removing a normal
+hold. Neither prevents an otherwise authorized close. An applicable effective
+hold with `preserve_resource_state = true` can block closure under the existing
+hold rules. These rules apply independently of acceleration; closing preserves
+the vital designation and hold assignments and does not authorize disposition.
+
 ### 6.1 Reopening an aggregation
 
 An authorized user may reopen an aggregation under Wathiq's existing closure
@@ -641,7 +647,7 @@ the specification for that disposition action still apply.
 
 Each job has at least:
 
-- a permanent internal identifier and a job number shown to users;
+- a permanent internal identifier and a system-generated job number shown to users;
 - exactly one type: destruction, permanent transfer, selective transfer, or
   retention as local archives;
 - one lifecycle state: active, completed, or terminated;
@@ -658,6 +664,33 @@ Each job has at least:
 Assignment makes the IGU responsible for the work. It does not give the IGU
 access to records they could not already access, add permissions, increase
 security clearance, or expand organizational access.
+
+### 10.1.0 Job creation and numbering
+
+Both Information Governance Officers and Information Governance Managers with
+`disposition.jobs.manage` may create every job type, regardless of destruction
+review route. Creation precedes preparation, review and approval; it does not
+grant authority to perform those later stages. All four types remain visible.
+
+The public creation API and form do not accept a manually entered job number.
+At successful creation Wathiq allocates `<prefix>-<year>-<sequence>`: `DT` for
+destruction, `PT` for permanent transfer, `ST` for selective transfer, and `LA`
+for local archives. Each type has its own counter per calendar year, beginning
+at 1, based on `DEFAULT_WORKING_TIMEZONE`. Allocation is transactional and safe
+under concurrent creation. An exact retry returns the same job and number;
+a failed creation does not consume a number. Existing numbers are preserved;
+new allocation advances beyond existing numbers matching that type/year.
+The internal SQL explicit-number argument remains for upgrade compatibility;
+the public creation API always requests allocation.
+
+The form defaults Assigned person to its creator only when that person is an
+eligible assignee for the selected job type and saved review route. The user
+may choose another eligible person. Otherwise the field starts empty; an empty
+job may remain unassigned under §10.1.1. Changing type reapplies this default.
+Creating a job does not require a change reason. Creator, time, type, number,
+assignment and normal audit history are still recorded. Routine additions of
+roots also require no reason (§10.2); other changes and exceptional actions
+retain their existing reason requirements.
 
 ### 10.1.1 Assignment to a specific IGU
 
@@ -681,6 +714,25 @@ final action. Wathiq records the actual final-action executor separately under
 Section 13.
 
 ### 10.2 Membership rules
+
+Routine addition of governing roots to a job does not require a change reason.
+The API accepts an omitted or blank reason for `membership_add`; actor, acting
+role, time, job, roots, outcomes and command identity remain audited. Exact
+retries remain idempotent. Removal, reassignment, submission and exceptional
+actions retain their existing reason requirements.
+
+The destination chooser keeps incompatible jobs visible but disables their
+selection and explains the incompatibility. Every selected root must match the
+job's disposition type; for destruction, all selected owners must be within the
+job owner's subtree. Mixed compatible/incompatible selections cannot choose
+that job: split the selection or choose a suitable broader-scope job. Current
+job lifecycle, preparation stage, assignment and access/protection checks are
+also advisory inputs. Checks are server-side and bounded to the selected roots
+and displayed job page; no entire organizational hierarchy is downloaded.
+Missing or inaccessible roots must not disclose ownership. Save-time locking,
+authorization, current-hierarchy checks and partial-success semantics remain
+authoritative for races, direct API callers and stale clients.
+
 
 1. A job contains only governing root aggregations.
 2. A unit's eligible status/final disposition must match the job type.
@@ -855,6 +907,31 @@ must never leave an open governing root in an eligible status.
 The **Accelerate disposition eligibility** action belongs in the **Effective
 retention rule** section of Aggregation overview. Its confirmation explains
 that an open aggregation will be closed as part of the action.
+
+The retention section also displays the current eligibility episode's recorded
+acceleration timestamp, actor name and reason, together with the
+current disposition status. The actor's existing translated name is displayed
+in the viewer's language, falling back to the recorded actor-name snapshot.
+The immutable audit snapshot is never rewritten for localization.
+It labels the unchanged calculated date **Normal
+retention due date** and explains that the remaining retention wait was waived;
+existing protections and disposition checks still apply. Descendants show the
+same governing-root provenance when that root is visible to the reader.
+Existing acceleration events receive this presentation without rewriting
+history. Reopening or an effective-rule recalculation that invalidates the
+acceleration removes the indicator; an unchanged rule or ordinary job admission
+and removal preserves it. A later acceleration displays its own provenance.
+
+The Disposition eligibility table uses the same current acceleration episode.
+Its date column and corresponding sort choice are labelled **Normal retention
+due date**. Accelerated rows show **Accelerated · [date]** beneath the status,
+with the recorded actor and reason in a tooltip. Their date cell displays
+**Remaining retention period waived** instead of days overdue. Ordinary rows
+retain their overdue count. Do not repeat the final action beneath a status
+that already names it (for example, “Destruction” beneath “Eligible for
+destruction”). Admission blockers remain a separate column and keep their
+existing enforcement. Dates and date-range filtering continue to use the
+normal retention calculation, not the acceleration timestamp.
 
 Acceleration:
 
@@ -1623,3 +1700,55 @@ are required at a minimum:
 Every database-backed test must use a newly created disposable PostgreSQL
 database initialized from the canonical schema or required migration path and
 must drop that database after the run, including after failure.
+
+### Eligibility-list admission cues and active-job filter
+
+The eligibility list includes eligible governing roots and roots belonging to
+active jobs. Rows with current protection blockers or active-job membership
+have a pale amber background and a focusable lock instead of a selection
+checkbox. Text retains normal contrast; authorized details, blocker and job
+links remain usable. The lock explains the applicable blockers and/or active
+job membership without disclosing hidden resources. Active-job membership must
+not be described as available for admission.
+
+An Active job filter offers Any, In an active job, and No active job. Filtering
+and result counts occur on the server before pagination. Only active membership
+in an active job counts; removed and historical memberships do not. The filter
+is retained with the existing page-view state. Current disposition status is
+shown, including pending states for roots already in jobs. These presentation
+changes do not relax admission or execution checks.
+
+The Active job filter defaults to No active job on the first visit. An explicit
+Any or In an active job selection is retained with the page state. The API
+also defaults to no active job; `active_job=all` explicitly requests both.
+
+### Disposition jobs list filters and ordering
+
+The jobs list supports combined server-side filters for job number (partial
+match), job type, lifecycle state, owning organization name, and assigned
+person name, plus an Unassigned option. Name searches accept the displayed
+localized name or canonical name. All five data columns support ascending and
+descending sorting; Actions is not a data sort. Owner and assignee sorting uses
+the displayed localized name, with missing names last and job ID as a stable
+tie-breaker. Filtering and counts precede server pagination.
+
+Filters are collapsed on the first visit. Expansion/collapse is remembered in
+the existing browser user storage, keyed by authenticated user ID, and restored
+when that user returns. Filter and sort values use the existing page-view state.
+Applying filters resets pagination; refresh retains the current page. The
+existing bounded loading, empty, error and stale-response behavior is retained.
+
+### Creating a job while choosing an admission destination
+
+The eligibility page's job chooser offers Create job, including when its search
+has no matches. It uses the same creation form and authorization rules as the
+jobs page. Successful creation selects the returned job and opens the existing
+add-roots confirmation with the original selected roots. Creation alone does not
+admit roots; normal version, assignment, compatibility and blocker checks still
+apply. Cancelling creation leaves the chooser's search and root selection intact.
+A response received after leaving the page must not reopen the flow.
+
+For destruction creation in this chooser, the editable owner suggestion follows
+Destruction Process §5.1.1: shared owner, otherwise nearest common ancestor, or
+an explanation to split the selection if none exists. This does not relax
+admission checks or infer ownership for jobs created without selected roots.

@@ -93,13 +93,13 @@ def test_empty_unassigned_job_rejects_admission_then_assignment_enables_it(clien
 
 
 @pytest.mark.parametrize('reason',['','   '])
-def test_every_command_requires_reason_and_rejected_command_leaves_no_receipt(client,reason):
+def test_creation_allows_empty_reason_but_updates_require_it(client,reason):
     with db() as c:
         actor(c);ensure_officer(c)
-        with pytest.raises(psycopg.Error,match='disposition_reason_required'):
-            service.create_job(c,**{**kwargs(job_number='NO-REASON',job_type='destruction',owning_org_unit_id=1),'reason':reason})
-        assert not c.execute('SELECT 1 FROM disposition_jobs').fetchone()
-        assert not c.execute('SELECT 1 FROM disposition_private.command_receipts').fetchone()
+        job=service.create_job(c,**{**kwargs(job_type='destruction',owning_org_unit_id=1),'reason':reason})
+        with c.transaction(force_rollback=True):
+            with pytest.raises(psycopg.Error,match='disposition_reason_required'):
+                service.assign_job(c,**{**kwargs(job_id=job['id'],expected_version=job['version'],assigned_user_id=1),'reason':reason})
 
 
 def test_multi_add_keeps_success_and_rolls_back_stale_blocked_wrong_type_and_hidden_items(client):
@@ -364,9 +364,8 @@ def test_current_policy_change_waits_then_admission_rechecks_new_blocking_state(
 
 def test_api_command_contract_retries_versions_reason_confirmation_and_no_raw_crud(client):
     with db() as c:actor(c);ensure_officer(c);root,*_=ready(c)
-    data={'command_id':str(uuid4()),'acting_role_id':1,'job_number':'API-9','job_type':'destruction','owning_org_unit_id':1,'assigned_user_id':1}
+    data={'command_id':str(uuid4()),'acting_role_id':1,'job_type':'destruction','owning_org_unit_id':1,'assigned_user_id':1}
     headers={'X-Change-Reason':'API membership acceptance'}
-    assert client.post('/api/v1/disposition/jobs',json=data).status_code==422
     created=client.post('/api/v1/disposition/jobs',json=data,headers=headers);assert created.status_code==201,created.text
     assert client.post('/api/v1/disposition/jobs',json=data,headers=headers).json()==created.json()
     job=created.json();items={'command_id':str(uuid4()),'acting_role_id':1,'items':[{'root_id':root,'expected_version':version_from_db(root)}]}

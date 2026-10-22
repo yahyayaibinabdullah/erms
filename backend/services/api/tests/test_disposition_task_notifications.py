@@ -84,7 +84,7 @@ def test_http_creation_uses_consistent_transaction_with_enabled_producer(client,
     with db() as c:
         configure(c);setup(c)
     response=client.post('/api/v1/disposition/jobs',json={'command_id':str(uuid4()),'acting_role_id':1,
-      'job_number':'Enabled notification API creation','job_type':'destruction','owning_org_unit_id':1,'assigned_user_id':1},
+      'job_type':'destruction','owning_org_unit_id':1,'assigned_user_id':1},
       headers={'X-CSRF-Token':client.cookies.get('erms_csrf'),'X-Change-Reason':'Prepare new destruction job'})
     assert response.status_code==201,response.text
     with db() as c:

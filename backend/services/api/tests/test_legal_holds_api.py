@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 import os
 
 import psycopg
+import pytest
 
 from fastapi.testclient import TestClient
 from backend.services.api.authentication import hash_password
@@ -281,3 +282,51 @@ def test_held_item_names_follow_language_and_translation_updates(client, aggrega
     assert [(r["assigned_by_name"], r["security_level_name"]) for r in restored] == [
         (r["assigned_by_name"], r["security_level_name"]) for r in canonical
     ]
+
+
+@pytest.mark.parametrize("session_status", ["completed", "failed", "uploading"])
+def test_held_upload_cleanup_and_table_specific_trigger_fields(client, record, session_status):
+    from psycopg.rows import dict_row
+    from backend.services.api.content_cleanup import cleanup_content
+
+    uploaded = client.post(
+        f"/api/v1/records/{record['id']}/digital-components/upload",
+        data={"component_order": "1"},
+        files={"file": ("held.txt", b"preserve", "text/plain")},
+    )
+    assert uploaded.status_code == 201, uploaded.text
+    component = uploaded.json()
+    with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        content_set = connection.execute(
+            "SELECT active_content_set_id FROM digital_components WHERE id=%s", (component['id'],)
+        ).fetchone()[0]
+        session = connection.execute(
+            """INSERT INTO content_upload_sessions(digital_component_id,content_set_id,status,expires_at)
+               VALUES(%s,%s,%s,CURRENT_TIMESTAMP - interval '1 day') RETURNING id""",
+            (component['id'], content_set, session_status),
+        ).fetchone()[0]
+    hold = _create_hold(client)
+    assigned = client.post(
+        f"/api/v1/records/{record['id']}/holds", json={"hold_id": hold['id']},
+        headers={"X-Change-Reason": "Preserve uploaded evidence"},
+    )
+    assert assigned.status_code == 201, assigned.text
+    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as connection:
+        for statement, reason in [
+            ("DELETE FROM content_upload_sessions WHERE id=%s", 'effective_hold_prevents_component_deletion'),
+            ("UPDATE content_upload_sessions SET status='expired' WHERE id=%s", 'effective_hold_prevents_component_replacement'),
+            ("UPDATE digital_components SET component_order=2 WHERE id=%s", 'effective_hold_prevents_component_reordering'),
+        ]:
+            with pytest.raises(psycopg.errors.RaiseException, match=reason):
+                with connection.transaction():
+                    connection.execute(statement, (component['id'] if 'digital_components SET' in statement else session,))
+        cleanup_content(connection)
+        assert connection.execute("SELECT id FROM content_upload_sessions WHERE id=%s", (session,)).fetchone()
+    removed = client.delete(
+        f"/api/v1/records/{record['id']}/holds",
+        headers={"X-Change-Reason": "Release preservation"},
+    )
+    assert removed.status_code == 200, removed.text
+    with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as connection:
+        cleanup_content(connection)
+        assert connection.execute("SELECT id FROM content_upload_sessions WHERE id=%s", (session,)).fetchone() is None

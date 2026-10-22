@@ -90,9 +90,9 @@ def notes(c, job_id, *, limit, offset):
     return {'items':rows,'total':total}
 
 
-def candidates(c, task_id, *, acting_role_id, kind, query='', selected=None):
+def candidates(c, task_id, *, acting_role_id, kind, query='', selected=None, direction='outgoing', language_tag='en'):
     c.execute('SELECT disposition_private.require_task_actor(%s,%s,true)',(task_id,acting_role_id))
-    if selected is None and len(query.strip())<2:return {'items':[]}
+    if kind not in ('security_levels','relationship_types') and selected is None and len(query.strip())<2:return {'items':[]}
     match='%'+query.strip()+'%'
     if kind=='holds':
         rows=c.execute('''SELECT h.id,h.code,h.name,h.version FROM holds h WHERE disposition_private.hold_visible(h.id)
@@ -105,8 +105,15 @@ def candidates(c, task_id, *, acting_role_id, kind, query='', selected=None):
         rows=c.execute('''SELECT id,code,name,version,level_number FROM security_levels WHERE prevents_disposition
           AND ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (code ILIKE %s OR name ILIKE %s))) ORDER BY level_number,id LIMIT 25''',(selected,selected,selected,match,match)).fetchall()
     elif kind=='relationship_types':
-        rows=c.execute('''SELECT id,code,forward_name AS name,reverse_name,is_symmetric,version FROM relationship_types WHERE resource_kind='aggregation' AND is_active
-          AND ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (code ILIKE %s OR forward_name ILIKE %s OR reverse_name ILIKE %s))) ORDER BY code,id LIMIT 25''',(selected,selected,selected,match,match,match)).fetchall()
+        rows=c.execute("""WITH labels AS (
+          SELECT id,code,is_symmetric,version,reverse_name,
+            CASE WHEN %s='incoming' AND NOT is_symmetric THEN
+              COALESCE(translations->%s->>'reverse_name',translations->%s->>'reverse_name',reverse_name)
+            ELSE COALESCE(translations->%s->>'forward_name',translations->%s->>'forward_name',forward_name) END AS name
+          FROM relationship_types WHERE resource_kind='aggregation' AND is_active)
+          SELECT * FROM labels WHERE ((%s::bigint IS NOT NULL AND id=%s)
+            OR (%s::bigint IS NULL AND (code ILIKE %s OR name ILIKE %s)))
+          ORDER BY code,id LIMIT 25""",(direction,language_tag,language_tag.split('-')[0],language_tag,language_tag.split('-')[0],selected,selected,selected,match,match)).fetchall()
     else:raise HTTPException(404,detail='candidate type not found')
     return {'items':rows}
 

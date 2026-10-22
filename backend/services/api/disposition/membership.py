@@ -19,7 +19,7 @@ def _run(connection, operation, payload, acting_role_id, reason, command_id, sta
     )
 
 
-def create_job(connection, *, job_number, job_type, owning_org_unit_id=None,
+def create_job(connection, *, job_number=None, job_type, owning_org_unit_id=None,
                assigned_user_id=None, acting_role_id, reason, command_id: UUID):
     payload=dict(job_number=job_number,job_type=job_type,owning_org_unit_id=owning_org_unit_id,assigned_user_id=assigned_user_id)
     return _run(connection,'job_create',payload,acting_role_id,reason,command_id,

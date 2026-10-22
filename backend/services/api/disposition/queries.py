@@ -5,7 +5,9 @@ only a page-local envelope; hidden blockers never expose resource/hold IDs.
 These reads are advisory; membership commands independently lock and recheck.
 """
 from fastapi import HTTPException
+from ..entity_localization import localized_projection
 from . import blockers, observations
+from .acceleration import current_accelerations
 
 
 def require_manager(c):
@@ -13,10 +15,14 @@ def require_manager(c):
         raise HTTPException(403, detail={'code': 'insufficient_privilege'})
 
 
-def context(c):
+def context(c, language_tag='en'):
     require_manager(c)
     route=c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()
-    return {'destruction_review_route':route['route'] if route else None, 'roles': c.execute('''SELECT DISTINCT r.id,r.name,profile.code AS profile_code FROM roles r JOIN profiles profile ON profile.id=r.profile_id
+    person=c.execute('SELECT id,name,translations FROM users WHERE id=current_user_id()').fetchone()
+    if person:
+        person['name']=localized_projection(person,language_tag,'name')['name']
+        person.pop('translations')
+    return {'current_user': person, 'destruction_review_route':route['route'] if route else None, 'roles': c.execute('''SELECT DISTINCT r.id,r.name,profile.code AS profile_code FROM roles r JOIN profiles profile ON profile.id=r.profile_id
       JOIN user_role_assignments a ON a.role_id=r.id
       JOIN profile_privileges pp ON pp.profile_id=r.profile_id
       JOIN privileges p ON p.id=pp.privilege_id
@@ -28,13 +34,13 @@ def context(c):
 
 ELIGIBILITY = '''WITH facts AS (
  SELECT a.id,a.aggregation_number,a.title,a.version,a.date_closed,a.disposition_status,
- a.owning_org_unit_id,o.name AS owner,e.calculated_disposition_at,e.database_now,
+ a.owning_org_unit_id,o.name AS owner,o.translations AS owner_translations,e.calculated_disposition_at,e.database_now,
  CASE WHEN e.calculated_disposition_at IS NOT NULL THEN greatest(0,floor(extract(epoch FROM (e.database_now-e.calculated_disposition_at))/86400)::integer) END AS days_overdue,
  e.rule_snapshot->>'final_disposition' AS final_disposition,
  e.rule_snapshot->>'rule_source' AS rule_source,
  CASE WHEN e.rule_snapshot->>'rule_source'='aggregation' THEN a.aggregation_number ELSE
  (SELECT code FROM classifications WHERE id=(e.rule_snapshot->>'defined_by_classification_id')::bigint) END AS rule_source_label,
- m.job_id,j.job_number,current_user_can_view_aggregation(a.id) AS visible,
+ j.id AS job_id,j.job_number,current_user_can_view_aggregation(a.id) AS visible,
  COALESCE(b.vital,false) AS vital,COALESCE(b.security,false) AS security,
  COALESCE(b.held,false) AS held,COALESCE(b.vital_count,0) AS vital_count,
  COALESCE(b.security_count,0) AS security_count,COALESCE(b.hold_count,0) AS hold_count,
@@ -42,20 +48,20 @@ ELIGIBILITY = '''WITH facts AS (
  FROM aggregations a LEFT JOIN org_units o ON o.id=a.owning_org_unit_id
  CROSS JOIN LATERAL disposition_private.eligibility(a.id) e
  LEFT JOIN disposition_job_memberships m ON m.root_aggregation_id=a.id AND m.membership_state='active'
- LEFT JOIN disposition_jobs j ON j.id=m.job_id
+ LEFT JOIN disposition_jobs j ON j.id=m.job_id AND j.lifecycle_state='active'
  LEFT JOIN LATERAL (SELECT bool_or(is_vital) vital,bool_or(security_blocked) security,
  bool_or(cardinality(hold_ids)>0) held,count(*) FILTER(WHERE is_vital) vital_count,
  count(*) FILTER(WHERE security_blocked) security_count,count(*) FILTER(WHERE cardinality(hold_ids)>0) hold_count,
  bool_or(NOT CASE WHEN resource_kind='aggregation' THEN current_user_can_view_aggregation(resource_id)
  ELSE current_user_can_view_record(resource_id) END) hidden
  FROM disposition_private.protection_blockers(a.id)) b ON true
- WHERE a.parent_aggregation_id IS NULL AND a.disposition_status BETWEEN 2 AND 5)
+ WHERE a.parent_aggregation_id IS NULL AND (a.disposition_status BETWEEN 2 AND 5 OR j.id IS NOT NULL))
 '''
 
 
 def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
                 status=None, vital=None, security=None, held=None, due_from=None,
-                due_to=None, group_owner=False):
+                due_to=None, group_owner=False, active_job=False, language_tag='en'):
     require_manager(c)
     sorts = {'due': 'calculated_disposition_at', 'owner': 'owner', 'status': 'disposition_status',
              'type': 'final_disposition', 'vital': 'vital', 'security': 'security', 'held': 'held', 'id': 'id'}
@@ -69,11 +75,20 @@ def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
     for operator, value in [('>=', due_from), ('<=', due_to)]:
         if value is not None:
             clauses.append(f'calculated_disposition_at{operator}%s'); values.append(value)
+    if active_job is not None:
+        clauses.append('(job_id IS NOT NULL)=%s'); values.append(active_job)
     where = ' WHERE ' + ' AND '.join(clauses) if clauses else ''
     total = c.execute(ELIGIBILITY + 'SELECT count(*) total FROM facts' + where, values).fetchone()['total']
     order = ('owner ASC NULLS LAST,owning_org_unit_id ASC,' if group_owner else '') + sorts[sort] + (' DESC' if descending else ' ASC') + ' NULLS LAST,id ASC'
     rows = c.execute(ELIGIBILITY + 'SELECT * FROM facts' + where + ' ORDER BY ' + order + ' LIMIT %s OFFSET %s', [*values, limit, offset]).fetchall()
+    # Enrich only the visible roots on this server page, never the whole result
+    # set or a separate request per row. Share episode rules with details.
+    accelerations = current_accelerations(c, [row['id'] for row in rows if row['visible']], language_tag)
     for index, row in enumerate(rows):
+        row['owner'] = localized_projection(
+            {'name': row['owner'], 'translations': row.pop('owner_translations', {})},
+            language_tag, 'name')['name']
+        row['acceleration'] = accelerations.get(row['id'])
         row['redacted'] = not row.pop('visible')
         row['blocked'] = row['vital'] or row['security'] or row['held']
         row['selectable'] = not row['redacted'] and not row['blocked'] and row['job_id'] is None and row['date_closed'] is not None
@@ -87,15 +102,37 @@ def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
     return {'items': rows, 'total': total}
 
 
-def jobs(c, *, limit, offset, query='', lifecycle=None, sort='id', descending=True):
+def jobs(c, *, limit, offset, query='', lifecycle=None, sort='id', descending=True,
+         job_type=None, owner='', assignee='', unassigned=False, language_tag='en', root_ids=None):
     require_manager(c)
-    orders = {'id': 'j.id','job_number':'j.job_number','job_type':'j.job_type','lifecycle_state':'j.lifecycle_state','date_created':'j.date_created'}
+    orders = {'id':'id','job_number':'job_number','job_type':'job_type',
+              'lifecycle_state':'lifecycle_state','date_created':'date_created',
+              'owner':'owner','assignee':'assignee'}
     if sort not in orders: raise HTTPException(422, detail='invalid sort')
-    where, values = ['j.job_number ILIKE %s'], ['%'+query.strip()+'%']
-    if lifecycle: where.append('j.lifecycle_state=%s'); values.append(lifecycle)
-    source = ' FROM disposition_jobs j LEFT JOIN users u ON u.id=j.assigned_user_id LEFT JOIN org_units o ON o.id=j.owning_org_unit_id WHERE '+' AND '.join(where)
-    total=c.execute('SELECT count(*) total'+source, values).fetchone()['total']
-    rows=c.execute('SELECT j.*,u.name AS assignee,o.name AS owner'+source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+',j.id LIMIT %s OFFSET %s',[*values,limit,offset]).fetchall()
+    # Resolve display names before filtering/sorting/paging, using the same
+    # exact-language, base-language, canonical fallback as entity projections.
+    projection = """WITH jobs AS (SELECT j.*,
+      COALESCE(NULLIF(COALESCE(NULLIF(u.translations->%s,'{}'::jsonb),u.translations->%s)->>'name',''),u.name) AS assignee,
+      COALESCE(NULLIF(COALESCE(NULLIF(o.translations->%s,'{}'::jsonb),o.translations->%s)->>'name',''),o.name) AS owner,
+      u.name AS canonical_assignee,o.name AS canonical_owner
+      FROM disposition_jobs j LEFT JOIN users u ON u.id=j.assigned_user_id
+      LEFT JOIN org_units o ON o.id=j.owning_org_unit_id) """
+    where, values = ['job_number ILIKE %s'], [language_tag,language_tag.split('-')[0]]*2+['%'+query.strip()+'%']
+    for field,value in [('lifecycle_state',lifecycle),('job_type',job_type)]:
+        if value:where.append(field+'=%s');values.append(value)
+    for field,value in [('owner',owner),('assignee',assignee)]:
+        if value.strip():
+            where.append('('+field+' ILIKE %s OR canonical_'+field+' ILIKE %s)')
+            values.extend(['%'+value.strip()+'%']*2)
+    if unassigned:where.append('assigned_user_id IS NULL')
+    source=' FROM jobs WHERE '+' AND '.join(where)
+    total=c.execute(projection+'SELECT count(*) total'+source,values).fetchone()['total']
+    rows=c.execute(projection+'SELECT *'+source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+' NULLS LAST,id LIMIT %s OFFSET %s',[*values,limit,offset]).fetchall()
+    for row in rows:
+        row.pop('canonical_owner');row.pop('canonical_assignee')
+    if root_ids:
+        compatibility=job_selection_compatibility(c,[r['id'] for r in rows],root_ids)
+        for row in rows:row['selection_error']=compatibility.get(row['id'])
     return {'items':rows,'total':total}
 
 
@@ -168,15 +205,18 @@ def history(c, identity, *, limit, offset):
     return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(*(identity,)*9,limit,offset)).fetchall()}
 
 
-def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id=None):
+def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id=None, language_tag='en'):
     require_manager(c)
     saved=job(c,job_id) if job_id is not None else None
     route=saved['review_route'] if saved else c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()['route']
     if saved:job_type=saved['job_type']
     if selected is None and len(query.strip())<2: return {'items':[]}
     if kind=='owners':
-        rows=c.execute('''SELECT id,name FROM org_units WHERE ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (name ILIKE %s OR code ILIKE %s)))
-          ORDER BY name,id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%')).fetchall()
+        rows=c.execute('''SELECT id,code,name,translations FROM org_units WHERE ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (name ILIKE %s OR code ILIKE %s OR EXISTS(SELECT 1 FROM jsonb_each(translations) t WHERE t.value->>'name' ILIKE %s))))
+          ORDER BY name,id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%','%'+query.strip()+'%')).fetchall()
+        for row in rows:
+            row['name']=localized_projection(row,language_tag,'name')['name']
+            row.pop('translations')
     elif kind=='assignees':
         rows=c.execute('''SELECT u.id,u.name FROM users u WHERE u.status='active' AND u.account_type='person'
           AND ((%s::bigint IS NOT NULL AND u.id=%s) OR (%s::bigint IS NULL AND (u.name ILIKE %s OR u.email ILIKE %s)))
@@ -188,3 +228,62 @@ def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id
           ORDER BY u.name,u.id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%',job_type,route)).fetchall()
     else: raise HTTPException(404,detail='selector not found')
     return {'items':rows}
+
+
+def suggested_owner(c, root_ids, language_tag='en'):
+    """Advisory owner from current accessible roots; never grants admission."""
+    require_manager(c)
+    ids=list(dict.fromkeys(root_ids))
+    if not ids or len(ids)>100:
+        raise HTTPException(422,detail='invalid root selection')
+    roots=c.execute('''SELECT id,owning_org_unit_id FROM aggregations
+      WHERE id=ANY(%s) AND parent_aggregation_id IS NULL
+      AND current_user_can_view_aggregation(id)''',(ids,)).fetchall()
+    if len(roots)!=len(ids):
+        raise HTTPException(403,detail={'code':'disposition_resource_access_required'})
+    owners=list({r['owning_org_unit_id'] for r in roots})
+    row=c.execute('''WITH RECURSIVE ancestors AS (
+      SELECT id AS source,id,parent_org_unit_id,0 AS depth,ARRAY[id] AS path
+      FROM org_units WHERE id=ANY(%s)
+      UNION ALL
+      SELECT a.source,o.id,o.parent_org_unit_id,a.depth+1,a.path||o.id
+      FROM ancestors a JOIN org_units o ON o.id=a.parent_org_unit_id
+      WHERE NOT o.id=ANY(a.path)
+    ), common AS (
+      SELECT id,max(depth) AS depth FROM ancestors GROUP BY id
+      HAVING count(DISTINCT source)=%s
+    ) SELECT o.id,o.code,o.name,o.translations FROM common c JOIN org_units o USING(id)
+      ORDER BY c.depth,o.id LIMIT 1''',(owners,len(owners))).fetchone()
+    if row:
+        row['name']=localized_projection(row,language_tag,'name')['name']
+        row.pop('translations')
+    return {'owner':row,'basis':'same_unit' if len(owners)==1 and row else 'common_ancestor' if row else 'no_common_ancestor'}
+
+
+def job_selection_compatibility(c, job_ids, root_ids):
+    """Bounded advisory chooser check; commands still lock and revalidate."""
+    require_manager(c)
+    ids=list(dict.fromkeys(root_ids))
+    if not ids or len(ids)>100:raise HTTPException(422,detail='invalid root selection')
+    roots=c.execute('SELECT id FROM aggregations WHERE id=ANY(%s) AND parent_aggregation_id IS NULL AND current_user_can_view_aggregation(id)',(ids,)).fetchall()
+    if len(roots)!=len(ids):raise HTTPException(403,detail={'code':'disposition_resource_access_required'})
+    rows=c.execute("""WITH RECURSIVE owners AS (
+      SELECT a.id AS root_id,o.id,o.parent_org_unit_id,ARRAY[o.id] AS path
+      FROM aggregations a JOIN org_units o ON o.id=a.owning_org_unit_id WHERE a.id=ANY(%s)
+      UNION ALL SELECT a.root_id,o.id,o.parent_org_unit_id,a.path||o.id
+      FROM owners a JOIN org_units o ON o.id=a.parent_org_unit_id WHERE NOT o.id=ANY(a.path)
+    ) SELECT j.id,CASE
+      WHEN j.lifecycle_state<>'active' THEN 'disposition_inactive_job'
+      WHEN j.assigned_user_id IS NULL THEN 'disposition_assignment_required'
+      WHEN j.job_type='destruction' AND j.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') THEN 'disposition_membership_stage_invalid'
+      WHEN j.job_type='destruction' AND j.assigned_user_id<>current_user_id() THEN 'disposition_assigned_preparer_required'
+      WHEN j.job_type='destruction' AND NOT disposition_private.governance_person(j.assigned_user_id,CASE WHEN j.review_route='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END) THEN 'disposition_assignee_not_authorized'
+      WHEN j.job_type='destruction' AND NOT EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage AND t.destination_user_id=current_user_id() AND t.task_state='open' AND t.task_type IN ('preparation','correction')) THEN 'disposition_membership_stage_invalid'
+      WHEN EXISTS(SELECT 1 FROM aggregations a WHERE a.id=ANY(%s) AND (a.disposition_status NOT BETWEEN 2 AND 5 OR a.disposition_status<>j.disposition_status-4)) THEN 'disposition_job_type_status_mismatch'
+      WHEN j.job_type='destruction' AND EXISTS(SELECT 1 FROM unnest(%s::bigint[]) r(id) WHERE NOT EXISTS(SELECT 1 FROM owners o WHERE o.root_id=r.id AND o.id=j.owning_org_unit_id)) THEN 'disposition_owning_unit_mismatch'
+      WHEN EXISTS(SELECT 1 FROM aggregations a WHERE a.id=ANY(%s) AND a.date_closed IS NULL) THEN 'disposition_root_not_closed'
+      WHEN EXISTS(SELECT 1 FROM unnest(%s::bigint[]) a(id) CROSS JOIN LATERAL disposition_private.protection_blockers(a.id) b) THEN 'disposition_admission_blocked'
+      WHEN EXISTS(SELECT 1 FROM unnest(%s::bigint[]) a(id) WHERE NOT user_can_view_aggregation(j.assigned_user_id,a.id)) THEN 'disposition_assignee_access_required'
+      ELSE NULL END AS error FROM disposition_jobs j WHERE j.id=ANY(%s)
+      """,(ids,ids,ids,ids,ids,ids,job_ids)).fetchall()
+    return {r['id']:r['error'] for r in rows}

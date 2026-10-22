@@ -367,6 +367,15 @@ The denial should use a stable code such as `vital_resource_deletion_blocked`.
 For an aggregation with vital descendants, the response should provide safe
 counts but must not reveal descendants the caller cannot otherwise view.
 
+Vital status on an aggregation or its descendants does not prevent ordinary
+closure. An authorized user may close a vital aggregation without clearing
+its vital designation. A normal legal hold likewise does not prevent closure;
+an effective hold with `preserve_resource_state = true` retains the closure
+restriction defined in [Legal Holds Section 5](legal-holds.md#5-enhanced-resource-state-preservation).
+Normal close permission, closure-date and integrity checks remain required.
+This distinction applies whether or not disposition is being accelerated.
+Closing does not waive vital protection against deletion or disposition.
+
 ### 9.2 Database enforcement
 
 The API and capability endpoint provide explanations, but PostgreSQL must be

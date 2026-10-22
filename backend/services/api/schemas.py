@@ -825,6 +825,13 @@ class AggregationRetentionRuleRead(AggregationRetentionRuleCreate):
     version: int
 
 
+class RetentionAccelerationRead(ApiModel):
+    event_id: int
+    occurred_at: datetime
+    actor_name: str | None = None
+    reason: str | None = None
+
+
 class EffectiveRetentionRuleRead(ApiModel):
     governing_root_aggregation_id: int | None = None
     classification_id: int | None = None
@@ -837,6 +844,7 @@ class EffectiveRetentionRuleRead(ApiModel):
     final_disposition: DispositionAction
     instructions: str | None = None
     justification: str | None = None
+    acceleration: RetentionAccelerationRead | None = None
 
 
 class RecordCreate(ApiModel):

@@ -39,12 +39,17 @@ def cleanup_content(connection: Connection, *, batch_size: int = 100, dry_run: b
     if not locked["locked"]:
         return result
 
+    # Coordinate with hold assignment changes and leave protected content intact.
+    connection.execute("SELECT lock_hold_policy_shared()")
     sessions = connection.execute(
         """SELECT id, draft_component_id, content_set_id, status,
                   COALESCE(bytes_received, 0) AS bytes_received
            FROM content_upload_sessions
-           WHERE (status IN ('uploading', 'interrupted', 'finalizing') AND expires_at <= CURRENT_TIMESTAMP)
-              OR status IN ('failed', 'cancelled', 'expired')
+           WHERE ((status IN ('uploading', 'interrupted', 'finalizing') AND expires_at <= CURRENT_TIMESTAMP)
+              OR status IN ('failed', 'cancelled', 'expired'))
+             AND NOT EXISTS (SELECT 1 FROM digital_components component
+                 WHERE component.id = content_upload_sessions.digital_component_id
+                   AND resource_has_effective_hold('record', component.record_id))
            ORDER BY id
            FOR UPDATE SKIP LOCKED LIMIT %s""",
         (batch_size,),
@@ -89,6 +94,9 @@ def cleanup_content(connection: Connection, *, batch_size: int = 100, dry_run: b
                WHERE id IN (
                    SELECT id FROM content_upload_sessions
                    WHERE status = 'completed' AND expires_at <= CURRENT_TIMESTAMP
+                     AND NOT EXISTS (SELECT 1 FROM digital_components component
+                         WHERE component.id = content_upload_sessions.digital_component_id
+                           AND resource_has_effective_hold('record', component.record_id))
                    ORDER BY id LIMIT %s
                ) RETURNING id""",
             (batch_size,),

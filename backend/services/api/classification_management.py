@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request, R
 from psycopg import Connection
 
 from .concurrency import expected_version
+from .disposition.acceleration import current_accelerations
 from .crud import create_row, delete_row, get_or_404, list_rows, update_row
 from .database import get_connection
 from .entity_localization import (
@@ -505,9 +506,10 @@ def delete_aggregation_rule(
 
 
 @router.get("/aggregations/{aggregation_id}/effective-retention-rule", response_model=EffectiveRetentionRuleRead, tags=["retention rules"])
-def effective_aggregation_rule(aggregation_id: int, connection: Connection = Depends(get_connection, scope="function")):
+def effective_aggregation_rule(aggregation_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     get_or_404(connection, "aggregations", aggregation_id)
     row = connection.execute("SELECT * FROM aggregation_effective_retention_rule(%s)", (aggregation_id,)).fetchone()
     if row is None:
         raise HTTPException(status_code=404, detail="no effective retention rule")
-    return row
+    acceleration = current_accelerations(connection, [row["governing_root_aggregation_id"]], preferred_language(connection, request))
+    return {**row, "acceleration": acceleration.get(row["governing_root_aggregation_id"])}

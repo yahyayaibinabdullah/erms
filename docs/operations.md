@@ -794,6 +794,12 @@ material for approved acceptance; never use live records to test deletion.
 
 ### 14.2.1 Accelerated eligibility with protections
 
+The ordinary **Close** action also permits closing a vital aggregation or one
+under a normal hold, subject to close permission and date/integrity checks.
+An applicable effective hold with **Preserve resource metadata and state**
+blocks closure. This rule is independent of acceleration; see
+[Aggregation closure](aggregation-closure.md#closing-vital-or-held-aggregations).
+
 After migration `077_acceleration_eligibility_protections.sql`, acceleration can
 make a unit **eligible but blocked**, just as normal retention expiry does.
 For example, an IGU can accelerate a closed vital aggregation on legal hold to
@@ -863,3 +869,113 @@ its recorded process. Startup/status probe verified TLS SMTP, mailbox HTTP and
 MCP initialization. No relay is configured, and no production trust or SMTP
 configuration is changed. See [local tooling](local-tooling.md#local-maildev-with-tls-and-mcp)
 for dependencies, local certificate trust, retention and reset procedures.
+
+
+### Reading accelerated eligibility in the retention section
+
+An accelerated aggregation's **Effective retention rule** section shows its
+current disposition status, acceleration time, actor and exceptional reason.
+The **Normal retention due date** remains the date calculated from closure plus
+both retention periods; it is not the accelerated eligibility date. For example,
+an aggregation closed and accelerated on 22 October 2026 with two current and
+three intermediate years is eligible immediately, while its normal due date
+remains 22 October 2031. Holds, vital status and all other admission/execution
+checks still apply.
+
+This display reads existing immutable events, so no data migration or repeat
+acceleration is needed. Reopening or a changed effective rule clears an
+invalidated acceleration indicator. Refreshing or reopening the details page
+loads current provenance through the existing retention-rule request. Deploy
+both API and WebUI changes together and restart/reload them to activate the
+response field and catalogue changes. The five new Arabic labels remain drafts
+until reviewed and published in Translation Administration.
+
+
+The **Disposition eligibility** table makes the same distinction: accelerated
+rows carry an **Accelerated** date badge, whose tooltip identifies the actor
+and reason. **Normal retention due date** remains the calculated date, and
+**Remaining retention period waived** replaces the overdue count for these
+rows. Ordinary rows retain days overdue. The redundant final-action subtitle
+has been removed from the status cells. The date sort and date-range filters
+still operate on normal retention dates. Existing blockers remain independent.
+
+The Disposition eligibility list marks roots with protection blockers or an
+active job using pale amber rows and a lock with an explanation. Their details
+and job links remain available, but they cannot be selected for admission.
+Use the Active job filter (Any / In an active job / No active job) to include
+or exclude current job members. Historical or removed memberships do not count.
+
+The Active job filter defaults to No active job on the first visit. An explicit
+Any or In an active job selection is retained with the page state. The API
+also defaults to no active job; `active_job=all` explicitly requests both.
+
+Acceleration provenance displays the actor's existing translated name in the
+viewer's language on Aggregation details and in the eligibility tooltip. If a
+translation or user record is unavailable, it uses the event's recorded name.
+This presentation never rewrites the audit event's original actor snapshot.
+
+### Creating disposition jobs
+
+Both authorized Records Managers and Records Officers can create all four job
+types under any configured destruction review route. The creator's eligibility
+for preparation, review and approval is checked independently.
+
+Job numbers are assigned on save: DT (destruction), PT (permanent transfer), ST
+(selective transfer), LA (local archives), followed by the application-timezone
+year and a per-type annual sequence, for example `DT-2026-3`. Existing numbers
+are unchanged; no number should be entered by users. Retries retain the same
+number. Apply migration `078_disposition_job_creation.sql` to existing databases
+before deploying the updated API/UI; new databases use `schema.sql` alone.
+
+Assigned person defaults to the creator when eligible for that job and route,
+and can be changed. A Manager may create a Standard-route destruction job but
+must assign an eligible Officer before adding roots. Creation needs no reason;
+updates, deletions and exceptional actions keep their existing requirements.
+
+The Disposition jobs list filters by number, type, state, owning unit and
+assigned person; Unassigned shows jobs without an assignee. Click any data
+column heading to sort. Filters start collapsed and remember each user's
+expansion choice in the current browser. Apply filters resets to the first
+page; Refresh retains the current page. Owner/person search accepts existing
+translated names as well as canonical names.
+
+When adding eligible roots, the job chooser also offers **Create job**. After
+saving, the new job is selected in the add-roots confirmation automatically.
+Review and confirm that separate addition; creating the job does not add roots.
+Cancelling creation returns to the chooser without losing the selected roots.
+
+For destruction jobs created from selected eligible roots, the owning unit is
+prefilled with their shared unit, or their nearest common ancestor if they have
+different owners. Review this editable suggestion: that unit determines the
+combined review routing and Unit Manager approval. Reviewers still need access
+to the batch's content. If the units have no common ancestor, split the selection
+into separate jobs. Roots outside the chosen unit's subtree remain inadmissible;
+ownership and hierarchy are checked again when adding them. Jobs created from
+the main Jobs page still require an explicit owning-unit selection.
+
+Routine additions of roots to jobs no longer prompt for a change reason.
+Attribution and outcomes remain in event history. The chooser disables jobs
+that cannot accept the whole selection and explains why; split a mixed selection
+or choose a job with the appropriate owning-unit scope. Saving still rechecks
+current conditions, so a concurrent change can still produce an item failure.
+
+Upgrade existing databases with migration
+`079_disposition_admission_reason.sql` before using reason-free additions.
+New databases receive this behavior directly from `database/schema.sql`.
+Removal and exceptional-action reason requirements are unchanged.
+
+Review proposal selectors use the standard relationship controls. Open Security
+Level or Relationship Type for bounded initial choices, or type to filter.
+For Legal Holds and Related Aggregation, type at least two characters to search.
+Related Aggregation also offers Browse for the paged classification/aggregation
+tree. Browser selections are rechecked against task access before acceptance.
+
+### Relationship proposal direction (22 October 2026)
+
+In the relationship proposal form, Related aggregation and its Browse action
+precede Direction, which sits immediately above Relationship type. Type names
+are shown from the target aggregation's perspective: outgoing uses the forward
+name, incoming uses the reverse name, and symmetric types retain their name.
+The selector searches the displayed localized name or code and retains the
+selected type ID when direction changes. Existing authorization and relationship
+endpoint orientation remain unchanged.

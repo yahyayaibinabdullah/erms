@@ -259,3 +259,76 @@ async def test_revision_editors_preserve_identity_and_hydrate_selected_relations
     assert f.pending[0]['proposal_id']==12 and f.pending[0]['proposed_values']==proposed
     if 'relationship_id' in proposed:
         assert link_reads[-1][1]=={'selected_id':99,'limit':1,'offset':0}
+
+
+@pytest.mark.asyncio
+async def test_proposal_security_and_hold_selectors_use_standard_search(host):
+    calls=[];api=Api()
+    with host:
+        form=ReviewForm(api=api,workspace=view(),active=lambda:True,on_error=str,bind_remote=lambda *a,**k:calls.append((a,k)),after=lambda x:None,format_timestamp=str,open_resource=lambda *a:None)
+        security=form.remote('security_levels','security_level_id')
+        holds=form.remote('holds','hold_ids',multiple=True,selected=[{'id':11,'code':'H-11','name':'Hold'}])
+        assert calls[0][0][1]=='security-levels' and calls[0][1]['min_query_length']==0
+        assert calls[1][0][1]=='holds' and calls[1][1]['min_query_length']==2
+        assert 'shield' in security.slots['prepend'].template and 'gavel' in holds.slots['prepend'].template
+        assert holds.value==[11] and holds.options[11]=='H-11 · Hold'
+        assert any(isinstance(e,ui.label) and e.text==text('selector_hint') for e in host.descendants())
+        await calls[0][1]['page_loader']('')
+        assert api.reads[-1]==('tasks/8/review-candidates/security_levels',{'acting_role_id':7,'query':''})
+        await calls[1][1]['page_loader']('Ho')
+        assert api.reads[-1][1]['query']=='Ho'
+
+
+@pytest.mark.asyncio
+async def test_related_aggregation_browser_revalidates_selection(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    class BrowserApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/review-candidates/aggregations'):
+                self.reads.append((path,params));return {'items':[{'id':22,'code':'A22','name':'Related'}]}
+            return await super().disposition_page(path,**params)
+    api=BrowserApi();browsed=[]
+    async def browse(control,**kw):
+        browsed.append(control)
+        await kw['on_select']({'id':22},lambda:True)
+    with host:
+        f=ReviewForm(api=api,workspace=view(),active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=lambda x:None,format_timestamp=str,open_resource=None,browse_resource=browse)
+        await f.edit(root={'root_aggregation_id':10})
+        kind=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('proposal_type'))
+        kind.value='create_aggregation_relationship'
+        await asyncio.sleep(.02)
+        button=next(e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('browse'))
+        next(iter(button._event_listeners.values())).handler(None)
+        await asyncio.sleep(.02)
+        assert browsed[0].value==22 and browsed[0].options[22]=='A22 · Related'
+        assert api.reads[-1][1]=={'acting_role_id':7,'selected':22}
+
+
+@pytest.mark.asyncio
+async def test_relationship_direction_order_and_selected_label(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    class DirectionApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/review-candidates/relationship_types'):
+                self.reads.append((path,params))
+                return {'items':[{'id':22,'code':'REL','name':'Reverse' if params.get('direction')=='incoming' else 'Forward'}]}
+            return await super().disposition_page(path,**params)
+    api=DirectionApi()
+    with host:
+        f=ReviewForm(api=api,workspace=view(),active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=lambda x:None,format_timestamp=str,open_resource=None)
+        await f.edit(root={'root_aggregation_id':10})
+        kind=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('proposal_type'))
+        kind.value='create_aggregation_relationship'
+        await asyncio.sleep(.02)
+        selects=[e for e in host.descendants() if isinstance(e,ui.select)]
+        labels=[e.label for e in selects]
+        assert labels.index(text('related_aggregation_id'))<labels.index(text('direction'))<labels.index(text('relationship_type_id'))
+        relation=next(e for e in selects if e.label==text('relationship_type_id'))
+        relation.set_options({22:'REL · Forward'},value=22)
+        direction=next(e for e in selects if e.label==text('direction'))
+        for value,label in [('incoming','Reverse'),('outgoing','Forward')]:
+            direction.value=value
+            await asyncio.sleep(.02)
+            relation=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('relationship_type_id'))
+            assert relation.value==22 and relation.options[22]=='REL · '+label
+            assert api.reads[-1][1]['direction']==value

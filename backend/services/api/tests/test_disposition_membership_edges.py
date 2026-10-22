@@ -280,3 +280,23 @@ def test_removal_reason_database_constraint_rejects_partial_or_inconsistent_inte
                     c.execute('INSERT INTO disposition_job_memberships(job_id,root_aggregation_id,added_by_user_id,removal_required,removal_required_reason) VALUES(%s,%s,1,%s,%s)',(job['id'],root,required,reason))
             assert member(c,root) is None and statuses(c,root)==[2]*4
         finally:c.execute('ALTER TABLE disposition_job_memberships ENABLE TRIGGER disposition_guard')
+
+
+def test_routine_addition_without_reason_retains_audit_and_removal_requires_reason(client):
+    with db() as c:
+        job=setup(c);root,*_=ready(c)
+        identity=job['id'];expected=job_version(c,identity);rv=version(c,root)
+    payload={'command_id':str(uuid4()),'acting_role_id':1,'items':[{'root_id':root,'expected_version':rv}]}
+    response=client.post(f'/api/v1/disposition/jobs/{identity}/memberships',json=payload,headers={'If-Match':str(expected)})
+    assert response.status_code==200,response.text
+    assert response.json()['items'][0]['success']
+    again=client.post(f'/api/v1/disposition/jobs/{identity}/memberships',json=payload,headers={'If-Match':str(expected)})
+    assert again.json()==response.json()
+    with db() as c:
+        actor(c)
+        receipt=c.execute('SELECT * FROM disposition_private.command_receipts WHERE command_id=%s',(payload['command_id'],)).fetchone()
+        assert receipt['reason']=='' and receipt['actor_user_id']==1
+        assert c.execute("SELECT 1 FROM event_history WHERE entity_id=%s AND actor_user_id=1",(root,)).fetchone()
+        membership=member(c,root)
+        with pytest.raises(psycopg.Error,match='disposition_reason_required'):
+            service.remove_member(c,**{**kwargs(membership_id=membership['id'],expected_version=job_version(c,identity),root_version=version(c,root)),'reason':''})

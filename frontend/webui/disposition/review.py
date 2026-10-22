@@ -10,6 +10,7 @@ from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
 from ..remote_select import RemoteSelect
+from ..relationship_select import relationship_select
 from ..resource_relationships import PageTable
 from .messages import text,KEYS
 from .screens import column,failure
@@ -23,11 +24,12 @@ def workflow_panel(job):
 
 
 class ReviewForm:
-    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None):
+    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None):
         self.api,self.view,self.active,self.on_error=api,workspace,active,on_error
         self.bind_remote,self.after,self.format_timestamp=bind_remote,after,format_timestamp
         self.open_resource=open_resource
         self.preview=preview
+        self.browse_resource=browse_resource
         self.job=workspace['job'];self.task=workspace['task'];self.actions=set(workspace['actions'])
         self.pending=[];self.pending_meta={};self.retry={};self.busy=False;self.proposal_filter=None;self.proposal_round=None
         self.work=None;self.note=None;self.overall=None
@@ -193,18 +195,23 @@ class ReviewForm:
             if self.alive():
                 for control in controls:control.enable()
 
-    def remote(self,kind,label,*,target=False,root=None,multiple=False,selected=None,active=None):
-        control=RemoteSelect({},label=text(label),with_input=True,multiple=multiple,value=[] if multiple else None).props('outlined dense clearable').classes('w-full')
+    def remote(self,kind,label,*,target=False,root=None,multiple=False,selected=None,active=None,direction=None):
+        if not target and kind in ('security_levels','holds','relationship_types','aggregations'):
+            control=relationship_select(text(label),{},remote=True,multiple=multiple,value=[] if multiple else None,icon={'security_levels':'shield','holds':'gavel','relationship_types':'link','aggregations':'folder'}[kind])
+            control.add_slot('no-option','<q-item><q-item-section>'+escape(text('empty'))+'</q-item-section></q-item>')
+            if kind in ('holds','aggregations'):ui.label(text('selector_hint')).classes('text-xs text-slate-500')
+        else:
+            control=RemoteSelect({},label=text(label),with_input=True,multiple=multiple,value=[] if multiple else None).props('outlined dense clearable').classes('w-full')
         base=f"tasks/{self.task['id']}/"+('proposal-targets/' if target else 'review-candidates/')+kind
-        async def request(**params):return await self.api.disposition_page(base,acting_role_id=self.role.value,**({'root_id':root} if target else {}),**params)
+        async def request(**params):return await self.api.disposition_page(base,acting_role_id=self.role.value,**({'root_id':root} if target else {}),**({'direction':direction} if direction else {}),**params)
         async def load(query):return await request(query=query)
         async def hydrate(identity):
             response=await request(selected=identity)
             if not response['items']:raise ApiError(404,{'code':'disposition_resource_access_required'})
             return response['items'][0]
-        self.bind_remote(control,'aggregations',('code','name'),('code','name'),page_loader=load,selected_loader=hydrate,min_query_length=2,active=active or self.alive)
+        self.bind_remote(control,{'security_levels':'security-levels','holds':'holds'}.get(kind,'aggregations'),('code','name'),('code','name'),page_loader=load,selected_loader=hydrate,min_query_length=0 if kind in ('security_levels','relationship_types') else 2,active=active or self.alive)
         if selected:
-            control.options={r['id']:r.get('name') or r.get('code') or str(r['id']) for r in selected}
+            control.options={r['id']:' · '.join(str(r[k]) for k in ('code','name') if r.get(k)) or str(r['id']) for r in selected}
             control.value=[r['id'] for r in selected] if multiple else selected[0]['id'];control.update()
         return control
 
@@ -364,11 +371,38 @@ class ReviewForm:
                             selected=[r['items'][0] for r in rows if r['items']]
                             values['holds'].options={r['id']:r['code']+' · '+r['name'] for r in selected};values['holds'].value=initial['hold_ids'];values['holds'].update()
                     elif typ=='create_aggregation_relationship':
-                        values['direction']=ui.select({v:text(v) for v in ('outgoing','incoming')},value=initial.get('direction','outgoing'),label=text('direction')).props('outlined dense').classes('w-full')
                         values['related']=self.remote('aggregations','related_aggregation_id',active=alive)
-                        values['type']=self.remote('relationship_types','relationship_type_id',active=alive)
+                        if self.browse_resource:
+                            async def browse_related():
+                                async def selected(item,browser_active):
+                                    result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/aggregations",acting_role_id=self.role.value,selected=item['id'])
+                                    if not alive() or token!=generation[0] or not browser_active():return
+                                    if not result['items']:raise ApiError(404,{'code':'disposition_resource_access_required'})
+                                    row=result['items'][0]
+                                    values['related'].set_options({row['id']:row['code']+' · '+row['name']},value=row['id'])
+                                await self.browse_resource(values['related'],on_select=selected,active=lambda:alive() and token==generation[0])
+                            ui.button(text('browse'),icon='account_tree',on_click=browse_related).props('outline no-caps')
+                        values['direction']=ui.select({v:text(v) for v in ('outgoing','incoming')},value=initial.get('direction','outgoing'),label=text('direction')).props('outlined dense').classes('w-full')
+                        type_host=ui.column().classes('w-full')
+                        type_revision=[0]
+                        async def refresh_type():
+                            identity=values['type'].value if 'type' in values else initial.get('relationship_type_id')
+                            previous_label=values['type'].options.get(identity,str(identity)) if 'type' in values else str(identity)
+                            type_revision[0]+=1
+                            revision=type_revision[0]
+                            current=lambda:alive() and token==generation[0] and revision==type_revision[0]
+                            type_host.clear()
+                            with type_host:
+                                control=self.remote('relationship_types','relationship_type_id',active=current,direction=values['direction'].value)
+                                values['type']=control
+                                if identity:control.set_options({identity:previous_label},value=identity)
+                            if identity:
+                                result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/relationship_types",acting_role_id=self.role.value,selected=identity,direction=values['direction'].value)
+                                if current():control.set_options({r['id']:r['code']+' · '+r['name'] for r in result['items']},value=identity)
+                        values['direction'].on_value_change(refresh_type)
+                        await refresh_type()
                         if existing:
-                            for key,remote_key,id_key in [('related','aggregations','related_aggregation_id'),('type','relationship_types','relationship_type_id')]:
+                            for key,remote_key,id_key in [('related','aggregations','related_aggregation_id')]:
                                 result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/{remote_key}",acting_role_id=self.role.value,selected=initial[id_key])
                                 if not alive():return
                                 values[key].options={r['id']:r['code']+' · '+r['name'] for r in result['items']};values[key].value=initial[id_key];values[key].update()
