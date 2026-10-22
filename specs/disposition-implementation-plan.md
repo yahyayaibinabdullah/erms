@@ -381,13 +381,34 @@ remains a generated draft requiring human review and publication. Catalogue
 coverage/order, terminology and artifact-hash checks passed. Migration 072 has
 not been applied to the persistent demo database.
 
+### Approved correction: eligible-but-blocked acceleration
+
+**Approved:** 22 October 2026. Implements Disposition §7/§9/§11 and DISP-13.
+Normal and accelerated eligibility are independent of vital status, blocking
+security levels and effective holds. Keep admission/execution checks, existing
+closure permission and state-preserving hold rules. Normal holds allow closure;
+closed preserve-state-held roots allow status-only acceleration. Do not remove
+protections or add units to jobs automatically. Verify all four outcomes,
+root/descendant/record protections, normal/preserve-state holds, open/closed
+roots, unchanged holds/content/closure, retries, failed closure rollback and
+continued rejection at admission. Implementation and verification are recorded
+in [the protection correction report](../docs/verification/acceleration-protections.md).
+Historical Phase 9 evidence below predates and is superseded by this correction
+where it describes protections as acceleration blockers.
+Verification (22 October 2026): 194 fresh-schema, 57 migration-path, 13 final-
+execution protection and 25 WebUI checks passed. English/LTR and Arabic/RTL
+confirmation verified in a disposable preview. Prerequisite 072 and migration
+077 applied to demo without changing resource rows; Arabic source draft awaits
+administrator review/publication.
+
 ### Approved follow-up: exceptional-acceleration notifications
 
 **Approved:** 21 October 2026. **Status:** Implementation and verification pending.
 **Requirement:** DISP-43, Disposition Section 11.1, and Destruction Process Section 3.
 
-The existing acceleration action, reason capture, authorization and blocker
-checks are implemented. Extend successful acceleration to trigger immediate
+The existing acceleration action, reason capture and authorization are
+implemented. Admission and execution blocker checks remain mandatory; blockers
+do not prevent the eligibility change. Extend successful acceleration to trigger immediate
 notifications through the existing subsystem to all active Information
 Governance role holders and the accelerated root's owning Unit Manager.
 Cover all four outcomes, authoritative owning-unit manager resolution,

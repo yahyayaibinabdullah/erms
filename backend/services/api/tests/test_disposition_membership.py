@@ -118,26 +118,43 @@ def test_multi_add_keeps_success_and_rolls_back_stale_blocked_wrong_type_and_hid
         assert len(c.execute('SELECT * FROM disposition_job_memberships').fetchall())==1
 
 
-@pytest.mark.parametrize('kind',['root_vital','descendant_vital','record_vital','security','hold_root','hold_inherited','hold_record'])
-def test_current_protections_reject_admission_and_acceleration_without_changing_unit(client,kind):
+@pytest.mark.parametrize('job_kind,action,status',[
+ ('destruction','destruction',2),('permanent_transfer','transfer_to_external_archive',3),
+ ('selective_transfer','selective_preservation',4),('local_archives','retain_as_local_archives',5)])
+@pytest.mark.parametrize('kind,preserve_state',[
+ ('root_vital',False),('descendant_vital',False),('record_vital',False),('security',False),
+ ('hold_root',False),('hold_inherited',False),('hold_record',False),
+ ('hold_root',True),('hold_inherited',True),('hold_record',True)])
+def test_current_protections_allow_acceleration_but_reject_admission(client,job_kind,action,status,kind,preserve_state):
     with db() as c:
-        job=setup(c);root,child,leaf,record=ready(c)
+        job=setup(c,job_kind);root,child,leaf,record=ready(c,action)
         with c.transaction(force_rollback=True):
             if kind.endswith('vital'):
                 c.execute("SELECT set_config('app.vital_status_change_authorized','authorized',true)")
                 table='records' if kind=='record_vital' else 'aggregations';target=root if kind=='root_vital' else record if kind=='record_vital' else child
                 c.execute(f'UPDATE {table} SET is_vital=true WHERE id=%s',(target,))
             elif kind=='security':c.execute('UPDATE security_levels SET prevents_disposition=true WHERE id=(SELECT security_level_id FROM records WHERE id=%s)',(record,))
-            else:make_hold(c,'record' if kind=='hold_record' else 'aggregation',record if kind=='hold_record' else child if kind=='hold_inherited' else root)
+            else:make_hold(c,'record' if kind=='hold_record' else 'aggregation',record if kind=='hold_record' else child if kind=='hold_inherited' else root,preserve=preserve_state)
             result=admit(c,job['id'],[root]);assert result['items'][0]['code']=='disposition_admission_blocked'
-            assert statuses(c,root)==[2]*4 and member(c,root) is None
+            assert statuses(c,root)==[status]*4 and member(c,root) is None
             # Reopening obeys preserve-state holds; use policy recalculation to
             # make status 1 without weakening those existing metadata guards.
-            rule_change(c,root,years=100)
+            rule_change(c,root,years=100,action=action)
             assert statuses(c,root)==[1]*4
-            with pytest.raises(psycopg.Error,match='disposition_admission_blocked'):
-                service.accelerate(c,**kwargs(root_id=root,expected_version=version(c,root)))
-            assert statuses(c,root)==[1]*4
+            closure=c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed']
+            hold_assignments=c.execute('SELECT * FROM hold_aggregation_assignments ORDER BY id').fetchall()
+            record_holds=c.execute('SELECT * FROM hold_record_assignments ORDER BY id').fetchall()
+            options=kwargs(root_id=root,expected_version=version(c,root))
+            result=service.accelerate(c,**options)
+            assert result['status']==status and statuses(c,root)==[status]*4
+            assert service.accelerate(c,**options)==result  # Receipt replay is not another acceleration.
+            assert c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed']==closure
+            assert c.execute('SELECT * FROM hold_aggregation_assignments ORDER BY id').fetchall()==hold_assignments
+            assert c.execute('SELECT * FROM hold_record_assignments ORDER BY id').fetchall()==record_holds
+            assert c.execute("SELECT count(*) n FROM event_history WHERE operation='DISPOSITION_ACCELERATED' AND entity_id=%s",(root,)).fetchone()['n']==1
+            result=admit(c,job['id'],[root])
+            assert result['items'][0]['code']=='disposition_admission_blocked'
+            assert statuses(c,root)==[status]*4 and member(c,root) is None
 
 
 @pytest.mark.parametrize('closed',[None,'2025-01-01T00:00:00Z'])
@@ -389,3 +406,93 @@ def test_acceleration_failure_after_closure_rolls_back_entire_unit(client):
             assert c.execute('SELECT count(*) AS n FROM event_history').fetchone()['n']==before_events
         finally:
             c.execute('DROP TRIGGER test_acceleration_status ON aggregations')
+
+
+@pytest.mark.parametrize('preserve_state',[True,False])
+def test_acceleration_keeps_open_held_root_closure_rules(client,preserve_state):
+    with db() as c:
+        setup(c);root,*_=ready(c,closed=None)
+        make_hold(c,'aggregation',root,preserve=preserve_state)
+        if preserve_state:
+            with pytest.raises(psycopg.Error,match='effective_hold_prevents_metadata_change'):
+                with c.transaction():
+                    service.accelerate(c,**kwargs(root_id=root,expected_version=version(c,root)))
+            assert c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed'] is None
+            assert statuses(c,root)==[1]*4
+            assert not c.execute("SELECT 1 FROM event_history WHERE operation='DISPOSITION_ACCELERATED' AND entity_id=%s",(root,)).fetchone()
+        else:
+            service.accelerate(c,**kwargs(root_id=root,expected_version=version(c,root)))
+            assert c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed'] is not None
+            assert statuses(c,root)==[2]*4
+            job=c.execute('SELECT id FROM disposition_jobs').fetchone()['id']
+            assert admit(c,job,[root])['items'][0]['code']=='disposition_admission_blocked'
+
+
+@pytest.mark.parametrize('kind',['root_vital','record_vital','security'])
+def test_open_protected_unit_closes_and_accelerates_but_cannot_enter_job(client,kind):
+    with db() as c, c.transaction(force_rollback=True):
+        job=setup(c);root,child,leaf,record=ready(c,closed=None)
+        if kind.endswith('vital'):
+            c.execute("SELECT set_config('app.vital_status_change_authorized','authorized',true)")
+            table='aggregations' if kind=='root_vital' else 'records'
+            c.execute(f'UPDATE {table} SET is_vital=true WHERE id=%s',(root if kind=='root_vital' else record,))
+        else:
+            c.execute('UPDATE security_levels SET prevents_disposition=true WHERE id=(SELECT security_level_id FROM records WHERE id=%s)',(record,))
+        service.accelerate(c,**kwargs(root_id=root,expected_version=version(c,root)))
+        assert c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed'] is not None
+        assert statuses(c,root)==[2]*4
+        assert admit(c,job['id'],[root])['items'][0]['code']=='disposition_admission_blocked'
+
+
+def test_removing_normal_hold_preserves_acceleration_without_automatic_admission(client):
+    with db() as c:
+        job=setup(c);root,*_=ready(c,closed='2025-01-01')
+        hold=make_hold(c,'aggregation',root,preserve=False)
+        service.accelerate(c,**kwargs(root_id=root,expected_version=version(c,root)))
+        assert statuses(c,root)==[2]*4 and member(c,root) is None
+        assert admit(c,job['id'],[root])['items'][0]['code']=='disposition_admission_blocked'
+        c.execute('DELETE FROM hold_aggregation_assignments WHERE hold_id=%s',(hold,))
+        assert statuses(c,root)==[2]*4 and member(c,root) is None
+        assert admit(c,job['id'],[root])['items'][0]['success']
+        assert statuses(c,root)==[6]*4
+
+
+def test_held_acceleration_does_not_allow_metadata_edits_in_its_command_context(client):
+    with db() as c:
+        setup(c);root,*_=ready(c,closed=None)
+        make_hold(c,'aggregation',root,preserve=True)
+        with pytest.raises(psycopg.Error,match='effective_hold_prevents_metadata_change'):
+            command(c,'eligibility_accelerate',lambda connection: connection.execute("UPDATE aggregations SET title='Not allowed' WHERE id=%s",(root,)))
+        assert statuses(c,root)==[1]*4
+
+
+def test_open_held_acceleration_still_requires_close_permission(client):
+    with db() as c, c.transaction(force_rollback=True):
+        setup(c);root,*_=ready(c,closed=None)
+        make_hold(c,'aggregation',root,preserve=False)
+        c.execute("DELETE FROM profile_privileges WHERE privilege_id=(SELECT id FROM privileges WHERE code='aggregation.close')")
+        before=version(c,root)
+        with pytest.raises(psycopg.Error,match='insufficient_privilege'):
+            service.accelerate(c,**kwargs(root_id=root,expected_version=before))
+        assert version(c,root)==before and statuses(c,root)==[1]*4
+        assert c.execute('SELECT date_closed FROM aggregations WHERE id=%s',(root,)).fetchone()['date_closed'] is None
+
+
+def test_acceleration_api_keeps_reason_version_and_retry_contract_for_held_unit(client):
+    with db() as c:
+        setup(c);root,*_=ready(c,closed='2025-01-01')
+        make_hold(c,'aggregation',root,preserve=True)
+        expected=version(c,root)
+    path=f'/api/v1/disposition/aggregations/{root}/accelerate'
+    payload={'command_id':str(uuid4()),'acting_role_id':1}
+    headers={'If-Match':str(expected),'X-Change-Reason':'Waive remaining retention wait, keep hold'}
+    assert client.post(path,json=payload,headers={'If-Match':str(expected)}).status_code==422
+    assert client.post(path,json=payload,headers={'X-Change-Reason':headers['X-Change-Reason']}).status_code==428
+    assert client.post(path,json=payload,headers={**headers,'If-Match':str(expected-1)}).status_code==409
+    result=client.post(path,json=payload,headers=headers)
+    assert result.status_code==200 and result.json()['status']==2,result.text
+    assert client.post(path,json=payload,headers=headers).json()==result.json()
+    with db() as c:
+        assert statuses(c,root)==[2]*4 and member(c,root) is None
+        assert c.execute('SELECT 1 FROM hold_aggregation_assignments WHERE aggregation_id=%s',(root,)).fetchone()
+        assert c.execute("SELECT count(*) n FROM event_history WHERE operation='DISPOSITION_ACCELERATED' AND entity_id=%s",(root,)).fetchone()['n']==1

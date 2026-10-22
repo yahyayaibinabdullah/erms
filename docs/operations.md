@@ -792,6 +792,28 @@ material for approved acceptance; never use live records to test deletion.
 | Deployment environment, API key, executable, process paths or service units | Restart/relaunch the consuming API/WebUI/indexer/worker; reload systemd units after unit edits. |
 | Code, requirements, canonical template/font assets | Deploy together and restart consumers. Never overwrite retained uploaded revisions. |
 
+### 14.2.1 Accelerated eligibility with protections
+
+After migration `077_acceleration_eligibility_protections.sql`, acceleration can
+make a unit **eligible but blocked**, just as normal retention expiry does.
+For example, an IGU can accelerate a closed vital aggregation on legal hold to
+eligible for destruction. The reason and normal due date are audited; the
+hold, vital designation, security and content stay intact. It cannot enter a
+disposition job while a protection applies, and execution checks remain mandatory.
+
+For an open aggregation, acceleration closes the root first using the ordinary
+closure permission. A normal hold permits this. A hold configured to **preserve
+resource state** still prevents closure where the existing hold rules prohibit
+it; the complete action then rolls back, with no successful acceleration event
+or notification. An already closed root under such a hold can accelerate
+because only disposition eligibility changes.
+
+Once protections are lawfully removed, the waived retention wait remains waived;
+refresh the unit and explicitly add it to a matching job when authorized.
+Removing a hold or vital designation never admits or disposes of it automatically.
+Keep the exceptional reason, provenance and notification requirements in
+[Disposition §11](../specs/disposition.md#11-exceptional-acceleration).
+
 ### 14.3 Recovery and rollback
 
 | Condition | Recovery |

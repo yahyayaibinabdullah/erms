@@ -6332,15 +6332,15 @@
   {
     "message_key": "disposition.ui.accelerate_scope",
     "context_group": "disposition.ui",
-    "default_text": "This exceptional action closes this root if it is open and makes it and all descendants eligible under the effective retention rule. Existing closure permissions and disposition blockers still apply.",
-    "semantic_meaning": "Confirmation of atomic closure and exceptional early eligibility for the governing aggregation and its disposition unit.",
+    "default_text": "This exceptional action closes this root if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
+    "semantic_meaning": "Confirmation of atomic closure and early eligibility, independent of protections that still block admission and execution; preserve-state closure restrictions remain.",
     "common_locations": [
       "Disposition workspace"
     ],
     "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "This exceptional action closes this root if it is open and makes it and all descendants eligible under the effective retention rule. Existing closure permissions and disposition blockers still apply.",
+    "rendered_example": "This exceptional action closes this root if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
     "is_html": false
   },
   {

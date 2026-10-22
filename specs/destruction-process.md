@@ -4,13 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.2
-**Amendment approved:** 21 October 2026
+**Revision:** 1.3
+**Amendment approved:** 22 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.3 | 22 October 2026 | Clarify eligible-but-blocked accelerated units and normal versus preserve-state holds during closure |
 | 1.2 | 21 October 2026 | Apply common immediate exceptional-acceleration notifications independently of periodic destruction-eligibility reminders |
 | 1.1 | 13 October 2026 | Added Records Manager Only routing and explicit Save without submission for every review participant |
 | 1.0 | 12 October 2026 | Approved specification, including the agreed workflow, configuration, evidence, recovery, and verification requirements |
@@ -79,6 +80,15 @@ and intermediate periods under the common specification's strict due boundary.
 Exceptional acceleration may waive the remaining wait but must atomically close
 an open root first. Reopening resets the whole unit to not ready and blocks its
 active job as specified in Disposition Section 6.1.
+
+As with normal retention expiry, vital status, disposition-blocking security
+levels and effective holds do not prevent accelerated destruction eligibility.
+They continue to block admission to a destruction job and execution. A normal
+hold permits closing an open aggregation during acceleration; a preserve-state
+hold retains its existing closure restrictions. A closed held aggregation can
+become eligible without changing the hold or protected metadata. See
+[Disposition Section 11](disposition.md#11-exceptional-acceleration) for the
+eligible-but-blocked scenario and atomic failure behavior.
 
 This extension defines what happens after eligible aggregations are selected
 for a destruction job. It does not govern permanent transfer, selective

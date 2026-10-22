@@ -13492,8 +13492,10 @@ BEGIN
       AND (to_jsonb(NEW)-ARRAY['disposition_status','version'])=(to_jsonb(OLD)-ARRAY['disposition_status','version']) THEN
         PERFORM disposition_private.require_command(); RETURN NEW;
     END IF;
+    -- Eligibility bookkeeping does not alter content, hold assignments or held metadata.
+    -- Acceleration's separate closure update still passes the ordinary hold guard.
     IF TG_OP='UPDATE' AND OLD.disposition_status=1 AND NEW.disposition_status BETWEEN 2 AND 5
-      AND disposition_private.context_operation()='eligibility_evaluate'
+      AND disposition_private.context_operation() IN ('eligibility_evaluate','eligibility_accelerate')
       AND (to_jsonb(NEW)-ARRAY['disposition_status','version'])=(to_jsonb(OLD)-ARRAY['disposition_status','version']) THEN
         PERFORM disposition_private.require_command(); RETURN NEW;
     END IF;
@@ -15557,7 +15559,6 @@ BEGIN
  IF NOT current_user_can_view_aggregation(p_root) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_resource_access_required'; END IF;
  IF root.parent_aggregation_id IS NOT NULL THEN RAISE EXCEPTION 'disposition_requires_governing_root'; END IF;
  IF root.disposition_status<>1 OR EXISTS(SELECT 1 FROM disposition_job_memberships WHERE root_aggregation_id=p_root AND membership_state='active') THEN RAISE EXCEPTION 'disposition_acceleration_state_invalid'; END IF;
- IF EXISTS(SELECT 1 FROM disposition_private.protection_blockers(p_root)) THEN RAISE EXCEPTION 'disposition_admission_blocked'; END IF;
  IF root.date_closed IS NULL THEN
   IF NOT current_user_can_aggregation_operation(p_root,'aggregation.close','aggregation.close') THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='insufficient_privilege'; END IF;
   UPDATE aggregations SET date_closed=CURRENT_TIMESTAMP WHERE id=p_root RETURNING * INTO root;
@@ -15654,3 +15655,6 @@ UPDATE profiles
  WHERE code='FILE_ADMIN' AND nullif(btrim(translations->'ar'->>'name'),'') IS NULL;
 INSERT INTO schema_migrations(version) VALUES('073_file_administrator_profile');
 COMMIT;
+
+-- Eligibility and protection are independent (077); definitions are included above.
+INSERT INTO schema_migrations(version) VALUES('077_acceleration_eligibility_protections') ON CONFLICT DO NOTHING;

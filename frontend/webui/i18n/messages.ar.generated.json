@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
-  "catalogue_sha256": "9723acdbcd66c33c81daebc91865c2d44fc14c2c369253df26186d58d0f35781",
+  "catalogue_sha256": "d23290187d22b855ecb6c74ddd5cb7b65206adcd6dbdd37568e3b31fcac3b213",
   "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -177,7 +177,8 @@
       "المستوى الأمني"
     ],
     "disposition.ui.accelerate_scope": [
-      "يغير هذا الإجراء الاستثنائي حالة أهلية الملف الجذري وجميع عناصره التابعة. تظل الإضافة مشروطة بإغلاق الملف وعدم وجود موانع وشخص مخول مسند إليه."
+      "يغير هذا الإجراء الاستثنائي حالة أهلية الملف الجذري وجميع عناصره التابعة. تظل الإضافة مشروطة بإغلاق الملف وعدم وجود موانع وشخص مخول مسند إليه.",
+      "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل صلاحيات الإغلاق وموانع التصرف المعمول بها سارية."
     ]
   },
   "items": [
@@ -5799,7 +5800,7 @@
     },
     {
       "message_key": "disposition.ui.accelerate_scope",
-      "translated_text": "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل صلاحيات الإغلاق وموانع التصرف المعمول بها سارية.",
+      "translated_text": "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل أوامر الحجز وحالة الأهمية الحيوية ودرجات السرية المانعة للتصرف مانعةً للإضافة إلى مهمة التصرف ولتنفيذه. وتبقى صلاحيات الإغلاق وقيود أوامر الحجز التي تحفظ حالة المورد سارية.",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -5809,12 +5810,12 @@
         "generator": "OpenAI Codex",
         "model": "GPT-6",
         "model_version": "6",
-        "prompt_version": "acceleration-closure-v1",
-        "generated_at": "2026-10-21T04:54:58.644117+00:00",
-        "batch_id": "acceleration-closure-20261021",
-        "catalogue_sha256": "470a60e10ae330f901123b91ec8c77d28a88d5a701e7ecfaa7396a8706a26a49",
-        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "prompt_version": "acceleration-protections-v1",
+        "generated_at": "2026-10-22T03:29:24.466025+00:00",
+        "batch_id": "acceleration-protections-20261022",
+        "catalogue_sha256": "d23290187d22b855ecb6c74ddd5cb7b65206adcd6dbdd37568e3b31fcac3b213",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {

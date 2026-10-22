@@ -4,13 +4,14 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.9
-**Amendment approved:** 21 October 2026
+**Revision:** 1.10
+**Amendment approved:** 22 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.10 | 22 October 2026 | Separate accelerated eligibility from hold, vital and security protections; retain job-admission, execution and preserve-state closure checks |
 | 1.9 | 21 October 2026 | Clarified closure as a prerequisite for all eligibility, retention starting at closure, and atomic closure during exceptional acceleration; placed acceleration in the effective retention-rule section |
 | 1.8 | 21 October 2026 | Require immediate exceptional-acceleration notifications to all Information Governance users and the governing root aggregation’s owning Unit Manager through the existing notification subsystem |
 | 1.7 | 20 October 2026 | Approved clarification of section 14.2 and DISP-35: preserve protected governed evidence and permanent provenance; defer a separate evidence-expiry/deletion workflow pending an approved policy |
@@ -438,7 +439,8 @@ to the selective-transfer statuses 4 and 8. Renaming that existing retention
 rule value is outside this specification.
 
 Vital status, security levels, and legal holds do not stop an aggregation from
-becoming eligible. They stop it from being added to a job or reaching the final
+becoming eligible, whether through normal retention expiry or exceptional
+acceleration. They stop it from being added to a job or reaching the final
 status. In this way, Wathiq shows that the retention period has ended while
 also showing that disposition is currently blocked.
 
@@ -865,13 +867,40 @@ Acceleration:
   retention rule, the IGU, time, reason, and new status; and
 - is clearly identified as early eligibility in history and reports.
 
-Acceleration is prohibited while any admission blocker in Section 9 applies to the
-root or any descendant aggregation or record. Before changing the status,
-Wathiq must check current vital status, disposition-blocking security levels,
-and direct or inherited effective legal holds. If any blocker exists, Wathiq
-rejects the acceleration and leaves the complete disposition unit in status 1.
-Relationships do not prevent acceleration; their final-action blockers remain
-in force. Acceleration never bypasses or weakens an execution blocker.
+Vital status, disposition-blocking security levels, and direct or inherited
+effective legal holds on the root, descendant aggregations, or records do not
+prevent accelerated eligibility. An eligible disposition unit may remain
+blocked: eligibility records the waived retention wait and does not grant
+permission to add the unit to a job or execute disposition. Those protection
+facts and all hold assignments remain unchanged. The same current-state checks
+still reject job admission and final execution under Section 9. Relationships
+also do not prevent acceleration; their final-action blockers remain in force.
+Existing access, clearance, IGU authorization, reason, effective-rule, version,
+and no-active-job checks still apply. A disposition-blocking security level is
+separate from the actor's permission to view or act on the resource.
+
+For an open root, distinguish a normal hold from one with
+`preserve_resource_state = true`. A normal hold blocks disposition but permits
+closure; acceleration may close the root and make the unit eligible while the
+hold continues to block job admission and execution. A preserve-state hold
+continues to enforce the existing closure rules: if it prohibits closing the
+root, acceleration fails atomically, leaving the root open and the unit in
+status 1, with no successful acceleration event or notification. A root already
+closed under a preserve-state hold may accelerate because the eligibility
+change is status-only bookkeeping; the closure date, protected metadata,
+content and holds remain unchanged. Acceleration never overrides a separate
+closure prohibition or changes the hold's preservation setting.
+
+Example: a closed vital aggregation on hold with ten years of retention
+remaining may be accelerated to status 2 (eligible for destruction) when that
+is its effective rule's action. It stays vital and on hold and cannot be added
+to a destruction job. After the protections are lawfully resolved, its
+accelerated eligibility remains; an IGU may explicitly admit it to a matching
+job, subject to fresh authorization and admission checks. Removing protections
+does not add it to a job or execute disposition automatically. Reopening or a
+retention-policy change continues to follow the existing recalculation rules.
+The exceptional reason, normal due date, audit provenance and mandatory
+acceleration notifications remain required.
 
 ### 11.1 Acceleration notifications
 
@@ -1559,7 +1588,7 @@ are required at a minimum:
 | DISP-10 | Direct and inherited legal holds block addition to a job and the final action, with a visible reason but protected hold details redacted | Disposable-database hold-boundary and redaction tests |
 | DISP-11 | An aggregation can be in only one active job of the correct type, must leave that active job before joining another, may remain a member of terminated jobs, and can never join another job after completion | Database uniqueness, simultaneous-addition, removal, terminated-membership, and final-status tests |
 | DISP-12 | Assignment grants responsibility, not access | Authorization tests |
-| DISP-13 | Acceleration follows the effective disposition action, requires a reason, atomically closes an open root before eligibility using existing closure authorization, preserves existing closure dates, and is rejected without closure or status changes when any check fails; its action appears in the effective retention-rule section | API, disposable-database closure, authorization, blocker, rollback, concurrency, event-history, and LTR/RTL action-location tests |
+| DISP-13 | Acceleration follows the effective disposition action, requires a reason, atomically closes an open root before eligibility using existing closure authorization, preserves existing closure dates, permits eligible-but-blocked units without changing protections, and is rejected without closure or status changes when a required check fails; normal holds permit closure while preserve-state holds retain their closure restrictions; its action appears in the effective retention-rule section | API, disposable-database closure, authorization, blocker, rollback, concurrency, event-history, and LTR/RTL action-location tests |
 | DISP-14 | Final fields and identifiers are complete and consistent | All-or-nothing update and rollback tests |
 | DISP-15 | Mixed destruction confirms physical before digital | Workflow, retry, and partial-failure tests |
 | DISP-16 | Destroyed content and prohibited derivatives are removed; the approved permanent disposition record remains auditable, read-only, excluded from ordinary resource views, and protected by both privilege and existing access rules | Storage, search/index, browse, hierarchy, API, authorization-intersection, immutability, metadata-minimization, and event-content tests |

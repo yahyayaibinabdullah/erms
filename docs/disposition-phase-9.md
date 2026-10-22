@@ -1,5 +1,11 @@
 # Disposition Phase 9 implementation and verification
 
+> Historical phase evidence. The acceleration protection rule described here
+> is superseded by the approved 22 October 2026 correction: protected units may
+> become eligible while admission and execution remain blocked. Normal holds
+> permit closure; preserve-state closure restrictions remain. See the
+> [current behavior and verification](verification/acceleration-protections.md).
+
 Phase 9 provides protected common job commands and atomic integration of
 reopening, effective retention changes and hierarchy changes. The application
 services and explicit command API reuse the private transaction/receipt kernel.

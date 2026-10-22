@@ -15097,9 +15097,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -15113,7 +15113,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -15426,9 +15426,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -15442,7 +15442,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 10,
@@ -17375,10 +17375,10 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_membership.py::test_acceleration_uses_effective_action_including_open_root_and_saves_reason_dates",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_new_descendants_of_open_accelerated_unit_inherit_its_stored_status",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_committed_retry_rechecks_current_resource_access_without_granting_assignment_access"
@@ -17389,7 +17389,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Reasoned effective-rule-derived acceleration for open or future-due roots, live protection checks and preserved final-only relationship blockers; permanent normal-date/rule/actor/status facts and shared readable audit labels for history/report consumers."
+          "scope": "Reasoned effective-rule-derived acceleration for open or future-due roots, live protection checks and preserved final-only relationship blockers; permanent normal-date/rule/actor/status facts and shared readable audit labels for history/report consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -23188,9 +23188,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -23204,7 +23204,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -23302,9 +23302,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -23318,7 +23318,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -23416,9 +23416,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -23432,7 +23432,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -24006,10 +24006,10 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_membership.py::test_acceleration_uses_effective_action_including_open_root_and_saves_reason_dates",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_new_descendants_of_open_accelerated_unit_inherit_its_stored_status",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_committed_retry_rechecks_current_resource_access_without_granting_assignment_access"
@@ -24020,7 +24020,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Reasoned effective-rule-derived acceleration for open or future-due roots, live protection checks and preserved final-only relationship blockers; permanent normal-date/rule/actor/status facts and shared readable audit labels for history/report consumers."
+          "scope": "Reasoned effective-rule-derived acceleration for open or future-due roots, live protection checks and preserved final-only relationship blockers; permanent normal-date/rule/actor/status facts and shared readable audit labels for history/report consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 13,
@@ -24088,13 +24088,13 @@
         {
           "phase": 22,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_completion.py",
             "backend/services/api/tests/test_disposition_foundation.py",
             "backend/services/api/tests/test_disposition_membership.py",
             "backend/services/api/tests/test_disposition_membership.py::test_acceleration_uses_effective_action_including_open_root_and_saves_reason_dates",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_committed_retry_rechecks_current_resource_access_without_granting_assignment_access",
@@ -24122,7 +24122,7 @@
             "frontend/webui/tests/test_disposition_recovery.py::test_single_resolution_has_no_implicit_status_and_targets_one_version",
             "frontend/webui/tests/test_disposition_recovery.py::test_termination_requires_confirmation_and_preserves_warning"
           ],
-          "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+          "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -25428,9 +25428,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -25444,7 +25444,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -25798,9 +25798,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -25814,7 +25814,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -29767,9 +29767,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -29783,7 +29783,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -58075,9 +58075,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -58091,7 +58091,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -58274,7 +58274,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_cascading_old_links_reach_a_stable_result_and_record_causal_proposals",
             "backend/services/api/tests/test_disposition_approval.py::test_new_link_and_other_protection_cascade_together",
@@ -58309,7 +58309,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_internal_links_do_not_block_and_removal_from_either_endpoint_refreshes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_locked_blocker_check_coordinates_current_protective_and_scope_changes",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -58354,7 +58354,7 @@
             "frontend/webui/tests/test_disposition_tasks.py",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -58582,9 +58582,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -58598,7 +58598,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -58781,7 +58781,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_cascading_old_links_reach_a_stable_result_and_record_causal_proposals",
             "backend/services/api/tests/test_disposition_approval.py::test_new_link_and_other_protection_cascade_together",
@@ -58816,7 +58816,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_internal_links_do_not_block_and_removal_from_either_endpoint_refreshes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_locked_blocker_check_coordinates_current_protective_and_scope_changes",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -58861,7 +58861,7 @@
             "frontend/webui/tests/test_disposition_tasks.py",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -59089,9 +59089,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -59105,7 +59105,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -59288,7 +59288,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_cascading_old_links_reach_a_stable_result_and_record_causal_proposals",
             "backend/services/api/tests/test_disposition_approval.py::test_new_link_and_other_protection_cascade_together",
@@ -59323,7 +59323,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_internal_links_do_not_block_and_removal_from_either_endpoint_refreshes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_locked_blocker_check_coordinates_current_protective_and_scope_changes",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -59368,7 +59368,7 @@
             "frontend/webui/tests/test_disposition_tasks.py",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -59562,9 +59562,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -59578,7 +59578,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -59703,7 +59703,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -59741,7 +59741,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -59764,7 +59764,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -59956,9 +59956,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -59972,7 +59972,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -60097,7 +60097,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -60135,7 +60135,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -60158,7 +60158,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -60350,9 +60350,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -60366,7 +60366,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -60491,7 +60491,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -60529,7 +60529,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -60552,7 +60552,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -60744,9 +60744,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -60760,7 +60760,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -60885,7 +60885,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -60923,7 +60923,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -60946,7 +60946,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -61138,9 +61138,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -61154,7 +61154,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -61279,7 +61279,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -61317,7 +61317,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -61340,7 +61340,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -61532,9 +61532,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -61548,7 +61548,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -61673,7 +61673,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -61711,7 +61711,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -61734,7 +61734,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -61926,9 +61926,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -61942,7 +61942,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 14,
@@ -62067,7 +62067,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -62105,7 +62105,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -62128,7 +62128,7 @@
             "backend/services/api/tests/test_disposition_review_edges.py::test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -85948,9 +85948,9 @@
         {
           "phase": 9,
           "result": "passed",
-          "run": "phase9-fresh-20261015",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -85964,7 +85964,7 @@
             "phase9-catalogue-20261015",
             "phase9-labels-20261015"
           ],
-          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers."
+          "scope": "Fresh locked all-descendant admission/acceleration protection checks and independent final-only relationship facts. Blocked units retain membership/pending work. Explicit removal/termination preserves protection. Final-action enforcement, review-removal proposals and action-attempt blocker events remain with later consumers. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         },
         {
           "phase": 15,
@@ -86069,7 +86069,7 @@
         {
           "phase": 23,
           "result": "passed",
-          "run": "phase23-regression-acceptance-20261020",
+          "run": "acceleration-protections-fresh-20261022",
           "tests": [
             "backend/services/api/tests/test_disposition_approval.py::test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds",
             "backend/services/api/tests/test_disposition_approval.py::test_hold_visibility_does_not_grant_hold_management",
@@ -86107,7 +86107,7 @@
             "backend/services/api/tests/test_disposition_eligibility.py::test_pending_protection_appears_and_resolves_without_membership_or_status_changes",
             "backend/services/api/tests/test_disposition_eligibility.py::test_preserve_state_hold_still_rejects_ordinary_metadata_edits",
             "backend/services/api/tests/test_disposition_integrated.py",
-            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_reject_admission_and_acceleration_without_changing_unit",
+            "backend/services/api/tests/test_disposition_membership.py::test_current_protections_allow_acceleration_but_reject_admission",
             "backend/services/api/tests/test_disposition_membership.py::test_outside_relationships_allow_acceleration_and_admission",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_hold_becomes_effective_during_admission_lock_wait_and_is_not_missed",
             "backend/services/api/tests/test_disposition_membership_edges.py::test_protection_arising_after_admission_does_not_prevent_leaving_job_or_clear_protection",
@@ -86128,7 +86128,7 @@
             "backend/services/api/tests/test_disposition_physical.py::test_routing_uses_every_item_not_just_roots",
             "tools/tests/test_disposition_acceptance.py"
           ],
-          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded."
+          "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded. Acceleration protection semantics superseded and reverified on 22 October 2026; see current correction report."
         }
       ],
       "baseline_refs": [
@@ -96342,6 +96342,13 @@
       "result": "passed",
       "evidence": "docs/verification/disposition-release-gate-removal/summary.json",
       "scope": "Approved removal of temporary physical/digital release gates. Canonical and prior-schema integrated workflows, both old gate values, role/access/approval/blocker/confirmation/recovery regressions, both-language UI tests and live physical confirmation, translation preservation and independent disposal. 071 applied to demo with unchanged workflow permissions/business counts and no destruction."
+    },
+    "acceleration-protections-fresh-20261022": {
+      "result": "passed",
+      "date": "2026-10-22",
+      "evidence": "docs/verification/acceleration-protections.md",
+      "scope": "Fresh canonical schema: membership, membership edges, eligibility and localization catalogue; 194 passing cases. Supersedes the former acceleration protection rule.",
+      "tests": 194
     }
   },
   "removed_setting": {
@@ -99195,5 +99202,19 @@
     ],
     "active_keys_per_language": 3735,
     "human_review_candidates": 531
-  }
+  },
+  "approved_amendments": [
+    {
+      "date": "2026-10-22",
+      "scope": "Accelerated eligibility independent of admission/execution protections; ordinary versus preserve-state hold closure rules",
+      "requirements": [
+        "DISP-13",
+        "DISP-S7",
+        "DISP-S9",
+        "DISP-S11"
+      ],
+      "evidence": "docs/verification/acceleration-protections.md",
+      "supersedes": "Historical Phase 9 scope statements treating vital/security/hold protections as acceleration blockers. Notification follow-up remains pending."
+    }
+  ]
 }

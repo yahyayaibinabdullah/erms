@@ -749,8 +749,17 @@ existing closure timestamps are preserved. Normal retention begins at closure.
 This migration does not rewrite historical events or backdate closure on legacy
 open eligible roots; review any such pre-upgrade roots before operational use.
 
+Migration `077_acceleration_eligibility_protections.sql` separates accelerated
+eligibility from protection checks. Apply after the existing migrations,
+including 072. It replaces the acceleration function and narrowly permits its
+status-only eligibility update through the hold guard; it rewrites no resource,
+hold, membership or history rows. Normal holds permit closure; preserve-state
+closure restrictions, job admission and final execution checks remain in force.
+See [the operational scenario](operations.md#1421-accelerated-eligibility-with-protections).
+New databases receive this behavior from `database/schema.sql` alone.
+
 After completing the disposition configuration checklist and applying migrations
-through 072, start its three independent workers:
+through 077, start its three independent workers:
 
 ```bash
 sudo systemctl enable --now erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
