@@ -11396,6 +11396,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.last_viewed",
+    "context_group": "disposition.ui",
+    "default_text": "Last viewed",
+    "semantic_meaning": "Marks the aggregation most recently opened from this job or task membership listing.",
+    "common_locations": [
+      "Disposition task and job aggregation listing"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Last viewed",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.later",
     "context_group": "disposition.ui",
     "default_text": "Later occurrence",

@@ -2056,3 +2056,15 @@ The latest preceding round is fetched once for the notice and reused in the
 expanded history. This is read-only presentation, with no new workflow states,
 privileges, mutations or changes to historical audit rows. Task details retain
 their stage-specific focus.
+
+
+### Task aggregation review navigation
+
+Opening an aggregation from the task Aggregations tab records the tab, server
+page, page size, query, membership filter, sorting and opened membership identity
+in that navigation entry. Back restores this state, fetches current authorized
+rows, and scrolls to and visibly marks the last-viewed aggregation if still on
+the page. Detail navigation through its children, records or relationships must
+not overwrite the originating task entry. No resource data is cached; if the
+row is no longer present or authorized, do not display a stale row. The same
+return-state behavior applies to the Job details Aggregations tab.

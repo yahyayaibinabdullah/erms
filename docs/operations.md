@@ -1056,3 +1056,11 @@ per selected link; Save saves the pending proposals together. A shared optional
 reason is copied to each proposal. Existing proposals remain individually editable.
 These actions do not remove relationships or clear blockers: removal still occurs
 only when the Records Manager approves and executes the proposal set.
+
+
+### Returning to a task aggregation review
+
+After opening an aggregation from a task or job, Back restores the Aggregations
+tab, page, filters and sort order. The last-viewed aggregation is highlighted
+and marked, so the reviewer can resume there. Rows are fetched again using
+current permissions; removed or inaccessible rows are not restored from a cache.

@@ -485,3 +485,33 @@ async def test_multiple_relationship_removals_queue_and_save_as_one_batch(host,m
     assert all(x['proposal_type']==kind and x['reason']=='Remove both outside links' for x in f.pending)
     await f.perform('save')
     assert len(api.writes)==1 and len(api.writes[0][1]['changes'])==2
+
+
+@pytest.mark.asyncio
+async def test_task_return_restores_members_page_and_marks_opened_row(host,monkeypatch):
+    from frontend.webui.disposition.screens import job_screen
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    workspace=view();workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',membership_editable=True)
+    class ReturnApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/workspace'):return workspace
+            if path.endswith('/memberships'):
+                self.reads.append((path,params))
+                return {'items':[dict(id=i,root_aggregation_id=i,redacted=False,aggregation_number=str(i),title='Review root',membership_state='active',disposition_status=6,medium='digital',added_at='2026-10-23') for i in (51,52)],'total':100}
+            return await super().disposition_page(path,**params)
+    api=ReturnApi();remembered=[];opened=[]
+    async def open_resource(*args):opened.append(args)
+    saved={'task_id':8,'job_id':5,'section':'members','opened_member':52,'members':{'page':3,'size':25,'sort':'identity','descending':False,'query':'Review','state':'active'}}
+    with host:
+        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=open_resource,open_eligibility=open_resource,open_resource=open_resource,format_timestamp=str,event_label=str,task_id=8,saved=saved,remember=remembered.append)
+        assert next(e for e in host.descendants() if isinstance(e,ui.tabs)).value=='members'
+        request=next(params for path,params in api.reads if path.endswith('/memberships'))
+        assert request==dict(limit=25,offset=50,query='Review',state='active',sort='identity',descending=False)
+        table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(r.get('last_viewed') for r in e.rows))
+        assert [r['id'] for r in table.rows if r['last_viewed']]==[52]
+        handler=next(e.handler for e in table._event_listeners.values() if e.type in ('open-root','openRoot'))
+        result=handler(SimpleNamespace(args=51))
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(0)
+    assert remembered[-1]['opened_member']==51 and remembered[-1]['members']['page']==3
+    assert opened==[('aggregation',51)]
