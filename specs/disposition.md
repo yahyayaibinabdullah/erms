@@ -1752,3 +1752,74 @@ For destruction creation in this chooser, the editable owner suggestion follows
 Destruction Process §5.1.1: shared owner, otherwise nearest common ancestor, or
 an explanation to split the selection if none exists. This does not relax
 admission checks or infer ownership for jobs created without selected roots.
+
+### Separate job and task details (22 October 2026)
+
+Jobs → Job details focuses on job metadata, overall workflow progress,
+aggregation membership, documents, authorized templates and history. My Tasks →
+Task details focuses on the explicitly selected task and the stage information
+and actions required to complete it. The views link to each other and share
+components, but Job details does not load a task form. Task details does not
+include the overall tracker, templates or job-wide history. Refresh and restored
+navigation preserve task identity. Unsaved task work survives tab switching;
+supporting lists refresh on entry and ignore abandoned responses. Existing
+permissions, routes and transitions remain authoritative.
+
+### Readable disposition history
+
+Job history and proposal/note revision dialogs present human-readable event
+facts in the user's language. Membership events identify the job number,
+aggregation number/title and people; blocker observations show the affected
+aggregation, detection actor/time and recorded protection/relationship flags.
+Review, assignment, evidence, delivery, execution and completion events use
+named fields, translated states, localized dates and meaningful values.
+Only changed business fields appear in before/after comparisons. Creation and
+observation events have no empty comparison panels. A cleared field is shown
+as “Not set”, never as the JSON literal `null`.
+
+History page responses enrich the existing authorized event projection with
+`display_references` (typed ID to current localized label or null) and
+`can_view_technical_details` (the existing `audit.view` privilege). Enrichment
+uses only IDs in the bounded authorized page, with current resource/hold access
+checks; redacted envelopes are never enriched. Missing, destroyed or inaccessible
+resources have an unavailable/access-restricted label. Display names describe
+current accessible entities, explicitly distinguished from immutable historical
+snapshots. The event records themselves are not rewritten.
+
+Raw projected event JSON is available only to users with `audit.view`, inside a
+collapsed Technical details section. It never bypasses event redaction. Normal
+users see the readable event details. The same presentation applies to old and
+new events; no historical-data migration is required.
+
+The global Audit Trail must reuse the same readable disposition facts and
+reference enrichment on list, search and individual-event reads. It retains the
+standard global event dialog shell, actor/time/source layout and current-entity
+navigation. Technical identifiers and raw projected JSON appear in a collapsed
+section for audit viewers, consistently with other global event details.
+
+
+### Review-round progress and returns (23 October 2026)
+
+The Job details workflow panel has one tracker for the current review cycle.
+A correction after rejection displays “Preparing review round N”, where N is
+the last submitted round plus one. This is a presentation of pending work,
+not a new database round: submission/approval retains the existing transaction
+that creates the immutable round. On resubmission the same number becomes the
+current submitted round. Current-stage highlighting resets to preparation or
+correction; subsequent stages are upcoming, subject to the saved route.
+
+A return notice identifies the preceding round, rejecting review stage, actor,
+time and recorded reason. External rejection and invalidated approval are
+represented from their actual recorded facts; an invalidation is not labelled
+as a reviewer rejection. Names follow the interface language with existing
+fallbacks. Reasons remain the original authored text.
+
+“View previous rounds” is collapsed initially. It expands to reverse-chronological
+round summaries, each showing its submission (where applicable) and actual decisions in time order,
+with actor, time, result and reason. It does not repeat the full stage tracker,
+show unreached stages, or infer approvals from a job's current stage. Earlier
+rounds load in server pages (at most 25); inaccessible snapshots remain redacted.
+The latest preceding round is fetched once for the notice and reused in the
+expanded history. This is read-only presentation, with no new workflow states,
+privileges, mutations or changes to historical audit rows. Task details retain
+their stage-specific focus.

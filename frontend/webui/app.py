@@ -3833,6 +3833,7 @@ def index(q: str = "") -> None:
             "role-details": "roles",
             "user-details": "users",
             "disposition-job": "disposition-jobs",
+            "disposition-task": "disposition-tasks",
         }.get(page, page)
         for button, _, key in drawer_links:
             if key == navigation_key:
@@ -4542,8 +4543,9 @@ def index(q: str = "") -> None:
                     await run_global_search(query)
             else:
                 await select_dashboard()
-        elif page in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-job"):
-            await select_disposition(page, entity_id if page == "disposition-job" else None, saved.get("disposition_view"))
+        elif page in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-job", "disposition-task"):
+            disposition_saved=saved.get("disposition_view") or {}
+            await select_disposition(page, disposition_saved.get("job_id") if page=="disposition-task" else entity_id if page=="disposition-job" else None, disposition_saved,task_id=entity_id if page=="disposition-task" else None)
         elif page == "relationship-types":
             await select_relationship_types()
         elif page.startswith("messages-"):
@@ -5109,6 +5111,7 @@ def index(q: str = "") -> None:
                 await open_editor(entity)
 
     def show_event_detail(event: dict[str, Any]) -> None:
+        disposition_event = event.get('display_presentation') == 'disposition'
         entity_heading, entity_identity = event_entity_identity(event)
         dialog = ui.dialog()
         before = event.get("before_state") or {}
@@ -5148,11 +5151,14 @@ def index(q: str = "") -> None:
                     with ui.column().classes("gap-0"):
                         ui.label(render_message("webui.show_event_detail.label.source_c6457d34")).classes("component-meta-label")
                         ui.label(event.get("source") or "—").classes("text-sm text-slate-700")
-                if event.get("reason"):
+                if event.get("reason") and event["operation"] not in ("DISPOSITION_BLOCKERS_DETECTED", "DISPOSITION_BLOCKERS_RESOLVED"):
                     with ui.card().classes("w-full bg-blue-50 shadow-none border border-blue-100"):
                         ui.label(render_message("webui.show_event_detail.label.change_reason_93b265ba")).classes("component-meta-label")
                         ui.label(event["reason"]).classes("text-sm")
-                if changed:
+                if disposition_event:
+                    from .disposition.history import readable_event_fields
+                    readable_event_fields(event, format_timestamp)
+                elif changed:
                     ui.label(render_message("webui.show_event_detail.label.field_changes_252aeebc")).classes("font-semibold")
                     change_rows = [
                         {
@@ -5171,19 +5177,21 @@ def index(q: str = "") -> None:
                     ).props("flat bordered wrap-cells hide-pagination").classes("w-full shrink-0")
                     for key in ("before", "after"):
                         change_table.add_slot(f"body-cell-{key}", f'<q-td :props="props"><div class="audit-value">{{{{ props.row.{key} }}}}</div></q-td>')
-                with ui.grid(columns=2).classes("w-full gap-3"):
-                    for label, value in (
-                        ("Request ID", event.get("request_id")),
-                        ("Correlation ID", event.get("correlation_id")),
-                        ("Transaction", event.get("transaction_id")),
-                        ("Event ID", event.get("id")),
-                    ):
-                        with ui.column().classes("gap-0 min-w-0"):
-                            ui.label(label).classes("component-meta-label")
-                            ui.label(event_value(value)).classes("text-xs text-slate-600 break-all")
-                if event.get("metadata"):
-                    ui.label(render_message("webui.show_event_detail.label.metadata_426a77f1")).classes("font-semibold")
-                    ui.code(json.dumps(event["metadata"], ensure_ascii=False, indent=2, sort_keys=True)).classes("w-full text-xs")
+                if can_navigate("audit-trail", (auth_state.get("principal") or {}).get("global_privileges", [])):
+                    with ui.expansion(disposition_text('history_technical'), icon='code', value=False).classes('w-full'):
+                        with ui.grid(columns=2).classes("w-full gap-3"):
+                            for label, value in (
+                                ("Request ID", event.get("request_id")),
+                                ("Correlation ID", event.get("correlation_id")),
+                                ("Transaction", event.get("transaction_id")),
+                                ("Event ID", event.get("id")),
+                            ):
+                                with ui.column().classes("gap-0 min-w-0"):
+                                    ui.label(label).classes("component-meta-label")
+                                    ui.label(event_value(value)).classes("text-xs text-slate-600 break-all")
+                        if disposition_event or event.get("metadata"):
+                            ui.label(render_message("webui.show_event_detail.label.metadata_426a77f1")).classes("font-semibold")
+                            ui.code(json.dumps(event if disposition_event else event["metadata"], ensure_ascii=False, indent=2, sort_keys=True, default=str)).classes("w-full text-xs")
         dialog.open()
 
     def render_event_timeline(events_list: list[dict[str, Any]], container: Any) -> None:
@@ -19292,11 +19300,13 @@ def index(q: str = "") -> None:
         principal=auth_state.get("principal")
         if not principal or not can_navigate_disposition(page, principal):
             return
+        task_id=task_id or (saved or {}).get("task_id")
+        if task_id and page=="disposition-job":page="disposition-task"
         token=object()
-        label=disposition_text("my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
-        register_navigation(page,label,entity_id=identity)
+        label=disposition_text("current_task" if task_id else "workspace_details" if page=="disposition-job" else "my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
+        register_navigation(page,label,entity_id=task_id if page=="disposition-task" else identity)
         state.update(resource=page, disposition_page_token=token, rows=[], searched=True,
-                     aggregation_detail=None, disposition_view=dict(saved or {}))
+                     aggregation_detail=None, disposition_view={**dict(saved or {}),**({"task_id":task_id,"job_id":identity} if task_id else {})})
         show_authenticated_view();title.text=label;subtitle.text="";guidance.text=""
         for control in (search_bar,aggregation_mode_bar,add_button,add_record_button):control.set_visibility(False)
         table_container.clear()
@@ -19308,7 +19318,7 @@ def index(q: str = "") -> None:
                 if navigation_state["trail"] and navigation_state["trail"][-1]["page"]==page:
                     navigation_state["trail"][-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
         async def open_job(identity):await select_disposition("disposition-job",identity)
-        async def open_task(job_id,identity):await guarded_page_navigation(lambda:select_disposition("disposition-job",job_id,task_id=identity))
+        async def open_task(job_id,identity):await select_disposition("disposition-job",job_id,task_id=identity)
         def register_dirty(dirty):
             async def guard(action):
                 if dirty():
@@ -19320,9 +19330,9 @@ def index(q: str = "") -> None:
         common=dict(api=api,container=table_container,active=active,on_error=error_message,
                     bind_remote=bind_remote_relationship_select,open_job=open_job)
         try:
-            if page=="disposition-job":
+            if page in ("disposition-job","disposition-task"):
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
-                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation)
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task)
             elif page=="disposition-tasks":
                 filter_preference_key=f"disposition_task_filters:{principal['user']['id']}"
                 def remember_task_filters(expanded):

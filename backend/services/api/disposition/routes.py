@@ -159,8 +159,8 @@ def read_members(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(
 
 
 @router.get('/jobs/{job_id}/history')
-def read_history(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
-    return queries.history(c,job_id,limit=limit,offset=offset)
+def read_history(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
+    return queries.history(c,job_id,limit=limit,offset=offset,language_tag=preferred_language(c,request))
 
 
 @router.get('/aggregations/{root_id}/blockers')
@@ -404,6 +404,12 @@ def read_review_rounds(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=
     return proposals.rounds(c,job_id,limit=limit,offset=offset,summary=summary)
 
 
+@router.get('/jobs/{job_id}/workflow-progress')
+def read_workflow_progress(request: Request,job_id: int,limit: int=Query(25,ge=1,le=25),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
+    from . import progress,queries
+    return progress.page(c,queries.job(c,job_id),limit=limit,offset=offset,language_tag=preferred_language(c,request))
+
+
 @router.get('/jobs/{job_id}/review-decisions')
 def read_review_decisions(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),summary: bool=False,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
@@ -507,9 +513,9 @@ def read_task_assignment_candidates(task_id: int,kind: Literal['users','roles'],
 
 
 @router.get('/jobs/{job_id}/review-history/{kind}/{identity}')
-def read_review_history(job_id: int,kind: Literal['proposal','note'],identity: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
+def read_review_history(job_id: int,request: Request,kind: Literal['proposal','note'],identity: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
-    return workspace.review_history(c,job_id,kind=kind,identity=identity,limit=limit,offset=offset)
+    return workspace.review_history(c,job_id,kind=kind,identity=identity,limit=limit,offset=offset,language_tag=preferred_language(c,request))
 
 
 class GenerateRequest(Command):

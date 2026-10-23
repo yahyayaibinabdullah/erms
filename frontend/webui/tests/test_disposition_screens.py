@@ -200,7 +200,9 @@ async def test_command_reason_warning_and_mixed_result_never_claim_total_success
 
 
 @pytest.mark.asyncio
-async def test_removed_reopened_episode_does_not_still_request_removal(host):
+async def test_removed_reopened_episode_does_not_still_request_removal(host,monkeypatch):
+    from nicegui import core
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
     from frontend.webui.disposition.screens import job_screen
     async def request(path,**params):
         if path=='context':return {'roles':[{'id':1,'name':'IG role'}]}
@@ -211,6 +213,10 @@ async def test_removed_reopened_episode_does_not_still_request_removal(host):
         return {'items':[],'total':0}
     with host:
         await job_screen(api=SimpleNamespace(disposition_page=request),identity=1,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda identity:None,open_eligibility=lambda identity:None,open_resource=lambda *a:None,format_timestamp=str,event_label=str)
+    navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
+    assert navigation.value=='workspace_details'
+    navigation.value='members'
+    await asyncio.sleep(.02)
     row=next(r for e in host.descendants() if isinstance(e,ui.table) for r in e.rows if r.get('root_aggregation_id')==1)
     assert row['membership_label']=='Removed' and row['notice']=='' and not row['can_remove']
 

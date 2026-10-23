@@ -10410,6 +10410,846 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.history_added_at",
+    "context_group": "disposition.ui",
+    "default_text": "Added at",
+    "semantic_meaning": "Readable disposition event history: added_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Added at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_added_by",
+    "context_group": "disposition.ui",
+    "default_text": "Added by",
+    "semantic_meaning": "Readable disposition event history: added_by",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Added by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_approval",
+    "context_group": "disposition.ui",
+    "default_text": "Approval",
+    "semantic_meaning": "Readable disposition event history: approval",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approval",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_approver",
+    "context_group": "disposition.ui",
+    "default_text": "Approved by",
+    "semantic_meaning": "Readable disposition event history: approver",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approved by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_available",
+    "context_group": "disposition.ui",
+    "default_text": "Available",
+    "semantic_meaning": "Readable disposition event history: available",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Available",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_blockers_detected",
+    "context_group": "disposition.ui",
+    "default_text": "The system detected conditions preventing disposition. The findings at that time are shown below.",
+    "semantic_meaning": "Readable disposition event history: blockers_detected",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The system detected conditions preventing disposition. The findings at that time are shown below.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_blockers_resolved",
+    "context_group": "disposition.ui",
+    "default_text": "The system detected a change in disposition blockers. The findings at that time are shown below.",
+    "semantic_meaning": "Readable disposition event history: blockers_resolved",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The system detected a change in disposition blockers. The findings at that time are shown below.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_cancelled",
+    "context_group": "disposition.ui",
+    "default_text": "Cancelled",
+    "semantic_meaning": "Readable disposition event history: cancelled",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Cancelled",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_certificate_reference",
+    "context_group": "disposition.ui",
+    "default_text": "Certificate reference",
+    "semantic_meaning": "Readable disposition event history: certificate_reference",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate reference",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_closed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Closed at",
+    "semantic_meaning": "Readable disposition event history: closed_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Closed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_completed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Completed at",
+    "semantic_meaning": "Readable disposition event history: completed_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Completed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_completed_units",
+    "context_group": "disposition.ui",
+    "default_text": "Completed roots",
+    "semantic_meaning": "Readable disposition event history: completed_units",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Completed roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_confirmed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Confirmed at",
+    "semantic_meaning": "Readable disposition event history: confirmed_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Confirmed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_current_names",
+    "context_group": "disposition.ui",
+    "default_text": "Linked names reflect currently accessible information; the event itself has not been changed.",
+    "semantic_meaning": "Readable disposition event history: current_names",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Linked names reflect currently accessible information; the event itself has not been changed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_current_years",
+    "context_group": "disposition.ui",
+    "default_text": "Current retention years",
+    "semantic_meaning": "Readable disposition event history: current_years",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current retention years",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_decided_at",
+    "context_group": "disposition.ui",
+    "default_text": "Decision time",
+    "semantic_meaning": "Readable disposition event history: decided_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Decision time",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_delivery_state",
+    "context_group": "disposition.ui",
+    "default_text": "Delivery state",
+    "semantic_meaning": "Readable disposition event history: delivery_state",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Delivery state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_details",
+    "context_group": "disposition.ui",
+    "default_text": "Event details",
+    "semantic_meaning": "Disposition history details",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Event details",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_detected_at",
+    "context_group": "disposition.ui",
+    "default_text": "Detected at",
+    "semantic_meaning": "Readable disposition event history: detected_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Detected at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_detected_by",
+    "context_group": "disposition.ui",
+    "default_text": "Detected by",
+    "semantic_meaning": "Readable disposition event history: detected_by",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Detected by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_digital_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction certificate",
+    "semantic_meaning": "Readable disposition event history: digital_certificate",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction certificate",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_document_state",
+    "context_group": "disposition.ui",
+    "default_text": "Document state",
+    "semantic_meaning": "Readable disposition event history: document_state",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Document state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_endorsed",
+    "context_group": "disposition.ui",
+    "default_text": "Endorsed",
+    "semantic_meaning": "Readable disposition event history: endorsed",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Endorsed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_error",
+    "context_group": "disposition.ui",
+    "default_text": "Issue",
+    "semantic_meaning": "Readable disposition event history: error",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Issue",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_executed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Executed at",
+    "semantic_meaning": "Readable disposition event history: executed_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Executed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_failed_units",
+    "context_group": "disposition.ui",
+    "default_text": "Failed roots",
+    "semantic_meaning": "Readable disposition event history: failed_units",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Failed roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_generating",
+    "context_group": "disposition.ui",
+    "default_text": "Being generated",
+    "semantic_meaning": "Readable disposition event history: generating",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Being generated",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_held",
+    "context_group": "disposition.ui",
+    "default_text": "Legal holds",
+    "semantic_meaning": "Disposition history held",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Legal holds",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_intermediate_years",
+    "context_group": "disposition.ui",
+    "default_text": "Intermediate retention years",
+    "semantic_meaning": "Readable disposition event history: intermediate_years",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Intermediate retention years",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_job_completed",
+    "context_group": "disposition.ui",
+    "default_text": "Job completed",
+    "semantic_meaning": "Readable disposition event history: job_completed",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Job completed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_medium",
+    "context_group": "disposition.ui",
+    "default_text": "Medium",
+    "semantic_meaning": "Readable disposition event history: medium",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Medium",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_membership_state",
+    "context_group": "disposition.ui",
+    "default_text": "Membership state",
+    "semantic_meaning": "Readable disposition event history: membership_state",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Membership state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_not_set",
+    "context_group": "disposition.ui",
+    "default_text": "Not set",
+    "semantic_meaning": "Readable disposition event history: not_set",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Not set",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_outcome",
+    "context_group": "disposition.ui",
+    "default_text": "Outcome",
+    "semantic_meaning": "Readable disposition event history: outcome",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Outcome",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_pending",
+    "context_group": "disposition.ui",
+    "default_text": "Pending",
+    "semantic_meaning": "Readable disposition event history: pending",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Pending",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_physical_scope",
+    "context_group": "disposition.ui",
+    "default_text": "Physical destruction scope",
+    "semantic_meaning": "Readable disposition event history: physical_scope",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Physical destruction scope",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_previous_evidence_version",
+    "context_group": "disposition.ui",
+    "default_text": "Previous evidence version",
+    "semantic_meaning": "Readable disposition event history: previous_evidence_version",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Previous evidence version",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_proposal_state",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal state",
+    "semantic_meaning": "Readable disposition event history: proposal_state",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_proposer",
+    "context_group": "disposition.ui",
+    "default_text": "Proposed by",
+    "semantic_meaning": "Readable disposition event history: proposer",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposed by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_queued",
+    "context_group": "disposition.ui",
+    "default_text": "Queued",
+    "semantic_meaning": "Readable disposition event history: queued",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Queued",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_relationships",
+    "context_group": "disposition.ui",
+    "default_text": "Blocking relationships",
+    "semantic_meaning": "Readable disposition event history: relationships",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Blocking relationships",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_released",
+    "context_group": "disposition.ui",
+    "default_text": "Released",
+    "semantic_meaning": "Readable disposition event history: released",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Released",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_remaining_units",
+    "context_group": "disposition.ui",
+    "default_text": "Remaining roots",
+    "semantic_meaning": "Readable disposition event history: remaining_units",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Remaining roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_removal_required",
+    "context_group": "disposition.ui",
+    "default_text": "Removal from job required",
+    "semantic_meaning": "Readable disposition event history: removal_required",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removal from job required",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_removed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Removed at",
+    "semantic_meaning": "Readable disposition event history: removed_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_removed_by",
+    "context_group": "disposition.ui",
+    "default_text": "Removed by",
+    "semantic_meaning": "Readable disposition event history: removed_by",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removed by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_removed_units",
+    "context_group": "disposition.ui",
+    "default_text": "Removed roots",
+    "semantic_meaning": "Readable disposition event history: removed_units",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removed roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_request",
+    "context_group": "disposition.ui",
+    "default_text": "Request",
+    "semantic_meaning": "Readable disposition event history: request",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Request",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_retention",
+    "context_group": "disposition.ui",
+    "default_text": "Retention rule",
+    "semantic_meaning": "Readable disposition event history: retention",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retention rule",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_review_route",
+    "context_group": "disposition.ui",
+    "default_text": "Review route",
+    "semantic_meaning": "Readable disposition event history: review_route",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review route",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_running",
+    "context_group": "disposition.ui",
+    "default_text": "In progress",
+    "semantic_meaning": "Readable disposition event history: running",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "In progress",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_sent",
+    "context_group": "disposition.ui",
+    "default_text": "Sent",
+    "semantic_meaning": "Readable disposition event history: sent",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Sent",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_subject",
+    "context_group": "disposition.ui",
+    "default_text": "Subject",
+    "semantic_meaning": "Readable disposition event history: subject",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Subject",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_submitted_at",
+    "context_group": "disposition.ui",
+    "default_text": "Submitted at",
+    "semantic_meaning": "Readable disposition event history: submitted_at",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Submitted at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_succeeded",
+    "context_group": "disposition.ui",
+    "default_text": "Succeeded",
+    "semantic_meaning": "Readable disposition event history: succeeded",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Succeeded",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_successful",
+    "context_group": "disposition.ui",
+    "default_text": "Successful",
+    "semantic_meaning": "Readable disposition event history: successful",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Successful",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_technical",
+    "context_group": "disposition.ui",
+    "default_text": "Technical details",
+    "semantic_meaning": "Readable disposition event history: technical",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Technical details",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_title",
+    "context_group": "disposition.ui",
+    "default_text": "Title",
+    "semantic_meaning": "Readable disposition event history: title",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Title",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_total_units",
+    "context_group": "disposition.ui",
+    "default_text": "Total roots",
+    "semantic_meaning": "Readable disposition event history: total_units",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Total roots",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "Unavailable or access restricted",
+    "semantic_meaning": "Readable disposition event history: unavailable",
+    "common_locations": [
+      "Disposition job event details"
+    ],
+    "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Unavailable or access restricted",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.hold_ids",
     "context_group": "disposition.ui",
     "default_text": "Legal holds",
@@ -13368,6 +14208,167 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.tracker_completion",
+    "context_group": "disposition.ui",
+    "default_text": "Completion",
+    "semantic_meaning": "Final stage in the workflow tracker, regardless of its current progress status.",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Name of the final workflow stage, not a completed status.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Completion",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_current",
+    "context_group": "disposition.ui",
+    "default_text": "Current",
+    "semantic_meaning": "Workflow stage tracker status: Current",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Status badge for a workflow stage; use feminine Arabic for stage.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Current",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_invalidated",
+    "context_group": "disposition.ui",
+    "default_text": "Approval invalidated; renewed review required",
+    "semantic_meaning": "Disposition workflow round history: Approval invalidated; renewed review required",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approval invalidated; renewed review required",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_more",
+    "context_group": "disposition.ui",
+    "default_text": "Load earlier rounds",
+    "semantic_meaning": "Disposition workflow round history: Load earlier rounds",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Load earlier rounds",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_no_previous",
+    "context_group": "disposition.ui",
+    "default_text": "No previous review rounds",
+    "semantic_meaning": "Disposition workflow round history: No previous review rounds",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No previous review rounds",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_preparing_round",
+    "context_group": "disposition.ui",
+    "default_text": "Preparing review round {number}",
+    "semantic_meaning": "Disposition workflow round history: Preparing review round {number}",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "number": "integer"
+    },
+    "rendered_example": "Preparing review round 2",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_previous",
+    "context_group": "disposition.ui",
+    "default_text": "View previous rounds",
+    "semantic_meaning": "Disposition workflow round history: View previous rounds",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "View previous rounds",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_returned",
+    "context_group": "disposition.ui",
+    "default_text": "Returned from {stage} · Round {number}",
+    "semantic_meaning": "Disposition workflow round history: Returned from {stage} · Round {number}",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "number": "integer",
+      "stage": "text"
+    },
+    "rendered_example": "Returned from Unit Manager review · Round 2",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_round",
+    "context_group": "disposition.ui",
+    "default_text": "Review round {number}",
+    "semantic_meaning": "Disposition workflow round history: Review round {number}",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "number": "integer"
+    },
+    "rendered_example": "Review round 2",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_submitted",
+    "context_group": "disposition.ui",
+    "default_text": "Submitted",
+    "semantic_meaning": "Disposition workflow round history: Submitted",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Review rounds and recorded returns; preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Submitted",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.tracker_upcoming",
+    "context_group": "disposition.ui",
+    "default_text": "Upcoming",
+    "semantic_meaning": "Workflow stage tracker status: Upcoming",
+    "common_locations": [
+      "Disposition job workflow progress"
+    ],
+    "translator_guidance": "Status badge for a workflow stage; use feminine Arabic for stage.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Upcoming",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.type",
     "context_group": "disposition.ui",
     "default_text": "Final disposition",
@@ -13514,6 +14515,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Workflow progress",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.workspace_details",
+    "context_group": "disposition.ui",
+    "default_text": "Job details",
+    "semantic_meaning": "Stage-focused disposition workspace section: Job details",
+    "common_locations": [
+      "Disposition job workspace"
+    ],
+    "translator_guidance": "Label for a job workspace tab or disclosure. Use records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Job details",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.workspace_history",
+    "context_group": "disposition.ui",
+    "default_text": "History",
+    "semantic_meaning": "Stage-focused disposition workspace section: History",
+    "common_locations": [
+      "Disposition job workspace"
+    ],
+    "translator_guidance": "Label for a job workspace tab or disclosure. Use records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "History",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.workspace_members",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregations",
+    "semantic_meaning": "Stage-focused disposition workspace section: Aggregations",
+    "common_locations": [
+      "Disposition job workspace"
+    ],
+    "translator_guidance": "Label for a job workspace tab or disclosure. Use records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Aggregations",
     "is_html": false
   },
   {

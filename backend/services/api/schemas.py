@@ -1096,11 +1096,14 @@ class DigitalComponentRead(ApiModel):
 
 
 class EventHistoryRead(ApiModel):
+    display_presentation: str | None = None
+    display_references: dict[str, str | None] = Field(default_factory=dict)
+    can_view_technical_details: bool = False
     id: int
     occurred_at: datetime
     transaction_id: int
     entity_type: str
-    entity_id: int
+    entity_id: int | None
     operation: str
     actor_user_id: int | None
     actor_name: str | None

@@ -586,7 +586,7 @@ individual who acted; the role queue is not recorded as the human actor.
 
 ### 6.4 Common destruction-job workspace
 
-Every destruction task opens the same job workspace. It contains:
+Job details and task details share authorized data and components but have distinct entry points and purposes. The job workspace contains:
 
 1. **Job header** — job number, destruction number when available, owning
    organizational unit, assigned Records Officer, lifecycle state, current
@@ -607,6 +607,35 @@ Every destruction task opens the same job workspace. It contains:
 6. **Review and event history** — prior review rounds, proposals and their
    authors, withdrawals, rejections, reasons, membership changes, approvals,
    evidence events, execution results, and destruction progress.
+
+**Jobs → Job details** opens on job information and overall workflow progress.
+Full metadata and the compact stage tracker are expanded initially. Aggregations,
+Documents, History, and authorized Templates are separate tabs. No task form is
+loaded here. The current accessible task can be opened through a task link.
+Documents retains authorized preview, corrective upload, email, and request
+regeneration/renewal controls. History retains prior notes, rounds, decisions,
+email attempts and audit events.
+
+**My Tasks → Task details** opens the explicitly selected task ID. It shows the
+stage's instructions, assignee/queue, claim controls and authorized task actions.
+Supporting aggregation membership and evidence are available separately. Overall
+workflow, templates and job-wide event history belong to Job details, reachable
+through a link. Full job metadata is collapsed in task details. A completed,
+closed or no-longer-current task must not render the next stage's form.
+Refresh and restored navigation preserve the selected task ID. Switching tabs
+preserves unsaved work; supporting lists refresh on entry. Server authorization
+and workflow transitions are unchanged.
+
+The compact tracker in Job details uses native
+NiceGUI components, with checkmarks for completed stages, an explicit Current
+label and emphasis for the current stage, subdued Upcoming stages, and Skipped
+labels for stages bypassed by the saved route. Physical destruction appears
+only when the workspace confirms it applies. Correction returns the tracker to
+the preparation/correction stage for the current round; previous rounds remain
+in History. Physical-only completion must not imply digital execution or
+certificate generation. Termination is identified without marking future stages
+completed. The full branching diagram belongs in documentation, not this view. These presentation
+boundaries do not grant or revoke API permissions.
 
 The aggregation listing supports server-side filtering and sorting and the
 standard loading, empty, error, pagination, LTR, RTL, accessibility, and
@@ -1986,3 +2015,30 @@ name, incoming uses the reverse name, and symmetric types retain their name.
 The selector searches the displayed localized name or code and retains the
 selected type ID when direction changes. Existing authorization and relationship
 endpoint orientation remain unchanged.
+
+
+### Review-round progress and returns (23 October 2026)
+
+The Job details workflow panel has one tracker for the current review cycle.
+A correction after rejection displays “Preparing review round N”, where N is
+the last submitted round plus one. This is a presentation of pending work,
+not a new database round: submission/approval retains the existing transaction
+that creates the immutable round. On resubmission the same number becomes the
+current submitted round. Current-stage highlighting resets to preparation or
+correction; subsequent stages are upcoming, subject to the saved route.
+
+A return notice identifies the preceding round, rejecting review stage, actor,
+time and recorded reason. External rejection and invalidated approval are
+represented from their actual recorded facts; an invalidation is not labelled
+as a reviewer rejection. Names follow the interface language with existing
+fallbacks. Reasons remain the original authored text.
+
+“View previous rounds” is collapsed initially. It expands to reverse-chronological
+round summaries, each showing its submission (where applicable) and actual decisions in time order,
+with actor, time, result and reason. It does not repeat the full stage tracker,
+show unreached stages, or infer approvals from a job's current stage. Earlier
+rounds load in server pages (at most 25); inaccessible snapshots remain redacted.
+The latest preceding round is fetched once for the notice and reused in the
+expanded history. This is read-only presentation, with no new workflow states,
+privileges, mutations or changes to historical audit rows. Task details retain
+their stage-specific focus.

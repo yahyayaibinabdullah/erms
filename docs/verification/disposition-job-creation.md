@@ -147,3 +147,137 @@ remain outside this change. The new Arabic Browse value remains a draft.
 - In-app fixture browser verified English/LTR and Arabic/RTL field ordering and
   selected reverse labels. No catalogue keys, published translations, or database
   migrations changed.
+
+### Stage-focused workspace — 22 October 2026
+
+- Current task is the initial tab. Stage, lifecycle and assignee are prominent;
+  metadata and workflow are collapsed. Supporting membership, documents, history
+  and authorized template controls are separated with native NiceGUI tabs.
+- ReviewForm limits physical, external, digital and completion controls to the
+  relevant stage, retaining explicitly authorized request generation/renewal.
+  History and email controls render in their supporting tabs. Existing evidence
+  correction and server authorization remain unchanged.
+- `test_current_stage_excludes_other_stage_controls` checks all twelve stage
+  variants in English and Arabic. `test_workspace_tabs_lazy_refresh_and_preserve_unsaved_work`
+  verifies initial request bounds, fresh tab entry, preserved notes and page
+  abandonment. The screen regression also verifies membership data after entry.
+- 113 focused UI tests passed. In-app fixture inspection verified the prominent
+  stage, separate standard membership table, tab switching with unsaved notes,
+  and LTR/RTL layouts. No persistent database was used for these tests.
+- Three contextual keys were added: workspace_details, workspace_members and
+  workspace_history. Arabic values are drafts for administrator review; existing
+  wording/provenance was preserved. No export was promoted or draft published.
+
+### Compact workflow tracker — 22 October 2026
+
+The job workspace now uses native NiceGUI rows, icons and status badges instead
+of Mermaid. Tests cover all saved routes, skipped File Administrator review,
+correction reset, current-stage emphasis, physical applicability, physical-only
+completion, digital completion and termination. The tracker is read-only and uses
+already-loaded workspace data, with no new queries or cache. English/LTR and
+Arabic/RTL fixture browser checks confirmed compact rows and text/icon status
+cues. The full branching flow remains in `docs/disposition-workflow.md`.
+
+118 focused task/screen tests passed. Catalogue references, key coverage/order,
+artifact hash, nonblank text, markup and placeholder checks passed. Three new
+keys (tracker_current, tracker_upcoming, tracker_completion) include Arabic drafts
+for review. No existing translation was replaced and no draft was published.
+
+### Separate job and task details — 22 October 2026
+
+This supersedes the shared Current task default described above. Jobs open with
+expanded metadata and overall workflow progress, plus membership, documents,
+history and authorized templates. My Tasks opens the selected task's stage work,
+with supporting membership/documents and a link to the job overview. Closed or
+stale tasks do not expose the next stage's form. Existing authorization remains
+in force.
+
+`test_job_and_task_details_have_distinct_focus` verifies both entry points in
+English and Arabic, their tabs, task controls, tracker visibility and Refresh.
+`test_job_and_task_navigation_restore_their_distinct_identities` verifies separate
+job/task history entries and restoration of the selected task and its parent job.
+The focused task, screen, navigation and capability suites pass. In-app fixture
+browser checks confirmed both views in English/LTR and Arabic/RTL; the fixture
+uses real UI components and simulated API data, without changing demo data.
+No new catalogue keys, translations, environment settings or migrations were
+introduced by this separation.
+
+### Readable disposition history — 22 October 2026
+
+- Shared job/proposal/note history dialogs now render named business facts,
+  blocker observations and changed-field comparisons. Empty/null comparison
+  panels and raw IDs are excluded from the normal view. Audit viewers can open
+  the collapsed authorized Technical details section.
+- `history_display.enrich` resolves only references from the bounded authorized
+  page, in the request language, without a cache. Tests cover existing membership
+  events, Arabic user names, redacted/missing references, all resolver queries and
+  the authoritative audit privilege flag. The API query suites passed 22 tests
+  in disposable databases; both databases were dropped successfully.
+- UI regressions cover membership, blockers, cleared values, redaction, auditor
+  visibility and task/review/evidence/email/execution/termination event families
+  in English and Arabic. Fixture browser verification uses real dialog components
+  with representative data, not mutations of demo audit history.
+- New contextual history catalogue entries include Arabic drafts. No administrator
+  export was promoted and no translation was published. Existing curated wording
+  was preserved. Catalogue references, key ordering and new-string Arabic checks
+  pass. Full legacy Arabic terminology validation still reports existing curated
+  entries (vital-record terminology, several aggregation labels and the Re: prefix);
+  these unrelated administrator translations were not overwritten.
+
+Final checks: 113 focused UI tests and 22 disposable-database API tests passed.
+English membership/blocker and Arabic membership/blocker dialogs were inspected
+in the in-app browser. The RTL technical expansion retained readable code
+formatting. All 60 new history keys passed Arabic terminology/blank/placeholder
+validation; complete key coverage/order, catalogue references and artifact hash
+also passed. Preview processes were stopped after verification.
+
+Global Audit Trail follow-up: list, search and single-event endpoints now share
+bounded disposition reference enrichment. The existing global dialog header,
+actor/time/source layout and entity navigation remain in place; its disposition
+body calls the same readable field renderer as job history. Technical identifiers
+and JSON are consistently collapsed and restricted to audit viewers. Three API
+regressions passed in a fresh disposable database (dropped), and 28 EN/AR UI tests
+passed, including execution of the actual global dialog function. In-app fixture
+inspection confirmed the global English/LTR and Arabic/RTL layouts. No new
+translation keys or migrations are required for this follow-up. The proposed
+round-aware workflow tracker remains a mockup, not an implemented workflow change.
+
+
+### Current round and expandable previous rounds — 23 October 2026
+
+Approved mockup implemented in `disposition/process.py`, with read-only
+`GET /api/v1/disposition/jobs/{job_id}/workflow-progress` backed by
+`disposition/progress.py`. No schema change, migration, or audit rewriting.
+Correction is explicitly “Preparing review round N”; new round creation still
+happens only through existing submission/approval. Manager-only approval does
+not invent a separate submission. Prior rounds contain actual internal and
+external decisions; invalidation is distinct from rejection.
+
+The latest preceding round is requested once after component construction and
+reused for the return notice and initially collapsed history. Earlier rounds
+are fetched in pages of at most 25, with a look-ahead row. Decisions belong only
+to those page IDs and the saved finite workflow stages; snapshots and proposals
+are not transferred. History is uncached outside its mounted, identity/language
+specific page. Navigation/mutations rebuild it; overlapping requests and late
+responses after abandonment are ignored. Redacted rounds never fetch details.
+
+Verification: 128 UI tests across task, job and progress screens; 15 disposable
+API/policy tests, including repeated rejection/resubmission, localized names,
+redaction, bounded paging, and current policy inventory. Disposable database
+`erms_messaging_test_acl_d42f285896be485496a299d2ac9bc697` was dropped after the
+passing run. The policy check also identified and reconciled the pre-existing
+missing `suggested-owner` classification alongside the new endpoint.
+
+Live in-app browser preview used the real component, real English/Arabic
+catalogues and fixture decisions. Both languages, repeated navigation,
+expansion, and 390px widths were checked. Inspection found inherited RTL
+`row-reverse` double reversal; standard NiceGUI grids replaced the affected
+rows, without custom CSS. Dates and names remained correctly localized.
+
+Eight new keys: `tracker_round`, `tracker_preparing_round`, `tracker_previous`,
+`tracker_more`, `tracker_submitted`, `tracker_invalidated`, `tracker_returned`,
+`tracker_no_previous` under `disposition.ui`. English definitions and canonical
+Arabic artifact merged by key; existing wording/provenance preserved, no admin
+export promoted. Coverage, ordering, artifact hash, catalogue references and
+new-key Arabic validation passed. New Arabic wording remains review-only draft;
+legacy curated terminology exceptions from earlier verification remain intact.

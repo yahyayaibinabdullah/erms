@@ -41,10 +41,12 @@ DISPOSITION_MANAGEMENT_OPERATIONS = {
     ('POST', '/api/v1/disposition/memberships/{membership_id}/remove'),
 }
 DISPOSITION_ROOT_OPERATIONS = {
+    ('GET', '/api/v1/disposition/suggested-owner'),
     ('GET', '/api/v1/disposition/aggregations/{root_id}/blockers'),
     ('GET', '/api/v1/disposition/aggregations/{root_id}/eligibility'),
 }
 DISPOSITION_SCOPED_OPERATIONS = {
+    ('GET', '/api/v1/disposition/jobs/{job_id}/workflow-progress'),
     ('GET', '/api/v1/disposition/jobs/{job_id}'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/artifact-destination'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/completion-progress'),

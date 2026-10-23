@@ -168,17 +168,40 @@ async def test_task_filters_restore_expanded_choice(host):
     assert next(e for e in host.descendants() if isinstance(e,ui.expansion)).value is True
 
 
-def test_workflow_has_start_creation_preparation_completed_end_and_saved_bypass(host):
-    from frontend.webui.disposition.process import process_source
-    with host:
-        source=process_source(view(route='simplified')['job']);workflow_panel(view(route='simplified')['job'])
-    assert 'START(["'+text('start')+'"]' in source
-    assert 'START --> CREATE' in source and 'CREATE --> A' in source
-    assert 'P --> END' in source
-    assert text('job_created') in source and text('officer_preparation') in source
-    assert source.count(text('skipped'))>=2
-    # Mermaid is lazy: no diagram asset/component before the user expands it.
+@pytest.mark.parametrize('route,skipped',[('standard',0),('simplified',2),('records_manager_only',3)])
+def test_native_workflow_tracker_saved_route(host,route,skipped):
+    from frontend.webui.disposition.process import process_stages
+    job=view(route=route)['job']
+    if route=='records_manager_only':job['workflow_stage']='manager_preparation'
+    steps=process_stages(job)
+    assert sum(s['state']=='skipped' for s in steps)==skipped
+    assert next(s['key'] for s in steps if s['state']=='tracker_current')==job['workflow_stage']
+    with host:workflow_panel(job)
     assert not any(isinstance(e,ui.mermaid) for e in host.descendants())
+    assert len([e for e in host.descendants() if isinstance(e,ui.badge)])==len(steps)+1  # round badge plus stage states
+    assert steps[0]=={'key':'job_created','state':'completed'}
+
+
+def test_tracker_correction_skips_physical_completion_and_termination():
+    from frontend.webui.disposition.process import process_stages
+    job={'review_route':'standard','workflow_stage':'officer_correction','lifecycle_state':'active','file_administrator_skipped':True}
+    steps={s['key']:s['state'] for s in process_stages(job)}
+    assert steps['officer_correction']=='tracker_current'
+    assert steps['file_administrator_review']=='skipped'
+    assert steps['unit_manager_review']=='tracker_upcoming'
+    assert 'physical_destruction' not in steps
+    job['workflow_stage']='physical_destruction'
+    assert next(s for s in process_stages(job) if s['key']=='physical_destruction')['state']=='tracker_current'
+    job['lifecycle_state']='terminated'
+    steps={s['key']:s['state'] for s in process_stages(job)}
+    assert steps['physical_destruction']=='terminated' and steps['completed']=='tracker_upcoming'
+    job.update(workflow_stage='completed',lifecycle_state='completed')
+    steps={s['key']:s['state'] for s in process_stages(job,physical={'physical_required':True,'confirmation':{'id':1}})}
+    assert 'digital_destruction' not in steps and 'certificate_generation' not in steps
+    assert steps['completed']=='completed' and steps['physical_destruction']=='completed'
+    assert steps['file_administrator_review']=='skipped'
+    steps=process_stages(job,destruction={'progress':{'state':'succeeded'}})
+    assert next(s for s in steps if s['key']=='digital_destruction')['state']=='completed'
 
 
 @pytest.mark.asyncio
@@ -332,3 +355,100 @@ async def test_relationship_direction_order_and_selected_label(host,monkeypatch)
             relation=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('relationship_type_id'))
             assert relation.value==22 and relation.options[22]=='REL · '+label
             assert api.reads[-1][1]['direction']==value
+
+
+@pytest.mark.parametrize('stage,expected',[
+    ('officer_preparation',set()),('manager_preparation',set()),
+    ('officer_correction',set()),('manager_correction',set()),
+    ('file_administrator_review',set()),('unit_manager_review',set()),
+    ('records_manager_review',set()),('external_approval_pending',{'external'}),
+    ('physical_destruction',{'physical'}),('digital_destruction',{'digital'}),
+    ('certificate_generation',{'completion'}),('completed',{'completion'}),
+])
+@pytest.mark.asyncio
+async def test_current_stage_excludes_other_stage_controls(host,monkeypatch,stage,expected):
+    from frontend.webui.disposition import external,physical,destruction,completion,email
+    seen=[]
+    for name,module,method in [('external',external,'request_controls'),('physical',physical,'controls'),('completion',completion,'controls')]:
+        monkeypatch.setattr(module,method,lambda form,n=name:seen.append(n))
+    monkeypatch.setattr(destruction,'controls',lambda form:seen.append('digital') if form.job['workflow_stage']=='digital_destruction' else None)
+    monkeypatch.setattr(email,'controls',lambda form,host=None:None)
+    workspace=view(actions=());workspace.update(task=None,roles=[])
+    workspace['job']['workflow_stage']=stage
+    with host:
+        history=ui.column();documents=ui.column()
+        f=ReviewForm(api=Api(),workspace=workspace,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=lambda x:None,format_timestamp=str,open_resource=None,history_host=history,documents_host=documents)
+        await f.load()
+    assert set(seen)==expected
+    assert not list(e for e in f.host.descendants() if isinstance(e,ui.expansion))
+    assert len([e for e in history.descendants() if isinstance(e,ui.expansion)])==5
+    assert f.api.reads==[]
+
+
+@pytest.mark.asyncio
+async def test_workspace_tabs_lazy_refresh_and_preserve_unsaved_work(host,monkeypatch):
+    from frontend.webui.disposition.screens import job_screen
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    workspace=view()
+    workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',assigned_user_id=1,owning_org_unit_id=1,membership_editable=True,owner_editable=True)
+    class WorkspaceApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/workspace'):
+                self.reads.append((path,params));return workspace
+            return await super().disposition_page(path,**params)
+    api=WorkspaceApi();dirty=[];mounted=[True]
+    async def noop(*args):pass
+    with host:
+        await job_screen(api=api,identity=5,container=host,active=lambda:mounted[0],on_error=str,bind_remote=lambda *a,**k:None,open_job=noop,open_eligibility=noop,open_resource=noop,format_timestamp=str,event_label=str,register_dirty=dirty.append,task_id=8)
+        navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
+        assert navigation.value=='current_task'
+        assert not any(p.endswith(('/memberships','/history','/documents','/templates')) for p,_ in api.reads)
+        notes=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_notes'))
+        notes.value='Unsaved observations'
+        for section in ('members','current_task','members','current_task'):
+            navigation.value=section
+            await asyncio.sleep(.02)
+        assert notes.value=='Unsaved observations' and dirty[0]()
+        assert sum(p.endswith('/memberships') for p,_ in api.reads)==2
+        assert sum(p.endswith('/history') for p,_ in api.reads)==0
+        assert not any(p.endswith('/templates') for p,_ in api.reads)
+        before=len(api.reads);mounted[0]=False;navigation.value='members'
+        await asyncio.sleep(.02)
+        assert len(api.reads)==before
+
+
+@pytest.mark.parametrize('task_id',[None,8])
+@pytest.mark.asyncio
+async def test_job_and_task_details_have_distinct_focus(host,monkeypatch,task_id):
+    from frontend.webui.disposition.screens import job_screen
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    workspace=view()
+    workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',assigned_user_id=1,owning_org_unit_id=1,membership_editable=True,owner_editable=True)
+    workspace['management_roles']=[{'id':7,'name':'Officer','profile_code':'INFO_GOV_OFFICER'}]
+    class WorkspaceApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/workspace'):
+                self.reads.append((path,params));return workspace
+            return await super().disposition_page(path,**params)
+    api=WorkspaceApi();opened=[]
+    async def open_job(identity):opened.append(('job',identity))
+    async def open_task(identity,task):opened.append(('task',identity,task))
+    with host:
+        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=open_job,open_task=open_task,open_eligibility=open_job,open_resource=open_job,format_timestamp=str,event_label=str,task_id=task_id)
+        navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
+        tabs=[e._props['name'] for e in host.descendants() if isinstance(e,ui.tab)]
+        assert navigation.value==('current_task' if task_id else 'workspace_details')
+        headings=[e.text for e in host.descendants() if isinstance(e,ui.label) and 'text-2xl' in e.classes]
+        assert headings==[text('stage')+' · '+text(workspace['job']['workflow_stage'])] if task_id else headings==[text('workspace_details')]
+        assert ('templates' in tabs)==(task_id is None)
+        assert ('history' in tabs)==(task_id is None)
+        assert any(p.endswith('/review-work') for p,_ in api.reads)==(task_id is not None)
+        assert any(isinstance(e,ui.textarea) and e.label==text('review_notes') for e in host.descendants())==(task_id is not None)
+        progress=[e for e in host.descendants() if isinstance(e,ui.expansion) and e._props.get('label')==text('workflow')]
+        assert bool(progress)==(task_id is None)
+        if progress:assert progress[0].value
+        refresh=next(e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('refresh'))
+        result=next(iter(refresh._event_listeners.values())).handler(None)
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(.02)
+        assert opened==[('task',5,8)] if task_id else opened==[('job',5)]

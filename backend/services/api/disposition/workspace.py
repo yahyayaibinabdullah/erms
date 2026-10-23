@@ -108,10 +108,12 @@ def assignment_candidates(c,task_id,*,acting_role_id,kind,query='',selected=None
     return {'items':rows}
 
 
-def review_history(c,job_id,*,kind,identity,limit,offset):
+def review_history(c,job_id,*,kind,identity,limit,offset,language_tag='en'):
     require_workspace(c,job_id)
     table,entity={'proposal':('disposition_review_proposals','disposition_review_proposal'),'note':('disposition_review_notes','disposition_review_note')}[kind]
     if not c.execute(f'SELECT 1 FROM {table} WHERE id=%s AND job_id=%s',(identity,job_id)).fetchone():raise HTTPException(404)
     source=' FROM event_history raw JOIN authorized_event_history e ON e.id=raw.id WHERE raw.entity_type=%s AND raw.entity_id=%s'
     total=c.execute('SELECT count(*) AS total'+source,(entity,identity)).fetchone()['total']
-    return {'total':total,'items':c.execute('SELECT e.*'+source+' ORDER BY e.id DESC LIMIT %s OFFSET %s',(entity,identity,limit,offset)).fetchall()}
+    from .history_display import enrich
+    rows=c.execute('SELECT e.*'+source+' ORDER BY e.id DESC LIMIT %s OFFSET %s',(entity,identity,limit,offset)).fetchall()
+    return {'total':total,'items':enrich(c,rows,language_tag)}

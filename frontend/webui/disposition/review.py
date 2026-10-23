@@ -7,6 +7,7 @@ import asyncio
 import json
 from html import escape
 from uuid import uuid4
+from types import SimpleNamespace
 from nicegui import ui
 from ..api_client import ApiError
 from ..remote_select import RemoteSelect
@@ -18,13 +19,13 @@ from .screens import column,failure
 PROPOSAL_TYPES=('remove_from_job','make_vital','blocking_security','add_to_holds','create_aggregation_relationship','remove_aggregation_relationship','remove_record_relationship','local_retention_override')
 
 
-def workflow_panel(job):
+def workflow_panel(job, **context):
     from .process import process_diagram
-    process_diagram(job)
+    process_diagram(job, **context)
 
 
 class ReviewForm:
-    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None):
+    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,history_active=None):
         self.api,self.view,self.active,self.on_error=api,workspace,active,on_error
         self.bind_remote,self.after,self.format_timestamp=bind_remote,after,format_timestamp
         self.open_resource=open_resource
@@ -35,6 +36,11 @@ class ReviewForm:
         self.work=None;self.note=None;self.overall=None
         self.roles={r['id']:r['name'] for r in workspace['roles']}
         self.host=ui.column().classes('w-full gap-4')
+        self.history_host=history_host or self.host
+        self.documents_host=documents_host or self.host
+        self.history_active=history_active or self.alive
+        self.history_built=False
+        self.history_refreshers=[]
         with self.host:
             ui.label(text('current_task')).classes('text-lg font-semibold')
             self.feedback=ui.label('').props('role=alert').classes('text-negative')
@@ -46,7 +52,7 @@ class ReviewForm:
             if self.task['task_type']=='digital_destruction':hint='disposition_digital_confirmation_required'
             if self.task['task_type']=='digital_destruction' and ((workspace.get('destruction') or {}).get('progress') or {}).get('state')=='succeeded':hint='digital_done_completion_pending'
             if self.task['task_type']=='certificate_download':hint='certificate_download_hint'
-            ui.label(text(hint)).classes('text-sm text-slate-600')
+            ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
             self.role=ui.select(self.roles,label=text('acting_task_role'),value=next(iter(self.roles),None)).props('outlined dense').classes('w-full')
@@ -75,20 +81,17 @@ class ReviewForm:
 
     async def load(self):
         from .external import request_controls,task_form
-        request_controls(self)
+        if self.job['workflow_stage']=='external_approval_pending' or any((self.view.get('external') or {}).get(k) for k in ('can_generate','can_renew')):request_controls(self)
         from .physical import controls as physical_controls,task_form as physical_task_form
-        physical_controls(self)
+        if self.job['workflow_stage']=='physical_destruction':physical_controls(self)
         from .destruction import controls as destruction_controls
         destruction_controls(self)
         from .email import controls as email_controls
-        email_controls(self)
+        email_controls(self,host=self.documents_host)
         from .completion import controls as completion_controls
-        completion_controls(self)
-        if not self.task or not self.roles:
-            with self.host:
-                self.history_sections()
-                await self.proposals_panel()
-            return
+        if self.job['workflow_stage'] in ('certificate_generation','completed') or self.job.get('lifecycle_state')=='completed':completion_controls(self)
+        self.history_sections()
+        if not self.task or not self.roles:return
         if self.task.get('task_type')=='certificate_download':
             self.history_sections()
             return
@@ -536,7 +539,9 @@ class ReviewForm:
 
     def history_sections(self):
         """Retained page controls, with fresh server data on every expansion."""
-        with self.host:
+        if self.history_built:return
+        self.history_built=True
+        with self.history_host:
             from .external import decisions_panel
             from .email import attempts_panel
             async def email_attempts(**kwargs):return await attempts_panel(self,**kwargs)
@@ -544,9 +549,16 @@ class ReviewForm:
             for label,method in [('review_notes',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel),('external_decisions',external_decisions),('email_attempts',email_attempts)]:
                 with ui.expansion(text(label),icon='history').classes('w-full') as expansion:
                     host=ui.column().classes('w-full gap-3');state={'page':None}
-                def alive(expansion=expansion):return self.alive() and expansion.value and not expansion._deleted
+                def alive(expansion=expansion):return self.history_active() and expansion.value and not expansion._deleted
                 async def opened(event,method=method,host=host,state=state,alive=alive):
                     if not event.value or not alive():return
                     if state['page'] is None:state['page']=await method(host=host,active=alive)
                     await state['page'].load()
                 expansion.on_value_change(opened)
+                async def refresh(opened=opened,alive=alive):
+                    if alive():await opened(SimpleNamespace(value=True))
+                self.history_refreshers.append(refresh)
+
+
+    async def refresh_history(self):
+        await asyncio.gather(*(refresh() for refresh in self.history_refreshers))

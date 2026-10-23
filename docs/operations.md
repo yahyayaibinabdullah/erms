@@ -979,3 +979,53 @@ name, incoming uses the reverse name, and symmetric types retain their name.
 The selector searches the displayed localized name or code and retains the
 selected type ID when direction changes. Existing authorization and relationship
 endpoint orientation remain unchanged.
+
+### Job details and task details
+
+Open Jobs → Job details for full metadata, overall stage progress, aggregation
+membership, documents, templates and history. Metadata and progress are expanded
+initially. Use its Current task link to open an accessible task.
+
+Open My Tasks → Task details to work on the selected stage, with its instructions,
+assignment and authorized actions. Supporting aggregations and evidence remain
+available; use Job details for the overall workflow and event history. Refresh
+and Back preserve task identity, and tab switching preserves unsaved edits.
+
+### Compact workflow progress
+
+Job details displays Workflow progress as a vertical stage tracker. It identifies Current,
+Upcoming, Completed and Skipped stages using text and icons. Correction rounds
+return to preparation/correction; previous rounds remain in History. Physical
+destruction appears when its applicability is confirmed by the workspace.
+The full branching [workflow reference](disposition-workflow.md) is available
+in documentation instead of being rendered in the job page.
+
+### Reading disposition event details
+
+Disposition job history uses named entities and readable facts rather than
+internal database IDs. Blocker observations describe the conditions detected at
+that time; they are not the current authority for whether disposition may proceed.
+Before/after sections show meaningful changes only. Linked names are current,
+localized names when accessible; historical event data remains unchanged.
+
+Users granted the existing `audit.view` privilege can expand Technical details
+to inspect the authorized raw event JSON. The section starts collapsed and is
+not shown to ordinary users. Access restrictions and destruction protections
+continue to apply. Existing events use this presentation without a migration.
+
+The global Audit Trail applies the same readable disposition facts within its
+standard event dialog. Request/correlation identifiers and raw metadata are in
+its collapsed Technical details section; current-entity navigation is preserved.
+
+
+### Review-round progress display
+
+Job details now presents one current tracker and an initially collapsed history
+of earlier submitted rounds. Correction is labelled as preparing the next
+round, without creating that round early. Return reasons and external review
+outcomes are taken from saved decisions; approval invalidation is distinct.
+No migration or database setting is required. Deploy the API and WebUI together;
+the UI uses the authorized, uncached `/jobs/{id}/workflow-progress` projection.
+Eight new `disposition.ui.tracker_*` translations are generated Arabic drafts
+for administrator review, merged into the canonical artifact without replacing
+curated wording. Use the normal catalogue synchronization/review workflow.

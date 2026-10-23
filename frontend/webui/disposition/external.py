@@ -11,10 +11,10 @@ from .messages import text
 from .artifacts import show_destination
 
 
-def request_controls(form):
+def request_controls(form,host=None):
     value=form.view.get('external')
     if not value:return
-    with form.host:
+    with host or form.host:
         ui.label(text('request_form')).classes('text-lg font-semibold')
         if not value['approval_current'] and form.job.get('lifecycle_state','active')=='active':ui.label(text('approval_changed')).props('role=alert').classes('text-amber-900')
         if value.get('received_decision'):ui.label(text('external_approved' if value['received_decision']=='approved' else 'external_rejected')).props('role=status')

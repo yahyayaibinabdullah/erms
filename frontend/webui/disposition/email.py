@@ -7,10 +7,10 @@ from ..resource_relationships import PageTable
 from .messages import text
 
 
-def controls(form):
+def controls(form,host=None):
     value=form.view.get('email')
     if not value:return
-    with form.host:
+    with host or form.host:
         if value['documents']:
             ui.label(text('email_recipient')).classes('font-semibold')
             ui.label(value['recipient'] or text('not_configured')).props('dir=auto')

@@ -2179,6 +2179,7 @@ def delete_digital_component_content(
     dependencies=[Depends(require_audit_view)],
 )
 def list_event_history(
+    request: Request,
     entity_type: str | None = None,
     entity_id: int | None = None,
     operation: str | None = None,
@@ -2188,7 +2189,7 @@ def list_event_history(
     offset: int = Query(default=0, ge=0),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return list_rows(
+    rows = list_rows(
         connection,
         "event_history",
         limit=limit,
@@ -2204,6 +2205,9 @@ def list_event_history(
         descending=True,
     )
 
+    from .disposition.history_display import enrich_audit_page
+    return enrich_audit_page(connection, rows, preferred_language(connection, request))
+
 
 @app.post(
     "/api/v1/event-history/search",
@@ -2212,10 +2216,13 @@ def list_event_history(
     dependencies=[Depends(require_audit_view)],
 )
 def search_event_history(
-    payload: SearchRequest,
+    request: Request,    payload: SearchRequest,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return search_rows(connection, "event_history", payload, endpoint="/api/v1/event-history/search")
+    from .disposition.history_display import enrich_audit_page
+    result = search_rows(connection, "event_history", payload, endpoint="/api/v1/event-history/search")
+    enrich_audit_page(connection, result["items"], preferred_language(connection, request))
+    return result
 
 
 @app.get(
@@ -2294,8 +2301,10 @@ def list_event_history_actors(
     tags=["event history"],
     dependencies=[Depends(require_audit_view)],
 )
-def get_event_history(event_id: int, connection: Connection = Depends(get_connection, scope="function")):
-    return get_or_404(connection, "event_history", event_id)
+def get_event_history(event_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
+    from .disposition.history_display import enrich_audit_page
+    row = get_or_404(connection, "event_history", event_id)
+    return enrich_audit_page(connection, [row], preferred_language(connection, request))[0]
 
 
 def _entity_history(
