@@ -394,7 +394,7 @@ async def choose_job_dialog(*, api, context, bind_remote, active, on_error, choo
 
 
 async def job_screen(*, api, identity, container, active, on_error, bind_remote, open_job,
-                     open_eligibility, open_resource, format_timestamp, event_label, preview=None, task_id=None, register_dirty=None, browse_resource=None, open_task=None):
+                     open_eligibility, open_resource, format_timestamp, event_label, preview=None, task_id=None, register_dirty=None, browse_resource=None, open_task=None, saved=None, remember=lambda value:None):
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
         status=ui.label(text('loading')).props('role=status')
@@ -407,6 +407,8 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         if not alive():return
         status.text=''
         task_view=task_id is not None
+        view=dict(saved or {})
+        member_saved=view.get('members') or {}
         review=None
         async def reopen():
             if task_view and open_task:await open_task(identity,task_id)
@@ -460,10 +462,11 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         first_section='current_task' if task_view else 'workspace_details'
         sections=[first_section,'members','documents']
         if not task_view:sections.append('history')
-        with ui.tabs(value=first_section).props('no-caps').classes('w-full') as navigation:
+        initial_section=view.get('section') if view.get('section') in sections else first_section
+        with ui.tabs(value=initial_section).props('no-caps').classes('w-full') as navigation:
             for section in sections:ui.tab(section,label=text({'members':'workspace_members','history':'workspace_history'}.get(section,section))).props('no-caps')
         panels={}
-        with ui.tab_panels(navigation,value=first_section,keep_alive=True).classes('w-full'):
+        with ui.tab_panels(navigation,value=initial_section,keep_alive=True).classes('w-full'):
             for section in sections:
                 with ui.tab_panel(section).classes('p-0'):
                     panels[section]=ui.column().classes('w-full gap-4')
@@ -495,11 +498,12 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         with panels['members']:
             ui.separator();ui.label(text('workspace_members')).classes('text-lg font-semibold')
             with ui.row().classes('w-full gap-3 items-end'):
-                member_query=ui.input(text('search')).props('outlined dense maxlength=200').classes('grow')
-                member_state=ui.select({'':text('any'),**{k:text(k) for k in ('active','removed','completed_history','terminated_history')}},label=text('membership'),value='').props('outlined dense')
+                member_query=ui.input(text('search'),value=member_saved.get('query','')).props('outlined dense maxlength=200').classes('grow')
+                member_state=ui.select({'':text('any'),**{k:text(k) for k in ('active','removed','completed_history','terminated_history')}},label=text('membership'),value=member_saved.get('state','')).props('outlined dense')
             async def fetch_members(p):
                 result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size,query=member_query.value,state=member_state.value or None,sort=p.sort or 'id',descending=p.descending if p.sort else True)
                 for row in result['items']:
+                    row['last_viewed']=row['id']==view.get('opened_member') and not row['redacted']
                     row['classification_label']=' · '.join(v for v in (row.get('classification_code'),row.get('classification_title')) if v) or '—'
                     rule=row.get('effective_rule') or {}
                     row['rule_label']=' · '.join(str(v) for v in (text('current_period_years')+': '+str(rule['current_period_years']) if rule.get('current_period_years') is not None else None,text('intermediate_period_years')+': '+str(rule['intermediate_period_years']) if rule.get('intermediate_period_years') is not None else None,text(ACTIONS[rule['final_disposition']]) if rule.get('final_disposition') in ACTIONS else None) if v is not None) or '—'
@@ -518,7 +522,15 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     row['can_propose']=bool(review and 'propose' in review.actions and row['membership_state']=='active' and not row['redacted'])
                     row['can_remove']=job['membership_editable'] and row['membership_state']=='active' and not row['redacted']
                 return result
-            members=PageTable(columns=[column('identity','aggregation',True),column('owning_org_unit_name','owner',True),column('classification_label','classification',True),column('rule_label','rule'),column('local_label','local_override'),column('medium_label','medium'),column('proposal_count','proposals'),column('membership_label','membership',True),column('status_label','status',True),column('added_label','added_at'),column('removed_label','removed_at'),column('actions')],fetch=fetch_members,active=lambda:section_active('members'),on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+            def remember_members(p,result):
+                view.update(section=navigation.value,job_id=identity,task_id=task_id,
+                  members={'page':p.page,'size':p.size,'sort':p.sort,'descending':p.descending,
+                    'query':member_query.value,'state':member_state.value})
+                remember(dict(view))
+            members=PageTable(columns=[column('identity','aggregation',True),column('owning_org_unit_name','owner',True),column('classification_label','classification',True),column('rule_label','rule'),column('local_label','local_override'),column('medium_label','medium'),column('proposal_count','proposals'),column('membership_label','membership',True),column('status_label','status',True),column('added_label','added_at'),column('removed_label','removed_at'),column('actions')],fetch=fetch_members,active=lambda:section_active('members'),on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),initial=member_saved,on_loaded=remember_members)
+            members.table.add_slot('body-cell-identity', '''<q-td :props="props" :class="props.row.last_viewed ? 'bg-blue-50' : ''">
+              <span :id="'disposition-member-' + props.row.id" tabindex="-1">{{ props.row.identity }}</span>
+              <div v-if="props.row.last_viewed" class="text-primary text-weight-medium"><q-icon name="visibility"/> '''+escape(text('last_viewed'))+'''</div></q-td>''')
             members.table.add_slot('body-cell-status_label','''<q-td :props="props">{{ props.row.status_label }}<div v-if="props.row.partial_label" class="text-amber-900 whitespace-normal">{{ props.row.partial_label }}</div><div class="text-amber-900 whitespace-normal">{{ props.row.notice }}</div><div v-if="props.row.removal_label" class="text-amber-900 whitespace-normal"><q-icon name="remove_circle_outline"/> {{ props.row.removal_label }}</div><div v-if="props.row.blocked" class="text-amber-900 whitespace-normal">{{ props.row.blocker_label }}</div></q-td>''')
             members.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">
               <q-btn v-if="!props.row.redacted && !props.row.destroyed" flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-root',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
@@ -531,7 +543,9 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
               </div></q-td>''')
             async def open_member(event):
                 row=next((r for r in members.table.rows if r['id']==event.args),None)
-                if row and not row['redacted']:await open_resource('aggregation',row['root_aggregation_id'])
+                if row and not row['redacted']:
+                    view['opened_member']=row['id'];remember_members(members,{})
+                    await open_resource('aggregation',row['root_aggregation_id'])
             members.table.on('open-root',open_member)
             async def propose(event):
                 row=next((r for r in members.table.rows if r['id']==event.args and r.get('can_propose')),None)
@@ -584,10 +598,15 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         # Re-entering refreshes data without discarding unsaved task work.
         async def selected_section(event):
             if not alive():return
+            view.update(section=event.value,job_id=identity,task_id=task_id);remember(dict(view))
             loader={'members':members.load,'documents':documents,'history':history.load}.get(event.value)
             if loader:await loader()
             if event.value=='history' and review:await review.refresh_history()
         navigation.on_value_change(selected_section)
+        if initial_section!=first_section:
+            await selected_section(type('SectionEvent',(),{'value':initial_section})())
+            if initial_section=='members' and any(r.get('last_viewed') for r in members.table.rows) and alive():
+                ui.timer(.1,lambda:ui.run_javascript("document.getElementById('disposition-member-"+str(int(view['opened_member']))+"')?.scrollIntoView({block:'center'});") if section_active('members') else None,once=True)
         if review:
             if task_view:
                 task=workspace.get('task') or {}

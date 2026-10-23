@@ -155,3 +155,22 @@ def test_marked_removal_blocks_approval_and_resubmission_until_actual_officer_re
         assert len(ps)==2 and ps[1]['carried_from_proposal_id']==ps[0]['id'] and ps[1]['proposer_role_id']==ps[0]['proposer_role_id']
         assert c.execute('SELECT count(*) n FROM disposition_review_rounds').fetchone()['n']==2
         assert c.execute('SELECT disposition_status FROM aggregations WHERE id=%s',(root,)).fetchone()['disposition_status']==2
+
+
+def test_multiple_relationship_removal_proposals_save_atomically_and_defer_removal():
+    with db() as c:
+        job,root,*_=seeded(c)
+        first=next(x for x in payloads(c,root) if x['proposal_type']=='remove_aggregation_relationship')
+        # A second exact relationship with a distinct endpoint.
+        other,*_=ready(c)
+        source=c.execute('SELECT * FROM aggregation_relationships WHERE id=%s',(first['proposed_values']['relationship_id'],)).fetchone()
+        second_id=c.execute('INSERT INTO aggregation_relationships(relationship_type_id,source_id,target_id) VALUES(%s,%s,%s) RETURNING id',(source['relationship_type_id'],source['source_id'],other)).fetchone()['id']
+        second={**first,'proposed_values':{'relationship_id':second_id}}
+        bad={**second,'target_version':-1}
+        with pytest.raises(psycopg.Error),c.transaction():save(c,job,changes=[first,bad])
+        assert not c.execute('SELECT 1 FROM disposition_review_proposals').fetchone()
+        result=save(c,job,changes=[first,second])
+        assert len(result['changes'])==2
+        stored=service.page(c,job['id'],limit=25,offset=0)['items']
+        assert {x['proposed_values']['relationship_id'] for x in stored}=={source['id'],second_id}
+        assert c.execute('SELECT count(*) n FROM aggregation_relationships WHERE id=ANY(%s)',([source['id'],second_id],)).fetchone()['n']==2

@@ -452,3 +452,36 @@ async def test_job_and_task_details_have_distinct_focus(host,monkeypatch,task_id
         if inspect.isawaitable(result):await result
         await asyncio.sleep(.02)
         assert opened==[('task',5,8)] if task_id else opened==[('job',5)]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('kind',['remove_aggregation_relationship','remove_record_relationship'])
+async def test_multiple_relationship_removals_queue_and_save_as_one_batch(host,monkeypatch,kind):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    api=Api()
+    links=[{'id':i,'label':'related to','related':{'redacted':False,'number':f'LINK-{i}','title':f'Related {i}'}} for i in (101,102)]
+    async def request(*a,**k):return {'items':deepcopy(links),'total':2}
+    api.request=request
+    f,api,_=await form(host,api)
+    with host:
+        await f.edit(root={'root_aggregation_id':10})
+        control=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('proposal_type'))
+        control.value=kind
+        await asyncio.sleep(.05)
+        if kind=='remove_record_relationship':
+            target_control=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.select) and e.label==text('target'))
+            target_control.set_options({10:'Record 10'},value=10)
+            await asyncio.sleep(.05)
+        table=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.table) and e.selection=='multiple')
+        table.selected=deepcopy(links)
+        reason=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.textarea) and e.label==text('reason'))
+        reason.value='Remove both outside links'
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('continue'))
+        result=next(iter(button._event_listeners.values())).handler(None)
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(0)
+    assert len(f.pending)==2 and not api.writes
+    assert [x['proposed_values'] for x in f.pending]==[{'relationship_id':101},{'relationship_id':102}]
+    assert all(x['proposal_type']==kind and x['reason']=='Remove both outside links' for x in f.pending)
+    await f.perform('save')
+    assert len(api.writes)==1 and len(api.writes[0][1]['changes'])==2

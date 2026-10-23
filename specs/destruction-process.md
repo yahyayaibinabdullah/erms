@@ -346,7 +346,13 @@ records the complete proposed rule and the classification-derived rule it would
 override.
 
 A relationship-removal proposal also identifies the exact existing
-relationship to remove. Like the other review proposals, its reason is optional
+relationship to remove. When creating removal proposals, users may select
+multiple aggregation or record relationships for the same target. Continue queues
+one distinct proposal per selected relationship, with the shared optional reason;
+Save submits the complete pending set atomically. A failed validation saves none
+of that set. Revising an existing proposal remains a single-relationship operation.
+Selection is retained while paging within the same target; changing the target or
+proposal type resets it. Like the other review proposals, its reason is optional
 and does not remove the relationship until final Records Manager approval.
 
 Vital-status, security-level, hold, and relationship proposals may target a

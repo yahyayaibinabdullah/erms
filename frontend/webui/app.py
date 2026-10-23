@@ -19334,7 +19334,7 @@ def index(q: str = "") -> None:
         try:
             if page in ("disposition-job","disposition-task"):
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
-                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task)
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task,saved=saved,remember=remember)
             elif page=="disposition-templates":
                 from .disposition.templates import templates_screen
                 await templates_screen(api=api,container=table_container,active=active,on_error=error_message,format_timestamp=format_timestamp)

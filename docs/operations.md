@@ -1046,3 +1046,13 @@ For existing databases, apply migration
 restart API and WebUI. New databases use `database/schema.sql`. The migration
 allows uploads without a source job and preserves all existing revisions, job
 references and audit events. No new privilege or environment variable is added.
+
+
+### Proposing multiple relationship removals
+
+In a task's Add proposal dialog, choose Remove aggregation relationship or Remove
+record relationship and select all relevant links. Continue queues one proposal
+per selected link; Save saves the pending proposals together. A shared optional
+reason is copied to each proposal. Existing proposals remain individually editable.
+These actions do not remove relationships or clear blockers: removal still occurs
+only when the Records Manager approves and executes the proposal set.

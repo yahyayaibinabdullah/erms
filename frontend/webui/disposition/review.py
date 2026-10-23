@@ -355,6 +355,7 @@ class ReviewForm:
                         control=self.remote(target_kind,'target',target=True,root=root_id,selected=selected,active=alive)
                         async def changed():
                             target.clear()
+                            if 'links' in values:values['links'].table.selected=[]
                             if not control.value or control._deleted:return
                             selected_id=control.value
                             result=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/{target_kind}",root_id=root_id,acting_role_id=self.role.value,selected=control.value)
@@ -417,7 +418,7 @@ class ReviewForm:
                             for row in result['items']:
                                 related=row['related'];row['target_label']=text('restricted') if related['redacted'] else related['number']+' · '+related['title']
                             return result
-                        page=PageTable(columns=[column('label','relationship_type_id'),column('target_label','target')],fetch=fetch,active=alive,on_error=self.on_error,empty='empty',selection='single',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+                        page=PageTable(columns=[column('label','relationship_type_id'),column('target_label','target')],fetch=fetch,active=alive,on_error=self.on_error,empty='empty',selection='single' if existing else 'multiple',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
                         values['links']=page;await page.load()
                         if existing:
                             singular='record' if typ=='remove_record_relationship' else 'aggregation'
@@ -443,7 +444,7 @@ class ReviewForm:
                 elif typ=='create_aggregation_relationship':proposed={'direction':values['direction'].value,'related_aggregation_id':values['related'].value,'relationship_type_id':values['type'].value}
                 elif typ.startswith('remove_') and typ!='remove_from_job':
                     selected=values['links'].table.selected
-                    if not selected or selected[0]['related']['redacted']:feedback.text=text('required');return
+                    if not selected or any(row['related']['redacted'] for row in selected):feedback.text=text('required');return
                     proposed={'relationship_id':selected[0]['id']}
                 elif typ=='local_retention_override':
                     if any(values[k].value is None or values[k].value<0 or int(values[k].value)!=values[k].value for k in ('current_period_years','intermediate_period_years')):feedback.text=text('required');return
@@ -460,7 +461,15 @@ class ReviewForm:
                     summary.update({k:v for k,v in proposed.items() if k!='final_disposition'})
                     labels={'destruction':'destruction','transfer_to_external_archive':'permanent_transfer','selective_preservation':'selective_transfer','retain_as_local_archives':'local_archives'}
                     summary['final_disposition']=text(labels[proposed['final_disposition']])
-                self.queued(change,summary);dialog.close()
+                if typ in ('remove_aggregation_relationship','remove_record_relationship'):
+                    # One retained proposal per exact link; Save submits the whole
+                    # pending set through the existing atomic review-work command.
+                    for row in {row['id']:row for row in selected}.values():
+                        item={**change,'proposed_values':{'relationship_id':row['id']}}
+                        details={**summary,'relationship_id':row['label']+' · '+row['related']['number']+' · '+row['related']['title']}
+                        self.queued(item,details)
+                else:self.queued(change,summary)
+                dialog.close()
             with ui.row().classes('w-full gap-2 justify-end'):
                 ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
                 ui.button(text('continue'),on_click=accept).props('no-caps')
