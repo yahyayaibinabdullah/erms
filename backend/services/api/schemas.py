@@ -1392,6 +1392,7 @@ class PrincipalRead(ApiModel):
     previous_login_at: datetime | None
     global_privileges: list[str]
     can_manage_disposition: bool = False
+    can_manage_disposition_templates: bool = False
     can_access_disposition_tasks: bool = False
 
 

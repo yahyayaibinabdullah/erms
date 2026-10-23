@@ -610,7 +610,8 @@ Job details and task details share authorized data and components but have disti
 
 **Jobs → Job details** opens on job information and overall workflow progress.
 Full metadata and the compact stage tracker are expanded initially. Aggregations,
-Documents, History, and authorized Templates are separate tabs. No task form is
+Documents and History are separate tabs. Shared template management lives in
+Disposition → Document templates (Section 17.4). No task form is
 loaded here. The current accessible task can be opened through a task link.
 Documents retains authorized preview, corrective upload, email, and request
 regeneration/renewal controls. History retains prior notes, rounds, decisions,
@@ -619,7 +620,7 @@ email attempts and audit events.
 **My Tasks → Task details** opens the explicitly selected task ID. It shows the
 stage's instructions, assignee/queue, claim controls and authorized task actions.
 Supporting aggregation membership and evidence are available separately. Overall
-workflow, templates and job-wide event history belong to Job details, reachable
+workflow and job-wide event history belong to Job details, reachable
 through a link. Full job metadata is collapsed in task details. A completed,
 closed or no-longer-current task must not render the next stage's form.
 Refresh and restored navigation preserve the selected task ID. Switching tabs
@@ -1587,8 +1588,15 @@ the placeholders with actual job data, repeats grouped rows as needed, and
 does not leave template instructions or unfilled placeholders in the output.
 
 Records Officers and Records Managers may download any current template,
-modify it in Word, and upload a revised `.docx` through the job workspace's
-template controls, subject to their existing job access and role authorization.
+modify it in Word, and upload a revised `.docx` through the standalone
+Disposition → Document templates page, subject to the existing template-role
+authorization. Management does not require an existing job or access to one.
+The navigation entry is shown only to users currently authorized to revise
+templates. Job details contain no template management section. Instead, each
+generated document identifies its exact template revision and offers its
+download to users with template access. Uploaded evidence has no template
+revision. New uploads are audited against the template revision; earlier
+job-associated uploads and immutable audit history remain unchanged.
 File Administrators and Unit Managers cannot upload template revisions.
 Revision upload must preserve the required data fields, bilingual content,
 and placeholder structure; malformed files or missing required placeholders

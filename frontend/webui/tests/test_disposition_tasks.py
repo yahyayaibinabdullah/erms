@@ -440,7 +440,7 @@ async def test_job_and_task_details_have_distinct_focus(host,monkeypatch,task_id
         assert navigation.value==('current_task' if task_id else 'workspace_details')
         headings=[e.text for e in host.descendants() if isinstance(e,ui.label) and 'text-2xl' in e.classes]
         assert headings==[text('stage')+' · '+text(workspace['job']['workflow_stage'])] if task_id else headings==[text('workspace_details')]
-        assert ('templates' in tabs)==(task_id is None)
+        assert 'templates' not in tabs
         assert ('history' in tabs)==(task_id is None)
         assert any(p.endswith('/review-work') for p,_ in api.reads)==(task_id is not None)
         assert any(isinstance(e,ui.textarea) and e.label==text('review_notes') for e in host.descendants())==(task_id is not None)

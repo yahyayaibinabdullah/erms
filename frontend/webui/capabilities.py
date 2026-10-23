@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 NAVIGATION_PRIVILEGES = {
     "disposition-eligibility": "disposition.jobs.manage",
     "disposition-jobs": "disposition.jobs.manage",
+    "disposition-templates": "disposition.jobs.manage",
     "application-settings": "app.settings.manage",
     "relationship-types": "relationships.administer",
     "messages-monitor": "messaging.monitor",
@@ -81,6 +82,8 @@ def can_navigate_disposition(navigation_key: str, principal: Mapping | None) -> 
     principal = principal or {}
     if navigation_key == "disposition-tasks":
         return principal.get("can_access_disposition_tasks") is True
+    if navigation_key == "disposition-templates":
+        return principal.get("can_manage_disposition_templates") is True
     if navigation_key in {"disposition-eligibility", "disposition-jobs"}:
         return principal.get("can_manage_disposition") is True
     return True

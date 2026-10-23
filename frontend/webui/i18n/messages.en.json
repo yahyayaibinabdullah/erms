@@ -14090,6 +14090,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.template_revision",
+    "context_group": "disposition.ui",
+    "default_text": "Template revision",
+    "semantic_meaning": "Exact retained Word template revision used to generate this job document.",
+    "common_locations": [
+      "Disposition job documents"
+    ],
+    "translator_guidance": "Use approved records-management terms. Word, PDF, DOCX, and Changa are product/format/font names. Preserve placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Template revision",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.template_scope",
     "context_group": "disposition.ui",
     "default_text": "Template revisions apply organization-wide to future documents in every job. Existing PDFs keep their original revision.",

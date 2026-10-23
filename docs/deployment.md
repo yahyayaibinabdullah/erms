@@ -1173,3 +1173,14 @@ Use the same authorized migration-session context described for migrations
 and recalculation triggers remain enabled. Verify with
 `backend/services/api/.venv/bin/python tools/verify_sa_retention_periods_migration.py`;
 this creates and removes a disposable test database.
+
+
+### Standalone disposition template management (migration 081)
+
+Apply `database/migrations/081_organization_wide_disposition_templates.sql`
+after migration 080 before deploying the new API/WebUI. Restart both services.
+The upgrade permits shared template revisions without a source job, preserving
+existing revisions and audit history. Fresh databases need only `schema.sql`.
+Records Officers and Records Managers use Disposition → Document templates;
+no new permissions or environment settings are required. See the organization-wide
+destruction templates section in [Operations](operations.md).

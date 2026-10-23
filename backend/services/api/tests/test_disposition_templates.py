@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from lxml import etree
 from pypdf import PdfReader
 import psycopg
+from psycopg.types.json import Jsonb
 import pytest
 
 from backend.services.api.application_settings import load_snapshot
@@ -176,6 +177,10 @@ def test_generated_artifact_retains_exact_revision_snapshot_retry_and_original_b
         second=d.generate(c,**{**args,'command_id':uuid4()})
         newer=c.execute('SELECT * FROM disposition_job_documents WHERE id=%s',(second['id'],)).fetchone()
         assert newer['template_version']==new_revision['reference'] and second['id']!=first['id']
+        page=d.artifacts.page(c,job['id'],limit=25,offset=0)
+        generated=next(row for row in page['items'] if row['id']==second['id'])
+        assert generated['template_revision_number']==new_revision['revision_number']
+        assert generated['can_download_template'] and generated['template_version']==new_revision['reference']
         content=b''.join(bytes(row['content']) for row in c.execute('''SELECT b.content FROM digital_component_blobs b
           JOIN digital_components dc ON dc.active_content_set_id=b.content_set_id WHERE dc.id=%s ORDER BY b.segment_no''',(second['digital_component_id'],)))
         assert 'Revised' in '\n'.join(p.extract_text() for p in PdfReader(BytesIO(content)).pages)
@@ -229,10 +234,11 @@ def test_actual_database_membership_snapshot_uses_inherited_locations_and_stable
         assert snapshot['source']==source
 
 
-def test_template_http_upload_validation_reason_retry_download_and_page_bounds(client):
+@pytest.mark.parametrize('shared',[False,True])
+def test_template_http_upload_validation_reason_retry_download_and_page_bounds(client,shared):
     with db() as c:
         job=setup(c);role=officer(c);original=d.default('destruction_request')
-    base=f"/api/v1/disposition/jobs/{job['id']}/templates"
+    base="/api/v1/disposition/templates" if shared else f"/api/v1/disposition/jobs/{job['id']}/templates"
     catalogue=client.get(base).json();assert len(catalogue['items'])==4 and 'content' not in catalogue['items'][0]
     url=base+'/destruction_request/revisions';data={'command_id':str(uuid4()),'acting_role_id':str(role),'expected_reference':original['reference']}
     content=revised();files={'file':('Updated.docx',content,e.MIME)}
@@ -256,7 +262,8 @@ def test_template_http_upload_validation_reason_retry_download_and_page_bounds(c
 def test_review_roles_cannot_upload_even_if_person_also_has_an_officer_role(name):
     with db() as c:
         job=setup(c)
-        profile=c.execute('INSERT INTO profiles(code,name) VALUES(%s,%s) RETURNING id',(uuid4().hex,name)).fetchone()['id']
+        existing=c.execute('SELECT id FROM profiles WHERE name=%s',(name,)).fetchone()
+        profile=existing['id'] if existing else c.execute('INSERT INTO profiles(code,name) VALUES(%s,%s) RETURNING id',(uuid4().hex,name)).fetchone()['id']
         role=c.execute('INSERT INTO roles(org_unit_id,code,name,profile_id) VALUES(1,%s,%s,%s) RETURNING id',(uuid4().hex,name,profile)).fetchone()['id']
         c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(1,%s)',(role,))
         with pytest.raises(HTTPException) as error:revise(c,job,acting_role_id=role)
@@ -337,3 +344,41 @@ def test_concurrent_same_generation_key_creates_one_pdf_record():
         assert c.execute('SELECT count(*) n FROM disposition_job_documents').fetchone()['n']==1
         assert c.execute('SELECT count(*) n FROM records').fetchone()['n']==1
         assert c.execute('SELECT count(*) n FROM record_drafts WHERE owner_user_id IS NULL').fetchone()['n']==0
+
+
+def test_global_management_upload_retry_history_and_legacy_revision_preserved():
+    with db() as c:
+        job=setup(c);legacy_content=revised();legacy=revise(c,job,content=legacy_content);original=d.default('destruction_request')
+        args=dict(job_id=None,kind='destruction_request',expected_reference=legacy['reference'],command_id=uuid4(),
+          acting_role_id=officer(c),reason='Update shared template',content=revised(new='Shared request'),filename='Shared.docx',settings=load_snapshot(c))
+        result=d.revise(c,**args)
+        assert d.revise(c,**args)==result
+        assert c.execute('SELECT uploaded_from_job_id FROM disposition_template_revisions WHERE id=%s',(result['id'],)).fetchone()['uploaded_from_job_id'] is None
+        assert d.current(c,'destruction_request')['reference']==result['reference']
+        assert d.history(c,None,'destruction_request',limit=25,offset=0)['total']==3
+        assert d.download(c,None,'destruction_request',legacy['reference'])['content']==legacy_content
+        assert d.download(c,None,'destruction_request',original['reference'])['content']==original['content']
+        assert c.execute('SELECT uploaded_from_job_id FROM disposition_template_revisions WHERE id=%s',(legacy['id'],)).fetchone()['uploaded_from_job_id']==job['id']
+        event=c.execute("SELECT * FROM event_history WHERE operation='TEMPLATE_REVISED' ORDER BY id DESC LIMIT 1").fetchone()
+        assert event['entity_type']=='disposition_template_revision' and event['entity_id']==result['id']
+        assert len(d.catalogue(c,None)['items'])==4
+        with pytest.raises(HTTPException):d.revise(c,**{**args,'command_id':uuid4(),'acting_role_id':1})
+
+
+def test_shared_templates_available_before_any_job_exists():
+    from backend.services.api.tests.test_disposition_foundation import ensure_officer
+    with db() as c:
+        actor(c);ensure_officer(c)
+        assert not c.execute('SELECT 1 FROM disposition_jobs').fetchone()
+        assert len(d.catalogue(c,None)['items'])==4
+
+
+def test_shared_template_role_and_history_names_use_arabic():
+    with db() as c:
+        job=setup(c);role=officer(c)
+        c.execute('UPDATE users SET translations=%s WHERE id=1',(Jsonb({'ar':{'name':'المراجع'}}),))
+        c.execute('UPDATE roles SET translations=%s WHERE id=%s',(Jsonb({'ar':{'name':'مسؤول الوثائق'}}),role))
+        revise(c,job)
+        assert next(row for row in d.catalogue(c,None,language_tag='ar')['roles'] if row['id']==role)['name']=='مسؤول الوثائق'
+        row=d.history(c,None,'destruction_request',limit=25,offset=0,language_tag='ar')['items'][0]
+        assert row['uploader']=='المراجع' and row['acting_role']=='مسؤول الوثائق'

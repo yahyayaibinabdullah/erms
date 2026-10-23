@@ -90,3 +90,21 @@ async def test_history_reuses_wathiq_table_and_true_page_offsets(host):
     assert 'erms-page-table' in table._classes and table._props['wrap-cells']
     assert calls[0]['limit']==25 and calls[0]['offset']==0
     assert len(table.rows)==1 and table.rows[0]['uploaded_at_label']=='Repository default v1'
+
+
+@pytest.mark.asyncio
+async def test_standalone_templates_load_without_job(host):
+    from frontend.webui.disposition.templates import templates_screen
+    calls=[]
+    async def request(path,**params):
+        calls.append((path,params));return {'items':[row()],'roles':[{'id':2,'name':'Officer'}]}
+    set_locale_context('en','Asia/Dubai')
+    await templates_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,format_timestamp=str)
+    assert calls==[('templates',{})]
+    assert any(isinstance(x,ui.button) and x.text=='Upload template revision' for x in host.descendants())
+
+
+def test_template_navigation_requires_specific_server_capability():
+    from frontend.webui.capabilities import can_navigate_disposition
+    assert not can_navigate_disposition('disposition-templates',{'can_manage_disposition':True})
+    assert can_navigate_disposition('disposition-templates',{'can_manage_disposition_templates':True})

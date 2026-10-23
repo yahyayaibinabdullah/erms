@@ -235,6 +235,30 @@ def template_catalogue(job_id: int,c: Connection=Depends(get_connection,scope='f
     return documents.catalogue(c,job_id)
 
 
+@router.get('/templates')
+def shared_template_catalogue(request: Request,c: Connection=Depends(get_connection,scope='function')):
+    return documents.catalogue(c,None,language_tag=preferred_language(c,request))
+
+
+@router.get('/templates/{kind}/revisions')
+def shared_template_history(kind: str,request: Request,limit: int=Query(25,ge=1,le=50),offset: int=Query(0,ge=0),
+                            sort: Literal['revision_number','original_filename','uploaded_at']='revision_number',descending: bool=True,
+                            c: Connection=Depends(get_connection,scope='function')):
+    return documents.history(c,None,kind,limit=limit,offset=offset,sort=sort,descending=descending,language_tag=preferred_language(c,request))
+
+
+@router.get('/templates/{kind}/content')
+def shared_template_content(kind: str,reference: str | None=Query(None,max_length=150),c: Connection=Depends(get_connection,scope='function')):
+    return template_content(None,kind,reference,c)
+
+
+@router.post('/templates/{kind}/revisions',status_code=201)
+def upload_shared_template(kind: str,request: Request,command_id: UUID=Form(...),acting_role_id: int=Form(...,ge=1),
+                           expected_reference: str=Form(...,min_length=1,max_length=150),file: UploadFile=File(...),
+                           c: Connection=Depends(get_connection,scope='function')):
+    return upload_template(None,kind,request,command_id,acting_role_id,expected_reference,file,c)
+
+
 @router.get('/jobs/{job_id}/templates/{kind}/revisions')
 def template_history(job_id: int,kind: str,limit: int=Query(25,ge=1,le=50),offset: int=Query(0,ge=0),
                      sort: Literal['revision_number','original_filename','uploaded_at']='revision_number',descending: bool=True,

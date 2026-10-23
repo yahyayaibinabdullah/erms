@@ -1421,7 +1421,7 @@ class ErmsApiClient:
 
     async def revise_disposition_template(self, job_id, kind, *, command_id, acting_role_id,
                                           expected_reference, reason, name, content):
-        return await self.request('POST',f'/api/v1/disposition/jobs/{job_id}/templates/{kind}/revisions',
+        return await self.request('POST',(f'/api/v1/disposition/jobs/{job_id}/templates' if job_id is not None else '/api/v1/disposition/templates')+f'/{kind}/revisions',
           data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'expected_reference':expected_reference},
           files={'file':(name,content,'application/vnd.openxmlformats-officedocument.wordprocessingml.document')},
           headers={'X-Change-Reason':reason})

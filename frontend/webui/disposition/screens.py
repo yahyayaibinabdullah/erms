@@ -460,7 +460,6 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         first_section='current_task' if task_view else 'workspace_details'
         sections=[first_section,'members','documents']
         if not task_view:sections.append('history')
-        if not task_view and job['job_type']=='destruction' and any(r.get('profile_code') in ('INFO_GOV_OFFICER','INFO_GOV_MGR') for r in context['roles']):sections.append('templates')
         with ui.tabs(value=first_section).props('no-caps').classes('w-full') as navigation:
             for section in sections:ui.tab(section,label=text({'members':'workspace_members','history':'workspace_history'}.get(section,section))).props('no-caps')
         panels={}
@@ -570,10 +569,6 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         from .artifacts import documents_panel
         with panels['documents']:
             documents=documents_panel(api=api,job=job,active=lambda:section_active('documents'),on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column,can_mutate=lambda:not review or not review.dirty())
-        from .templates import templates_panel
-        if 'templates' in panels:
-            with panels['templates']:
-                templates=templates_panel(api=api,job=job,context=context,active=lambda:section_active('templates'),on_error=on_error,format_timestamp=format_timestamp,column=column,after=reload,can_mutate=lambda:not review or not review.dirty())
         with panels['history']:
             ui.separator();ui.label(text('history')).classes('text-lg font-semibold')
             async def fetch_history(p):
@@ -590,7 +585,6 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
         async def selected_section(event):
             if not alive():return
             loader={'members':members.load,'documents':documents,'history':history.load}.get(event.value)
-            if event.value=='templates' and 'templates' in panels:loader=templates
             if loader:await loader()
             if event.value=='history' and review:await review.refresh_history()
         navigation.on_value_change(selected_section)

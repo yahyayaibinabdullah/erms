@@ -345,6 +345,9 @@ def principal_response(principal: Principal, connection: Connection) -> dict[str
         "must_change_password": principal.must_change_password,
         "previous_login_at": _previous_login_at(connection, principal),
         "can_manage_disposition": can_manage_disposition,
+        "can_manage_disposition_templates": connection.execute(
+            "SELECT EXISTS(SELECT 1 FROM roles WHERE disposition_private.can_revise_template(id)) AS allowed"
+        ).fetchone()["allowed"],
         "can_access_disposition_tasks": can_access_disposition_tasks,
         "global_privileges": sorted({
             privilege

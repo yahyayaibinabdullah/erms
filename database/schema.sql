@@ -9841,7 +9841,7 @@ CREATE TABLE disposition_template_revisions (
  uploaded_by_user_id bigint NOT NULL REFERENCES users(id),
  acting_role_id bigint NOT NULL REFERENCES roles(id),
  actor_type text NOT NULL DEFAULT 'user' CHECK (actor_type='user'),
- uploaded_from_job_id bigint NOT NULL REFERENCES disposition_jobs(id),
+ uploaded_from_job_id bigint REFERENCES disposition_jobs(id),
  uploaded_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
  UNIQUE(document_type,revision_number)
 );
@@ -9872,7 +9872,7 @@ BEGIN
  OR command.payload->>'kind' IS DISTINCT FROM NEW.document_type
  OR command.payload->>'filename' IS DISTINCT FROM NEW.original_filename
  OR command.payload->>'job_id' IS DISTINCT FROM NEW.uploaded_from_job_id::text
- OR NOT EXISTS(SELECT 1 FROM disposition_jobs WHERE id=NEW.uploaded_from_job_id AND job_type='destruction')
+ OR (NEW.uploaded_from_job_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM disposition_jobs WHERE id=NEW.uploaded_from_job_id AND job_type='destruction'))
  THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_template_forbidden'; END IF;
  IF NEW.revision_number<>(SELECT coalesce(max(revision_number),0)+1 FROM disposition_template_revisions WHERE document_type=NEW.document_type)
  THEN RAISE EXCEPTION 'disposition_template_stale'; END IF;
@@ -9883,7 +9883,7 @@ FOR EACH ROW EXECUTE FUNCTION disposition_private.guard_template_revision();
 
 CREATE FUNCTION disposition_private.audit_template_revision() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
- PERFORM append_domain_event('disposition_job',NEW.uploaded_from_job_id,'TEMPLATE_REVISED',
+ PERFORM append_domain_event(CASE WHEN NEW.uploaded_from_job_id IS NULL THEN 'disposition_template_revision' ELSE 'disposition_job' END,COALESCE(NEW.uploaded_from_job_id,NEW.id),'TEMPLATE_REVISED',
  jsonb_build_object('template_type',NEW.document_type,'template_revision_id',NEW.id,
  'template_revision',NEW.revision_number,'original_filename',NEW.original_filename,
  'checksum_algo','sha256','checksum',NEW.checksum,'uploaded_by_user_id',NEW.uploaded_by_user_id,
@@ -15948,3 +15948,5 @@ END $$;
 
 -- Table-specific legal-hold trigger field access (080).
 INSERT INTO schema_migrations(version) VALUES ('080_fix_held_component_trigger') ON CONFLICT DO NOTHING;
+
+INSERT INTO schema_migrations(version) VALUES('081_organization_wide_disposition_templates') ON CONFLICT DO NOTHING;

@@ -108,8 +108,9 @@ def documents_panel(*, api, job, active, on_error, after, open_resource, preview
         for row in result['items']:
             row['type_label']=text(row['document_type']);row['current_label']=text('current_version' if row['is_current'] else 'earlier_version')
             row['created_label']=format_timestamp(row['date_created'])
+            row['template_label']=(text('repository_default') if str(row.get('template_version') or '').startswith('default.v1:') else str(row.get('template_revision_number') or '—'))
         return result
-    table=PageTable(columns=[column('file_name','document',True),column('type_label','document_type',True),column('evidence_version','version',True),column('current_label','evidence_version_state'),column('created_label','occurred',True),column('actions')],
+    table=PageTable(columns=[column('file_name','document',True),column('type_label','document_type',True),column('evidence_version','version',True),column('template_label','template_revision'),column('current_label','evidence_version_state'),column('created_label','occurred',True),column('actions')],
       fetch=fetch,active=active,on_error=on_error,empty='empty',on_loaded=lambda p,result:roles.__setitem__(slice(None),result['correction_roles']),wrap_cells=True,empty_text=lambda:text('no_documents'),loading_text=lambda:text('loading'))
     table.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">
      <q-btn v-if="props.row.can_preview" flat dense icon="visibility" aria-label="'''+escape(text('preview_document'))+'''" @click="$parent.$emit('preview',props.row.id)"><q-tooltip>'''+escape(text('preview_document'))+'''</q-tooltip></q-btn>
@@ -117,6 +118,15 @@ def documents_panel(*, api, job, active, on_error, after, open_resource, preview
      <q-btn flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-record',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn>
      <q-btn v-if="props.row.can_correct" flat dense icon="upload_file" aria-label="'''+escape(text('correct_evidence'))+'''" @click="$parent.$emit('correct',props.row.id)"><q-tooltip>'''+escape(text('correct_evidence'))+'''</q-tooltip></q-btn>
      </div></q-td>''')
+    table.table.add_slot('body-cell-template_label','''<q-td :props="props"><span>{{ props.row.template_label }}</span>
+      <q-btn v-if="props.row.can_download_template" flat dense icon="download" aria-label="'''+escape(text('download_template'))+'''" @click="$parent.$emit('download-template',props.row.id)"><q-tooltip>'''+escape(text('download_template'))+'''</q-tooltip></q-btn></q-td>''')
+    async def download_template(event):
+        row=selected(event)
+        if not row or not row.get('can_download_template'):return
+        from .templates import download
+        await download(api=api,job=None,row={'document_type':row['document_type'],'reference':row['template_version'],
+          'original_filename':row.get('template_filename') or row['document_type']+'.docx'},active=active,on_error=on_error)
+    table.table.on('download-template',download_template)
     def selected(event):return next((r for r in table.table.rows if r['id']==event.args),None) if active() else None
     async def open_record(event):
         row=selected(event)

@@ -3733,6 +3733,7 @@ def index(q: str = "") -> None:
             "disposition_heading": disposition_text("section"),
             "disposition-eligibility": disposition_text("eligibility"),
             "disposition-jobs": disposition_text("jobs"),
+            "disposition-templates": disposition_text("templates"),
             "disposition-tasks": disposition_text("my_tasks"),
             "records_heading": render_message("navigation.section.records"),
             "organization_heading": render_message("navigation.section.organization"),
@@ -3758,7 +3759,7 @@ def index(q: str = "") -> None:
                 )
                 for heading_key, entries in (
                     ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"), ("relationship-types", "link"))),
-                    ("disposition_heading", (("disposition-tasks", "task_alt"), ("disposition-eligibility", "event_available"), ("disposition-jobs", "work_outline"))),
+                    ("disposition_heading", (("disposition-tasks", "task_alt"), ("disposition-eligibility", "event_available"), ("disposition-jobs", "work_outline"), ("disposition-templates", "description"))),
                     ("messages_heading", (("messages-inbox", "inbox"), ("messages-outbox", "outbox"), ("messages-drafts", "drafts"), ("messages-monitor", "monitor_heart"), ("messages-notifications", "notifications"))),
                     ("organization_heading", (("org-units", "corporate_fare"), ("roles", "badge"), ("users", "group"))),
                 ):
@@ -4386,6 +4387,7 @@ def index(q: str = "") -> None:
     breadcrumb_message_keys = {
         "disposition-eligibility": "disposition.ui.eligibility",
         "disposition-jobs": "disposition.ui.jobs",
+        "disposition-templates": "disposition.ui.templates",
         "disposition-tasks": "disposition.ui.my_tasks",
         "messages-inbox": "messaging.navigation.inbox",
         "messages-outbox": "messaging.navigation.outbox",
@@ -4543,7 +4545,7 @@ def index(q: str = "") -> None:
                     await run_global_search(query)
             else:
                 await select_dashboard()
-        elif page in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-job", "disposition-task"):
+        elif page in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates", "disposition-job", "disposition-task"):
             disposition_saved=saved.get("disposition_view") or {}
             await select_disposition(page, disposition_saved.get("job_id") if page=="disposition-task" else entity_id if page=="disposition-job" else None, disposition_saved,task_id=entity_id if page=="disposition-task" else None)
         elif page == "relationship-types":
@@ -19303,7 +19305,7 @@ def index(q: str = "") -> None:
         task_id=task_id or (saved or {}).get("task_id")
         if task_id and page=="disposition-job":page="disposition-task"
         token=object()
-        label=disposition_text("current_task" if task_id else "workspace_details" if page=="disposition-job" else "my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
+        label=disposition_text("templates" if page=="disposition-templates" else "current_task" if task_id else "workspace_details" if page=="disposition-job" else "my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
         register_navigation(page,label,entity_id=task_id if page=="disposition-task" else identity)
         state.update(resource=page, disposition_page_token=token, rows=[], searched=True,
                      aggregation_detail=None, disposition_view={**dict(saved or {}),**({"task_id":task_id,"job_id":identity} if task_id else {})})
@@ -19333,6 +19335,9 @@ def index(q: str = "") -> None:
             if page in ("disposition-job","disposition-task"):
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
                                  open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task)
+            elif page=="disposition-templates":
+                from .disposition.templates import templates_screen
+                await templates_screen(api=api,container=table_container,active=active,on_error=error_message,format_timestamp=format_timestamp)
             elif page=="disposition-tasks":
                 filter_preference_key=f"disposition_task_filters:{principal['user']['id']}"
                 def remember_task_filters(expanded):
@@ -21019,7 +21024,7 @@ def index(q: str = "") -> None:
             button.on("click", lambda: guarded_page_navigation(select_classification_workspace))
         elif key == "advanced-search":
             button.on("click", lambda: guarded_page_navigation(select_advanced_search))
-        elif key in ("disposition-tasks", "disposition-eligibility", "disposition-jobs"):
+        elif key in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates"):
             button.on("click", lambda _, page=key: guarded_page_navigation(lambda: select_disposition(page)))
         elif key == "relationship-types":
             button.on("click", lambda: guarded_page_navigation(select_relationship_types))

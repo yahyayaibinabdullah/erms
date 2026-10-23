@@ -16,6 +16,7 @@ from starlette.datastructures import Headers
 
 from ..content_storage import stage_governed_upload
 from ..continuity_lock import acquire_continuity_shared_lock
+from ..entity_localization import localized_projection
 from . import artifacts,template_engine as engine
 from .commands import execute_command,lock_job
 from .template_contract import CONTRACTS
@@ -28,15 +29,18 @@ def checksum(value):
     return sha256(json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
-def roles(c):
-    return c.execute('''SELECT r.id,r.name FROM roles r
+def roles(c,language_tag='en'):
+    rows=c.execute('''SELECT r.id,r.name,r.translations FROM roles r
       WHERE disposition_private.can_revise_template(r.id) ORDER BY r.id''').fetchall()
+    for row in rows:
+        row['name']=localized_projection(row,language_tag,'name')['name'];row.pop('translations',None)
+    return rows
 
 
 def require_access(c,job_id,role=None):
-    job=artifacts.require_workspace(c,job_id)
+    job=artifacts.require_workspace(c,job_id) if job_id is not None else None
     allowed=roles(c)
-    if job['job_type']!='destruction' or not allowed or role is not None and not any(r['id']==role for r in allowed):
+    if (job is not None and job['job_type']!='destruction') or not allowed or role is not None and not any(r['id']==role for r in allowed):
         engine.invalid('disposition_template_forbidden',403)
     return job
 
@@ -71,15 +75,15 @@ def public(row):
     return {k:v for k,v in row.items() if k!='content'}
 
 
-def catalogue(c,job_id):
+def catalogue(c,job_id,language_tag='en'):
     require_access(c,job_id)
     # Four fixed template types, not a growing collection.
     rows=c.execute('SELECT DISTINCT ON(document_type) '+METADATA+' FROM disposition_template_revisions ORDER BY document_type,revision_number DESC').fetchall()
     by_kind={r['document_type']:dict(r,reference='revision:'+str(r['id'])+':'+r['checksum'],source='upload') for r in rows}
-    return {'items':[by_kind[kind] if kind in by_kind else public(default(kind)) for kind in CONTRACTS],'roles':roles(c)}
+    return {'items':[by_kind[kind] if kind in by_kind else public(default(kind)) for kind in CONTRACTS],'roles':roles(c,language_tag)}
 
 
-def history(c,job_id,kind,*,limit,offset,sort='revision_number',descending=True):
+def history(c,job_id,kind,*,limit,offset,sort='revision_number',descending=True,language_tag='en'):
     require_access(c,job_id)
     if kind not in CONTRACTS:engine.invalid('disposition_document_type_invalid')
     total=c.execute('SELECT count(*) n FROM disposition_template_revisions WHERE document_type=%s',(kind,)).fetchone()['n']+1
@@ -87,11 +91,14 @@ def history(c,job_id,kind,*,limit,offset,sort='revision_number',descending=True)
     if sort not in orders:engine.invalid('disposition_template_invalid')
     base=default(kind)
     rows=c.execute('''SELECT * FROM (SELECT t.id,t.document_type,t.revision_number,t.original_filename,t.checksum,t.uploaded_by_user_id,
-      t.acting_role_id,t.actor_type,t.uploaded_at,u.name AS uploader,r.name AS acting_role
+      t.acting_role_id,t.actor_type,t.uploaded_at,u.name AS uploader,r.name AS acting_role,u.translations AS uploader_translations,r.translations AS role_translations
       FROM disposition_template_revisions t JOIN users u ON u.id=t.uploaded_by_user_id JOIN roles r ON r.id=t.acting_role_id
       WHERE t.document_type=%s UNION ALL SELECT NULL::bigint,%s,0,%s,%s,NULL::bigint,NULL::bigint,NULL::text,
-      NULL::timestamptz,NULL::text,NULL::text) history ORDER BY '''+orders[sort]+(' DESC' if descending else ' ASC')+' NULLS LAST,id DESC LIMIT %s OFFSET %s',
+      NULL::timestamptz,NULL::text,NULL::text,NULL::jsonb,NULL::jsonb) history ORDER BY '''+orders[sort]+(' DESC' if descending else ' ASC')+' NULLS LAST,id DESC LIMIT %s OFFSET %s',
       (kind,kind,base['original_filename'],base['checksum'],limit,offset)).fetchall()
+    for row in rows:
+        row['uploader']=localized_projection({'name':row['uploader'],'translations':row.pop('uploader_translations')},language_tag,'name')['name']
+        row['acting_role']=localized_projection({'name':row['acting_role'],'translations':row.pop('role_translations')},language_tag,'name')['name']
     items=[dict(row,reference='revision:'+str(row['id'])+':'+row['checksum'],source='upload') if row['id'] else public(base) for row in rows]
     return {'items':items,'total':total}
 
@@ -116,6 +123,7 @@ def revise(c,*,job_id,kind,expected_reference,command_id,acting_role_id,reason,c
     engine.validate(content,kind,settings['MAX_RENDITION_SIZE_BYTES'])
     digest=sha256(content).hexdigest();name=Path(filename.replace('\\','/')).name
     payload=dict(template_upload=True,job_id=job_id,kind=kind,expected_reference=expected_reference,checksum=digest,filename=name)
+    if job_id is None:payload.pop('job_id')
     def apply(c):
         if current(c,kind,include_content=False)['reference']!=expected_reference:engine.invalid('disposition_template_stale',409)
         revision=c.execute('''INSERT INTO disposition_template_revisions(document_type,revision_number,original_filename,

@@ -2,6 +2,7 @@
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'template_revision': 'disposition.ui.template_revision',
  'history_details': 'disposition.ui.history_details',
  'history_held': 'disposition.ui.history_held',
  'browse': 'disposition.ui.browse',

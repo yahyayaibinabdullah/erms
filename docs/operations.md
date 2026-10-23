@@ -983,7 +983,7 @@ endpoint orientation remain unchanged.
 ### Job details and task details
 
 Open Jobs → Job details for full metadata, overall stage progress, aggregation
-membership, documents, templates and history. Metadata and progress are expanded
+membership, documents and history. Metadata and progress are expanded
 initially. Use its Current task link to open an accessible task.
 
 Open My Tasks → Task details to work on the selected stage, with its instructions,
@@ -1029,3 +1029,20 @@ the UI uses the authorized, uncached `/jobs/{id}/workflow-progress` projection.
 Eight new `disposition.ui.tracker_*` translations are generated Arabic drafts
 for administrator review, merged into the canonical artifact without replacing
 curated wording. Use the normal catalogue synchronization/review workflow.
+
+
+### Organization-wide destruction templates
+
+Use **Disposition → Document templates** to download, revise and inspect the
+revision history of the four shared Word templates. Existing Records Officer
+and Records Manager authorization applies; no job needs to exist first. This
+is not a per-job override. The latest accepted revision applies to subsequent
+document generation in both new and existing jobs. Existing PDFs retain their
+original bytes and template reference. Job Documents displays the exact revision
+used, with a download action for authorized template users.
+
+For existing databases, apply migration
+`081_organization_wide_disposition_templates.sql` after its predecessors, then
+restart API and WebUI. New databases use `database/schema.sql`. The migration
+allows uploads without a source job and preserves all existing revisions, job
+references and audit events. No new privilege or environment variable is added.

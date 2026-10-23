@@ -11,6 +11,10 @@ from ..resource_relationships import PageTable
 from .messages import text
 
 
+def template_path(job):
+    return f"jobs/{job['id']}/templates" if job else "templates"
+
+
 async def upload_dialog(*,api,job,row,roles,active,on_error,after):
     from .screens import failure
     with ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[680px] max-w-full gap-4'):
@@ -42,7 +46,7 @@ async def upload_dialog(*,api,job,row,roles,active,on_error,after):
             state['busy']=True;state['file'].seek(0)
             for control in (button,uploader,role,reason):control.disable()
             try:
-                result=await api.revise_disposition_template(job['id'],row['document_type'],command_id=state['command_id'],
+                result=await api.revise_disposition_template(job['id'] if job else None,row['document_type'],command_id=state['command_id'],
                   acting_role_id=role.value,expected_reference=row['reference'],reason=str(reason.value).strip(),
                   name=state['name'],content=state['file'])
             except ApiError as error:
@@ -68,7 +72,7 @@ async def upload_dialog(*,api,job,row,roles,active,on_error,after):
 async def download(*,api,job,row,active,on_error):
     from .screens import failure
     try:
-        content=await api.request('GET',f"/api/v1/disposition/jobs/{job['id']}/templates/{row['document_type']}/content",
+        content=await api.request('GET',f"/api/v1/disposition/{template_path(job)}/{row['document_type']}/content",
           params={'reference':row['reference']},_cancellable_read=True)
     except ApiError as error:
         if active():ui.notify(failure(error,on_error),type='negative')
@@ -83,7 +87,7 @@ async def history_dialog(*,api,job,kind,active,on_error,format_timestamp,column)
         def alive():return active() and dialog.value and not dialog._deleted
         ui.label(text('template_history')).classes('text-xl font-semibold');ui.label(text(kind))
         async def fetch(p):
-            result=await api.disposition_page(f"jobs/{job['id']}/templates/{kind}/revisions",limit=p.size,offset=(p.page-1)*p.size,
+            result=await api.disposition_page(f"{template_path(job)}/{kind}/revisions",limit=p.size,offset=(p.page-1)*p.size,
               sort=p.sort or 'revision_number',descending=p.descending if p.sort else True)
             for row in result['items']:
                 row['uploaded_at_label']=format_timestamp(row['uploaded_at']) if row['uploaded_at'] else text('repository_default')
@@ -112,7 +116,7 @@ def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,af
     from .screens import failure
     # No request for users whose already-loaded role context cannot use these
     # controls. The API independently rechecks effective roles on every read.
-    if not any(r.get('profile_code') in ('INFO_GOV_OFFICER','INFO_GOV_MGR') for r in context['roles']) or job['job_type']!='destruction':
+    if job and (not any(r.get('profile_code') in ('INFO_GOV_OFFICER','INFO_GOV_MGR') for r in context['roles']) or job['job_type']!='destruction'):
         async def unused():pass
         return unused
     ui.separator();ui.label(text('templates')).classes('text-lg font-semibold')
@@ -121,7 +125,7 @@ def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,af
     async def load():
         revision[0]+=1;token=revision[0]
         def alive():return active() and not host._deleted and token==revision[0]
-        try:result=await api.disposition_page(f"jobs/{job['id']}/templates")
+        try:result=await api.disposition_page(template_path(job))
         except ApiError as error:
             if alive():
                 host.clear()
@@ -148,3 +152,10 @@ def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,af
                             await upload_dialog(api=api,job=job,row=row,roles=result['roles'],active=alive,on_error=on_error,after=saved)
                         ui.button(text('upload_template'),icon='upload_file',on_click=upload).props('outline no-caps')
     return load
+
+
+async def templates_screen(*,api,container,active,on_error,format_timestamp):
+    from .screens import column
+    with container:
+        load=templates_panel(api=api,job=None,context=None,active=active,on_error=on_error,format_timestamp=format_timestamp,column=column)
+        await load()
