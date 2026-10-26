@@ -371,7 +371,8 @@ def synchronize_message_definitions() -> None:
             clear_catalogue_cache()
 
 
-def synchronize_generated_arabic_drafts() -> dict[str, int]:
+def synchronize_generated_arabic_drafts(*, missing_only: bool = False) -> dict[str, int]:
+    """Seed source copies; optionally preserve even explicitly superseded text."""
     path = Path(__file__).resolve().parents[3] / "frontend/webui/i18n/messages.ar.generated.json"
     if not path.exists():
         return {
@@ -489,12 +490,14 @@ def synchronize_generated_arabic_drafts() -> dict[str, int]:
                 WHERE translation.message_key=seed.message_key
                   AND translation.language_tag='ar'
                   AND translation.translated_text=ANY(seed.superseded_texts)
+                  AND NOT %s
                   AND NOT (
                       translation.origin='source_copy'
                       AND translation.reviewed_by_user_id IS NULL
                       AND translation.published_text IS NULL
                   )
-            RETURNING translation.message_key"""
+            RETURNING translation.message_key""",
+            (missing_only,),
         ).fetchall()
         counts["corrected"] = len(corrected)
         counts["protected"] = len(candidates) - counts["stored"] - counts["corrected"]

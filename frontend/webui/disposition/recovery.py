@@ -31,8 +31,8 @@ def controls(*,api,job,value,active,on_error,after,can_mutate=lambda:True):
             return lambda:{'target_status':selected.value,'confirmed':True,**preview} if selected.value in range(2,6) and confirmed.value else None
         await command_dialog(api=api,context=context,active=active,on_error=on_error,title='recover_all',confirm='recovery_hint',build=build,path=f"jobs/{job['id']}/partial-recovery",after=after)
     with ui.row().classes('w-full gap-3'):
-        if value['can_terminate']:ui.button(text('terminate_job'),icon='stop_circle',on_click=terminate).props('outline no-caps color=negative')
-        if value['can_resolve_bulk']:ui.button(text('recover_all'),icon='restore',on_click=bulk).props('outline no-caps')
+        if value['can_terminate']:ui.button(text('terminate_job'),icon='stop_circle',on_click=terminate).tooltip(text('terminate_job')).props('outline no-caps color=negative')
+        if value['can_resolve_bulk']:ui.button(text('recover_all'),icon='restore',on_click=bulk).tooltip(text('recover_all')).props('outline no-caps')
 
 
 async def resolve_unit(*,api,job,row,roles,active,on_error,after):

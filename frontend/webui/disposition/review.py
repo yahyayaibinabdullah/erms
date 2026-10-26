@@ -12,7 +12,9 @@ from nicegui import ui
 from ..api_client import ApiError
 from ..remote_select import RemoteSelect
 from ..relationship_select import relationship_select
-from ..resource_relationships import PageTable
+from ..resource_relationships import PageTable, language
+from .acting_role import automatic_role
+from .handoff import notify_completion,task_finished
 from .messages import text,KEYS
 from .screens import column,failure
 
@@ -25,7 +27,9 @@ def workflow_panel(job, **context):
 
 
 class ReviewForm:
-    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,history_active=None):
+    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,history_active=None,on_submitted=None):
+        # Historical callback name: all completed task stages now use this inbox return.
+        self.on_submitted=on_submitted
         self.api,self.view,self.active,self.on_error=api,workspace,active,on_error
         self.bind_remote,self.after,self.format_timestamp=bind_remote,after,format_timestamp
         self.open_resource=open_resource
@@ -33,7 +37,7 @@ class ReviewForm:
         self.browse_resource=browse_resource
         self.job=workspace['job'];self.task=workspace['task'];self.actions=set(workspace['actions'])
         self.pending=[];self.pending_meta={};self.retry={};self.busy=False;self.proposal_filter=None;self.proposal_round=None
-        self.work=None;self.note=None;self.overall=None
+        self.work=None;self.comments=None;self.saved_comments=''
         self.roles={r['id']:r['name'] for r in workspace['roles']}
         self.host=ui.column().classes('w-full gap-4')
         self.history_host=history_host or self.host
@@ -55,11 +59,11 @@ class ReviewForm:
             ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
-            self.role=ui.select(self.roles,label=text('acting_task_role'),value=next(iter(self.roles),None)).props('outlined dense').classes('w-full')
-            self.role.set_visibility(bool(self.roles))
-            if 'claim' in self.actions:ui.button(text('claim'),icon='assignment_ind',on_click=lambda:self.queue_action('claim')).props('no-caps')
-            if 'reassign' in self.actions:ui.button(text('reassign'),icon='person_add',on_click=self.reassign).props('outline no-caps')
-            if 'release' in self.actions:ui.button(text('release'),icon='undo',on_click=lambda:self.queue_action('release')).props('outline no-caps')
+            self.acting_role_id=automatic_role(self.roles)
+            if 'claim' in self.actions:ui.label(text('claim_before_proposals')).classes('text-sm text-amber-900').props('role=status')
+            if 'claim' in self.actions:ui.button(text('claim'),icon='assignment_ind',on_click=lambda:self.queue_action('claim')).tooltip(text('claim')).props('no-caps')
+            if 'reassign' in self.actions:ui.button(text('reassign'),icon='person_add',on_click=self.reassign).tooltip(text('reassign')).props('outline no-caps')
+            if 'release' in self.actions:ui.button(text('release'),icon='undo',on_click=lambda:self.queue_action('release')).tooltip(text('release')).props('outline no-caps')
             self.body=ui.column().classes('w-full gap-4')
 
     def alive(self):return self.active() and not self.host._deleted
@@ -67,8 +71,17 @@ class ReviewForm:
     def dirty(self):
         return self.busy or self.has_changes()
 
+    def needs_submission_comments(self):
+        return 'submit' in self.actions or self.job['review_route']=='records_manager_only'
+
     def has_changes(self):
-        return bool(self.pending) or self.note is not None and self.work is not None and (str(self.note.value or '')!=str((self.work.get('own_notes') or {}).get('review_notes') or '') or self.overall is not None and str(self.overall.value or '')!=str(self.work.get('overall_reason') or ''))
+        return bool(self.pending) or self.comments is not None and str(self.comments.value or '')!=self.saved_comments
+
+    def comments_need_sync(self):
+        if self.comments is None or self.work is None:return False
+        value=str(self.comments.value or '')
+        return value!=str((self.work.get('own_notes') or {}).get('review_notes') or '') or (
+            self.needs_submission_comments() and value!=str(self.work.get('overall_reason') or ''))
 
     def error(self,error):
         if self.alive():
@@ -77,7 +90,7 @@ class ReviewForm:
     async def queue_action(self,action):
         from .screens import command_dialog
         if self.dirty():ui.notify(text('unsaved_warning'),type='warning');return
-        await command_dialog(api=self.api,context={'roles':list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after)
+        await command_dialog(api=self.api,context={'roles':self.view['roles'] if action=='claim' else list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after,reason_required=action!='claim',confirm='claim_explanation' if action=='claim' else None)
 
     async def load(self):
         from .external import request_controls,task_form
@@ -108,49 +121,57 @@ class ReviewForm:
         self.work=work
         with self.body:
             if work.get('submission_reason'):
-                ui.label(text('overall_reason')).classes('font-semibold');ui.label(work['submission_reason']).props('dir=auto').classes('whitespace-pre-wrap')
+                ui.label(text('submission_comments')).classes('font-semibold');ui.label(work['submission_reason']).props('dir=auto').classes('whitespace-pre-wrap')
             if 'save' in self.actions:
                 self.proposal_host=ui.column().classes('w-full gap-3')
-                ui.label(text('review_notes')).classes('font-semibold')
-                self.note=ui.textarea(text('review_notes'),value=(work.get('own_notes') or {}).get('review_notes','')).props('outlined autogrow').classes('w-full')
-                if 'submit' in self.actions or self.job['review_route']=='records_manager_only':
-                    self.overall=ui.textarea(text('overall_reason'),value=work.get('overall_reason') or '').props('outlined autogrow').classes('w-full')
+                # Preserve both legacy draft texts in the single editor without
+                # silently saving or marking an untouched form dirty.
+                legacy_notes=str((work.get('own_notes') or {}).get('review_notes') or '')
+                legacy_reason=str(work.get('overall_reason') or '') if self.needs_submission_comments() else ''
+                parts=[]
+                for value in (legacy_reason,legacy_notes):
+                    if value.strip() and not any(value.strip()==part.strip() for part in parts):parts.append(value)
+                self.saved_comments='\n\n'.join(parts)
+                self.comments=ui.textarea(text('review_comments'),value=self.saved_comments).props('outlined autogrow').classes('w-full')
+                ui.label(text('review_comments_hint')).classes('text-sm text-slate-600')
                 ui.label(text('save_hint')).classes('text-sm text-slate-600')
                 self.pending_label=ui.label('').props('role=status')
                 self.pending_host=ui.column().classes('w-full gap-2')
-                self.decision=ui.textarea(text('decision_reason')).props('outlined autogrow').classes('w-full') if 'reject' in self.actions else None
                 self.buttons=[]
                 with ui.row().classes('w-full gap-2 flex-wrap'):
                     for action in ('save','submit','complete_review','reject','approve'):
                         if action in self.actions:
                             label='approve_generate_request' if action=='approve' and self.job['review_route']=='records_manager_only' else action
-                            self.buttons.append(ui.button(text(label),icon={'save':'save','submit':'send','complete_review':'done','reject':'assignment_return','approve':'verified'}[action],on_click=lambda _,a=action:self.perform(a)).props('no-caps'+(' outline' if action=='reject' else '')))
+                            self.buttons.append(ui.button(text(label),icon={'save':'save','submit':'send','complete_review':'done','reject':'assignment_return','approve':'verified'}[action],on_click=lambda _,a=action:self.perform(a)).tooltip(text(label)).props('no-caps'+(' outline' if action=='reject' else '')))
             self.history_sections()
             await self.proposals_panel(host=self.proposal_host if 'save' in self.actions else None)
 
     async def send(self,path,payload,version):
-        payload={**payload,'acting_role_id':self.role.value}
+        payload={**payload,'acting_role_id':self.acting_role_id}
         signature=json.dumps([path,payload,version],sort_keys=True)
         identity=self.retry.setdefault(signature,str(uuid4()))
-        return await self.api.disposition_command(path,{**payload,'command_id':identity,'acting_role_id':self.role.value},version=version,reason=text('save'))
+        return await self.api.disposition_command(path,{**payload,'command_id':identity,'acting_role_id':self.acting_role_id},version=version,reason=text('save'))
 
     async def persist(self):
-        if not self.has_changes():return
-        payload={'task_version':self.work['task_version'],'changes':self.pending,'review_notes':self.note.value or '',
+        if not self.has_changes() and not self.comments_need_sync():return
+        payload={'task_version':self.work['task_version'],'changes':self.pending,'review_notes':self.comments.value or '',
                  'note_version':(self.work.get('own_notes') or {}).get('version',0)}
-        if self.overall is not None:payload['overall_reason']=self.overall.value or ''
+        if self.needs_submission_comments():payload['overall_reason']=self.comments.value or ''
         result=await self.send(f"tasks/{self.task['id']}/review-work",payload,self.work['job_version'])
         if not self.alive():return result
-        self.work.update(job_version=result['job_version'],task_version=result['task_version'],overall_reason=self.overall.value if self.overall is not None else self.work.get('overall_reason'),own_notes={'version':result['note_version'],'review_notes':self.note.value or ''})
+        self.work.update(job_version=result['job_version'],task_version=result['task_version'],overall_reason=self.comments.value if self.needs_submission_comments() else self.work.get('overall_reason'),own_notes={'version':result['note_version'],'review_notes':self.comments.value or ''})
         self.job['version']=result['job_version'];self.task['version']=result['task_version']
+        self.saved_comments=str(self.comments.value or '')
         self.pending.clear();self.pending_meta.clear();self.render_pending()
         return result
 
     async def perform(self,action):
         if not self.alive() or self.busy or action not in self.actions:return
-        if action in ('submit','approve') and self.overall is not None and not str(self.overall.value or '').strip():
-            ui.notify(text('disposition_submission_reason_required'),type='warning');self.overall.run_method('focus');return
-        controls=self.buttons+[c for c in (self.note,self.overall,self.decision,self.role) if c is not None]
+        required=action in ('submit','reject') or action=='approve' and self.job['review_route']=='records_manager_only'
+        if required and not str(self.comments.value or '').strip():
+            self.feedback.text=text('review_comments_required')
+            ui.notify(self.feedback.text,type='warning');self.comments.run_method('focus');return
+        controls=self.buttons+[c for c in (self.comments,) if c is not None]
         self.busy=True;self.feedback.text=''
         for control in controls:control.disable()
         saved=False
@@ -169,24 +190,27 @@ class ReviewForm:
                 await asyncio.gather(self.proposals.load(),*( [self.notes.load()] if hasattr(self,'notes') else []))
                 if not self.alive():return
                 ui.notify(text('saved'),type='positive');await self.after({'_saved_work':True,'job_version':self.work['job_version']});return
-            if action=='submit':payload['overall_reason']=self.overall.value;endpoint='submit-review'
+            if action=='submit':payload['overall_reason']=self.comments.value;endpoint='submit-review'
             elif action in ('complete_review','reject'):
-                payload.update(decision='rejected' if action=='reject' else 'approved',decision_reason=(self.decision.value or '') if self.decision else '');endpoint='review-decision'
+                payload.update(decision='rejected' if action=='reject' else 'approved',decision_reason=self.comments.value or '');endpoint='review-decision'
             else:
-                preview=await self.api.disposition_page(f"tasks/{self.task['id']}/approval-preview",acting_role_id=self.role.value)
+                preview=await self.api.disposition_page(f"tasks/{self.task['id']}/approval-preview",acting_role_id=self.acting_role_id)
                 if not self.alive():return
                 if preview['job_version']!=self.work['job_version'] or preview['task_version']!=self.work['task_version']:
                     raise ApiError(409,{'code':'disposition_stale_version'})
-                payload.update(membership_token=preview['membership_token'],proposals_token=preview['proposals_token'],overall_reason=self.overall.value if self.overall is not None else None);endpoint='approve-proposals'
+                payload.update(membership_token=preview['membership_token'],proposals_token=preview['proposals_token'],overall_reason=self.comments.value if self.needs_submission_comments() else None);endpoint='approve-proposals'
             result=await self.send(f"tasks/{self.task['id']}/{endpoint}",payload,self.work['job_version'])
             if not self.alive():return
             pending=result.get('request_status')=='pending' or result.get('report_status')=='pending'
-            ui.notify(text('request_pending' if result.get('request_status')=='pending' else 'report_pending' if pending else 'saved'),type='warning' if pending else 'positive')
-            await self.after(result)
+            if action in ('submit','complete_review','reject'):
+                notify_completion(result,'submitted' if action=='submit' else 'review_completed')
+            else:
+                notify_completion(result,'request_pending' if result.get('request_status')=='pending' else 'report_pending' if pending else 'review_completed',type='warning' if pending else 'positive')
+            await task_finished(self,result)
         except ApiError as error:
             if not self.alive():return
             if isinstance(error.detail,dict) and error.detail.get('approval_committed'):
-                ui.notify(text('report_pending'),type='warning');await self.after(error.detail)
+                ui.notify(text('report_pending'),type='warning');await task_finished(self,error.detail)
             else:
                 self.error(error)
                 if saved:
@@ -206,7 +230,7 @@ class ReviewForm:
         else:
             control=RemoteSelect({},label=text(label),with_input=True,multiple=multiple,value=[] if multiple else None).props('outlined dense clearable').classes('w-full')
         base=f"tasks/{self.task['id']}/"+('proposal-targets/' if target else 'review-candidates/')+kind
-        async def request(**params):return await self.api.disposition_page(base,acting_role_id=self.role.value,**({'root_id':root} if target else {}),**({'direction':direction} if direction else {}),**params)
+        async def request(**params):return await self.api.disposition_page(base,acting_role_id=self.acting_role_id,**({'root_id':root} if target else {}),**({'direction':direction} if direction else {}),**params)
         async def load(query):return await request(query=query)
         async def hydrate(identity):
             response=await request(selected=identity)
@@ -224,7 +248,14 @@ class ReviewForm:
             async def fetch(p):
                 result=await self.api.disposition_page(f"jobs/{self.job['id']}/proposals",limit=p.size,offset=(p.page-1)*p.size,review_round=self.proposal_round,root_id=root_id)
                 for row in result['items']:
-                    if row['redacted']:row.update(target_label=text('restricted'),type_label='—',state_label='—');continue
+                    row['details_label']=text('proposal_metadata_details' if row.get('partial') else 'details')
+                    row['details_available']=not row['redacted'] or bool(row.get('partial'))
+                    if row['redacted']:
+                        target=row.get('target_summary')
+                        row.update(target_label=target['number']+' · '+target['title'] if target else text('restricted_resource'),target_notice=text('restricted_proposal_details') if target else '',type_label='—',state_label='—',editable=False)
+                        if row.get('partial'):
+                            row.update(type_label=text(row['proposal_type']),state_label=text(row['proposal_state']),stage_label=text(row['proposer_stage']),time_label=self.format_timestamp(row['proposed_at']),editor_time_label=self.format_timestamp(row['last_revised_at']) if row.get('last_revised_at') else '—',reason=text('restricted_text'))
+                        continue
                     a=row['current_values'].get('record') or row['current_values']
                     row['target_label']=(a.get('record_number') or a.get('aggregation_number') or str(row['target_aggregation_id']))+' · '+(a.get('title') or '')
                     row['editor_time_label']=self.format_timestamp(row['last_revised_at']) if row.get('last_revised_at') else '—'
@@ -233,7 +264,8 @@ class ReviewForm:
                     row['editable']='propose' in self.actions and self.work is not None and row['review_round']==self.work['review_round'] and row['proposal_state']=='active' and row['in_current_membership']
                 return result
             page=PageTable(columns=[column('target_label','target'),column('type_label','proposal_type'),column('state_label','proposal_state'),column('proposer_name','proposer'),column('proposer_role_name','acting_task_role'),column('editor_name','last_editor'),column('editor_time_label','occurred'),column('stage_label','stage'),column('review_round'),column('time_label','occurred'),column('reason'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
-            page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="info" aria-label="'''+escape(text('details'))+'''" @click="$parent.$emit('detail',props.row.id)"/><q-btn v-if="props.row.editable" flat dense icon="edit" aria-label="'''+escape(text('revise'))+'''" @click="$parent.$emit('revise',props.row.id)"/><q-btn v-if="props.row.editable" flat dense icon="undo" aria-label="'''+escape(text('withdraw'))+'''" @click="$parent.$emit('withdraw',props.row.id)"/></q-td>''')
+            page.table.add_slot('body-cell-target_label','''<q-td :props="props"><bdi>{{ props.row.target_label }}</bdi><div v-if="props.row.target_notice" class="text-sm text-slate-600">{{ props.row.target_notice }}</div></q-td>''')
+            page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="props.row.details_available" flat dense icon="info" :aria-label="props.row.details_label" @click="$parent.$emit('detail',props.row.id)"><q-tooltip>{{ props.row.details_label }}</q-tooltip></q-btn><q-btn v-if="props.row.editable" flat dense icon="edit" aria-label="'''+escape(text('revise'))+'''" @click="$parent.$emit('revise',props.row.id)"><q-tooltip>'''+escape(text('revise'))+'''</q-tooltip></q-btn><q-btn v-if="props.row.editable" flat dense icon="undo" aria-label="'''+escape(text('withdraw'))+'''" @click="$parent.$emit('withdraw',props.row.id)"><q-tooltip>'''+escape(text('withdraw'))+'''</q-tooltip></q-btn></q-td>''')
             def row(event):return next((r for r in page.table.rows if r['id']==event.args),None)
             page.table.on('detail',lambda event:self.details(row(event)))
             page.table.on('revise',lambda event:self.edit(existing=row(event)))
@@ -243,15 +275,15 @@ class ReviewForm:
 
     async def notes_panel(self,host=None,active=None):
         with host or self.host:
-            ui.separator();ui.label(text('review_notes')).classes('text-lg font-semibold')
+            ui.separator();ui.label(text('review_comments')).classes('text-lg font-semibold')
             async def fetch(p):
                 result=await self.api.disposition_page(f"jobs/{self.job['id']}/review-notes",limit=p.size,offset=(p.page-1)*p.size)
                 for row in result['items']:
                     if row.get('redacted'):row.update(review_notes=text('restricted'));continue
                     row['stage_label']=text(row['workflow_stage']);row['time_label']=self.format_timestamp(row['date_updated'])
                 return result
-            page=PageTable(columns=[column('review_round'),column('stage_label','stage'),column('author_name','actor'),column('role_name','acting_task_role'),column('review_notes'),column('time_label','occurred'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
-            page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="history" aria-label="'''+escape(text('revision_history'))+'''" @click="$parent.$emit('note-history',props.row.id)"/></q-td>''')
+            page=PageTable(columns=[column('review_round'),column('stage_label','stage'),column('author_name','actor'),column('role_name','acting_task_role'),column('review_notes','review_comments'),column('time_label','occurred'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+            page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="history" aria-label="'''+escape(text('revision_history'))+'''" @click="$parent.$emit('note-history',props.row.id)"><q-tooltip>'''+escape(text('revision_history'))+'''</q-tooltip></q-btn></q-td>''')
             page.table.on('note-history',lambda event:self.history('note',event.args))
             self.notes=page
             return page
@@ -273,7 +305,7 @@ class ReviewForm:
                     for key,value in self.pending_meta.get(id(change),{}).items():ui.label(text(key)+' · '+str(value or '—')).props('dir=auto')
                     if change.get('reason'):ui.label(text('reason')+' · '+change['reason']).props('dir=auto')
                     def discard(item=change):self.pending.remove(item);self.render_pending()
-                    ui.button(text('cancel'),icon='close',on_click=discard).props('flat dense no-caps')
+                    ui.button(text('cancel'),icon='close',on_click=discard).tooltip(text('cancel')).props('flat dense no-caps')
 
     async def withdraw(self,row):
         if self.busy or not row or not row.get('editable'):return
@@ -284,11 +316,26 @@ class ReviewForm:
         dialog.open()
 
     async def details(self,row):
-        if not row or row.get('redacted'):return
+        if not row or row.get('redacted') and not row.get('partial'):return
         with ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[900px] max-w-full gap-4'):
             ui.label(text(row['proposal_type'])).classes('text-xl font-semibold')
             for label,value in [('proposer',row.get('proposer_name')),('role',row.get('proposer_role_name')),('stage',text(row['proposer_stage'])),('review_round',row['review_round']),('occurred',self.format_timestamp(row['proposed_at'])),('last_editor',row.get('editor_name')),('reason',row.get('reason'))]:
+                if label=='reason' and row.get('partial'):continue
                 ui.label(text(label)+' · '+str(value or '—')).props('dir=auto')
+            if row.get('partial'):
+                target=row['target_summary']
+                with ui.row().classes('w-full items-baseline gap-1'):
+                    ui.label(text('target')+' ·')
+                    ui.label(target['number']).props('dir=ltr')
+                    ui.label('·')
+                    ui.label(target['title']).props('dir=auto')
+                ui.label(text('proposal_state')+' · '+text(row['proposal_state']))
+                ui.label(text('restricted_proposal_details')).props('role=status').classes('text-amber-900')
+                ui.label(text('restricted_resource'))
+                ui.label(text('restricted_text')).classes('text-sm text-slate-600')
+                ui.button(text('close'),on_click=dialog.close).props('flat no-caps')
+                dialog.open()
+                return
             facts=row['current_values'];proposed=row['proposed_values']
             def line(key,value):ui.label(text(key)+' · '+str(value if value is not None else '—')).props('dir=auto').classes('whitespace-pre-wrap')
             def rule(value):
@@ -319,7 +366,7 @@ class ReviewForm:
             else:ui.label(text(typ))
             ui.label(text('execution_result')).classes('font-semibold');line('proposal_state',text(row['proposal_state']))
             if row.get('executed_at'):line('occurred',self.format_timestamp(row['executed_at']))
-            ui.button(text('revision_history'),icon='history',on_click=lambda:self.history('proposal',row['id'])).props('outline no-caps')
+            ui.button(text('revision_history'),icon='history',on_click=lambda:self.history('proposal',row['id'])).tooltip(text('revision_history')).props('outline no-caps')
             ui.button(text('close'),on_click=dialog.close).props('flat no-caps')
         dialog.open()
 
@@ -342,14 +389,14 @@ class ReviewForm:
                 selected_id=existing.get('target_record_id') or existing['target_aggregation_id'] if existing else root_id
                 with fields:
                     if typ in ('remove_from_job','local_retention_override'):
-                        response=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/aggregations",root_id=root_id,acting_role_id=self.role.value,selected=root_id)
+                        response=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/aggregations",root_id=root_id,acting_role_id=self.acting_role_id,selected=root_id)
                         if not alive() or token!=generation[0]:return
                         target.update(response['items'][0]);ui.label(target['code']+' · '+target['name']).props('dir=auto')
                     else:
                         target_kind='records' if typ=='remove_record_relationship' else 'aggregations'
                         selected=[]
                         if existing or target_kind=='aggregations':
-                            response=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/{target_kind}",root_id=root_id,acting_role_id=self.role.value,selected=selected_id)
+                            response=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/{target_kind}",root_id=root_id,acting_role_id=self.acting_role_id,selected=selected_id)
                             if not alive() or token!=generation[0]:return
                             selected=response['items'];target.update(selected[0] if selected else {})
                         control=self.remote(target_kind,'target',target=True,root=root_id,selected=selected,active=alive)
@@ -358,7 +405,7 @@ class ReviewForm:
                             if 'links' in values:values['links'].table.selected=[]
                             if not control.value or control._deleted:return
                             selected_id=control.value
-                            result=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/{target_kind}",root_id=root_id,acting_role_id=self.role.value,selected=control.value)
+                            result=await self.api.disposition_page(f"tasks/{self.task['id']}/proposal-targets/{target_kind}",root_id=root_id,acting_role_id=self.acting_role_id,selected=control.value)
                             if alive() and token==generation[0] and not control._deleted and control.value==selected_id and result['items']:
                                 target.update(result['items'][0])
                                 if 'links' in values:await values['links'].load(reset=True)
@@ -370,7 +417,7 @@ class ReviewForm:
                         values['holds']=self.remote('holds','hold_ids',multiple=True,selected=(existing.get('current_values',{}).get('holds') or []) if existing else None,active=alive)
                         if existing and not values['holds'].value:
                             # Hydrate only the selected IDs, never the complete holds collection.
-                            rows=await asyncio.gather(*(self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/holds",acting_role_id=self.role.value,selected=i) for i in initial['hold_ids']))
+                            rows=await asyncio.gather(*(self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/holds",acting_role_id=self.acting_role_id,selected=i) for i in initial['hold_ids']))
                             if not alive():return
                             selected=[r['items'][0] for r in rows if r['items']]
                             values['holds'].options={r['id']:r['code']+' · '+r['name'] for r in selected};values['holds'].value=initial['hold_ids'];values['holds'].update()
@@ -379,13 +426,13 @@ class ReviewForm:
                         if self.browse_resource:
                             async def browse_related():
                                 async def selected(item,browser_active):
-                                    result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/aggregations",acting_role_id=self.role.value,selected=item['id'])
+                                    result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/aggregations",acting_role_id=self.acting_role_id,selected=item['id'])
                                     if not alive() or token!=generation[0] or not browser_active():return
                                     if not result['items']:raise ApiError(404,{'code':'disposition_resource_access_required'})
                                     row=result['items'][0]
                                     values['related'].set_options({row['id']:row['code']+' · '+row['name']},value=row['id'])
                                 await self.browse_resource(values['related'],on_select=selected,active=lambda:alive() and token==generation[0])
-                            ui.button(text('browse'),icon='account_tree',on_click=browse_related).props('outline no-caps')
+                            ui.button(text('browse'),icon='account_tree',on_click=browse_related).tooltip(text('browse')).props('outline no-caps')
                         values['direction']=ui.select({v:text(v) for v in ('outgoing','incoming')},value=initial.get('direction','outgoing'),label=text('direction')).props('outlined dense').classes('w-full')
                         type_host=ui.column().classes('w-full')
                         type_revision=[0]
@@ -401,31 +448,60 @@ class ReviewForm:
                                 values['type']=control
                                 if identity:control.set_options({identity:previous_label},value=identity)
                             if identity:
-                                result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/relationship_types",acting_role_id=self.role.value,selected=identity,direction=values['direction'].value)
+                                result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/relationship_types",acting_role_id=self.acting_role_id,selected=identity,direction=values['direction'].value)
                                 if current():control.set_options({r['id']:r['code']+' · '+r['name'] for r in result['items']},value=identity)
                         values['direction'].on_value_change(refresh_type)
                         await refresh_type()
                         if existing:
                             for key,remote_key,id_key in [('related','aggregations','related_aggregation_id')]:
-                                result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/{remote_key}",acting_role_id=self.role.value,selected=initial[id_key])
+                                result=await self.api.disposition_page(f"tasks/{self.task['id']}/review-candidates/{remote_key}",acting_role_id=self.acting_role_id,selected=initial[id_key])
                                 if not alive():return
                                 values[key].options={r['id']:r['code']+' · '+r['name'] for r in result['items']};values[key].value=initial[id_key];values[key].update()
                     elif typ in ('remove_aggregation_relationship','remove_record_relationship'):
+                        singular='record' if typ=='remove_record_relationship' else 'aggregation'
+                        async def read_links(**params):
+                            return await self.api.disposition_page(f"tasks/{self.task['id']}/removal-candidates/{singular}",root_id=root_id,target_id=target['id'],acting_role_id=self.acting_role_id,exclude_proposal_id=existing['id'] if existing else None,language_tag=language(),**params)
                         async def fetch(p):
                             if not target:return {'items':[],'total':0}
-                            singular='record' if typ=='remove_record_relationship' else 'aggregation'
-                            result=await self.api.request('GET',f"/api/v1/relationships/{singular}/{target['id']}",params={'limit':p.size,'offset':(p.page-1)*p.size})
+                            result=await read_links(limit=p.size,offset=(p.page-1)*p.size)
+                            queued_ids={c['proposed_values']['relationship_id'] for c in self.pending if c.get('action')=='create' and c.get('proposal_type')==typ}
                             for row in result['items']:
-                                related=row['related'];row['target_label']=text('restricted') if related['redacted'] else related['number']+' · '+related['title']
+                                related=row['related'];row['target_label']=text('restricted_resource') if related['redacted'] else related['number']+' · '+related['title']
+                                row['already_proposed']=row.get('already_proposed',False) or row['id'] in queued_ids
+                                row['selectable']=not related['redacted'] and not row['already_proposed']
+                                row['selection_label']=' · '.join(text(key) for key,flag in [('removal_already_proposed',row['already_proposed']),('removal_access_required',related['redacted'])] if flag)
                             return result
-                        page=PageTable(columns=[column('label','relationship_type_id'),column('target_label','target')],fetch=fetch,active=alive,on_error=self.on_error,empty='empty',selection='single' if existing else 'multiple',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+                        def sync_selection(*args,rows=None):
+                            current={r['id']:r for r in (page.table.rows if rows is None else rows)}
+                            selected=[current.get(r['id'],r) for r in page.table.selected]
+                            page.table.selected=[r for r in selected if r.get('selectable',not r['related']['redacted'])]
+                            eligible={identity for identity,r in current.items() if r['selectable']}
+                            checked={r['id'] for r in page.table.selected}&eligible
+                            state='true' if eligible and checked==eligible else 'null' if checked else 'false'
+                            page.table.add_slot('header-selection',f'''<q-checkbox :model-value="{state}" :disable="{'false' if eligible else 'true'}" aria-label="{escape(text('select_available_relationships'))}" @update:model-value="$parent.$emit('select-available', $event)"><q-tooltip>{escape(text('select_available_relationships'))}</q-tooltip></q-checkbox>''')
+                        page=PageTable(columns=[column('label','relationship_type_id'),column('target_label','target'),column('selection_label','removal_availability'),column('actions')],fetch=fetch,active=alive,on_error=self.on_error,empty='empty',selection='single' if existing else 'multiple',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),on_loaded=lambda p,result:sync_selection(rows=result['items']))
+                        page.table.add_slot('body-selection','''<span class="inline-flex" :tabindex="props.row.selectable ? -1 : 0"><q-checkbox :model-value="props.selected" :disable="!props.row.selectable" :aria-label="props.row.target_label" @update:model-value="props.selected = $event"/><q-tooltip v-if="props.row.selection_label">{{ props.row.selection_label }}</q-tooltip></span>''')
+                        page.table.add_slot('body-cell-target_label','''<q-td :props="props"><bdi>{{ props.row.target_label }}</bdi></q-td>''')
+                        page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="props.row.existing_proposal_id" flat dense icon="info" aria-label="'''+escape(text('view_existing_proposal'))+'''" @click="$parent.$emit('existing-proposal',props.row.existing_proposal_id)"><q-tooltip>'''+escape(text('view_existing_proposal'))+'''</q-tooltip></q-btn></q-td>''')
+                        def select_available(event):
+                            available=[r for r in page.table.rows if r['selectable']]
+                            ids={r['id'] for r in page.table.rows}
+                            retained=[r for r in page.table.selected if r['id'] not in ids]
+                            page.table.selected=retained+(available[:1] if existing else available) if event.args else retained
+                            sync_selection()
+                        async def existing_details(event):
+                            if not alive():return
+                            response=await self.api.disposition_page(f"jobs/{self.job['id']}/proposals",proposal_id=event.args,limit=1,offset=0)
+                            if alive() and response['items']:await self.details(response['items'][0])
+                        page.table.on('selection',sync_selection)
+                        page.table.on('select-available',select_available)
+                        page.table.on('existing-proposal',existing_details)
                         values['links']=page;await page.load()
                         if existing:
-                            singular='record' if typ=='remove_record_relationship' else 'aggregation'
-                            response=await self.api.request('GET',f"/api/v1/relationships/{singular}/{target['id']}",params={'selected_id':initial['relationship_id'],'limit':1,'offset':0})
+                            response=await read_links(selected_id=initial['relationship_id'],limit=1,offset=0)
                             if not alive():return
-                            chosen=[r for r in response['items'] if not r['related']['redacted']]
-                            page.table.selected=chosen
+                            chosen=[r for r in response['items'] if r['selectable']]
+                            page.table.selected=chosen;sync_selection()
                             if chosen:ui.label(text('relationship_id')+' · '+chosen[0]['label']+' · '+chosen[0]['related']['number']+' · '+chosen[0]['related']['title']).props('dir=auto')
                     elif typ=='local_retention_override':
                         for key in ('current_period_years','intermediate_period_years'):
@@ -444,7 +520,8 @@ class ReviewForm:
                 elif typ=='create_aggregation_relationship':proposed={'direction':values['direction'].value,'related_aggregation_id':values['related'].value,'relationship_type_id':values['type'].value}
                 elif typ.startswith('remove_') and typ!='remove_from_job':
                     selected=values['links'].table.selected
-                    if not selected or any(row['related']['redacted'] for row in selected):feedback.text=text('required');return
+                    if not selected:feedback.text=text('select_available_relationships');return
+                    if any(row['related']['redacted'] or not row.get('selectable',True) for row in selected):feedback.text=text('removal_unavailable');return
                     proposed={'relationship_id':selected[0]['id']}
                 elif typ=='local_retention_override':
                     if any(values[k].value is None or values[k].value<0 or int(values[k].value)!=values[k].value for k in ('current_period_years','intermediate_period_years')):feedback.text=text('required');return
@@ -489,8 +566,8 @@ class ReviewForm:
                     row['time_label']=self.format_timestamp(row['started_at']) if not row.get('redacted') else '—'
                     row['can_retry']=bool(managers) and row.get('approved',False)
                 return result
-            page=PageTable(columns=[column('round_number','review_round'),column('time_label','occurred'),column('submission_reason','overall_reason'),column('invalidation_reason','reason'),column('root_count'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
-            page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="history" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('round',props.row.id)"/><q-btn v-if="props.row.can_retry" flat dense icon="description" aria-label="'''+escape(text('retry_report'))+'''" @click="$parent.$emit('report',props.row.id)"/></q-td>''')
+            page=PageTable(columns=[column('round_number','review_round'),column('time_label','occurred'),column('submission_reason','submission_comments'),column('invalidation_reason','reason'),column('root_count'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
+            page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="history" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('round',props.row.id)"><q-tooltip>'''+escape(text('proposals'))+'''</q-tooltip></q-btn><q-btn v-if="props.row.can_retry" flat dense icon="description" aria-label="'''+escape(text('retry_report'))+'''" @click="$parent.$emit('report',props.row.id)"><q-tooltip>'''+escape(text('retry_report'))+'''</q-tooltip></q-btn></q-td>''')
             async def show(event):
                 row=next((r for r in page.table.rows if r['id']==event.args and not r.get('redacted')),None)
                 if row:self.proposal_round=row['round_number'];await self.proposals.load(reset=True)
@@ -499,12 +576,12 @@ class ReviewForm:
                 if not row:return
                 with ui.dialog() as dialog,ui.card().classes('messaging-workspace max-w-full gap-4'):
                     ui.label(text('retry_report'))
-                    role=ui.select({r['id']:r['name'] for r in managers},label=text('acting_task_role'),value=managers[0]['id']).props('outlined dense')
+                    role_id=automatic_role(managers)
                     feedback=ui.label('').props('role=alert').classes('text-negative')
                     identity=str(uuid4())
                     async def generate():
                         button.disable()
-                        try:result=await self.api.disposition_command(f"jobs/{self.job['id']}/review-rounds/{row['id']}/execution-report",{'command_id':identity,'acting_role_id':role.value},reason=text('retry_report'))
+                        try:result=await self.api.disposition_command(f"jobs/{self.job['id']}/review-rounds/{row['id']}/execution-report",{'command_id':identity,'acting_role_id':role_id},reason=text('retry_report'))
                         except ApiError as error:
                             if self.alive() and dialog.value:feedback.text=failure(error,self.on_error);ui.notify(feedback.text,type='negative');button.enable()
                             return
@@ -555,7 +632,7 @@ class ReviewForm:
             from .email import attempts_panel
             async def email_attempts(**kwargs):return await attempts_panel(self,**kwargs)
             async def external_decisions(**kwargs):return await decisions_panel(self,**kwargs)
-            for label,method in [('review_notes',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel),('external_decisions',external_decisions),('email_attempts',email_attempts)]:
+            for label,method in [('review_comments',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel),('external_decisions',external_decisions),('email_attempts',email_attempts)]:
                 with ui.expansion(text(label),icon='history').classes('w-full') as expansion:
                     host=ui.column().classes('w-full gap-3');state={'page':None}
                 def alive(expansion=expansion):return self.history_active() and expansion.value and not expansion._deleted

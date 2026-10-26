@@ -4,6 +4,7 @@ from uuid import uuid4
 from nicegui import ui
 from ..remote_select import RemoteSelect
 from ..api_client import ApiError
+from .acting_role import automatic_role
 from .messages import text
 from .screens import failure
 
@@ -12,12 +13,12 @@ async def reassign_task(*,api,task,roles,bind_remote,active,on_error,after):
     with ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[650px] max-w-full gap-4'):
         def alive():return active() and dialog.value and not dialog._deleted
         ui.label(text('reassign')).classes('text-xl font-semibold')
-        role=ui.select({r['id']:r['name'] for r in roles},label=text('acting_task_role'),value=roles[0]['id']).props('outlined dense').classes('w-full')
+        role_id=automatic_role(roles)
         mode=ui.select({k:text(k) for k in ('reassign_person','reassign_queue')},label=text('assignment_mode'),value='reassign_person').props('outlined dense').classes('w-full')
         controls={}
         for kind,label in [('users','assignee'),('roles','role_queue')]:
             control=RemoteSelect({},label=text(label),with_input=True).props('outlined dense clearable').classes('w-full');controls[kind]=control
-            async def request(kind=kind,**params):return await api.disposition_page(f"tasks/{task['id']}/assignment-candidates/{kind}",acting_role_id=role.value,**params)
+            async def request(kind=kind,**params):return await api.disposition_page(f"tasks/{task['id']}/assignment-candidates/{kind}",acting_role_id=role_id,**params)
             async def load(query,request=request):return await request(query=query)
             async def hydrate(identity,request=request):
                 response=await request(selected=identity)
@@ -35,7 +36,7 @@ async def reassign_task(*,api,task,roles,bind_remote,active,on_error,after):
             target=controls['users'].value if mode.value=='reassign_person' else controls['roles'].value
             if not target or not str(reason.value or '').strip():
                 feedback.text=text('required');ui.notify(feedback.text,type='warning');return
-            payload={'acting_role_id':role.value,'assigned_user_id':target if mode.value=='reassign_person' else None,'destination_role_id':task['destination_role_id'] if mode.value=='reassign_person' else target}
+            payload={'acting_role_id':role_id,'assigned_user_id':target if mode.value=='reassign_person' else None,'destination_role_id':task['destination_role_id'] if mode.value=='reassign_person' else target}
             signature=json.dumps([payload,reason.value],sort_keys=True);payload['command_id']=retry.setdefault(signature,str(uuid4()));button.disable()
             try:result=await api.disposition_command(f"tasks/{task['id']}/reassignment",payload,version=task['version'],reason=reason.value.strip())
             except ApiError as error:

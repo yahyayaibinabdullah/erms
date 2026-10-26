@@ -2,6 +2,19 @@
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'submitted': 'disposition.ui.submitted',
+ 'job_completed': 'disposition.ui.job_completed',
+ 'completion_next_task': 'disposition.ui.completion_next_task',
+ 'completion_next_automatic': 'disposition.ui.completion_next_automatic',
+ 'review_completed': 'disposition.ui.review_completed',
+ 'review_completed_to': 'disposition.ui.review_completed_to',
+ 'submitted_to': 'disposition.ui.submitted_to',
+ 'next_role_queue': 'disposition.ui.next_role_queue',
+
+ 'review_comments': 'disposition.ui.review_comments',
+ 'review_comments_hint': 'disposition.ui.review_comments_hint',
+ 'review_comments_required': 'disposition.ui.review_comments_required',
+ 'submission_comments': 'disposition.ui.submission_comments',
  'last_viewed': 'disposition.ui.last_viewed',
  'template_revision': 'disposition.ui.template_revision',
  'history_details': 'disposition.ui.history_details',
@@ -154,6 +167,9 @@ DISPOSITION_MESSAGE_KEYS = {
  'certificate_generation': 'disposition.ui.certificate_generation',
  'change_owner': 'disposition.ui.change_owner',
  'claim': 'disposition.ui.claim',
+ 'claim_before_proposals': 'disposition.ui.claim_before_proposals',
+ 'claim_explanation': 'disposition.ui.claim_explanation',
+ 'restricted_proposal_details': 'disposition.ui.restricted_proposal_details',
  'claimant': 'disposition.ui.claimant',
  'claimed': 'disposition.ui.claimed',
  'classification': 'disposition.ui.classification',
@@ -432,6 +448,20 @@ DISPOSITION_MESSAGE_KEYS = {
  'request_form': 'disposition.ui.request_form',
  'request_pending': 'disposition.ui.request_pending',
  'required': 'disposition.ui.required',
+ 'proposal_metadata_details': 'disposition.ui.proposal_metadata_details',
+ 'restricted_resource': 'disposition.ui.restricted_resource',
+ 'restricted_text': 'disposition.ui.restricted_text',
+ 'blocker_source': 'disposition.ui.blocker_source',
+ 'blocker_target': 'disposition.ui.blocker_target',
+ 'blockers_empty_all': 'disposition.ui.blockers_empty_all',
+ 'blockers_retry': 'disposition.ui.blockers_retry',
+ 'disposition_proposal_duplicate': 'disposition.ui.disposition_proposal_duplicate',
+ 'removal_already_proposed': 'disposition.ui.removal_already_proposed',
+ 'removal_access_required': 'disposition.ui.removal_access_required',
+ 'removal_availability': 'disposition.ui.removal_availability',
+ 'select_available_relationships': 'disposition.ui.select_available_relationships',
+ 'view_existing_proposal': 'disposition.ui.view_existing_proposal',
+ 'removal_unavailable': 'disposition.ui.removal_unavailable',
  'restricted': 'disposition.ui.restricted',
  'results': 'disposition.ui.results',
  'retention_rule_changed': 'disposition.ui.retention_rule_changed',
@@ -577,8 +607,8 @@ DISPOSITION_MESSAGE_KEYS = {
 }
 KEYS = DISPOSITION_MESSAGE_KEYS
 
-def text(name, **parameters):
-    return render_message_plain(DISPOSITION_MESSAGE_KEYS[name], **parameters)
+def text(key, **parameters):
+    return render_message_plain(DISPOSITION_MESSAGE_KEYS[key], **parameters)
 
 def status_label(value):
     return text("status_"+str(value)) if value in range(1,14) else "—"

@@ -115,12 +115,11 @@ async def test_create_job_uses_route_and_auto_selects_single_role(host,monkeypat
     assert 'destruction' in kind.options
     assert not any(isinstance(e,ui.textarea) for e in host.descendants())
     from frontend.webui.disposition.messages import text
-    role=next(e for e in selects if e.label==text('role'))
-    assert role.value==7 and not role.visible
+    assert not any(e.label==text('role') for e in selects)
 
 
 @pytest.mark.asyncio
-async def test_create_job_role_choices_follow_type_and_preserve_valid_selection(host,monkeypatch):
+async def test_create_job_has_no_acting_role_choice_with_multiple_eligible_roles(host,monkeypatch):
     from nicegui import core
     from frontend.webui.disposition.screens import create_dialog
     from frontend.webui.disposition.messages import text
@@ -132,13 +131,10 @@ async def test_create_job_role_choices_follow_type_and_preserve_valid_selection(
             bind_remote=lambda *a,**k:None,active=lambda:True,on_error=str,after=lambda *a:None)
     selects=[e for e in host.descendants() if isinstance(e,ui.select)]
     kind=next(e for e in selects if e.label==text('job_type'))
-    role=next(e for e in selects if e.label==text('role'))
-    assert role.options=={1:'Officer',2:'Manager'} and role.value==1 and role.visible
+    assert not any(e.label==text('role') for e in selects)
     kind.value='permanent_transfer';await asyncio.sleep(0)
-    assert role.visible and set(role.options)=={1,2} and role.value==1
-    role.value=1
     kind.value='destruction';await asyncio.sleep(0)
-    assert role.value==1 and role.visible
+    assert not any(isinstance(e,ui.select) and e.label==text('role') for e in host.descendants())
 
 
 @pytest.mark.asyncio

@@ -9,6 +9,7 @@ from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
 from ..resource_relationships import PageTable
+from .acting_role import automatic_role
 from .messages import text
 
 
@@ -47,7 +48,7 @@ async def correction_dialog(*, api, job, row, roles, active, on_error, after):
             state['destination']=value;destination_host.clear()
             with destination_host:show_destination(value,'evidence_destination')
             button.set_enabled(value['ready'])
-        refresh=ui.button(text('refresh_destination'),icon='refresh',on_click=load_destination).props('flat no-caps')
+        refresh=ui.button(text('refresh_destination'),icon='refresh',on_click=load_destination).tooltip(text('refresh_destination')).props('flat no-caps')
         def uploaded(event):
             if not alive() or state['busy']:return
             if state['file']:state['file'].close()
@@ -62,19 +63,19 @@ async def correction_dialog(*, api, job, row, roles, active, on_error, after):
             state.update(file=target,name=event.names[0],mime=event.types[0] or 'application/octet-stream',digest=digest.hexdigest())
             feedback.text=''
         uploader=ui.upload(label=text('corrected_file'),multiple=False,auto_upload=True,max_files=1,on_multi_upload=uploaded).props('flat bordered').classes('w-full')
-        role=ui.select({r['id']:r['name'] for r in roles},label=text('role'),value=roles[0]['id'] if roles else None).props('outlined dense').classes('w-full')
+        role_id=automatic_role(roles)
         reason=ui.textarea(text('reason')).props('outlined autogrow').classes('w-full')
         async def save():
             if not alive() or state['busy']:return
             dest=state['destination']
-            if not state['file'] or not role.value or not str(reason.value or '').strip() or not dest or not dest['ready']:
+            if not state['file'] or not role_id or not str(reason.value or '').strip() or not dest or not dest['ready']:
                 feedback.text=text('required');ui.notify(feedback.text,type='warning');reason.run_method('focus');return
-            signature=(state['digest'],state['name'],state['mime'],dest['token'],role.value,str(reason.value).strip())
+            signature=(state['digest'],state['name'],state['mime'],dest['token'],role_id,str(reason.value).strip())
             if signature!=state['signature']:state.update(signature=signature,command_id=str(uuid4()))
             button.disable();state['file'].seek(0);state['busy']=True
-            for control in (uploader,role,reason,refresh):control.disable()
+            for control in (uploader,reason,refresh):control.disable()
             try:
-                result=await api.correct_disposition_evidence(job['id'],row['id'],version=job['version'],command_id=state['command_id'],acting_role_id=role.value,
+                result=await api.correct_disposition_evidence(job['id'],row['id'],version=job['version'],command_id=state['command_id'],acting_role_id=role_id,
                   destination_token=dest['token'],reason=str(reason.value).strip(),name=state['name'],content=state['file'],mime_type=state['mime'])
             except ApiError as error:
                 if alive():feedback.text=failure(error,on_error);ui.notify(feedback.text,type='negative');button.enable()
@@ -82,13 +83,13 @@ async def correction_dialog(*, api, job, row, roles, active, on_error, after):
             finally:
                 state['busy']=False
                 if alive():
-                    for control in (uploader,role,reason,refresh):control.enable()
+                    for control in (uploader,reason,refresh):control.enable()
                 else:cleanup()
             if not alive():return
             dialog.close();ui.notify(text('saved'),type='positive');await after(result)
         with ui.row().classes('w-full justify-end gap-2'):
             ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
-            button=ui.button(text('save'),icon='save',on_click=save).props('no-caps');button.disable()
+            button=ui.button(text('save'),icon='save',on_click=save).tooltip(text('save')).props('no-caps');button.disable()
         def cleanup():
             if not state['busy'] and state['file']:state['file'].close();state['file']=None
         dialog.on('hide',cleanup)

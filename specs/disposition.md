@@ -1328,7 +1328,7 @@ information-governance role. It covers:
 For destruction jobs, assigned File Administrator and Unit Manager review tasks
 use the limited role/task authority defined in Section 17.5 of the Destruction
 Process extension, not the full `disposition.jobs.manage` privilege. Those
-participants may create, revise, or withdraw proposals, record Review notes,
+participants may create, revise, or withdraw proposals, record Review comments,
 and complete their review decisions while authorized for their open task.
 They cannot execute proposals or make lasting resource changes through that
 task authority. Records Manager final approval and proposal execution still
@@ -1367,7 +1367,11 @@ record security merely by being an administrator.
 Destruction permits the same person to prepare as Records Officer and approve
 or execute as Records Manager if independently authorized for each role and
 task at the time of action. Each action records its acting role; holding one
-role does not supply the other's authorization.
+role does not supply the other's authorization. The interface resolves this role
+automatically from the operation's current eligible-role projection instead of
+asking the user to choose an acting role. Assignment of a person or destination
+role queue remains an explicit business choice. See destruction-process.md,
+Automatic acting-role attribution, for selection and retry rules.
 
 ## 16. Audit, reporting, and data integrity
 

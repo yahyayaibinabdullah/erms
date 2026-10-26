@@ -495,3 +495,14 @@ def test_acceleration_api_keeps_reason_version_and_retry_contract_for_held_unit(
         assert statuses(c,root)==[2]*4 and member(c,root) is None
         assert c.execute('SELECT 1 FROM hold_aggregation_assignments WHERE aggregation_id=%s',(root,)).fetchone()
         assert c.execute("SELECT count(*) n FROM event_history WHERE operation='DISPOSITION_ACCELERATED' AND entity_id=%s",(root,)).fetchone()['n']==1
+
+
+@pytest.mark.parametrize('language,expected',[('en','Canonical owner'),('ar','الوحدة المالكة'),('ar-AE','الوحدة المالكة'),('fr','Canonical owner')])
+def test_membership_owner_uses_requested_language_without_translation_payload(client,language,expected):
+    from backend.services.api.disposition import queries
+    with db() as c:
+        job=setup(c);root,*_=ready(c);admit(c,job['id'],[root])
+        c.execute("UPDATE org_units SET name='Canonical owner',translations=%s WHERE id=(SELECT owning_org_unit_id FROM aggregations WHERE id=%s)",(Jsonb({'ar':{'name':'الوحدة المالكة'}}),root))
+        row=queries.members(c,job['id'],limit=25,offset=0,language_tag=language)['items'][0]
+        assert row['owning_org_unit_name']==expected
+        assert 'owner_translations' not in row

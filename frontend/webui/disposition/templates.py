@@ -8,6 +8,7 @@ from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
 from ..resource_relationships import PageTable
+from .acting_role import automatic_role
 from .messages import text
 
 
@@ -35,19 +36,19 @@ async def upload_dialog(*,api,job,row,roles,active,on_error,after):
             while chunk:=target.read(1024*1024):digest.update(chunk)
             target.seek(0);state.update(file=target,name=event.names[0],checksum=digest.hexdigest());feedback.text=''
         uploader=ui.upload(label=text('template_file'),multiple=False,auto_upload=True,max_files=1,on_multi_upload=uploaded).props('flat bordered accept=.docx').classes('w-full')
-        role=ui.select({r['id']:r['name'] for r in roles},label=text('role'),value=roles[0]['id'] if roles else None).props('outlined dense').classes('w-full')
+        role_id=automatic_role(roles)
         reason=ui.textarea(text('reason')).props('outlined autogrow').classes('w-full')
         async def save():
             if not alive() or state['busy']:return
-            if not state['file'] or not role.value or not str(reason.value or '').strip():
+            if not state['file'] or not role_id or not str(reason.value or '').strip():
                 feedback.text=text('required');ui.notify(feedback.text,type='warning');reason.run_method('focus');return
-            signature=(state['checksum'],state['name'],role.value,str(reason.value).strip(),row['reference'])
+            signature=(state['checksum'],state['name'],role_id,str(reason.value).strip(),row['reference'])
             if signature!=state['signature']:state.update(signature=signature,command_id=str(uuid4()))
             state['busy']=True;state['file'].seek(0)
-            for control in (button,uploader,role,reason):control.disable()
+            for control in (button,uploader,reason):control.disable()
             try:
                 result=await api.revise_disposition_template(job['id'] if job else None,row['document_type'],command_id=state['command_id'],
-                  acting_role_id=role.value,expected_reference=row['reference'],reason=str(reason.value).strip(),
+                  acting_role_id=role_id,expected_reference=row['reference'],reason=str(reason.value).strip(),
                   name=state['name'],content=state['file'])
             except ApiError as error:
                 if alive():feedback.text=failure(error,on_error);ui.notify(feedback.text,type='negative')
@@ -55,13 +56,13 @@ async def upload_dialog(*,api,job,row,roles,active,on_error,after):
             finally:
                 state['busy']=False
                 if alive():
-                    for control in (button,uploader,role,reason):control.enable()
+                    for control in (button,uploader,reason):control.enable()
                 else:cleanup()
             if not alive():return
             dialog.close();ui.notify(text('saved'),type='positive');await after(result)
         with ui.row().classes('w-full justify-end gap-2'):
             ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
-            button=ui.button(text('save'),icon='save',on_click=save).props('no-caps')
+            button=ui.button(text('save'),icon='save',on_click=save).tooltip(text('save')).props('no-caps')
         def cleanup():
             if not state['busy'] and state['file']:state['file'].close();state['file']=None
             if not state['busy'] and not dialog._deleted:dialog.delete()
@@ -131,7 +132,7 @@ def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,af
                 host.clear()
                 with host:
                     ui.label(failure(error,on_error)).props('role=alert').classes('text-negative')
-                    ui.button(text('refresh'),icon='refresh',on_click=load).props('flat no-caps')
+                    ui.button(text('refresh'),icon='refresh',on_click=load).tooltip(text('refresh')).props('flat no-caps')
             return
         if not alive():return
         host.clear()
@@ -142,15 +143,15 @@ def templates_panel(*,api,job,context,active,on_error,format_timestamp,column,af
                     ui.label(row['original_filename']).classes('text-sm break-all').props('dir=ltr')
                     ui.label(text('repository_default') if row['revision_number']==0 else text('version')+' '+str(row['revision_number'])).classes('text-sm')
                     with ui.row().classes('w-full gap-2 flex-wrap'):
-                        ui.button(text('download_template'),icon='download',on_click=lambda row=row:download(api=api,job=job,row=row,active=alive,on_error=on_error)).props('flat no-caps')
-                        ui.button(text('template_history'),icon='history',on_click=lambda row=row:history_dialog(api=api,job=job,kind=row['document_type'],active=alive,on_error=on_error,format_timestamp=format_timestamp,column=column)).props('flat no-caps')
+                        ui.button(text('download_template'),icon='download',on_click=lambda row=row:download(api=api,job=job,row=row,active=alive,on_error=on_error)).tooltip(text('download_template')).props('flat no-caps')
+                        ui.button(text('template_history'),icon='history',on_click=lambda row=row:history_dialog(api=api,job=job,kind=row['document_type'],active=alive,on_error=on_error,format_timestamp=format_timestamp,column=column)).tooltip(text('template_history')).props('flat no-caps')
                         async def saved(result):
                             if after:await after(result)
                             else:await load()
                         async def upload(row=row):
                             if not can_mutate():ui.notify(text('unsaved_warning'),type='warning');return
                             await upload_dialog(api=api,job=job,row=row,roles=result['roles'],active=alive,on_error=on_error,after=saved)
-                        ui.button(text('upload_template'),icon='upload_file',on_click=upload).props('outline no-caps')
+                        ui.button(text('upload_template'),icon='upload_file',on_click=upload).tooltip(text('upload_template')).props('outline no-caps')
     return load
 
 

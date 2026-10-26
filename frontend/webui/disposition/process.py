@@ -65,7 +65,7 @@ def previous_rounds(job,api,notice,active,on_error,format_timestamp):
     with ui.expansion(text('tracker_previous'),icon='history',value=False).classes('w-full') as expansion:
         content=ui.column().classes('w-full gap-3')
         feedback=ui.label('').props('role=status')
-        more=ui.button(text('tracker_more'),icon='expand_more').props('flat no-caps')
+        more=ui.button(text('tracker_more'),icon='expand_more').tooltip(text('tracker_more')).props('flat no-caps')
         more.set_visibility(False)
     from .screens import failure
     state={'busy':False,'offset':0,'more':False,'loaded':False}

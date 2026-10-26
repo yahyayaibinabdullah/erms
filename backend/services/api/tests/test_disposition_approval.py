@@ -160,7 +160,7 @@ def test_approval_tokens_bind_every_current_member_and_complete_proposal_set(cli
         t=task(c,job['id']);values=approval.preview(c,t['id'],mgr)
         if drift=='target':
             c.execute("SELECT set_config('app.vital_status_change_authorized','authorized',true)");c.execute('UPDATE aggregations SET is_vital=true WHERE id=%s',(root,))
-        else:save(c,job,acting=mgr,changes=[create(c,root)])
+        else:save(c,job,acting=mgr,changes=[create(c,root,'local_retention_override',dict(current_period_years=1,intermediate_period_years=1,final_disposition='destruction',instructions=None))])
         with pytest.raises(psycopg.Error):
             approval.approve(c,task_id=t['id'],expected_version=job_version(c,job['id']),task_version=task(c,job['id'])['version'],membership_token=values['membership_token'],proposals_token=values['proposals_token'],acting_role_id=mgr,command_id=uuid4())
         assert c.execute('SELECT proposal_state FROM disposition_review_proposals WHERE id=%s',(pid,)).fetchone()['proposal_state']=='active'
@@ -178,10 +178,10 @@ def test_different_manager_executes_with_own_identity_and_reason_fallback(client
     from backend.services.api.tests.test_disposition_workflow import person,role
     with db() as c:
         job,root,mgr=manager(c);pid=save(c,job,changes=[create(c,root,reason='Proposal-specific reason')])['changes'][0]['id']
-        submit(c,job);claim(c,job);decide(c,job)
         other=person(c,'Approving Manager');c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,mgr))
         # Underlying authority comes from this person's actual current roles.
         role(c,'executor-underlying-authority','ALL_PRIVS',user=other)
+        submit(c,job);claim(c,job);decide(c,job)
         actor(c,other);claim(c,job);out=approve(c,job,mgr)
         p=c.execute('SELECT * FROM disposition_review_proposals WHERE id=%s',(pid,)).fetchone()
         assert p['proposer_user_id']==1 and p['executed_by_user_id']==other and p['execution_message']['reason_source']=='proposal'
@@ -190,8 +190,11 @@ def test_different_manager_executes_with_own_identity_and_reason_fallback(client
 
 
 def test_missing_claim_inactive_assignment_and_wrong_role_cannot_approve(client):
+    from backend.services.api.tests.test_disposition_workflow import person
     with db() as c:
-        job,root,mgr=manager(c);submit(c,job);claim(c,job);decide(c,job)
+        job,root,mgr=manager(c)
+        other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,mgr))
+        submit(c,job);claim(c,job);decide(c,job)
         with pytest.raises(psycopg.Error):approve(c,job,mgr)
         claim(c,job)
         with pytest.raises(psycopg.Error):approve(c,job,officer(c))
@@ -402,6 +405,10 @@ def test_symmetric_links_cannot_create_duplicate_or_create_remove_conflicts(clie
             second=create(c,root,'remove_aggregation_relationship',dict(relationship_id=link))
         else:second=create(c,root,'create_aggregation_relationship',dict(direction='outgoing',related_aggregation_id=other,relationship_type_id=kind))
         first=create(c,root,'create_aggregation_relationship',dict(direction='incoming',related_aggregation_id=other,relationship_type_id=kind))
+        if not existing:
+            with pytest.raises(psycopg.Error,match='disposition_proposal_duplicate'),c.transaction():save(c,job,changes=[first,second])
+            assert not c.execute('SELECT 1 FROM disposition_review_proposals').fetchone()
+            return
         save(c,job,changes=[first,second]);reach_manager(c,job,'simplified');before=data(c,root)
         with pytest.raises(psycopg.Error,match='disposition_proposal_(conflict|requires_correction)'):approve(c,job,mgr)
         assert data(c,root)==before and not c.execute('SELECT 1 FROM disposition_proposal_effects').fetchone()
@@ -422,12 +429,14 @@ def test_combined_reason_and_removal_marks_block_approval_without_advancing(clie
         assert not c.execute('SELECT 1 FROM disposition_proposal_effects').fetchone()
 
 
-def test_identical_vital_proposals_preserve_both_results_without_false_mutation_events(client):
+def test_duplicate_vital_proposal_is_rejected_before_single_effect_approval(client):
     with db() as c:
-        job,root,mgr=manager(c);save(c,job,changes=[create(c,root),create(c,root)]);reach_manager(c,job,'standard');approve(c,job,mgr)
+        job,root,mgr=manager(c);item=create(c,root);save(c,job,changes=[item])
+        with pytest.raises(psycopg.Error,match='disposition_proposal_duplicate'),c.transaction():save(c,job,changes=[item])
+        reach_manager(c,job,'standard');approve(c,job,mgr)
         proposals=c.execute('SELECT * FROM disposition_review_proposals ORDER BY id').fetchall()
-        assert all(p['proposal_state']=='executed' for p in proposals)
-        assert [p['execution_message']['resource_changed'] for p in proposals]==[True,False]
+        assert len(proposals)==1 and proposals[0]['proposal_state']=='executed'
+        assert proposals[0]['execution_message']['resource_changed']
         assert c.execute("SELECT count(*) n FROM event_history WHERE operation='VITAL_STATUS_CHANGED'").fetchone()['n']==1
 
 
@@ -440,3 +449,17 @@ def test_new_inactive_hold_does_not_make_an_independent_blocker_a_proposal_remov
         assert out['remaining_units']==1 and not out['removed_units']
         assert c.execute('SELECT 1 FROM hold_aggregation_assignments WHERE hold_id=%s',(h,)).fetchone()
         assert not c.execute('SELECT 1 FROM disposition_proposal_holds').fetchone()
+
+
+@pytest.mark.parametrize('route',['standard','simplified','records_manager_only'])
+def test_current_review_comments_recorded_with_approval_without_rewriting_submission(client,route):
+    with db() as c:
+        job,root,mgr=manager(c,route)
+        reach_manager(c,job,route)
+        save(c,job,acting=mgr,review_notes='Ready after examining the complete scope',note_version=0,
+             overall_reason='Ready after examining the complete scope' if route=='records_manager_only' else None)
+        approve(c,job,mgr,overall_reason='Ready after examining the complete scope' if route=='records_manager_only' else None)
+        decision=c.execute("SELECT * FROM disposition_review_decisions WHERE job_id=%s AND decision='approved' ORDER BY id DESC LIMIT 1",(job['id'],)).fetchone()
+        assert decision['reason']=='Ready after examining the complete scope'
+        rr=c.execute('SELECT * FROM disposition_review_rounds WHERE job_id=%s ORDER BY id DESC LIMIT 1',(job['id'],)).fetchone()
+        if route!='records_manager_only':assert rr['submission_reason']=='Review the complete destruction job'

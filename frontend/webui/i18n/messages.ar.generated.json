@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
-  "catalogue_sha256": "2ad466038cb5e3ee8f852fd05e42788de7e0875cb1545dfbfad0191997703233",
+  "catalogue_sha256": "79c20c2b6130b7b9a22b8894bb25a60893a1e01b1d30818c2a8868129a9f6def",
   "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -179,6 +179,12 @@
     "disposition.ui.accelerate_scope": [
       "يغير هذا الإجراء الاستثنائي حالة أهلية الملف الجذري وجميع عناصره التابعة. تظل الإضافة مشروطة بإغلاق الملف وعدم وجود موانع وشخص مخول مسند إليه.",
       "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل صلاحيات الإغلاق وموانع التصرف المعمول بها سارية."
+    ],
+    "disposition.ui.prepare_hint": [
+      "راجع العضوية والمقترحات، ثم أدخل السبب العام للمهمة قبل إرسالها."
+    ],
+    "disposition.ui.history_held": [
+      "تعليقات قانونية"
     ]
   },
   "items": [
@@ -6416,6 +6422,40 @@
       }
     },
     {
+      "message_key": "disposition.ui.blocker_source",
+      "translated_text": "المصدر",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:15:29.821740+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.blocker_target",
+      "translated_text": "الهدف",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:15:29.821880+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.blockers",
       "translated_text": "موانع التصرف الحالية",
       "quality_flags": [
@@ -6433,6 +6473,40 @@
         "catalogue_sha256": "202419c6a18dfcd0b4a0cb4c9946f2c48e011bc4c57cdebe8c8fc2c275703f68",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.blockers_empty_all",
+      "translated_text": "لا توجد موانع حالية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:15:29.822018+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.blockers_retry",
+      "translated_text": "إعادة محاولة تحميل الموانع",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:15:29.822153+00:00"
       }
     },
     {
@@ -6739,6 +6813,40 @@
       }
     },
     {
+      "message_key": "disposition.ui.claim_before_proposals",
+      "translated_text": "يجب استلام هذه المهمة قبل إضافة مقترحات المراجعة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "claim-task-guidance-v1",
+        "batch_id": "claim-task-guidance-20261026",
+        "generated_at": "2026-10-26T05:18:59.660210+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.claim_explanation",
+      "translated_text": "عند استلام هذه المهمة، تصبح مسؤولاً عنها ويمكنك إضافة مقترحات المراجعة وإكمال مراجعتك. لا يمكن للمراجعين الآخرين تعديلها أو إكمالها ما دامت مسندة إليك. لا يعني استلام المهمة اعتماد المقترحات أو نقل المهمة إلى المرحلة التالية.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "claim-task-guidance-v1",
+        "batch_id": "claim-task-guidance-20261026",
+        "generated_at": "2026-10-26T05:18:59.660684+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.claimant",
       "translated_text": "المستلم",
       "quality_flags": [
@@ -6915,6 +7023,46 @@
         "batch_id": "disposition-phase22-20261019",
         "catalogue_sha256": "e96a997291e70e9aff132e54701591aa7b6ef9a01f93785247547f4dcdacd847",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.completion_next_automatic",
+      "translated_text": "{message} المرحلة التالية: {stage} (آليًا).",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-review-handoff-v1",
+        "batch_id": "review-handoff-20261026",
+        "generated_at": "2026-10-26T08:30:43.426399+00:00",
+        "catalogue_sha256": "79c20c2b6130b7b9a22b8894bb25a60893a1e01b1d30818c2a8868129a9f6def",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.completion_next_task",
+      "translated_text": "{message} المهمة التالية: {recipients}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-review-handoff-v1",
+        "batch_id": "review-handoff-20261026",
+        "generated_at": "2026-10-26T08:30:43.426248+00:00",
+        "catalogue_sha256": "79c20c2b6130b7b9a22b8894bb25a60893a1e01b1d30818c2a8868129a9f6def",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
         "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
@@ -9108,6 +9256,23 @@
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_proposal_duplicate",
+      "translated_text": "يوجد بالفعل مقترح نشط يحقق الإجراء نفسه في جولة المراجعة الحالية. راجع المقترح الموجود.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.278062+00:00"
       }
     },
     {
@@ -11884,15 +12049,15 @@
     },
     {
       "message_key": "disposition.ui.history_held",
-      "translated_text": "تعليقات قانونية",
+      "translated_text": "تعليقات قنونية",
       "quality_flags": [],
       "origin": "generated",
       "status": "draft",
       "generation_metadata": {
         "generator": "OpenAI Codex",
         "model": "GPT-6",
-        "prompt_version": "disposition-history-v1",
-        "generated_at": "2026-10-22T18:26:13.796650+00:00",
+        "prompt_version": "disposition-tooltip-terminology-20261026",
+        "generated_at": "2026-10-26T03:40:05.930901+00:00",
         "model_version": "GPT-6",
         "batch_id": "disposition-history-20261022",
         "catalogue_sha256": "cac90475c826bb021c6be7b662cd7936c3a94b16f561b4dbfa0fc703ff745810",
@@ -12580,6 +12745,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.job_completed",
+      "translated_text": "اكتملت مهمة التصرف.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-review-handoff-v1",
+        "batch_id": "review-handoff-20261026",
+        "generated_at": "2026-10-26T08:30:43.425415+00:00",
+        "catalogue_sha256": "79c20c2b6130b7b9a22b8894bb25a60893a1e01b1d30818c2a8868129a9f6def",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
       "message_key": "disposition.ui.job_created",
       "translated_text": "إنشاء مهمة نشطة",
       "quality_flags": [
@@ -13120,6 +13305,23 @@
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.next_role_queue",
+      "translated_text": "{name} (قائمة مهام مشتركة)",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "review-submission-destination-v1",
+        "batch_id": "review-submission-20261026",
+        "generated_at": "2026-10-26T04:40:34.567350+00:00"
       }
     },
     {
@@ -13895,7 +14097,7 @@
     },
     {
       "message_key": "disposition.ui.prepare_hint",
-      "translated_text": "راجع العضوية والمقترحات، ثم أدخل السبب العام للمهمة قبل إرسالها.",
+      "translated_text": "راجع العضوية والمقترحات، ثم أدخل ملاحظات المراجعة قبل الإرسال.",
       "quality_flags": [
         "needs_human_review"
       ],
@@ -13903,14 +14105,11 @@
       "status": "draft",
       "generation_metadata": {
         "generator": "OpenAI Codex",
-        "model": "GPT-6",
-        "model_version": "6",
-        "prompt_version": "disposition-phase16-workspace-v1",
-        "generated_at": "2026-10-19T09:18:54.738194+00:00",
-        "batch_id": "disposition-phase16-20261019",
-        "catalogue_sha256": "eeb440c4660b901721a3732f31a1a7557dd365db1170115af2a66ed3ceb6323d",
-        "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
-        "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+        "model": "Codex",
+        "model_version": "2026-10-23",
+        "prompt_version": "unified-review-comments-v1",
+        "batch_id": "unified-review-comments-20261023",
+        "generated_at": "2026-10-23T00:00:00Z"
       }
     },
     {
@@ -14031,6 +14230,23 @@
         "catalogue_sha256": "0d7ccadbbdd5dc422983bf7e45891387c6218f358a419c4fd4e399b3c772ad82",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.proposal_metadata_details",
+      "translated_text": "تفاصيل المقترح",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:21:17.803715+00:00"
       }
     },
     {
@@ -14654,6 +14870,57 @@
       }
     },
     {
+      "message_key": "disposition.ui.removal_access_required",
+      "translated_text": "لا تملك صلاحية الوصول إلى المورد المرتبط.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.279168+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.removal_already_proposed",
+      "translated_text": "إزالة العلاقة مقترحة بالفعل",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.279023+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.removal_availability",
+      "translated_text": "الإتاحة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.279304+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.removal_proposed",
       "translated_text": "مقترح للإزالة",
       "quality_flags": [
@@ -14691,6 +14958,23 @@
         "catalogue_sha256": "eeb440c4660b901721a3732f31a1a7557dd365db1170115af2a66ed3ceb6323d",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.removal_unavailable",
+      "translated_text": "لا يمكن تحديد هذه العلاقة. تحقق من صلاحية الوصول إليها وحالة المقترح.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.279709+00:00"
       }
     },
     {
@@ -15034,6 +15318,57 @@
       }
     },
     {
+      "message_key": "disposition.ui.restricted_proposal_details",
+      "translated_text": "تشير بعض تفاصيل المقترح إلى مورد لا تملك صلاحية الوصول إليه.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "claim-task-guidance-v1",
+        "batch_id": "claim-task-guidance-20261026",
+        "generated_at": "2026-10-26T05:18:59.660686+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.restricted_resource",
+      "translated_text": "مورد محجوب",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:15:29.820831+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.restricted_text",
+      "translated_text": "حُجبت الأسباب المكتوبة كنص حر والبيانات المحمية لأنها قد تكشف عن موارد محجوبة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "partial-redaction-v1",
+        "batch_id": "partial-redaction-20261026",
+        "generated_at": "2026-10-26T06:15:29.821568+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.results",
       "translated_text": "نتائج الإضافة",
       "quality_flags": [
@@ -15288,6 +15623,97 @@
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_comments",
+      "translated_text": "ملاحظات المراجعة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-23",
+        "prompt_version": "unified-review-comments-v1",
+        "batch_id": "unified-review-comments-20261023",
+        "generated_at": "2026-10-23T00:00:00Z"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_comments_hint",
+      "translated_text": "اختيارية عند حفظ المسودة والمراجعة الاعتيادية. مطلوبة للإرسال أو الإعادة للتصحيح أو اعتماد مهمة بمسار مدير الوثائق فقط.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-23",
+        "prompt_version": "unified-review-comments-v1",
+        "batch_id": "unified-review-comments-20261023",
+        "generated_at": "2026-10-23T00:00:00Z"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_comments_required",
+      "translated_text": "أدخل ملاحظات المراجعة قبل المتابعة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-23",
+        "prompt_version": "unified-review-comments-v1",
+        "batch_id": "unified-review-comments-20261023",
+        "generated_at": "2026-10-23T00:00:00Z"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_completed",
+      "translated_text": "اكتملت المراجعة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-review-handoff-v1",
+        "batch_id": "review-handoff-20261026",
+        "generated_at": "2026-10-26T08:24:10.055369+00:00",
+        "catalogue_sha256": "37a2b0646ec132a598baff41fbf6a963439e1ae77ac615cd91985c265ebf3062",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_completed_to",
+      "translated_text": "اكتملت المراجعة. المهمة التالية: {recipients}",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "disposition-review-handoff-v1",
+        "batch_id": "review-handoff-20261026",
+        "generated_at": "2026-10-26T08:24:10.056164+00:00",
+        "catalogue_sha256": "37a2b0646ec132a598baff41fbf6a963439e1ae77ac615cd91985c265ebf3062",
+        "specification_sha256": "f99f7cd3f3e5300c170d1cc41ef2c04e5795e3c1e2f4f32ef1698eb4c5e01a64",
+        "terminology_sha256": "1b1ce8068c6f156ba36bc6ad9a104b22b6262a4a8dea3c7842681df045897cd6"
       }
     },
     {
@@ -15694,6 +16120,23 @@
           "previous_text": "المستوى الأمني",
           "review_required": true
         }
+      }
+    },
+    {
+      "message_key": "disposition.ui.select_available_relationships",
+      "translated_text": "تحديد العلاقات المتاحة في هذه الصفحة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.279440+00:00"
       }
     },
     {
@@ -16197,6 +16640,23 @@
       }
     },
     {
+      "message_key": "disposition.ui.submission_comments",
+      "translated_text": "ملاحظات المراجعة عند الإرسال",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-23",
+        "prompt_version": "unified-review-comments-v1",
+        "batch_id": "unified-review-comments-20261023",
+        "generated_at": "2026-10-23T00:00:00Z"
+      }
+    },
+    {
       "message_key": "disposition.ui.submit",
       "translated_text": "إرسال للمراجعة",
       "quality_flags": [
@@ -16214,6 +16674,40 @@
         "catalogue_sha256": "14e924dd3c3550689c44f7ce5fc217b031af2f7d6b8cfbcdd68f4b4c53a19deb",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.submitted",
+      "translated_text": "تم إرسال المراجعة.",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "review-submission-destination-v1",
+        "batch_id": "review-submission-20261026",
+        "generated_at": "2026-10-26T04:40:34.566883+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.submitted_to",
+      "translated_text": "تم إرسال المراجعة. المهمة التالية: {recipients}",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "review-submission-destination-v1",
+        "batch_id": "review-submission-20261026",
+        "generated_at": "2026-10-26T04:40:34.567347+00:00"
       }
     },
     {
@@ -16838,6 +17332,23 @@
         "catalogue_sha256": "0d7ccadbbdd5dc422983bf7e45891387c6218f358a419c4fd4e399b3c772ad82",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "disposition.ui.view_existing_proposal",
+      "translated_text": "عرض المقترح الموجود",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "Codex",
+        "model_version": "2026-10-26",
+        "prompt_version": "duplicate-proposals-v1",
+        "batch_id": "duplicate-proposals-20261026",
+        "generated_at": "2026-10-26T07:26:42.279574+00:00"
       }
     },
     {

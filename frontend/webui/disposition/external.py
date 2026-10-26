@@ -7,6 +7,8 @@ from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
 from ..resource_relationships import PageTable
+from .acting_role import automatic_role
+from .handoff import notify_completion,task_finished
 from .messages import text
 from .artifacts import show_destination
 
@@ -25,21 +27,21 @@ def request_controls(form,host=None):
         buttons={}
         for action,allowed,roles in [('generate_request',value['can_generate'],value['manager_roles']),('renew_review',value['can_renew'],value['renew_roles'])]:
             if not allowed:continue
-            role=ui.select({r['id']:r['name'] for r in roles},label=text('acting_task_role'),value=roles[0]['id']).props('outlined dense').classes('w-full')
-            async def run(action=action,role=role):
+            role_id=automatic_role(roles)
+            async def run(action=action,role_id=role_id):
                 if form.dirty():ui.notify(text('unsaved_warning'),type='warning');return
-                form.busy=True;button=buttons[action];button.disable();role.disable()
+                form.busy=True;button=buttons[action];button.disable()
                 try:
                     suffix='request' if action=='generate_request' else 'renew-review'
-                    result=await form.api.disposition_command(f"jobs/{form.job['id']}/review-rounds/{value['round_id']}/{suffix}",{'command_id':form.retry.setdefault(json.dumps([action,role.value,form.job['version']]),str(uuid4())),'acting_role_id':role.value},version=form.job['version'],reason=text(action))
+                    result=await form.api.disposition_command(f"jobs/{form.job['id']}/review-rounds/{value['round_id']}/{suffix}",{'command_id':form.retry.setdefault(json.dumps([action,role_id,form.job['version']]),str(uuid4())),'acting_role_id':role_id},version=form.job['version'],reason=text(action))
                     if not form.alive():return
                     pending=result.get('request_status')=='pending'
-                    ui.notify(text('request_pending' if pending else 'saved'),type='warning' if pending else 'positive')
-                    form.busy=False;await form.after(result)
+                    notify_completion(result,'request_pending' if pending else 'review_completed',type='warning' if pending else 'positive')
+                    form.busy=False;await task_finished(form,result)
                 except ApiError as error:form.error(error)
                 finally:
                     form.busy=False
-                    if form.alive():button.enable();role.enable()
+                    if form.alive():button.enable()
             buttons[action]=ui.button(text(action),on_click=run).props('outline no-caps')
 
 
@@ -56,12 +58,12 @@ async def task_form(form):
                 except ApiError as error:form.error(error);return
                 if form.alive():ui.download(content,request['file_name'])
             with ui.row().classes('w-full gap-2'):
-                if form.preview:ui.button(text('preview_request'),icon='visibility',on_click=preview).props('outline no-caps')
-                ui.button(text('download_request'),icon='download',on_click=download).props('outline no-caps')
+                if form.preview:ui.button(text('preview_request'),icon='visibility',on_click=preview).tooltip(text('preview_request')).props('outline no-caps')
+                ui.button(text('download_request'),icon='download',on_click=download).tooltip(text('download_request')).props('outline no-caps')
         if 'external_decide' in form.actions:
             with ui.row().classes('w-full gap-2'):
-                ui.button(text('external_approve'),icon='verified',on_click=lambda:decision_dialog(form,'approved')).props('no-caps')
-                ui.button(text('external_reject'),icon='assignment_return',on_click=lambda:decision_dialog(form,'rejected')).props('outline no-caps')
+                ui.button(text('external_approve'),icon='verified',on_click=lambda:decision_dialog(form,'approved')).tooltip(text('external_approve')).props('no-caps')
+                ui.button(text('external_reject'),icon='assignment_return',on_click=lambda:decision_dialog(form,'rejected')).tooltip(text('external_reject')).props('outline no-caps')
         form.history_sections()
         await form.proposals_panel()
 
@@ -95,20 +97,20 @@ async def decision_dialog(form,decision):
             state['destination']=result;destination_host.clear()
             with destination_host:show_destination(result,'evidence_destination')
             save.set_enabled(result['ready'])
-        refresh=ui.button(text('refresh_destination'),icon='refresh',on_click=destination).props('flat no-caps')
+        refresh=ui.button(text('refresh_destination'),icon='refresh',on_click=destination).tooltip(text('refresh_destination')).props('flat no-caps')
         async def submit():
             if not alive() or state['busy']:return
             dest=state['destination']
             if not state['file'] or not dest or not dest['ready'] or number is not None and (not str(number.value or '').strip() or len(number.value)>20) or notes is not None and not str(notes.value or '').strip():
                 feedback.text=text('external_required');ui.notify(feedback.text,type='warning');return
-            signature=(state['digest'],state['name'],state['mime'],dest['token'],form.role.value,number.value if number else None,notes.value if notes else None)
+            signature=(state['digest'],state['name'],state['mime'],dest['token'],form.acting_role_id,number.value if number else None,notes.value if notes else None)
             if signature!=state['signature']:state.update(signature=signature,command_id=str(uuid4()))
             controls=[uploader,refresh,save,cancel]+([number] if number else [])+([notes] if notes else [])
             state['busy']=True;form.busy=True
             for control in controls:control.disable()
             state['file'].seek(0)
             try:
-                result=await form.api.record_external_decision(form.task['id'],version=form.job['version'],command_id=state['command_id'],acting_role_id=form.role.value,task_version=form.task['version'],request_document_id=form.task['request_document_id'],decision=decision,correction_notes=notes.value if notes else None,destruction_number=number.value if number else None,destination_token=dest['token'],name=state['name'],content=state['file'],mime_type=state['mime'])
+                result=await form.api.record_external_decision(form.task['id'],version=form.job['version'],command_id=state['command_id'],acting_role_id=form.acting_role_id,task_version=form.task['version'],request_document_id=form.task['request_document_id'],decision=decision,correction_notes=notes.value if notes else None,destruction_number=number.value if number else None,destination_token=dest['token'],name=state['name'],content=state['file'],mime_type=state['mime'])
             except ApiError as error:
                 if alive():feedback.text=failure(error,form.on_error);ui.notify(feedback.text,type='negative')
                 return
@@ -118,12 +120,12 @@ async def decision_dialog(form,decision):
                     for control in controls:control.enable()
                 else:cleanup()
             if not alive():return
-            dialog.close();ui.notify(text('external_approved' if number else 'external_rejected'),type='positive')
+            dialog.close();notify_completion(result,'external_approved' if number else 'external_rejected')
             if result.get('physical_report_status')=='pending':ui.notify(text('physical_report_pending'),type='warning')
-            await form.after(result)
+            await task_finished(form,result)
         with ui.row().classes('w-full justify-end gap-2'):
             cancel=ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
-            save=ui.button(text('save'),icon='save',on_click=submit).props('no-caps');save.disable()
+            save=ui.button(text('save'),icon='save',on_click=submit).tooltip(text('save')).props('no-caps');save.disable()
         def cleanup():
             if not state['busy'] and state['file']:state['file'].close();state['file']=None
         dialog.on('hide',cleanup)

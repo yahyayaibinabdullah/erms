@@ -6790,6 +6790,36 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.blocker_source",
+    "context_group": "disposition.ui",
+    "default_text": "Source",
+    "semantic_meaning": "Source",
+    "common_locations": [
+      "Disposition proposal details",
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Keep resource access restrictions distinct from workflow claim requirements. Source and target refer to the endpoints of a relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Source",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.blocker_target",
+    "context_group": "disposition.ui",
+    "default_text": "Target",
+    "semantic_meaning": "Target",
+    "common_locations": [
+      "Disposition proposal details",
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Keep resource access restrictions distinct from workflow claim requirements. Source and target refer to the endpoints of a relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Target",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.blockers",
     "context_group": "disposition.ui",
     "default_text": "Current blockers",
@@ -6803,6 +6833,36 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Current blockers",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.blockers_empty_all",
+    "context_group": "disposition.ui",
+    "default_text": "No current blockers.",
+    "semantic_meaning": "No current blockers.",
+    "common_locations": [
+      "Disposition proposal details",
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Keep resource access restrictions distinct from workflow claim requirements. Source and target refer to the endpoints of a relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No current blockers.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.blockers_retry",
+    "context_group": "disposition.ui",
+    "default_text": "Retry loading blockers",
+    "semantic_meaning": "Retry loading blockers",
+    "common_locations": [
+      "Disposition proposal details",
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Keep resource access restrictions distinct from workflow claim requirements. Source and target refer to the endpoints of a relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Retry loading blockers",
     "is_html": false
   },
   {
@@ -7036,6 +7096,38 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.claim_before_proposals",
+    "context_group": "disposition.ui",
+    "default_text": "Claim this task before adding review proposals.",
+    "semantic_meaning": "Claim this task before adding review proposals.",
+    "common_locations": [
+      "Disposition task workspace",
+      "Review proposals",
+      "Claim task dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Claim means accepting task responsibility; it does not approve a proposal or change resource access.",
+    "grammatical_role": "instruction",
+    "parameter_schema": {},
+    "rendered_example": "Claim this task before adding review proposals.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_explanation",
+    "context_group": "disposition.ui",
+    "default_text": "Claiming assigns this task to you so you can add review proposals and complete your review. Other reviewers cannot edit or complete it while you hold the claim. Claiming does not approve proposals or advance the job.",
+    "semantic_meaning": "Claiming assigns this task to you so you can add review proposals and complete your review. Other reviewers cannot edit or complete it while you hold the claim. Claiming does not approve proposals or advance the job.",
+    "common_locations": [
+      "Disposition task workspace",
+      "Review proposals",
+      "Claim task dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Claim means accepting task responsibility; it does not approve a proposal or change resource access.",
+    "grammatical_role": "instruction",
+    "parameter_schema": {},
+    "rendered_example": "Claiming assigns this task to you so you can add review proposals and complete your review. Other reviewers cannot edit or complete it while you hold the claim. Claiming does not approve proposals or advance the job.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.claimant",
     "context_group": "disposition.ui",
     "default_text": "Claimant",
@@ -7169,6 +7261,40 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "Backups and copies held outside Wathiq must also be destroyed. Ensuring their destruction is outside Wathiq’s responsibility.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.completion_next_automatic",
+    "context_group": "disposition.ui",
+    "default_text": "{message} Next stage: {stage} (automatic).",
+    "semantic_meaning": "Workflow stage completion confirmation: completion_next_automatic",
+    "common_locations": [
+      "Disposition task review completion confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. Shared role queues must not be presented as named assignees.",
+    "grammatical_role": "notification",
+    "parameter_schema": {
+      "message": "text",
+      "stage": "text"
+    },
+    "rendered_example": "Stage completed. Next stage: Certificate generation (automatic).",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.completion_next_task",
+    "context_group": "disposition.ui",
+    "default_text": "{message} Next task: {recipients}",
+    "semantic_meaning": "Workflow stage completion confirmation: completion_next_task",
+    "common_locations": [
+      "Disposition task review completion confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. Shared role queues must not be presented as named assignees.",
+    "grammatical_role": "notification",
+    "parameter_schema": {
+      "message": "text",
+      "recipients": "text"
+    },
+    "rendered_example": "Stage completed. Next task: Unit Manager (shared queue)",
     "is_html": false
   },
   {
@@ -8757,6 +8883,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Resolve conflicting proposals before approval.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_proposal_duplicate",
+    "context_group": "disposition.ui",
+    "default_text": "An equivalent active proposal already exists in this review round. Review the existing proposal.",
+    "semantic_meaning": "An equivalent active proposal already exists in this review round. Review the existing proposal.",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "An equivalent active proposal already exists in this review round. Review the existing proposal.",
     "is_html": false
   },
   {
@@ -11320,6 +11461,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.job_completed",
+    "context_group": "disposition.ui",
+    "default_text": "Disposition job completed.",
+    "semantic_meaning": "Workflow stage completion confirmation: job_completed",
+    "common_locations": [
+      "Disposition task review completion confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. Shared role queues must not be presented as named assignees.",
+    "grammatical_role": "notification",
+    "parameter_schema": {},
+    "rendered_example": "Disposition job completed.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.job_created",
     "context_group": "disposition.ui",
     "default_text": "Active job created",
@@ -11715,6 +11870,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "My tasks",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.next_role_queue",
+    "context_group": "disposition.ui",
+    "default_text": "{name} (shared queue)",
+    "semantic_meaning": "Successful review submission and the workflow destination, distinguishing a shared role queue from a named person.",
+    "common_locations": [
+      "Disposition task submission confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. A shared queue is assigned to a role, not to a specific user.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "name": "text"
+    },
+    "rendered_example": "Records Manager (shared queue)",
     "is_html": false
   },
   {
@@ -12297,7 +12468,7 @@
   {
     "message_key": "disposition.ui.prepare_hint",
     "context_group": "disposition.ui",
-    "default_text": "Review membership and proposals, then enter an overall job reason before submitting.",
+    "default_text": "Review membership and proposals, then enter review comments before submitting.",
     "semantic_meaning": "Destruction task workspace: Review membership and proposals, then enter an overall job reason before submitting.",
     "common_locations": [
       "Disposition task inbox and review workspace"
@@ -12305,7 +12476,7 @@
     "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Review membership and proposals, then enter an overall job reason before submitting.",
+    "rendered_example": "Review membership and proposals, then enter review comments before submitting.",
     "is_html": false
   },
   {
@@ -12393,6 +12564,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Proposal execution report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_metadata_details",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal details",
+    "semantic_meaning": "Open a read-only proposal view containing permitted review metadata while restricted resource facts remain withheld.",
+    "common_locations": [
+      "Partially restricted review proposal row action"
+    ],
+    "translator_guidance": "This action opens permitted metadata, not raw revision history.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Proposal details",
     "is_html": false
   },
   {
@@ -12841,6 +13026,51 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.removal_access_required",
+    "context_group": "disposition.ui",
+    "default_text": "You cannot access the related resource.",
+    "semantic_meaning": "You cannot access the related resource.",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "You cannot access the related resource.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removal_already_proposed",
+    "context_group": "disposition.ui",
+    "default_text": "Removal already proposed",
+    "semantic_meaning": "Removal already proposed",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Removal already proposed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removal_availability",
+    "context_group": "disposition.ui",
+    "default_text": "Availability",
+    "semantic_meaning": "Availability",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Availability",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.removal_proposed",
     "context_group": "disposition.ui",
     "default_text": "Proposed for removal",
@@ -12866,6 +13096,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Removal required",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.removal_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "This relationship cannot be selected. Check its access and proposal status.",
+    "semantic_meaning": "This relationship cannot be selected. Check its access and proposal status.",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "This relationship cannot be selected. Check its access and proposal status.",
     "is_html": false
   },
   {
@@ -13120,6 +13365,52 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.restricted_proposal_details",
+    "context_group": "disposition.ui",
+    "default_text": "Some proposal details refer to a resource you cannot access.",
+    "semantic_meaning": "Some proposal details refer to a resource you cannot access.",
+    "common_locations": [
+      "Disposition task workspace",
+      "Review proposals",
+      "Claim task dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Claim means accepting task responsibility; it does not approve a proposal or change resource access.",
+    "grammatical_role": "instruction",
+    "parameter_schema": {},
+    "rendered_example": "Some proposal details refer to a resource you cannot access.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.restricted_resource",
+    "context_group": "disposition.ui",
+    "default_text": "Restricted resource",
+    "semantic_meaning": "Restricted resource",
+    "common_locations": [
+      "Disposition proposal details",
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Keep resource access restrictions distinct from workflow claim requirements. Source and target refer to the endpoints of a relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Restricted resource",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.restricted_text",
+    "context_group": "disposition.ui",
+    "default_text": "Free-text reasons and protected facts are withheld because they may identify restricted resources.",
+    "semantic_meaning": "Free-text reasons and protected facts are withheld because they may identify restricted resources.",
+    "common_locations": [
+      "Disposition proposal details",
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Keep resource access restrictions distinct from workflow claim requirements. Source and target refer to the endpoints of a relationship.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Free-text reasons and protected facts are withheld because they may identify restricted resources.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.results",
     "context_group": "disposition.ui",
     "default_text": "Addition results",
@@ -13307,6 +13598,78 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Generate execution report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments",
+    "context_group": "disposition.ui",
+    "default_text": "Review comments",
+    "semantic_meaning": "Unified stage review comments: review comments.",
+    "common_locations": [
+      "Destruction current task form"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review comments",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Optional for draft saves and routine reviews. Required to submit, return for correction, or approve a Records Manager Only job.",
+    "semantic_meaning": "Unified stage review comments: review comments hint.",
+    "common_locations": [
+      "Destruction current task form"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Optional for draft saves and routine reviews. Required to submit, return for correction, or approve a Records Manager Only job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments_required",
+    "context_group": "disposition.ui",
+    "default_text": "Enter review comments before continuing.",
+    "semantic_meaning": "Unified stage review comments: review comments required.",
+    "common_locations": [
+      "Destruction current task form"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Enter review comments before continuing.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_completed",
+    "context_group": "disposition.ui",
+    "default_text": "Review completed.",
+    "semantic_meaning": "Successful intermediate review completion when no current next recipient is available.",
+    "common_locations": [
+      "Disposition task review completion confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. Shared role queues must not be presented as named assignees.",
+    "grammatical_role": "notification",
+    "parameter_schema": {},
+    "rendered_example": "Review completed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_completed_to",
+    "context_group": "disposition.ui",
+    "default_text": "Review completed. Next task: {recipients}",
+    "semantic_meaning": "Successful intermediate review completion and the actual next task recipient, distinguishing a named person from a shared role queue.",
+    "common_locations": [
+      "Disposition task review completion confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. Shared role queues must not be presented as named assignees.",
+    "grammatical_role": "notification",
+    "parameter_schema": {
+      "recipients": "text"
+    },
+    "rendered_example": "Review completed. Next task: Unit Manager (shared queue)",
     "is_html": false
   },
   {
@@ -13601,6 +13964,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Security level",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.select_available_relationships",
+    "context_group": "disposition.ui",
+    "default_text": "Select available relationships on this page",
+    "semantic_meaning": "Select available relationships on this page",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Select available relationships on this page",
     "is_html": false
   },
   {
@@ -13992,6 +14370,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.submission_comments",
+    "context_group": "disposition.ui",
+    "default_text": "Submitted review comments",
+    "semantic_meaning": "Unified stage review comments: submission comments.",
+    "common_locations": [
+      "Destruction current task form"
+    ],
+    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Submitted review comments",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.submit",
     "context_group": "disposition.ui",
     "default_text": "Submit for review",
@@ -14003,6 +14395,36 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Submit for review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.submitted",
+    "context_group": "disposition.ui",
+    "default_text": "Review submitted.",
+    "semantic_meaning": "Successful review submission and the workflow destination, distinguishing a shared role queue from a named person.",
+    "common_locations": [
+      "Disposition task submission confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. A shared queue is assigned to a role, not to a specific user.",
+    "grammatical_role": "notification",
+    "parameter_schema": {},
+    "rendered_example": "Review submitted.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.submitted_to",
+    "context_group": "disposition.ui",
+    "default_text": "Review submitted. Next task: {recipients}",
+    "semantic_meaning": "Successful review submission and the workflow destination, distinguishing a shared role queue from a named person.",
+    "common_locations": [
+      "Disposition task submission confirmation"
+    ],
+    "translator_guidance": "Keep placeholders unchanged. A shared queue is assigned to a role, not to a specific user.",
+    "grammatical_role": "notification",
+    "parameter_schema": {
+      "recipients": "text"
+    },
+    "rendered_example": "Review submitted. Next task: Records Officer (shared queue)",
     "is_html": false
   },
   {
@@ -14485,6 +14907,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Version",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.view_existing_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "View existing proposal",
+    "semantic_meaning": "View existing proposal",
+    "common_locations": [
+      "Relationship removal proposal picker",
+      "Save review work"
+    ],
+    "translator_guidance": "A saved or queued removal proposal is distinct from a resource access restriction. Do not imply that creating a proposal executes its action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "View existing proposal",
     "is_html": false
   },
   {

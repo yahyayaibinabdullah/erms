@@ -11131,7 +11131,7 @@ BEGIN
  SELECT * INTO j FROM disposition_jobs WHERE id=t.job_id;
  IF t.workflow_stage NOT IN ('file_administrator_review','unit_manager_review','records_manager_review') OR p_decision NOT IN ('approved','rejected') OR (t.workflow_stage='file_administrator_review' AND p_decision<>'approved') THEN RAISE EXCEPTION 'disposition_review_decision_invalid'; END IF;
  IF t.workflow_stage='records_manager_review' AND p_decision='approved' THEN RAISE EXCEPTION 'disposition_proposal_execution_not_implemented'; END IF;
- IF p_decision='rejected' AND (p_reason IS NULL OR p_reason ~ '^[[:space:]]*$') AND NOT EXISTS(SELECT 1 FROM disposition_review_proposals p JOIN disposition_job_memberships m ON m.job_id=p.job_id AND m.root_aggregation_id=p.governing_root_id AND m.membership_state='active' WHERE p.job_id=j.id AND p.review_round=j.current_review_round AND p.proposal_state='active' AND p.proposal_type='remove_from_job') THEN RAISE EXCEPTION 'disposition_decision_reason_required'; END IF;
+ IF p_decision='rejected' AND (p_reason IS NULL OR p_reason ~ '^[[:space:]]*$') THEN RAISE EXCEPTION 'disposition_decision_reason_required'; END IF;
  IF p_decision='approved' THEN PERFORM disposition_private.validate_active_proposals(j.id,j.current_review_round); END IF;
  reason:=COALESCE(NULLIF(btrim(p_reason),''),CASE WHEN p_decision='rejected' THEN 'Return marked aggregations for correction' ELSE 'Complete authorized review' END);
  SELECT id INTO round_id FROM disposition_review_rounds WHERE job_id=j.id AND round_number=j.current_review_round;
@@ -15914,7 +15914,7 @@ END $$;
 -- Routine disposition membership additions (079).
 ALTER TABLE disposition_private.command_receipts DROP CONSTRAINT command_receipts_reason_check;
 ALTER TABLE disposition_private.command_receipts ADD CONSTRAINT command_receipts_reason_check
- CHECK(operation IN ('job_create','membership_add') OR btrim(reason)<>'');
+ CHECK(operation IN ('job_create','membership_add','task_claim') OR btrim(reason)<>'');
 CREATE OR REPLACE FUNCTION disposition_private.begin_command(p_id uuid,p_operation text,p_payload jsonb,p_role bigint,p_reason text)
 RETURNS jsonb LANGUAGE plpgsql AS $$
 DECLARE previous disposition_private.command_receipts%ROWTYPE;
@@ -15924,7 +15924,7 @@ BEGIN
  IF p_operation IN ('task_claim','task_release','task_reassign','task_complete','review_save','review_submit','review_decide') AND p_payload ? 'task_id' AND NOT (p_operation='review_decide' AND disposition_private.physical_confirmation_retry(p_id,p_role)) THEN
   PERFORM disposition_private.require_task_command((p_payload->>'task_id')::bigint,p_role,p_operation);
  ELSE PERFORM disposition_private.require_actor(p_role); END IF;
- IF p_operation NOT IN ('job_create','membership_add') AND (p_reason IS NULL OR p_reason ~ '^[[:space:]]*$') THEN RAISE EXCEPTION 'disposition_reason_required'; END IF;
+ IF p_operation NOT IN ('job_create','membership_add','task_claim') AND (p_reason IS NULL OR p_reason ~ '^[[:space:]]*$') THEN RAISE EXCEPTION 'disposition_reason_required'; END IF;
  IF EXISTS(SELECT 1 FROM disposition_private.command_context WHERE transaction_id=txid_current()) THEN RAISE EXCEPTION 'disposition_nested_command'; END IF;
  SELECT * INTO previous FROM disposition_private.command_receipts WHERE command_id=p_id FOR UPDATE;
  IF FOUND THEN
@@ -15950,3 +15950,122 @@ END $$;
 INSERT INTO schema_migrations(version) VALUES ('080_fix_held_component_trigger') ON CONFLICT DO NOTHING;
 
 INSERT INTO schema_migrations(version) VALUES('081_organization_wide_disposition_templates') ON CONFLICT DO NOTHING;
+
+
+-- Use the current reviewer's saved comments on new decisions; retained history
+-- is immutable. Routine approvals without comments retain their original reason.
+CREATE FUNCTION disposition_private.review_decision_comments() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE comments text;
+BEGIN
+ IF NEW.decision='rejected' AND (NEW.reason IS NULL OR NEW.reason ~ '^[[:space:]]*$')
+ THEN RAISE EXCEPTION 'disposition_decision_reason_required'; END IF;
+ IF NEW.decision='approved' AND NEW.review_stage IN ('records_manager_review','manager_preparation','manager_correction') THEN
+  SELECT review_notes INTO comments FROM disposition_review_notes
+   WHERE task_id=NEW.task_id AND author_user_id=NEW.actor_user_id;
+  IF comments IS NOT NULL AND comments !~ '^[[:space:]]*$' THEN NEW.reason:=comments; END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER disposition_review_comments BEFORE INSERT ON disposition_review_decisions
+ FOR EACH ROW EXECUTE FUNCTION disposition_private.review_decision_comments();
+
+INSERT INTO schema_migrations(version) VALUES('082_unified_review_comments') ON CONFLICT DO NOTHING;
+
+
+-- Keep the role destination so release/reconciliation can return work to its queue.
+-- This BEFORE INSERT trigger follows disposition_guard alphabetically: the
+-- original routing command is authorized before this narrowly scoped default.
+CREATE FUNCTION disposition_private.assign_single_reviewer() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE candidates bigint[];
+BEGIN
+ IF NEW.destination_role_id IS NULL OR NEW.task_state<>'open'
+    OR NEW.task_type NOT IN ('file_administrator_review','unit_manager_review','records_manager_review')
+    OR disposition_private.context_operation() NOT IN ('review_submit','review_decide')
+    OR EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=NEW.job_id
+      AND t.workflow_stage=NEW.workflow_stage AND t.task_state='claimed') THEN
+  RETURN NEW;
+ END IF;
+ PERFORM disposition_private.require_command();
+ -- These are the same role-queue gates used by task_eligible. The new task is
+ -- not visible to that function until INSERT finishes, so evaluate its fields.
+ SELECT array_agg(candidate.id) INTO candidates FROM (
+  SELECT DISTINCT a.user_id AS id FROM user_role_assignments a
+  JOIN disposition_jobs j ON j.id=NEW.job_id
+  WHERE (a.role_id=NEW.destination_role_id OR NEW.workflow_stage='records_manager_review') AND j.lifecycle_state='active'
+   AND j.workflow_stage=NEW.workflow_stage
+   AND disposition_private.person_role(a.user_id,a.role_id)
+   AND disposition_private.review_role(j.id,NEW.workflow_stage,a.role_id)
+   AND disposition_private.can_review_content(a.user_id,j.id)
+  ORDER BY a.user_id LIMIT 2
+ ) candidate;
+ IF cardinality(candidates)=1 AND disposition_private.person_role(candidates[1],NEW.destination_role_id) THEN
+  NEW.task_state:='claimed';
+  NEW.claimed_by_user_id:=candidates[1];
+  NEW.claimed_at:=CURRENT_TIMESTAMP;
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER disposition_single_reviewer BEFORE INSERT ON disposition_tasks
+ FOR EACH ROW EXECUTE FUNCTION disposition_private.assign_single_reviewer();
+REVOKE ALL ON FUNCTION disposition_private.assign_single_reviewer() FROM PUBLIC;
+INSERT INTO schema_migrations(version) VALUES('083_single_eligible_reviewer') ON CONFLICT DO NOTHING;
+
+INSERT INTO schema_migrations(version) VALUES ('084_reasonless_task_claim') ON CONFLICT DO NOTHING;
+
+-- Equivalent desired effects, independent of proposer, reason or selection order.
+CREATE FUNCTION disposition_private.proposal_duplicate_key(p jsonb) RETURNS jsonb LANGUAGE plpgsql STABLE AS $$
+DECLARE typ text:=p->>'proposal_type'; values_json jsonb:=p->'proposed_values';
+BEGIN
+ IF typ IN ('remove_aggregation_relationship','remove_record_relationship') THEN
+  RETURN jsonb_build_array(typ,values_json->'relationship_id');
+ ELSIF typ='create_aggregation_relationship' THEN
+  RETURN jsonb_build_array(typ,disposition_private.proposal_relationship_key(p#>'{current_values,relationship}'));
+ ELSIF typ='add_to_holds' THEN
+  values_json:=jsonb_build_object('hold_ids',(SELECT jsonb_agg(v ORDER BY v) FROM (SELECT DISTINCT value::text::bigint v FROM jsonb_array_elements(values_json->'hold_ids')) ids));
+ ELSIF typ='local_retention_override' THEN
+  values_json:=jsonb_set(values_json,'{instructions}',to_jsonb(COALESCE(NULLIF(btrim(values_json->>'instructions'),''),'')));
+ END IF;
+ RETURN jsonb_build_array(typ,p->'target_aggregation_id',p->'target_record_id',values_json);
+END $$;
+CREATE FUNCTION disposition_private.reject_duplicate_proposal() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.proposal_state<>'active' THEN RETURN NEW; END IF;
+ -- Commands use this same transaction lock. Authorization/fact validation in
+ -- disposition_proposal_guard runs first, before any duplicate is disclosed.
+ PERFORM pg_advisory_xact_lock(7357,1);
+ IF EXISTS(SELECT 1 FROM disposition_review_proposals p WHERE p.job_id=NEW.job_id
+   AND p.review_round=NEW.review_round AND p.proposal_state='active' AND p.id<>NEW.id
+   AND disposition_private.proposal_duplicate_key(to_jsonb(p))=disposition_private.proposal_duplicate_key(to_jsonb(NEW))) THEN
+  RAISE EXCEPTION USING ERRCODE='23505',MESSAGE='disposition_proposal_duplicate';
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER disposition_proposal_unique BEFORE INSERT OR UPDATE ON disposition_review_proposals
+ FOR EACH ROW EXECUTE FUNCTION disposition_private.reject_duplicate_proposal();
+CREATE INDEX disposition_proposal_active_round ON disposition_review_proposals(job_id,review_round) WHERE proposal_state='active';
+REVOKE ALL ON FUNCTION disposition_private.proposal_duplicate_key(jsonb),disposition_private.reject_duplicate_proposal() FROM PUBLIC;
+INSERT INTO schema_migrations(version) VALUES('085_prevent_duplicate_review_proposals') ON CONFLICT DO NOTHING;
+
+-- Intermediate reviewers may complete a review with redacted related resources.
+CREATE OR REPLACE FUNCTION disposition_private.decide_review_work(p_task bigint,p_job_version integer,p_task_version integer,p_decision text,p_reason text) RETURNS jsonb LANGUAGE plpgsql AS $$
+DECLARE t disposition_tasks%ROWTYPE; j disposition_jobs%ROWTYPE; round_id bigint; acting bigint; identity bigint; reason text;
+BEGIN
+ IF disposition_private.context_operation() IS DISTINCT FROM 'review_decide' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
+ t:=disposition_private.review_context(p_task,p_job_version,p_task_version);
+ SELECT * INTO j FROM disposition_jobs WHERE id=t.job_id;
+ IF t.workflow_stage NOT IN ('file_administrator_review','unit_manager_review','records_manager_review') OR p_decision NOT IN ('approved','rejected') OR (t.workflow_stage='file_administrator_review' AND p_decision<>'approved') THEN RAISE EXCEPTION 'disposition_review_decision_invalid'; END IF;
+ IF t.workflow_stage='records_manager_review' AND p_decision='approved' THEN RAISE EXCEPTION 'disposition_proposal_execution_not_implemented'; END IF;
+ IF p_decision='rejected' AND (p_reason IS NULL OR p_reason ~ '^[[:space:]]*$') THEN RAISE EXCEPTION 'disposition_decision_reason_required'; END IF;
+ -- Intermediate completion records the review; it does not authorize proposal execution.
+ -- Proposal writes and final Records Manager approval retain their full access checks.
+ reason:=COALESCE(NULLIF(btrim(p_reason),''),CASE WHEN p_decision='rejected' THEN 'Return marked aggregations for correction' ELSE 'Complete authorized review' END);
+ SELECT id INTO round_id FROM disposition_review_rounds WHERE job_id=j.id AND round_number=j.current_review_round;
+ SELECT r.acting_role_id INTO acting FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
+ INSERT INTO disposition_review_decisions(job_id,round_id,review_stage,decision,task_id,actor_user_id,acting_role_id,reason,membership_snapshot)
+ VALUES(j.id,round_id,t.workflow_stage,p_decision,t.id,current_user_id(),acting,reason,disposition_private.membership_snapshot(j.id)) RETURNING id INTO identity;
+ UPDATE disposition_tasks SET task_state='completed' WHERE id=t.id;
+ IF p_decision='rejected' THEN PERFORM disposition_private.route_correction(j.id);
+ ELSE PERFORM disposition_private.route_review(j.id,CASE WHEN t.workflow_stage='file_administrator_review' THEN 'unit_manager_review' ELSE 'records_manager_review' END); END IF;
+ RETURN jsonb_build_object('decision_id',identity,'job_id',j.id,'workflow_stage',(SELECT workflow_stage FROM disposition_jobs WHERE id=j.id),'job_version',(SELECT version FROM disposition_jobs WHERE id=j.id));
+END $$;
+INSERT INTO schema_migrations(version) VALUES('086_intermediate_review_completion') ON CONFLICT DO NOTHING;

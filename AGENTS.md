@@ -154,6 +154,11 @@
   and published wording and provenance. Generate only missing new keys or
   explicitly invalidated machine-generated values. Never regenerate the whole
   artifact over curated translations.
+- Always provide generated Arabic drafts for untranslated active UI keys in
+  the same change; do not leave English source copies for later translation.
+  For the authorized local `demo` database, use the explicit Arabic seed utility
+  with `--missing-only` to fill missing drafts after catalogue synchronization.
+  Preserve all existing translations and leave drafts unpublished for review.
 - Keep `frontend/webui/i18n/messages.en.json` sorted lexicographically by the
   complete contextual `message_key` after every catalogue edit. Reorder every
   maintained language artifact to that exact sequence without changing its

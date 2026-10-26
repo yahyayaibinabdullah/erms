@@ -51,7 +51,7 @@ def seeded(c,route='standard',fa=False,manager=True):
 
 
 def task(c,job,stage=None):
-    return c.execute("SELECT * FROM disposition_tasks WHERE job_id=%s AND task_state IN ('open','claimed') ORDER BY id DESC LIMIT 1",(job,)).fetchone()
+    return c.execute("SELECT * FROM disposition_tasks WHERE job_id=%s AND task_state IN ('open','claimed') ORDER BY (task_state='claimed') DESC,id DESC LIMIT 1",(job,)).fetchone()
 
 
 def act(c,t,action,roleid,user=None,**extra):
@@ -139,14 +139,14 @@ def test_release_reassign_role_loss_preserves_prior_claim_history(client):
     with db() as c:
         job,root,um,fa,mgr=seeded(c,fa=True)
         submit(c,job['id']); t=task(c,job['id'])
-        claimed=act(c,t,'claim',fa)
+        claimed=t;assert claimed['task_state']=='claimed'
         other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa))
         reassigned=act(c,claimed,'reassign',fa,other)
         assert reassigned['destination_role_id']==fa and reassigned['claimed_by_user_id']==other
         c.execute('DELETE FROM user_role_assignments WHERE user_id=%s AND role_id=%s',(other,fa))
         worker_actor(c);out=workflow.reconcile_claims(c);assert out['released']==[t['id']]
         assert task(c,job['id'])['claimed_by_user_id'] is None
-        assert c.execute("SELECT count(*) n FROM event_history WHERE entity_type='disposition_task' AND entity_id=%s",(t['id'],)).fetchone()['n']>=4
+        assert c.execute("SELECT count(*) n FROM event_history WHERE entity_type='disposition_task' AND entity_id=%s",(t['id'],)).fetchone()['n']>=3
         actor(c);current=task(c,job['id']);again=act(c,current,'claim',fa);released=act(c,again,'release',fa)
         assert released['task_state']=='open'
 
@@ -181,8 +181,9 @@ def test_manager_only_no_officer_or_review_queues_and_immutable_route(client):
 
 def test_simultaneous_claims_have_one_winner_and_exact_retry(client):
     with db() as c:
-        job,root,um,fa,mgr=seeded(c,fa=True);submit(c,job['id']);t=task(c,job['id'])
-        other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa));c.commit()
+        job,root,um,fa,mgr=seeded(c,fa=True)
+        other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa))
+        submit(c,job['id']);t=task(c,job['id']);c.commit()
     keys={1:uuid4(),other:uuid4()}
     def claim(user):
         try:
@@ -204,6 +205,7 @@ def test_same_person_officer_and_manager_actions_require_independent_current_rol
     with db() as c:
         job,root,um,fa,mgr=seeded(c,'simplified')
         officer=c.execute("SELECT id FROM roles WHERE code='fixture-records-officer'").fetchone()['id']
+        other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,mgr))
         submit(c,job['id']);t=task(c,job['id'])
         with pytest.raises(psycopg.Error,match='disposition_task_ineligible'):
             act(c,t,'claim',officer)
@@ -247,18 +249,26 @@ def test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round(c
 
 def test_task_api_reason_version_current_auth_and_no_generic_completion(client):
     with db() as c:
-        job,root,um,fa,mgr=seeded(c,fa=True);submit(c,job['id']);t=task(c,job['id'])
+        job,root,um,fa,mgr=seeded(c,fa=True)
+        other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa))
+        submit(c,job['id']);t=task(c,job['id'])
     path=f"/api/v1/disposition/tasks/{t['id']}"
     data={'command_id':str(uuid4()),'acting_role_id':fa}
     headers={'X-CSRF-Token':client.cookies.get('erms_csrf'),'If-Match':str(t['version'])}
-    assert client.post(path+'/claim',json=data,headers=headers).status_code==422
-    headers['X-Change-Reason']='Take review responsibility'
     response=client.post(path+'/claim',json=data,headers=headers);assert response.status_code==200,response.text
+    assert response.json()['claimed_by_user_id']==1 and response.json()['claimed_at']
+    with db() as c:
+        receipt=c.execute('SELECT actor_user_id,reason,completed_at FROM disposition_private.command_receipts WHERE command_id=%s',(data['command_id'],)).fetchone()
+        assert receipt['actor_user_id']==1 and receipt['reason']=='' and receipt['completed_at']
+        assert c.execute("SELECT count(*) n FROM event_history WHERE entity_type='disposition_task' AND entity_id=%s",(t['id'],)).fetchone()['n']>=2
     page=client.get('/api/v1/disposition/tasks',params={'limit':1,'offset':0});assert page.status_code==200 and len(page.json()['items'])==1
     assert client.get('/api/v1/disposition/tasks',params={'limit':101}).status_code==422
     assert client.post(path+'/complete',json=data,headers=headers).status_code==404
     assert client.post('/api/v1/disposition/jobs/'+str(job['id'])+'/submit',json=data,headers=headers).status_code==404
     data['command_id']=str(uuid4())
+    assert client.post(path+'/release',json=data,headers=headers).status_code==422
+    assert client.post(path+'/reassignment',json={**data,'assigned_user_id':1},headers=headers).status_code==422
+    headers['X-Change-Reason']='Return to queue'
     assert client.post(path+'/release',json=data,headers=headers).status_code==409
     headers['If-Match']=str(response.json()['version'])
     assert client.post(path+'/release',json=data,headers=headers).status_code==200
@@ -319,7 +329,7 @@ def test_manager_only_combined_round_boundary_locks_owner_and_external_correctio
 def test_authorized_management_can_return_and_retarget_obsolete_queue(client):
     with db() as c:
         job,root,um,fa,mgr=seeded(c,fa=True);submit(c,job['id']);t=task(c,job['id'])
-        claimed=act(c,t,'claim',fa)
+        claimed=t;assert claimed['task_state']=='claimed'
         replacement=role(c,'replacement-file-admin')
         c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=1',(replacement,))
         # Management authority recovers the old queue; no actor gains content ACLs.
@@ -333,11 +343,13 @@ def test_authorized_management_can_return_and_retarget_obsolete_queue(client):
 def test_shared_claims_across_separate_manager_roles_still_have_one_claimant(client):
     with db() as c:
         job,root,um,fa,mgr=seeded(c,'simplified')
-        second=role(c,'second-manager-role','INFO_GOV_MGR')
+        other=person(c)
+        second=role(c,'second-manager-role','INFO_GOV_MGR',user=other)
         submit(c,job['id'])
         rows=c.execute("SELECT * FROM disposition_tasks WHERE job_id=%s AND task_state='open' ORDER BY id",(job['id'],)).fetchall()
         assert len(rows)==2
         act(c,rows[0],'claim',rows[0]['destination_role_id'])
+        actor(c,other)
         with pytest.raises(psycopg.Error,match='disposition_task_already_claimed'):
             act(c,rows[1],'claim',rows[1]['destination_role_id'])
 
@@ -372,7 +384,7 @@ def test_unit_manager_requires_own_units_usable_designated_role_before_entering_
     with db() as c:
         job,root,um,fa,mgr=seeded(c,fa=after_file_admin)
         if after_file_admin:
-            submit(c,job['id']);t=task(c,job['id']);act(c,t,'claim',fa)
+            submit(c,job['id']);t=task(c,job['id']);assert t['claimed_by_user_id']==1
         top=c.execute("INSERT INTO org_units(code,name) VALUES('top-manager','Top manager unit') RETURNING id").fetchone()['id']
         parent_manager=role(c,'parent-manager',owner=top)
         c.execute('UPDATE org_units SET managing_role_id=%s WHERE id=%s',(parent_manager,top))

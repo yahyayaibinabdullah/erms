@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import pytest
 from nicegui import ui,core
 from frontend.webui.api_client import ApiError
-from frontend.webui.locale_services import set_locale_context
+from frontend.webui.locale_services import set_locale_context, current_locale_context
 from frontend.webui.i18n_catalogue import set_active_messages,clear_active_messages
 from frontend.webui.disposition.review import ReviewForm,workflow_panel
 from frontend.webui.disposition.tasks import tasks_screen
@@ -57,12 +57,12 @@ async def form(host,api=None,**kw):
 async def test_explicit_save_persists_partial_reason_and_own_note_without_advancing(host,monkeypatch):
     notices=[];monkeypatch.setattr(ui,'notify',lambda message,**kw:notices.append((message,kw)))
     f,api,after=await form(host)
-    f.note.value='Saved personal observations';f.overall.value=''
+    f.comments.value='Saved personal observations'
     f.queued({'action':'create','governing_root_id':10,'target_aggregation_id':10,'target_version':6,'proposal_type':'make_vital','proposed_values':{}})
     await f.perform('save')
     assert len(api.writes)==1 and api.writes[0][0]=='tasks/8/review-work'
     payload=api.writes[0][1]
-    assert payload['overall_reason']=='' and payload['note_version']==4 and payload['review_notes']=='Saved personal observations'
+    assert payload['overall_reason']=='Saved personal observations' and payload['note_version']==4 and payload['review_notes']=='Saved personal observations'
     assert payload['task_version']==3 and api.writes[0][2]['version']==2
     assert not f.dirty() and after and notices[-1][1]['type']=='positive'
     assert {path for path,_ in api.reads}=={'tasks/8/review-work','jobs/5/proposals'}
@@ -72,11 +72,11 @@ async def test_explicit_save_persists_partial_reason_and_own_note_without_advanc
 @pytest.mark.asyncio
 async def test_stale_save_retains_draft_and_exact_retry_id_then_role_change_uses_new_id(host,monkeypatch):
     notices=[];monkeypatch.setattr(ui,'notify',lambda *a,**kw:notices.append(kw))
-    f,api,after=await form(host);f.note.value='Still unsaved';api.error=ApiError(409,{'code':'disposition_stale_task'})
+    f,api,after=await form(host);f.comments.value='Still unsaved';api.error=ApiError(409,{'code':'disposition_stale_task'})
     await f.perform('save');await f.perform('save')
     assert f.dirty() and not after and notices[-1]['type']=='negative'
     assert api.writes[0][1]['command_id']==api.writes[1][1]['command_id']
-    f.role.options={7:'Officer',9:'Successor role'};f.role.value=9
+    f.acting_role_id=9  # Refreshed eligible-role projection changes internal attribution.
     await f.perform('save')
     assert api.writes[-1][1]['command_id']!=api.writes[0][1]['command_id']
 
@@ -84,7 +84,7 @@ async def test_stale_save_retains_draft_and_exact_retry_id_then_role_change_uses
 @pytest.mark.asyncio
 async def test_submit_saves_visible_changes_first_and_uses_new_versions(host,monkeypatch):
     monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
-    f,api,after=await form(host);f.overall.value='Ready for the next review';f.note.value='Current visible note'
+    f,api,after=await form(host);f.comments.value='Ready for the next review'
     await f.perform('submit')
     assert [x[0] for x in api.writes]==['tasks/8/review-work','tasks/8/submit-review']
     assert api.writes[1][1]['task_version']==4 and api.writes[1][2]['version']==3
@@ -94,7 +94,7 @@ async def test_submit_saves_visible_changes_first_and_uses_new_versions(host,mon
 @pytest.mark.asyncio
 async def test_blank_submission_warns_without_any_request(host,monkeypatch):
     notices=[];monkeypatch.setattr(ui,'notify',lambda *a,**k:notices.append(k))
-    f,api,_=await form(host);f.overall.value='  '
+    f,api,_=await form(host);f.comments.value='  '
     with host:await f.perform('submit')
     assert api.writes==[] and notices[-1]['type']=='warning'
 
@@ -102,7 +102,7 @@ async def test_blank_submission_warns_without_any_request(host,monkeypatch):
 @pytest.mark.asyncio
 async def test_queue_and_other_claimant_have_no_edit_or_decision_controls(host):
     f,api,_=await form(host,actions=('claim',))
-    assert f.note is None and f.overall is None
+    assert f.comments is None
     labels=[e.text for e in f.host.descendants() if isinstance(e,ui.button)]
     assert text('claim') in labels and not any(text(k) in labels for k in ('save','submit','approve','reject'))
 
@@ -208,7 +208,7 @@ def test_tracker_correction_skips_physical_completion_and_termination():
 async def test_history_is_lazy_retains_controls_and_refreshes_on_reopen(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
     f,api,_=await form(host)
-    section=next(e for e in f.host.descendants() if isinstance(e,ui.expansion) and e.text==text('review_notes'))
+    section=next(e for e in f.host.descendants() if isinstance(e,ui.expansion) and e.text==text('review_comments'))
     assert not any(path.endswith('/review-notes') for path,_ in api.reads)
     with host:
         section.value=True;await asyncio.sleep(0);await asyncio.sleep(0)
@@ -228,6 +228,8 @@ async def test_committed_approval_report_failure_warns_and_refreshes_without_ree
         if path.endswith('/approval-preview'):return {'job_version':2,'task_version':3,'membership_token':'a'*64,'proposals_token':'b'*64}
         return await original(path,**params)
     api.disposition_page=request;f,api,after=await form(host,api,actions=('save','propose','approve'),route='records_manager_only')
+    f.work['own_notes']['review_notes']=f.comments.value
+    f.work['overall_reason']=f.comments.value
     api.error=ApiError(503,{'code':'disposition_execution_report_pending','approval_committed':True,'round_id':9})
     with host:await f.perform('approve')
     assert [x[0] for x in api.writes]==['tasks/8/approve-proposals']
@@ -237,7 +239,7 @@ async def test_committed_approval_report_failure_warns_and_refreshes_without_ree
 @pytest.mark.asyncio
 async def test_native_save_button_dispatches_the_save_action(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
-    f,api,_=await form(host);f.note.value='Verify native Save dispatch'
+    f,api,_=await form(host);f.comments.value='Verify native Save dispatch'
     with host:
         button=next(e for e in f.host.descendants() if isinstance(e,ui.button) and e.text==text('save'))
         next(iter(button._event_listeners.values())).handler(None)
@@ -259,11 +261,12 @@ async def test_revision_editors_preserve_identity_and_hydrate_selected_relations
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     api=Api();original=api.disposition_page;link_reads=[]
     async def read(path,**params):
+        if '/removal-candidates/' in path:return await request('GET',path,params)
         if '/review-candidates/' in path:return {'items':[{'id':params.get('selected',3),'code':'REF','name':'Selected reference'}]}
         return await original(path,**params)
     async def request(method,path,params):
         link_reads.append((path,params))
-        rows=[{'id':99,'label':'Selected relationship','related':{'redacted':False,'number':'R-99','title':'Outside first page'}}] if params.get('selected_id') else []
+        rows=[{'id':99,'selectable':True,'already_proposed':False,'existing_proposal_id':None,'label':'Selected relationship','related':{'redacted':False,'number':'R-99','title':'Outside first page'}}] if params.get('selected_id') else []
         return {'items':rows,'total':len(rows)}
     api.disposition_page=read;api.request=request
     f,api,_=await form(host,api)
@@ -281,7 +284,9 @@ async def test_revision_editors_preserve_identity_and_hydrate_selected_relations
     assert not api.writes and f.pending[0]['action']=='revise'
     assert f.pending[0]['proposal_id']==12 and f.pending[0]['proposed_values']==proposed
     if 'relationship_id' in proposed:
-        assert link_reads[-1][1]=={'selected_id':99,'limit':1,'offset':0}
+        with host:
+            assert all(params['language_tag']==current_locale_context()[0] for _,params in link_reads)
+        assert link_reads[-1][1]['selected_id']==99
 
 
 @pytest.mark.asyncio
@@ -403,7 +408,7 @@ async def test_workspace_tabs_lazy_refresh_and_preserve_unsaved_work(host,monkey
         navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
         assert navigation.value=='current_task'
         assert not any(p.endswith(('/memberships','/history','/documents','/templates')) for p,_ in api.reads)
-        notes=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_notes'))
+        notes=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_comments'))
         notes.value='Unsaved observations'
         for section in ('members','current_task','members','current_task'):
             navigation.value=section
@@ -443,7 +448,7 @@ async def test_job_and_task_details_have_distinct_focus(host,monkeypatch,task_id
         assert 'templates' not in tabs
         assert ('history' in tabs)==(task_id is None)
         assert any(p.endswith('/review-work') for p,_ in api.reads)==(task_id is not None)
-        assert any(isinstance(e,ui.textarea) and e.label==text('review_notes') for e in host.descendants())==(task_id is not None)
+        assert any(isinstance(e,ui.textarea) and e.label==text('review_comments') for e in host.descendants())==(task_id is not None)
         progress=[e for e in host.descendants() if isinstance(e,ui.expansion) and e._props.get('label')==text('workflow')]
         assert bool(progress)==(task_id is None)
         if progress:assert progress[0].value
@@ -460,8 +465,11 @@ async def test_multiple_relationship_removals_queue_and_save_as_one_batch(host,m
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     api=Api()
     links=[{'id':i,'label':'related to','related':{'redacted':False,'number':f'LINK-{i}','title':f'Related {i}'}} for i in (101,102)]
-    async def request(*a,**k):return {'items':deepcopy(links),'total':2}
-    api.request=request
+    original=api.disposition_page
+    async def request(path,**params):
+        if '/removal-candidates/' in path:return {'items':deepcopy(links),'total':2}
+        return await original(path,**params)
+    api.disposition_page=request
     f,api,_=await form(host,api)
     with host:
         await f.edit(root={'root_aggregation_id':10})
@@ -488,10 +496,11 @@ async def test_multiple_relationship_removals_queue_and_save_as_one_batch(host,m
 
 
 @pytest.mark.asyncio
-async def test_task_return_restores_members_page_and_marks_opened_row(host,monkeypatch):
+@pytest.mark.parametrize('unclaimed',[False,True])
+async def test_task_return_restores_members_page_and_marks_opened_row(host,monkeypatch,unclaimed):
     from frontend.webui.disposition.screens import job_screen
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
-    workspace=view();workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',membership_editable=True)
+    workspace=view(actions=('claim',) if unclaimed else ('save','propose','submit'));workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',membership_editable=True)
     class ReturnApi(Api):
         async def disposition_page(self,path,**params):
             if path.endswith('/workspace'):return workspace
@@ -509,9 +518,351 @@ async def test_task_return_restores_members_page_and_marks_opened_row(host,monke
         assert request==dict(limit=25,offset=50,query='Review',state='active',sort='identity',descending=False)
         table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(r.get('last_viewed') for r in e.rows))
         assert [r['id'] for r in table.rows if r['last_viewed']]==[52]
+        assert all(r['needs_claim']==unclaimed and r['can_propose']!=unclaimed for r in table.rows)
+        assert ':disable="props.row.needs_claim"' in table.slots['body-cell-actions'].template
         handler=next(e.handler for e in table._event_listeners.values() if e.type in ('open-root','openRoot'))
         result=handler(SimpleNamespace(args=51))
         if inspect.isawaitable(result):await result
         await asyncio.sleep(0)
     assert remembered[-1]['opened_member']==51 and remembered[-1]['members']['page']==3
     assert opened==[('aggregation',51)]
+
+
+@pytest.mark.asyncio
+async def test_legacy_notes_and_reason_share_one_clean_editor_without_auto_writes(host):
+    f,api,_=await form(host)
+    assert f.comments.value=='Previously saved reason\n\nEarlier notes'
+    assert not f.has_changes() and not api.writes
+    assert len([e for e in host.descendants() if isinstance(e,ui.textarea)])==1
+    assert f.comments.label==text('review_comments')
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('route',['standard','simplified','records_manager_only'])
+async def test_empty_comments_can_be_saved_as_a_draft(host,monkeypatch,route):
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    f,api,_=await form(host,route=route)
+    f.comments.value=''
+    await f.perform('save')
+    assert api.writes[0][1]['review_notes']==api.writes[0][1]['overall_reason']==''
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('action,route',[('submit','standard'),('submit','simplified'),('approve','records_manager_only'),('reject','standard')])
+async def test_required_review_comments_stop_action_before_any_save(host,monkeypatch,action,route):
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    f,api,_=await form(host,actions=('save',action),route=route)
+    f.comments.value='  '
+    await f.perform(action)
+    assert not api.writes and f.feedback.text==text('review_comments_required')
+
+
+@pytest.mark.asyncio
+async def test_routine_review_allows_blank_comments_and_return_uses_same_editor(host,monkeypatch):
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    f,api,_=await form(host,actions=('save','complete_review','reject'))
+    f.comments.value=''
+    await f.perform('complete_review')
+    assert api.writes[-1][1]['decision_reason']==''
+    f.comments.value='Correct the relationship proposals'
+    await f.perform('reject')
+    assert api.writes[-1][1]['decision_reason']=='Correct the relationship proposals'
+    assert api.writes[-2][1]['review_notes']=='Correct the relationship proposals'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('failure',[False,True])
+async def test_successful_submission_returns_to_tasks_but_failure_keeps_form(host,monkeypatch,failure):
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    f,api,after=await form(host)
+    destinations=[]
+    async def return_to_tasks():destinations.append('my_tasks')
+    f.on_submitted=return_to_tasks
+    f.comments.value='Ready for review'
+    original=api.disposition_command
+    async def command(path,payload,**kw):
+        if failure and path.endswith('/submit-review'):
+            raise ApiError(409,{'code':'disposition_stale_task'})
+        return await original(path,payload,**kw)
+    api.disposition_command=command
+    with host:await f.perform('submit')
+    assert destinations==([] if failure else ['my_tasks'])
+    assert f.comments.value=='Ready for review'
+    if failure:
+        assert all(result.get('_saved_work') for result in after)
+    else:
+        assert not after
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('recipient_kind',['person','role_queue'])
+async def test_submission_toast_identifies_shared_queue_before_navigation(host,monkeypatch,recipient_kind):
+    events=[]
+    monkeypatch.setattr(ui,'notify',lambda message,**kw:events.append(message))
+    f,api,_=await form(host)
+    original=api.disposition_command
+    async def command(path,payload,**kw):
+        result=await original(path,payload,**kw)
+        return {**result,'next_recipients':[{'kind':recipient_kind,'name':'Review team'}]}
+    async def navigate():events.append('navigated')
+    api.disposition_command=command;f.on_submitted=navigate
+    f.comments.value='Ready'
+    with host:
+        await f.perform('submit')
+        assert events[-2]==text('submitted_to',recipients=text('next_role_queue',name='Review team') if recipient_kind=='role_queue' else 'Review team')
+    assert events[-1]=='navigated'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('action',['claim','release'])
+async def test_claim_needs_no_reason_but_release_still_does(host,monkeypatch,action):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    f,api,after=await form(host,actions=(action,))
+    with host:
+        await f.queue_action(action)
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        reasons=[e for e in dialog.descendants() if isinstance(e,ui.textarea)]
+        assert bool(reasons)==(action=='release')
+        button=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('save'))
+        handler=next(e for e in button._event_listeners.values() if e.type=='click').handler
+        result=handler(None)
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(0)
+    if action=='claim':
+        assert api.writes[-1][0]=='tasks/8/claim' and api.writes[-1][2]['reason']==''
+        assert after
+    else:
+        assert not api.writes and not after
+
+
+@pytest.mark.asyncio
+async def test_unclaimed_task_explains_claim_and_keeps_readable_redacted_target(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    api=Api();original=api.disposition_page
+    async def request(path,**params):
+        if path.endswith('/proposals'):
+            return {'items':[{'id':1,'version':1,'redacted':True,'target_summary':{'number':'1141/DEMO/011/2026','title':'Readable target'}},{'id':2,'version':1,'redacted':True}],'total':2}
+        return await original(path,**params)
+    api.disposition_page=request
+    f,api,_=await form(host,api,actions=('claim',))
+    assert any(isinstance(e,ui.label) and e.text==text('claim_before_proposals') for e in host.descendants())
+    assert f.proposals.table.rows[0]['target_label']=='1141/DEMO/011/2026 · Readable target'
+    assert f.proposals.table.rows[0]['target_notice']==text('restricted_proposal_details')
+    assert f.proposals.table.rows[1]['target_label']==text('restricted_resource')
+    assert all(not r['editable'] for r in f.proposals.table.rows)
+    with host:
+        await f.queue_action('claim')
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        assert any(isinstance(e,ui.label) and e.text==text('claim_explanation') for e in dialog.descendants())
+        assert not any(isinstance(e,ui.textarea) for e in dialog.descendants())
+
+
+@pytest.mark.asyncio
+async def test_partial_proposal_keeps_metadata_and_read_only_details(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    api=Api();original=api.disposition_page
+    metadata=dict(id=1,version=1,redacted=True,partial=True,target_summary={'number':'ROOT-1','title':'Readable target'},proposal_type='remove_aggregation_relationship',proposal_state='active',proposer_name='Original reviewer',proposer_role_name='Records Officer',proposer_stage='officer_preparation',review_round=1,proposed_at='2026-10-26',last_revised_at='2026-10-26',editor_name='Editor')
+    async def request(path,**params):
+        if path.endswith('/proposals'):return {'items':[deepcopy(metadata)],'total':1}
+        return await original(path,**params)
+    api.disposition_page=request
+    f,api,_=await form(host,api)
+    row=f.proposals.table.rows[0]
+    assert row['details_available'] and not row['editable']
+    assert row['type_label']==text('remove_aggregation_relationship') and row['proposer_name']=='Original reviewer'
+    with host:
+        await f.details(row)
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        labels=[e.text for e in dialog.descendants() if isinstance(e,ui.label)]
+        assert any('Original reviewer' in label for label in labels)
+        assert any('ROOT-1' in label for label in labels)
+        assert text('restricted_text') in labels
+        assert not any(isinstance(e,ui.button) and e.text in (text('revise'),text('withdraw')) for e in dialog.descendants())
+    assert not api.writes
+
+
+@pytest.mark.asyncio
+async def test_blockers_dialog_shows_partial_relationships_pagination_and_inline_errors(host,monkeypatch):
+    from frontend.webui.disposition.screens import blockers_dialog
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    calls=[]
+    async def request(path,**params):
+        calls.append(params)
+        if len(calls)==1:raise ApiError(403,{'code':'insufficient_privilege'})
+        return {'items':[],'relationships_block_final':True,'relationships':[dict(source={'number':'ROOT-1','title':'Readable root'},target=None,relationship_label='مرتبط بـ' if current_locale_context()[0]=='ar' else 'related to',blocks_final=True,redacted=True)],'has_more':len(calls)==2}
+    with host:
+        await blockers_dialog(api=SimpleNamespace(disposition_page=request),root={'id':1,'aggregation_number':'ROOT-1','title':'Readable root'},active=lambda:True,on_error=lambda e:'Cannot load blockers',open_resource=None)
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        assert any(isinstance(e,ui.label) and e.text=='Cannot load blockers' for e in dialog.descendants())
+        retry=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('blockers_retry'))
+        handler=next(e.handler for e in retry._event_listeners.values() if e.type=='click')
+        for _ in range(2):
+            result=handler(None)
+            if inspect.isawaitable(result):await result
+            await asyncio.sleep(0)
+        labels=[e.text for e in dialog.descendants() if isinstance(e,ui.label)]
+        assert text('blocker_source')+' ·' in labels and 'ROOT-1' in labels and 'Readable root' in labels
+        assert text('blocker_target')+' ·' in labels and text('restricted_resource') in labels
+        number=next(e for e in dialog.descendants() if isinstance(e,ui.label) and e.text=='ROOT-1')
+        assert number._props['dir']=='ltr'
+        assert text('final_blocked') in labels and text('blockers_empty_all') not in labels
+        assert [x['offset'] for x in calls]==[0,0,1]
+        assert all(x['limit']==25 for x in calls)
+
+
+@pytest.mark.asyncio
+async def test_removal_picker_disables_saved_queued_and_restricted_rows_and_links_details(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    api=Api();original=api.disposition_page;reads=[]
+    rows=[dict(id=i,label='related to',related={'redacted':i in (103,104),'number':f'REL-{i}','title':'Related'},already_proposed=i in (102,103),existing_proposal_id=12 if i==102 else None,selectable=i==101) for i in (101,102,103,104)]
+    async def request(path,**params):
+        reads.append((path,params))
+        if '/removal-candidates/' in path:return {'items':deepcopy(rows),'total':4}
+        if path.endswith('/proposals') and params.get('proposal_id'):return {'items':[{'id':12,'partial':True,'redacted':True}],'total':1}
+        return await original(path,**params)
+    api.disposition_page=request;f,api,_=await form(host,api)
+    shown=[]
+    async def details(row):shown.append(row)
+    monkeypatch.setattr(f,'details',details)
+    with host:
+        await f.edit(root={'root_aggregation_id':10})
+        kind=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.select) and e.label==text('proposal_type'))
+        kind.value='remove_aggregation_relationship';await asyncio.sleep(.05)
+        table=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.table) and e.selection=='multiple')
+        assert [r['id'] for r in table.rows if r['selectable']]==[101]
+        assert text('removal_already_proposed') in table.rows[1]['selection_label']
+        assert text('removal_access_required') in table.rows[2]['selection_label']
+        assert table.rows[3]['target_label']==text('restricted_resource')
+        assert ':disable="!props.row.selectable"' in table.slots['body-selection'].template
+        handler=next(e.handler for e in table._event_listeners.values() if e.type in ('select-available','selectAvailable'))
+        handler(SimpleNamespace(args=True));assert [r['id'] for r in table.selected]==[101]
+        handler(SimpleNamespace(args=False));assert not table.selected
+        existing=next(e.handler for e in table._event_listeners.values() if e.type in ('existing-proposal','existingProposal'))
+        result=existing(SimpleNamespace(args=12))
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(0)
+        assert shown==[{'id':12,'partial':True,'redacted':True}]
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('continue'))
+        accept=next(e.handler for e in button._event_listeners.values() if e.type=='click')
+        table.selected=deepcopy(table.rows)
+        result=accept(None)
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(0);assert not f.pending
+        table.selected=[table.rows[0]]
+        result=accept(None)
+        if inspect.isawaitable(result):await result
+        await asyncio.sleep(0)
+        assert len(f.pending)==1 and f.pending[0]['proposed_values']=={'relationship_id':101}
+    assert not api.writes
+    assert any(params.get('proposal_id')==12 and params['limit']==1 for _,params in reads)
+    assert all(params['limit']==25 and params['offset']==0 for path,params in reads if '/removal-candidates/' in path)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('recipient_kind', ['person', 'role_queue', 'none'])
+async def test_completion_toast_names_actual_next_recipient_without_extra_lookup(host, monkeypatch, recipient_kind):
+    events=[]
+    monkeypatch.setattr(ui, 'notify', lambda message, **kw: events.append((message,kw)))
+    f,api,after=await form(host,actions=('save','complete_review'))
+    original=api.disposition_command
+    async def command(path,payload,**kw):
+        result=await original(path,payload,**kw)
+        return {**result,'next_recipients':[] if recipient_kind=='none' else [{'kind':recipient_kind,'name':'مدير الوحدة'}]}
+    api.disposition_command=command
+    reads_before=list(api.reads)
+    with host:
+        await f.perform('complete_review')
+        expected=text('review_completed') if recipient_kind=='none' else text('review_completed_to',recipients=text('next_role_queue',name='مدير الوحدة') if recipient_kind=='role_queue' else 'مدير الوحدة')
+        assert events[-1][0]==expected and events[-1][1]['timeout']==8000
+    assert after and api.reads==reads_before
+    assert [p for p,_,_ in api.writes]==['tasks/8/review-decision']
+
+
+@pytest.mark.parametrize('message_key', ['submitted','review_completed','external_approved','external_rejected','physical_confirmed','digital_done_completion_pending'])
+def test_every_stage_completion_uses_same_recipient_confirmation(host, monkeypatch, message_key):
+    from frontend.webui.disposition.handoff import notify_completion
+    notices=[]
+    monkeypatch.setattr(ui,'notify',lambda message,**kw:notices.append((message,kw)))
+    with host:
+        notify_completion({'next_recipients':[{'kind':'person','name':'أحمد المنصوري'}]},message_key)
+        expected=text('submitted_to' if message_key=='submitted' else 'review_completed_to',recipients='أحمد المنصوري') if message_key in ('submitted','review_completed') else text('completion_next_task',message=text(message_key),recipients='أحمد المنصوري')
+        assert notices[-1]==(expected,{'type':'positive','timeout':8000})
+
+
+def test_automatic_and_final_stage_messages_do_not_invent_a_recipient(host, monkeypatch):
+    from frontend.webui.disposition.handoff import notify_completion
+    notices=[]
+    monkeypatch.setattr(ui,'notify',lambda message,**kw:notices.append(message))
+    with host:
+        notify_completion({'next_stage':'certificate_generation','next_recipients':[]},'digital_done_completion_pending')
+        assert notices[-1]==text('completion_next_automatic',message=text('digital_done_completion_pending'),stage=text('certificate_generation'))
+        notify_completion({'workflow_completed':True,'next_recipients':[{'kind':'person','name':'مدير الوثائق'}]},'job_completed')
+        assert notices[-1]==text('completion_next_task',message=text('job_completed'),recipients='مدير الوثائق')
+        notify_completion({'workflow_completed':True,'next_recipients':[]},'physical_confirmed')
+        assert notices[-1]==text('job_completed')
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('stage', ['officer_preparation','officer_correction','file_administrator_review','unit_manager_review','records_manager_review','external_approval','physical_destruction'])
+async def test_completed_task_returns_to_inbox_after_confirmation(host, monkeypatch, stage):
+    from frontend.webui.disposition.handoff import task_finished,notify_completion
+    events=[]
+    async def inbox():events.append('inbox')
+    async def refresh(result):events.append('refresh')
+    monkeypatch.setattr(ui,'notify',lambda message,**kw:events.append('confirmation'))
+    f=SimpleNamespace(alive=lambda:True,task={'task_type':stage},job={'workflow_stage':stage},on_submitted=inbox,after=refresh)
+    with host:
+        notify_completion({'next_recipients':[{'kind':'person','name':'Next reviewer'}]},'review_completed')
+        await task_finished(f,{'next_stage':'digital_destruction'})
+    assert events==['confirmation','inbox']
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('case', ['digital','certificate','completed','overview','abandoned','committed_report_pending'])
+async def test_task_completion_preserves_progress_final_overview_and_page_liveness(host, case):
+    from frontend.webui.disposition.handoff import task_finished
+    events=[]
+    async def inbox():events.append('inbox')
+    async def refresh(result):events.append('refresh')
+    f=SimpleNamespace(alive=lambda:case!='abandoned',task={'task_type':'digital_destruction' if case=='digital' else 'certificate_download' if case=='certificate' else 'records_manager_review'},job={'workflow_stage':'certificate_generation' if case=='certificate' else 'records_manager_review'},on_submitted=None if case=='overview' else inbox,after=refresh)
+    result={'workflow_completed':case=='completed','approval_committed':case=='committed_report_pending'}
+    await task_finished(f,result)
+    assert events==([] if case=='abandoned' else ['inbox'] if case=='committed_report_pending' else ['refresh'])
+
+
+@pytest.mark.asyncio
+async def test_review_completion_returns_to_inbox_without_reload(host, monkeypatch):
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    events=[]
+    f,api,after=await form(host,actions=('save','complete_review'))
+    async def inbox():events.append('inbox')
+    f.on_submitted=inbox
+    with host:await f.perform('complete_review')
+    assert events==['inbox'] and not after
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('action', ['complete_review','reject','approve'])
+@pytest.mark.parametrize('outcome', ['success','failed','committed_pending'])
+async def test_review_stage_actions_navigate_only_after_committed_completion(host, monkeypatch, action, outcome):
+    from nicegui.elements.dialog import Dialog
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    async def confirmed():return True
+    monkeypatch.setattr(Dialog,'__await__',lambda self:confirmed().__await__())
+    f,api,after=await form(host,actions=('save',action))
+    f.work['own_notes']['review_notes']=f.comments.value
+    f.work['overall_reason']=f.comments.value
+    events=[]
+    async def inbox():events.append('inbox')
+    f.on_submitted=inbox
+    original=api.disposition_page
+    async def request(path,**params):
+        if path.endswith('/approval-preview'):return {'job_version':2,'task_version':3,'membership_token':'a'*64,'proposals_token':'b'*64}
+        return await original(path,**params)
+    api.disposition_page=request
+    if outcome=='failed':api.error=ApiError(409,{'code':'disposition_stale_task'})
+    if outcome=='committed_pending':api.error=ApiError(503,{'code':'disposition_execution_report_pending','approval_committed':True})
+    with host:await f.perform(action)
+    assert events==([] if outcome=='failed' else ['inbox'])
+    assert not any(not r.get('_saved_work') for r in after)

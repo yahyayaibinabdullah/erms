@@ -15,6 +15,11 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("DATABASE_URL"),
         help="Target PostgreSQL URL; defaults to the DATABASE_URL environment variable.",
     )
+    parser.add_argument(
+        "--missing-only",
+        action="store_true",
+        help="Fill untouched source-copy drafts without correcting any existing translation.",
+    )
     args = parser.parse_args()
     if not args.database_url:
         parser.error("--database-url is required when DATABASE_URL is not set")
@@ -35,7 +40,7 @@ def main() -> None:
     open_pool()
     try:
         synchronize_message_definitions()
-        result = synchronize_generated_arabic_drafts()
+        result = synchronize_generated_arabic_drafts(missing_only=args.missing_only)
     finally:
         close_pool()
     print(json.dumps(result, sort_keys=True))

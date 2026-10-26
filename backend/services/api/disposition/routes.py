@@ -81,6 +81,11 @@ def _command(c,request,payload,handler,*,audit_reason=None,reason_required=True,
         raise HTTPException(status,detail=detail) from None
 
 
+def _handoff(c, request, result, *, job_id=None):
+    from .handoff import describe
+    return describe(c,result,preferred_language(c,request),job_id=job_id)
+
+
 @router.post('/jobs',status_code=201)
 def create_job(payload: CreateJob,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     return _command(c,request,payload,membership.create_job,reason_required=False,**payload.model_dump(exclude={'acting_role_id','command_id'}))
@@ -149,13 +154,13 @@ def read_jobs(request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Quer
 
 
 @router.get('/jobs/{job_id}')
-def read_job(job_id: int,c: Connection=Depends(get_connection,scope='function')):
-    return queries.job(c,job_id)
+def read_job(job_id: int,request: Request,c: Connection=Depends(get_connection,scope='function')):
+    return queries.job(c,job_id,preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/memberships')
-def read_members(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
-    return queries.members(c,job_id,limit=limit,offset=offset,query=query,sort=sort,descending=descending,state=state)
+def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
+    return queries.members(c,job_id,limit=limit,offset=offset,query=query,sort=sort,descending=descending,state=state,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/history')
@@ -164,8 +169,11 @@ def read_history(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),o
 
 
 @router.get('/aggregations/{root_id}/blockers')
-def read_blockers(root_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
-    return {**blockers.summary(c,root_id),**blockers.protection_page(c,root_id,limit=limit,offset=offset)}
+def read_blockers(root_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
+    protections=blockers.protection_page(c,root_id,limit=limit,offset=offset)
+    relationships=blockers.relationship_page(c,root_id,limit=limit,offset=offset,language_tag=preferred_language(c,request))
+    return {**blockers.summary(c,root_id),**protections,'relationships':relationships['items'],
+      'has_more':protections['has_more'] or relationships['has_more']}
 
 
 @router.get('/selectors/{kind}')
@@ -306,7 +314,7 @@ def read_tasks(limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
 @router.post('/tasks/{task_id}/claim')
 def claim_task(task_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workflow
-    return _command(c,request,payload,workflow.task_command,task_id=task_id,expected_version=version,action='claim')
+    return _command(c,request,payload,workflow.task_command,task_id=task_id,expected_version=version,action='claim',reason_required=False)
 
 
 @router.post('/tasks/{task_id}/release')
@@ -385,15 +393,17 @@ def save_review(task_id: int,payload: SaveReview,request: Request,version: int=D
 @router.post('/tasks/{task_id}/submit-review')
 def submit_review(task_id: int,payload: SubmitReview,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
-    return _command(c,request,payload,proposals.submit,audit_reason=payload.overall_reason or 'Submit destruction review',task_id=task_id,expected_version=version,
+    result = _command(c,request,payload,proposals.submit,audit_reason=payload.overall_reason or 'Submit destruction review',task_id=task_id,expected_version=version,
       task_version=payload.task_version,overall_reason=payload.overall_reason)
+    return _handoff(c,request,result)
 
 
 @router.post('/tasks/{task_id}/review-decision')
 def decide_review(task_id: int,payload: DecideReview,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
-    return _command(c,request,payload,proposals.decide,audit_reason=payload.decision_reason.strip() or 'Complete authorized review',task_id=task_id,expected_version=version,
+    result = _command(c,request,payload,proposals.decide,audit_reason=payload.decision_reason.strip() or 'Complete authorized review',task_id=task_id,expected_version=version,
       task_version=payload.task_version,decision=payload.decision,decision_reason=payload.decision_reason)
+    return _handoff(c,request,result)
 
 
 @router.get('/tasks/{task_id}/review-work')
@@ -403,10 +413,10 @@ def read_review_work(task_id: int,c: Connection=Depends(get_consistent_connectio
 
 
 @router.get('/jobs/{job_id}/proposals')
-def read_proposals(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),review_round: int | None=Query(None,ge=1),
-                   state: Literal['active','withdrawn','executed','failed'] | None=None,root_id: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
+def read_proposals(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),review_round: int | None=Query(None,ge=1),
+                   proposal_id: int | None=Query(None,ge=1),state: Literal['active','withdrawn','executed','failed'] | None=None,root_id: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
-    return proposals.page(c,job_id,limit=limit,offset=offset,review_round=review_round,state=state,root_id=root_id)
+    return proposals.page(c,job_id,limit=limit,offset=offset,review_round=review_round,state=state,root_id=root_id,language_tag=preferred_language(c,request),proposal_id=proposal_id)
 
 
 @router.get('/jobs/{job_id}/review-notes')
@@ -500,7 +510,7 @@ def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request
     c.commit()
     report=_execution_report_after_commit(result['job_id'],result['round_id'],payload.acting_role_id)
     generated=_request_after_commit(result['job_id'],result['round_id'],payload.acting_role_id) if result['remaining_units'] else {'request_status':'not_required'}
-    return {**result,**report,**generated}
+    return _handoff(c,request,{**result,**report,**generated})
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/execution-report')
@@ -518,9 +528,9 @@ def read_proposal_effects(job_id: int,limit: int=Query(25,ge=1,le=100),offset: i
 
 
 @router.get('/jobs/{job_id}/workspace')
-def read_workspace(job_id: int,task_id: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
+def read_workspace(job_id: int,request: Request,task_id: int | None=Query(None,ge=1),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import workspace
-    return workspace.read(c,job_id,task_id)
+    return workspace.read(c,job_id,task_id,language_tag=preferred_language(c,request))
 
 
 @router.get('/tasks/{task_id}/proposal-targets/{kind}')
@@ -575,7 +585,7 @@ def generate_destruction_request(job_id: int,round_id: int,payload: GenerateRequ
     from . import external
     external.require_manager(c,job_id,payload.acting_role_id)
     c.commit()
-    return _request_after_commit(job_id,round_id,payload.acting_role_id,payload.destination_token)
+    return _handoff(c,request,_request_after_commit(job_id,round_id,payload.acting_role_id,payload.destination_token),job_id=job_id)
 
 
 @router.post('/tasks/{task_id}/external-decision')
@@ -600,13 +610,14 @@ def record_external_decision(task_id: int,request: Request,command_id: UUID=Form
           destruction_number=destruction_number,staged=staged,preview=destination_token)
     c.commit()
     if decision=='approved' and result['workflow_stage']=='physical_destruction':result.update(_physical_after_commit(result['job_id'],acting_role_id,command_id))
-    return result
+    return _handoff(c,request,result)
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/renew-review')
 def renew_approved_review(job_id: int,round_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import external
-    return _command(c,request,payload,external.renew,audit_reason='Approved facts changed; renew review',job_id=job_id,round_id=round_id,expected_version=version)
+    result=_command(c,request,payload,external.renew,audit_reason='Approved facts changed; renew review',job_id=job_id,round_id=round_id,expected_version=version)
+    return _handoff(c,request,result,job_id=job_id)
 
 
 @router.get('/jobs/{job_id}/external-decisions')
@@ -673,7 +684,8 @@ def confirm_physical(task_id: int,request: Request,command_id: UUID=Form(...),ac
     # Fail before staging any bytes while operational release is closed.
     payload=Command(command_id=command_id,acting_role_id=acting_role_id)
     with stage_governed_upload(file,cache.for_connection(c)) as staged:
-        return _command(c,request,payload,physical.confirm,audit_reason='Confirm physical destruction',task_id=task_id,expected_version=version,task_version=task_version,successful=successful,certificate_reference=certificate_reference,staged=staged,preview=destination_token)
+        result=_command(c,request,payload,physical.confirm,audit_reason='Confirm physical destruction',task_id=task_id,expected_version=version,task_version=task_version,successful=successful,certificate_reference=certificate_reference,staged=staged,preview=destination_token)
+    return _handoff(c,request,result)
 
 
 class PartialRecovery(Command):
@@ -726,9 +738,10 @@ def retry_certificate(job_id:int,payload:RetryCertificate,request:Request,versio
 
 
 @router.get('/jobs/{job_id}/completion-progress')
-def read_completion_progress(job_id:int,c:Connection=Depends(get_consistent_connection,scope='function')):
+def read_completion_progress(job_id:int,request:Request,c:Connection=Depends(get_consistent_connection,scope='function')):
     from . import completion
-    return completion.view(c,artifacts.require_workspace(c,job_id))
+    result=completion.view(c,artifacts.require_workspace(c,job_id))
+    return _handoff(c,request,result,job_id=job_id) if result and result.get('completed') else result
 
 
 @router.post('/tasks/{task_id}/digital-destruction')
@@ -738,9 +751,10 @@ def request_digital_destruction(task_id:int,payload:DigitalDestruction,request:R
 
 
 @router.get('/jobs/{job_id}/destruction-progress')
-def read_destruction_progress(job_id:int,c:Connection=Depends(get_connection,scope='function')):
+def read_destruction_progress(job_id:int,request:Request,c:Connection=Depends(get_connection,scope='function')):
     from . import destruction
-    return destruction.progress(c,job_id)
+    result=destruction.progress(c,job_id)
+    return _handoff(c,request,result,job_id=job_id) if result and result['state']=='succeeded' else result
 
 
 @router.get('/retained/{kind}/{identity}')
@@ -759,3 +773,13 @@ def read_retained_page(job_id:int,root_id:int|None=Query(None,ge=1),limit:int=Qu
 def read_destruction_manifest(job_id:int,root_id:int=Query(ge=1),limit:int=Query(25,ge=1,le=100),offset:int=Query(0,ge=0),sort:str='id',descending:bool=False,c:Connection=Depends(get_connection,scope='function')):
     from . import destruction
     return destruction.manifest_page(c,job_id,root_id=root_id,limit=limit,offset=offset,sort=sort,descending=descending)
+
+
+@router.get('/tasks/{task_id}/removal-candidates/{kind}')
+def read_removal_candidates(task_id: int,kind: Literal['aggregation','record'],request: Request,
+    root_id: int=Query(ge=1),target_id: int=Query(ge=1),acting_role_id: int=Query(ge=1),language_tag: str | None=Query(None,max_length=64),
+    limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),selected_id: int | None=Query(None,ge=1),exclude_proposal_id: int | None=Query(None,ge=1),
+    c: Connection=Depends(get_consistent_connection,scope='function')):
+    from . import proposals
+    return proposals.removal_candidates(c,task_id,acting_role_id=acting_role_id,root_id=root_id,
+      kind=kind,target_id=target_id,limit=limit,offset=offset,exclude_proposal_id=exclude_proposal_id,selected_id=selected_id,language_tag=language_tag or preferred_language(c,request))

@@ -4,6 +4,7 @@ from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
 from ..resource_relationships import PageTable
+from .acting_role import automatic_role
 from .messages import text
 
 
@@ -17,16 +18,16 @@ def controls(form,host=None):
             for doc in value['documents']:
                 ui.label(doc['file_name']).props('dir=auto')
                 choices={r['id']:r['name'] for r in value['roles'] if r['id'] in doc['role_ids']}
-                role=ui.select(choices,label=text('acting_task_role'),value=next(iter(choices))).props('outlined dense').classes('w-full')
+                role_id=automatic_role(choices)
                 state={'command_id':None,'signature':None,'busy':False}
-                async def send(_=None,*,doc=doc,role=role,state=state):
+                async def send(_=None,*,doc=doc,role_id=role_id,state=state):
                     if form.dirty():ui.notify(text('unsaved_warning'),type='warning');return
                     if state['busy']:return
-                    signature=json.dumps([doc['id'],role.value,value['recipient']])
+                    signature=json.dumps([doc['id'],role_id,value['recipient']])
                     if state['signature']!=signature:state.update(signature=signature,command_id=str(uuid4()))
-                    state['busy']=True;form.busy=True;role.disable();state['button'].disable()
+                    state['busy']=True;form.busy=True;state['button'].disable()
                     try:
-                        await form.api.disposition_command(f"jobs/{form.job['id']}/documents/{doc['id']}/email",{'command_id':state['command_id'],'acting_role_id':role.value,'expected_recipient':value['recipient']},reason=text('send_email'))
+                        await form.api.disposition_command(f"jobs/{form.job['id']}/documents/{doc['id']}/email",{'command_id':state['command_id'],'acting_role_id':role_id,'expected_recipient':value['recipient']},reason=text('send_email'))
                         # Clear only on acknowledgement. A deliberately later
                         # click sends again; an uncertain retry keeps the key.
                         state.update(command_id=None,signature=None)
@@ -35,10 +36,10 @@ def controls(form,host=None):
                         if form.alive():form.error(error)
                     finally:
                         state['busy']=False;form.busy=False
-                        if form.alive():role.enable();state['button'].enable()
+                        if form.alive():state['button'].enable()
                     if form.alive():
                         for table in getattr(form,'email_tables',[]):await table.load()
-                state['button']=ui.button(text('send_email'),icon='mail',on_click=send).props('no-caps')
+                state['button']=ui.button(text('send_email'),icon='mail',on_click=send).tooltip(text('send_email')).props('no-caps')
         if value['documents']:ui.label(text('email_acceptance_hint')).classes('text-sm text-slate-600')
 
 
@@ -55,5 +56,5 @@ async def attempts_panel(form,host=None,active=None):
         if not hasattr(form,'email_tables'):form.email_tables=[]
         form.email_tables.append(table)
         ui.label(text('email_acceptance_hint')).classes('text-sm text-slate-600')
-        ui.button(text('refresh'),icon='refresh',on_click=table.load).props('outline no-caps')
+        ui.button(text('refresh'),icon='refresh',on_click=table.load).tooltip(text('refresh')).props('outline no-caps')
         return table

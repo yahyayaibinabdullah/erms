@@ -15,7 +15,7 @@ def form(host,*,progress=None,alive=lambda:True,authorized=True):
     async def after(value):saved.append(value)
     f=SimpleNamespace(api=api,view={'destruction':{'progress':progress}},job={'id':7,'version':5,'workflow_stage':'digital_destruction'},task={'id':9,'version':3},actions={'destroy_digital'} if authorized and not progress else set(),retry={},busy=False,host=host,alive=alive,after=after)
     with host:
-        f.role=ui.select({2:'Current Manager'},value=2)
+        f.acting_role_id=2
         f.error=lambda error:ui.notify(str(error),type='negative')
         controls(f)
     return f,saved
@@ -77,7 +77,7 @@ async def test_destroyed_members_with_removed_names_render_retained_actions(host
         if path.endswith('/artifact-destination'):return {'ready':False,'changed':False,'destination':None,'previous_destination':None,'warning':'disposition_destination_unset','token':'x'*64}
         if path.endswith('/memberships'):return {'items':[{'id':7,'root_aggregation_id':91,'root_version':2,'version':2,'aggregation_number':None,'title':None,'destroyed':True,'disposition_status':10,'membership_state':'completed_history','redacted':False,'added_at':'2026-01-01T00:00:00Z','removed_at':None}],'total':1}
         return {'items':[],'total':0}
-    with host:await job_screen(api=SimpleNamespace(disposition_page=request),identity=1,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda _:None,open_eligibility=lambda _:None,open_resource=lambda *a:None,format_timestamp=str,event_label=str)
+    with host:await job_screen(api=SimpleNamespace(disposition_page=request),identity=1,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda _:None,open_eligibility=lambda _:None,open_resource=lambda *a:None,format_timestamp=str,event_label=str,saved={'section':'members'})
     table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(r.get('root_aggregation_id')==91 for r in e.rows))
     assert table.rows[0]['identity']==text('retained_unit',id=91) and not table.rows[0]['can_remove']
     assert 'retained-unit' in table.slots['body-cell-actions'].template

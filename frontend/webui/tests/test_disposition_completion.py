@@ -14,7 +14,7 @@ def build(host,value,alive=lambda:True):
     async def after(result):saved.append(result)
     with host:
         form=SimpleNamespace(api=api,view={'completion':value},host=host,alive=alive,job={'id':7,'version':4},task={'id':8,'version':3},actions={'retry_certificate'},retry={},busy=False,after=after,error=lambda e:None)
-        form.role=ui.select({2:'Manager'},value=2)
+        form.acting_role_id=2
         controls(form)
     return form,saved
 

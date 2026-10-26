@@ -5,6 +5,7 @@ from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
 from ..resource_relationships import PageTable
+from .handoff import notify_completion
 from .messages import text,KEYS
 from .screens import column,failure
 
@@ -27,20 +28,19 @@ def controls(form):
         if 'destroy_digital' in form.actions:
             confirmed=ui.checkbox(text('digital_confirm'),value=False)
             async def execute(_=None):
-                if not form.alive() or form.busy or not confirmed.value or not form.role.value:return
-                form.busy=True;button.disable();confirmed.disable();form.role.disable()
+                if not form.alive() or form.busy or not confirmed.value or not form.acting_role_id:return
+                form.busy=True;button.disable();confirmed.disable()
                 try:
-                    signature=('digital',form.job['version'],form.task['version'],form.role.value)
-                    result=await form.api.disposition_command(f"tasks/{form.task['id']}/digital-destruction",{'command_id':form.retry.setdefault(signature,str(uuid4())),'acting_role_id':form.role.value,'task_version':form.task['version'],'confirmed':True},version=form.job['version'],reason=text('destroy_digital'))
+                    signature=('digital',form.job['version'],form.task['version'],form.acting_role_id)
+                    result=await form.api.disposition_command(f"tasks/{form.task['id']}/digital-destruction",{'command_id':form.retry.setdefault(signature,str(uuid4())),'acting_role_id':form.acting_role_id,'task_version':form.task['version'],'confirmed':True},version=form.job['version'],reason=text('destroy_digital'))
                     if form.alive():ui.notify(text('execution_requested'),type='positive');await form.after(result)
                 except ApiError as problem:form.error(problem)
                 finally:
                     form.busy=False
-                    if form.alive():confirmed.enable();form.role.enable();button.set_enabled(bool(confirmed.value and form.role.value))
-            button=ui.button(text('retry_digital') if state['progress'] else text('destroy_digital'),icon='delete_forever',on_click=execute).props('no-caps color=negative')
+                    if form.alive():confirmed.enable();button.set_enabled(bool(confirmed.value and form.acting_role_id))
+            button=ui.button(text('retry_digital') if state['progress'] else text('destroy_digital'),icon='delete_forever',on_click=execute).tooltip(text('retry_digital') if state['progress'] else text('destroy_digital')).props('no-caps color=negative')
             button.disable()
-            confirmed.on_value_change(lambda:button.set_enabled(bool(confirmed.value and form.role.value and not form.busy)))
-            form.role.on_value_change(lambda:button.set_enabled(bool(confirmed.value and form.role.value and not form.busy)))
+            confirmed.on_value_change(lambda:button.set_enabled(bool(confirmed.value and form.acting_role_id and not form.busy)))
         async def poll():
             if not form.alive():timer.deactivate();return
             if state['reading']:return
@@ -50,7 +50,9 @@ def controls(form):
                 if not form.alive():timer.deactivate();return
                 state['progress']=latest;render(latest)
                 if not latest or latest['state'] in ('succeeded','failed'):
-                    timer.deactivate();await form.after(latest or {})
+                    timer.deactivate()
+                    if latest and latest['state']=='succeeded':notify_completion(latest,'digital_done_completion_pending')
+                    await form.after(latest or {})
             except ApiError as problem:
                 timer.deactivate()
                 if form.alive():form.error(problem)
@@ -69,7 +71,7 @@ async def retained_detail(*,api,proof,active,on_error,format_timestamp=str):
         ui.code(json.dumps(proof,default=str,ensure_ascii=False,indent=2),language='json').props('dir=ltr').classes('w-full')
         async def manifest():
             await manifest_dialog(api=api,proof=proof,active=lambda:active() and dialog.value,on_error=on_error,format_timestamp=format_timestamp)
-        if proof.get('manifest_count'):ui.button(text('destruction_manifest'),icon='fact_check',on_click=manifest).props('outline no-caps')
+        if proof.get('manifest_count'):ui.button(text('destruction_manifest'),icon='fact_check',on_click=manifest).tooltip(text('destruction_manifest')).props('outline no-caps')
         ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
     if active():dialog.open()
 
@@ -91,7 +93,7 @@ async def retained_unit(*,api,root_id,active,on_error,format_timestamp):
                 row['id']=str(row['resource_kind'])+':'+str(row['resource_id']);row['kind_label']=text(row['resource_kind']);row['medium_label']=text(row['medium']);row['at_label']=format_timestamp(row['destroyed_at'])
             return result
         page=PageTable(columns=[column('resource_id','retained_identifier',True),column('kind_label','retained_kind',True),column('medium_label','medium',True),column('at_label','occurred',True),column('executor_name','retained_executor'),column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
-        page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn flat dense icon="description" aria-label="'''+escape(text('details'))+'''" @click="$parent.$emit('retained-detail',props.row.id)" /></q-td>''')
+        page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn flat dense icon="description" aria-label="'''+escape(text('details'))+'''" @click="$parent.$emit('retained-detail',props.row.id)"><q-tooltip>'''+escape(text('details'))+'''</q-tooltip></q-btn></q-td>''')
         async def opened(event):
             row=next((r for r in page.table.rows if r['id']==event.args),None)
             if not row:return

@@ -19319,6 +19319,7 @@ def index(q: str = "") -> None:
                 state["disposition_view"]=value
                 if navigation_state["trail"] and navigation_state["trail"][-1]["page"]==page:
                     navigation_state["trail"][-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
+        async def open_tasks():await select_disposition("disposition-tasks")
         async def open_job(identity):await select_disposition("disposition-job",identity)
         async def open_task(job_id,identity):await select_disposition("disposition-job",job_id,task_id=identity)
         def register_dirty(dirty):
@@ -19334,7 +19335,7 @@ def index(q: str = "") -> None:
         try:
             if page in ("disposition-job","disposition-task"):
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
-                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task,saved=saved,remember=remember)
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task,open_tasks=open_tasks,saved=saved,remember=remember)
             elif page=="disposition-templates":
                 from .disposition.templates import templates_screen
                 await templates_screen(api=api,container=table_container,active=active,on_error=error_message,format_timestamp=format_timestamp)

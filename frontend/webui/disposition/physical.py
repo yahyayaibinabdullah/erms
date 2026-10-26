@@ -5,6 +5,8 @@ import tempfile
 from uuid import uuid4
 from nicegui import ui
 from ..api_client import ApiError
+from .acting_role import automatic_role
+from .handoff import notify_completion,task_finished
 from .messages import text
 from .artifacts import show_destination
 
@@ -26,23 +28,23 @@ def controls(form):
                     try:content=await form.api.request('GET',f"/api/v1/disposition/jobs/{form.job['id']}/documents/{report['id']}/content",_cancellable_read=True)
                     except ApiError as error:form.error(error);return
                     if form.alive():ui.download(content,report['file_name'])
-                if form.preview and report.get('can_preview',False):ui.button(text('preview_physical_report'),icon='visibility',on_click=preview).props('outline no-caps')
-                if report.get('can_download',False):ui.button(text('download_physical_report'),icon='download',on_click=download).props('outline no-caps')
+                if form.preview and report.get('can_preview',False):ui.button(text('preview_physical_report'),icon='visibility',on_click=preview).tooltip(text('preview_physical_report')).props('outline no-caps')
+                if report.get('can_download',False):ui.button(text('download_physical_report'),icon='download',on_click=download).tooltip(text('download_physical_report')).props('outline no-caps')
         else:ui.label(text('physical_report_pending')).props('role=alert')
         if value['can_generate']:
-            roles=value['manager_roles'];role=ui.select({r['id']:r['name'] for r in roles},label=text('acting_task_role'),value=roles[0]['id']).props('outlined dense').classes('w-full')
+            role_id=automatic_role(value['manager_roles'])
             async def generate(_=None):
                 if form.busy or not form.alive():return
-                form.busy=True;button.disable();role.disable()
+                form.busy=True;button.disable()
                 try:
-                    signature=('physical_report',form.job['version'],role.value)
-                    result=await form.api.disposition_command(f"jobs/{form.job['id']}/physical-preparation-report",{'command_id':form.retry.setdefault(signature,str(uuid4())),'acting_role_id':role.value},version=form.job['version'],reason=text('generate_physical_report'))
+                    signature=('physical_report',form.job['version'],role_id)
+                    result=await form.api.disposition_command(f"jobs/{form.job['id']}/physical-preparation-report",{'command_id':form.retry.setdefault(signature,str(uuid4())),'acting_role_id':role_id},version=form.job['version'],reason=text('generate_physical_report'))
                     if form.alive():ui.notify(text('saved'),type='positive');await form.after(result)
                 except ApiError as error:form.error(error)
                 finally:
                     form.busy=False
-                    if form.alive():button.enable();role.enable()
-            button=ui.button(text('generate_physical_report'),icon='description',on_click=generate).props('outline no-caps')
+                    if form.alive():button.enable()
+            button=ui.button(text('generate_physical_report'),icon='description',on_click=generate).tooltip(text('generate_physical_report')).props('outline no-caps')
         confirmation=value.get('confirmation')
         if confirmation:
             ui.label(text('physical_confirmed')).classes('font-semibold')
@@ -58,14 +60,14 @@ async def task_form(form):
                 if form.busy:return
                 form.busy=True;button.disable()
                 try:
-                    result=await form.api.disposition_command(f"tasks/{form.task['id']}/physical-work-check",{'command_id':str(uuid4()),'acting_role_id':form.role.value,'task_version':form.task['version']},version=form.job['version'],reason=text('check_physical_work'))
+                    result=await form.api.disposition_command(f"tasks/{form.task['id']}/physical-work-check",{'command_id':str(uuid4()),'acting_role_id':form.acting_role_id,'task_version':form.task['version']},version=form.job['version'],reason=text('check_physical_work'))
                     if form.alive():ui.notify(text('physical_work_checked'),type='positive')
                 except ApiError as error:form.error(error)
                 finally:
                     form.busy=False
                     if form.alive():button.enable()
-            button=ui.button(text('check_physical_work'),icon='fact_check',on_click=check).props('outline no-caps')
-        if 'confirm_physical' in form.actions:ui.button(text('confirm_physical'),icon='verified',on_click=lambda:confirmation_dialog(form)).props('no-caps')
+            button=ui.button(text('check_physical_work'),icon='fact_check',on_click=check).tooltip(text('check_physical_work')).props('outline no-caps')
+        if 'confirm_physical' in form.actions:ui.button(text('confirm_physical'),icon='verified',on_click=lambda:confirmation_dialog(form)).tooltip(text('confirm_physical')).props('no-caps')
         form.history_sections()
 
 
@@ -97,20 +99,20 @@ async def confirmation_dialog(form):
             state['destination']=result;destination_host.clear()
             with destination_host:show_destination(result,'evidence_destination')
             save.set_enabled(result['ready'])
-        refresh=ui.button(text('refresh_destination'),icon='refresh',on_click=destination).props('flat no-caps')
+        refresh=ui.button(text('refresh_destination'),icon='refresh',on_click=destination).tooltip(text('refresh_destination')).props('flat no-caps')
         async def submit():
             if not alive() or state['busy']:return
             dest=state['destination']
             if not state['file'] or not dest or not dest['ready'] or not str(number.value or '').strip() or not successful.value:
                 feedback.text=text('disposition_physical_required');ui.notify(feedback.text,type='warning');return
-            signature=(state['digest'],state['name'],state['mime'],dest['token'],form.role.value,number.value,successful.value)
+            signature=(state['digest'],state['name'],state['mime'],dest['token'],form.acting_role_id,number.value,successful.value)
             if signature!=state['signature']:state.update(signature=signature,command_id=str(uuid4()))
             controls=[uploader,refresh,save,cancel,number,successful]
             state['busy']=True;form.busy=True
             for control in controls:control.disable()
             state['file'].seek(0)
             try:
-                result=await form.api.confirm_physical(form.task['id'],version=form.job['version'],command_id=state['command_id'],acting_role_id=form.role.value,task_version=form.task['version'],successful=successful.value,certificate_reference=number.value,destination_token=dest['token'],name=state['name'],content=state['file'],mime_type=state['mime'])
+                result=await form.api.confirm_physical(form.task['id'],version=form.job['version'],command_id=state['command_id'],acting_role_id=form.acting_role_id,task_version=form.task['version'],successful=successful.value,certificate_reference=number.value,destination_token=dest['token'],name=state['name'],content=state['file'],mime_type=state['mime'])
             except ApiError as error:
                 if alive():feedback.text=failure(error,form.on_error);ui.notify(feedback.text,type='negative')
                 return
@@ -120,10 +122,10 @@ async def confirmation_dialog(form):
                     for control in controls:control.enable()
                 else:cleanup()
             if not alive():return
-            dialog.close();ui.notify(text('physical_confirmed'),type='positive');await form.after(result)
+            dialog.close();notify_completion(result,'physical_confirmed');await task_finished(form,result)
         with ui.row().classes('w-full justify-end gap-2'):
             cancel=ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
-            save=ui.button(text('save'),icon='save',on_click=submit).props('no-caps');save.disable()
+            save=ui.button(text('save'),icon='save',on_click=submit).tooltip(text('save')).props('no-caps');save.disable()
         def cleanup():
             if not state['busy'] and state['file']:state['file'].close();state['file']=None
         dialog.on('hide',cleanup)

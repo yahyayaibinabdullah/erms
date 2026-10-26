@@ -33,7 +33,11 @@ def submit(c,job,reason='Review the complete destruction job'):
 
 
 def claim(c,job):
-    t=task(c,job['id']);return act(c,t,'claim',t['destination_role_id'])
+    t=task(c,job['id'])
+    if t['task_state']=='claimed':
+        assert t['claimed_by_user_id']==c.execute('SELECT current_user_id() id').fetchone()['id']
+        return t
+    return act(c,t,'claim',t['destination_role_id'])
 
 
 def decide(c,job,decision='approved',reason=''):
@@ -109,6 +113,8 @@ def test_removal_reason_mandatory_but_governance_and_save_overall_reasons_option
 def test_submit_saved_proposals_round_reason_claim_and_stage_decisions(client,route):
     with db() as c:
         job,root,um,fa,mgr=seeded(c,route,fa=True)
+        if route=='standard':
+            other=person(c);c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa))
         saved=save(c,job,changes=[create(c,root)],review_notes='Officer notes',note_version=0)
         result=submit(c,job);assert result['review_round']==1
         r=c.execute('SELECT * FROM disposition_review_rounds').fetchone();assert r['submission_reason']=='Review the complete destruction job' and len(r['proposal_snapshot'])==1
@@ -147,7 +153,7 @@ def test_marked_removal_blocks_approval_and_resubmission_until_actual_officer_re
         save(c,job,changes=[create(c,root,'remove_from_job',reason='Not for destruction')])
         decide(c,job);claim(c,job)
         with pytest.raises(psycopg.Error,match='disposition_marked_removals_require_rejection'):decide(c,job)
-        decide(c,job,'rejected')
+        decide(c,job,'rejected','Remove the marked aggregation before resubmission')
         with pytest.raises(psycopg.Error,match='disposition_marked_removals_require_correction'):submit(c,job)
         remove(c,root)
         second=submit(c,job,'Corrected batch, round two');assert second['review_round']==2
@@ -174,3 +180,117 @@ def test_multiple_relationship_removal_proposals_save_atomically_and_defer_remov
         stored=service.page(c,job['id'],limit=25,offset=0)['items']
         assert {x['proposed_values']['relationship_id'] for x in stored}=={source['id'],second_id}
         assert c.execute('SELECT count(*) n FROM aggregation_relationships WHERE id=ANY(%s)',([source['id'],second_id],)).fetchone()['n']==2
+
+
+def test_blank_rejection_comments_rejected_even_with_marked_removal(client):
+    from fastapi import HTTPException
+    from backend.services.api.disposition.commands import execute_command
+    with db() as c:
+        job,root,um,fa,mgr=seeded(c,fa=True)
+        submit(c,job);claim(c,job)
+        save(c,job,changes=[create(c,root,'remove_from_job',reason='Not for destruction')])
+        decide(c,job);claim(c,job)
+        with pytest.raises(HTTPException) as error:decide(c,job,'rejected','  ')
+        assert error.value.detail['code']=='disposition_decision_reason_required'
+        t=task(c,job['id'])
+        with pytest.raises(psycopg.Error,match='disposition_decision_reason_required'),c.transaction():
+            execute_command(c,command_id=uuid4(),operation='review_decide',payload={'task_id':t['id']},acting_role_id=t['destination_role_id'],reason='Return review',apply=lambda x:x.execute('SELECT disposition_private.decide_review_work(%s,%s,%s,%s,%s) result',(t['id'],job_version(c,job['id']),t['version'],'rejected','')).fetchone()['result'])
+        assert task(c,job['id'])['id']==t['id']
+
+
+@pytest.mark.parametrize('language,translated',[('en',False),('ar',True),('ar-AE',True),('fr',False)])
+def test_proposal_and_workspace_names_use_saved_entity_translations(client,language,translated):
+    from psycopg.types.json import Jsonb
+    from backend.services.api.disposition import workspace
+    with db() as c:
+        job,root,*_=seeded(c)
+        save(c,job,changes=[create(c,root)])
+        original=service.page(c,job['id'],limit=25,offset=0)['items'][0]
+        c.execute('UPDATE users SET translations=%s WHERE id=%s',(Jsonb({'ar':{'name':'مقدم المقترح'}}),original['proposer_user_id']))
+        c.execute('UPDATE roles SET translations=%s WHERE id=%s',(Jsonb({'ar':{'name':'مسؤول الوثائق'}}),original['proposer_role_id']))
+        row=service.page(c,job['id'],limit=25,offset=0,language_tag=language)['items'][0]
+        assert row['proposer_name']==('مقدم المقترح' if translated else original['proposer_name'])
+        assert row['proposer_role_name']==('مسؤول الوثائق' if translated else original['proposer_role_name'])
+        assert not any(k.endswith('_translations') for k in row)
+        view=workspace.read(c,job['id'],language_tag=language)
+        if view['task']['destination_user_id']==original['proposer_user_id']:
+            assert view['task']['direct_assignee']==row['proposer_name']
+        assert not any(k.endswith('_translations') for k in view['task'])
+
+
+@pytest.mark.parametrize('route,fa',[('standard',True),('standard',False),('simplified',False)])
+def test_submission_confirmation_names_actual_shared_queues(client,route,fa):
+    from psycopg.types.json import Jsonb
+    with db() as c:
+        job,root,um,faid,mgr=seeded(c,route,fa=fa)
+        other=person(c)
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,faid or (um if route=='standard' else mgr)))
+        result=submit(c,job)
+        tasks=c.execute('SELECT destination_role_id FROM disposition_tasks WHERE job_id=%s AND workflow_stage=%s AND review_round=%s',(job['id'],result['workflow_stage'],result['review_round'])).fetchall()
+        assert tasks
+        for t in tasks:
+            c.execute('UPDATE roles SET translations=%s WHERE id=%s',(Jsonb({'ar':{'name':'دور المراجعة'}}),t['destination_role_id']))
+        recipients=service.submission_recipients(c,result,'ar')
+        assert len(recipients)==len(tasks)
+        assert all(r=={'kind':'role_queue','name':'دور المراجعة'} for r in recipients)
+        assert all(r['name']!='دور المراجعة' for r in service.submission_recipients(c,result,'en'))
+
+
+def test_hidden_related_resource_preserves_readable_proposal_target_before_claim(client):
+    from backend.services.api.disposition import workspace
+    with db() as c:
+        job,root,um,fa,mgr=seeded(c,fa=True)
+        reviewer=person(c,'Target reader')
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(reviewer,fa))
+        other,*_=ready(c)
+        typ=c.execute("SELECT id FROM relationship_types WHERE resource_kind='aggregation' AND is_active LIMIT 1").fetchone()['id']
+        link=c.execute('INSERT INTO aggregation_relationships(relationship_type_id,source_id,target_id) VALUES(%s,%s,%s) RETURNING id',(typ,root,other)).fetchone()['id']
+        save(c,job,changes=[create(c,root,'remove_aggregation_relationship',{'relationship_id':link})])
+        # Only the related aggregation becomes unreadable to the reviewer.
+        high=c.execute("INSERT INTO security_levels(level_number,code,name,prevents_disposition) SELECT max(level_number)+1,%s,'Restricted related',false FROM security_levels RETURNING id",(uuid4().hex,)).fetchone()['id']
+        c.execute('UPDATE roles SET security_level_id=%s WHERE id=1',(high,))
+        c.execute("SELECT set_config('app.security_level_change_authorized','authorized',true)")
+        c.execute('UPDATE aggregations SET security_level_id=%s WHERE id=%s',(high,other))
+        submit(c,job)
+        actor(c,reviewer)
+        assert c.execute('SELECT current_user_can_view_aggregation(%s) ok',(root,)).fetchone()['ok']
+        assert not c.execute('SELECT current_user_can_view_aggregation(%s) ok',(other,)).fetchone()['ok']
+        actions=workspace.read(c,job['id'])['actions']
+        assert 'claim' in actions and 'propose' not in actions
+        rows=service.page(c,job['id'],limit=25,offset=0)['items']
+        assert len(rows)==1 and rows[0]['redacted']
+        target=c.execute('SELECT aggregation_number,title FROM aggregations WHERE id=%s',(root,)).fetchone()
+        assert rows[0]['target_summary']==dict(number=target['aggregation_number'],title=target['title'])
+        assert rows[0]['partial'] and rows[0]['proposal_type']=='remove_aggregation_relationship'
+        assert rows[0]['proposal_state']=='active' and rows[0]['proposer_name']
+        assert rows[0]['review_round']==1 and rows[0]['proposed_at']
+        assert not {'current_values','proposed_values','reason','relationship_source_label','relationship_target_label','execution_message'} & set(rows[0])
+        with pytest.raises(psycopg.Error,match='disposition_task_claim_required'),c.transaction():
+            workspace.targets(c,task(c,job['id'])['id'],acting_role_id=fa,root_id=root,kind='aggregations',selected=root)
+        # A real File Administrator without IG management may inspect blockers.
+        for resource in c.execute('SELECT id FROM disposition_private.unit_ids(%s) id',(root,)).fetchall():
+            c.execute("INSERT INTO aggregation_acl_grants(aggregation_id,principal_type,role_id,permission_id) SELECT %s,'role',%s,id FROM permissions WHERE code='aggregation.view' ON CONFLICT DO NOTHING",(resource['id'],fa))
+        c.execute("INSERT INTO record_acl_grants(record_id,principal_type,role_id,permission_id) SELECT r.id,'role',%s,p.id FROM records r CROSS JOIN permissions p WHERE r.aggregation_id IN (SELECT disposition_private.unit_ids(%s)) AND p.code='record.view' ON CONFLICT DO NOTHING",(fa,root))
+        c.execute('UPDATE roles SET is_information_governance=false WHERE id=%s',(fa,))
+        from backend.services.api.disposition import blockers
+        assert not c.execute('SELECT disposition_private.can_manage() ok').fetchone()['ok']
+        assert blockers.summary(c,root)['relationships_block_final']
+        relationships=blockers.relationship_page(c,root,language_tag='ar')['items']
+        assert len(relationships)==1
+        relation=relationships[0]
+        assert relation['source']==dict(number=target['aggregation_number'],title=target['title'])
+        assert relation['target'] is None and relation['target_id'] is None
+        assert relation['relationship_id'] is None and relation['redacted'] and relation['blocks_final']
+        assert relation['relationship_label']
+        outsider=person(c,'Unrelated reader');outsider_role=role(c,'unrelated-reader',user=outsider)
+        c.execute('UPDATE roles SET is_information_governance=false WHERE id=%s',(outsider_role,))
+        actor(c,outsider)
+        from fastapi import HTTPException
+        with pytest.raises(HTTPException):blockers.summary(c,root)
+        actor(c,reviewer)
+        actor(c)
+        c.execute('UPDATE aggregations SET security_level_id=%s WHERE id=%s',(high,root))
+        actor(c,reviewer)
+        rows=service.page(c,job['id'],limit=25,offset=0)['items']
+        assert len(rows)==1 and set(rows[0])=={'id','version','redacted'}
+        assert rows[0]['redacted']

@@ -69,6 +69,38 @@ def test_api_startup_does_not_seed_generated_arabic_drafts():
     assert "synchronize_generated_arabic_drafts" not in source
 
 
+def test_missing_only_arabic_seed_preserves_superseded_published_translation(client):
+    with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        administrator_id = connection.execute(
+            "SELECT id FROM users WHERE email='admin@test.invalid'"
+        ).fetchone()[0]
+        connection.execute("SELECT set_config('app.change_reason','Prepare published seed guard',true)")
+        connection.execute(
+            """UPDATE ui_message_translations SET
+                   translated_text='السجلات',published_text='السجلات',
+                   status='published',origin='generated',
+                   reviewed_by_user_id=%s,date_reviewed=CURRENT_TIMESTAMP,
+                   published_by_user_id=%s,date_published=CURRENT_TIMESTAMP
+                 WHERE message_key='navigation.item.records' AND language_tag='ar'""",
+            (administrator_id, administrator_id),
+        )
+        before = connection.execute(
+            "SELECT to_jsonb(t) FROM ui_message_translations t WHERE message_key='navigation.item.records' AND language_tag='ar'"
+        ).fetchone()[0]
+    result = synchronize_generated_arabic_drafts(missing_only=True)
+    assert result["stored"] > 0
+    assert result["corrected"] == result["failed"] == result["awaiting_generation"] == 0
+    with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        assert connection.execute(
+            "SELECT to_jsonb(t) FROM ui_message_translations t WHERE message_key='navigation.item.records' AND language_tag='ar'"
+        ).fetchone()[0] == before
+        assert connection.execute(
+            "SELECT count(*) FROM ui_message_translations WHERE language_tag='ar' AND status='published'"
+        ).fetchone()[0] == 1
+    repeated = synchronize_generated_arabic_drafts(missing_only=True)
+    assert repeated["stored"] == repeated["corrected"] == repeated["awaiting_generation"] == 0
+
+
 def test_checked_in_arabic_generation_artifact_seeds_only_untouched_source_copies(client):
     protected_key = MESSAGE_KEY
     corrected_key = "navigation.item.records"

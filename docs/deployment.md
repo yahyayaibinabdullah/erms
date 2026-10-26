@@ -1184,3 +1184,88 @@ existing revisions and audit history. Fresh databases need only `schema.sql`.
 Records Officers and Records Managers use Disposition → Document templates;
 no new permissions or environment settings are required. See the organization-wide
 destruction templates section in [Operations](operations.md).
+
+
+### Unified review comments (migration 082)
+
+Apply `database/migrations/082_unified_review_comments.sql` after 081, then
+restart API/WebUI. This enforces nonblank rejection comments even with removal
+proposals, and records a Manager's saved comments with new approval decisions.
+It preserves existing history and requires no environment changes. New databases
+use the latest `database/schema.sql`.
+
+### Automatic assignment of a sole eligible destruction reviewer
+
+Apply `database/migrations/083_single_eligible_reviewer.sql` to existing
+databases. New databases receive the same behavior from `database/schema.sql`.
+The migration preserves existing task assignments and audit history; it applies
+to newly routed internal-review tasks. Restart the API/WebUI for the submission
+confirmation that identifies the claimant. Existing reconciliation returns a
+claimant who loses eligibility to the role queue. No environment changes.
+
+### Claim a task without a reason (migration 084)
+
+Apply `database/migrations/084_reasonless_task_claim.sql` to existing databases
+and restart API/WebUI. New databases use `database/schema.sql`. Claim accepts
+an omitted change reason while retaining actor/time audit, eligibility,
+optimistic concurrency and retry checks. Release and reassignment still require
+a reason. No existing tasks or history are modified; no environment changes.
+
+### Claim guidance and partial proposal-target visibility
+
+Restart API/WebUI after deployment. No SQL migration or environment change is
+required. Synchronize the UI catalogue and use the explicit Arabic draft seed
+utility with `--missing-only`; the three new Arabic drafts require administrator
+review before publication. Existing tasks and access rules are preserved.
+
+### Partial proposal and blocker visibility
+
+Deploy and restart API/WebUI together. No SQL migration or environment change is
+required. Current blocker reads now support authorized task recipients with
+current root access; the response includes a bounded relationships array, with
+each endpoint redacted independently. Partially redacted proposal rows include
+only whitelisted review metadata and an authorized target summary. Synchronize
+the UI catalogue and seed missing Arabic drafts with `--missing-only`; seven new
+Arabic drafts await review and publication.
+
+### Duplicate review proposal prevention (migration 085)
+
+Apply `database/migrations/085_prevent_duplicate_review_proposals.sql` and deploy
+API/WebUI together. New databases receive the same functions, guard and index
+from `database/schema.sql`. No environment settings change. Existing proposal
+rows/history remain untouched; legacy active duplicates require deliberate
+reviewer withdrawal rather than automatic merging. The new save-time error is
+`disposition_proposal_duplicate` (HTTP 409). Synchronize the catalogue and run the
+explicit Arabic seed utility with `--missing-only`; seven new Arabic drafts need
+administrator review before publication.
+
+
+### Intermediate review completion with restricted related resources (migration 086)
+
+Apply `database/migrations/086_intermediate_review_completion.sql` to existing
+databases. New databases receive the same definition from `database/schema.sql`.
+This database-only change allows File Administrator and Unit Manager completion
+without revalidating earlier proposals under the intermediate reviewer's access.
+It retains task/claim, root access, current-role, version, marked-removal and
+routing checks. Proposal writes, Records Officer submission and final Records
+Manager approval/application retain their full existing validation.
+
+No task, proposal, decision or audit rows are rewritten; no task is automatically
+completed and no new permissions are granted. A user whose earlier completion
+failed because related resources were restricted can refresh and retry Complete
+review. No API/WebUI restart, environment change, new translation or catalogue
+synchronization is required. Protected related-resource details remain redacted
+in both English and Arabic. See
+[verification and rationale](verification/intermediate-review-completion.md).
+
+
+### Stage completion recipient confirmations
+
+Deploy the API and WebUI together and restart the managed stack to activate the
+shared stage-handoff response and notification code. There is no database schema
+migration or environment setting. Synchronize the UI catalogue and run the
+explicit Arabic seed utility with `--missing-only` to add the five new generated
+drafts without overwriting existing translations. Drafts remain unpublished for
+administrator review. Both maintained artifacts preserve existing wording and
+provenance; no administrator export is promoted. See
+[stage handoff verification](verification/review-submission-return.md).

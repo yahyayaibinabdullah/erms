@@ -1064,3 +1064,38 @@ After opening an aggregation from a task or job, Back restores the Aggregations
 tab, page, filters and sort order. The last-viewed aggregation is highlighted
 and marked, so the reviewer can resume there. Rows are fetched again using
 current permissions; removed or inaccessible rows are not restored from a cache.
+
+
+### Acting-role attribution in disposition and destruction
+
+Users select the assigned person or destination role queue when changing
+responsibility. They no longer select an acting role for authorization or audit
+attribution. Job commands, task forms, evidence/template uploads, document/report
+commands, external decisions, email and execution use one currently qualifying
+role automatically. Permissions and reasons/confirmations remain enforced.
+History still identifies the signed-in user and the role used for the action.
+If an assignment or privilege has changed since opening a page, a stale role is
+rejected; refresh the page to obtain current eligible roles. Exact retries keep
+the original command identity and attribution.
+
+Deploy/restart the WebUI to activate this presentation change. No database
+migration, API-contract change, new privilege or environment setting is needed.
+
+
+### One Review comments field per review task
+
+Preparation, correction and internal review tasks use one Review comments field
+for observations and justification. Draft saves and routine reviews may leave it
+blank. Submission/resubmission, return for correction and Records Manager Only
+approval require nonblank comments. The same text accompanies the submission or
+decision; individual proposal reasons retain their existing rules.
+
+Older notes and reasons remain in history. Distinct legacy draft texts are
+combined in the single editor, and opening the task does not save or mark it
+edited. Only explicit Save or workflow actions persist the unified text.
+
+Apply migration `082_unified_review_comments.sql` after 081 to existing databases
+and restart API/WebUI. Fresh databases use `schema.sql` alone. The migration
+changes validation and attribution for future decisions without updating or
+deleting existing notes, reasons, decisions or events. Legacy API field names
+remain supported; no new environment settings or privileges are required.

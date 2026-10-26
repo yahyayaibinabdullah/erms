@@ -2,19 +2,20 @@
 from fastapi import HTTPException
 from .artifacts import require_workspace
 from . import queries
+from ..entity_localization import localized_projection
 
 PREPARATION=('officer_preparation','officer_correction','manager_preparation','manager_correction')
 REVIEWS=('file_administrator_review','unit_manager_review','records_manager_review')
 
 
-def read(c, job_id, task_id=None):
-    job=queries.job(c,job_id)
+def read(c, job_id, task_id=None, language_tag='en'):
+    job=queries.job(c,job_id,language_tag)
     require_workspace(c,job_id)
     params=[job_id]
     where="t.job_id=%s AND (disposition_private.task_eligible(current_user_id(),t.id) OR EXISTS(SELECT 1 FROM user_role_assignments a WHERE a.user_id=current_user_id() AND disposition_private.task_manager(t.id,a.role_id)))"
     if task_id is None:where+=" AND t.task_state IN ('open','claimed')"
     if task_id is not None:where+=' AND t.id=%s';params.append(task_id)
-    task=c.execute('''SELECT t.*,d.name AS direct_assignee,q.name AS role_queue,u.name AS claimant,
+    task=c.execute('''SELECT t.*,d.translations AS direct_assignee_translations,q.translations AS role_queue_translations,u.translations AS claimant_translations,d.name AS direct_assignee,q.name AS role_queue,u.name AS claimant,
         t.claimed_by_user_id=current_user_id() AS own_claim
         FROM disposition_tasks t LEFT JOIN users d ON d.id=t.destination_user_id
         LEFT JOIN roles q ON q.id=t.destination_role_id LEFT JOIN users u ON u.id=t.claimed_by_user_id
@@ -22,6 +23,8 @@ def read(c, job_id, task_id=None):
     if task_id is not None and not task:raise HTTPException(404,detail={'code':'disposition_review_task_unavailable'})
     roles=[];actions=[];management_roles=[]
     if task:
+        for field in ('direct_assignee','role_queue','claimant'):
+            task[field]=localized_projection({'name':task[field],'translations':task.pop(field+'_translations')},language_tag,'name')['name']
         roles=c.execute('''SELECT DISTINCT r.id,r.name FROM roles r JOIN user_role_assignments a ON a.role_id=r.id
             WHERE a.user_id=current_user_id() AND disposition_private.task_eligible(current_user_id(),%s,r.id) ORDER BY r.id''',(task['id'],)).fetchall()
         management_roles=c.execute('SELECT DISTINCT r.id,r.name FROM roles r JOIN user_role_assignments a ON a.role_id=r.id WHERE a.user_id=current_user_id() AND disposition_private.task_manager(%s,r.id) ORDER BY r.id',(task['id'],)).fetchall()
