@@ -55,8 +55,8 @@ def test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds(cli
         assert len(c.execute("SELECT proposed_values FROM disposition_review_proposals WHERE proposal_type='add_to_holds'").fetchone()['proposed_values']['hold_ids'])==2
         assert not c.execute('SELECT 1 FROM record_relationships').fetchone()
         saved_round=approval.execution(c,job['id'],out['round_id'],mgr)
-        report=approval.report_snapshot(saved_round)
-        record_result=next(r for r in report['proposals'] if r['proposal.action']=='Remove Record Relationship')
+        report=approval.report_snapshot(saved_round,c=c)
+        record_result=next(r for r in report['proposals'] if r['proposal.action'].endswith('Remove record relationship'))
         actual_record=c.execute('SELECT record_number FROM records WHERE id=%s',(changes[5]['target_record_id'],)).fetchone()
         assert actual_record['record_number'] in record_result['proposal.target']
         assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s',(root,)).fetchone()['current_period_years']==6
@@ -212,7 +212,7 @@ def test_report_uses_frozen_execution_and_retry_does_not_reexecute(client,monkey
     with db() as c:
         job,root,mgr=manager(c);configure(c);destination=report_root(c)
         save(c,job,changes=[create(c,root)]);reach_manager(c,job,'standard');out=approve(c,job,mgr);c.commit();actor(c)
-        row=approval.execution(c,job['id'],out['round_id'],mgr);snapshot=approval.report_snapshot(row)
+        row=approval.execution(c,job['id'],out['round_id'],mgr);snapshot=approval.report_snapshot(row,c=c)
         assert snapshot['proposals'][0]['proposal.proposer'].startswith('Test Administrator')
         result=approval.generate_report(c,job_id=job['id'],round_id=out['round_id'],acting_role_id=mgr,settings=load_snapshot(c),connection_factory=db)
         c.commit();actor(c)
@@ -348,7 +348,7 @@ def test_manager_only_report_uses_actual_manager_duty_label(client):
     with db() as c:
         job,root,mgr=manager(c,'records_manager_only');save(c,job,acting=mgr,changes=[create(c,root)])
         out=approve(c,job,mgr,overall_reason='Manager combined approval')
-        row=approval.execution(c,job['id'],out['round_id'],mgr);snapshot=approval.report_snapshot(row)
+        row=approval.execution(c,job['id'],out['round_id'],mgr);snapshot=approval.report_snapshot(row,c=c)
         filled=documents.engine.fill(documents.default('proposal_execution_report')['content'],'proposal_execution_report',snapshot,104857600)
         with ZipFile(BytesIO(filled)) as archive:xml=archive.read('word/document.xml').decode()
         assert 'Assigned Records Manager' in xml and 'Assigned Records Officer' not in xml
@@ -463,3 +463,56 @@ def test_current_review_comments_recorded_with_approval_without_rewriting_submis
         assert decision['reason']=='Ready after examining the complete scope'
         rr=c.execute('SELECT * FROM disposition_review_rounds WHERE job_id=%s ORDER BY id DESC LIMIT 1',(job['id'],)).fetchone()
         if route!='records_manager_only':assert rr['submission_reason']=='Review the complete destruction job'
+
+
+def test_report_lists_reviewed_roots_even_after_proposal_removes_all_members(client):
+    from backend.services.api.application_settings import load_snapshot
+    from backend.services.api.disposition import documents
+    from psycopg.types.json import Jsonb
+    with db() as c:
+        job,root,mgr=manager(c)
+        save(c,job,changes=[create(c,root)]);reach_manager(c,job,'standard');out=approve(c,job,mgr)
+        row=approval.execution(c,job['id'],out['round_id'],mgr)
+        frozen=row['approval_execution'].copy()
+        c.execute("UPDATE org_units SET translations=%s WHERE id=1",(Jsonb({'ar':{'name':'جهة الاختبار'}}),))
+        snapshot=approval.report_snapshot(row,c=c,settings=load_snapshot(c))
+        assert snapshot['fields']['organization.name'].startswith('جهة الاختبار')
+        assert snapshot['fields']['execution.count']==1
+        assert len(snapshot['aggregations'])==1 and len(snapshot['proposals'])==1
+        assert snapshot['aggregations'][0]['aggregation.serial_number']==1
+        assert snapshot['aggregations'][0]['aggregation.records']==1
+        assert snapshot['proposals'][0]['proposal.removed_units'].startswith(snapshot['aggregations'][0]['aggregation.number'])
+        assert snapshot['proposals'][0]['proposal.result']=='تم التنفيذ / Executed'
+        assert row['approval_execution']==frozen
+        assert snapshot['source']==frozen
+        assert documents.engine.fill(documents.default('proposal_execution_report')['content'],'proposal_execution_report',snapshot,104857600)
+
+
+def test_report_omits_unaffected_roots_but_keeps_cascading_removals(client):
+    from backend.services.api.disposition import document_snapshots
+    with db() as c:
+        job,a,mgr=manager(c);b,*_=ready(c);d,*_=ready(c);untouched,*_=ready(c)
+        admit(c,job['id'],[b,d,untouched])
+        kind=c.execute("SELECT id FROM relationship_types WHERE resource_kind='aggregation' AND is_active LIMIT 1").fetchone()['id']
+        c.execute('INSERT INTO aggregation_relationships(relationship_type_id,source_id,target_id) VALUES(%s,%s,%s),(%s,%s,%s)',(kind,a,b,kind,b,d))
+        child=c.execute('SELECT id FROM aggregations WHERE parent_aggregation_id=%s',(a,)).fetchone()['id']
+        save(c,job,changes=[create(c,a,target=child)]);reach_manager(c,job,'standard');out=approve(c,job,mgr)
+        assert out['remaining_units']==1
+        row=approval.execution(c,job['id'],out['round_id'],mgr)
+        snapshot=approval.report_snapshot(row,c=c)
+        expected={r['aggregation_number'] for r in c.execute('SELECT aggregation_number FROM aggregations WHERE id=ANY(%s)',([a,b,d],))}
+        assert {r['aggregation.number'] for r in snapshot['aggregations']}==expected
+        assert [r['aggregation.serial_number'] for r in snapshot['aggregations']]==[1,2,3]
+        request_rows=document_snapshots.request_aggregation_rows(c,job['id'],'Asia/Dubai')
+        assert len(request_rows)==1
+        assert request_rows[0]['aggregation.number'] not in expected
+
+
+def test_report_with_no_executed_proposals_has_no_affected_roots(client):
+    from backend.services.api.disposition import document_snapshots
+    with db() as c:
+        job,root,mgr=manager(c);reach_manager(c,job,'standard');out=approve(c,job,mgr)
+        snapshot=approval.report_snapshot(approval.execution(c,job['id'],out['round_id'],mgr),c=c)
+        assert snapshot['fields']['execution.count']==0
+        assert snapshot['proposals']==[] and snapshot['aggregations']==[]
+        assert len(document_snapshots.request_aggregation_rows(c,job['id'],'Asia/Dubai'))==1

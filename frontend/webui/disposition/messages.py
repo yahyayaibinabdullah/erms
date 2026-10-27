@@ -2,6 +2,16 @@
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'approval_results_guidance': 'disposition.ui.approval_results_guidance',
+ 'approval_title': 'disposition.ui.approval_title',
+ 'approval_summary': 'disposition.ui.approval_summary',
+ 'approval_type_count': 'disposition.ui.approval_type_count',
+ 'approval_no_proposals': 'disposition.ui.approval_no_proposals',
+ 'approval_next_request': 'disposition.ui.approval_next_request',
+ 'approval_next_empty': 'disposition.ui.approval_next_empty',
+ 'approval_next_conditional': 'disposition.ui.approval_next_conditional',
+ 'approval_no_destruction': 'disposition.ui.approval_no_destruction',
+ 'approve_apply': 'disposition.ui.approve_apply',
  'submitted': 'disposition.ui.submitted',
  'job_completed': 'disposition.ui.job_completed',
  'completion_next_task': 'disposition.ui.completion_next_task',
@@ -37,6 +47,10 @@ DISPOSITION_MESSAGE_KEYS = {
 'certificate_succeeded': 'disposition.ui.certificate_succeeded',
 'retry_certificate': 'disposition.ui.retry_certificate',
 'certificate_retry_requested': 'disposition.ui.certificate_retry_requested',
+'certificate_final_task': 'disposition.ui.certificate_final_task',
+'complete_this_task': 'disposition.ui.complete_this_task',
+'certificate_finish_hint': 'disposition.ui.certificate_finish_hint',
+'certificate_task_completed': 'disposition.ui.certificate_task_completed',
 'certificate_download_hint': 'disposition.ui.certificate_download_hint',
 'download_digital_certificate': 'disposition.ui.download_digital_certificate',
 'certificate_download_recorded': 'disposition.ui.certificate_download_recorded',
@@ -57,6 +71,8 @@ DISPOSITION_MESSAGE_KEYS = {
  'retry_digital': 'disposition.ui.retry_digital',
  'execution_not_requested': 'disposition.ui.execution_not_requested',
  'execution_requested': 'disposition.ui.execution_requested',
+ 'digital_completion_processing': 'disposition.ui.digital_completion_processing',
+ 'digital_completion_failed': 'disposition.ui.digital_completion_failed',
  'digital_done_completion_pending': 'disposition.ui.digital_done_completion_pending',
  'execution_counts': 'disposition.ui.execution_counts',
  'execution_queued': 'disposition.ui.execution_queued',
@@ -160,6 +176,8 @@ DISPOSITION_MESSAGE_KEYS = {
  'await_external': 'disposition.ui.await_external',
  'before_values': 'disposition.ui.before_values',
  'blocked': 'disposition.ui.blocked',
+ 'destruction_blocked': 'disposition.ui.destruction_blocked',
+ 'disposition_blocked': 'disposition.ui.disposition_blocked',
  'blockers': 'disposition.ui.blockers',
  'blocking_security': 'disposition.ui.blocking_security',
  'cancel': 'disposition.ui.cancel',
@@ -605,6 +623,7 @@ DISPOSITION_MESSAGE_KEYS = {
  'tracker_returned': 'disposition.ui.tracker_returned',
  'tracker_no_previous': 'disposition.ui.tracker_no_previous',
 }
+
 KEYS = DISPOSITION_MESSAGE_KEYS
 
 def text(key, **parameters):
@@ -612,3 +631,9 @@ def text(key, **parameters):
 
 def status_label(value):
     return text("status_"+str(value)) if value in range(1,14) else "—"
+
+
+def action_required_label(key, job_type=None):
+    if key == 'blocked':
+        return text('destruction_blocked' if job_type == 'destruction' else 'disposition_blocked')
+    return text(key)

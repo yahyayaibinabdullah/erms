@@ -69,6 +69,34 @@ def test_api_startup_does_not_seed_generated_arabic_drafts():
     assert "synchronize_generated_arabic_drafts" not in source
 
 
+def test_missing_only_seed_cli_fills_absent_rows_and_preserves_existing_translation_kinds(client):
+    import subprocess
+    import sys
+    import json
+    root=Path(__file__).resolve().parents[4]
+    keys=['common.error.bad_request','common.error.not_found','navigation.item.records','navigation.item.aggregations']
+    absent='navigation.item.audit_trail'
+    with psycopg.connect(os.environ['DATABASE_URL']) as c:
+        assert c.execute('SELECT current_database()').fetchone()[0].startswith('erms_messaging_test_acl_')
+        c.execute("SELECT set_config('app.change_reason','Prepare disposable missing-only preservation cases',true)")
+        for key,origin,reviewed in zip(keys,['manual','imported','generated','generated'],[False,False,False,True]):
+            c.execute("UPDATE ui_message_translations SET translated_text='ترجمة موجودة محفوظة',origin=%s,status='draft',published_text=NULL,published_by_user_id=NULL,date_published=NULL,reviewed_by_user_id=CASE WHEN %s THEN 1 END,date_reviewed=CASE WHEN %s THEN CURRENT_TIMESTAMP END WHERE message_key=%s AND language_tag='ar'",(origin,reviewed,reviewed,key))
+        before=c.execute("SELECT to_jsonb(t) FROM ui_message_translations t WHERE message_key=ANY(%s) AND language_tag='ar' ORDER BY message_key",(keys,)).fetchall()
+        assert len(before)==4
+        c.execute("DELETE FROM ui_message_translations WHERE message_key=%s AND language_tag='ar'",(absent,))
+    def seed():
+        run=subprocess.run([sys.executable,str(root/'database/seeds/004_seed_generated_arabic_ui_translations.py'),'--missing-only'],cwd=root,env=os.environ.copy(),capture_output=True,text=True,check=True)
+        return json.loads(run.stdout)
+    result=seed()
+    assert result['stored']>0 and result['corrected']==result['failed']==result['awaiting_generation']==0
+    repeated=seed()
+    assert repeated['stored']==repeated['corrected']==repeated['failed']==repeated['awaiting_generation']==0
+    with psycopg.connect(os.environ['DATABASE_URL']) as c:
+        assert c.execute("SELECT to_jsonb(t) FROM ui_message_translations t WHERE message_key=ANY(%s) AND language_tag='ar' ORDER BY message_key",(keys,)).fetchall()==before
+        row=c.execute("SELECT translated_text,status,published_text,reviewed_by_user_id FROM ui_message_translations WHERE message_key=%s AND language_tag='ar'",(absent,)).fetchone()
+        assert row==('مسار التتبع','draft',None,None)
+
+
 def test_missing_only_arabic_seed_preserves_superseded_published_translation(client):
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         administrator_id = connection.execute(

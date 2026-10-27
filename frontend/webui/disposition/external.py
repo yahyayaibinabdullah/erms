@@ -16,14 +16,18 @@ from .artifacts import show_destination
 def request_controls(form,host=None):
     value=form.view.get('external')
     if not value:return
+    # The document table already identifies the saved request. Keep only
+    # actionable recovery controls or an unresolved approval warning here.
+    approval_changed=(not value['approval_current'] and not value.get('received_decision')
+                      and form.job.get('lifecycle_state','active')=='active')
+    if not (value.get('can_generate') or value.get('can_renew') or value.get('generation_error')
+            or approval_changed):return
     with host or form.host:
         ui.label(text('request_form')).classes('text-lg font-semibold')
-        if not value['approval_current'] and form.job.get('lifecycle_state','active')=='active':ui.label(text('approval_changed')).props('role=alert').classes('text-amber-900')
-        if value.get('received_decision'):ui.label(text('external_approved' if value['received_decision']=='approved' else 'external_rejected')).props('role=status')
+        if approval_changed:ui.label(text('approval_changed')).props('role=alert').classes('text-amber-900')
         if value.get('generation_error'):
             from .screens import failure
             ui.label(failure(ApiError(409,{'code':value['generation_error']}),lambda _:text('request_pending'))).props('role=alert').classes('text-amber-900')
-        if value.get('request'):ui.label(value['request']['file_name']).props('dir=auto')
         buttons={}
         for action,allowed,roles in [('generate_request',value['can_generate'],value['manager_roles']),('renew_review',value['can_renew'],value['renew_roles'])]:
             if not allowed:continue

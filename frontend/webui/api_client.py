@@ -82,7 +82,8 @@ class ErmsApiClient:
             headers.setdefault("Authorization", f"Bearer {self._session_token}")
         kwargs["headers"] = headers
         normalized_method = method.upper()
-        if normalized_method not in {"GET", "HEAD"}:
+        if normalized_method not in {"GET", "HEAD"} and not cancellable_read:
+            # Explicit read-only POST previews do not invalidate reference data.
             # Reference lists are intentionally broad: any successful or failed
             # mutation may affect labels, eligibility, status, or authorization.
             self.clear_reference_cache()
@@ -1404,6 +1405,11 @@ class ErmsApiClient:
         """Live bounded pages; use the existing identity-scoped in-flight reads."""
         return await self.request('GET', '/api/v1/disposition/' + path,
                                   params={key: value for key, value in parameters.items() if value is not None})
+
+    async def disposition_approval_summary(self, task_id, *, acting_role_id, task_version, changes, version):
+        return await self.request('POST',f'/api/v1/disposition/tasks/{task_id}/approval-summary',
+                                  json={'acting_role_id':acting_role_id,'task_version':task_version,'changes':changes},
+                                  headers={'If-Match':str(version)},_cancellable_read=True)
 
     async def disposition_command(self, path: str, payload: dict[str, Any], *, reason: str,
                                   version: int | None = None) -> dict[str, Any]:

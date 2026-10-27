@@ -170,7 +170,7 @@ def test_exact_registry_defaults_and_protected_public_metadata(client, monkeypat
         assert snapshot["AUDIT_TRAIL_SEARCH_RESULT_LIMIT"] == 1000
         assert "SMTP_PASSWORD" not in snapshot.values
         assert "DATABASE_URL" not in snapshot.values
-        assert c.execute("SELECT count(*) AS count FROM event_history WHERE entity_type='application_setting' AND source='seeding'").fetchone()["count"] == 51
+        assert c.execute("SELECT count(*) AS count FROM event_history WHERE entity_type='application_setting' AND source='seeding'").fetchone()["count"] == len(REGISTRY)
 
 
 def test_sys_admin_grant_does_not_grant_settings_to_governance_profiles(client):
@@ -255,6 +255,7 @@ def test_destination_audit_snapshots_survive_rename_clear_and_deletion(client,ke
         before=items(client)
         with db() as c:
             c.execute((ROOT/'database/migrations/050_application_settings.sql').read_text(),prepare=False)
+            c.execute((ROOT/'database/migrations/088_request_presentation_settings.sql').read_text(),prepare=False)
         assert save(client,{'REVIEW_WARNING_WINDOW_DAYS':31}).status_code==200
         with db() as c:
             historical=c.execute("SELECT id,metadata FROM event_history WHERE entity_type='application_setting' ORDER BY id").fetchall()
@@ -460,6 +461,7 @@ def test_upgrade_repeats_portable_ddl_preserves_values_and_fresh_schema_parity(c
     before = items(client)
     with db() as c:
         c.execute((ROOT / "database/migrations/050_application_settings.sql").read_text(), prepare=False)
+        c.execute((ROOT/'database/migrations/088_request_presentation_settings.sql').read_text(),prepare=False)
         c.execute((ROOT / "database/migrations/052_application_settings_reference_audit.sql").read_text(), prepare=False)
     assert items(client) == before
     with db() as c:

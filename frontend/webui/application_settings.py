@@ -21,13 +21,16 @@ FIELD_ORDER = {
     'disposition': ('DISPOSITION_CLASSIFICATION_SCHEME_ID',
                     'DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID','DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID',
                     'DISPOSITION_DESTRUCTION_REVIEW_ROUTE',
-                    'DISPOSITION_EXTERNAL_AUTHORITY_NAME','DISPOSITION_EXTERNAL_AUTHORITY_EMAIL','DISPOSITION_DESTRUCTION_REMINDER_MONTHS'),
+                    'DISPOSITION_ORGANIZATION_NAME','DISPOSITION_RECORDS_UNIT_EMAIL','DISPOSITION_RECORDS_UNIT_PHONE','DISPOSITION_REQUEST_LANGUAGE',
+           'DISPOSITION_EXTERNAL_AUTHORITY_NAME','DISPOSITION_EXTERNAL_AUTHORITY_EMAIL','DISPOSITION_DESTRUCTION_REMINDER_MONTHS'),
     'email': ('SMTP_HOST','SMTP_PORT','SMTP_SECURITY','SMTP_AUTH_ENABLED','SMTP_USERNAME','SMTP_PASSWORD',
               'SMTP_SENDER_EMAIL','SMTP_SENDER_NAME','SMTP_REPLY_TO_EMAIL','SMTP_TIMEOUT_SECONDS'),
 }
 DESTINATION_KEYS = ('DISPOSITION_CLASSIFICATION_SCHEME_ID', 'DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID', 'DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID')
 # Literal option keys keep contextual catalogue coverage explicit.
 SETTINGS_CHOICE_MESSAGE_KEYS = {
+    "manager_preference": "settings.choice.manager_preference",
+    "arabic_first_bilingual": "settings.choice.arabic_first_bilingual",
     'standard': 'settings.choice.standard', 'simplified': 'settings.choice.simplified',
     'records_manager_only': 'settings.choice.records_manager_only',
     'starttls': 'settings.choice.starttls', 'implicit_tls': 'settings.choice.implicit_tls',
@@ -352,7 +355,7 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                                 clear_selection.set_visibility(control.value is not None)
                                 control.on_value_change(lambda e, b=clear_selection: b.set_visibility(e.value is not None))
                         control.on_value_change(lambda _, c=control: setattr(c, '_settings_touched', True))
-                        if item['sensitive'] or item['kind'] in {'email','timezone','integer'} or key in {'SMTP_HOST','SMTP_USERNAME'}:
+                        if item['sensitive'] or item['kind'] in {'email','timezone','integer'} or key in {'SMTP_HOST','SMTP_USERNAME','DISPOSITION_RECORDS_UNIT_PHONE'}:
                             control.props('input-style="direction: ltr; unicode-bidi: isolate"')
                         form['controls'][key] = control
                         ui.label(item['description']).classes('text-sm text-slate-600 leading-relaxed w-full whitespace-normal')

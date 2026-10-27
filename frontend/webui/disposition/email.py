@@ -10,7 +10,9 @@ from .messages import text
 
 def controls(form,host=None):
     value=form.view.get('email')
-    if not value:return
+    if not value:
+        history_section(form,host)
+        return
     with host or form.host:
         if value['documents']:
             ui.label(text('email_recipient')).classes('font-semibold')
@@ -41,6 +43,28 @@ def controls(form,host=None):
                         for table in getattr(form,'email_tables',[]):await table.load()
                 state['button']=ui.button(text('send_email'),icon='mail',on_click=send).tooltip(text('send_email')).props('no-caps')
         if value['documents']:ui.label(text('email_acceptance_hint')).classes('text-sm text-slate-600')
+    history_section(form,host)
+
+
+def history_section(form,host=None):
+    """Reachable from both task and job documents, without an eager request."""
+    if getattr(form,'email_history_built',False):return
+    form.email_history_built=True
+    with host or form.host:
+        with ui.expansion(text('email_attempts'),icon='history').classes('w-full') as expansion:
+            table_host=ui.column().classes('w-full gap-3')
+    state={'page':None}
+    def active():
+        return form.alive() and getattr(form,'documents_active',form.alive)() and expansion.value and not expansion._deleted
+    async def refresh():
+        if not active():return
+        with table_host:
+            if state['page'] is None:state['page']=await attempts_panel(form,host=table_host,active=active)
+            await state['page'].load()
+    async def opened(event):
+        if event.value:await refresh()
+    expansion.on_value_change(opened)
+    form.refresh_email_history=refresh
 
 
 async def attempts_panel(form,host=None,active=None):

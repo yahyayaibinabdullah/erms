@@ -46,20 +46,25 @@ def require_access(c,job_id,role=None):
 
 
 @cache
-def _default_bytes(kind):
-    # Process-scoped immutable packaged assets, keyed by the four fixed types.
+def _default_bytes(kind,version=None):
+    # Process-scoped immutable packaged assets, keyed by the four fixed types and retained packaged versions.
     # A deployment/restart invalidates it; runtime uploads never alter defaults.
     # Failures are not cached. No identity, locale or authorized data is cached.
     if kind not in CONTRACTS:engine.invalid('disposition_document_type_invalid')
-    name=CONTRACTS[kind].filename;content=(DEFAULTS/name).read_bytes();digest=sha256(content).hexdigest()
+    name=CONTRACTS[kind].filename
+    if version is not None:
+        if version not in ('v1','v2'):engine.invalid('disposition_template_unavailable',404)
+        name=name.split('.default.')[0]+'.default.'+version+'.docx'
+    if not (DEFAULTS/name).is_file():engine.invalid('disposition_template_unavailable',404)
+    content=(DEFAULTS/name).read_bytes();digest=sha256(content).hexdigest()
     manifest=json.loads((DEFAULTS/'defaults.json').read_text())
     if manifest.get(name)!=digest:engine.invalid('disposition_template_invalid',409)
-    return content,digest
+    return content,digest,name
 
 
-def default(kind):
-    content,digest=_default_bytes(kind);name=CONTRACTS[kind].filename
-    return dict(id=None,document_type=kind,revision_number=0,reference='default.v1:'+digest,
+def default(kind,version=None):
+    content,digest,name=_default_bytes(kind,version)
+    return dict(id=None,document_type=kind,revision_number=0,reference='default.'+name.rsplit('.default.',1)[1].removesuffix('.docx')+':'+digest,
       original_filename=name,checksum=digest,content=content,uploaded_by_user_id=None,acting_role_id=None,
       actor_type=None,uploaded_at=None,source='repository')
 
@@ -106,8 +111,8 @@ def history(c,job_id,kind,*,limit,offset,sort='revision_number',descending=True,
 def download(c,job_id,kind,reference=None):
     require_access(c,job_id)
     if reference is None:return current(c,kind)
-    if reference.startswith('default.v1:'):
-        row=default(kind)
+    if reference.startswith('default.v'):
+        row=default(kind,reference.split(':',1)[0].removeprefix('default.'))
     else:
         row=c.execute('SELECT * FROM disposition_template_revisions WHERE document_type=%s AND id::text=%s',
           (kind,reference.split(':')[1] if reference.startswith('revision:') and len(reference.split(':'))==3 else '')).fetchone()
@@ -146,7 +151,6 @@ def generate(c,*,job_id,expected_version,kind,snapshot,command_id,acting_role_id
     """
     job=require_access(c,job_id,acting_role_id)
     if kind not in CONTRACTS:engine.invalid('disposition_document_type_invalid')
-    engine.snapshot_values(kind,snapshot)
     if str(snapshot['fields']['job.id'])!=str(job_id):engine.invalid('disposition_document_snapshot_invalid')
     token=preview if isinstance(preview,str) else artifacts.destination_token(preview)
     payload=dict(template_generation=True,job_id=job_id,expected_version=expected_version,kind=kind,snapshot=snapshot,preview=token)
@@ -156,6 +160,7 @@ def generate(c,*,job_id,expected_version,kind,snapshot,command_id,acting_role_id
         result=execute_command(c,command_id=command_id,operation='document_save',payload=payload,acting_role_id=acting_role_id,reason=reason,
           apply=lambda c:engine.invalid('disposition_command_conflict',409))
         artifacts.document(c,job_id,result['id']);return result
+    engine.snapshot_values(kind,snapshot)
     revision=current(c,kind)
     pdf,rendered=engine.render(revision['content'],kind,snapshot,settings)
     provenance={'template_revision':revision['reference'],'template_checksum':revision['checksum'],

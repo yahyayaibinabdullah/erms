@@ -18,7 +18,7 @@ def describe(c, result, language_tag, *, job_id=None):
         queued = c.execute("SELECT 1 FROM disposition_private.completion_work WHERE job_id=%s AND state IN ('queued','running')", (identity,)).fetchone()
         if queued:
             stage = 'certificate_generation'
-    # Certificate download remains a person's task after workflow completion.
+    # Compatibility for historical completed jobs; 091 repairs outstanding tasks.
     if job['lifecycle_state'] == 'completed':
         download = c.execute("SELECT workflow_stage FROM disposition_tasks WHERE job_id=%s AND task_type='certificate_download' AND task_state IN ('open','claimed') LIMIT 1", (identity,)).fetchone()
         stage = download['workflow_stage'] if download else None

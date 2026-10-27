@@ -386,7 +386,7 @@ def test_report_destination_is_separate_and_certificate_requires_completion():
         rows=c.execute('SELECT d.*,r.aggregation_id actual_root FROM disposition_job_documents d JOIN records r ON r.id=d.record_id ORDER BY d.id').fetchall()
         assert [(x['origin'],x['aggregation_id'],x['actual_root'],x['classification_id']) for x in rows]==[
           ('generated',report_root,report_root,cl)]
-        assert all(x['classification_scheme_id']==1 and x['acting_role_id']==officer(c) and x['provenance']=={'source':'phase11 acceptance'} for x in rows)
+        assert all(x['classification_scheme_id']==1 and x['acting_role_id']==officer(c) and x['provenance']=={'source':'phase11 acceptance','record_title':'Request for destruction — '+job['job_number'],'record_title_language':'en'} for x in rows)
 
 
 def test_http_stale_job_version_returns_conflict_and_leaves_original_only(client):

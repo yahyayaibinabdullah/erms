@@ -2,7 +2,7 @@
 from html import escape
 from nicegui import ui
 from ..resource_relationships import PageTable
-from .messages import text,KEYS
+from .messages import text,KEYS,action_required_label
 from .screens import column,restore_page
 
 
@@ -20,7 +20,7 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
                 state=ui.select({'':text('any'),'open':text('open'),'claimed':text('claimed')},value=saved.get('state',''),label=text('task_state')).props('outlined dense').classes('w-full')
                 stage=ui.select({'':text('any'),**{k:text(k) for k in ('officer_preparation','officer_correction','manager_preparation','manager_correction','file_administrator_review','unit_manager_review','records_manager_review','external_approval_pending','physical_destruction','digital_destruction','certificate_generation')}},label=text('stage'),value=saved.get('stage','')).props('outlined dense').classes('w-full')
                 kind=ui.select({'':text('any'),**{k:text(k) for k in ('preparation','correction','file_administrator_review','unit_manager_review','records_manager_review')}},label=text('task_type'),value=saved.get('task_type','')).props('outlined dense').classes('w-full')
-                indicator=ui.select({'':text('any'),**{k:text(k) for k in ('blocked','removal_required','failed_reports','destruction_failed','certificate_failed')}},label=text('action_required'),value=saved.get('indicator','')).props('outlined dense').classes('w-full')
+                indicator=ui.select({'':text('any'),**{k:action_required_label(k) for k in ('blocked','removal_required','failed_reports','destruction_failed','certificate_failed')}},label=text('action_required'),value=saved.get('indicator','')).props('outlined dense').classes('w-full')
                 priority=ui.number(text('min_priority'),value=saved.get('min_priority'),step=1,precision=0).props('outlined dense').classes('w-full')
                 roots=ui.number(text('min_roots'),value=saved.get('min_roots'),min=0,step=1,precision=0).props('outlined dense').classes('w-full')
                 claimant=ui.select({'':text('any'),'yes':text('yes'),'no':text('no')},label=text('has_claimant'),value=saved.get('has_claimant','')).props('outlined dense').classes('w-full')
@@ -29,12 +29,12 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
             view=dict(page=p.page,size=p.size,sort=p.sort,descending=p.descending,query=search.value,state=state.value,stage=stage.value,task_type=kind.value,indicator=indicator.value,min_priority=priority.value,min_roots=roots.value,has_claimant=claimant.value)
             result=await api.disposition_page('tasks',limit=p.size,offset=(p.page-1)*p.size,sort={'action_label':'task_type','stage_label':'workflow_stage','received_label':'received','state_label':'state','type_label':'job_type','age_days':'age','digital_label':'digital_state'}.get(p.sort,p.sort) or 'received',descending=p.descending,query=search.value,state=state.value or None,stage=stage.value or None,task_type=kind.value or None,indicator=indicator.value or None,min_priority=int(priority.value) if priority.value is not None else None,min_roots=int(roots.value) if roots.value is not None else None,has_claimant={'yes':True,'no':False}.get(claimant.value))
             for row in result['items']:
-                row['action_label']=text('retry_certificate') if row.get('certificate_failed') else text(row['task_type']) if row['task_type'] in KEYS else text(row['workflow_stage'])
+                row['action_label']=text('retry_certificate') if row.get('certificate_failed') else text('certificate_final_task') if row['task_type']=='certificate_download' else text(row['task_type']) if row['task_type'] in KEYS else text(row['workflow_stage'])
                 row['stage_label']=text(row['workflow_stage']);row['type_label']=text(row['job_type'])
                 row['received_label']=format_timestamp(row['date_created']);row['age_days']=max(0,int(row['age_seconds'])//86400)
                 row['state_label']=text(row['task_state'])
                 row['digital_label']=(text('execution_'+row['digital_state'])+' · '+str(row['digital_completed'])+'/'+str(row['digital_total'])) if row.get('digital_state') else '—'
-                row['indicator']=' · '.join(text(k) for k,flag in [('blocked',row.get('blocked')),('removal_required',row.get('action_removal_required') or row.get('removal_required')),('failed_reports',row.get('failed_reports')),('destruction_failed',row.get('destruction_failed')),('certificate_failed',row.get('certificate_failed'))] if flag) or '—'
+                row['indicator']=' · '.join(action_required_label(k,row['job_type']) for k,flag in [('blocked',row.get('blocked')),('removal_required',row.get('action_removal_required') or row.get('removal_required')),('failed_reports',row.get('failed_reports')),('destruction_failed',row.get('destruction_failed')),('certificate_failed',row.get('certificate_failed'))] if flag) or '—'
             result['_view']=view
             return result
         def task_column(*args, **kwargs):

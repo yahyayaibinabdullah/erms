@@ -27,9 +27,10 @@ def workflow_panel(job, **context):
 
 
 class ReviewForm:
-    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,history_active=None,on_submitted=None):
+    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,documents_active=None,history_active=None,on_submitted=None,on_approved=None):
         # Historical callback name: all completed task stages now use this inbox return.
         self.on_submitted=on_submitted
+        self.on_approved=on_approved
         self.api,self.view,self.active,self.on_error=api,workspace,active,on_error
         self.bind_remote,self.after,self.format_timestamp=bind_remote,after,format_timestamp
         self.open_resource=open_resource
@@ -42,6 +43,7 @@ class ReviewForm:
         self.host=ui.column().classes('w-full gap-4')
         self.history_host=history_host or self.host
         self.documents_host=documents_host or self.host
+        self.documents_active=documents_active or self.alive
         self.history_active=history_active or self.alive
         self.history_built=False
         self.history_refreshers=[]
@@ -50,12 +52,14 @@ class ReviewForm:
             self.feedback=ui.label('').props('role=alert').classes('text-negative')
             if not self.task:
                 ui.label(text('no_current_task')).props('role=status');return
-            form_key={'certificate_generation':'certificate_download','physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
+            form_key={'certificate_generation':'certificate_final_task','physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
             ui.label(text(form_key)).classes('font-semibold')
             hint='disposition_physical_required' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
             if self.task['task_type']=='digital_destruction':hint='disposition_digital_confirmation_required'
-            if self.task['task_type']=='digital_destruction' and ((workspace.get('destruction') or {}).get('progress') or {}).get('state')=='succeeded':hint='digital_done_completion_pending'
-            if self.task['task_type']=='certificate_download':hint='certificate_download_hint'
+            if self.task['task_type']=='digital_destruction' and ((workspace.get('destruction') or {}).get('progress') or {}).get('state')=='succeeded':
+                from .completion import status_message
+                hint=status_message(workspace)
+            if self.task['task_type']=='certificate_download':hint='certificate_finish_hint'
             ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
@@ -94,7 +98,7 @@ class ReviewForm:
 
     async def load(self):
         from .external import request_controls,task_form
-        if self.job['workflow_stage']=='external_approval_pending' or any((self.view.get('external') or {}).get(k) for k in ('can_generate','can_renew')):request_controls(self)
+        if self.job['workflow_stage']=='external_approval_pending' or any((self.view.get('external') or {}).get(k) for k in ('can_generate','can_renew')):request_controls(self,host=self.documents_host)
         from .physical import controls as physical_controls,task_form as physical_task_form
         if self.job['workflow_stage']=='physical_destruction':physical_controls(self)
         from .destruction import controls as destruction_controls
@@ -102,7 +106,8 @@ class ReviewForm:
         from .email import controls as email_controls
         email_controls(self,host=self.documents_host)
         from .completion import controls as completion_controls
-        if self.job['workflow_stage'] in ('certificate_generation','completed') or self.job.get('lifecycle_state')=='completed':completion_controls(self)
+        if (self.job['workflow_stage'] in ('certificate_generation','completed') or self.job.get('lifecycle_state')=='completed'
+                or self.job['workflow_stage']=='digital_destruction' and (self.view.get('completion') or {}).get('progress')):completion_controls(self)
         self.history_sections()
         if not self.task or not self.roles:return
         if self.task.get('task_type')=='certificate_download':
@@ -176,12 +181,22 @@ class ReviewForm:
         for control in controls:control.disable()
         saved=False
         try:
+            confirmation=None
             if action=='approve':
+                confirmation=await self.api.disposition_approval_summary(self.task['id'],acting_role_id=self.acting_role_id,task_version=self.work['task_version'],changes=self.pending,version=self.work['job_version'])
+                if not self.alive():return
+                if confirmation['job_version']!=self.work['job_version'] or confirmation['task_version']!=self.work['task_version']:
+                    raise ApiError(409,{'code':'disposition_stale_version'})
                 with ui.dialog() as dialog,ui.card().classes('messaging-workspace max-w-full gap-4'):
-                    ui.label(text('approval_confirm'))
+                    ui.label(text('approval_title')).classes('text-xl font-semibold')
+                    counts=' · '.join(text('approval_type_count',kind=text(kind),count=count) for kind,count in confirmation['proposal_counts'].items() if count)
+                    ui.label(text('approval_summary',count=confirmation['proposal_count'],counts=counts) if counts else text('approval_no_proposals')).classes('whitespace-normal')
+                    next_step=confirmation['next_step']
+                    ui.label(text('approval_next_empty',stage=text(confirmation['empty_return_stage'])) if next_step=='empty' else text('approval_next_request' if next_step=='request' else 'approval_next_conditional')).classes('whitespace-normal')
+                    ui.label(text('approval_no_destruction')).classes('font-semibold')
                     with ui.row():
                         ui.button(text('cancel'),on_click=lambda:dialog.submit(False)).props('flat no-caps')
-                        ui.button(text('continue'),on_click=lambda:dialog.submit(True)).props('no-caps')
+                        ui.button(text('approve_apply'),on_click=lambda:dialog.submit(True)).props('no-caps')
                 if not await dialog or not self.alive():return
             saved=await self.persist() is not None
             if not self.alive():return
@@ -194,7 +209,7 @@ class ReviewForm:
             elif action in ('complete_review','reject'):
                 payload.update(decision='rejected' if action=='reject' else 'approved',decision_reason=self.comments.value or '');endpoint='review-decision'
             else:
-                preview=await self.api.disposition_page(f"tasks/{self.task['id']}/approval-preview",acting_role_id=self.acting_role_id)
+                preview=await self.api.disposition_page(f"tasks/{self.task['id']}/approval-preview",acting_role_id=self.acting_role_id) if saved else confirmation
                 if not self.alive():return
                 if preview['job_version']!=self.work['job_version'] or preview['task_version']!=self.work['task_version']:
                     raise ApiError(409,{'code':'disposition_stale_version'})
@@ -206,11 +221,15 @@ class ReviewForm:
                 notify_completion(result,'submitted' if action=='submit' else 'review_completed')
             else:
                 notify_completion(result,'request_pending' if result.get('request_status')=='pending' else 'report_pending' if pending else 'review_completed',type='warning' if pending else 'positive')
-            await task_finished(self,result)
+            if action=='approve' and self.on_approved:
+                await self.on_approved(result)
+            else:await task_finished(self,result)
         except ApiError as error:
             if not self.alive():return
             if isinstance(error.detail,dict) and error.detail.get('approval_committed'):
-                ui.notify(text('report_pending'),type='warning');await task_finished(self,error.detail)
+                ui.notify(text('report_pending'),type='warning')
+                if self.on_approved:await self.on_approved(error.detail)
+                else:await task_finished(self,error.detail)
             else:
                 self.error(error)
                 if saved:
@@ -629,10 +648,8 @@ class ReviewForm:
         self.history_built=True
         with self.history_host:
             from .external import decisions_panel
-            from .email import attempts_panel
-            async def email_attempts(**kwargs):return await attempts_panel(self,**kwargs)
             async def external_decisions(**kwargs):return await decisions_panel(self,**kwargs)
-            for label,method in [('review_comments',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel),('external_decisions',external_decisions),('email_attempts',email_attempts)]:
+            for label,method in [('review_comments',self.notes_panel),('round_history',self.rounds_panel),('review_decisions',self.decisions_panel),('external_decisions',external_decisions)]:
                 with ui.expansion(text(label),icon='history').classes('w-full') as expansion:
                     host=ui.column().classes('w-full gap-3');state={'page':None}
                 def alive(expansion=expansion):return self.history_active() and expansion.value and not expansion._deleted

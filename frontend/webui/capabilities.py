@@ -50,6 +50,20 @@ def can_add_from_collection(resource_key: str, privileges: Iterable[str]) -> boo
     return resource_key not in {"privileges", "permissions"}
 
 
+def can_edit_entity_translation(resource_key: str, privileges: Iterable[str]) -> bool:
+    """Match the locale-scoped API's specified metadata right, not navigation."""
+    required = {
+        "classification-schemes": "classification_scheme.modify_metadata",
+        "classifications": "classification.modify_metadata",
+        "users": "identity.users.administer",
+        "roles": "role.modify_metadata",
+        "org-units": "org_unit.modify_metadata",
+        "security-levels": "security_level.modify_metadata",
+        "profiles": "profile.modify_metadata",
+    }.get(resource_key)
+    return required is not None and required in set(privileges)
+
+
 def can_open_organization_detail(entity_type: str, privileges: Iterable[str]) -> bool:
     """Return whether a browser summary may offer its administrative detail page."""
     destination = {

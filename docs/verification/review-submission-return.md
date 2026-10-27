@@ -92,10 +92,14 @@ or disposition task was completed as part of verification.
 
 The shared WebUI `task_finished` helper applies the existing task-page inbox
 callback to every successful completion, rather than Records Officer submission
-alone. Intermediate review, review rejection, Records Manager approval, external
+alone. Intermediate review, review rejection, external
 decision and physical confirmation notify the user first and return to My Tasks.
-The inbox is shown even if the same user owns the next task. Committed approval
-with pending document generation also returns without repeating approval.
+The inbox is shown even if the same user owns the next task.
+
+Updated exception: Records Manager approval opens Evidence and documents for
+verification/download and deliberate request delivery; committed approval with
+pending generation opens the same recovery controls without repeating approval.
+See [request-delivery.md](request-delivery.md).
 
 Digital execution and certificate/final-completion views retain their progress,
 outcome and download context. Physical-only completion stays visible too. Draft
@@ -114,3 +118,25 @@ confirmation. The temporary preview/tab were cleaned up. Catalogue references,
 approved terminology, environment-template agreement, compilation and diff
 checks passed. There are no new or changed translation keys in this follow-up,
 and no database-backed tests or demo task mutations were needed.
+
+
+## Task blocker wording — 26 October 2026
+
+My Tasks and job-details Action required indicators now distinguish final
+execution protection from job admission. Destruction jobs show “Destruction
+blocked”; other types show “Disposition blocked”. The all-job filter uses the
+latter label but still sends `indicator=blocked`; all other flags, permissions
+and behavior are unchanged. Eligibility retains its separate admission wording.
+Two new contextual English keys (`disposition.ui.destruction_blocked` and
+`disposition.ui.disposition_blocked`) have matching Arabic drafts. The artifacts
+are merged by key and sorted, preserving all existing wording/provenance; no
+administrator export is promoted. New drafts remain unpublished for review.
+
+Blocker-label verification: 238 English/Arabic task and screen tests passed,
+including actual row labels, generic filter labels and unchanged `blocked` query
+values. Live in-app browser checks confirmed “Destruction blocked” and
+“الإتلاف محظور” in the production My Tasks component using mock data; temporary
+preview resources were cleaned up. Catalogue/terminology, active-key order,
+artifact-hash, compilation, environment-template and diff checks passed. The
+explicit demo missing-only seed added two unpublished drafts and preserved
+3901 existing non-source-copy translations. No workflow data was changed.

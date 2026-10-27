@@ -25,7 +25,7 @@ def allowed(c,job_id,document_id,role_id):
 
 
 def enqueue(c,*,job_id,document_id,acting_role_id,command_id,expected_recipient=None,reason=None,connection_factory=None):
-    artifacts.document(c,job_id,document_id)
+    document=artifacts.document(c,job_id,document_id)
     prior=c.execute('SELECT id,recipient FROM disposition_email_attempts WHERE command_id=%s',(command_id,)).fetchone()
     if prior:
         if expected_recipient!=prior['recipient']:raise HTTPException(409,detail={'code':'disposition_command_conflict'})
@@ -39,9 +39,36 @@ def enqueue(c,*,job_id,document_id,acting_role_id,command_id,expected_recipient=
     # transport snapshot retains an encrypted credential until its outcome.
     database_id=str(load_snapshot(c).database_id)
     secret=encrypt(settings.password.get_secret_value(),database_id).encode() if settings.password else None
+    configuration=settings.safe_values()
+    configuration['body']=request_body(c,job_id,document,current_settings=load_snapshot(c))
     identity=c.execute('SELECT disposition_private.create_email_attempt(%s,%s,%s,%s,%s,%s,%s,%s) id',
-      (command_id,job_id,document_id,acting_role_id,Jsonb(settings.safe_values()),database_id,secret,make_msgid(domain='wathiq.invalid'))).fetchone()['id']
+      (command_id,job_id,document_id,acting_role_id,Jsonb(configuration),database_id,secret,make_msgid(domain='wathiq.invalid'))).fetchone()['id']
     return {'attempt_id':identity}
+
+
+def request_body(c,job_id,document,*,current_settings,actor_user_id=None):
+    """Capture correspondence wording at deliberate send, independent of worker identity."""
+    if document['document_type']!='destruction_request':return ''
+    from ..entity_localization import preferred_language_for_user
+    from .document_snapshots import bilingual,request_organization
+    language='bilingual' if current_settings['DISPOSITION_REQUEST_LANGUAGE']=='arabic_first_bilingual' else preferred_language_for_user(
+        c,actor_user_id if actor_user_id is not None else c.execute('SELECT current_user_id() id').fetchone()['id'])
+    manager=c.execute("""SELECT u.name,u.translations,o.name unit_name,o.translations unit_translations
+        FROM disposition_review_rounds rr
+        JOIN users u ON u.id=(rr.approval_execution->>'approving_user_id')::bigint
+        JOIN roles r ON r.id=(rr.approval_execution->>'acting_role_id')::bigint
+        JOIN org_units o ON o.id=r.org_unit_id
+        WHERE rr.job_id=%s AND rr.round_number=%s""",(job_id,document['review_round'])).fetchone()
+    if not manager:raise ValueError('Missing approving Records Manager')
+    def block(tag):
+        name=bilingual(manager,language=tag)
+        unit=bilingual({'name':manager['unit_name'],'translations':manager['unit_translations']},language=tag)
+        organization=request_organization(c,job_id,current_settings,tag)['organization.name']
+        authority=current_settings['DISPOSITION_EXTERNAL_AUTHORITY_NAME']
+        if tag.split('-')[0]=='ar':
+            return f"إلى {authority}،\nيرجى التكرم بالاطلاع على إستمارة الإتلاف المرفقة للموافقة عليها.\n\nوتفضلوا بقبول فائق الاحترام والتقدير،\n{name}\n{unit}\n{organization}"
+        return f"To {authority},\nPlease find attached a Request for Destruction Form for your approval.\n\nYours faithfully,\n{name}\n{unit}\n{organization}"
+    return block('ar')+'\n\n'+block('en') if language=='bilingual' else block(language)
 
 
 def page(c,job_id,*,limit,offset,sort='requested_at',descending=True):
@@ -114,7 +141,7 @@ def process_one(connection_factory,*,transport=smtp_send):
     try:
         with connection_factory() as c:
             worker_actor(c)
-            row=c.execute('''SELECT a.*,p.*,d.document_type,d.checksum_algo,dc.file_name FROM disposition_email_attempts a JOIN disposition_private.email_payloads p ON p.attempt_id=a.id
+            row=c.execute('''SELECT a.*,p.*,d.document_type,d.review_round,d.checksum_algo,dc.file_name FROM disposition_email_attempts a JOIN disposition_private.email_payloads p ON p.attempt_id=a.id
                 JOIN disposition_job_documents d ON d.id=a.document_id JOIN digital_components dc ON dc.id=d.digital_component_id WHERE a.id=%s''',(identity,)).fetchone()
             if not c.execute('SELECT disposition_private.can_email(%s,%s,%s,%s) allowed',(row['actor_user_id'],row['job_id'],row['document_id'],row['acting_role_id'])).fetchone()['allowed']:
                 outcome=('failed','disposition_email_not_authorized',None,None)
@@ -126,7 +153,7 @@ def process_one(connection_factory,*,transport=smtp_send):
                 message=EmailMessage();message['To']=row['recipient'];message['From']=formataddr((settings.get('sender_name') or '',row['sender']));message['Message-ID']=row['message_id'];message['Date']=formatdate(usegmt=True)
                 if settings.get('reply_to'):message['Reply-To']=settings['reply_to']
                 message['Subject']='Request for Destruction Form' if row['document_type']=='destruction_request' else 'Certificate of Destruction (Digital)'
-                message.set_content('Please find the saved destruction document attached.');message.add_attachment(content,maintype='application',subtype='pdf',filename=row['file_name'])
+                message.set_content(settings['body'] if 'body' in settings else request_body(c,row['job_id'],row,current_settings=load_snapshot(c),actor_user_id=row['actor_user_id']));message.add_attachment(content,maintype='application',subtype='pdf',filename=row['file_name'])
                 outcome=None
         # No DB transaction/lock is held across network I/O.
         if outcome is None:outcome=transport(settings,message)

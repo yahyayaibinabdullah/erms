@@ -287,6 +287,12 @@ python3 "${PROJECT_DIR}/tools/local_stack_preflight.py" \
     --api-url "${STACK_API_URL}" --api-host "${API_HOST:-0.0.0.0}" --api-port "${API_PORT:-8000}" \
     --ui-url "${STACK_UI_URL}" --ui-host "${WEBUI_HOST:-0.0.0.0}" --ui-port "${WEBUI_PORT:-8080}"
 
+echo "Synchronizing missing Arabic translation drafts (existing translations remain unchanged)."
+# Use the launcher's resolved target and the existing guarded seed workflow.
+# This is local-launcher behavior only, not API startup or automatic publication.
+PYTHONPATH="${PROJECT_DIR}" "${PROJECT_DIR}/backend/services/api/.venv/bin/python" \
+    "${PROJECT_DIR}/database/seeds/004_seed_generated_arabic_ui_translations.py" --missing-only
+
 echo "Starting or reusing local MailDev (implicit TLS and MCP)."
 # The helper serializes ownership with startup. A reused instance retains its
 # existing owner, so cleanup cannot stop a separately started/restarted service.

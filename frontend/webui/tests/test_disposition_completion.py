@@ -65,3 +65,46 @@ async def test_certificate_task_exposes_email_history_before_download(host,monke
         await form.load()
     assert any(isinstance(e,ui.expansion) and e.text==text('email_attempts') for e in host.descendants())
     assert not any(path.endswith('review-work') for path,_ in form.api.reads)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('state',['queued','running','failed'])
+async def test_digital_task_exposes_automatic_certificate_progress_and_certificate_only_retry(host,monkeypatch,state):
+    from frontend.webui.disposition.review import ReviewForm
+    from frontend.webui.tests.test_disposition_tasks import view
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    value=view(actions=('retry_certificate',) if state=='failed' else ())
+    value['job'].update(workflow_stage='digital_destruction',lifecycle_state='active')
+    value['task'].update(task_type='digital_destruction',workflow_stage='digital_destruction')
+    value['destruction']={'progress':dict(state='succeeded',overall_completed_units=1,overall_total_units=1,queued_units=0,running_units=0,failed_units=0)}
+    value['completion']={'completed':False,'progress':{'state':state,'last_error_code':'disposition_certificate_generation_failed' if state=='failed' else None}}
+    async def after(*a):pass
+    with host:
+        form=ReviewForm(api=Api(),workspace=value,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=after,format_timestamp=str,open_resource=None)
+        await form.load()
+        labels=[e.text for e in host.descendants() if isinstance(e,ui.label)]
+        buttons=[e.text for e in host.descendants() if isinstance(e,ui.button)]
+        assert text('digital_completion_failed' if state=='failed' else 'digital_completion_processing') in labels
+        assert (text('retry_certificate') in buttons)==(state=='failed')
+        assert not any(text(k) in buttons for k in ('destroy_digital','retry_digital'))
+        assert text('digital_done_completion_pending') not in labels
+
+
+@pytest.mark.asyncio
+async def test_explicit_complete_returns_to_inbox_without_download(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    monkeypatch.setattr(ui,'timer',lambda *a,**k:SimpleNamespace(deactivate=lambda:None))
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    api=Api();returned=[]
+    async def inbox():returned.append(True)
+    async def after(result):raise AssertionError('Must return to My Tasks')
+    with host:
+        form=SimpleNamespace(api=api,view={'completion':{'completed':False,'progress':{'state':'succeeded'},'certificate':{'id':9,'can_download':False,'file_name':'saved.pdf'}}},host=host,alive=lambda:True,job={'id':7,'version':4},task={'id':8,'version':3,'task_type':'certificate_download'},actions={'complete_certificate'},retry={},busy=False,acting_role_id=2,on_submitted=inbox,after=after,error=lambda e:None)
+        controls(form)
+        button=next(e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('complete_this_task'))
+        await click(button)
+    assert returned==[True]
+    assert api.writes[0][0]=='jobs/7/complete-certificate-task'
+    assert api.writes[0][1]['task_version']==3
+    assert api.writes[0][2]['reason']==''
+    assert not api.reads

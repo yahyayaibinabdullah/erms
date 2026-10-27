@@ -357,3 +357,12 @@ def test_classification_browse_selectors_mirror_navigation_icons_in_rtl():
     ) >= 2
     assert 'current_direction["value"] = normalized' in APP_SOURCE
     assert "aria-label='Open {'record' if is_record else 'aggregation'}'" in APP_SOURCE
+
+
+@pytest.mark.parametrize('resource',['records','aggregations'])
+def test_disposition_filter_available_only_for_governance_and_compiles_existing_statuses(resource):
+    assert 'disposition_status' not in advanced_search_field_options(resource)
+    assert 'disposition_status' in advanced_search_field_options(resource,can_manage_disposition=True)
+    for code in (10,11,12):
+        expression=compile_advanced_search_node({'type':'condition','kind':'structured','field':'disposition_status','operator':'eq','value':code},resource)
+        assert expression=={'field':'disposition_status','operator':'eq','value':code}

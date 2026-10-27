@@ -36,6 +36,7 @@ from .retention_timeline import render_disposition_date, render_retention_stages
 from .capabilities import (
     capability_allowed,
     can_add_from_collection,
+    can_edit_entity_translation,
     can_navigate,
     can_navigate_disposition,
     can_open_organization_detail,
@@ -106,6 +107,7 @@ STOP_PROPAGATION_CLICK_HANDLER = "(event) => { event.stopPropagation(); emit(); 
 ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
     "records": {
         "record_number": ("advanced_search.field.record_number", "text", False),
+        "disposition_status": ("disposition.ui.status", "integer", False),
         "title": ("advanced_search.field.title", "text", False),
         "description": ("advanced_search.field.description", "text", True),
         "aggregation_id": ("advanced_search.field.aggregation", "integer", True),
@@ -130,6 +132,7 @@ ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
     },
     "aggregations": {
         "aggregation_number": ("advanced_search.field.aggregation_number", "text", False),
+        "disposition_status": ("disposition.ui.status", "integer", False),
         "title": ("advanced_search.field.title", "text", False),
         "description": ("advanced_search.field.description", "text", True),
         "parent_aggregation_id": ("advanced_search.field.parent_aggregation", "integer", True),
@@ -156,6 +159,7 @@ ADVANCED_SEARCH_RELATIONSHIP_FIELDS = frozenset({
     "security_level_id", "owning_org_unit_id",
 })
 ADVANCED_SEARCH_CONTROLLED_VALUES: dict[str, dict[Any, str]] = {
+    "disposition_status": {1: "disposition.ui.status_1",2: "disposition.ui.status_2",3: "disposition.ui.status_3",4: "disposition.ui.status_4",5: "disposition.ui.status_5",6: "disposition.ui.status_6",7: "disposition.ui.status_7",8: "disposition.ui.status_8",9: "disposition.ui.status_9",10: "disposition.ui.status_10",11: "disposition.ui.status_11",12: "disposition.ui.status_12",13: "disposition.ui.status_13"},
     "medium": {"digital": "advanced_search.value.digital", "physical": "advanced_search.value.physical", "mixed": "advanced_search.value.mixed"},
     "component.content_status": {
         "pending": "advanced_search.value.pending", "uploading": "advanced_search.value.uploading", "available": "advanced_search.value.available",
@@ -341,7 +345,7 @@ def localized_profile_value(row: dict[str, Any], field: str) -> Any:
     return row.get(field)
 
 
-def advanced_search_field_options(resource: str) -> dict[str, str]:
+def advanced_search_field_options(resource: str, *, can_manage_disposition: bool = False) -> dict[str, str]:
     """Return visibly grouped labels while retaining canonical field values."""
     return {
         field: (
@@ -357,6 +361,7 @@ def advanced_search_field_options(resource: str) -> dict[str, str]:
             )
         )
         for field, details in ADVANCED_SEARCH_FIELDS[resource].items()
+        if field != "disposition_status" or can_manage_disposition
     }
 
 
@@ -8370,6 +8375,15 @@ def index(q: str = "") -> None:
                 )
             )
         )
+        translation_edit_allowed = can_edit_entity_translation(
+            spec.key, (auth_state.get("principal") or {}).get("global_privileges", [])
+        )
+        if translation_only and not translation_edit_allowed:
+            ui.notify(
+                render_message("webui.open_editor.notify.your_effective_roles_do_not_allow_editing_ae0f56e0", singular=spec.singular),
+                color="warning", close_button=True,
+            )
+            return
         effective_locked_fields = set(locked_fields or set())
         if row and spec.key in {"aggregations", "records"}:
             try:
@@ -8865,7 +8879,7 @@ def index(q: str = "") -> None:
                     [], tuple[str, dict[str, str], str] | None
                 ] | None = None
                 profile_change_reason = None
-                if not creating and spec.key in multilingual_fields:
+                if not creating and spec.key in multilingual_fields and translation_edit_allowed:
                     bootstrap = state.get("localization") or {}
                     language_options = {
                         item["language_tag"]: f'{item["native_name"]} · {item["english_name"]}'
@@ -8899,6 +8913,8 @@ def index(q: str = "") -> None:
                             ).classes("w-full")
                             for field in multilingual_fields[spec.key]
                         }
+                        for control in translation_controls.values():
+                            control.disable()
                         translation_reason = (
                             None if spec.key == "profiles" else ui.input(
                                 render_message("webui.open_editor.input.reason_for_translation_change_82d24ea1")
@@ -8953,11 +8969,16 @@ def index(q: str = "") -> None:
                                 }
                                 translation_status.set_text(translation_loaded_status)
                             except ApiError as error:
-                                if load_generation == translation_state["load_generation"]:
-                                    for control in translation_controls.values():
-                                        control.enable()
-                                        control.update()
-                                show_api_error(error)
+                                if (load_generation != translation_state["load_generation"]
+                                    or language_control.value != language or not dialog.value):
+                                    return
+                                # Language changes run in a background task. Restore
+                                # this editor's client context for localized errors.
+                                # Failed loads keep fields disabled and cannot save
+                                # a translation against an unknown baseline/version.
+                                with translation_status.client:
+                                    translation_status.set_text(error_message(error))
+                                    show_api_error(error)
 
                         def pending_entity_translation() -> tuple[
                             str, dict[str, str], str
@@ -18802,7 +18823,10 @@ def index(q: str = "") -> None:
                                 update_search_enabled(), refresh_sort_options(), persist_workspace(),
                             ))
                     else:
-                        fields = advanced_search_field_options(workspace["resource"])
+                        fields = advanced_search_field_options(workspace["resource"],can_manage_disposition=bool((auth_state.get("principal") or {}).get("can_manage_disposition")))
+                        if node.get("field")=="disposition_status" and "disposition_status" not in fields:
+                            ui.label(disposition_text("restricted")).props("role=status")
+                            return
                         field_name = node.get("field") if node.get("field") in fields else "title"
                         node["field"] = field_name
                         field_control = ui.select(fields, value=field_name, label=render_message("webui.render_condition.select.field_02092225")).props("outlined dense options-dense").classes("min-w-44 grow")
@@ -18979,7 +19003,7 @@ def index(q: str = "") -> None:
             options = {
                 name: render_message(details[0])
                 for name, details in ADVANCED_SEARCH_FIELDS[workspace["resource"]].items()
-                if name not in ADVANCED_SEARCH_COMPONENT_FIELDS
+                if name not in ADVANCED_SEARCH_COMPONENT_FIELDS and (name!="disposition_status" or (auth_state.get("principal") or {}).get("can_manage_disposition"))
             }
             options["id"] = render_message("advanced_search.sort.identifier")
             try:
@@ -19127,7 +19151,7 @@ def index(q: str = "") -> None:
                             )
                             render_compact_resource_result(
                                 "records", item,
-                                on_open=lambda selected: open_advanced_record(int(selected["id"])),
+                                on_open=lambda selected: open_advanced_record(int(selected["id"]),selected.get("disposition_status")),
                                 components=displayed_components,
                                 metadata_matched=bool(search_meta.get("metadata_matched")),
                                 content_matched=bool(matching_components),
@@ -19149,19 +19173,33 @@ def index(q: str = "") -> None:
                         else:
                             render_compact_resource_result(
                                 "aggregations", item,
-                                on_open=lambda selected: open_advanced_aggregation(int(selected["id"])),
+                                on_open=lambda selected: open_advanced_aggregation(int(selected["id"]),selected.get("disposition_status")),
                                 metadata_matched=bool(search_meta.get("metadata_matched")),
                                 show_medium=True,
                             )
             restore_compact_result_anchor(workspace.pop("return_anchor", None))
 
-        async def open_advanced_record(identifier: int) -> None:
+        async def open_destroyed_search_result(kind: str, identifier: int):
+            from frontend.webui.disposition.destruction import retained_detail
+            try:proof=await api.disposition_page(f"retained/{kind}/{identifier}")
+            except ApiError as error:
+                if search_view_is_current():ui.notify(error_message(error),type='negative')
+                return
+            if search_view_is_current():await retained_detail(api=api,proof=proof,active=search_view_is_current,on_error=error_message,format_timestamp=format_timestamp)
+
+        async def open_advanced_record(identifier: int, disposition_status: int | None = None) -> None:
+            if disposition_status==10:
+                await open_destroyed_search_result('record',identifier)
+                return
             workspace["return_anchor"] = f"compact-result-records-{int(identifier)}"
             persist_workspace()
             state.pop("discard_navigation_guard", None)
             await select_record_details(identifier)
 
-        async def open_advanced_aggregation(identifier: int) -> None:
+        async def open_advanced_aggregation(identifier: int, disposition_status: int | None = None) -> None:
+            if disposition_status==10:
+                await open_destroyed_search_result('aggregation',identifier)
+                return
             workspace["return_anchor"] = f"compact-result-aggregations-{int(identifier)}"
             persist_workspace()
             state.pop("discard_navigation_guard", None)
@@ -19320,6 +19358,7 @@ def index(q: str = "") -> None:
                 if navigation_state["trail"] and navigation_state["trail"][-1]["page"]==page:
                     navigation_state["trail"][-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
         async def open_tasks():await select_disposition("disposition-tasks")
+        async def open_approval_results(identity):await select_disposition("disposition-job",identity,saved={"section":"documents","approval_results":True})
         async def open_job(identity):await select_disposition("disposition-job",identity)
         async def open_task(job_id,identity):await select_disposition("disposition-job",job_id,task_id=identity)
         def register_dirty(dirty):
@@ -19335,7 +19374,7 @@ def index(q: str = "") -> None:
         try:
             if page in ("disposition-job","disposition-task"):
                 await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
-                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task,open_tasks=open_tasks,saved=saved,remember=remember)
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task,open_tasks=open_tasks,open_approval_results=open_approval_results,saved=saved,remember=remember)
             elif page=="disposition-templates":
                 from .disposition.templates import templates_screen
                 await templates_screen(api=api,container=table_container,active=active,on_error=error_message,format_timestamp=format_timestamp)

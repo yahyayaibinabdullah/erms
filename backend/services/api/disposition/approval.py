@@ -39,7 +39,7 @@ def execution(c,job_id,round_id,acting_role_id):
     return row
 
 
-def report_snapshot(row,generated_at=None):
+def report_snapshot(row,generated_at=None,*,c,settings=None):
     data=row['approval_execution'];job=data['job_snapshot']
     fields={'job.id':row['job_id'],'job.number':job['job_number'],'job.type':job['job_type'],
        'job.owner':job['owner_name'],'job.officer':job['assignee_name'],'job.created_at':job['date_created'],
@@ -58,7 +58,11 @@ def report_snapshot(row,generated_at=None):
            'proposal.reason':effect['reason_used']+' · '+effect['reason_source'].title(),
            'proposal.removed_units':', '.join(removed) or '—',
            'proposal.history':f"disposition_review_proposal:{p['id']}"})
-    return {'fields':fields,'proposals':proposals,'source':data}
+    from .report_presentation import enrich
+    if settings is None:
+        from ..application_settings import load_snapshot
+        settings=load_snapshot(c)
+    return enrich(c,row,{'fields':fields,'proposals':proposals,'source':data},settings)
 
 
 def generate_report(c,*,job_id,round_id,acting_role_id,settings,preview=None,connection_factory=None):
@@ -71,7 +75,7 @@ def generate_report(c,*,job_id,round_id,acting_role_id,settings,preview=None,con
         return artifacts.document(c,job_id,prior['id'])
     destination=preview or artifacts.destination(c,job_id,'proposal_execution_report')
     result=documents.generate(c,job_id=job_id,expected_version=c.execute('SELECT version FROM disposition_jobs WHERE id=%s',(job_id,)).fetchone()['version'],
-       kind='proposal_execution_report',snapshot=report_snapshot(row,c.execute('SELECT clock_timestamp() at').fetchone()['at'].isoformat()),command_id=uuid5(NAMESPACE_URL,f'wathiq:proposal-execution-report:{job_id}:{round_id}'),
+       kind='proposal_execution_report',snapshot=report_snapshot(row,c.execute('SELECT clock_timestamp() at').fetchone()['at'].isoformat(),c=c,settings=settings),command_id=uuid5(NAMESPACE_URL,f'wathiq:proposal-execution-report:{job_id}:{round_id}'),
        acting_role_id=acting_role_id,reason='Store the approved proposal execution report',preview=destination,settings=settings,
        connection_factory=connection_factory,review_round=row['round_number'],approval_round_id=round_id)
     return result
@@ -86,3 +90,54 @@ def effects(c,job_id,*,limit,offset):
         if not row.pop('visible'):rows[i]={'id':row['id'],'redacted':True}
         else:row['redacted']=False
     return {'items':rows,'total':total}
+
+
+def confirmation(c, *, task_id, acting_role_id, expected_version, task_version, changes):
+    """Read-only hypothetical summary; cancellation never saves queued review work."""
+    from collections import Counter
+    from .commands import StaleVersion
+    result = preview(c, task_id, acting_role_id)
+    if result['job_version'] != expected_version or result['task_version'] != task_version:
+        raise StaleVersion()
+    task = c.execute('SELECT job_id FROM disposition_tasks WHERE id=%s', (task_id,)).fetchone()
+    job_id = task['job_id']
+    job = c.execute('SELECT review_route,workflow_stage FROM disposition_jobs WHERE id=%s', (job_id,)).fetchone()
+    rows = c.execute('''SELECT p.id,p.version,p.governing_root_id,p.target_aggregation_id,p.target_record_id,
+        p.proposal_type,p.proposed_values,p.current_values,p.reason FROM disposition_review_proposals p
+        JOIN disposition_job_memberships m ON m.job_id=p.job_id AND m.root_aggregation_id=p.governing_root_id AND m.membership_state='active'
+        WHERE p.job_id=%s AND p.review_round=disposition_private.review_round_for_work(%s) AND p.proposal_state='active' ''', (job_id,job_id)).fetchall()
+    proposals = {p['id']: dict(p) for p in rows}
+    for index, change in enumerate(changes):
+        action = change['action']
+        if action == 'create':
+            proposal = {**change, 'id': -(index+1), 'version': 1}
+        else:
+            proposal = proposals.get(change['proposal_id'])
+            if not proposal or proposal['version'] != change['expected_version']:
+                raise HTTPException(409, detail={'code':'disposition_stale_proposal'})
+            proposal = {**proposal, 'version': proposal['version']+1}
+        if action == 'withdraw':
+            allowed = c.execute('SELECT current_user_can_view_aggregation(%s) AND (%s::bigint IS NULL OR current_user_can_view_record(%s)) allowed', (proposal['target_aggregation_id'], proposal['target_record_id'], proposal['target_record_id'])).fetchone()['allowed']
+            if not allowed:
+                raise HTTPException(403, detail={'code':'disposition_resource_access_required'})
+            del proposals[proposal['id']]
+            continue
+        if action == 'revise':
+            proposal.update(proposed_values=change['proposed_values'], reason=change.get('reason'))
+        from psycopg.types.json import Jsonb
+        facts = c.execute('SELECT disposition_private.proposal_facts(%s,%s,%s,%s,%s,%s,%s) facts',
+            (job_id, proposal['governing_root_id'], proposal['target_aggregation_id'], proposal.get('target_record_id'), proposal['proposal_type'], Jsonb(proposal['proposed_values']), proposal.get('reason'))).fetchone()['facts']
+        target_version = facts['record']['version'] if proposal.get('target_record_id') else facts['aggregation_version']
+        if target_version != change['target_version']:
+            raise HTTPException(409, detail={'code':'disposition_stale_target'})
+        proposal['current_values'] = facts
+        proposals[proposal['id']] = proposal
+    counts = Counter(p['proposal_type'] for p in proposals.values())
+    roots = {r['root_aggregation_id'] for r in c.execute("SELECT root_aggregation_id FROM disposition_job_memberships WHERE job_id=%s AND membership_state='active'", (job_id,)).fetchall()}
+    # These effects certainly remove their governing units on successful approval.
+    # Retention, holds and new links can depend on live policy/cascading links;
+    # do not promise an exact surviving count for those cases.
+    removed = {p['governing_root_id'] for p in proposals.values() if p['proposal_type']=='blocking_security' or p['proposal_type']=='make_vital' and not p['current_values'].get('is_vital')}
+    outcome = 'empty' if roots and roots <= removed else 'request' if set(counts) <= {'remove_aggregation_relationship','remove_record_relationship'} else 'conditional'
+    return {**result, 'proposal_count':sum(counts.values()), 'proposal_counts':dict(sorted(counts.items())), 'next_step':outcome,
+            'empty_return_stage':job['workflow_stage'] if job['review_route']=='records_manager_only' else 'officer_correction'}

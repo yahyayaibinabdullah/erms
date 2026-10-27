@@ -67,6 +67,7 @@ def read(c, job_id, task_id=None, language_tag='en'):
     completion_view=completion.view(c,job)
     if task and current and working and task['task_type']=='digital_destruction' and destruction_view and (not destruction_view['progress'] or destruction_view['progress']['state']=='failed'):actions.append('destroy_digital')
     if task and current and working and destruction_view and completion_view and completion_view['progress'] and completion_view['progress']['state']=='failed':actions.append('retry_certificate')
+    if task and roles and task['task_type']=='certificate_download' and task['task_state'] in ('open','claimed') and completion_view and completion_view.get('certificate'):actions.append('complete_certificate')
     return {'completion':completion_view,'destruction':destruction_view,'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
 
 

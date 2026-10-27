@@ -134,6 +134,21 @@ def page(c, job_id, *, limit, offset, sort='id', descending=True):
     return {'items':rows,'total':total,'correction_roles':roles}
 
 
+def generated_record_title(c, job, document_type):
+    """Capture the generating actor's enabled preference for a generated record."""
+    from ..entity_localization import preferred_language_for_user
+    from .template_contract import CONTRACTS
+    user_id=c.execute('SELECT current_user_id() id').fetchone()['id']
+    language=preferred_language_for_user(c,user_id)
+    contract=CONTRACTS[document_type]
+    arabic=language.split('-')[0].lower()=='ar'
+    if document_type=='destruction_request' and arabic:
+        title='إستمارة إتلاف '+job['job_number']
+    else:
+        title=(contract.arabic if arabic else contract.english)+' — '+job['job_number']
+    return {'record_title':title,'record_title_language':language}
+
+
 def save(c, *, job_id, document_type, staged: GovernedUpload, preview, supersedes=None,
          template_version=None, provenance=None, review_round=None):
     """Private action primitive; caller's command saves outcome/history together.
@@ -167,8 +182,13 @@ def save(c, *, job_id, document_type, staged: GovernedUpload, preview, supersede
     # ACL bypass. Standard ownership/security/creator-ACL triggers still run.
     c.execute("SELECT set_config('app.creator_acl_role_id',%s,true)",(str(role),))
     serial=c.execute("SELECT nextval(pg_get_serial_sequence('records','id')) AS id").fetchone()['id']
+    title=staged.file_name
+    if document_type not in UPLOADED:
+        presentation=generated_record_title(c,job,document_type)
+        title=presentation['record_title']
+        provenance={**(provenance or {}),**presentation}
     record=create_row(c,'records',dict(id=serial,aggregation_id=parent['id'],record_number=f'DISP-{job_id}-{serial}',
-      title=staged.file_name,medium='digital',security_level_id=parent['security_level_id']))
+      title=title,medium='digital',security_level_id=parent['security_level_id']))
     component=create_row(c,'digital_components',dict(record_id=record['id'],component_order=1,
       file_name=staged.file_name,mime_type=staged.mime_type,size_in_bytes=staged.size_in_bytes,
       checksum_algo='sha256',checksum_value=staged.checksum_value,storage_backend='postgresql',content_status='available'))

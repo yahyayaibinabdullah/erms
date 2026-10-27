@@ -6630,6 +6630,140 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_next_conditional",
+    "context_group": "disposition.ui",
+    "default_text": "The system will generate a proposal execution report. If aggregations remain, it will generate a destruction request and create the external-approval task; otherwise, it will return the job for preparation or correction.",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_next_conditional",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The system will generate a proposal execution report. If aggregations remain, it will generate a destruction request and create the external-approval task; otherwise, it will return the job for preparation or correction.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_next_empty",
+    "context_group": "disposition.ui",
+    "default_text": "Applying these proposals will leave no aggregations in this job. The system will generate the proposal execution report and return the job to {stage}. No destruction request or external-approval task will be created.",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_next_empty",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "stage": "text"
+    },
+    "rendered_example": "Applying these proposals will leave no aggregations in this job. The system will generate the proposal execution report and return the job to Records Officer correction. No destruction request or external-approval task will be created.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_next_request",
+    "context_group": "disposition.ui",
+    "default_text": "The system will automatically generate the proposal execution report and destruction request, then create the external-approval task.",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_next_request",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "The system will automatically generate the proposal execution report and destruction request, then create the external-approval task.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_no_destruction",
+    "context_group": "disposition.ui",
+    "default_text": "No records will be destroyed at this step.",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_no_destruction",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No records will be destroyed at this step.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_no_proposals",
+    "context_group": "disposition.ui",
+    "default_text": "Approve this job with no active proposals.",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_no_proposals",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve this job with no active proposals.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_results_guidance",
+    "context_group": "disposition.ui",
+    "default_text": "Check the proposal execution report and any generated destruction request before sending to the external archives authority. The assigned Records Officer can also send or resend the saved request. No email is sent automatically.",
+    "semantic_meaning": "Post-approval document verification and deliberate authority delivery by manager or assigned officer.",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Check the proposal execution report and any generated destruction request before sending to the external archives authority. The assigned Records Officer can also send or resend the saved request. No email is sent automatically.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_summary",
+    "context_group": "disposition.ui",
+    "default_text": "Apply all active proposals ({count}): {counts}.",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_summary",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "count": "integer",
+      "counts": "text"
+    },
+    "rendered_example": "Apply all active proposals (24): Remove aggregation relationship: 24.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_title",
+    "context_group": "disposition.ui",
+    "default_text": "Approve this destruction job?",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_title",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Approve this destruction job?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_type_count",
+    "context_group": "disposition.ui",
+    "default_text": "{kind}: {count}",
+    "semantic_meaning": "Final Records Manager approval confirmation: approval_type_count",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "kind": "text",
+      "count": "integer"
+    },
+    "rendered_example": "Remove aggregation relationship: 24",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approve",
     "context_group": "disposition.ui",
     "default_text": "Approve and apply proposals",
@@ -6641,6 +6775,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Approve and apply proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approve_apply",
+    "context_group": "disposition.ui",
+    "default_text": "Approve and apply changes",
+    "semantic_meaning": "Final Records Manager approval confirmation: approve_apply",
+    "common_locations": [
+      "Disposition task final approval confirmation dialog"
+    ],
+    "translator_guidance": "Preserve placeholders and approved terminology. Counts cover the complete active set and queued edits; this action applies proposals but never destroys records.",
+    "grammatical_role": "button",
+    "parameter_schema": {},
+    "rendered_example": "Approve and apply changes",
     "is_html": false
   },
   {
@@ -6972,6 +7120,38 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.certificate_final_task",
+    "context_group": "disposition.ui",
+    "default_text": "Complete destruction job",
+    "semantic_meaning": "Final Records Manager task after certificate storage; explicit task completion completes the job.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Complete destruction job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_finish_hint",
+    "context_group": "disposition.ui",
+    "default_text": "The certificate is saved. Complete this task to complete the job. Downloading or emailing the certificate is optional.",
+    "semantic_meaning": "Explicit final certificate task acknowledgment; download and email are optional.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "The certificate is saved. Complete this task to complete the job. Downloading or emailing the certificate is optional.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.certificate_generation",
     "context_group": "disposition.ui",
     "default_text": "Certificate generation",
@@ -7049,6 +7229,22 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "The saved digital certificate completes this destruction job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.certificate_task_completed",
+    "context_group": "disposition.ui",
+    "default_text": "Task and destruction job completed.",
+    "semantic_meaning": "Explicit final certificate task acknowledgment; download and email are optional.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Task and destruction job completed.",
     "is_html": false
   },
   {
@@ -7213,6 +7409,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Complete review",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.complete_this_task",
+    "context_group": "disposition.ui",
+    "default_text": "Complete this task",
+    "semantic_meaning": "Explicit final certificate task acknowledgment; download and email are optional.",
+    "common_locations": [
+      "Destruction job workspace",
+      "My tasks",
+      "Audit history"
+    ],
+    "translator_guidance": "Preserve the distinction between completed destruction and pending certificate generation. Certificate download and email do not gate job completion. Use approved Wathiq terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Complete this task",
     "is_html": false
   },
   {
@@ -7603,6 +7815,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.destruction_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "Destruction blocked",
+    "semantic_meaning": "Current protection prevents final destruction/disposition of a resource already in a job; it does not describe job admission or membership.",
+    "common_locations": [
+      "My Tasks action-required cells and filters",
+      "Disposition job details action-required summary"
+    ],
+    "translator_guidance": "Use approved records-management terminology. This is a final-action blocker, not a job admission blocker.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction blocked",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.destruction_failed",
     "context_group": "disposition.ui",
     "default_text": "Digital destruction requires action",
@@ -7685,6 +7912,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Digital",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital_completion_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction succeeded, but the destruction certificate could not be saved. Resolve the reported issue, then retry certificate generation.",
+    "semantic_meaning": "Distinguish automatic certificate processing/recovery from successful digital destruction.",
+    "common_locations": [
+      "Digital destruction current task"
+    ],
+    "translator_guidance": "Destruction already succeeded. Certificate generation and saving are automatic; retry applies only to the certificate, not destruction.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction succeeded, but the destruction certificate could not be saved. Resolve the reported issue, then retry certificate generation.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.digital_completion_processing",
+    "context_group": "disposition.ui",
+    "default_text": "Digital destruction succeeded. The system is generating and saving the destruction certificate.",
+    "semantic_meaning": "Distinguish automatic certificate processing/recovery from successful digital destruction.",
+    "common_locations": [
+      "Digital destruction current task"
+    ],
+    "translator_guidance": "Destruction already succeeded. Certificate generation and saving are automatic; retry applies only to the certificate, not destruction.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Digital destruction succeeded. The system is generating and saving the destruction certificate.",
     "is_html": false
   },
   {
@@ -7878,6 +8133,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Assign an authorized person before adding members.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "Disposition blocked",
+    "semantic_meaning": "Current protection prevents final destruction/disposition of a resource already in a job; it does not describe job admission or membership.",
+    "common_locations": [
+      "My Tasks action-required cells and filters",
+      "Disposition job details action-required summary"
+    ],
+    "translator_guidance": "Use approved records-management terminology. This is a final-action blocker, not a job admission blocker.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition blocked",
     "is_html": false
   },
   {
@@ -9682,15 +9952,15 @@
   {
     "message_key": "disposition.ui.email_acceptance_hint",
     "context_group": "disposition.ui",
-    "default_text": "SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. An unknown outcome may already have been accepted; check before deliberately sending again.",
-    "semantic_meaning": "External saved-document SMTP attempt: SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. An unknown outcome may already have been accepted; check before deliberately sending again.",
+    "default_text": "SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. If the result is unknown, the email may still have been sent. Check before sending again to avoid duplicates.",
+    "semantic_meaning": "Explain that SMTP acceptance is not delivery confirmation and an unknown result may require checking before a duplicate send.",
     "common_locations": [
       "Destruction workspace, email controls and attempt history"
     ],
     "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. An unknown outcome may already have been accepted; check before deliberately sending again.",
+    "rendered_example": "SMTP acceptance confirms submission to the mail service. Inbox delivery and reading are not confirmed. If the result is unknown, the email may still have been sent. Check before sending again to avoid duplicates.",
     "is_html": false
   },
   {
@@ -9724,15 +9994,15 @@
   {
     "message_key": "disposition.ui.email_outcome",
     "context_group": "disposition.ui",
-    "default_text": "Outcome at",
-    "semantic_meaning": "External saved-document SMTP attempt: Outcome at",
+    "default_text": "Attempt completed at",
+    "semantic_meaning": "Timestamp when the email send attempt ended with SMTP acceptance, failure or an unknown outcome; blank while sending.",
     "common_locations": [
       "Destruction workspace, email controls and attempt history"
     ],
-    "translator_guidance": "Distinguish mail-server acceptance from confirmed arrival. Preserve SMTP as a protocol name.",
+    "translator_guidance": "Label for an attempt completion timestamp. This does not imply successful sending or inbox delivery.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Outcome at",
+    "rendered_example": "Attempt completed at",
     "is_html": false
   },
   {
@@ -24819,36 +25089,6 @@
     "is_html": false
   },
   {
-    "message_key": "privilege.user.modify_metadata.description",
-    "context_group": "privilege.user.modify_metadata",
-    "default_text": "Modify multilingual names and descriptions for users.",
-    "semantic_meaning": "Accessible explanation of what the immutable system privilege user.modify_metadata permits.",
-    "common_locations": [
-      "Role details",
-      "Profile privilege editor"
-    ],
-    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
-    "grammatical_role": "guidance",
-    "parameter_schema": {},
-    "rendered_example": "Modify multilingual names and descriptions for users.",
-    "is_html": false
-  },
-  {
-    "message_key": "privilege.user.modify_metadata.name",
-    "context_group": "privilege.user.modify_metadata",
-    "default_text": "Modify User Metadata",
-    "semantic_meaning": "Friendly name of the immutable system privilege user.modify_metadata.",
-    "common_locations": [
-      "Role details",
-      "Profile privilege editor"
-    ],
-    "translator_guidance": "Translate the user-facing privilege catalogue text. Keep privilege codes unchanged.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Modify User Metadata",
-    "is_html": false
-  },
-  {
     "message_key": "profile.built_in.all_privileges.description",
     "context_group": "profile.built_in.all_privileges",
     "default_text": "Migration and controlled compatibility profile",
@@ -26299,6 +26539,20 @@
     "is_html": false
   },
   {
+    "message_key": "settings.choice.arabic_first_bilingual",
+    "context_group": "settings.choice",
+    "default_text": "Arabic-first bilingual",
+    "semantic_meaning": "Language policy for values in newly generated destruction requests.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Arabic-first bilingual",
+    "is_html": false
+  },
+  {
     "message_key": "settings.choice.digital",
     "context_group": "settings.choice",
     "default_text": "Digital",
@@ -26324,6 +26578,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Implicit TLS",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.choice.manager_preference",
+    "context_group": "settings.choice",
+    "default_text": "User’s preferred language",
+    "semantic_meaning": "Destruction request values use the generating user’s preferred language when this option is selected.",
+    "common_locations": [
+      "Administration → Settings"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Explain configuration in ordinary language. Preserve named placeholders; password text describes replacement/set-state only.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "User’s preferred language",
     "is_html": false
   },
   {
@@ -27468,6 +27736,118 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Generated reports classification",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_organization_name.description",
+    "context_group": "settings.field.disposition_organization_name",
+    "default_text": "Requesting organization on new destruction requests; unset uses the tenancy root organization. Earlier requests retain their saved values.",
+    "semantic_meaning": "Administration Settings: Requesting organization on new destruction requests; unset uses the tenancy root organization. Earlier requests retain their saved values.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Requesting organization on new destruction requests; unset uses the tenancy root organization. Earlier requests retain their saved values.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_organization_name.label",
+    "context_group": "settings.field.disposition_organization_name",
+    "default_text": "Disposition organization name",
+    "semantic_meaning": "Administration Settings: Disposition organization name",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition organization name",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_records_unit_email.description",
+    "context_group": "settings.field.disposition_records_unit_email",
+    "default_text": "Contact email on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+    "semantic_meaning": "Administration Settings: Contact email on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Contact email on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_records_unit_email.label",
+    "context_group": "settings.field.disposition_records_unit_email",
+    "default_text": "Records Unit email",
+    "semantic_meaning": "Administration Settings: Records Unit email",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Unit email",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_records_unit_phone.description",
+    "context_group": "settings.field.disposition_records_unit_phone",
+    "default_text": "Contact phone on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+    "semantic_meaning": "Administration Settings: Contact phone on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Contact phone on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_records_unit_phone.label",
+    "context_group": "settings.field.disposition_records_unit_phone",
+    "default_text": "Records Unit phone",
+    "semantic_meaning": "Administration Settings: Records Unit phone",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Records Unit phone",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_request_language.description",
+    "context_group": "settings.field.disposition_request_language",
+    "default_text": "Use the preferred language of the user generating the destruction request.",
+    "semantic_meaning": "Destruction request values use the generating user’s preferred language when this option is selected.",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Use the preferred language of the user generating the destruction request.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.disposition_request_language.label",
+    "context_group": "settings.field.disposition_request_language",
+    "default_text": "Destruction request values language",
+    "semantic_meaning": "Administration Settings: Destruction request values language",
+    "common_locations": [
+      "Administration Settings API and page"
+    ],
+    "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Destruction request values language",
     "is_html": false
   },
   {

@@ -21,7 +21,7 @@ from lxml import etree
 from fastapi import HTTPException
 
 from ..document_conversion import _libreoffice_binary, ConversionUnavailable
-from .template_contract import CONTRACTS, row_fields
+from .template_contract import CONTRACTS, row_fields, group_fields
 
 MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 FONT_DIRECTORY=Path(__file__).resolve().parents[1]/'messaging/pdf_assets/disposition'
@@ -92,21 +92,22 @@ def validate(content, kind, maximum):
     if not ARABIC.search(combined) or not LATIN.search(combined):invalid('disposition_template_bilingual_required')
     first=next((p for p in paragraphs(trees['word/document.xml']) if paragraph_text(p).strip()),None)
     if first is None or not ARABIC.match(paragraph_text(first).lstrip()):invalid('disposition_template_bilingual_required')
-    allowed=set(contract.fields)|set(row_fields(contract))
-    markers={'#'+contract.group,'/'+contract.group} if contract.group else set()
+    groups=group_fields(contract)
+    allowed=set(contract.fields)|{key for fields in groups.values() for key in fields}
+    markers={prefix+group for group in groups for prefix in ('#','/')}
     tokens=TOKEN.findall(combined)
     if set(tokens)-allowed-markers or '{{' in TOKEN.sub('',combined) or '}}' in TOKEN.sub('',combined):invalid()
-    if not set(contract.fields)<=set(tokens):invalid('disposition_template_fields_missing')
-    if contract.group:
+    if not (set(contract.fields)-set(contract.optional))<=set(tokens):invalid('disposition_template_fields_missing')
+    for group,fields in groups.items():
         rows=[r for tree in trees.values() for r in tree.findall('.//w:tr',NS)
-              if '#'+contract.group in TOKEN.findall(paragraph_text(r)) or '/'+contract.group in TOKEN.findall(paragraph_text(r))]
-        if len(rows)!=1 or tokens.count('#'+contract.group)!=1 or tokens.count('/'+contract.group)!=1:invalid('disposition_template_repeat_invalid')
+              if '#'+group in TOKEN.findall(paragraph_text(r)) or '/'+group in TOKEN.findall(paragraph_text(r))]
+        if len(rows)!=1 or tokens.count('#'+group)!=1 or tokens.count('/'+group)!=1:invalid('disposition_template_repeat_invalid')
         rt=TOKEN.findall(paragraph_text(rows[0]))
-        if not set(row_fields(contract))<=set(rt) or rt.index('#'+contract.group)>rt.index('/'+contract.group):invalid('disposition_template_repeat_invalid')
-        if any(t in contract.fields for t in rt):invalid('disposition_template_repeat_invalid')
+        if not (set(fields)-set(contract.optional))<=set(rt) or rt.index('#'+group)>rt.index('/'+group):invalid('disposition_template_repeat_invalid')
+        if set(rt)-set(fields)-{'#'+group,'/'+group}:invalid('disposition_template_repeat_invalid')
         outside=[t for tree in trees.values() for p in paragraphs(tree)
                  if rows[0] not in p.iterancestors() for t in TOKEN.findall(paragraph_text(p))]
-        if set(row_fields(contract)) & set(outside):invalid('disposition_template_repeat_invalid')
+        if set(fields) & set(outside):invalid('disposition_template_repeat_invalid')
     try:
         doc=Document(BytesIO(content))
         default=doc.styles['Normal'].font.name
@@ -156,7 +157,8 @@ def _replace(p, values):
 
 def snapshot_values(kind,snapshot):
     contract=CONTRACTS[kind]
-    expected={'fields',contract.group} if contract.group else {'fields'}
+    groups=group_fields(contract)
+    expected={'fields',*groups}
     if set(snapshot)-{'source'}!=expected or 'source' in snapshot and not isinstance(snapshot['source'],dict):invalid('disposition_document_snapshot_invalid')
     def clean(row,keys):
         if not isinstance(row,dict) or set(row)!=set(keys):invalid('disposition_document_snapshot_invalid')
@@ -167,23 +169,37 @@ def snapshot_values(kind,snapshot):
             result[key]=str(value)
         return result
     scalar=clean(snapshot.get('fields'),contract.fields)
-    rows=snapshot.get(contract.group,[]) if contract.group else []
-    if not isinstance(rows,list):invalid('disposition_document_snapshot_invalid')
-    return scalar,[clean(row,row_fields(contract)) for row in rows]
+    cleaned={}
+    for group,fields in groups.items():
+        rows=snapshot.get(group,[])
+        if not isinstance(rows,list):invalid('disposition_document_snapshot_invalid')
+        cleaned[group]=[clean(row,fields) for row in rows]
+    return scalar,cleaned
 
 
 def fill(content,kind,snapshot,maximum):
     values=validate(content,kind,maximum);contract=CONTRACTS[kind]
-    scalar,rows=snapshot_values(kind,snapshot)
+    scalar,groups=snapshot_values(kind,snapshot)
     for name in list(values):
         if name!='word/document.xml' and not re.fullmatch(r'word/(header|footer)\d+\.xml',name):continue
         tree=etree.fromstring(values[name])
-        if contract.group:
+        for group,rows in groups.items():
             for row in tree.findall('.//w:tr',NS):
-                if '#'+contract.group not in TOKEN.findall(paragraph_text(row)):continue
+                if '#'+group not in TOKEN.findall(paragraph_text(row)):continue
                 for data in rows:
                     clone=deepcopy(row)
-                    for p in paragraphs(clone):_replace(p,{**scalar,**data,'#'+contract.group:'','/'+contract.group:''})
+                    for p in paragraphs(clone):
+                        text=paragraph_text(p).strip()
+                        markers=TOKEN.findall(text)
+                        only_markers=bool(markers) and set(markers)<={'#'+group,'/'+group} and not TOKEN.sub('',text).strip()
+                        visible=p.xpath('.//w:drawing|.//w:pict|.//w:fldSimple|.//w:br|.//w:tab',namespaces=NS)
+                        parent=p.getparent()
+                        # Remove control-only paragraphs rather than leaving a
+                        # blank line above/below data. Keep Word cells valid.
+                        if only_markers and not visible and (parent.tag!=W+'tc' or len(parent.findall('w:p',NS))>1):
+                            parent.remove(p)
+                            continue
+                        _replace(p,{**scalar,**data,'#'+group:'','/'+group:''})
                     row.addprevious(clone)
                 row.getparent().remove(row)
         for p in paragraphs(tree):_replace(p,scalar)
@@ -193,6 +209,18 @@ def fill(content,kind,snapshot,maximum):
             # duty label. Keep the controlled placeholder contract unchanged.
             for node in tree.findall('.//w:t',NS):
                 if node.text:node.text=node.text.replace('Assigned Records Officer','Assigned Records Manager').replace('مسؤول الوثائق المكلّف','مدير الوثائق المكلّف')
+        if kind in ('destruction_request','proposal_execution_report','digital_destruction_certificate'):
+            # Placeholder paragraphs are LTR during validation. Select the
+            # direction of actual Arabic-first values only after filling.
+            for paragraph in paragraphs(tree):
+                if not ARABIC.match(paragraph_text(paragraph).lstrip()):continue
+                props=paragraph.find('w:pPr',NS)
+                if props is None:
+                    props=etree.Element(W+'pPr');paragraph.insert(0,props)
+                for tag in ('bidi','jc'):
+                    item=props.find('w:'+tag,NS)
+                    if item is None:item=etree.SubElement(props,W+tag)
+                    item.set(W+'val','1' if tag=='bidi' else 'start')
         if '{{' in paragraph_text(tree) or '}}' in paragraph_text(tree):invalid('disposition_document_snapshot_invalid')
         values[name]=etree.tostring(tree,xml_declaration=True,encoding='UTF-8',standalone=True)
     stream=BytesIO()

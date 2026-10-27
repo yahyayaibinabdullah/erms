@@ -368,26 +368,29 @@ worker work must retain its pending/failure message until it actually completes;
 requesting digital execution is not completing it. Successful progress responses
 provide the next destination without an additional recipient request. An
 automatic next stage is identified as automatic without inventing an assignee.
-Final completion says the job is complete; where a certificate-download task
-remains, its actual recipient may be named. No later task means no recipient is
+Final completion says the job is complete only after the final certificate task
+is completed. Saving the certificate identifies the Records Manager receiving
+that final task and leaves the job active. No later task means no recipient is
 invented. Names remain subject to normal language fallback, queues are explicit,
 and no notification is emitted by an abandoned task-page callback.
 
 After a task is successfully completed from **My Tasks**, return the user to
 **My Tasks** instead of reopening the completed task with “No current task is
 available to you.” This applies to submission/resubmission, File Administrator
-and Unit Manager completion, review rejection, Records Manager approval,
+and Unit Manager completion, review rejection,
 external decisions and physical confirmation. Display the handoff confirmation
 before returning to the inbox, preserving its duration and localized recipient.
 The same person may receive the next task; it must be opened from the inbox
-rather than automatically taking over a different task. A committed Records
-Manager approval still returns to the inbox if subsequent report/request
-creation is pending; the warning remains visible and approval is not retried.
+rather than automatically taking over a different task. Records Manager
+approval is an exception: open the job’s Evidence and documents tab to inspect
+applied changes and deliberately send the request (§11.1/11.4). If report/request
+creation is pending, keep its warning/recovery controls without retrying approval.
 
 Keep the digital-destruction task open to show execution and certificate
-progress. Keep final completed-job/certificate-download views open so the user
-can inspect the outcome and download the certificate; physical-only final
-completion likewise stays visible. Draft Save, failed validation or concurrency
+progress. Keep the certificate task visible while the Records Manager checks the saved
+evidence and optionally downloads or emails it. Clicking **Complete this task**
+completes that task and the job atomically, then returns to My Tasks.
+Physical-only final completion stays visible. Draft Save, failed validation or concurrency
 checks, and claim/reassignment actions do not count as task completion and must
 not trigger this navigation. Abandoned pages do not redirect. Job details opened
 from Disposition jobs retain their job overview context and never redirect to
@@ -635,6 +638,14 @@ The server derives the available task and form actions from the current user,
 task, job stage, current role assignments, resource access, and job version. A
 client cannot reveal or enable an unauthorized action by choosing a URL or form
 identifier.
+
+The **Action required** blocker indicator on My Tasks and job details describes
+final execution: **Destruction blocked** for a destruction job, otherwise
+**Disposition blocked**. It must not say the resource is blocked from joining a
+job when it already belongs to that job. The cross-job task filter uses
+**Disposition blocked**, retaining the existing `blocked` query value. Admission
+wording remains specific to the eligibility/admission screen. This presentation
+distinction does not change membership, review permissions or execution checks.
 
 ### 6.3 Direct assignments, role queues, and claiming
 
@@ -962,7 +973,7 @@ flowchart TD
     U{Any digital content to destroy?}
     M[Digital destruction]
     N[Generate and save digital certificate]
-    O[Records Manager download task]
+    O[Records Manager final certificate task]
     P[Completed]
     END([End])
 
@@ -1137,6 +1148,41 @@ cannot resolve the active set in their current task, they reject the job for
 correction and record the reason. Unresolved conflicts or invalid active
 proposals prevent approval.
 
+The final approval confirmation is compact and contains counts by proposal type
+for the complete active set, including queued additions, revisions and
+withdrawals that would be saved on confirmation. It must not count only the
+visible page or selected row. It has no per-proposal list or expandable details;
+the user can cancel and inspect proposals in the task. The confirmation button
+is **Approve and apply changes**. Its explanation states that proposed resource
+changes are applied now and **no records are destroyed at this step**.
+
+When the remaining membership is certain to survive (including jobs containing
+only relationship removals or no proposals), explain that the system generates
+the proposal execution report and destruction request automatically, then
+creates the external-approval task; it is not a separate report-preparation task
+for the Records Manager. When successful application certainly removes every
+root through vital/security changes, explain that only the execution report is
+generated and identify the appropriate preparation/correction return stage;
+there is no destruction request or external-approval task for an empty job.
+Where retention, holds, new relationships or cascading removals make the exact
+surviving membership dependent on final validation, state both conditional next
+steps rather than promising a request. This explanation does not change which
+proposals are executable or the final authorization/atomicity rules.
+
+`POST /tasks/{task_id}/approval-summary` is a read-only, manager-task-authorized
+preview accepting the current task version, acting role and at most 100 queued
+review changes, with the current job version in If-Match. It returns existing
+approval tokens/versions plus `proposal_count`, `proposal_counts`, advisory
+`next_step` (`request`, `empty`, or `conditional`) and `empty_return_stage`.
+Only aggregated counts and the next-step explanation are exposed; resource names,
+IDs and proposal values are not returned. The preview does not save review work,
+create command receipts/history or execute proposals. Cancel leaves queued work
+unchanged. On confirmation, save work if needed, refresh approval tokens only if
+that save changed versions, and retain all stale/version and full-set execution
+checks. A clean confirmation reuses its existing preview instead of fetching it
+again. The summary is local to that confirmation, never cached across tasks,
+users or languages, and abandoned views do not open or act on it.
+
 The Records Manager may select **Approve and apply proposals** only when no
 aggregation in the job is marked **Proposed for removal**, every active proposal
 is complete and internally consistent, and Wathiq can authorize and validate
@@ -1249,6 +1295,39 @@ with references to the preserved proposal-change history. Each successful
 approval round retains its own report; later rounds do not overwrite it.
 Retries must not create duplicate report records for the same execution.
 
+The report shows a prominent organization-name header configured for Disposition, falling back
+to the tenancy root organization, and uses the same selected values-language
+policy as the destruction request. Include a numbered root aggregation listing
+with aggregation number/title, earliest/latest record-originated years,
+classification number, subtree record count and effective assigned location for
+physical/mixed roots. Include only roots targeted by executed proposals and any additional roots
+removed as a result, including cascading removals. Omit unaffected roots with
+no executed proposals. Do not list child aggregations or individual records.
+Use the heading **الملفات المتأثرة بالمقترحات المنفّذة / Aggregations affected by executed proposals**. The listing is captured when the report is generated.
+
+Include a separate numbered list of every executed proposal, showing its
+action, target, readable change details, original proposer, executing Manager,
+execution result, applied reason/source and any removed unit names. Relationship
+removals identify the relationship type and both endpoints using their numbers
+and titles. Do not rely on raw resource IDs to explain the changes. Preserve
+technical execution/history references in the saved report provenance. Use
+bilingual Arabic-first headings and repeating table headers across pages.
+Previously saved reports remain immutable.
+
+Generated disposition forms, reports and digital destruction certificates use
+readable governed-record titles in the generating user's enabled preferred
+language, with the job number (for example, “تقرير تنفيذ المقترحات — DT-2026-1”).
+For Arabic destruction-request records specifically, the title is exactly
+**إستمارة إتلاف** followed by a space and the destruction job number (for
+example, **إستمارة إتلاف DT-2026-1**). The proposal report title remains
+**تقرير تنفيذ المقترحات — DT-2026-1**. Do not use technical PDF filenames as generated record titles. Resolve the
+preference of the requesting user for worker-generated certificates. The saved
+title and its language are captured in artifact provenance. This title policy
+is independent of the configured document-values language. Uploaded evidence
+keeps its supplied title/filename wording. Existing saved titles and exact
+retries do not change when preferences change; PDF bytes, checksums and component
+filenames are unaffected by this title policy.
+
 ## 11. Request for Destruction Form
 
 ### 11.1 Generation
@@ -1261,60 +1340,114 @@ and metadata that exist after Section 10.1 succeeds; it must not include a unit
 removed because of an approved proposal. The job then enters
 `external_approval_pending`.
 
-### 11.2 Job information
+After a Records Manager approves and applies proposals, the UI opens the job’s
+Evidence and documents tab instead of returning to My Tasks. This is an
+exception to routine stage completion: the Manager must inspect the execution
+report, verify the applied changes, and preview/download the request before
+deliberately sending it. Existing document-generation pending/recovery states
+remain visible; failed generation must not be presented as successful. A Back
+to My Tasks action remains available. No new task or approval is introduced.
 
-The form includes at least:
+### 11.2 Request details and presentation
 
-- Wathiq job number and internal identifier;
-- job type: destruction;
-- owning organizational unit;
-- assigned Records Officer;
-- job creation date and form generation date;
-- total number of governing root aggregations;
-- total counts of descendant aggregations and records;
-- physical, digital, and mixed-medium counts;
-- File Administrator, Unit Manager, and Records Manager review and approval
-  summaries; and
-- a stable form version or checksum tying the form to the approved membership.
+At the top, show the requesting organization prominently, with the Records Unit contact email
+and phone. Administration → Settings → Disposition provides:
 
-### 11.3 Grouped summary
+- **Disposition organization name**: optional override; otherwise use the
+  tenancy root organization reached through the job owner's ancestry.
+- **Records Unit email** and **Records Unit phone**: optional contact details;
+  show a translated “Not specified” when unset. Do not invent contact details
+  or substitute the external authority's address or SMTP sender address.
+- **Destruction request values language**: **Arabic-first bilingual** by default,
+  or **User’s preferred language**. Helper text: “Use the preferred language of the user generating the destruction request.” The latter uses the generating user’s saved language preference. Existing saved requests keep their captured language on retries. Labels remain bilingual Arabic-first. Use saved entity
+  translations with canonical fallback; free text without a translation and
+  explicitly configured organization/authority names are printed as entered.
 
-The form does not list every aggregation. It groups the governing roots by
-their common terminal classification and effective retention rule. Each group
-shows:
+The form shows the job number, owning organization unit, assigned officer,
+generation date, **Aggregations** count, total records, physical/digital/mixed
+counts, internal review summaries, and form version. A checksum is not displayed on the destruction request;
+it remains internal integrity/provenance data. Transfer-document checksum
+requirements are unchanged.
+It omits destruction type, internal job identifier, job creation date,
+descendant aggregation count, approval review round and checksum from the displayed
+request. Technical values may remain in protected snapshot provenance.
 
-- terminal-classification code and title;
-- effective final disposition;
-- current and intermediate retention periods;
-- count of governing root aggregations;
-- counts of descendant aggregations and records; and
-- medium counts where applicable.
+**From Year** and **To Year** are the earliest and latest record-originated
+years over all active job members and all their descendant aggregations,
+using the application working timezone. They are not record ingestion dates.
+A job with no records shows “Not specified” for both. Generation verifies that
+the displayed bounds/details still match before saving the request.
 
-An aggregation with a local retention override remains grouped under its
-terminal classification, but the form clearly identifies that its effective
-rule comes from a local override. Local-override entries must not be combined
-with classification-rule entries in a way that conceals the different rule
-source. Aggregations may be grouped into separate subgroups when their local
-override values differ.
+Selected language policy, rendered values and timezone are captured with the
+immutable generated request. Later settings/preferences/contact changes do not
+rewrite issued requests, previews, downloads or exact saved email attachments.
+
+### 11.3 Aggregation listing on following pages
+
+After the request details, start the aggregation listing on a new page under
+the bilingual heading **الملفات المطلوب إتلافها / Aggregations requested for destruction**. Include
+one row for every active governing root aggregation to be destroyed, with a first column containing a continuous serial number starting at 1 across all pages, followed by its aggregation number, title, From Year, To Year,
+effective classification number and total records within its subtree. Do not list records or sub-aggregations as separate rows. Each
+row's years include records in that aggregation and its descendants. Empty
+subtrees show zero records and “Not specified” years. Job totals count each record once across the disjoint root subtrees.
+
+For physical or mixed aggregations, include the effective **Assigned location**,
+using existing location inheritance. Missing locations show “Not specified”;
+digital-only rows show “Not applicable”. This is the assigned location rather
+than the current physical location. Repeat table headers on continuation pages
+and retain the last row and long titles/locations without clipping. This list
+replaces the previously requested grouping by retention rule.
 
 ### 11.4 Request delivery and email sending
 
 The form specifies the **External archives authority name** configured in
 Administration → Settings → Disposition, defaulting to **Sharjah Archives**.
 Its generated version retains the name used at generation. The Records
-Officer can preview and download the form for physical delivery or another
-method, or use **Send by email** in the Send Request for Destruction Form task.
+Manager can preview/download the form and use **Send by email** from the job’s
+Evidence and documents tab. The assigned Records Officer can use the same
+action in the Send Request for Destruction Form task. Either can download the
+form for physical delivery or another method.
 The task displays the configured external authority email address before sending.
 
-Only the assigned Records Officer, with current task and job authorization,
-may use this action. The server attaches the exact generated request version,
+The Records Manager is responsible for checking the applied proposals and
+sending the request. An authorized Records Manager or the assigned Records
+Officer, with current job/content/download authorization, may use this action.
+The Manager does not need to claim the Officer’s external-decision task to send.
+The assigned Officer may also send or resend the request when required.
+Sending is deliberate; approval and document generation never send email
+automatically. Only the current approved request awaiting an external decision
+may be sent. The server attaches the exact generated request version,
 without regenerating it, and sends it using the configured SMTP service.
-The officer may deliberately send the same generated form multiple times by
+The request email body addresses the configured external archives authority,
+asks for approval of the attached Request for Destruction Form, and closes with
+“Yours faithfully,” or «وتفضلوا بقبول فائق الاحترام والتقدير،». The signature
+names the Records Manager who approved that review round, that Manager's acting
+role organization unit, and the disposition organization name (falling back to
+the localized tenancy root organization). An Officer sending or resending does
+not replace the approving Manager in this signature. The actual initiating
+user remains attributed in Email attempts.
+The Disposition request-language setting also governs this body: Arabic-first
+bilingual produces the Arabic letter followed by the English letter; User's
+preferred language uses the sending user's enabled language preference.
+Entity names use available translations with canonical-name fallback; explicitly
+configured authority/organization names are retained as entered. Capture the
+body with each deliberate attempt so later preference/settings changes do not
+alter queued correspondence or an exact retry. No automatic email is added.
+
+Either authorized sender may deliberately send the same generated form multiple times by
 clicking the button again. Each deliberate send creates a separate attempt;
 a retry of the same submission must not accidentally create an additional
 attempt. The send action remains available while that request awaits the
 external decision. Missing recipient or SMTP configuration prevents sending
 and produces a clear configuration error; preview and download remain available.
+
+In both task details and job details, **Evidence and documents** places an
+**Email attempts** section directly below **Send by email**. It remains
+inspectable when sending is no longer permitted. The section identifies the
+document, requested time, initiating user, recipient, sender, outcome time and
+status/error. It uses bounded server pagination and refreshes on reopening;
+request title/filename information is not repeated below the document table.
+Generation failure and renewed-review recovery controls remain available.
 
 The task shows each attempt's status: sending, accepted by SMTP server, failed,
 or outcome unknown when acceptance cannot be determined. Accepted by SMTP
@@ -1325,7 +1458,7 @@ understandable error without exposing credentials. Send processing and status
 remain available after navigation, and the officer can inspect earlier attempts.
 
 Each attempt records the job, review round, request version/document reference,
-recipient address, sender address, initiating officer with actor_type = 'user',
+recipient address, sender address, initiating Manager or Officer with actor_type = 'user',
 request and outcome timestamps, status, mail-server message identifier when
 available, and protected failure details. Attempts and outcomes are retained
 in job history; repeated sending does not change approvals, regenerate the
@@ -1557,8 +1690,9 @@ to status 10 and records all final-disposition fields required by the common
 specification.
 
 The job becomes completed only when every disposition unit has reached status
-10 and all required completion evidence has been saved. For a job with digital
-content, this includes the digital certificate described below. For a purely
+10 and all required completion evidence has been saved, and its last task has
+been completed. For a job with digital content, the Records Manager must click
+**Complete this task** after the digital certificate has been saved. For a purely
 physical-only job, the uploaded physical certificate suffices under Section
 17.3; no digital destruction, digital certificate, or digital-certificate
 download/email task is required.
@@ -1566,12 +1700,54 @@ download/email task is required.
 ## 16. Certificate of Destruction (Digital)
 
 For jobs requiring digital destruction, when destruction of every aggregation
-in the job succeeds, Wathiq generates a
-Certificate of Destruction (Digital) as proof for the external archival
-authority. The certificate identifies the job, destruction number, owning
-organizational unit, approved Request for Destruction Form, completion time,
-executing Records Manager, scope and counts destroyed, physical confirmation
-where applicable, and an integrity value tying it to the completed job.
+in the job succeeds, Wathiq generates a short Digital Destruction Certificate
+as proof for the external archival authority. The certificate contains:
+
+- The prominent Disposition organization name, falling back to the localized
+  tenancy-root organization name when no override is configured.
+- The title **شهادة الإتلاف الرقمي / Digital Destruction Certificate**.
+- The Arabic and English statement below, populated with the human-readable
+  job number, approved destruction number and actual digital completion date.
+- The participating Records Officer, File Administrator (if applicable), Unit
+  Manager (if applicable), and executing Records Manager, with each person's
+  organizational unit. Use completed preparation and approved review decisions
+  from the applicable approval round, plus permanent execution proof. Omit
+  skipped roles; never substitute role queues for the people who acted. A
+  Records Manager Only route must not invent a Records Officer participant.
+  Each person's unit comes from their recorded acting role. In particular,
+  preparation's task-completion audit event identifies the Officer's role;
+  the job's owning or routing unit must not substitute for the Officer's unit.
+  Missing historical role attribution shows an unspecified unit rather than
+  guessing. The participant heading uses the catalogue term **الدور / Role**.
+- The date this certificate was generated, distinct from destruction completion.
+
+English statement:
+
+> Pursuant to the approval of the Committee for Appraisal and Destruction of
+> Sharjah Archives for the destruction of records under Job No. {job number}
+> and Destruction Number {destruction number}, the Wathiq application completed
+> the digital destruction of the records on {completion date}.
+
+Arabic statement:
+
+> عملاً بموافقة لجنة الفرز والإتلاف في دار الوثائق في إمارة الشارقة على إتلاف
+> الوثائق ضمن عملية الإتلاف رقم {رقم العملية} وبرقم الإتلاف {رقم الإتلاف}، أتمّ
+> تطبيق وثق الإتلاف الرقمي للوثائق بتاريخ {تاريخ الإتمام}.
+
+Dates use the application working timezone and readable Arabic/English month
+names. The Disposition values-language setting applies to participant,
+organization and generation-date values. The certificate has no aggregation
+listing, year range, contact block, counts, physical confirmation block or
+visible checksum. Approved request references/checksum, physical confirmation
+reference and permanent destruction proof remain in internal snapshot and
+provenance; shortening the PDF does not remove that evidence. It does not alter
+metadata retention or search permissions. Existing issued certificate bytes
+remain unchanged; working repository v2 is provisional until finalized.
+
+Approved certificate terminology: Appraisal is **فرز**, Wathiq is **وثق**,
+and digital destruction is **الإتلاف الرقمي**. “Destruction job” is
+**عملية الإتلاف**, with **رقم عملية الإتلاف** identifying its job number;
+this is distinct from an assigned workflow task (مهمة).
 
 Generation and storage occur automatically. The certificate becomes job
 evidence and a governed Wathiq record in the latest open root aggregation
@@ -1584,16 +1760,36 @@ certificates or records.
 
 If destruction has succeeded but certificate generation or storage fails,
 retain the completed destruction progress and leave the job incomplete.
+The Current task page remains available during automatic certificate generation
+and storage, even while the workflow stage is Digital destruction. It states
+that destruction succeeded and the system is generating and saving the
+certificate. If certificate work fails, the page instead explains that the
+certificate could not be saved, shows the reported issue/destination and offers
+**Retry certificate generation and storage** to the authorized Records Manager.
+A certificate failure must not offer digital destruction again. A failed
+digital destruction run separately offers **Retry digital destruction**; that
+retry skips already-successful units and requires explicit confirmation.
+
 An authorized Records Manager retries certificate generation/storage only,
 after resolving the cause, without repeating destruction or physical
 confirmation. The task and Governance Custody warnings for unavailable
 destinations still apply. Successful recovery saves the required evidence and
-completes the job without duplicate certificate records.
+makes the final certificate task ready without duplicate certificate records.
 
-After successful generation and storage, Wathiq creates a task for the Records
-Manager to download the certificate and send it to the external archival
-authority. Wathiq records the download event. External delivery and receipt are
-outside Wathiq.
+After successful generation and storage, Wathiq creates the final certificate
+task for the Records Manager and leaves the job **active**, at Certificate
+generation. The saved evidence can be inspected, downloaded or sent by email.
+**Complete this task** closes the final task and completes the job in the same
+transaction, then returns the user to My Tasks where that task is no longer
+listed. Neither downloading nor emailing is required, and neither completes
+the task implicitly. Failure or stale authorization/version checks leave the
+task and job unchanged. Repeating the same successful command is idempotent.
+On upgrade, an existing prematurely completed job with an outstanding
+certificate task returns to active at Certificate generation. Preserve the
+saved certificate and destruction proof, retain the earlier completion event,
+and append an audited correction. Only explicit completion of that last task
+then completes the job.
+External delivery and receipt are outside Wathiq.
 
 The Records Manager can also select **Send by email** in this certificate task
 to send the exact saved Certificate of Destruction (Digital) as an attachment
@@ -1723,7 +1919,7 @@ destruction and do not cause this job to enter digital destruction.
 At implementation, the repository must contain these default editable
 Microsoft Word `.docx` templates:
 
-- `templates/disposition/destruction/request-for-destruction.default.v1.docx`;
+- `templates/disposition/destruction/request-for-destruction.default.v2.docx` (current working draft; consolidate as v1 and remove superseded request drafts when approved by the owner);
 - `templates/disposition/destruction/digital-destruction-certificate.default.v1.docx`.
 - `templates/disposition/destruction/proposal-execution-report.default.v1.docx`;
 - `templates/disposition/destruction/physical-preparation-report.default.v1.docx`.
@@ -1750,7 +1946,7 @@ counts, grouping, local-rule source indication, and review summaries in Section
 11. The certificate default contains the mandatory fields in Section 16,
 including the approved external destruction number and integrity information.
 None of the templates creates a new external numbering scheme. Generation replaces
-the placeholders with actual job data, repeats grouped rows as needed, and
+the placeholders with actual job data, repeats document rows as needed, and
 does not leave template instructions or unfilled placeholders in the output.
 
 Records Officers and Records Managers may download any current template,
@@ -2077,7 +2273,7 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-31 | The organization-wide Destruction review route defaults to Standard or may be set to Simplified through Administration Settings; each new job stores an immutable route used throughout internal correction and external-rejection cycles; Simplified bypasses File Administrator and Unit Manager only, with all other safeguards unchanged | Default and allowed values, authorized settings change, new-job route capture, existing-job isolation, per-job override rejection, both-route initial and repeat review, Standard no-role skip and unusable-role block, Simplified absence of bypassed tasks/approvals, route and bypass history/workspace/form display, and unchanged authorization/blocker/evidence tests |
 | DEST-32 | Earlier uploaded evidence is previewable in subsequent tasks subject to access rules; only the assigned Records Officer or an authorized Records Manager may correct uploads, preserving all evidence versions, governed-record links, and attributed job history without changing decisions or confirmations | Cross-task and later-round preview, access/redaction enforcement, both authorized correction roles, File Administrator/Unit Manager correction rejection, later-task correction availability, version and original-record preservation, current-version display, actor identity/type audit, storage rules, atomicity, retry deduplication, immutable confirmation preservation, and generated-document replacement rejection tests |
 | DEST-06 | Records Manager rejection repeats the applicable review loop; approval snapshots the exact reviewed membership, versions, and complete active proposal set | Authorization, conditional-stage, workflow, proposal-conflict, invalidation, concurrency, and snapshot tests |
-| DEST-07 | The external request uses only post-proposal remaining membership, groups roots by terminal classification and effective rule, shows counts, and clearly separates local-override rule sources | Grouping, hierarchy, local-rule, removed-unit exclusion, count, document-rendering, and large-job tests |
+| DEST-07 | The external request uses only post-proposal remaining membership and lists governing roots only, including each root’s descendant-inclusive record years/count and assigned physical/mixed location; it never lists records or sub-aggregations separately | Root-only hierarchy, removed-unit exclusion, subtree count/year, timezone, location inheritance, document-rendering and large-job tests |
 | DEST-08 | External approval requires a unique never-reused destruction number and approval letter, and saving the letter creates exactly one linked governed record | Boundary, uniqueness, idempotency, storage, authorization, and rollback tests |
 | DEST-30 | External rejection requires correction notes and a rejection-letter upload saved as a linked governed record in the latest open aggregation under the configured evidence classification; it returns the active job to its assigned Records Officer; resubmission starts a new applicable internal review cycle and new Records Manager approval generates a new request, preserving earlier requests, decisions, evidence, notes, and applied proposal history | Required correction notes and letter, evidence destination and digital-component creation, rejection/evidence/history/correction-task atomicity, retry deduplication, downstream note visibility, no destruction on rejected request, renewed review and conditional File Administrator routing, new request/version generation, repeated rejection cycles, historical decision and evidence retention, and no replay or automatic reversal of executed proposals tests |
 | DEST-09 | Any physical or mixed item requires physical destruction before digital destruction; a fully digital job skips physical destruction | Full-hierarchy medium, routing, and mixed-job tests |
@@ -2085,21 +2281,25 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-11 | Digital destruction requires explicit confirmation and a final current-state recheck | UI enablement, authorization, blocker, approval, stale-version, and race tests |
 | DEST-12 | Asynchronous destruction is durable, idempotent, resumable, accurately reports progress, and never marks partial work complete | Worker interruption, duplicate-worker, retry, storage, status, and progress tests |
 | DEST-13 | Mixed material reaches status 10 only after physical and digital destruction, and termination after physical destruction follows status 13 | State-transition, partial-destruction, termination, and recovery tests |
-| DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before completion and create a Records Manager download task; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, and download-history tests |
-| DEST-35 | Request forms show the configured authority name, default Sharjah Archives; the assigned Records Officer can repeatedly email the exact generated form to the configured authority address through SMTP, with truthful per-attempt status and permanent attributed history | Default/configured authority form rendering, recipient display and validation, task authorization, exact attachment/version, deliberate resend, same-submission retry deduplication, missing configuration, SMTP success/failure/unknown outcomes, no unsupported inbox-delivery claim, secret-safe errors, navigation/status persistence, settings-change history isolation, and no workflow advancement tests |
+| DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before creating the final Records Manager certificate task; explicit completion of this task atomically completes the job; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, and download-history tests |
+| DEST-46 | Request v2 uses configurable organization/Records Unit contacts and approving-Manager language policy, omits internal fields, shows whole-job record-originated year bounds and an root-aggregation-per-row section with subtree years/counts, classification and assigned physical/mixed location; issued documents and v1 defaults remain unchanged | Presentation/settings, language, inheritance, date timezone/empty scope, concurrent-change rejection, retained-default download and real multipage PDF/layout verification |
+| DEST-35 | Request forms show the configured authority name, default Sharjah Archives; an authorized Records Manager or the assigned Records Officer can repeatedly email the exact generated form to the configured authority address through SMTP, with truthful per-attempt status and permanent attributed history | Default/configured authority form rendering, recipient display and validation, task authorization, exact attachment/version, deliberate resend, same-submission retry deduplication, missing configuration, SMTP success/failure/unknown outcomes, no unsupported inbox-delivery claim, secret-safe errors, navigation/status persistence, settings-change history isolation, and no workflow advancement tests |
 | DEST-36 | An authorized Records Manager can repeatedly email the exact saved digital destruction certificate through the same authority-email and SMTP settings, including after job completion, with per-attempt status and attributed history and without regenerating evidence or changing outcomes | Records Manager authorization, configured recipient display, exact certificate attachment, shared SMTP configuration, repeat sending after completion, same-submission retry deduplication, missing configuration, success/failure/unknown status, truthful acceptance wording, secret-safe errors, navigation/status persistence, actor identity/type history, and no certificate/outcome mutation tests |
 | DEST-37 | Physical destruction generates a previewable/downloadable preparation report listing all physical/mixed aggregations in the job, grouped by terminal classification, with assigned/current locations and separate physical/mixed aggregation and record counts, saved as a linked governed record under Generated reports classification | Root and descendant coverage, digital-parent/physical-descendant coverage, classification grouping, location and inheritance/missing-value rendering, descendant counts, non-overlapping group/job totals, preview/download access, configured report destination, version/snapshot history, and retry deduplication tests |
 | DEST-39 | Request and digital certificate use bilingual Arabic-first Changa RTL Word templates stored at the documented repository paths; Records Officers and Records Managers can download and re-upload valid revisions, preserving all versions and artifact provenance, without signatures | Default-file existence, required placeholders and repeat-row coverage, DOCX validity, complete bilingual generation, multi-page RTL/LTR render and Changa checks, no signature blocks, both-role authorization and other-role denial, invalid-upload rejection, revision retention/download, user audit attribution, and generated-artifact template-version linkage tests |
 | DEST-38 | Destination selection uses the most recently opened still-open root under the configured classification; absence of a suitable root blocks the relevant task and produces warnings on that task and Governance Custody until resolved | Opening-date ordering, closed/child/wrong-classification exclusion, both destination types, upload/corrective-upload/report/digital-certificate task blocking, no fallback or false completion, task and custody warnings, and destination recheck/warning clearance tests |
 | DEST-34 | Each successful proposal execution produces a governed proposal execution report record under Generated reports classification in the latest open root aggregation, linked to the job, review round, and every execution result without overwriting earlier reports | Complete proposal-result coverage, configured report destination, governed-record and job/round linkage, execution actor and proposer attribution, change-history references, per-round report retention, and retry deduplication tests |
 | DEST-33 | Uploaded evidence and generated destruction-job reports are saved as records in the latest open root aggregation under their respective administrator-selected classifications; both classifications belong to the configured scheme and are stored as validated IDs without hardcoded numbers | Scheme-scoped bounded selectors, selected-value retention, ID validation, inconsistent scheme/classification rejection, arbitrary classification-number support, upload/report separation, approval/rejection/physical-certificate/corrective-upload destinations, request-form and digital-certificate destinations, root-only and open-only selection, recorded destination references, and preservation of earlier artifact destinations tests |
+| DEST-48 | Concise bilingual certificate shows the prominent organization, approval statement with job/destruction numbers and actual digital completion date, participating Officer/reviewers/Manager and their organizational units, and generation date; omit aggregation listing and repeated request details; retain permanent proof and request linkage internally; issued PDFs remain unchanged | Template validation and single-page bilingual PDF review; actual participant and skipped-route coverage; completion/retry/atomic-save regressions; permanent proof and approved request linkage retained |
+| DEST-49 | Preserve destroyed aggregation/record numbers and titles in their original read-only rows; authorized governance users search terminal disposition statuses through ordinary status filters, with current access and clearance enforced; other users receive no terminal results or counts, including forged/saved filters; destroyed results open retained metadata only | Real destruction and structured-search tests for both resource kinds; terminal-status authorization, no-filter exclusion, retained details, ordinary endpoint denial, canonical and upgrade migration checks, English/Arabic read-only UI verification |
 | DEST-15 | Generated evidence records are outside the destroyed disposition units and survive their destruction | Storage-boundary, hierarchy, search, and destruction tests |
 | DEST-16 | Every workflow action and generated artifact is permanently traceable to actor, time, job, review round, membership, reason, and evidence | Audit completeness and immutable-event tests |
 | DEST-17 | Relationships permit job admission but outside-job aggregation and record links block physical and digital destruction until authorized removal; review-stage removal is only a proposal with an optional individual reason, and execution checks disposition.jobs.manage, relationships.link, and endpoint view access against the approving Records Manager; links within one unit or the same job do not block or require removal; executed removal from either endpoint clears the relationship blocker for both units | Admission, same-job, descendant, review UI, task and endpoint-access authorization without execution privileges at proposal time, optional proposal reason, no blocker clearance before approval, approving-manager execution privileges and access, redaction, preserved proposal/execution audit, removal-refresh, pre-physical checks, pre-digital rechecks, and concurrent-link tests |
 | DEST-18 | All four participants may revise or withdraw one another's active proposals in the current review round only during their own open task, preserving the original proposer and every change; proposals make no resource change before final approval, which applies every current active proposal and cannot ignore conflicts or invalid proposals | Cross-participant revision and withdrawal, successor assignment, own-open-task and claimant enforcement, closed-task and executed-proposal edit rejection, original-proposer and last-editor UI attribution, previous/new-value and withdrawal history, current-version approval, complete-active-set execution, unresolved-conflict blocking, stage authorization, immutable-history, no-side-effect, redaction, and live-browser tests |
 | DEST-42 | File Administrator and Unit Manager completion permits redacted related resources without executing or endorsing hidden proposal effects; current claim, role, root access, version and stage checks remain mandatory, and final Records Manager approval validates the complete active set with current access and execution authority | `test_intermediate_review_completion.py`: both intermediate stages, aggregation/record endpoints, English/Arabic redaction, rejected protected edits, no side effects, immutable attributed snapshots, root/assignment/claim/version failures, restricted manager final approval rejection, authorized final execution, occupied migration retry; existing review/approval suites cover routing, marked removals, conflicts and privilege checks |
 | DEST-43 | Every completed stage identifies the actual next task recipient or shared queue in the user's language; automatic work and final completion are distinguished, queued/failed work never falsely reports completion, and abandoned pages do not notify | Handoff HTTP tests for both review stages, person/queue, exact retry and English/Arabic; post-review integration through external, physical, digital workers and certificate download; English/Arabic shared-notice tests, existing phase-specific pending/failure/liveness tests, and live browser verification |
-| DEST-44 | Completing a task returns to My Tasks after the localized handoff confirmation, except digital progress and final completion/certificate views; failures and draft saves stay put, committed approval with pending documents returns without reexecution, and job overviews retain their context | English/Arabic shared completion-routing and real ReviewForm action tests, all stage types, success/failure/committed-pending, notification-before-navigation, digital/final exceptions, abandonment and job-overview isolation; external/physical/digital/completion UI suites and live browser checks |
+| DEST-44 | Completing a task returns to My Tasks after the localized handoff confirmation, except Records Manager approval document verification, digital progress and final completion/certificate views; failures and draft saves stay put, committed approval with pending documents opens document recovery without reexecution, and job overviews retain their context | English/Arabic shared completion-routing and real ReviewForm action tests, all stage types, success/failure/committed-pending, notification-before-navigation, digital/final exceptions, abandonment and job-overview isolation; external/physical/digital/completion UI suites and live browser checks |
+| DEST-45 | Final approval confirmation shows complete active/pending counts by type, no expandable list, explicit apply button and no-destruction explanation, plus accurate or conditional next steps; Cancel is read-only and final validation remains atomic | Read-only API summary/queued-edit/stale/access/bounds tests, empty-route result versus actual execution, English/Arabic dialog count/cancel/next-step tests, clean token reuse and post-save refresh, client read-only POST cache tests and live browser checks |
 | DEST-29 | Records Officer preparation/correction and File Administrator, Unit Manager, and Records Manager review forms provide one Review comments field, optional on draft save and routine review, mandatory on submission/resubmission, rejection and Records Manager Only approval; comments are attributed and retained with submissions/decisions; legacy notes and reasons remain readable | All-stage form and downstream-visibility tests, own-note editing while task open, other-author edit rejection, successor attribution, saved-version history, correction-round retention, optional-note submission, mandatory-overall-reason enforcement, no-side-effect, access/redaction, and LTR/RTL live-browser tests |
 | DEST-19 | Final Records Manager approval validates and executes the complete proposal set using every underlying operation's current authorization; execution records the approving Records Manager as actor with actor_type = 'user' while preserving proposers and all proposal changes in history; any validation or execution failure leaves proposals, resources, membership, statuses, and approval unchanged | Vital, security, hold, relationship, retention-rule, stale-version, authorization, execution actor identity/type and acting-role attribution, preserved proposal and change-history linkage, atomic rollback, and protected-error tests |
 | DEST-20 | Proposal execution removes every directly or transitively proposal-blocked or non-matching unit before form generation, preserves applied proposals and correct post-removal statuses, and returns an empty resulting job to the Records Officer | Combined-proposal, cascading-link, fixed-point membership, status, empty-job, form-exclusion, and event-history tests |
@@ -2119,7 +2319,9 @@ larger-ID selection and current-setting destination changes with task warnings
 and preservation of earlier records. DEST-39 must verify PDF generation,
 saved PDF records, PDF downloads/attachments, and embedded Changa; only
 editable templates are Word files. Completion verification must show that
-certificate download or email is not a prerequisite for job completion.
+certificate download or email is not a prerequisite for job completion, while
+explicit completion of the final certificate task is required; saving the
+certificate alone leaves the job active and the task in My Tasks.
 
 DEST-02 must verify owning-unit locking on first review submission under both
 routes, including Simplified. DEST-17 and DEST-24 must cover record-link removal
@@ -2256,3 +2458,16 @@ change task responsibility. Audit and event history continue recording/showing
 the actual user and qualifying role. Officer, File Administrator, Unit Manager
 and Records Manager authority remain separate and are evaluated for the current
 action; holding one role never supplies another role's authority.
+
+
+### Retained identification and governance search
+
+Common disposition §14.2 now requires preserving aggregation/record numbers
+and titles in the read-only status-10 rows. Migration 089 changes future erasure
+accordingly while still removing descriptions, content, derivatives, original
+record dates and recoverable storage references. A permanent proof record also
+remains. Advanced Search uses disposition-status predicates for authorized
+governance users; no flag is added. Status-10 results open the retained metadata
+view. No non-governance caller may retrieve terminal-status rows/counts through
+search, including forged or saved filters. Existing erased titles/numbers are
+not reconstructed by the migration. Issued certificates remain unchanged.

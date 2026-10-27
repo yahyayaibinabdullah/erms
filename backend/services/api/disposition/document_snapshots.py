@@ -5,6 +5,7 @@ helpers never approve, remove, destroy or expose a new HTTP operation.
 """
 from collections import defaultdict
 
+from ..entity_localization import localized_projection
 from . import documents
 from .template_engine import invalid
 from .template_contract import PHYSICAL_COUNTS
@@ -35,6 +36,30 @@ def capture(c,job_id):
 def counts(aggregations,records,roots=0):
     return {'roots':roots,'descendant_aggregations':len(aggregations)-roots,'records':len(records),
       **{medium:sum(x['medium']==medium for x in aggregations+records) for medium in ('physical','digital','mixed')}}
+
+
+def wording(value,language='bilingual'):
+    arabic,english=value.split(' / ',1)
+    return value if language=='bilingual' else arabic if language.split('-')[0]=='ar' else english
+
+
+def unspecified(language='bilingual'):
+    return wording(NOT_SPECIFIED,language)
+
+
+def request_language(c,settings,round_id=None):
+    if settings['DISPOSITION_REQUEST_LANGUAGE']=='arabic_first_bilingual':return 'bilingual'
+    from ..entity_localization import preferred_language_for_user
+    # Keep the persisted manager_preference value for compatibility; use the generating actor.
+    user_id=c.execute('SELECT current_user_id() id').fetchone()['id']
+    return preferred_language_for_user(c,user_id)
+
+
+def bilingual(row, field='name', language='bilingual'):
+    original=row.get(field) or unspecified(language)
+    if language!='bilingual':return localized_projection(row,language,field).get(field) or original
+    arabic=localized_projection(row,'ar',field).get(field) or original
+    return arabic if arabic==original else arabic+' / '+original
 
 
 def request_groups(source):
@@ -100,21 +125,85 @@ def physical_rows(source):
     return rows,totals,'; '.join(class_totals) or NOT_SPECIFIED
 
 
-def job_fields(c,job_id,generated_at):
-    job=c.execute('''SELECT j.*,o.name AS owner,u.name AS officer FROM disposition_jobs j
+def job_fields(c,job_id,generated_at,*,bilingual_values=False,language='bilingual'):
+    job=c.execute('''SELECT j.*,o.name AS owner,u.name AS officer,o.translations AS owner_translations,u.translations AS officer_translations FROM disposition_jobs j
       JOIN org_units o ON o.id=j.owning_org_unit_id LEFT JOIN users u ON u.id=j.assigned_user_id WHERE j.id=%s''',(job_id,)).fetchone()
     if not job['officer']:invalid('disposition_assignment_required',409)
     return {'job.id':job_id,'job.number':job['job_number'],'job.type':job['job_type'],
-      'job.owner':job['owner'],'job.officer':job['officer'],'job.created_at':job['date_created'].isoformat(),'generated_at':generated_at}
+      'job.owner':bilingual({'name':job['owner'],'translations':job['owner_translations']},language=language) if bilingual_values else job['owner'],'job.officer':bilingual({'name':job['officer'],'translations':job['officer_translations']},language=language) if bilingual_values else job['officer'],'job.created_at':job['date_created'].isoformat(),'generated_at':generated_at}
+
+
+def request_aggregation_rows(c,job_id,timezone,language='bilingual'):
+    source=capture(c,job_id)
+    dates={row['id']:row for row in c.execute("""SELECT r.aggregation_id id,
+      min(extract(year FROM r.date_originated AT TIME ZONE %s))::integer from_year,
+      max(extract(year FROM r.date_originated AT TIME ZONE %s))::integer to_year,
+      count(*)::integer records
+      FROM disposition_job_memberships m CROSS JOIN LATERAL disposition_private.unit_ids(m.root_aggregation_id) unit(id)
+      JOIN records r ON r.aggregation_id=unit.id WHERE m.job_id=%s AND m.membership_state='active'
+      GROUP BY r.aggregation_id""",(timezone,timezone,job_id)).fetchall()}
+    by_id={a['id']:a for a in source['aggregations']};children=defaultdict(list)
+    totals={a['id']:dict(dates.get(a['id'],{'from_year':None,'to_year':None,'records':0})) for a in source['aggregations']}
+    for a in source['aggregations']:children[a['parent_aggregation_id']].append(a['id'])
+    pending=[a['id'] for a in source['aggregations'] if a['parent_aggregation_id'] not in by_id];order=[]
+    while pending:
+        identity=pending.pop();order.append(identity);pending.extend(children[identity])
+    for identity in reversed(order):
+        parent=by_id[identity]['parent_aggregation_id']
+        if parent not in totals:continue
+        own=totals[identity];target=totals[parent];target['records']+=own['records']
+        for key,aggregate in [('from_year',min),('to_year',max)]:
+            values=[v for v in (target[key],own[key]) if v is not None]
+            target[key]=aggregate(values) if values else None
+    rows=[];root_ids={root['id'] for root in source['roots']}
+    for a in sorted((a for a in source['aggregations'] if a['id'] in root_ids),key=lambda a:(a['classification_code'],a['aggregation_number'],a['id'])):
+        total=totals[a['id']]
+        rows.append({'aggregation.serial_number':len(rows)+1,'aggregation.number':a['aggregation_number'],'aggregation.title':a['title'],
+          'aggregation.from_year':total['from_year'] if total['from_year'] is not None else unspecified(language),
+          'aggregation.to_year':total['to_year'] if total['to_year'] is not None else unspecified(language),
+          'aggregation.classification_code':a['classification_code'],'aggregation.records':total['records'],
+          'aggregation.assigned_location':(a['assigned_location'] or unspecified(language)) if a['medium'] in ('physical','mixed') else wording('لا ينطبق / Not applicable',language)})
+    return rows
+
+
+def request_years(c,job_id,timezone,language='bilingual'):
+    bounds=c.execute("""SELECT min(extract(year FROM r.date_originated AT TIME ZONE %s))::integer AS from_year,
+      max(extract(year FROM r.date_originated AT TIME ZONE %s))::integer AS to_year
+      FROM disposition_job_memberships m CROSS JOIN LATERAL disposition_private.unit_ids(m.root_aggregation_id) unit(id)
+      JOIN records r ON r.aggregation_id=unit.id WHERE m.job_id=%s AND m.membership_state='active'""",(timezone,timezone,job_id)).fetchone()
+    return {'records.from_year':bounds['from_year'] if bounds['from_year'] is not None else unspecified(language),
+            'records.to_year':bounds['to_year'] if bounds['to_year'] is not None else unspecified(language)}
+
+
+def request_organization(c,job_id,settings=None,language='bilingual'):
+    if settings is None:
+        from ..application_settings import load_snapshot
+        settings=load_snapshot(c)
+    root=c.execute("""WITH RECURSIVE chain AS (
+      SELECT o.id,o.parent_org_unit_id,o.name,o.translations FROM disposition_jobs j JOIN org_units o ON o.id=j.owning_org_unit_id WHERE j.id=%s
+      UNION ALL SELECT o.id,o.parent_org_unit_id,o.name,o.translations FROM org_units o JOIN chain child ON child.parent_org_unit_id=o.id)
+      SELECT name,translations FROM chain WHERE parent_org_unit_id IS NULL""",(job_id,)).fetchone()
+    if not root:invalid('disposition_document_snapshot_invalid')
+    return {'organization.name':settings['DISPOSITION_ORGANIZATION_NAME'] or bilingual(root,language=language),
+            'organization.email':settings['DISPOSITION_RECORDS_UNIT_EMAIL'] or unspecified(language),
+            'organization.phone':settings['DISPOSITION_RECORDS_UNIT_PHONE'] or unspecified(language)}
+
+
+def certificate_identification(source,rows):
+    root_ids={a['aggregation_number']:a['id'] for a in source['aggregations'] if a['id'] in {r['id'] for r in source['roots']}}
+    return [{**row,'aggregation.root_id':root_ids[row['aggregation.number']]} for row in rows]
 
 
 def request_snapshot(c,job_id,*,authority_name,review_summaries,review_round,form_version,generated_at):
+    from ..application_settings import load_snapshot
+    settings=load_snapshot(c);language=request_language(c,settings)
     source=capture(c,job_id)
     if not source['roots']:invalid('disposition_document_snapshot_invalid')
-    return {'source':source,'fields':{**job_fields(c,job_id,generated_at),'authority.name':authority_name,
+    rows=request_aggregation_rows(c,job_id,settings['DEFAULT_WORKING_TIMEZONE'],language)
+    return {'source':source,'fields':{**job_fields(c,job_id,generated_at,bilingual_values=True,language=language),**request_organization(c,job_id,settings,language),**request_years(c,job_id,settings['DEFAULT_WORKING_TIMEZONE'],language),'authority.name':authority_name,
       **{'counts.'+k:v for k,v in counts(source['aggregations'],source['records'],len(source['roots'])).items()},
       **{'review.'+k:v for k,v in review_summaries.items()},'review.round':review_round,'form.version':form_version,
-      'membership.checksum':documents.checksum(source)},'groups':request_groups(source)}
+      'membership.checksum':documents.checksum(source)},'aggregations':rows}
 
 
 def preparation_snapshot(c,job_id,*,report_version,generated_at):

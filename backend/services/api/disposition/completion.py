@@ -1,7 +1,8 @@
 """Recoverable certificate-only completion; no operation here repeats deletion.
 
 Rendering and staging occur before the final, fresh authorization transaction.
-The saved certificate, completion, download task and history commit together.
+The saved certificate and final acknowledgment task commit together. Only the
+explicit final task command commits job completion.
 Only private worker checkpoints survive failure. There is no process cache.
 """
 from io import BytesIO
@@ -13,7 +14,7 @@ from starlette.datastructures import Headers
 
 from ..application_settings import load_snapshot
 from ..content_storage import stage_governed_upload
-from . import artifacts, documents, document_snapshots, external
+from . import artifacts, documents, external
 from .commands import execute_command
 
 KIND = 'digital_destruction_certificate'
@@ -26,13 +27,11 @@ def identity(c, user, source='scheduled_job'):
 def snapshot(c, job_id):
     """Use permanent proof, never removed content or a browser-supplied snapshot."""
     proof = c.execute('''SELECT resource_kind,resource_id,root_id,medium,destroyed_at,
-      executor_user_id,executor_name,final_event_id FROM disposition_retained_records
+      executor_user_id,executor_name,final_event_id,method FROM disposition_retained_records
       WHERE job_id=%s ORDER BY resource_kind,resource_id''', (job_id,)).fetchall()
     if not proof:
         raise HTTPException(409, detail={'code': 'disposition_completion_unfinished'})
     source = [{**r, 'destroyed_at': r['destroyed_at'].isoformat()} for r in proof]
-    roots = sorted({r['root_id'] for r in proof})
-    at = max(r['destroyed_at'] for r in proof).isoformat()
     job = c.execute('SELECT * FROM disposition_jobs WHERE id=%s', (job_id,)).fetchone()
     approval = c.execute('''SELECT a.request_document_id,d.checksum FROM disposition_external_approvals a
       JOIN disposition_review_rounds r ON r.id=a.round_id JOIN disposition_job_documents d ON d.id=a.request_document_id
@@ -40,26 +39,17 @@ def snapshot(c, job_id):
     if not approval:
         raise HTTPException(409, detail={'code': 'disposition_approval_invalidated'})
     physical = c.execute('SELECT id,certificate_reference,confirmed_at,confirmed_by_user_id FROM disposition_physical_confirmations WHERE job_id=%s', (job_id,)).fetchone()
-    physical_value = ('لا ينطبق / Not applicable' if not physical else
-                      f"{physical['certificate_reference']} · {physical['confirmed_at'].isoformat()} · user #{physical['confirmed_by_user_id']}")
     source_value = {'proof': source, 'job_id': job_id, 'destruction_number': job['destruction_number'],
                     'approved_request_id': approval['request_document_id'], 'approved_request_checksum': approval['checksum'],
                     'physical_confirmation_id': physical['id'] if physical else None}
-    counts = document_snapshots.counts([r for r in proof if r['resource_kind'] == 'aggregation'],
-                                     [r for r in proof if r['resource_kind'] == 'record'], len(roots))
     generation = c.execute('SELECT started_at FROM disposition_private.completion_work WHERE job_id=%s', (job_id,)).fetchone()
     if not generation or not generation['started_at']:
         raise HTTPException(409, detail={'code': 'disposition_completion_unfinished'})
-    # Destruction time and actor remain the immutable outcome. Generation time
-    # identifies this certificate attempt, which may be days after destruction.
-    return {'source': source_value, 'fields': {
-        **document_snapshots.job_fields(c, job_id, generation['started_at'].isoformat()),
-        'external.destruction_number': job['destruction_number'],
-        'approved_request.reference': f"#{approval['request_document_id']}",
-        'completed_at': at, 'execution.manager': '; '.join(sorted({f"{r['executor_name']} (#{r['executor_user_id']})" for r in proof})),
-        'execution.scope': '; '.join(f"aggregation #{root}" for root in roots),
-        **{'counts.' + k: v for k, v in counts.items()},
-        'physical.confirmation': physical_value, 'integrity.value': documents.checksum(source_value)}}
+    # The outcome date and executor come from permanent proof; generation time
+    # belongs to this certificate attempt and can be later than destruction.
+    from .certificate_presentation import presentation
+    fields,participants,_=presentation(c,job,proof,load_snapshot(c),generation['started_at'])
+    return {'source': source_value, 'participants':participants, 'fields':fields}
 
 
 def retry(c, *, job_id, task_id, task_version, expected_version, acting_role_id, command_id, reason=None):
@@ -94,12 +84,15 @@ def view(c, job):
             'completed': job['lifecycle_state'] == 'completed'}
 
 
-def downloaded(c, job_id, document_id):
-    """Record the Manager's actual authorized download; completion preceded it."""
-    row = c.execute("SELECT t.id,r.id AS role_id FROM disposition_tasks t JOIN roles r ON disposition_private.task_eligible(current_user_id(),t.id,r.id) WHERE t.job_id=%s AND t.task_type='certificate_download' AND t.task_state='open' ORDER BY r.id LIMIT 1", (job_id,)).fetchone()
-    if not row:
-        return
-    return execute_command(c, command_id=uuid4(), operation='task_complete', payload=dict(job_id=job_id, task_id=row['id'], document_id=document_id), acting_role_id=row['role_id'], reason='Download saved digital destruction certificate', apply=lambda x: x.execute('SELECT disposition_private.finish_certificate_download(%s,%s) result', (job_id, document_id)).fetchone()['result'])
+def complete_task(c, *, job_id, task_id, task_version, expected_version, acting_role_id, command_id, reason=None):
+    """Explicit final acknowledgment; neither download nor email is required."""
+    from .commands import lock_job
+    def apply(x):
+        lock_job(x, job_id, expected_version)
+        return x.execute('SELECT disposition_private.complete_certificate_task(%s,%s,%s) result', (job_id,task_id,task_version)).fetchone()['result']
+    return execute_command(c, command_id=command_id, operation='final_complete',
+        payload=dict(job_id=job_id,task_id=task_id,task_version=task_version,expected_version=expected_version),
+        acting_role_id=acting_role_id,reason='Complete final certificate task',apply=apply)
 
 
 def fail(c, job_id, code, source='scheduled_job'):
@@ -171,7 +164,7 @@ def process_one(factory,*,event_source='scheduled_job'):
                         x.execute('DELETE FROM disposition_private.completion_context WHERE transaction_id=txid_current()')
                         return result
                     document = execute_command(c, command_id=uuid5(work['request_id'], 'certificate'), operation='document_save', payload={'job_id': work['job_id'], 'completion_request_id': str(work['request_id'])}, acting_role_id=work['acting_role_id'], reason='Store digital destruction certificate', apply=save)
-                    execute_command(c, command_id=uuid5(work['request_id'], 'complete'), operation='final_complete', payload={'job_id': work['job_id'], 'certificate_document_id': document['id']}, acting_role_id=work['acting_role_id'], reason='Complete destruction with saved certificate', apply=lambda x: x.execute('SELECT disposition_private.finish_destruction_job(%s,%s) result', (work['job_id'], document['id'])).fetchone()['result'])
+                    execute_command(c, command_id=uuid5(work['request_id'], 'complete'), operation='final_complete', payload={'job_id': work['job_id'], 'certificate_document_id': document['id']}, acting_role_id=work['acting_role_id'], reason='Prepare final task with saved certificate', apply=lambda x: x.execute('SELECT disposition_private.finish_destruction_job(%s,%s) result', (work['job_id'], document['id'])).fetchone()['result'])
                     c.commit()
             except Exception as error:
                 c.rollback()

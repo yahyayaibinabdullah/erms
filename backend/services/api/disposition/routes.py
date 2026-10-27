@@ -225,9 +225,6 @@ def document_content(job_id: int,document_id: int,request: Request,c: Connection
     from ..main import download_digital_component_content
     row=artifacts.document(c,job_id,document_id)
     response=download_digital_component_content(row['digital_component_id'],request,c)
-    if row['document_type']=='digital_destruction_certificate':
-        from .completion import downloaded
-        downloaded(c,job_id,document_id)
     return response
 
 
@@ -501,6 +498,27 @@ def preview_proposal_approval(task_id: int,acting_role_id: int=Query(ge=1),c: Co
         raise HTTPException(403,detail={'code':'disposition_approval_unavailable'}) from None
 
 
+class ApprovalSummary(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    acting_role_id: StrictInt=Field(ge=1)
+    task_version: StrictInt=Field(ge=1)
+    changes: list[Annotated[ReviewCreate | ReviewRevise | ReviewWithdraw,Field(discriminator='action')]]=Field(default_factory=list,max_length=100)
+
+
+@router.post('/tasks/{task_id}/approval-summary')
+def approval_summary(task_id:int,payload:ApprovalSummary,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
+    from . import approval
+    try:
+        with c.transaction():
+            return approval.confirmation(c,task_id=task_id,acting_role_id=payload.acting_role_id,expected_version=version,task_version=payload.task_version,changes=[v.model_dump() for v in payload.changes])
+    except StaleVersion:
+        raise HTTPException(409,detail={'code':'disposition_stale_version'}) from None
+    except psycopg.Error as error:
+        code=error.diag.message_primary or ''
+        safe=code if code.startswith('disposition_') and code.replace('_','').isalnum() else 'disposition_command_failed'
+        raise HTTPException(403 if error.sqlstate=='42501' else 409,detail={'code':safe}) from None
+
+
 @router.post('/tasks/{task_id}/approve-proposals')
 def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import approval
@@ -729,6 +747,12 @@ class DigitalDestruction(Command):
 class RetryCertificate(Command):
     task_id: StrictInt=Field(ge=1)
     task_version: StrictInt=Field(ge=1)
+
+
+@router.post('/jobs/{job_id}/complete-certificate-task')
+def complete_certificate_task(job_id:int,payload:RetryCertificate,request:Request,version:int=Depends(expected_version),c:Connection=Depends(get_consistent_connection,scope='function')):
+    from . import completion
+    return _command(c,request,payload,completion.complete_task,audit_reason='Complete final certificate task',job_id=job_id,task_id=payload.task_id,task_version=payload.task_version,expected_version=version)
 
 
 @router.post('/jobs/{job_id}/retry-certificate')

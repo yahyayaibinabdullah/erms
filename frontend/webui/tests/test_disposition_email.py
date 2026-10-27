@@ -61,3 +61,31 @@ async def test_abandoned_send_does_not_render_stale_feedback(host,monkeypatch):
     api.disposition_command=send;button=next(e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('send_email'))
     with host:await click(button)
     assert not notices and not f.busy
+
+
+@pytest.mark.asyncio
+async def test_history_lives_in_documents_and_refreshes_only_while_visible(host,monkeypatch):
+    from frontend.webui.disposition.email import controls
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    api=Api();v=view(actions=());v['task']=None;v['email']={'recipient':'authority@test.invalid','documents':[],'roles':[]}
+    visible=[False]
+    async def after(*a):pass
+    with host:
+        documents=ui.column();history=ui.column()
+        f=ReviewForm(api=api,workspace=v,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=after,format_timestamp=str,open_resource=None,documents_host=documents,history_host=history,documents_active=lambda:visible[0])
+        await f.load()
+        controls(f,host=documents)  # Rebuilding controls must not duplicate history.
+    sections=[e for e in documents.descendants() if isinstance(e,ui.expansion) and e.text==text('email_attempts')]
+    assert len(sections)==1
+    assert not any(isinstance(e,ui.expansion) and e.text==text('email_attempts') for e in history.descendants())
+    with host:
+        sections[0].value=True;await asyncio.sleep(0);await asyncio.sleep(0)
+        assert not api.reads
+        visible[0]=True;await f.refresh_email_history()
+        assert len(api.reads)==1 and api.reads[0][1]['limit']==25
+        visible[0]=False;await f.refresh_email_history()
+        assert len(api.reads)==1
+        visible[0]=True;await f.refresh_email_history()
+        assert len(api.reads)==2  # Re-entry refreshes; there is no result cache.
+        f.active=lambda:False;await f.refresh_email_history()
+        assert len(api.reads)==2

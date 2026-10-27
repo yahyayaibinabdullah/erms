@@ -82,3 +82,16 @@ async def test_destroyed_members_with_removed_names_render_retained_actions(host
     assert table.rows[0]['identity']==text('retained_unit',id=91) and not table.rows[0]['can_remove']
     assert 'retained-unit' in table.slots['body-cell-actions'].template
     assert '!props.row.destroyed' in table.slots['body-cell-actions'].template
+
+
+@pytest.mark.asyncio
+async def test_retained_search_result_is_readable_and_has_no_live_edit_or_content_actions(host,monkeypatch):
+    from frontend.webui.disposition.destruction import retained_detail
+    proof={'title':'Identifying title','resource_number':'1141/2026/1.1','job_number':'DT-2026-1','medium':'digital','security_label':'Public','executor_name':'Manager','destroyed_at':'2026-10-27','rule_snapshot':{'current_period_years':2,'intermediate_period_years':3}}
+    with host:
+        await retained_detail(api=None,proof=proof,active=lambda:True,on_error=str,format_timestamp=lambda value:'Local '+value)
+        labels=[e.text for e in host.descendants() if isinstance(e,ui.label)]
+        assert text('retained_read_only') in labels and 'Identifying title' in labels and '1141/2026/1.1' in labels
+        assert 'Local 2026-10-27' in labels
+        assert not any(isinstance(e,(ui.code,ui.input,ui.textarea)) for e in host.descendants())
+        assert [e.text for e in host.descendants() if isinstance(e,ui.button)]==[text('cancel')]

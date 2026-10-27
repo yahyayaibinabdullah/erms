@@ -147,6 +147,18 @@ def retained(c,kind,identity,*,audit=False):
         kind,identity='record',item['record_id']
     row=c.execute('SELECT * FROM disposition_retained_records WHERE resource_kind=%s AND resource_id=%s AND disposition_private.retained_access(resource_kind,resource_id,%s)',(kind,identity,audit)).fetchone()
     if not row:raise HTTPException(404,detail={'code':'disposition_retained_unavailable'})
+    identity_row=c.execute('SELECT title,'+('aggregation_number' if kind=='aggregation' else 'record_number')+' AS resource_number FROM '+('aggregations' if kind=='aggregation' else 'records')+' WHERE id=%s',(identity,)).fetchone()
+    row.update(identity_row or {})
+    from ..entity_localization import preferred_language_for_user,localized_projection
+    language=preferred_language_for_user(c,c.execute('SELECT current_user_id() id').fetchone()['id'])
+    labels=c.execute('SELECT o.name owner_name,o.translations owner_translations,cl.title classification_title,cl.translations classification_translations,s.name security_name,s.translations security_translations,u.name executor_current_name,u.translations executor_translations FROM org_units o,classifications cl,security_levels s,users u WHERE o.id=%s AND cl.id=%s AND s.id=%s AND u.id=%s',(row['owning_org_unit_id'],row['classification_id'],row['security_level_id'],row['executor_user_id'])).fetchone()
+    if labels:
+        row['executor_label']=localized_projection({'name':labels['executor_current_name'],'translations':labels['executor_translations']},language,'name')['name'] if labels['executor_current_name']==row['executor_name'] else row['executor_name']
+        row['owner_label']=localized_projection({'name':labels['owner_name'],'translations':labels['owner_translations']},language,'name')['name'] if labels['owner_name']==row['owner_snapshot'].get('name') else row['owner_snapshot'].get('name')
+        title=localized_projection({'title':labels['classification_title'],'translations':labels['classification_translations']},language,'title')['title'] if labels['classification_title']==row['classification_snapshot'].get('title') else row['classification_snapshot'].get('title')
+        row['classification_label']=' · '.join(str(v) for v in (row['classification_snapshot'].get('code'),title) if v)
+        row['security_label']=localized_projection({'name':labels['security_name'],'translations':labels['security_translations']},language,'name')['name']
+    row['job_number']=c.execute('SELECT job_number FROM disposition_jobs WHERE id=%s',(row['job_id'],)).fetchone()['job_number']
     row['manifest_count']=c.execute('SELECT count(*) n FROM disposition_destruction_manifest_items WHERE job_id=%s AND root_id=%s',(row['job_id'],row['root_id'])).fetchone()['n']
     return row
 

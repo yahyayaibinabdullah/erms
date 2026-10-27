@@ -18,9 +18,7 @@ def controls(form):
         ui.label(text('execution_progress')).classes('text-lg font-semibold')
         summary=ui.label('').props('role=status')
         error=ui.label('').props('role=alert').classes('text-negative')
-        done=ui.label(text('digital_done_completion_pending')).classes('text-sm text-slate-600')
         def render(progress):
-            done.set_visibility(bool(progress and progress['state']=='succeeded'))
             if not progress:summary.text=text('execution_not_requested');error.text='';return
             summary.text=text('execution_counts',state=text('execution_'+progress['state']),completed=progress['overall_completed_units'],total=progress['overall_total_units'],queued=progress['queued_units'],running=progress['running_units'],failed=progress['failed_units'])
             error.text=text(progress['last_error_code']) if progress.get('last_error_code') in KEYS else text('execution_action_required') if progress['state']=='failed' else ''
@@ -51,7 +49,9 @@ def controls(form):
                 state['progress']=latest;render(latest)
                 if not latest or latest['state'] in ('succeeded','failed'):
                     timer.deactivate()
-                    if latest and latest['state']=='succeeded':notify_completion(latest,'digital_done_completion_pending')
+                    if latest and latest['state']=='succeeded':
+                        from .completion import status_message
+                        notify_completion(latest,status_message(form.view))
                     await form.after(latest or {})
             except ApiError as problem:
                 timer.deactivate()
@@ -68,7 +68,24 @@ async def retained_detail(*,api,proof,active,on_error,format_timestamp=str):
     with dialog,ui.card().classes('p-5 gap-4').style('width: 1024px; max-width: calc(100vw - 32px)'):
         ui.label(text('retained_record')).classes('text-xl font-semibold')
         ui.label(text('retained_read_only')).classes('text-sm text-slate-600')
-        ui.code(json.dumps(proof,default=str,ensure_ascii=False,indent=2),language='json').props('dir=ltr').classes('w-full')
+        from .messages import status_label
+        facts=[('title',proof.get('title')),('number',proof.get('resource_number')),
+               ('status',status_label(10)),('job_number',proof.get('job_number')),
+               ('classification',proof.get('classification_label') or ' · '.join(str(v) for v in ((proof.get('classification_snapshot') or {}).get('code'),(proof.get('classification_snapshot') or {}).get('title')) if v)),
+               ('owner',proof.get('owner_label') or (proof.get('owner_snapshot') or {}).get('name')),
+               ('security_level_id',proof.get('security_label')),
+               ('history_current_years',(proof.get('rule_snapshot') or {}).get('current_period_years')),
+               ('history_intermediate_years',(proof.get('rule_snapshot') or {}).get('intermediate_period_years')),
+               ('medium',text(proof['medium']) if proof.get('medium') in KEYS else proof.get('medium')),
+               ('history_closed_at',format_timestamp(proof['date_closed']) if proof.get('date_closed') else None),
+               ('due',format_timestamp(proof['calculated_disposition_at']) if proof.get('calculated_disposition_at') else None),
+               ('history_executed_at',format_timestamp(proof['destroyed_at']) if proof.get('destroyed_at') else None),
+               ('actor',proof.get('executor_label') or proof.get('executor_name')),('destruction_number',proof.get('destruction_number'))]
+        with ui.grid().classes('w-full grid-cols-1 md:grid-cols-2 gap-4'):
+            for label,value in facts:
+                with ui.column().classes('w-full gap-1'):
+                    ui.label(text(label)).classes('font-semibold')
+                    ui.label(str(value) if value is not None and value!='' else '—').props('dir=auto').classes('whitespace-normal')
         async def manifest():
             await manifest_dialog(api=api,proof=proof,active=lambda:active() and dialog.value,on_error=on_error,format_timestamp=format_timestamp)
         if proof.get('manifest_count'):ui.button(text('destruction_manifest'),icon='fact_check',on_click=manifest).tooltip(text('destruction_manifest')).props('outline no-caps')

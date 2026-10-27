@@ -17,7 +17,7 @@ import pytest
 
 from backend.services.api.application_settings import load_snapshot
 from backend.services.api.disposition import documents as d,template_engine as e,document_snapshots as snapshots
-from backend.services.api.disposition.template_contract import CONTRACTS,row_fields
+from backend.services.api.disposition.template_contract import CONTRACTS,row_fields,group_fields
 from backend.services.api.tests.test_disposition_artifacts import fixture,officer
 from backend.services.api.tests.test_disposition_membership import db,setup,actor,ready,admit,job_version
 
@@ -30,16 +30,19 @@ def sample(kind,job_id=1,rows=1):
     fields.update({'job.id':job_id,'job.number':'DEST-2026-001','generated_at':'2026-10-15T10:00:00Z',
       'job.created_at':'2026-10-01T09:00:00Z','job.type':'Destruction / إتلاف','job.owner':'وحدة الوثائق / Records Unit',
       'job.officer':'مسؤول الوثائق / Records Officer'})
+    if kind=='digital_destruction_certificate':
+        fields={key:value for key,value in fields.items() if key in c.fields}
+        fields['certificate.statement.en']='Pursuant to approval for DEST-2026-001, digital destruction completed.'
     for k in fields:
         if k.startswith(('counts.','totals.')):fields[k]=1
     if 'integrity.value' in fields:fields['integrity.value']='sha256:'+('ab'*32)
     if 'membership.checksum' in fields:fields['membership.checksum']='sha256:'+('cd'*32)
     result={'fields':fields}
-    if c.group:
-        row={k:'قيمة فعلية / Actual value' for k in row_fields(c)}
+    for group,labels in group_fields(c).items():
+        row={k:'قيمة فعلية / Actual value' for k in labels}
         for k in row:
             if k.split('.')[-1] in ('roots','descendant_aggregations','records','physical','digital','mixed','current_years','intermediate_years','physical_aggregations','mixed_aggregations','physical_records','mixed_records'):row[k]=1
-        result[c.group]=[dict(row) for _ in range(rows)]
+        result[group]=[dict(row) for _ in range(rows)]
     return result
 
 
@@ -73,12 +76,12 @@ def test_all_defaults_validate_fill_all_fields_and_repeating_rows(kind):
 
 
 @pytest.mark.parametrize('old,new,code',[
- ('{{job.id}}','','disposition_template_fields_missing'),
- ('{{group.records}}','','disposition_template_repeat_invalid'),
- ('{{/groups}}','','disposition_template_repeat_invalid'),
- ('{{#groups}}','{{#proposals}}','disposition_template_invalid'),
- ('{{job.id}}','{{unknown.value}}','disposition_template_invalid'),
- ('{{job.id}}','{{not closed','disposition_template_invalid'),
+ ('{{organization.name}}','','disposition_template_fields_missing'),
+ ('{{aggregation.records}}','','disposition_template_repeat_invalid'),
+ ('{{/aggregations}}','','disposition_template_repeat_invalid'),
+ ('{{#aggregations}}','{{#proposals}}','disposition_template_invalid'),
+ ('{{organization.name}}','{{unknown.value}}','disposition_template_invalid'),
+ ('{{job.number}}','{{not closed','disposition_template_invalid'),
 ])
 def test_missing_unknown_malformed_and_broken_repeats_rejected(old,new,code):
     with pytest.raises(HTTPException) as error:e.validate(revised(old=old,new=new),'destruction_request',MAXIMUM)
@@ -86,9 +89,9 @@ def test_missing_unknown_malformed_and_broken_repeats_rejected(old,new,code):
 
 
 def test_split_word_runs_preserve_replacement_and_surrounding_formatting():
-    content=revised(old='{{job.id}}',new='{{job.</w:t></w:r><w:r><w:t>id}}')
+    content=revised(old='{{job.number}}',new='{{job.</w:t></w:r><w:r><w:t>number}}')
     result=e.fill(content,'destruction_request',sample('destruction_request',42),MAXIMUM)
-    with ZipFile(BytesIO(result)) as archive:assert '<w:t xml:space="preserve">42' in archive.read('word/document.xml').decode()
+    with ZipFile(BytesIO(result)) as archive:assert '<w:t xml:space="preserve">DEST-2026-001' in archive.read('word/document.xml').decode()
 
 
 @pytest.mark.parametrize('kind',['destruction_request','physical_preparation_report'])
@@ -113,7 +116,7 @@ def test_unsafe_and_oversize_word_packages_rejected():
 
 
 def test_bilingual_direction_and_changa_required():
-    for content,code in [(revised(old='طلب الموافقة على الإتلاف',new='English only heading'),'disposition_template_bilingual_required'),
+    for content,code in [(revised(old='اسم الجهة الطالبة',new='English only heading'),'disposition_template_bilingual_required'),
                          (revised(old='w:bidi w:val="1"',new='w:bidi w:val="0"'),'disposition_template_direction_invalid'),
                          (revised(old='Changa',new='Arial'),'disposition_template_changa_required')]:
         with pytest.raises(HTTPException) as error:e.validate(content,'destruction_request',MAXIMUM)
@@ -382,3 +385,111 @@ def test_shared_template_role_and_history_names_use_arabic():
         assert next(row for row in d.catalogue(c,None,language_tag='ar')['roles'] if row['id']==role)['name']=='مسؤول الوثائق'
         row=d.history(c,None,'destruction_request',limit=25,offset=0,language_tag='ar')['items'][0]
         assert row['uploader']=='المراجع' and row['acting_role']=='مسؤول الوثائق'
+
+
+def test_request_v2_layout_omits_internal_fields_and_starts_aggregation_section_on_new_page():
+    content=d.default('destruction_request')['content']
+    values=e.parts(content,MAXIMUM);tree=etree.fromstring(values['word/document.xml'])
+    text=e.paragraph_text(tree)
+    for key in ('job.id','job.type','job.created_at','counts.descendant_aggregations','review.round','membership.checksum'):
+        assert '{{'+key+'}}' not in text
+    for key in ('organization.name','organization.email','organization.phone','records.from_year','records.to_year','aggregation.serial_number','aggregation.number','aggregation.assigned_location'):
+        assert '{{'+key+'}}' in text
+    assert 'Governing root aggregations' not in text
+    assert 'الملفات المطلوب إتلافها' in text
+    assert 'Aggregations requested for destruction' in text
+    table=tree.xpath('//w:tbl',namespaces=e.NS)[-1]
+    assert '{{aggregation.serial_number}}' in e.paragraph_text(table.xpath('./w:tr',namespaces=e.NS)[1][0])
+    assert len(tree.xpath('//w:sectPr',namespaces=e.NS))==2
+    assert d.default('destruction_request')['reference'].startswith('default.v2:')
+    assert (d.DEFAULTS/'request-for-destruction.default.v1.docx').exists()
+
+
+def test_execution_report_has_separate_required_root_and_proposal_groups():
+    content=d.default('proposal_execution_report')['content']
+    snapshot=sample('proposal_execution_report',rows=1)
+    snapshot['aggregations']*=2
+    snapshot['aggregations'][0]=dict(snapshot['aggregations'][0],**{'aggregation.number':'ROOT-FIRST'})
+    snapshot['aggregations'][1]=dict(snapshot['aggregations'][1],**{'aggregation.number':'ROOT-LAST'})
+    snapshot['proposals'][0]['proposal.change']='RELATIONSHIP-REMOVED'
+    xml=e.parts(e.fill(content,'proposal_execution_report',snapshot,MAXIMUM),MAXIMUM)['word/document.xml'].decode()
+    assert xml.count('ROOT-FIRST')==1 and xml.count('ROOT-LAST')==1
+    assert xml.count('RELATIONSHIP-REMOVED')==1
+    assert 'organization.name' not in xml and '{{' not in xml
+    with pytest.raises(HTTPException):
+        e.fill(content,'proposal_execution_report',{k:v for k,v in snapshot.items() if k!='aggregations'},MAXIMUM)
+    with pytest.raises(HTTPException):
+        e.validate(revised('proposal_execution_report','{{#aggregations}}',''),'proposal_execution_report',MAXIMUM)
+
+
+def test_execution_report_v1_package_remains_available():
+    assert d.default('proposal_execution_report','v1')['reference'].startswith('default.v1:')
+
+
+def test_execution_report_both_groups_paginate_and_keep_their_last_rows(client):
+    snapshot=sample('proposal_execution_report',rows=0)
+    base=sample('proposal_execution_report',rows=1)
+    for group,key,prefix in [('aggregations','aggregation.number','REPORT-ROOT'),('proposals','proposal.change','REPORT-CHANGE')]:
+        snapshot[group]=[dict(base[group][0],**{key:f'{prefix}-{i:03}'}) for i in range(1,41)]
+    snapshot['fields']['execution.count']=40
+    with db() as c:settings=load_snapshot(c)
+    pdf,_=e.render(d.default('proposal_execution_report')['content'],'proposal_execution_report',snapshot,settings)
+    reader=PdfReader(BytesIO(pdf));text='\n'.join(page.extract_text() for page in reader.pages)
+    assert len(reader.pages)>3
+    assert 'REPORT-ROOT-040' in text and 'REPORT-CHANGE-040' in text
+    assert '{{' not in text
+
+
+def test_all_generated_record_title_types_use_generating_user_preference():
+    from backend.services.api.disposition import artifacts
+    with db() as c:
+        actor(c)
+        for language in ('en','ar'):
+            c.execute("INSERT INTO user_preferences(user_id,language_tag,working_timezone) VALUES(1,%s,'Asia/Dubai') ON CONFLICT(user_id) DO UPDATE SET language_tag=EXCLUDED.language_tag",(language,))
+            for kind,contract in CONTRACTS.items():
+                result=artifacts.generated_record_title(c,{'job_number':'DT-2026-1'},kind)
+                expected='إستمارة إتلاف DT-2026-1' if kind=='destruction_request' and language=='ar' else (contract.arabic if language=='ar' else contract.english)+' — DT-2026-1'
+                assert result=={'record_title':expected,'record_title_language':language}
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+def test_generated_record_title_is_readable_and_saved_retries_keep_original_title(language,monkeypatch):
+    from tools.preview_disposition import preview_pdf
+    monkeypatch.setattr(e,'render',lambda *a,**kw:(preview_pdf(),{}))
+    with db() as c:
+        job,_=fixture(c);kind='destruction_request'
+        c.execute("INSERT INTO user_preferences(user_id,language_tag,working_timezone) VALUES(1,%s,'Asia/Dubai') ON CONFLICT(user_id) DO UPDATE SET language_tag=EXCLUDED.language_tag",(language,))
+        args=dict(job_id=job['id'],expected_version=job['version'],kind=kind,snapshot=sample(kind,job['id']),command_id=uuid4(),acting_role_id=officer(c),reason='Generate readable record title',preview=d.artifacts.destination(c,job['id'],kind),settings=load_snapshot(c),connection_factory=db)
+        first=d.generate(c,**args)
+        record=c.execute('SELECT title FROM records WHERE id=%s',(first['record_id'],)).fetchone()
+        expected=('إستمارة إتلاف '+job['job_number']) if language=='ar' else CONTRACTS[kind].english+' — '+job['job_number']
+        assert record['title']==expected
+        provenance=c.execute('SELECT provenance FROM disposition_job_documents WHERE id=%s',(first['id'],)).fetchone()['provenance']
+        assert provenance['record_title']==expected and provenance['record_title_language']==language
+        component=c.execute('SELECT file_name FROM digital_components WHERE id=%s',(first['digital_component_id'],)).fetchone()
+        assert component['file_name']==f'{kind}-{job["id"]}.pdf'
+        c.commit();actor(c)
+        c.execute("UPDATE user_preferences SET language_tag=%s WHERE user_id=1",('en' if language=='ar' else 'ar',))
+        monkeypatch.setattr(e,'render',lambda *a,**kw:pytest.fail('Saved retry must reuse original bytes/title'))
+        assert d.generate(c,**args)==first
+        assert c.execute('SELECT title FROM records WHERE id=%s',(first['record_id'],)).fetchone()==record
+
+
+@pytest.mark.parametrize('kind',['destruction_request','proposal_execution_report'])
+def test_repeated_serial_cells_start_with_number_without_control_paragraph_gap(kind):
+    snapshot=sample(kind)
+    for group in group_fields(CONTRACTS[kind]):
+        for row in snapshot[group]:
+            for key in row:
+                if key.endswith('.serial_number'):row[key]=1
+    xml=e.parts(e.fill(d.default(kind)['content'],kind,snapshot,MAXIMUM),MAXIMUM)['word/document.xml']
+    tree=etree.fromstring(xml)
+    serial_cells=[]
+    for table in tree.xpath('//w:tbl',namespaces=e.NS):
+        rows=table.findall('w:tr',e.NS)
+        if rows and 'No.' in e.paragraph_text(rows[0].findall('w:tc',e.NS)[0]):serial_cells.append(rows[1].findall('w:tc',e.NS)[0])
+    assert len(serial_cells)==len(group_fields(CONTRACTS[kind]))
+    for cell in serial_cells:
+        paragraphs=cell.findall('w:p',e.NS)
+        assert e.paragraph_text(paragraphs[0])=='1'
+        assert cell.find('w:tcPr/w:vAlign',e.NS).get(e.W+'val')=='top'

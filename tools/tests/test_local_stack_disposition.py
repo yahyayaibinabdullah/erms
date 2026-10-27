@@ -58,6 +58,11 @@ elif sys.argv[1] == 'down' and owner_file.exists() and owner_file.read_text() ==
     python.parent.mkdir(parents=True)
     python.write_text(f'#!{sys.executable}\n' + '''
 import json, os, pathlib, sys, time
+if any(arg.endswith('/004_seed_generated_arabic_ui_translations.py') for arg in sys.argv):
+    pathlib.Path(os.environ['TEST_OUTPUT'], 'translation-sync.json').write_text(json.dumps({
+        'args':sys.argv[1:], 'database':os.environ.get('DATABASE_URL'),
+        'pythonpath':os.environ.get('PYTHONPATH')}))
+    sys.exit(9 if os.environ.get('TEST_TRANSLATION_FAILURE')=='1' else 0)
 if '-m' not in sys.argv: sys.exit(0)
 module = sys.argv[sys.argv.index('-m') + 1]
 pathlib.Path(os.environ['TEST_OUTPUT'], module.rsplit('.', 1)[-1]+'.json').write_text(
@@ -73,10 +78,11 @@ while True: time.sleep(1)
                CONTENT_INDEXING_MAINTENANCE_ENABLED='true', TEST_OUTPUT=str(tmp_path))
     # Skip only the lock wrapper in this isolated copied project. All launcher
     # startup, migration gating, worker supervision and cleanup run unchanged.
-    def launch(ready='t', maildev_failure=False, maintenance=True):
+    def launch(ready='t', maildev_failure=False, maintenance=True, translation_failure=False):
         env['TEST_SCHEMA_READY'] = ready
         env['TEST_MAILDEV_FAILURE'] = '1' if maildev_failure else '0'
         env['CONTENT_INDEXING_MAINTENANCE_ENABLED'] = 'true' if maintenance else 'false'
+        env['TEST_TRANSLATION_FAILURE'] = '1' if translation_failure else '0'
         output = (tmp_path / 'output.log').open('w+')
         process = subprocess.Popen(['bash', '-c',
             'export ERMS_LOCAL_STACK_LOCK_PID=$$; exec bash "$1"',
@@ -84,8 +90,8 @@ while True: time.sleep(1)
             stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
         return process, output
     processes = []
-    def start(ready='t', maildev_failure=False, maintenance=True):
-        result = launch(ready, maildev_failure, maintenance)
+    def start(ready='t', maildev_failure=False, maintenance=True, translation_failure=False):
+        result = launch(ready, maildev_failure, maintenance, translation_failure)
         processes.append(result)
         return result
     yield start, tmp_path
@@ -94,6 +100,27 @@ while True: time.sleep(1)
             os.killpg(process.pid, signal.SIGTERM)
             process.wait(timeout=10)
         output.close()
+
+
+def test_startup_syncs_only_missing_arabic_on_the_resolved_database(stack):
+    start,directory=stack
+    process,_=start()
+    eventually(lambda: all((directory/(name+'.json')).exists() for name in WORKERS))
+    sync=json.loads((directory/'translation-sync.json').read_text())
+    assert sync['args']==[str(directory/'project/database/seeds/004_seed_generated_arabic_ui_translations.py'),'--missing-only']
+    assert sync['database']=='postgresql://unused.invalid/disposable_fake'
+    assert sync['pythonpath']==str(directory/'project')
+    process.send_signal(signal.SIGTERM)
+    process.wait(timeout=10)
+
+
+def test_translation_sync_failure_stops_before_starting_owned_services(stack):
+    start,directory=stack
+    process,_=start(translation_failure=True)
+    assert process.wait(timeout=10)==9
+    assert (directory/'translation-sync.json').exists()
+    assert not (directory/'maildev.started').exists()
+    assert not any((directory/(name+'.json')).exists() for name in WORKERS)
 
 
 @pytest.mark.parametrize('failed_worker', [None, *WORKERS])

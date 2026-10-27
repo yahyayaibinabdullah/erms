@@ -107,3 +107,30 @@ async def test_external_history_is_lazy_bounded_and_sorts_on_server(host,monkeyp
         section.value=True;await asyncio.sleep(0);await asyncio.sleep(0)
     path,params=api.reads[-1]
     assert path=='jobs/5/external-decisions' and params=={'limit':25,'offset':0,'sort':'recorded_at','descending':True}
+
+
+@pytest.mark.asyncio
+async def test_saved_request_does_not_repeat_document_block_but_keeps_recovery(host):
+    from frontend.webui.disposition.external import request_controls
+    f,_,_=await build(host)
+    with host:
+        documents=ui.column()
+        request_controls(f,host=documents)
+    assert not list(documents.descendants())
+    f.view['external'].update(can_generate=True,manager_roles=[{'id':7,'name':'Manager'}],generation_error='disposition_document_unavailable')
+    with host:request_controls(f,host=documents)
+    assert any(isinstance(e,ui.button) and e.text==text('generate_request') for e in documents.descendants())
+    assert not any(isinstance(e,ui.label) and e.text=='request-round-1.pdf' for e in documents.descendants())
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('decision',['approved','rejected'])
+@pytest.mark.parametrize('current',[True,False])
+async def test_received_external_decision_does_not_leave_status_only_request_block(host,decision,current):
+    from frontend.webui.disposition.external import request_controls
+    f,_,_=await build(host)
+    f.view['external'].update(received_decision=decision,approval_current=current)
+    with host:
+        documents=ui.column()
+        request_controls(f,host=documents)
+    assert not list(documents.descendants())

@@ -61,6 +61,8 @@ def table(doc,widths):
 def main():
     target=ROOT/'templates/disposition/destruction';target.mkdir(parents=True,exist_ok=True)
     for kind,c in CONTRACTS.items():
+        # Working layouts have dedicated builders; never overwrite them here.
+        if not c.filename.endswith('.default.v1.docx'):continue
         doc=Document();section=doc.sections[0]
         section.page_width=Mm(210);section.page_height=Mm(297)
         section.top_margin=section.bottom_margin=Mm(17);section.left_margin=section.right_margin=Mm(18)

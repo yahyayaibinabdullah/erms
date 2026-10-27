@@ -741,6 +741,18 @@ def _audit_actor_candidates(expression: SearchExpression | None):
             [value for child in compiled for value in child[1]])
 
 
+
+def _filters_disposition(expression):
+    if expression is None:return False
+    return expression.field=='disposition_status' or any(_filters_disposition(child) for child in (expression.and_ or expression.or_ or [])) or _filters_disposition(expression.not_)
+
+
+def _resource_visibility(resource,expression):
+    kind='record' if resource=='records' else 'aggregation'
+    live=f"current_user_can_view_{kind}(resource.id)"
+    if not _filters_disposition(expression):return sql.SQL(live)
+    return sql.SQL("("+live+" OR (resource.disposition_status=10 AND disposition_private.retained_access('"+kind+"',resource.id,false)))")
+
 def search_rows(
     connection: Connection,
     table: str,
@@ -766,8 +778,8 @@ def search_rows(
         })
     fields = SEARCH_FIELDS[table]
     visibility = {
-        "aggregations": sql.SQL("current_user_can_view_aggregation(resource.id)"),
-        "records": sql.SQL("current_user_can_view_record(resource.id)"),
+        "aggregations": _resource_visibility("aggregations",request.where),
+        "records": _resource_visibility("records",request.where),
         "digital_components": sql.SQL(
             "EXISTS (SELECT 1 FROM records visible_record WHERE visible_record.id=resource.record_id "
             "AND current_user_can_list_record_components(visible_record.id))"
@@ -916,6 +928,7 @@ def search_rows(
                 """SELECT EXISTS(SELECT 1 FROM digital_component_search_documents document
                      WHERE document.status IN ('pending','processing','stale')
                        AND current_user_can_view_record(document.record_id)
+                       AND EXISTS(SELECT 1 FROM records pending_record WHERE pending_record.id=document.record_id AND (pending_record.disposition_status NOT IN (10,11,12) OR disposition_private.can_manage()))
                        AND current_user_can_record_component_operation(
                            document.record_id,'record.component.view','record.component.view')) AS value"""
             ).fetchone()["value"]
@@ -968,7 +981,7 @@ def _global_branch(
     )
     relevance,relevance_parameters=_relevance_expression(resource,leaves)
     table=sql.Identifier("authorized_records_for_search" if resource=="records" else "authorized_aggregations_for_search")
-    visibility=sql.SQL("current_user_can_view_record(resource.id)") if resource=="records" else sql.SQL("current_user_can_view_aggregation(resource.id)")
+    visibility=_resource_visibility(resource,expression)
     outer=sql.SQL("")
     outer_parameters: list[Any]=[]
     branch_type="record" if resource=="records" else "aggregation"
@@ -1075,6 +1088,7 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
              JOIN digital_components component ON component.id=document.digital_component_id
             WHERE document.status IN ('pending','processing','stale')
               AND current_user_can_view_record(document.record_id)
+                       AND EXISTS(SELECT 1 FROM records pending_record WHERE pending_record.id=document.record_id AND (pending_record.disposition_status NOT IN (10,11,12) OR disposition_private.can_manage()))
               AND current_user_can_record_component_operation(document.record_id,'record.component.view','record.component.view')) AS value"""
     ).fetchone()["value"]
     result={"items":page,"next_cursor":next_cursor,

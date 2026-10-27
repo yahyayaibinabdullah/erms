@@ -109,7 +109,7 @@ def documents_panel(*, api, job, active, on_error, after, open_resource, preview
         for row in result['items']:
             row['type_label']=text(row['document_type']);row['current_label']=text('current_version' if row['is_current'] else 'earlier_version')
             row['created_label']=format_timestamp(row['date_created'])
-            row['template_label']=(text('repository_default') if str(row.get('template_version') or '').startswith('default.v1:') else str(row.get('template_revision_number') or '—'))
+            row['template_label']=(text('repository_default') if str(row.get('template_version') or '').startswith('default.v') else str(row.get('template_revision_number') or '—'))
         return result
     table=PageTable(columns=[column('file_name','document',True),column('type_label','document_type',True),column('evidence_version','version',True),column('template_label','template_revision'),column('current_label','evidence_version_state'),column('created_label','occurred',True),column('actions')],
       fetch=fetch,active=active,on_error=on_error,empty='empty',on_loaded=lambda p,result:roles.__setitem__(slice(None),result['correction_roles']),wrap_cells=True,empty_text=lambda:text('no_documents'),loading_text=lambda:text('loading'))

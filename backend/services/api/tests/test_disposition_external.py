@@ -43,8 +43,8 @@ def test_request_exact_approved_groups_round_and_direct_task(client,route,monkey
         job,root,mgr,rid=prepared(c,route);out=generate(c,job,mgr,rid)
         doc=artifacts.document(c,job['id'],out['request_document_id']);snapshot=doc['provenance']['snapshot']
         assert snapshot['fields']['counts.roots']==1 and snapshot['fields']['counts.descendant_aggregations']==2 and snapshot['fields']['counts.records']==1
-        assert snapshot['groups'][0]['group.roots']==1 and 'Local' in snapshot['groups'][0]['group.rule_source']
-        assert snapshot['fields']['authority.name']=='Sharjah Archives' and snapshot['fields']['review.records_manager']
+        assert len(snapshot['aggregations'])==1 and snapshot['aggregations'][0]['aggregation.records']==1
+        assert snapshot['fields']['authority.name']=='دار الوثائق في إمارة الشارقة / Sharjah Archives' and snapshot['fields']['review.records_manager']
         if route!='standard':assert 'Skipped' in snapshot['fields']['review.unit_manager']
         assert c.execute('SELECT workflow_stage FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['workflow_stage']=='external_approval_pending'
         assert task(c,job['id'])['destination_user_id']==job['assigned_user_id']
@@ -133,10 +133,9 @@ def test_request_excludes_applied_removals_and_separates_local_sources(client,mo
         admit(c,job['id'],[classification,local]);save(c,job,changes=[create(c,removed)])
         reach_manager(c,job,'simplified');out=approve(c,job,mgr)
         request=generate(c,job,mgr,out['round_id']);snap=artifacts.document(c,job['id'],request['request_document_id'])['provenance']['snapshot']
-        assert snap['fields']['counts.roots']==2 and len(snap['groups'])==2
+        assert snap['fields']['counts.roots']==2 and len(snap['aggregations'])==2
         assert {r['id'] for r in snap['source']['approved_facts']['source']['roots']}=={classification,local}
-        assert all(row['group.roots']==1 for row in snap['groups'])
-        assert {'Local retention override','Classification retention rule'}=={row['group.rule_source'].split(' / ')[1] for row in snap['groups']}
+        assert all(row['aggregation.classification_code'] for row in snap['aggregations'])
         versions=c.execute('SELECT id,version FROM disposition_review_proposals WHERE job_id=%s',(job['id'],)).fetchall()
         decision(c,job,outcome='rejected',notes='New authority round')
         reach_manager(c,job,'simplified');second=approve(c,job,mgr);generate(c,job,mgr,second['round_id'])
@@ -264,14 +263,10 @@ def test_large_request_groups_and_actual_pdf_paginate_without_losing_final_group
     from io import BytesIO
     from pypdf import PdfReader
     from backend.services.api.tests.test_disposition_templates import sample
-    from backend.services.api.disposition.document_snapshots import request_groups
-    source={'roots':[],'aggregations':[],'records':[]}
-    for index in range(1,121):
-        source['roots'].append({'id':index,'rule_snapshot':{'rule_source':'aggregation' if index%2 else 'classification','current_period_years':5+index%3,'intermediate_period_years':2,'final_disposition':'destruction'}})
-        source['aggregations'].append({'id':index,'root_id':index,'classification_id':index,'classification_code':f'CLASS-{index:04}','classification_title':f'تصنيف الوثائق {index} / Classification {index}','medium':'mixed'})
-    groups=request_groups(source)
-    assert len(groups)==120 and sum(g['group.roots'] for g in groups)==120
-    snap=sample('destruction_request');snap['groups']=groups
+    snap=sample('destruction_request',rows=0)
+    snap['aggregations']=[{'aggregation.serial_number':index,'aggregation.number':f'AGG-{index:04}','aggregation.title':f'ملف الوثائق {index} / Aggregation {index}',
+      'aggregation.from_year':1990,'aggregation.to_year':2026,'aggregation.classification_code':f'CLASS-{index:04}',
+      'aggregation.records':3,'aggregation.assigned_location':'المستودع / Repository'} for index in range(1,121)]
     snap['fields'].update({'job.number':'PHASE17-LARGE-120','counts.roots':120,'counts.descendant_aggregations':0,'counts.records':0,'counts.physical':0,'counts.digital':0,'counts.mixed':120})
     with db() as c:settings=load_snapshot(c)
     content,_=documents.engine.render(documents.default('destruction_request')['content'],'destruction_request',snap,settings)
@@ -351,7 +346,7 @@ def test_retained_request_does_not_regenerate_after_settings_or_template_changes
         c.commit();actor(c)
         monkeypatch.setattr(documents.engine,'render',lambda *args:(_ for _ in ()).throw(RuntimeError('Must retain exact existing PDF')))
         second=generate(c,job,mgr,rid);after=artifacts.document(c,job['id'],second['request_document_id'])
-        assert before==after and after['provenance']['snapshot']['fields']['authority.name']=='Sharjah Archives'
+        assert before==after and after['provenance']['snapshot']['fields']['authority.name']=='دار الوثائق في إمارة الشارقة / Sharjah Archives'
 
 
 def test_external_decisions_and_number_claims_are_immutable_outside_their_operation(client,monkeypatch):

@@ -14,6 +14,8 @@ class Contract:
     fields: dict[str, tuple[str, str]]
     group: str
     columns: tuple[dict[str, tuple[str, str]], ...]
+    optional: tuple[str, ...] = ()
+    extra_groups: tuple = ()
 
 
 JOB = {
@@ -41,40 +43,49 @@ PHYSICAL_COUNTS = {
 }
 CONTRACTS = {
     'destruction_request': Contract(
-        'request-for-destruction.default.v1.docx', 'طلب الموافقة على الإتلاف', 'Request for destruction',
-        {'authority.name': ('اسم الجهة المختصة', 'External authority name'), **JOB, **COUNTS,
+        'request-for-destruction.default.v2.docx', 'طلب الموافقة على الإتلاف', 'Request for destruction',
+        {'organization.name': ('اسم الجهة الطالبة', 'Requesting organization'),
+         'organization.email': ('البريد الإلكتروني للتواصل', 'Contact email'),
+         'organization.phone': ('هاتف التواصل', 'Contact phone'),
+         'authority.name': ('اسم الجهة المختصة', 'External authority name'), **JOB, **COUNTS,
+         'counts.roots': ('عدد الملفات', 'Aggregations'),
+         'records.from_year': ('من سنة', 'From Year'),
+         'records.to_year': ('إلى سنة', 'To Year'),
          'review.file_administrator': ('ملخص مراجعة مسؤول الملفات', 'File Administrator review summary'),
          'review.unit_manager': ('ملخص مراجعة مدير الوحدة', 'Unit Manager review summary'),
          'review.records_manager': ('ملخص اعتماد مدير الوثائق', 'Records Manager approval summary'),
          'review.round': ('جولة المراجعة', 'Approval review round'),
          'form.version': ('إصدار الطلب', 'Form version'),
          'membership.checksum': ('بصمة العضوية المعتمدة', 'Approved membership checksum')},
-        'groups', (
-            {'group.classification_code': ('رمز التصنيف', 'Classification code'),
-             'group.classification_title': ('عنوان التصنيف', 'Classification title'),
-             'group.rule_source': ('مصدر قاعدة الاستبقاء', 'Retention rule source')},
-            {'group.final_disposition': ('التصرف النهائي الفعلي', 'Effective final disposition'),
-             'group.current_years': ('مدة المرحلة الجارية بالسنوات', 'Current period in years'),
-             'group.intermediate_years': ('مدة المرحلة الوسيطة بالسنوات', 'Intermediate period in years')},
-            {('group.'+k.removeprefix('counts.')): v for k,v in COUNTS.items() if k in ('counts.roots','counts.descendant_aggregations','counts.records')},
-            {('group.'+k.removeprefix('counts.')): v for k,v in COUNTS.items() if k in ('counts.physical','counts.digital','counts.mixed')},
-        )),
+        'aggregations', (
+            {'aggregation.serial_number': ('م', 'No.'),
+             'aggregation.number': ('رقم الملف', 'Aggregation number'),
+             'aggregation.title': ('عنوان الملف', 'Aggregation title')},
+            {'aggregation.from_year': ('من سنة', 'From Year'),
+             'aggregation.to_year': ('إلى سنة', 'To Year')},
+            {'aggregation.classification_code': ('رقم التصنيف', 'Classification number'),
+             'aggregation.records': ('إجمالي الوثائق', 'Total records')},
+            {'aggregation.assigned_location': ('الموقع المعيّن للملفات الورقية أو المختلطة', 'Assigned location for physical or mixed aggregations')},
+        ), ('job.id','job.type','job.created_at','counts.descendant_aggregations','review.round','membership.checksum')),
     'digital_destruction_certificate': Contract(
-        'digital-destruction-certificate.default.v1.docx', 'شهادة الإتلاف الإلكتروني', 'Digital destruction certificate',
-        {**JOB, 'external.destruction_number': ('رقم الإتلاف المعتمد', 'Approved external destruction number'),
-         'approved_request.reference': ('مرجع طلب الإتلاف المعتمد', 'Approved destruction request reference'),
-         'completed_at': ('وقت إتمام الإتلاف', 'Destruction completion time'),
-         'execution.manager': ('مدير الوثائق المنفّذ', 'Executing Records Manager'),
-         'execution.scope': ('نطاق الإتلاف', 'Destruction scope'), **COUNTS,
-         'physical.confirmation': ('تأكيد الإتلاف الورقي عند الاقتضاء', 'Physical destruction confirmation if applicable'),
-         'integrity.value': ('قيمة التحقق من سلامة العملية المكتملة', 'Completed job integrity value')}, '', ()),
+        'digital-destruction-certificate.default.v2.docx', 'شهادة الإتلاف الرقمي', 'Digital Destruction Certificate',
+        {'organization.name': ('اسم الجهة', 'Organization name'),
+         'certificate.statement.ar': ('إفادة إتمام الإتلاف بالعربية', 'Arabic destruction completion statement'),
+         'certificate.statement.en': ('إفادة إتمام الإتلاف بالإنجليزية', 'English destruction completion statement'),
+         'generated_at': ('تاريخ إصدار الشهادة', 'Certificate generation date')}, 'participants', (
+            {'participant.role': ('الدور', 'Role'),
+             'participant.name': ('الاسم', 'Name'),
+             'participant.org_unit': ('الوحدة التنظيمية', 'Organizational unit')},
+        )),
     'proposal_execution_report': Contract(
-        'proposal-execution-report.default.v1.docx', 'تقرير تنفيذ المقترحات', 'Proposal execution report',
-        {**JOB, 'review.round': ('جولة الاعتماد', 'Approval review round'),
+        'proposal-execution-report.default.v2.docx', 'تقرير تنفيذ المقترحات', 'Proposal execution report',
+        {'organization.name': ('اسم الجهة', 'Organization name'), 'execution.count': ('عدد المقترحات المنفّذة', 'Executed proposals'), **JOB, 'review.round': ('جولة الاعتماد', 'Approval review round'),
          'execution.manager': ('مدير الوثائق المنفّذ', 'Executing Records Manager'),
          'execution.reference': ('مرجع التنفيذ', 'Execution reference'),
          'membership.checksum': ('بصمة العضوية', 'Membership checksum')}, 'proposals', (
-            {'proposal.id': ('معرّف المقترح', 'Proposal identifier'),
+            {'proposal.serial_number': ('الرقم التسلسلي', 'No.'),
+             'proposal.id': ('معرّف المقترح', 'Proposal identifier'),
+             'proposal.change': ('التغيير المنفّذ', 'Executed change'),
              'proposal.action': ('الإجراء', 'Action'), 'proposal.target': ('العنصر المستهدف', 'Target resource'),
              'proposal.proposer': ('صاحب المقترح الأصلي', 'Original proposer')},
             {'proposal.result': ('نتيجة التنفيذ', 'Execution result'),
@@ -82,7 +93,17 @@ CONTRACTS = {
              'proposal.reason': ('السبب المستخدم ومصدره', 'Applied reason and its source')},
             {'proposal.removed_units': ('الوحدات المستبعدة بسبب المقترح', 'Units removed because of this proposal'),
              'proposal.history': ('مراجع سجل تغييرات المقترح', 'Preserved proposal history references')},
-        )),
+        ), ('job.id','job.type','job.created_at','execution.reference','membership.checksum','proposal.id','proposal.history'),
+        (('aggregations', {
+            'aggregation.serial_number': ('الرقم التسلسلي', 'No.'),
+            'aggregation.number': ('رقم الملف', 'Aggregation number'),
+            'aggregation.title': ('عنوان الملف', 'Aggregation title'),
+            'aggregation.from_year': ('من سنة', 'From Year'),
+            'aggregation.to_year': ('إلى سنة', 'To Year'),
+            'aggregation.classification_code': ('رقم التصنيف', 'Classification number'),
+            'aggregation.records': ('إجمالي الوثائق', 'Total records'),
+            'aggregation.assigned_location': ('الموقع المعيّن', 'Assigned location'),
+        }),)),
     'physical_preparation_report': Contract(
         'physical-preparation-report.default.v1.docx', 'تقرير التحضير للإتلاف الورقي', 'Physical destruction preparation report',
         {**JOB, 'report.version': ('إصدار التقرير', 'Report version'),
@@ -103,3 +124,7 @@ CONTRACTS = {
 
 def row_fields(contract):
     return {key:label for column in contract.columns for key,label in column.items()}
+
+
+def group_fields(contract):
+    return {**({contract.group: row_fields(contract)} if contract.group else {}), **dict(contract.extra_groups)}

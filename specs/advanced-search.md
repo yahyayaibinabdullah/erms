@@ -993,3 +993,26 @@ approved as the visual and interaction baseline.
 The product owner approved revision 0.9 on 25 September 2026 as the
 authoritative implementation contract. Product-level additions, departures, or
 deferrals require an explicitly approved specification revision.
+
+
+### Disposition-status metadata search
+
+Aggregations and Records support the existing integer `disposition_status`
+field with the controlled labels in common disposition §3. Authorized current
+information-governance users (`disposition.jobs.manage`, person account, active
+role/assignment) see the field as a controlled selector. Values 10/11/12 mean
+Destroyed, Permanently transferred and Retained as local archives. No separate
+include-destroyed flag is introduced. Destroyed rows are included only for an
+expression containing a disposition-status condition and only through retained
+resource access; additional number/title conditions are supported. Their Open
+action shows read-only retained metadata. Live-resource access, editing,
+content preview, and component downloads remain unavailable for status 10.
+
+Users without governance authority do not receive terminal rows (including
+counts) through any structured or global search, even if a saved/imported/API
+expression names those statuses. An unavailable status criterion in a shared
+search must not be silently changed into a different title criterion. Existing
+clearance/resource access still applies and is checked afresh on every request.
+Erased content and extracted-text indexes remain erased. Retained titles and
+numbers support structured metadata predicates; this does not restore former
+full-text content or backfill already-erased identities.

@@ -634,9 +634,13 @@ authoritative English definitions and generation inputs.
 
 The generic seed utility must not be modified for individual message keys. It
 reads the complete current generated Arabic draft catalogue and applies it only
-to absent or untouched `source_copy` rows. It must run explicitly against a
-selected database and must not run during API startup, schema creation, or a
-migration. Existing manual, imported, generated, reviewed, or published rows
+to absent or untouched `source_copy` rows. It may run explicitly against a
+selected database. The local `run-local-stack.sh` launcher also invokes it with
+`--missing-only` against its resolved `DATABASE_URL`, after readiness/preflight
+checks and before starting or reusing application services. A failed sync stops
+that launch with its error; it never publishes translations. The launcher uses
+the existing utility rather than a second catalogue-merging implementation.
+It must not run during API startup, schema creation, or a migration. Existing manual, imported, generated, reviewed, or published rows
 remain protected. If an English source changes after a generated row has been
 seeded, synchronization marks the row **Needs review**; replacing that existing
 database draft requires the governed review/reconciliation workflow and must
@@ -1117,13 +1121,14 @@ to modify that entity's metadata may add, update, or remove its translations;
 this feature does not grant broader entity access. They do not need
 `localization.administer` or System Administrator status.
 
-The required right is the corresponding `<entity>.modify_metadata` right:
+The required right is listed below. User translations use the same right as
+ordinary user administration; other entity types retain their metadata right:
 
 | Entity | Required metadata right |
 | --- | --- |
 | Classification scheme | `classification_scheme.modify_metadata` |
 | Classification | `classification.modify_metadata` |
-| User | `user.modify_metadata` |
+| User | `identity.users.administer` |
 | Role | `role.modify_metadata` |
 | Organizational unit | `org_unit.modify_metadata` |
 | Security level | `security_level.modify_metadata` |
@@ -1133,6 +1138,13 @@ The required right is the corresponding `<entity>.modify_metadata` right:
 and `SYS_ADMIN` profiles. This lets a System Administrator maintain localized
 Profile names and descriptions without first modifying their own authorization
 profile. The right remains independently assignable to other profiles.
+
+`identity.users.administer` authorizes both reading and changing users' localized
+names/descriptions, including from the ordinary Edit User form. No separate
+user-translation privilege or `localization.administer` grant is required.
+The former `user.modify_metadata` privilege is retired; remove its profile
+memberships and dependency links without granting user administration to its
+former holders. Preserve historical audit events and deprecate its message keys.
 
 The authorization check uses the same scope, resource access, state, and other
 integrity gates as an ordinary metadata edit for that entity. Translating
@@ -1147,12 +1159,12 @@ control disabled and the **Translations** disclosure enabled. Saving that form
 must call only the locale-scoped entity-translation endpoint. The ordinary
 entity update endpoint continues to reject every canonical-field mutation,
 including requests that attempt to combine canonical and translated changes.
-The corresponding `<entity>.modify_metadata` right is still required.
+The corresponding right in the table above is still required.
 
 If an existing implementation currently represents one of these administrative
 metadata operations under a broader legacy administration privilege, the
-internationalization implementation must add or map the listed
-`<entity>.modify_metadata` right through the normal privilege migration and
+internationalization implementation must add or map the listed right (except
+users, which deliberately reuse `identity.users.administer`) through the normal privilege migration and
 dependency process. It must not require `localization.administer` as a shortcut.
 Read-only users may see effective values but cannot edit translations.
 
@@ -1247,7 +1259,7 @@ capabilities and semantics are required. Administrative mutations require
 `localization.administer`, `If-Match`, and a nonblank `X-Change-Reason` where
 established governance conventions require one. Locale-scoped translation
 patches on the seven covered entities do not use `localization.administer`; they require
-the corresponding `<entity>.modify_metadata` authorization from section 11.4.
+the entity-specific authorization from section 11.4.
 
 The bootstrap response contains effective language, direction, working
 timezone, default/fallback language, enabled-language summaries, catalogue
@@ -1307,7 +1319,7 @@ private and must not enter a shared public cache.
   syntax or markup.
 - Translation-catalogue and supported-language administration requires
   `localization.administer`; entity translation editing requires only the
-  corresponding `<entity>.modify_metadata` authorization. Both are protected
+  corresponding entity-specific authorization. Both are protected
   from cross-site request forgery under the established session model.
 - Locale, direction, timezone, catalogue key, sort/collation, and field name
   are selected from server allowlists; none may become raw SQL or template
@@ -1347,7 +1359,7 @@ Migration steps are:
    tables and their constraints/indexes;
 2. seed `localization.administer` into the System Administrator and protected
    all-privileges profiles, and add or map the seven
-   `<entity>.modify_metadata` rights through the established privilege and
+   entity-specific rights from section 11.4 through the established privilege and
    dependency catalogues;
 3. seed enabled English and Arabic language metadata with English as default;
 4. import the application-owned English message definitions, contextual
@@ -1429,7 +1441,7 @@ Tests must cover:
   preservation;
 - authorization tests proving `localization.administer` is required for every
   catalogue/language mutation and that each entity translation accepts its
-  matching `<entity>.modify_metadata` actor while denying read-only actors;
+  matching authorized actor from section 11.4 while denying read-only actors;
 - negative tests proving a catalogue administrator cannot edit an entity
   translation without its metadata right and an entity metadata editor cannot
   administer the general catalogue;
@@ -1560,7 +1572,7 @@ The feature is accepted only when:
 | Complete UI and user-error translation | 7, 19.2 | key manifest, error-code mapping, CI completeness, browser coverage |
 | Administration-screen design language | 8, 9, 16, 19 | live-browser comparison, density, icon accessibility, guidance, and RTL evidence |
 | General translation administration | 7.4, 13, 15 | `localization.administer` allow/deny matrix |
-| Entity translation authorization | 11.4, 13, 15 | seven-entity `<entity>.modify_metadata` allow/deny matrix |
+| Entity translation authorization | 11.4, 13, 15 | seven-entity authorization allow/deny matrix |
 | Concurrent administrative translation | 7.4, 13 | different-key concurrency and same-key conflict tests |
 | Full Arabic RTL | 9, 16, 19 | desktop/mobile browser, keyboard, accessibility evidence |
 | Multilingual entity data | 11, 17 | schema/API/UI tests for all seven covered entities |
@@ -1698,6 +1710,13 @@ terminology as reference and translator guidance:
 | Current period | الفترة الجارية |
 | Intermediate period | الفترة الوسيطة |
 | Destruction | الإتلاف |
+| Disposition Job | عملية تصرف |
+| Disposition Jobs | عمليات التصرف |
+| Destruction Job | عملية إتلاف |
+| Task | مهمة |
+| Tasks | مهام |
+| My Tasks | مهامي |
+| Role | الدور |
 | Legal Hold | تعليق القنوني |
 | Mixed (record medium) | هجين |
 | Physical (record medium) | مادي |

@@ -122,17 +122,19 @@ def test_complete_unit_real_erasure_minimal_retained_proof_and_pending_job(clien
     with db() as c:
         job,root,mgr=prepared(c,monkeypatch,before_close=copies_and_indexes);request(c,job,mgr)
         record=c.execute('SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(%s))',(root,)).fetchone()['id']
+        identifying=c.execute('SELECT title,record_number FROM records WHERE id=%s',(record,)).fetchone()
     assert destruction.process_one(db)
     with db() as c:
         actor(c)
         assert c.execute('SELECT disposition_status FROM aggregations WHERE id=%s',(root,)).fetchone()['disposition_status']==10
-        assert c.execute('SELECT title,description,record_number FROM records WHERE id=%s',(record,)).fetchone()=={'title':None,'description':None,'record_number':None}
+        assert c.execute('SELECT title,description,record_number FROM records WHERE id=%s',(record,)).fetchone()=={**identifying,'description':None}
         proof=c.execute('SELECT * FROM disposition_retained_records ORDER BY resource_kind,resource_id').fetchall()
         assert len(proof)==4 and all(r['executor_user_id']==1 and r['destruction_number'] for r in proof)
         assert 'Confidential' not in str(proof) and 'remaining.pdf' not in str(proof)
         assert not c.execute("SELECT 1 FROM event_history WHERE before_state::text LIKE '%Confidential%' OR after_state::text LIKE '%Confidential%' OR metadata::text LIKE '%Confidential%'").fetchone()
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['lifecycle_state']=='active'
-        assert not c.execute('SELECT 1 FROM authorized_records_for_search WHERE id=%s',(record,)).fetchone()
+        assert c.execute('SELECT 1 FROM authorized_records_for_search WHERE id=%s',(record,)).fetchone()
+        assert not c.execute('SELECT current_user_can_view_record(%s) allowed',(record,)).fetchone()['allowed']
         assert destruction.progress(c,job['id'])['state']=='succeeded'
     assert client.get(f'/api/v1/records/{record}').status_code==404
     assert client.get(f'/api/v1/aggregations/{root}').status_code==404

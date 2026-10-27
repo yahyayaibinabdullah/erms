@@ -1204,3 +1204,21 @@ def test_audit_actor_read_can_cancel_transport_and_retains_normal_auth_headers()
             await client.close()
     asyncio.run(exercise())
     assert observed == [('/api/v1/event-history/actors', 'Ab', 'Bearer fixture-token')]
+
+
+def test_approval_summary_is_cancellable_read_only_post_and_preserves_reference_cache():
+    captured=[]
+    async def handler(request):
+        captured.append(request)
+        return httpx.Response(200,json={'proposal_count':0})
+    async def exercise():
+        client=ErmsApiClient('http://api.test',transport=httpx.MockTransport(handler))
+        try:
+            client._reference_cache['preserve']={'data':[]}
+            result=await client.disposition_approval_summary(8,acting_role_id=7,task_version=3,changes=[],version=2)
+            assert result['proposal_count']==0 and 'preserve' in client._reference_cache
+        finally:await client.close()
+    asyncio.run(exercise())
+    assert captured[0].method=='POST' and captured[0].url.path=='/api/v1/disposition/tasks/8/approval-summary'
+    assert captured[0].headers['if-match']=='2'
+    assert json.loads(captured[0].content)=={'acting_role_id':7,'task_version':3,'changes':[]}

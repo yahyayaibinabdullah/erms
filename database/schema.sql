@@ -5673,7 +5673,6 @@ INSERT INTO privileges(code,name,description,category,is_reserved,account_type_r
  ('localization.administer','Administer Localization','Manage supported languages and translation catalogues.','administration',true,'person'),
  ('classification_scheme.modify_metadata','Modify Classification Scheme Metadata','Modify multilingual names and descriptions for classification schemes.','administration',false,'person'),
  ('classification.modify_metadata','Modify Classification Metadata','Modify multilingual names and descriptions for classifications.','administration',false,'person'),
- ('user.modify_metadata','Modify User Metadata','Modify multilingual names and descriptions for users.','administration',false,'person'),
  ('role.modify_metadata','Modify Role Metadata','Modify multilingual names and descriptions for roles.','administration',false,'person'),
  ('org_unit.modify_metadata','Modify Organization Unit Metadata','Modify multilingual names and descriptions for organization units.','administration',false,'person'),
  ('security_level.modify_metadata','Modify Security Level Metadata','Modify multilingual names and descriptions for security levels.','administration',false,'person'),
@@ -5681,7 +5680,7 @@ INSERT INTO privileges(code,name,description,category,is_reserved,account_type_r
 INSERT INTO profile_privileges(profile_id,privilege_id)
 SELECT profile.id,privilege.id FROM profiles profile CROSS JOIN privileges privilege
 WHERE (privilege.code='localization.administer' AND profile.code IN ('ALL_PRIVS','SYS_ADMIN'))
- OR (privilege.code IN ('classification_scheme.modify_metadata','classification.modify_metadata','user.modify_metadata','role.modify_metadata','org_unit.modify_metadata','security_level.modify_metadata') AND profile.code='ALL_PRIVS')
+ OR (privilege.code IN ('classification_scheme.modify_metadata','classification.modify_metadata','role.modify_metadata','org_unit.modify_metadata','security_level.modify_metadata') AND profile.code='ALL_PRIVS')
  OR (privilege.code='profile.modify_metadata' AND profile.code IN ('ALL_PRIVS','SYS_ADMIN'))
 ON CONFLICT DO NOTHING;
 -- Internationalization and user preferences Phase 1 ends.
@@ -7327,6 +7326,10 @@ CREATE OR REPLACE FUNCTION application_setting_value_valid(p_key text,p_value js
  WHEN 'SMTP_SENDER_NAME' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='string' AND btrim(p_value#>>'{}')<>'' AND (p_value#>>'{}') !~ E'[\r\n]')))
  WHEN 'SMTP_REPLY_TO_EMAIL' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='string' AND btrim(p_value#>>'{}')<>'' AND (p_value#>>'{}') !~ E'[\r\n]' AND (p_value#>>'{}') ~ '^[^[:space:]@]+@[^[:space:]@]+$')))
  WHEN 'SMTP_TIMEOUT_SECONDS' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
+ WHEN 'DISPOSITION_RECORDS_UNIT_EMAIL' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='string' AND btrim(p_value#>>'{}')<>'' AND (p_value#>>'{}') !~ E'[\r\n]' AND (p_value#>>'{}') ~ '^[^[:space:]@]+@[^[:space:]@]+$')))
+ WHEN 'DISPOSITION_RECORDS_UNIT_PHONE' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='string' AND btrim(p_value#>>'{}')<>'' AND (p_value#>>'{}') !~ E'[\r\n]')))
+ WHEN 'DISPOSITION_ORGANIZATION_NAME' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='string' AND btrim(p_value#>>'{}')<>'' AND (p_value#>>'{}') !~ E'[\r\n]')))
+ WHEN 'DISPOSITION_REQUEST_LANGUAGE' THEN p_secret IS NULL AND jsonb_typeof(p_value)='string' AND p_value#>>'{}' IN ('manager_preference','arabic_first_bilingual')
  ELSE false END,false)
 $$;
 CREATE OR REPLACE FUNCTION guard_application_setting() RETURNS trigger LANGUAGE plpgsql AS $$
@@ -7529,6 +7532,10 @@ DECLARE previous_source text:=current_setting('app.event_source',true);
 BEGIN
  PERFORM set_config('app.event_source','seeding',true);
  INSERT INTO application_settings(key,value) VALUES
+  ('DISPOSITION_ORGANIZATION_NAME','null'::jsonb),
+  ('DISPOSITION_REQUEST_LANGUAGE','"arabic_first_bilingual"'::jsonb),
+  ('DISPOSITION_RECORDS_UNIT_EMAIL','null'::jsonb),
+  ('DISPOSITION_RECORDS_UNIT_PHONE','null'::jsonb),
   ('DEFAULT_WORKING_TIMEZONE','"Asia/Dubai"'::jsonb),
   ('DEFAULT_ROOT_AGGREGATION_MEDIUM','"mixed"'::jsonb),
   ('REVIEW_WARNING_WINDOW_DAYS','30'::jsonb),
@@ -12811,10 +12818,12 @@ CREATE FUNCTION disposition_private.can_email(p_user bigint,p_job bigint,p_docum
  AND CASE WHEN d.document_type='digital_destruction_certificate' THEN
    j.lifecycle_state IN ('active','completed') AND disposition_private.review_role(j.id,'records_manager_review',p_role)
  WHEN d.document_type='destruction_request' THEN
-   j.lifecycle_state='active' AND j.workflow_stage='external_approval_pending' AND j.assigned_user_id=p_user
+   j.lifecycle_state='active' AND j.workflow_stage='external_approval_pending'
    AND EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.task_type='external_approval'
       AND t.request_document_id=d.id AND j.current_review_round=d.review_round
-      AND disposition_private.request_approval_current(j.id,(d.provenance->>'approval_round_id')::bigint) AND t.task_state IN ('open','claimed') AND disposition_private.task_eligible(p_user,t.id,p_role))
+      AND disposition_private.request_approval_current(j.id,(d.provenance->>'approval_round_id')::bigint) AND t.task_state IN ('open','claimed')
+      AND (disposition_private.review_role(j.id,'records_manager_review',p_role)
+        OR (j.assigned_user_id=p_user AND disposition_private.task_eligible(p_user,t.id,p_role))))
  ELSE false END)
 $$;
 CREATE FUNCTION disposition_private.email_event(p_id bigint,p_operation text) RETURNS void LANGUAGE plpgsql AS $$
@@ -14598,11 +14607,11 @@ SELECT resource.id,
        resource.resource_acl_version,resource.child_aggregation_acl_version,resource.child_record_acl_version,
        resource.version,resource.owning_org_unit_id,resource.medium,resource.is_vital,
        resource.date_of_next_review,resource.assigned_location,resource.current_location,
-       aggregation_effective_assigned_location(resource.id) AS effective_assigned_location,
-       aggregation_effective_current_location(resource.id) AS effective_current_location,
-       CASE WHEN current_user_can_view_aggregation(aggregation_effective_assigned_location_source_id(resource.id))
+       CASE WHEN resource.disposition_status<>10 THEN aggregation_effective_assigned_location(resource.id) END AS effective_assigned_location,
+       CASE WHEN resource.disposition_status<>10 THEN aggregation_effective_current_location(resource.id) END AS effective_current_location,
+       CASE WHEN resource.disposition_status<>10 AND current_user_can_view_aggregation(aggregation_effective_assigned_location_source_id(resource.id))
             THEN aggregation_effective_assigned_location_source_id(resource.id) END AS effective_assigned_location_source_aggregation_id,
-       CASE WHEN current_user_can_view_aggregation(aggregation_effective_current_location_source_id(resource.id))
+       CASE WHEN resource.disposition_status<>10 AND current_user_can_view_aggregation(aggregation_effective_current_location_source_id(resource.id))
             THEN aggregation_effective_current_location_source_id(resource.id) END AS effective_current_location_source_aggregation_id,
        hold_state.effective_hold_count > 0 AS on_effective_hold,
        hold_state.resource_state_changes_blocked,
@@ -14616,7 +14625,7 @@ CROSS JOIN LATERAL (
            COALESCE(array_agg(effective.hold_id ORDER BY effective.hold_id),'{}'::bigint[]) effective_hold_ids
     FROM effective_holds_for_aggregation(resource.id) effective
 ) hold_state
-WHERE resource.disposition_status<>10;
+WHERE resource.disposition_status NOT IN (10,11,12) OR (disposition_private.can_manage() AND (resource.disposition_status<>10 OR disposition_private.retained_access('aggregation',resource.id,false)));
 
 CREATE OR REPLACE VIEW authorized_records_for_search AS
 SELECT resource.id,
@@ -14644,7 +14653,7 @@ CROSS JOIN LATERAL (
            COALESCE(array_agg(effective.hold_id ORDER BY effective.hold_id),'{}'::bigint[]) effective_hold_ids
     FROM effective_holds_for_record(resource.id) effective
 ) hold_state
-WHERE resource.disposition_status<>10;
+WHERE resource.disposition_status NOT IN (10,11,12) OR (disposition_private.can_manage() AND (resource.disposition_status<>10 OR disposition_private.retained_access('record',resource.id,false)));
 
 
 CREATE FUNCTION disposition_private.retained_history_json(p_data jsonb,p_root bigint DEFAULT NULL,p_ids jsonb DEFAULT NULL) RETURNS jsonb LANGUAGE plpgsql STABLE AS $$
@@ -14759,10 +14768,10 @@ BEGIN
  FROM records r JOIN aggregations root ON root.id=p_root JOIN disposition_jobs j ON j.id=p_job WHERE r.aggregation_id IN (SELECT disposition_private.unit_ids(p_root));
  DELETE FROM user_favourite_aggregations WHERE aggregation_id IN (SELECT disposition_private.unit_ids(p_root));
  DELETE FROM user_favourite_records WHERE record_id IN (SELECT id FROM records WHERE aggregation_id IN (SELECT disposition_private.unit_ids(p_root)));
- UPDATE aggregations SET disposition_status=10,aggregation_number=NULL,title=NULL,description=NULL,date_opened=NULL,date_created=p_at,date_of_next_review=NULL,assigned_location=NULL,current_location=NULL,
+ UPDATE aggregations SET disposition_status=10,description=NULL,date_opened=NULL,date_created=p_at,date_of_next_review=NULL,assigned_location=NULL,current_location=NULL,
  final_disposition_at=p_at,final_disposition_by_user_id=p_executor,disposition_job_id=p_job,destruction_number=(SELECT destruction_number FROM disposition_jobs WHERE id=p_job),final_disposition_event_id=p_event
  WHERE id IN (SELECT disposition_private.unit_ids(p_root));
- UPDATE records SET disposition_status=10,record_number=NULL,title=NULL,description=NULL,date_originated=NULL,date_created=p_at,date_of_next_review=NULL,
+ UPDATE records SET disposition_status=10,description=NULL,date_originated=NULL,date_created=p_at,date_of_next_review=NULL,
  final_disposition_at=p_at,final_disposition_by_user_id=p_executor,disposition_job_id=p_job,destruction_number=(SELECT destruction_number FROM disposition_jobs WHERE id=p_job),final_disposition_event_id=p_event
  WHERE aggregation_id IN (SELECT disposition_private.unit_ids(p_root));
 END $$;
@@ -15029,14 +15038,32 @@ BEGIN
  PERFORM disposition_private.require_job_access(p_job);
  IF NOT disposition_private.review_role(p_job,'records_manager_review',acting) OR NOT disposition_private.person_role(current_user_id(),acting) OR NOT disposition_private.can_review_content(current_user_id(),p_job) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_manager_role_required'; END IF;
  IF p_document IS NOT NULL THEN
-  SELECT task_id INTO download_id FROM disposition_private.completion_work WHERE job_id=p_job AND state='running' AND requested_by_user_id=current_user_id() AND acting_role_id=acting;
-  PERFORM disposition_private.check_completion(p_job,download_id,acting);
+  IF EXISTS(SELECT 1 FROM disposition_private.completion_work WHERE job_id=p_job AND state='running') THEN
+   SELECT task_id INTO download_id FROM disposition_private.completion_work WHERE job_id=p_job AND state='running' AND requested_by_user_id=current_user_id() AND acting_role_id=acting;
+   PERFORM disposition_private.check_completion(p_job,download_id,acting);
+  ELSE
+   SELECT id INTO download_id FROM disposition_tasks WHERE job_id=p_job AND task_type='certificate_download' AND task_state IN ('open','claimed') FOR UPDATE;
+   IF j.workflow_stage<>'certificate_generation' OR download_id IS NULL OR NOT EXISTS(SELECT 1 FROM disposition_private.completion_work WHERE job_id=p_job AND state='succeeded' AND document_id=p_document) THEN RAISE EXCEPTION 'disposition_certificate_required'; END IF;
+   PERFORM disposition_private.require_task_actor(download_id,acting,true);
+  END IF;
   IF NOT EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.id=p_document AND d.job_id=p_job AND d.document_type='digital_destruction_certificate' AND d.document_state='available' AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id) AND d.provenance->>'completion_request_id'=(SELECT request_id::text FROM disposition_private.completion_work WHERE job_id=p_job)) THEN RAISE EXCEPTION 'disposition_certificate_required'; END IF;
  ELSE
   SELECT * INTO physical FROM disposition_physical_confirmations WHERE job_id=p_job;
   IF j.workflow_stage<>'physical_destruction' OR physical.id IS NULL OR physical.confirmed_by_user_id<>current_user_id() OR disposition_private.has_digital_material(p_job) OR NOT EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.id=physical.certificate_document_id AND d.document_state='available' AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id)) THEN RAISE EXCEPTION 'disposition_physical_certificate_required'; END IF;
  END IF;
  INSERT INTO disposition_private.completion_context VALUES(txid_current(),pg_backend_pid(),key,p_job);
+ -- Saving the certificate prepares the last human task; it does not finish the job.
+ IF p_document IS NOT NULL AND EXISTS(SELECT 1 FROM disposition_private.completion_work WHERE job_id=p_job AND state='running') THEN
+  UPDATE disposition_tasks SET task_state='completed' WHERE id=download_id;
+  UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=p_job AND task_type='digital_destruction' AND task_state IN ('open','claimed');
+  UPDATE disposition_jobs SET workflow_stage='certificate_generation' WHERE id=p_job;
+  INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,review_round,destination_user_id) VALUES(p_job,'certificate_download','certificate_generation',j.current_review_round,current_user_id()) RETURNING id INTO download_id;
+  UPDATE disposition_private.completion_work SET state='succeeded',finished_at=clock_timestamp(),last_error_code=NULL,document_id=p_document WHERE job_id=p_job;
+  PERFORM append_domain_event('disposition_job',p_job,'DIGITAL_CERTIFICATE_SAVED',jsonb_build_object('certificate_document_id',p_document,'task_id',download_id));
+  DELETE FROM disposition_private.completion_context WHERE transaction_id=txid_current();
+  RETURN jsonb_build_object('job_id',p_job,'lifecycle_state','active','certificate_document_id',p_document,'download_task_id',download_id);
+ END IF;
+
  IF p_document IS NULL THEN
   -- Confirmation and completion share the caller's transaction. Reuse the
   -- verified physical-proof/minimization primitive, never digital deletion.
@@ -15057,30 +15084,14 @@ BEGIN
   UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=p_job AND task_type='digital_destruction' AND task_state IN ('open','claimed');
  END IF;
  UPDATE disposition_jobs SET workflow_stage='certificate_generation',lifecycle_state='completed',disposition_status=10,completed_at=at_time,completed_by_user_id=executor,completed_by_name=executor_name,final_event_id=eid WHERE id=p_job;
- IF p_document IS NOT NULL THEN
-  INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,review_round,destination_user_id) VALUES(p_job,'certificate_download','certificate_generation',j.current_review_round,current_user_id()) RETURNING id INTO download_id;
-  UPDATE disposition_private.completion_work SET state='succeeded',finished_at=clock_timestamp(),last_error_code=NULL,document_id=p_document WHERE job_id=p_job;
- END IF;
+
  DELETE FROM disposition_private.recovery_context WHERE transaction_id=txid_current();
  DELETE FROM disposition_private.destruction_identities WHERE transaction_id=txid_current();
  DELETE FROM disposition_private.destruction_context WHERE transaction_id=txid_current();
  DELETE FROM disposition_private.completion_context WHERE transaction_id=txid_current();
- RETURN jsonb_build_object('job_id',p_job,'lifecycle_state','completed','certificate_document_id',coalesce(p_document,physical.certificate_document_id),'download_task_id',CASE WHEN p_document IS NOT NULL THEN download_id END);
+ RETURN jsonb_build_object('job_id',p_job,'lifecycle_state','completed','certificate_document_id',coalesce(p_document,physical.certificate_document_id),'task_id',CASE WHEN p_document IS NOT NULL THEN download_id END);
 END $$;
 
-CREATE FUNCTION disposition_private.finish_certificate_download(p_job bigint,p_document bigint) RETURNS jsonb LANGUAGE plpgsql AS $$
-DECLARE t disposition_tasks%ROWTYPE;acting bigint;
-BEGIN
- PERFORM disposition_private.require_command();
- IF disposition_private.context_operation()<>'task_complete' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
- SELECT acting_role_id INTO acting FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
- SELECT * INTO t FROM disposition_tasks WHERE job_id=p_job AND task_type='certificate_download' AND task_state='open' AND destination_user_id=current_user_id() FOR UPDATE;
- IF t.id IS NULL OR NOT EXISTS(SELECT 1 FROM disposition_job_documents WHERE id=p_document AND job_id=p_job AND document_type='digital_destruction_certificate') THEN RAISE EXCEPTION 'disposition_certificate_task_unavailable'; END IF;
- PERFORM disposition_private.require_task_actor(t.id,acting,true);
- PERFORM append_domain_event('disposition_job',p_job,'DIGITAL_CERTIFICATE_DOWNLOADED',jsonb_build_object('certificate_document_id',p_document,'task_id',t.id,'acting_role_id',acting));
- UPDATE disposition_tasks SET task_state='completed' WHERE id=t.id;
- RETURN jsonb_build_object('job_id',p_job,'task_id',t.id,'downloaded',true);
-END $$;
 
 
 CREATE OR REPLACE FUNCTION disposition_private.guard_workflow() RETURNS trigger LANGUAGE plpgsql AS $$
@@ -15159,7 +15170,7 @@ BEGIN
   IF NEW.lifecycle_state='completed' THEN
    IF NEW.job_type<>'destruction' THEN RAISE EXCEPTION 'disposition_action_not_implemented'; END IF;
    IF op<>'final_complete' OR NOT disposition_private.completion_active(NEW.id) THEN RAISE EXCEPTION 'disposition_completion_command_required'; END IF;
-   IF EXISTS(SELECT 1 FROM disposition_job_memberships WHERE job_id=NEW.id AND membership_state='active') OR NOT EXISTS(SELECT 1 FROM disposition_retained_records WHERE job_id=NEW.id) THEN RAISE EXCEPTION 'disposition_completion_unfinished'; END IF;
+   IF EXISTS(SELECT 1 FROM disposition_tasks WHERE job_id=NEW.id AND task_state IN ('open','claimed')) OR EXISTS(SELECT 1 FROM disposition_job_memberships WHERE job_id=NEW.id AND membership_state='active') OR NOT EXISTS(SELECT 1 FROM disposition_retained_records WHERE job_id=NEW.id) THEN RAISE EXCEPTION 'disposition_completion_unfinished'; END IF;
   END IF;
   IF NEW.lifecycle_state='terminated' THEN
    NEW.terminated_at:=CURRENT_TIMESTAMP; NEW.terminated_by_user_id:=uid;
@@ -15169,7 +15180,7 @@ BEGIN
  SELECT * INTO job FROM disposition_jobs WHERE id=(following->>'job_id')::bigint FOR UPDATE;
  IF NOT disposition_private.hook_applying() AND NOT disposition_private.approval_active(job.id) AND NOT (op='task_release' AND current_setting('app.actor_type',true)='automated_process') THEN PERFORM disposition_private.require_job_access(job.id); END IF;
  IF NOT disposition_private.approval_active(job.id) AND TG_TABLE_NAME IN ('disposition_tasks','disposition_review_rounds','disposition_review_decisions') AND op IN ('task_complete','review_submit','review_decide','final_complete') AND NOT (op='review_decide' AND COALESCE((SELECT r.payload->>'decision' FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current())='rejected',false)) THEN PERFORM disposition_private.require_progress(job.id); END IF;
- IF job.lifecycle_state<>'active' AND NOT (TG_TABLE_NAME='disposition_tasks' AND following->>'task_type'='certificate_download' AND job.lifecycle_state='completed' AND ((TG_OP='INSERT' AND op='final_complete' AND disposition_private.completion_active(job.id)) OR (TG_OP='UPDATE' AND op='task_complete'))) AND NOT (TG_TABLE_NAME='disposition_job_memberships' AND op IN ('job_terminate','final_complete')) AND NOT (TG_TABLE_NAME='disposition_job_documents' AND op='document_save' AND following->>'document_type'='proposal_execution_report' AND EXISTS(SELECT 1 FROM disposition_review_rounds approved WHERE approved.job_id=job.id AND approved.round_number=(following->>'review_round')::integer AND approved.approval_execution IS NOT NULL)) THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
+ IF job.lifecycle_state<>'active' AND NOT (TG_TABLE_NAME='disposition_tasks' AND following->>'task_type'='certificate_download' AND job.lifecycle_state='completed' AND ((TG_OP='INSERT' AND op='final_complete' AND disposition_private.completion_active(job.id)) OR (TG_OP='UPDATE' AND (op='task_complete' OR op='final_complete' AND disposition_private.completion_active(job.id))))) AND NOT (TG_TABLE_NAME='disposition_job_memberships' AND op IN ('job_terminate','final_complete')) AND NOT (TG_TABLE_NAME='disposition_job_documents' AND op='document_save' AND following->>'document_type'='proposal_execution_report' AND EXISTS(SELECT 1 FROM disposition_review_rounds approved WHERE approved.job_id=job.id AND approved.round_number=(following->>'review_round')::integer AND approved.approval_execution IS NOT NULL)) THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
  IF TG_TABLE_NAME='disposition_job_memberships' THEN
   IF (TG_OP='INSERT' AND NEW.removal_required) OR (TG_OP='UPDATE' AND (NEW.removal_required,NEW.removal_required_reason) IS DISTINCT FROM (OLD.removal_required,OLD.removal_required_reason) AND NOT disposition_private.hook_applying(NEW.root_aggregation_id)) THEN RAISE EXCEPTION 'disposition_recalculation_scope_invalid'; END IF;
   IF op IN ('membership_add','membership_remove') THEN PERFORM disposition_private.require_membership_stage(job.id); END IF;
@@ -15207,7 +15218,7 @@ BEGIN
    AND NOT (op='task_release' AND disposition_private.task_manager(NEW.id,(SELECT acting_role_id FROM disposition_private.command_receipts WHERE command_id=(SELECT command_id FROM disposition_private.command_context WHERE transaction_id=txid_current())))) AND ((OLD.claimed_by_user_id IS NOT NULL AND OLD.claimed_by_user_id<>uid) OR (OLD.destination_user_id IS NOT NULL AND OLD.destination_user_id<>uid) OR (OLD.destination_role_id IS NOT NULL AND OLD.claimed_by_user_id IS DISTINCT FROM uid)) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_claim_required'; END IF;
   END IF;
   IF NEW.task_state='completed' THEN
-   IF job.lifecycle_state='completed' AND NOT EXISTS(SELECT 1 FROM event_history WHERE transaction_id=txid_current() AND entity_type='disposition_job' AND entity_id=job.id AND operation='DIGITAL_CERTIFICATE_DOWNLOADED' AND metadata->>'task_id'=NEW.id::text) THEN RAISE EXCEPTION 'disposition_certificate_download_required'; END IF;
+   IF job.lifecycle_state='completed' AND NOT EXISTS(SELECT 1 FROM event_history WHERE transaction_id=txid_current() AND entity_type='disposition_job' AND entity_id=job.id AND operation IN ('DIGITAL_CERTIFICATE_DOWNLOADED','CERTIFICATE_TASK_COMPLETED') AND metadata->>'task_id'=NEW.id::text) THEN RAISE EXCEPTION 'disposition_certificate_download_required'; END IF;
    PERFORM disposition_private.require_task_actor(NEW.id,(SELECT acting_role_id FROM disposition_private.command_receipts WHERE command_id=(SELECT command_id FROM disposition_private.command_context WHERE transaction_id=txid_current())),true);
    IF NEW.destination_role_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM user_role_assignments a WHERE a.user_id=uid AND a.role_id=NEW.destination_role_id AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(a.role_id)) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
    NEW.completed_at:=CURRENT_TIMESTAMP; NEW.completed_by_user_id:=uid;
@@ -15804,7 +15815,7 @@ BEGIN
   IF NEW.lifecycle_state='completed' THEN
    IF NEW.job_type<>'destruction' THEN RAISE EXCEPTION 'disposition_action_not_implemented'; END IF;
    IF op<>'final_complete' OR NOT disposition_private.completion_active(NEW.id) THEN RAISE EXCEPTION 'disposition_completion_command_required'; END IF;
-   IF EXISTS(SELECT 1 FROM disposition_job_memberships WHERE job_id=NEW.id AND membership_state='active') OR NOT EXISTS(SELECT 1 FROM disposition_retained_records WHERE job_id=NEW.id) THEN RAISE EXCEPTION 'disposition_completion_unfinished'; END IF;
+   IF EXISTS(SELECT 1 FROM disposition_tasks WHERE job_id=NEW.id AND task_state IN ('open','claimed')) OR EXISTS(SELECT 1 FROM disposition_job_memberships WHERE job_id=NEW.id AND membership_state='active') OR NOT EXISTS(SELECT 1 FROM disposition_retained_records WHERE job_id=NEW.id) THEN RAISE EXCEPTION 'disposition_completion_unfinished'; END IF;
   END IF;
   IF NEW.lifecycle_state='terminated' THEN
    NEW.terminated_at:=CURRENT_TIMESTAMP; NEW.terminated_by_user_id:=uid;
@@ -15814,7 +15825,7 @@ BEGIN
  SELECT * INTO job FROM disposition_jobs WHERE id=(following->>'job_id')::bigint FOR UPDATE;
  IF NOT disposition_private.hook_applying() AND NOT disposition_private.approval_active(job.id) AND NOT (op='task_release' AND current_setting('app.actor_type',true)='automated_process') THEN PERFORM disposition_private.require_job_access(job.id); END IF;
  IF NOT disposition_private.approval_active(job.id) AND TG_TABLE_NAME IN ('disposition_tasks','disposition_review_rounds','disposition_review_decisions') AND op IN ('task_complete','review_submit','review_decide','final_complete') AND NOT (op='review_decide' AND COALESCE((SELECT r.payload->>'decision' FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current())='rejected',false)) THEN PERFORM disposition_private.require_progress(job.id); END IF;
- IF job.lifecycle_state<>'active' AND NOT (TG_TABLE_NAME='disposition_tasks' AND following->>'task_type'='certificate_download' AND job.lifecycle_state='completed' AND ((TG_OP='INSERT' AND op='final_complete' AND disposition_private.completion_active(job.id)) OR (TG_OP='UPDATE' AND op='task_complete'))) AND NOT (TG_TABLE_NAME='disposition_job_memberships' AND op IN ('job_terminate','final_complete')) AND NOT (TG_TABLE_NAME='disposition_job_documents' AND op='document_save' AND following->>'document_type'='proposal_execution_report' AND EXISTS(SELECT 1 FROM disposition_review_rounds approved WHERE approved.job_id=job.id AND approved.round_number=(following->>'review_round')::integer AND approved.approval_execution IS NOT NULL)) THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
+ IF job.lifecycle_state<>'active' AND NOT (TG_TABLE_NAME='disposition_tasks' AND following->>'task_type'='certificate_download' AND job.lifecycle_state='completed' AND ((TG_OP='INSERT' AND op='final_complete' AND disposition_private.completion_active(job.id)) OR (TG_OP='UPDATE' AND (op='task_complete' OR op='final_complete' AND disposition_private.completion_active(job.id))))) AND NOT (TG_TABLE_NAME='disposition_job_memberships' AND op IN ('job_terminate','final_complete')) AND NOT (TG_TABLE_NAME='disposition_job_documents' AND op='document_save' AND following->>'document_type'='proposal_execution_report' AND EXISTS(SELECT 1 FROM disposition_review_rounds approved WHERE approved.job_id=job.id AND approved.round_number=(following->>'review_round')::integer AND approved.approval_execution IS NOT NULL)) THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
  IF TG_TABLE_NAME='disposition_job_memberships' THEN
   IF (TG_OP='INSERT' AND NEW.removal_required) OR (TG_OP='UPDATE' AND (NEW.removal_required,NEW.removal_required_reason) IS DISTINCT FROM (OLD.removal_required,OLD.removal_required_reason) AND NOT disposition_private.hook_applying(NEW.root_aggregation_id)) THEN RAISE EXCEPTION 'disposition_recalculation_scope_invalid'; END IF;
   IF op IN ('membership_add','membership_remove') THEN PERFORM disposition_private.require_membership_stage(job.id); END IF;
@@ -15852,7 +15863,7 @@ BEGIN
    AND NOT (op='task_release' AND disposition_private.task_manager(NEW.id,(SELECT acting_role_id FROM disposition_private.command_receipts WHERE command_id=(SELECT command_id FROM disposition_private.command_context WHERE transaction_id=txid_current())))) AND ((OLD.claimed_by_user_id IS NOT NULL AND OLD.claimed_by_user_id<>uid) OR (OLD.destination_user_id IS NOT NULL AND OLD.destination_user_id<>uid) OR (OLD.destination_role_id IS NOT NULL AND OLD.claimed_by_user_id IS DISTINCT FROM uid)) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_claim_required'; END IF;
   END IF;
   IF NEW.task_state='completed' THEN
-   IF job.lifecycle_state='completed' AND NOT EXISTS(SELECT 1 FROM event_history WHERE transaction_id=txid_current() AND entity_type='disposition_job' AND entity_id=job.id AND operation='DIGITAL_CERTIFICATE_DOWNLOADED' AND metadata->>'task_id'=NEW.id::text) THEN RAISE EXCEPTION 'disposition_certificate_download_required'; END IF;
+   IF job.lifecycle_state='completed' AND NOT EXISTS(SELECT 1 FROM event_history WHERE transaction_id=txid_current() AND entity_type='disposition_job' AND entity_id=job.id AND operation IN ('DIGITAL_CERTIFICATE_DOWNLOADED','CERTIFICATE_TASK_COMPLETED') AND metadata->>'task_id'=NEW.id::text) THEN RAISE EXCEPTION 'disposition_certificate_download_required'; END IF;
    PERFORM disposition_private.require_task_actor(NEW.id,(SELECT acting_role_id FROM disposition_private.command_receipts WHERE command_id=(SELECT command_id FROM disposition_private.command_context WHERE transaction_id=txid_current())),true);
    IF NEW.destination_role_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM user_role_assignments a WHERE a.user_id=uid AND a.role_id=NEW.destination_role_id AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP) AND role_effectively_active(a.role_id)) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
    NEW.completed_at:=CURRENT_TIMESTAMP; NEW.completed_by_user_id:=uid;
@@ -16069,3 +16080,38 @@ BEGIN
  RETURN jsonb_build_object('decision_id',identity,'job_id',j.id,'workflow_stage',(SELECT workflow_stage FROM disposition_jobs WHERE id=j.id),'job_version',(SELECT version FROM disposition_jobs WHERE id=j.id));
 END $$;
 INSERT INTO schema_migrations(version) VALUES('086_intermediate_review_completion') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(version) VALUES('087_manager_request_email') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(version) VALUES('088_request_presentation_settings') ON CONFLICT DO NOTHING;
+
+-- Governance-only terminal-status searches; descriptive identifiers survive erasure.
+INSERT INTO schema_migrations(version) VALUES('089_governance_terminal_search') ON CONFLICT DO NOTHING;
+
+-- Localized user names use the ordinary user-administration privilege.
+INSERT INTO schema_migrations(version) VALUES('090_unify_user_translation_authorization') ON CONFLICT DO NOTHING;
+
+
+CREATE FUNCTION disposition_private.complete_certificate_task(p_job bigint,p_task bigint,p_version bigint) RETURNS jsonb LANGUAGE plpgsql AS $$
+DECLARE t disposition_tasks%ROWTYPE;j disposition_jobs%ROWTYPE;acting bigint;doc bigint;
+BEGIN
+ PERFORM disposition_private.require_command();
+ IF disposition_private.context_operation()<>'final_complete' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
+ SELECT acting_role_id INTO acting FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
+ SELECT * INTO j FROM disposition_jobs WHERE id=p_job FOR UPDATE;
+ SELECT * INTO t FROM disposition_tasks WHERE id=p_task AND job_id=p_job AND task_type='certificate_download' FOR UPDATE;
+ IF t.id IS NULL OR t.task_state NOT IN ('open','claimed') THEN RAISE EXCEPTION 'disposition_certificate_task_unavailable'; END IF;
+ IF t.version<>p_version THEN RAISE EXCEPTION 'disposition_stale_task'; END IF;
+ PERFORM disposition_private.require_task_actor(t.id,acting,true);
+ SELECT id INTO doc FROM disposition_job_documents WHERE job_id=p_job AND document_type='digital_destruction_certificate' AND document_state='available';
+ IF doc IS NULL THEN RAISE EXCEPTION 'disposition_certificate_required'; END IF;
+ IF j.lifecycle_state='completed' THEN
+  INSERT INTO disposition_private.completion_context VALUES(txid_current(),pg_backend_pid(),(SELECT command_id FROM disposition_private.command_context WHERE transaction_id=txid_current()),p_job);
+  PERFORM append_domain_event('disposition_job',p_job,'CERTIFICATE_TASK_COMPLETED',jsonb_build_object('task_id',t.id,'certificate_document_id',doc));
+  UPDATE disposition_tasks SET task_state='completed' WHERE id=t.id;
+  DELETE FROM disposition_private.completion_context WHERE transaction_id=txid_current();
+  RETURN jsonb_build_object('job_id',p_job,'task_id',t.id,'lifecycle_state','completed');
+ END IF;
+ RETURN disposition_private.finish_destruction_job(p_job,doc);
+END $$;
+REVOKE ALL ON FUNCTION disposition_private.complete_certificate_task(bigint,bigint,bigint) FROM PUBLIC;
+
+INSERT INTO schema_migrations(version) VALUES('091_explicit_certificate_task_completion') ON CONFLICT DO NOTHING;

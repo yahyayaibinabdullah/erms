@@ -1269,3 +1269,92 @@ drafts without overwriting existing translations. Drafts remain unpublished for
 administrator review. Both maintained artifacts preserve existing wording and
 provenance; no administrator export is promoted. See
 [stage handoff verification](verification/review-submission-return.md).
+
+### Compact approval confirmation
+
+Deploy the API/WebUI together for the read-only approval-summary endpoint and
+compact count/next-step confirmation. No schema migration or environment change
+is required. Synchronize the catalogue and run the explicit Arabic utility with
+`--missing-only`; nine new drafts remain unpublished pending review. Existing
+translations/provenance are preserved. See
+[verification and preview semantics](verification/approval-confirmation.md).
+
+Request delivery authorization (migration 087): apply
+`database/migrations/087_manager_request_email.sql` to existing databases before
+restarting API/WebUI. New databases use the updated canonical schema. This
+function-only upgrade allows authorized Records Managers, as well as the
+assigned Records Officer, to deliberately send the current approved request.
+It creates no send attempts, changes no task assignments, and sends no mail.
+SMTP and external-authority settings are unchanged. After approval, the Manager
+opens the existing Evidence and documents view to verify/download the report
+and request, then select Send by email. Existing translations are preserved;
+the new Arabic guidance is an unpublished generated draft requiring review.
+
+Destruction request presentation draft (migration 088): apply
+`database/migrations/088_request_presentation_settings.sql` before starting the
+updated API; fresh databases use canonical `schema.sql` alone. The migration
+adds four nullable/defaulted Disposition settings without overwriting configured
+values. Configure **Disposition organization name** if a special sending name
+is wanted (otherwise the tenancy root is used), **Records Unit email** and
+**Records Unit phone**, and optionally switch the values-language policy from
+Arabic-first bilingual to the generating user's preferred language. Missing
+contacts are displayed as Not specified; no contact values are invented.
+These are database settings, with no new environment variables or templates.
+
+The project request DOCX and checksum manifest are updated. Current request
+version labels are provisional in this greenfield review; the owner will decide
+when to consolidate the final file as v1 and remove superseded request drafts.
+Uploaded database template revisions take precedence: an administrator must
+adapt/upload an existing customized request to the new organization/year/root-row
+placeholder contract before generating with it. Demo has no uploaded request
+revision. Existing PDFs, their previews/downloads and email attachments are not
+regenerated. Restart API/WebUI after deploying code/catalogues/packaged DOCX;
+later business-setting changes follow normal settings freshness without restart.
+Synchronize catalogue definitions and run the Arabic seed with --missing-only;
+preserve existing translations and leave the ten new drafts unpublished for
+review. No email is sent by the migration or verification.
+
+Proposal execution report working layout: the packaged default is now
+`proposal-execution-report.default.v2.docx`, with the Disposition organization
+name, affected-root listing and complete executed-proposal listing. No database
+migration or environment setting is added. Restart API/worker processes after
+deploying packaged template assets because defaults are cached per process.
+Existing saved reports, template revisions, audit records and execution results
+are retained; report retries reuse the saved artifact. A previously uploaded
+custom report template takes precedence and must be revised with the documented
+organization/count placeholders and both independent repeating groups to use
+this layout. Do not rerun proposal execution to obtain a report preview.
+
+
+Migration `089_governance_terminal_search.sql` preserves identifying aggregation
+and record titles/numbers on future destruction and enables governance-only
+terminal-status metadata search views. Apply it before restarting API/WebUI.
+It does not restore names previously erased or recreate any content index.
+No new environment setting is required. Existing status-10 rows remain read-only;
+existing issued certificates and permanent proof are not rewritten.
+
+### Unified user administration and localized names (migration 090)
+
+Apply `database/migrations/090_unify_user_translation_authorization.sql` before
+restarting API/WebUI. Users' localized names/descriptions now require the same
+`identity.users.administer` privilege as ordinary user administration. The old
+`user.modify_metadata` privilege, its dependency edges and profile memberships
+are removed; the two obsolete catalogue definitions are deprecated, preserving
+stored translations and audit history. Existing user administrators need no new
+grant. A profile that held only the retired narrow privilege is not promoted to
+user administrator; grant the broader permission only through normal reviewed
+profile administration if intended. Other entity translation rights are unchanged.
+No new environment setting is required. Refresh open User editors after upgrade.
+
+### Explicit final certificate task completion (091)
+
+Apply `database/migrations/091_explicit_certificate_task_completion.sql` before
+starting the updated API/WebUI on an existing database. Fresh databases use
+`database/schema.sql` alone. Stop application workers while upgrading. The
+migration leaves certificate bytes and destruction proof unchanged and returns
+prematurely completed jobs with an open final certificate task to Active, with
+an audited correction. Their Records Managers use **Complete this task** to
+complete the task and job together. Downloads and email are optional. Restart
+the local stack after applying the migration; catalogue synchronization imports
+missing Arabic drafts for review without publishing them. No new environment
+settings are required.

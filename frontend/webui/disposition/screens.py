@@ -10,7 +10,7 @@ from ..remote_select import RemoteSelect
 from ..relationship_select import relationship_select
 from ..resource_relationships import PageTable
 from .acting_role import automatic_role
-from .messages import text, status_label, KEYS
+from .messages import action_required_label,text, status_label, KEYS
 
 TYPES=('destruction','permanent_transfer','selective_transfer','local_archives')
 ACTIONS={'destruction':'destruction','transfer_to_external_archive':'permanent_transfer',
@@ -408,7 +408,7 @@ async def choose_job_dialog(*, api, context, bind_remote, active, on_error, choo
 
 
 async def job_screen(*, api, identity, container, active, on_error, bind_remote, open_job,
-                     open_eligibility, open_resource, format_timestamp, event_label, preview=None, task_id=None, register_dirty=None, browse_resource=None, open_task=None, open_tasks=None, saved=None, remember=lambda value:None):
+                     open_eligibility, open_resource, format_timestamp, event_label, preview=None, task_id=None,open_approval_results=None, register_dirty=None, browse_resource=None, open_task=None, open_tasks=None, saved=None, remember=lambda value:None):
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
         status=ui.label(text('loading')).props('role=status')
@@ -446,14 +446,17 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             ui.label(text('workspace_details')).classes('text-2xl font-semibold')
         assigned=(current_task.get('direct_assignee') or current_task.get('role_queue')) if task_view else job.get('assignee')
         ui.label(text('assignee')+' · '+(assigned or text('unassigned'))).props('dir=auto').classes('text-slate-600')
-        with ui.expansion(text('workspace_details'),icon='info',value=not task_view).classes('w-full'):
+        with ui.expansion(text('workspace_details'),icon='info',value=not task_view and not view.get('approval_results')).classes('w-full'):
             with ui.grid().classes('w-full gap-3 grid-cols-1 md:grid-cols-2'):
                 for label,value in [('job_type',text(job['job_type'])),('lifecycle',text(job['lifecycle_state'])),
                                     ('status',status_label(job['disposition_status'])),('stage',text(job['workflow_stage']) if job.get('workflow_stage') in KEYS else '—'),
                                     ('owner',job.get('owner') or '—'),('assignee',job.get('assignee') or text('unassigned')),('current_round',str(job.get('current_review_round',0))),('destruction_number',job.get('destruction_number') or '—'),
-                                    ('claimant',(workspace.get('task') or {}).get('claimant') or '—'),('action_required',' · '.join(text(k) for k,v in job.get('action_required',{}).items() if v) or '—')]:
+                                    ('claimant',(workspace.get('task') or {}).get('claimant') or '—'),('action_required',' · '.join(action_required_label(k,job.get('job_type')) for k,v in job.get('action_required',{}).items() if v) or '—')]:
                     with ui.column().classes('detail-field gap-1'):
                         ui.label(text(label)).classes('detail-field-label');ui.label(value).classes('detail-field-value').props('dir=auto')
+        async def approval_results(result):
+            if open_approval_results:await open_approval_results(identity)
+            else:await reload(result)
         async def reload(result):
             if result.get('_saved_work'):
                 job['version']=result['job_version']
@@ -498,7 +501,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 from .review import ReviewForm,workflow_panel
                 if not task_view:workflow_panel(job,api=api,active=alive,on_error=on_error,format_timestamp=format_timestamp,physical=workspace.get('physical'),destruction=workspace.get('destruction'),completion=workspace.get('completion'),expanded=True)
                 review_workspace=workspace if task_view else {**workspace,'task':None,'roles':[],'actions':[]}
-                review=ReviewForm(api=api,workspace=review_workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource,preview=preview,browse_resource=browse_resource,history_host=panels['history'],documents_host=panels['documents'],history_active=lambda:section_active('history'),on_submitted=open_tasks if task_view else None)
+                review=ReviewForm(api=api,workspace=review_workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource,preview=preview,browse_resource=browse_resource,history_host=panels['history'],documents_host=panels['documents'],documents_active=lambda:section_active('documents'),history_active=lambda:section_active('history'),on_submitted=open_tasks if task_view else None,on_approved=approval_results)
                 if not task_view:review.host.set_visibility(False)
                 if register_dirty and task_view:register_dirty(review.dirty)
                 async def related_view():
@@ -597,6 +600,9 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
 
         from .artifacts import documents_panel
         with panels['documents']:
+            if view.get('approval_results'):
+                ui.label(text('approval_results_guidance')).props('role=status').classes('whitespace-normal')
+                if open_tasks:ui.button(text('my_tasks'),icon='arrow_back',on_click=open_tasks).props('outline no-caps')
             documents=documents_panel(api=api,job=job,active=lambda:section_active('documents'),on_error=on_error,after=reload,open_resource=open_resource,preview=preview,format_timestamp=format_timestamp,column=column,can_mutate=lambda:not review or not review.dirty())
         with panels['history']:
             ui.separator();ui.label(text('history')).classes('text-lg font-semibold')
@@ -617,6 +623,9 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             loader={'members':members.load,'documents':documents,'history':history.load}.get(event.value)
             if loader:await loader()
             if event.value=='history' and review:await review.refresh_history()
+            if event.value=='documents' and review:
+                refresh=getattr(review,'refresh_email_history',None)
+                if refresh:await refresh()
         navigation.on_value_change(selected_section)
         if initial_section!=first_section:
             await selected_section(type('SectionEvent',(),{'value':initial_section})())

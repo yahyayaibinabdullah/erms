@@ -26,13 +26,13 @@ def round_row(c,job_id,round_id):
     return row
 
 
-def summaries(c,job,round_id):
-    rows=c.execute('''SELECT d.review_stage,d.decision,d.reason,d.decided_at,u.name,r.name AS role FROM disposition_review_decisions d
+def summaries(c,job,round_id,language='bilingual'):
+    rows=c.execute('''SELECT d.review_stage,d.decision,d.reason,d.decided_at,u.name,r.name AS role,u.translations,r.translations AS role_translations FROM disposition_review_decisions d
       JOIN users u ON u.id=d.actor_user_id JOIN roles r ON r.id=d.acting_role_id WHERE d.round_id=%s ORDER BY d.id''',(round_id,)).fetchall()
     result={}
     for key,stage in [('file_administrator','file_administrator_review'),('unit_manager','unit_manager_review'),('records_manager','records_manager_review')]:
         matches=[d for d in rows if d['review_stage']==stage or key=='records_manager' and d['review_stage'] in ('manager_preparation','manager_correction')]
-        result[key]='; '.join(f"{d['name']} · {d['role']} · {d['decision']} · {d['decided_at'].isoformat()} · {d['reason']}" for d in matches) if matches else ('تم تجاوز المرحلة وفق مسار المراجعة المحفوظ / Skipped under saved review route' if key!='records_manager' else '')
+        result[key]='; '.join(f"{document_snapshots.bilingual(d,language=language)} · {document_snapshots.bilingual({'name':d['role'],'translations':d['role_translations']},language=language)} · {document_snapshots.wording('اعتمد / Approved' if d['decision']=='approved' else 'أعيد للتصحيح / Returned for correction',language)} · {d['decided_at'].isoformat()} · {d['reason']}" for d in matches) if matches else (document_snapshots.wording('تم تجاوز المرحلة وفق مسار المراجعة المحفوظ / Skipped under saved review route',language) if key!='records_manager' else '')
     return result
 
 
@@ -47,18 +47,25 @@ def generate_request(c,*,job_id,round_id,acting_role_id,settings,preview=None,co
     if job['lifecycle_state']!='active' or job['current_review_round']!=rr['round_number'] or job['workflow_stage'] not in ('records_manager_review','manager_preparation','manager_correction'):invalid('disposition_request_stage_invalid')
     if not c.execute('SELECT disposition_private.request_approval_current(%s,%s) allowed',(job_id,round_id)).fetchone()['allowed']:invalid('disposition_approval_invalidated')
     facts=c.execute('SELECT disposition_private.request_facts(%s) facts',(job_id,)).fetchone()['facts']
+    language=document_snapshots.request_language(c,settings,round_id)
     at=c.execute('SELECT clock_timestamp() at').fetchone()['at'].isoformat()
     source=facts['source'];count=document_snapshots.counts(source['aggregations'],source['records'],len(source['roots']))
-    snapshot={'source':{'approved_facts':facts},'fields':{**document_snapshots.job_fields(c,job_id,at),
-      'authority.name':settings['DISPOSITION_EXTERNAL_AUTHORITY_NAME'],**{'counts.'+k:v for k,v in count.items()},
-      **{'review.'+k:v for k,v in summaries(c,job,round_id).items()},'review.round':rr['round_number'],'form.version':rr['round_number'],
-      'membership.checksum':documents.checksum(facts)},'groups':document_snapshots.request_groups(source)}
+    years=document_snapshots.request_years(c,job_id,settings['DEFAULT_WORKING_TIMEZONE'],language)
+    aggregation_rows=document_snapshots.request_aggregation_rows(c,job_id,settings['DEFAULT_WORKING_TIMEZONE'],language)
+    snapshot={'source':{'approved_facts':facts,'presentation':{'mode':settings['DISPOSITION_REQUEST_LANGUAGE'],'language':language,'record_years_timezone':settings['DEFAULT_WORKING_TIMEZONE'],'certificate_aggregations':document_snapshots.certificate_identification(source,aggregation_rows)}},'fields':{**document_snapshots.job_fields(c,job_id,at,bilingual_values=True,language=language),**document_snapshots.request_organization(c,job_id,settings,language),**years,
+      'authority.name':(document_snapshots.wording('دار الوثائق في إمارة الشارقة / Sharjah Archives',language) if settings['DISPOSITION_EXTERNAL_AUTHORITY_NAME']=='Sharjah Archives' else settings['DISPOSITION_EXTERNAL_AUTHORITY_NAME']),**{'counts.'+k:v for k,v in count.items()},
+      **{'review.'+k:v for k,v in summaries(c,job,round_id,language).items()},'review.round':rr['round_number'],'form.version':rr['round_number'],
+      'membership.checksum':documents.checksum(facts)},'aggregations':aggregation_rows}
     key=uuid5(NAMESPACE_URL,f'wathiq:destruction-request:{job_id}:{round_id}')
     destination=preview or artifacts.destination(c,job_id,'destruction_request')
+    def verify_years(locked):
+        locked.execute('SELECT disposition_private.lock_request_facts(%s)',(job_id,))
+        if document_snapshots.request_years(locked,job_id,settings['DEFAULT_WORKING_TIMEZONE'],language)!=years or document_snapshots.request_aggregation_rows(locked,job_id,settings['DEFAULT_WORKING_TIMEZONE'],language)!=aggregation_rows:
+            invalid('disposition_request_snapshot_invalid')
     with c.transaction():
         result=documents.generate(c,job_id=job_id,expected_version=job['version'],kind='destruction_request',snapshot=snapshot,
           command_id=key,acting_role_id=acting_role_id,reason='Store the approved Request for Destruction Form',preview=destination,settings=settings,
-          connection_factory=connection_factory,review_round=rr['round_number'],approval_round_id=round_id)
+          connection_factory=connection_factory,review_round=rr['round_number'],approval_round_id=round_id,before_save=verify_years)
         return execute_command(c,command_id=uuid5(key,'activate'),operation='review_decide',payload={'job_id':job_id,'round_id':round_id,'request_document_id':result['id']},acting_role_id=acting_role_id,
           reason='Generate the approved request and assign the external decision task',
           apply=lambda x:x.execute('SELECT disposition_private.activate_request(%s,%s,%s,%s) result',(job_id,round_id,result['id'],job['version'])).fetchone()['result'])

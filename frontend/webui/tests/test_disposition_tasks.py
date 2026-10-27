@@ -38,6 +38,10 @@ class Api:
         if path.endswith('/review-work'):return dict(job_id=5,job_version=2,task_version=3,review_round=1,overall_reason='Previously saved reason',own_notes={'version':4,'review_notes':'Earlier notes'},submission_reason=None)
         if '/proposal-targets/' in path:return {'items':[dict(id=10,aggregation_id=10,code='ROOT-10',name='Governing unit',version=6)]}
         return {'items':[],'total':0}
+    async def disposition_approval_summary(self,task_id,**params):
+        self.reads.append(('approval-summary',deepcopy(params)))
+        return {'job_version':2,'task_version':3,'membership_token':'a'*64,'proposals_token':'b'*64,
+                'proposal_count':2,'proposal_counts':{'remove_aggregation_relationship':2},'next_step':'request','empty_return_stage':'officer_correction'}
     async def disposition_command(self,path,payload,**kw):
         self.writes.append((path,deepcopy(payload),kw))
         if self.error:raise self.error
@@ -375,7 +379,7 @@ async def test_current_stage_excludes_other_stage_controls(host,monkeypatch,stag
     from frontend.webui.disposition import external,physical,destruction,completion,email
     seen=[]
     for name,module,method in [('external',external,'request_controls'),('physical',physical,'controls'),('completion',completion,'controls')]:
-        monkeypatch.setattr(module,method,lambda form,n=name:seen.append(n))
+        monkeypatch.setattr(module,method,lambda form,host=None,n=name:seen.append(n))
     monkeypatch.setattr(destruction,'controls',lambda form:seen.append('digital') if form.job['workflow_stage']=='digital_destruction' else None)
     monkeypatch.setattr(email,'controls',lambda form,host=None:None)
     workspace=view(actions=());workspace.update(task=None,roles=[])
@@ -386,7 +390,7 @@ async def test_current_stage_excludes_other_stage_controls(host,monkeypatch,stag
         await f.load()
     assert set(seen)==expected
     assert not list(e for e in f.host.descendants() if isinstance(e,ui.expansion))
-    assert len([e for e in history.descendants() if isinstance(e,ui.expansion)])==5
+    assert len([e for e in history.descendants() if isinstance(e,ui.expansion)])==4
     assert f.api.reads==[]
 
 
@@ -866,3 +870,88 @@ async def test_review_stage_actions_navigate_only_after_committed_completion(hos
     with host:await f.perform(action)
     assert events==([] if outcome=='failed' else ['inbox'])
     assert not any(not r.get('_saved_work') for r in after)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('job_type', ['destruction','permanent_transfer'])
+async def test_inbox_blocker_describes_final_action_not_job_admission(host, job_type):
+    from frontend.webui.disposition.messages import action_required_label
+    calls=[]
+    async def request(path,**params):
+        calls.append(params)
+        return {'items':[dict(id=8,job_id=5,job_number='DT-2026-1',job_type=job_type,task_type='records_manager_review',workflow_stage='records_manager_review',task_state='open',date_created='2026-10-26',age_seconds=0,root_count=1,blocked=True)],'total':1}
+    async def open_task(*a):pass
+    with host:
+        await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,open_task=open_task,format_timestamp=str,saved={'indicator':'blocked'})
+        table=next(e for e in host.descendants() if isinstance(e,ui.table))
+        assert table.rows[0]['indicator']==text('destruction_blocked' if job_type=='destruction' else 'disposition_blocked')
+        assert table.rows[0]['indicator']!=text('blocked')
+        select=next(e for e in host.descendants() if isinstance(e,ui.select) and e._props.get('label')==text('action_required'))
+        assert select.options['blocked']==text('disposition_blocked')
+        assert action_required_label('blocked',job_type)==table.rows[0]['indicator']
+    assert calls[0]['indicator']=='blocked'
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('outcome',['request','empty','conditional'])
+async def test_approval_dialog_counts_complete_set_and_cancel_never_saves(host,monkeypatch,outcome):
+    from nicegui.elements.dialog import Dialog
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    f,api,after=await form(host,actions=('save','approve'))
+    f.pending=[dict(action='create',proposal_type='make_vital',governing_root_id=10,target_aggregation_id=10,target_version=6,proposed_values={})]
+    async def summary(task_id,**params):
+        assert params['changes']==f.pending
+        return {'job_version':2,'task_version':3,'membership_token':'a','proposals_token':'b','proposal_count':1201,'proposal_counts':{'make_vital':1,'remove_aggregation_relationship':1200},'next_step':outcome,'empty_return_stage':'officer_correction'}
+    api.disposition_approval_summary=summary
+    async def cancel():
+        labels=[e.text for e in host.descendants() if isinstance(e,ui.label)]
+        assert text('approval_summary',count=1201,counts=' · '.join([text('approval_type_count',kind=text('make_vital'),count=1),text('approval_type_count',kind=text('remove_aggregation_relationship'),count=1200)])) in labels
+        assert text('approval_no_destruction') in labels
+        assert text('approval_next_empty',stage=text('officer_correction')) in labels if outcome=='empty' else text('approval_next_request' if outcome=='request' else 'approval_next_conditional') in labels
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog))
+        assert any(isinstance(e,ui.button) and e.text==text('approve_apply') for e in dialog.descendants())
+        assert not any(isinstance(e,ui.expansion) for e in dialog.descendants())
+        return False
+    monkeypatch.setattr(Dialog,'__await__',lambda self:cancel().__await__())
+    with host:await f.perform('approve')
+    assert not api.writes and not after and len(f.pending)==1
+
+
+@pytest.mark.asyncio
+async def test_approval_summary_reused_without_save_and_refreshed_only_after_save(host,monkeypatch):
+    from nicegui.elements.dialog import Dialog
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    async def yes():return True
+    monkeypatch.setattr(Dialog,'__await__',lambda self:yes().__await__())
+    f,api,_=await form(host,actions=('save','approve'))
+    f.work['own_notes']['review_notes']=f.comments.value;f.work['overall_reason']=f.comments.value
+    with host:await f.perform('approve')
+    assert [p for p,_,_ in api.writes]==['tasks/8/approve-proposals']
+    assert not any(p.endswith('/approval-preview') for p,_ in api.reads)
+    api.writes.clear();api.reads.clear();f.comments.value+=' updated'
+    original=api.disposition_page
+    async def read(path,**params):
+        if path.endswith('/approval-preview'):return {'job_version':3,'task_version':4,'membership_token':'fresh-members','proposals_token':'fresh-proposals'}
+        return await original(path,**params)
+    api.disposition_page=read
+    with host:await f.perform('approve')
+    assert [p for p,_,_ in api.writes]==['tasks/8/review-work','tasks/8/approve-proposals']
+    assert api.writes[-1][1]['proposals_token']=='fresh-proposals'
+
+
+@pytest.mark.parametrize('pending',[False,True])
+@pytest.mark.asyncio
+async def test_approval_opens_document_results_instead_of_inbox(host,monkeypatch,pending):
+    from nicegui.elements.dialog import Dialog
+    async def confirmed():return True
+    monkeypatch.setattr(Dialog,'__await__',lambda self:confirmed().__await__())
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    f,api,after=await form(host,actions=('save','approve'))
+    events=[]
+    async def approved(result):events.append(('documents',result))
+    async def inbox():events.append(('inbox',None))
+    f.on_approved=approved;f.on_submitted=inbox
+    if pending:api.error=ApiError(503,{'approval_committed':True,'code':'disposition_execution_report_pending'})
+    with host:await f.perform('approve')
+    assert len(events)==1 and events[0][0]=='documents'
+    assert not after

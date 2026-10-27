@@ -273,3 +273,57 @@ def test_changed_approved_facts_prevent_sending_stale_request(client,monkeypatch
         job,doc,rid=request(c,monkeypatch)
         c.execute('UPDATE aggregation_retention_rules SET current_period_years=current_period_years+1 WHERE aggregation_id IN(SELECT root_aggregation_id FROM disposition_job_memberships WHERE job_id=%s)',(job['id'],));c.commit();actor(c)
         with pytest.raises(Exception,match='disposition_email_not_authorized'):enqueue(c,job,doc,rid)
+
+
+@pytest.mark.parametrize('route',['standard','simplified','records_manager_only'])
+def test_manager_and_assigned_officer_can_deliberately_send_current_request(client,monkeypatch,route):
+    with db() as c:
+        job,doc,officer_role=request(c,monkeypatch,route)
+        mgr=c.execute("SELECT r.id FROM roles r JOIN profiles p ON p.id=r.profile_id WHERE p.code='INFO_GOV_MGR' AND disposition_private.person_role(current_user_id(),r.id) ORDER BY r.id LIMIT 1").fetchone()['id']
+        assert email.allowed(c,job['id'],doc,mgr)
+        assert email.allowed(c,job['id'],doc,officer_role)
+        assert not c.execute('SELECT 1 FROM disposition_email_attempts').fetchone()
+        controls=email.controls(c,job['id'])
+        assert mgr in next(d for d in controls['documents'] if d['id']==doc)['role_ids']
+        first=enqueue(c,job,doc,mgr)
+        second=enqueue(c,job,doc,officer_role)
+        third=enqueue(c,job,doc,mgr)
+        assert len({first['attempt_id'],second['attempt_id'],third['attempt_id']})==3
+        assert enqueue(c,job,doc,mgr,key=c.execute('SELECT command_id FROM disposition_email_attempts WHERE id=%s',(first['attempt_id'],)).fetchone()['command_id'])==first
+        c.execute('DELETE FROM user_role_assignments WHERE user_id=1 AND role_id=%s',(mgr,))
+        assert not email.allowed(c,job['id'],doc,mgr)
+
+
+@pytest.mark.parametrize('mode,language,arabic,english',[
+    ('arabic_first_bilingual','en',True,True),
+    ('manager_preference','ar',True,False),
+    ('manager_preference','en',False,True),
+])
+def test_request_email_body_language_signature_and_enqueue_snapshot(client,monkeypatch,mode,language,arabic,english):
+    captured=[]
+    with db() as c:
+        job,doc,rid=request(c,monkeypatch)
+        approved=c.execute('SELECT approval_execution FROM disposition_review_rounds WHERE job_id=%s',(job['id'],)).fetchone()['approval_execution']
+        manager_id=approved['approving_user_id'];manager_role=approved['acting_role_id']
+        manager_name=c.execute('SELECT name FROM users WHERE id=%s',(manager_id,)).fetchone()['name']
+        unit_name=c.execute('SELECT o.name FROM roles r JOIN org_units o ON o.id=r.org_unit_id WHERE r.id=%s',(manager_role,)).fetchone()['name']
+        c.execute("UPDATE users SET translations='{\"ar\":{\"name\":\"مديرة الوثائق\"}}' WHERE id=%s",(manager_id,))
+        c.execute("UPDATE org_units SET translations='{\"ar\":{\"name\":\"وحدة الوثائق\"}}' WHERE id=(SELECT org_unit_id FROM roles WHERE id=%s)",(manager_role,))
+        c.execute("INSERT INTO user_preferences(user_id,language_tag,working_timezone) VALUES(1,%s,'Asia/Dubai') ON CONFLICT(user_id) DO UPDATE SET language_tag=EXCLUDED.language_tag",(language,))
+        settings(c,{'DISPOSITION_REQUEST_LANGUAGE':mode,'DISPOSITION_EXTERNAL_AUTHORITY_NAME':'Archives Authority','DISPOSITION_ORGANIZATION_NAME':'Configured Organization'})
+        c.commit();actor(c)
+        attempt=enqueue(c,job,doc,rid)
+        before=c.execute('SELECT configuration FROM disposition_email_attempts WHERE id=%s',(attempt['attempt_id'],)).fetchone()['configuration']['body']
+        settings(c,{'DISPOSITION_EXTERNAL_AUTHORITY_NAME':'Changed after queue','DISPOSITION_ORGANIZATION_NAME':'Changed after queue'})
+        c.execute("UPDATE user_preferences SET language_tag='en' WHERE user_id=1")
+    assert email.process_one(db,transport=lambda cfg,msg:(captured.append(msg) or ('smtp_accepted',None,250,None)))
+    body=captured[0].get_body(preferencelist=('plain',)).get_content().strip()
+    assert body==before
+    assert ('وتفضلوا بقبول فائق الاحترام والتقدير' in body)==arabic
+    assert ('Please find attached a Request for Destruction Form for your approval.' in body)==english
+    assert ('مديرة الوثائق\nوحدة الوثائق' in body)==arabic
+    assert (manager_name+'\n'+unit_name in body)==english
+    assert 'Configured Organization' in body and 'Archives Authority' in body
+    assert 'Changed after queue' not in body and 'saved destruction document' not in body
+    if arabic and english:assert body.index('إلى ')<body.index('To ')
+    assert list(captured[0].iter_attachments())[0].get_payload(decode=True)==preview_pdf()

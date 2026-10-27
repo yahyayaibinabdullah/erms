@@ -351,3 +351,28 @@ in Asia/Dubai). It checks existing numbers through Yahya's bounded search API
 and skips occupied serials. Assigned numbers are checkpointed for resume. Run
 one seeder at a time: numbering is checked, not reserved across concurrent runs;
 a conflicting API write stops rather than overwriting an existing aggregation.
+
+## UI catalogue updates after pulling code
+
+On an actual local-stack launch or restart, `run-local-stack.sh` synchronizes
+message definitions and fills missing Arabic drafts from the checked-in
+catalogue, using `database/seeds/004_seed_generated_arabic_ui_translations.py`
+with `--missing-only`. It uses the resolved `DATABASE_URL` and API virtual
+environment after readiness/preflight checks, before starting MailDev or
+application services. A failed sync stops the launch and records the error in
+`.runtime/local-stack/stack.log`. Existing translated, reviewed and published
+wording remains intact; nothing is automatically reviewed or published.
+
+This applies to foreground startup, `up` when stopped, and `restart`. An `up`
+that finds the managed stack already ready remains a no-op; use `restart` after
+pulling catalogue changes. API startup outside this local launcher continues
+to synchronize definitions only. Translation
+Administration imports likewise protect existing non-source-copy wording.
+Existing wording corrections therefore require an explicit reviewed catalogue
+update in that database; the missing-only hook does not replace them.
+The 75 Job/Task corrections applied explicitly to demo are unreviewed drafts
+until approved/published there. Another database does not inherit that approval.
+
+Localized names of individual people, roles and organizational units are entity
+data, separate from UI message catalogues. Editing a person's Arabic name in
+demo does not add it to the checked-in UI catalogue or another local database.

@@ -217,3 +217,23 @@ The privilege name and System Administrator grant are resolved. Shared settings
 persistence and protected SMTP-secret handling follow Application Configuration
 Sections 5.6–5.7, 6.1, 7, and 8. The general migration proposals still marked
 open in that draft are separate from the resolved disposition and email rules.
+
+## Disposition request presentation amendment — 27 October 2026
+
+The Disposition category includes four database-managed settings:
+
+| Setting | Type and default | Meaning |
+| --- | --- | --- |
+| `DISPOSITION_ORGANIZATION_NAME` | Optional text, unset | Requesting organization name override; otherwise the tenancy root organization |
+| `DISPOSITION_RECORDS_UNIT_EMAIL` | Optional email, unset | Records Unit contact address printed on requests |
+| `DISPOSITION_RECORDS_UNIT_PHONE` | Optional text, unset | Records Unit contact phone printed on requests |
+| `DISPOSITION_REQUEST_LANGUAGE` | Choice, `arabic_first_bilingual` | Arabic-first bilingual values or `manager_preference`, the generating user’s preferred language (displayed as “User’s preferred language”) |
+
+These are presentation settings for newly generated destruction requests.
+Changes use the existing administrator-only validation, version checks and
+Audit Trail. They do not change SMTP destinations, task assignment, access,
+or existing PDFs/attachments. Missing contact values print “Not specified”;
+entity translations fall back to canonical text when absent. The existing
+application working timezone governs record year bounds. Settings refresh
+through the existing settings-cache policy; no new cache or environment
+variables are introduced. See destruction-process §11.2–11.3.

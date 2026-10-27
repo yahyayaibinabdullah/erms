@@ -1212,10 +1212,12 @@ record for each destroyed aggregation and record. The permanent record contains:
 - the security level and access restrictions that applied when destruction
   occurred, so the retained information remains appropriately protected.
 
-An aggregation or record number, title, former parent identifier or hierarchy
-path, original filename, or other limited descriptive metadata may remain only
-when it is necessary to identify reliably what was destroyed. Wathiq must not
-retain these fields merely because they existed before destruction.
+The aggregation/record number and title are retained permanently to identify
+what was destroyed. The original aggregation and record rows remain read-only
+with status 10; they are not deleted from those tables. Descriptions, content
+and prohibited derivatives are still erased. Former parent paths, original
+filenames and other descriptive metadata remain subject to the necessity rule;
+retaining a title/number does not authorize retaining all previous metadata.
 
 Uploaded approval documents, destruction certificates, photographs or videos
 of physical destruction, correspondence with the external archival authority,
@@ -1243,8 +1245,23 @@ Wathiq must not retain:
 Event messages, evidence descriptions, and manifest fields must not contain a
 copy or extract of the destroyed content.
 
-Destroyed resources and their retained disposition records do not appear as
-live resources in ordinary search, browse, or hierarchy views. A user with
+Destroyed resources do not appear as live resources in ordinary browse or
+hierarchy views. Search uses the existing disposition-status filter, not a
+separate include-destroyed flag. An active information-governance person with
+`disposition.jobs.manage` may search aggregations and records by **Destroyed
+(10)**, **Permanently transferred (11)** or **Retained as local archives (12)**,
+subject to current resource access and clearance. The disposition-status
+filter is available in Advanced Search only to that authorized governance
+context. Destroyed rows enter results only when the search expression explicitly
+filters disposition status; their retained titles and numbers can then be used
+as additional conditions. They remain read-only and open a retained-metadata
+view, never a live editor or content viewer. Other users cannot select this
+filter and server-side enforcement returns no terminal-status rows even for a
+forged or shared/saved search request. Counts and pagination obey the same
+predicate. Removed content, OCR and component indexes must not be recreated to
+support these searches. Statuses 11/12 retain their existing controlled names;
+this change creates no new status called permanently archived or kept indefinitely.
+ A user with
 `disposition.jobs.manage` may view a retained record through the disposition
 view only when the user's existing security clearance and organizational access
 also permit it. A user with the applicable audit privilege may view it through
