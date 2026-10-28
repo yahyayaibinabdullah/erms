@@ -376,3 +376,23 @@ until approved/published there. Another database does not inherit that approval.
 Localized names of individual people, roles and organizational units are entity
 data, separate from UI message catalogues. Editing a person's Arabic name in
 demo does not add it to the checked-in UI catalogue or another local database.
+
+### Fresh database initialization after schema consolidation
+
+The recommended default for Arabic-primary/English databases is **ICU `ar` with
+UTF-8**. This is a database-creation choice, separate from schema initialization.
+The current launcher/bootstrap does not force it: Docker inherits its cluster's
+settings, and existing databases/volumes retain theirs. Provision the intended
+database explicitly or use a controlled rebuild; pulling code or restarting
+does not change the provider. See [creation commands, inspection, examples and
+restore verification](database-collation.md) and the [clone setup guide](clone-and-setup.md#6-set-up-postgresql-and-its-tools).
+
+The Docker fallback mounts the canonical DDL, required reference-data seed and
+version-baseline file as three ordered init scripts. Existing database volumes
+are reused without applying any of these fresh-install scripts. The standalone
+`tools/bootstrap-local-dev.sh` uses the same order. For manual initialization,
+follow `database/README.md` or run `tools/initialize_database.py` using the API
+Python environment. Migration history remains under `database/migrations`;
+`schema.sql` no longer doubles as an upgrade-test fixture. Historical upgrade
+tests read pinned commit `a476ff2dc6e96f29d8d1047ccbbc656fa5455657` from Git, so
+shallow CI checkouts must fetch that commit before running those tests.

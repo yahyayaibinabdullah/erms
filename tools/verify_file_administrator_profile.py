@@ -9,13 +9,18 @@ import psycopg
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
 from dotenv import dotenv_values
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from tools.initialize_database import initialize
+
+
 url={**dotenv_values('.env'),**os.environ}['DATABASE_URL'];name='erms_test_file_admin_'+uuid.uuid4().hex
 admin=psycopg.connect(make_conninfo(url,dbname='postgres'),autocommit=True)
 admin.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
 print('Created',name,flush=True)
 try:
  with psycopg.connect(make_conninfo(url,dbname=name),autocommit=True) as c:
-  c.execute(Path('database/schema.sql').read_text(),prepare=False)
+  initialize(c)
   row=c.execute("SELECT id,is_system FROM profiles WHERE code='FILE_ADMIN'").fetchone();assert row and row[1]
   codes=c.execute('SELECT v.code FROM privileges v JOIN profile_privileges pp ON pp.privilege_id=v.id WHERE pp.profile_id=%s ORDER BY v.code',(row[0],)).fetchall();assert len(codes)==34
   assert not c.execute('SELECT 1 FROM privilege_dependencies d JOIN profile_privileges p ON p.privilege_id=d.privilege_id WHERE p.profile_id=%s AND NOT EXISTS(SELECT 1 FROM profile_privileges r WHERE r.profile_id=p.profile_id AND r.privilege_id=d.required_privilege_id)',(row[0],)).fetchall()

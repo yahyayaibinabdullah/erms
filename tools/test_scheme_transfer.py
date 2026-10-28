@@ -15,6 +15,10 @@ from psycopg.conninfo import conninfo_to_dict, make_conninfo
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+
+from tools.initialize_database import initialize
 
 
 def main():
@@ -34,7 +38,7 @@ def main():
                 names.append(name)
                 print("Created disposable database " + name, flush=True)
                 with psycopg.connect(**dict(info, dbname=name)) as connection:
-                    connection.execute((ROOT / "database/schema.sql").read_text())
+                    initialize(connection)
         env = dict(
             os.environ,
             DATABASE_URL=make_conninfo(**dict(info, dbname=names[1])),

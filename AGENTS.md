@@ -37,6 +37,15 @@
 
 ## Environment variable templates
 
+- Any change to `.env.example` must reconcile local `.env` handling and all
+  relevant example environment files in the same change, including
+  `api.env.example`, `webui.env.example`, `text-indexer.env.example` and any
+  example files introduced in the future. Discover the current files across
+  the repository; the list below is not exhaustive. Preserve private `.env`
+  values, keep service-specific settings scoped to their consumers, document
+  intentional differences, and extend template consistency checks when adding
+  a new example file. Run `python3 tools/check_configuration_authority.py`
+  before handoff.
 - Every newly added environment variable must be documented in `.env.example`
   and every relevant service template in the same change. A code default does
   not replace template documentation. Apply the same reconciliation when

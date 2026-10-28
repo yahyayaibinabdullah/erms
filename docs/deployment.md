@@ -38,8 +38,10 @@ supervisors or mail infrastructure.
 
 1. Prepare PostgreSQL, the service account, Python environments and the feature
    dependencies described under [server preparation](#server-preparation-and-configuration).
-2. Initialize an empty database from `database/schema.sql`, or apply all pending
-   upgrades through migration 072 for an existing database. Follow
+2. For an empty database, load `database/schema.sql`, then explicitly run
+   `database/seeds/000_required_reference_data.sql` and `database/baseline.sql`.
+   For an existing database, apply pending upgrades through migration 091;
+   do not rerun the fresh-install files. Follow
    [database instructions](../database/README.md) and the reviewed
    [settings migration/readiness procedure](application-settings-upgrade.md).
 3. Configure the service environment files, database application settings,
@@ -56,6 +58,35 @@ supervisors or mail infrastructure.
 The [systemd section](#separate-systemd-services) below lists the packaged units
 and install/start commands. Keep this inventory and the Operations catalogue
 updated whenever a production process or scheduled responsibility changes.
+
+## PostgreSQL locale recommendation
+
+For a new Arabic-primary deployment that also supports English, provision
+**UTF-8 with ICU locale `ar`**, explicitly selected at database creation before
+loading `database/schema.sql`. ICU uses Arabic language tailoring and reduces
+host-OS differences relative to libc when library versions/settings agree.
+`und` remains a deliberate alternative for a language-neutral multilingual
+baseline. This database choice does not change UI language defaults or user
+preferences.
+
+Follow [database collation provisioning and verification](database-collation.md)
+for `CREATE DATABASE`, provider/locale/version inspection, and the measured
+Arabic name, vowel-mark and Arabic/Western-digit examples. Verify
+`datlocprovider = i` and `datlocale = ar`; do not infer the active provider solely
+from `LC_COLLATE` or an `en_US.UTF-8` label.
+
+Existing libc databases require a planned backup/rebuild/restore to change the
+default provider. Ordinary clones should preserve source locale settings;
+intentional ICU `ar` conversions must record that difference and compare schema,
+all table data and sequence states with one backup snapshot. Test mutating API
+fixtures only in a separate disposable ICU `ar` database. A restart, schema
+import or collation-version refresh does not perform this conversion.
+
+Record ICU/collation versions in deployment evidence. After a version change,
+rebuild affected dependent objects and verify them before acknowledging the new
+version. Existing launchers/bootstrap do not enforce ICU `ar`, so inspect their
+result or provision the database explicitly. No application setting or `.env`
+variable switches an existing database's default locale.
 
 ## Deployment options
 

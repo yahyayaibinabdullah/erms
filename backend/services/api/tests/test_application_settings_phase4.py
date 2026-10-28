@@ -21,6 +21,9 @@ from backend.services.api.tests.test_application_settings import db, items, save
 ROOT=Path(__file__).resolve().parents[4]
 
 
+from tools.initialize_database import initialize
+
+
 def source_file(tmp_path, **changes):
     values={'DEFAULT_WORKING_TIMEZONE':'UTC','DEFAULT_ROOT_AGGREGATION_MEDIUM':'digital',
             'REVIEW_WARNING_WINDOW_DAYS':'2','DASHBOARD_FAVOURITE_ITEM_LIMIT':'2',
@@ -124,7 +127,7 @@ def test_upgrade_readiness_and_cross_database_plan_isolation(client,tmp_path):
         with psycopg.connect(admin_url,autocommit=True) as c:c.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
         created=True;print('Created disposable isolation database '+name)
         with psycopg.connect(other_url,row_factory=dict_row) as c:
-            c.execute((ROOT/'database/schema.sql').read_text(),prepare=False);c.commit()
+            initialize(c);c.commit()
             with pytest.raises(MigrationInvalid,match='preview_target_changed'):apply_preview(c,plan,source_values(path),user_id=1,reason='Wrong target rejected')
             c.rollback()
             assert readiness(c)['ready'] and not readiness(c,source_values(path))['ready']

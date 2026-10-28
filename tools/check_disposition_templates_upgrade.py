@@ -12,6 +12,9 @@ ROOT=Path(__file__).resolve().parents[1]
 MARKER='-- Disposition controlled templates (057).\n'
 
 
+from tools.historical_schema import historical_schema
+
+
 def snapshot(c):
     tables=['aggregations','records','digital_components','digital_component_content_sets','digital_component_blobs',
       'event_history','application_settings','disposition_jobs','disposition_job_documents','disposition_private.command_receipts']
@@ -20,7 +23,7 @@ def snapshot(c):
 
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ};base=config['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Destruction routing and shared tasks (058).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/057_disposition_templates.sql').read_text()
+    schema=historical_schema().split('-- Destruction routing and shared tasks (058).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/057_disposition_templates.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
     names=[]
     try:

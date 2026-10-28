@@ -22,6 +22,9 @@ from backend.services.api.tests.test_disposition_eligibility import unit,make_ho
 ROOT=Path(__file__).resolve().parents[4]
 
 
+from tools.historical_schema import historical_schema
+
+
 def actor(c,user=1):
     foundation_actor(c,user=user)
     c.execute("SELECT set_config('app.change_reason','Phase 9 policy and membership acceptance',true)")
@@ -380,9 +383,9 @@ def version_from_db(root):
     with db() as c:return version(c,root)
 
 
-def test_canonical_and_independent_membership_migration_match_exactly(client):
+def test_historical_membership_fixture_matches_independent_migration(client):
     marker='-- Disposition membership and atomic recalculation (055).\n'
-    assert (ROOT/'database/schema.sql').read_text().split(marker,1)[1].split('\n-- Disposition governed artifacts (056).',1)[0]==(ROOT/'database/migrations/055_disposition_membership.sql').read_text()
+    assert historical_schema().split(marker,1)[1].split('\n-- Disposition governed artifacts (056).',1)[0]==(ROOT/'database/migrations/055_disposition_membership.sql').read_text()
 
 
 def test_acceleration_failure_after_closure_rolls_back_entire_unit(client):

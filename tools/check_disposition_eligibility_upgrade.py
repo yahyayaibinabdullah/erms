@@ -13,6 +13,9 @@ ROOT=Path(__file__).resolve().parents[1]
 MARKER='-- Disposition eligibility and current blockers (054).\n'
 
 
+from tools.historical_schema import historical_schema
+
+
 def snapshot(c):
     tables=['aggregations','records','org_units','roles','users','user_role_assignments','event_history','profile_privileges','application_settings',
             'disposition_jobs','disposition_job_memberships','disposition_tasks','disposition_review_rounds','disposition_review_decisions','disposition_job_documents','disposition_private.command_receipts']
@@ -36,7 +39,7 @@ def existing_command(c):
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ};base=config['DATABASE_URL']
     admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Disposition membership and atomic recalculation (055).',1)[0].rstrip()+'\n';old=schema.split(MARKER)[0]
+    schema=historical_schema().split('-- Disposition membership and atomic recalculation (055).',1)[0].rstrip()+'\n';old=schema.split(MARKER)[0]
     migration=(ROOT/'database/migrations/054_disposition_eligibility.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
     names=[]

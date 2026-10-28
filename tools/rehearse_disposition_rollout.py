@@ -21,11 +21,15 @@ from tools.check_disposition_foundation_upgrade import baseline_data
 from tools.check_disposition_completion_upgrade import snapshot, full_catalogue
 
 
+from tools.historical_schema import historical_schema
+from tools.initialize_database import initialize
+
+
 def main():
     config = {**dotenv_values(ROOT / '.env'), **os.environ}
     base = config['DATABASE_URL']
     admin = make_conninfo(base, dbname='postgres')
-    schema = (ROOT / 'database/schema.sql').read_text()
+    schema = historical_schema()
     migrations = sorted(p for p in (ROOT / 'database/migrations').glob('*.sql')
                         if 50 <= int(p.name.split('_', 1)[0]) <= 71)
     assert len(migrations) == 22
@@ -57,7 +61,8 @@ def main():
                     return result
 
                 with psycopg.connect(url) as c:
-                    c.execute(schema if kind == 'fresh' else schema.split('-- Shared configuration foundation.', 1)[0], prepare=False)
+                    if kind=='fresh':initialize(c)
+                    else:c.execute(schema.split('-- Shared configuration foundation.', 1)[0],prepare=False)
                     c.commit()
                     if kind == 'fresh':
                         # Exercise the documented empty-install bootstrap; its

@@ -4983,6 +4983,9 @@ def index(q: str = "") -> None:
 
     def event_entity_identity(event: dict[str, Any]) -> tuple[str, str]:
         entity_type = event["entity_type"]
+        if entity_type in ('disposition_job', 'disposition_task'):
+            from .audit_labels import disposition_event_identity
+            return disposition_event_identity(event)
         snapshot = event.get("after_state") or event.get("before_state") or {}
         if event.get("operation") == "EXPORT" and entity_type == "classification_scheme":
             snapshot = (event.get("metadata") or {}).get("scheme") or snapshot
@@ -5135,7 +5138,9 @@ def index(q: str = "") -> None:
             with ui.row().classes("w-full items-center px-5 pt-5"):
                 ui.avatar(icon="history", color="blue-1", text_color="primary")
                 with ui.column().classes("gap-0 grow"):
-                    ui.label(event_label(event["operation"])).classes("text-xl font-semibold").tooltip(event["operation"])
+                    operation_heading = ui.label(event_label(event["operation"], event=event)).classes("text-xl font-semibold")
+                    if not disposition_event:
+                        operation_heading.tooltip(event["operation"])
                     ui.label(entity_heading).classes("text-sm text-slate-500")
                     if entity_identity:
                         ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
@@ -5218,13 +5223,15 @@ def index(q: str = "") -> None:
                         "text-xs text-slate-400 font-medium mt-2"
                     ).tooltip(render_message("webui.render_event_timeline.tooltip.events_sharing_this_correlation_id_belong_6351adea"))
                 previous_correlation = correlation
-                operation = event_label(event["operation"])
+                operation = event_label(event["operation"], event=event)
                 entity_heading, entity_identity = event_entity_identity(event)
                 with ui.card().classes("audit-event w-full px-4 py-3"):
                     with ui.row().classes("w-full items-center no-wrap gap-3"):
                         ui.avatar(icon={"CREATE": "add", "UPDATE": "edit", "DELETE": "delete"}.get(event["operation"], "bolt"), color="blue-1", text_color="primary", size="36px")
                         with ui.column().classes("gap-0 grow min-w-0"):
-                            ui.label(operation).classes("font-semibold").tooltip(event["operation"])
+                            operation_heading = ui.label(operation).classes("font-semibold")
+                            if event.get('display_presentation') != 'disposition':
+                                operation_heading.tooltip(event["operation"])
                             ui.label(entity_heading).classes("text-xs text-slate-500")
                             if entity_identity:
                                 ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")

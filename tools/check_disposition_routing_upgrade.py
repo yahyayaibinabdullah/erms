@@ -16,6 +16,10 @@ ROOT=Path(__file__).resolve().parents[1]
 MARKER='-- Destruction routing and shared tasks (058).\n'
 
 
+from tools.historical_schema import historical_schema
+from tools.historical_schema import PRE_CONSOLIDATION_REF
+
+
 def full_catalogue(c):
     result=disposition_catalogue(c)
     result['messaging_snapshot_guard']=c.execute("SELECT pg_get_functiondef('messaging_snapshot_insert()'::regprocedure)").fetchall()
@@ -56,9 +60,9 @@ def fixtures(c):
 
 def main():
     base={**dotenv_values(ROOT/'.env'),**os.environ}['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Destruction proposals and review decisions (059).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/058_disposition_routing.sql').read_text()
+    schema=historical_schema().split('-- Destruction proposals and review decisions (059).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/058_disposition_routing.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
-    baseline=subprocess.check_output(['git','show','HEAD:database/schema.sql'],cwd=ROOT,text=True)
+    baseline=subprocess.check_output(['git','show',PRE_CONSOLIDATION_REF+':database/schema.sql'],cwd=ROOT,text=True)
     assert schema.split(MARKER,1)[0].rstrip()==baseline.rstrip(),'Earlier canonical schema was changed'
     names=[]
     try:

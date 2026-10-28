@@ -6,8 +6,9 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'FINAL_COMPLETE': 'audit.event.final_completion_recorded',
     'DIGITAL_CERTIFICATE_SAVED': 'audit.event.disposition_document_saved',
-    'CERTIFICATE_TASK_COMPLETED': 'audit.event.disposition_task_completed',
+    'CERTIFICATE_TASK_COMPLETED': 'audit.event.certificate_task_completed',
     'DESTRUCTION_JOB_COMPLETED': 'audit.event.destruction_job_completed',
     'DIGITAL_CERTIFICATE_FAILED': 'audit.event.digital_certificate_failed',
     'DIGITAL_CERTIFICATE_RETRY_REQUESTED': 'audit.event.digital_certificate_retry_requested',
@@ -138,6 +139,35 @@ EVENT_MESSAGE_KEYS = {
 }
 
 
-def event_label(code: str) -> str:
+def event_label(code: str, *, event: dict | None = None) -> str:
+    """Describe the recorded change using only the authorized event projection.
+
+    FINAL_COMPLETE is a command shared by multiple row changes, not a business
+    outcome. Older events already carry the before/after values needed to tell
+    those changes apart. Redacted or incomplete envelopes use a neutral label.
+    """
+    if code == 'FINAL_COMPLETE' and event:
+        metadata = event.get('metadata') or {}
+        if not metadata.get('redacted'):
+            before = event.get('before_state')
+            after = event.get('after_state')
+            before = metadata.get('before') if before is None else before
+            after = metadata.get('after') if after is None else after
+            created = before is None and ('before_state' in event or 'before' in metadata)
+            before = before if isinstance(before, dict) else {}
+            after = after if isinstance(after, dict) else {}
+            if event.get('entity_type') == 'disposition_task':
+                if after.get('task_type') == 'certificate_download':
+                    if created and after.get('task_state') in ('open', 'claimed'):
+                        return render_message('audit.event.certificate_task_created')
+                    if 'task_state' in before and after.get('task_state') == 'completed' and before['task_state'] != 'completed':
+                        return render_message('audit.event.certificate_task_completed')
+                if 'task_state' in before and after.get('task_type') == 'digital_destruction' and after.get('task_state') == 'completed' and before['task_state'] != 'completed':
+                    return render_message('audit.event.digital_destruction_task_completed')
+            elif event.get('entity_type') == 'disposition_job':
+                if 'lifecycle_state' in before and after.get('lifecycle_state') == 'completed' and before['lifecycle_state'] != 'completed':
+                    return render_message('audit.event.disposition_job_completion_recorded')
+                if 'workflow_stage' in before and after.get('workflow_stage') == 'certificate_generation' and before['workflow_stage'] != 'certificate_generation':
+                    return render_message('audit.event.certificate_stage_started')
     key = EVENT_MESSAGE_KEYS.get(code)
     return render_message(key) if key else code

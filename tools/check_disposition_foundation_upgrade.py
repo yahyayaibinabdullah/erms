@@ -14,6 +14,9 @@ FIELDS = ['disposition_status','final_disposition_at','final_disposition_by_user
           'disposition_job_id','destruction_number','transfer_number','final_disposition_event_id']
 
 
+from tools.historical_schema import historical_schema
+
+
 def catalogue(c):
     # Names/definitions, never OIDs or allocation order. Include common tables,
     # changed resource tables/views, private functions, triggers and all constraints.
@@ -63,7 +66,7 @@ def snapshot(c, upgraded=False):
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ}
     base=config['DATABASE_URL']; admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Disposition eligibility and current blockers (054).',1)[0].rstrip()+'\n'
+    schema=historical_schema().split('-- Disposition eligibility and current blockers (054).',1)[0].rstrip()+'\n'
     old=schema.split(MARKER,1)[0]
     migration=(ROOT/'database/migrations/053_disposition_foundation.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration

@@ -2,14 +2,49 @@
 
 ## New database
 
-Initialize a new empty database from the canonical schema alone:
+For Arabic-primary deployments supporting English, the recommended database
+default is **UTF-8 with ICU locale `ar`**. Create the database explicitly before
+loading the schema, for example from a maintenance database such as `postgres`:
 
-```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql
+```sql
+CREATE DATABASE erms
+    WITH TEMPLATE template0
+         ENCODING 'UTF8'
+         LOCALE_PROVIDER icu
+         ICU_LOCALE 'ar';
 ```
 
-`database/schema.sql` is complete and self-contained. It does not execute or
-depend on migrations or seeds. All SQL files contain portable PostgreSQL SQL;
+Run database creation outside a transaction, using an appropriately authorized
+deployment role and the intended database name. Verify `datlocprovider = i` and
+`datlocale = ar`; an `en_US.UTF-8` OS label alone does not establish the active
+provider. See [collation rationale, measured examples and restore guidance](../docs/database-collation.md).
+Existing databases need an explicit rebuild to change their default locale;
+`schema.sql` does not change it.
+
+Create the complete current structure from the canonical schema, then explicitly
+install required reference data and the fresh-install version baseline:
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql \
+  -f database/seeds/000_required_reference_data.sql \
+  -f database/baseline.sql
+```
+
+`database/schema.sql` is complete and self-contained **DDL only**. It creates
+each final object once and does not execute or depend on migrations or seeds.
+The required seed contains current built-in settings, languages, permissions,
+profiles and service-role defaults; it creates audit events with source `seeding`.
+`database/baseline.sql` registers the installation’s version. It executes no
+historical migrations. It records which upgrade versions are already included in
+this fresh schema. Both initialization files
+are for fresh installations only; neither reconciles an existing database.
+
+The equivalent Python entry point is
+`backend/services/api/.venv/bin/python tools/initialize_database.py`. It refuses
+a database that already contains the application schema.
+
+See [canonical maintenance and verification](../docs/database-canonical-baseline.md).
+All SQL files contain portable PostgreSQL SQL;
 client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited.
 
 ## Existing database
@@ -33,7 +68,9 @@ future resource creation; it preserves every existing ACL grant. See
 
 Migrations upgrade an existing database containing data. Inspect
 `schema_migrations` and apply only missing files from `database/migrations/` in
-filename order:
+filename order for upgrades newer than its recorded baseline. A fresh canonical
+installation must not replay older files merely because their historical marker
+is absent:
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \

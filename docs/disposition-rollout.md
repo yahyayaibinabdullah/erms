@@ -180,7 +180,9 @@ an automatic business-settings import.
 Use this path only on a newly created empty database, after deployment approval:
 
 ```sh
-psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f database/schema.sql
+psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -f database/schema.sql \
+  -f database/seeds/000_required_reference_data.sql \
+  -f database/baseline.sql
 backend/services/api/.venv/bin/python -m backend.services.api.manage_auth bootstrap \
   --name 'Initial administrator' --email 'administrator@example.invalid'
 ```
@@ -220,3 +222,49 @@ After migration 071 there are no temporary execution gates. Destruction is
 available subject to the existing permissions, approvals, workflow checks and
 explicit confirmations; applying this upgrade does not perform destruction.
 Persistent deployment still requires operator authorization.
+
+## 6. Completion history presentation — 28 October 2026
+
+The shared audit presenter describes each `FINAL_COMPLETE` row from its
+authorized, recorded before/after values. Digital task completion, certificate
+task creation/completion, entry into certificate generation and the job's
+completion being recorded have distinct labels. The separate
+`DESTRUCTION_JOB_COMPLETED` outcome remains visible. Job history and the global
+Audit Trail use the same labels and details; the operation filter uses a neutral
+completion label because one command covers several different changes.
+Redacted or incomplete events also use that neutral label. No current-state
+lookup or new API request is needed to label a row.
+
+For DT-2026-1, the three 11:38 AM command rows describe the digital task closing,
+the earlier job completion and the certificate task opening. The two 2:24 PM
+rows describe final-task completion and the corrected job completion. The
+2:11 PM migration correction explains why the earlier completion was followed
+by another. These are preserved historical changes, not repeated destruction.
+No event is rewritten, deleted or hidden by this presentation change.
+
+Traceability for the approved readable-history contract in `specs/disposition.md`:
+
+| Requirement | Implementation | Verification |
+| --- | --- | --- |
+| Describe the recorded change rather than the internal command | `frontend/webui/event_labels.py`, called with the projected event by both history surfaces | `test_completion_labels_describe_old_and_current_recorded_changes`; `test_business_outcome_and_final_task_completion_keep_distinct_labels` |
+| Preserve redaction and historical evidence | Neutral fallback for missing prior state or redacted metadata; no history/schema writes | `test_redacted_incomplete_and_unchanged_events_do_not_invent_outcomes`; original-event equality checks |
+| Consistent global and job dialogs; localized job/task subjects | Shared labels and facts, localized audit entity names, authorized job numbers; raw JSON remains collapsed for audit viewers | `test_completion_dialogs_share_the_same_contextual_title`; `test_global_subject_names_are_localized_and_identifiers_stay_technical`; English/Arabic browser component checks |
+
+The English manifest and canonical Arabic artifact add eight contextual keys;
+all 3,884 earlier Arabic items and their provenance are preserved. New Arabic
+values are generated drafts requiring review/publication, not automatically
+published translations. The authorized `demo` missing-only seed stored eight
+drafts and preserved existing translations and the five completion audit rows.
+Restart/reload the WebUI to load the updated presenter and English manifest;
+use the existing catalogue synchronization and missing-only seed workflow for
+other selected databases. No SQL migration, environment change or worker
+lifecycle change is required.
+
+Verification: 80 English/Arabic history-label/dialog checks, six shared global
+audit interaction regressions and 16 certificate-task regressions passed in
+separate frontend test processes. Catalogue checks cover all 3,892 active keys.
+Browser checks reused the real history table, job/global dialogs and timeline
+with representative saved event shapes in English and Arabic, including RTL,
+collapsed technical details and repeated language navigation. A separate
+read-only check of the five actual `demo4` rows confirmed their expected labels.
+No database-backed test suite ran against either persistent database.

@@ -18,6 +18,9 @@ from backend.services.api.disposition.commands import execute_command, lock_job,
 ROOT = Path(__file__).resolve().parents[4]
 
 
+from tools.historical_schema import historical_schema
+
+
 def db():
     return psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row)
 
@@ -230,9 +233,9 @@ def test_completed_jobs_require_consistent_fields_and_unimplemented_actions_fail
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs').fetchone()['lifecycle_state']=='active'
 
 
-def test_canonical_and_upgrade_have_the_same_foundation_ddl(client):
+def test_historical_foundation_fixture_matches_independent_migration(client):
     migration=(ROOT/'database/migrations/053_disposition_foundation.sql').read_text()
-    canonical=(ROOT/'database/schema.sql').read_text()
+    canonical=historical_schema()
     assert canonical.split('-- Common disposition foundation (053).\n',1)[1].split('-- Disposition eligibility and current blockers (054).',1)[0].strip()==migration.strip()
     assert '\\i' not in migration
     assert 'UPDATE event_history' not in migration and 'DELETE FROM event_history' not in migration

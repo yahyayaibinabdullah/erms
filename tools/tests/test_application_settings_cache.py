@@ -2,11 +2,15 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from types import MappingProxyType
+import re
 
 import pytest
 
 from backend.services.api.application_settings import SettingsCache, Snapshot
 from backend.services.api.application_settings_registry import REGISTRY, SettingsInvalid, validate_value
+
+
+from tools.canonical_schema import statements
 
 
 def snapshot(route="standard"):
@@ -93,7 +97,10 @@ def test_registry_rejects_ambiguous_types_and_invalid_values(key, value):
 
 
 def test_registry_is_complete_explicit_editable_and_defaults_are_valid():
-    assert len(REGISTRY) == 51
+    root=Path(__file__).resolve().parents[2]
+    seed=(root/'database/seeds/000_required_reference_data.sql').read_text()
+    defaults=next(statement for statement in statements(seed) if statement.startswith('INSERT INTO public."application_settings"'))
+    assert set(REGISTRY)==set(re.findall(r"\(\d+, '([A-Z][A-Z0-9_]+)',",defaults))
     for setting in REGISTRY.values():
         assert setting.category and setting.editable and setting.label_key and setting.description_key
         if not setting.secret:
@@ -103,25 +110,16 @@ def test_registry_is_complete_explicit_editable_and_defaults_are_valid():
     assert "WEBUI_FULL_TEXT_SEARCH_ENABLED" not in REGISTRY
 
 
-def test_canonical_and_upgrade_settings_ddl_are_identical_except_installation_kind():
-    root = Path(__file__).resolve().parents[2]
-    schema = (root / "database/schema.sql").read_text()
-    # Later independent disposition DDL is covered by its own parity gate.
-    schema = schema.split("-- Common disposition foundation (053).", 1)[0]
-    upgrade = (root / "database/migrations/050_application_settings.sql").read_text()
-    marker = "-- Shared configuration foundation."
-    canonical = schema[schema.index(marker):].strip()
-    migration = upgrade[upgrade.index(marker):].removesuffix("\nCOMMIT;\n").strip()
-    marker_051="INSERT INTO schema_migrations(version) VALUES('051_database_indexing_policy') ON CONFLICT DO NOTHING;"
-    assert canonical.count(marker_051)==1
-    canonical=canonical.replace("\n"+marker_051,"")
-    marker_052="INSERT INTO schema_migrations(version) VALUES('052_application_settings_reference_audit') ON CONFLICT DO NOTHING;"
-    assert canonical.count(marker_052)==1
-    canonical=canonical.replace("\n"+marker_052,"")
-    snapshot_upgrade=(root/'database/migrations/052_application_settings_reference_audit.sql').read_text()
-    def audit_function(sql):
-        start=sql.index('CREATE OR REPLACE FUNCTION audit_application_setting()')
-        return sql[start:sql.index('END $$;',start)+len('END $$;')]
-    assert audit_function(canonical)==audit_function(snapshot_upgrade)
-    canonical=canonical.replace(audit_function(canonical),audit_function(migration))
-    assert canonical == migration.replace("VALUES(true,'upgrade')", "VALUES(true,'fresh')")
+def test_current_settings_audit_preserves_the_independent_reference_audit_upgrade():
+    root=Path(__file__).resolve().parents[2]
+    schema=(root/'database/schema.sql').read_text()
+    upgrade=(root/'database/migrations/052_application_settings_reference_audit.sql').read_text()
+    current=next(statement for statement in statements(schema) if statement.startswith('CREATE FUNCTION public.audit_application_setting()'))
+    def body(source):
+        match=re.search(r'AS (\$[A-Za-z_0-9]*\$)(.*?)\1',source,re.S)
+        assert match
+        return match[2].strip()
+    assert body(current)==body(upgrade[upgrade.index('CREATE OR REPLACE FUNCTION audit_application_setting()'):])
+    assert 'CREATE TABLE public.application_settings' in schema
+    assert "VALUES(true,'upgrade')" in (root/'database/migrations/050_application_settings.sql').read_text()
+    assert 'INSERT INTO schema_migrations' not in schema

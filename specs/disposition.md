@@ -1794,6 +1794,20 @@ aggregation number/title and people; blocker observations show the affected
 aggregation, detection actor/time and recorded protection/relationship flags.
 Review, assignment, evidence, delivery, execution and completion events use
 named fields, translated states, localized dates and meaningful values.
+Completion commands can audit several distinct row changes. Their presentation
+must use the authorized event's entity type and recorded before/after values
+to distinguish digital-destruction task completion, certificate-task creation
+or completion, entry into certificate generation, and the job's completion
+being recorded. The separate destruction-job completion outcome remains
+distinct. `FINAL_COMPLETE` is an internal command code, not a user-facing
+operation label. Redacted or insufficient event data uses a translated neutral
+completion label without inferring hidden details. Both job history and the
+global Audit Trail, including their details dialogs and operation filter, use
+the shared English/Arabic presentation. Job and task subjects use localized
+entity names and authorized job numbers; internal identifiers and operation
+codes remain in the collapsed technical details for audit viewers. Historical
+events are neither rewritten nor removed, and labels never use the current
+job/task state to reinterpret what happened earlier.
 Only changed business fields appear in before/after comparisons. Creation and
 observation events have no empty comparison panels. A cleared field is shown
 as “Not set”, never as the JSON literal `null`.

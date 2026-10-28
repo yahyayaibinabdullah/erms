@@ -3,13 +3,18 @@ set -Eeuo pipefail
 
 readonly DATABASE_URL="$1"
 readonly SCHEMA_FILE="$2"
-readonly CLEAN_DATABASE="erms_security_schema_clean"
+readonly CLEAN_DATABASE="erms_security_schema_clean_$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
 readonly CLEAN_URL="${DATABASE_URL%/*}/${CLEAN_DATABASE}"
 readonly TEMPORARY_DIRECTORY="$(mktemp -d)"
 
 cleanup_parity() {
-    dropdb --if-exists --force --maintenance-db="${DATABASE_URL}" "${CLEAN_DATABASE}" >/dev/null 2>&1 || true
+    local status=$?
+    if ! dropdb --if-exists --force --maintenance-db="${DATABASE_URL}" "${CLEAN_DATABASE}" >/dev/null; then
+        echo "Failed to drop disposable database ${CLEAN_DATABASE}" >&2
+        status=1
+    fi
     rm -rf "${TEMPORARY_DIRECTORY}"
+    exit "${status}"
 }
 trap cleanup_parity EXIT
 
@@ -18,7 +23,6 @@ psql "${CLEAN_URL}" --set ON_ERROR_STOP=on --file "${SCHEMA_FILE}" >/dev/null
 
 read -r -d '' SIGNATURE_SQL <<'SQL' || true
 SELECT 'column|' || table_name || '|' ||
-       CASE WHEN column_name='owning_org_unit_id' THEN 0 ELSE ordinal_position END || '|' ||
        column_name || '|' ||
        data_type || '|' || is_nullable
 FROM information_schema.columns

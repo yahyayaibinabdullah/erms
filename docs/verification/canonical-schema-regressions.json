@@ -1,0 +1,158 @@
+{
+  "reference_ref": "a476ff2dc6e96f29d8d1047ccbbc656fa5455657",
+  "api_broad_run": {
+    "passed": 1441,
+    "failed": 35,
+    "skipped": 2,
+    "complete_suite": false
+  },
+  "fixed_static_failure": "backend/services/api/tests/test_policy_inventory.py::test_canonical_schema_is_self_contained_and_current",
+  "baseline_cross_check": {
+    "tested": 34,
+    "failed_on_original": 33,
+    "passed_on_original": 1
+  },
+  "isolated_clean_recheck": {
+    "test": "backend/services/api/tests/test_phase9_governance_authorization.py::test_governance_custody_view_exposes_assignments_and_resilience_warning",
+    "passed": true
+  },
+  "baseline_cases": [
+    {
+      "test": "backend.services.api.tests.test_disposition_communications::test_certificate_shared_sender_after_completion_requires_actual_manager",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_handoff::test_post_review_handoffs_and_certificate_download_use_actual_tasks[en]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_handoff::test_post_review_handoffs_and_certificate_download_use_actual_tasks[ar]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_workspace::test_queue_claim_gates_and_task_only_reviewer",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_workspace::test_reassignment_candidates_scope_and_current_indicator_filters",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_workspace::test_committed_claim_preserves_timestamp_when_saving_in_a_new_transaction[standard-True]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_workspace::test_committed_claim_preserves_timestamp_when_saving_in_a_new_transaction[standard-False]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_workspace::test_committed_claim_preserves_timestamp_when_saving_in_a_new_transaction[simplified-False]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_global_privilege_enforcement::test_every_unconditional_global_registry_route_has_the_matching_dependency",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_invalid_membership_or_partial_propagation_rolls_back_everything[wrong_type]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_shared_task_claim_release_completion_and_immutable_history",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_simultaneous_task_claims_only_one_wins",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_round_decisions_keep_actor_role_snapshot_and_are_immutable",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_all_four_job_types_require_matching_pending_membership[permanent_transfer-3-7]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_all_four_job_types_require_matching_pending_membership[selective_transfer-4-8]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_all_four_job_types_require_matching_pending_membership[local_archives-5-9]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_reassignment_preserves_task_events_and_clears_claim",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_two_distinct_eligible_people_cannot_both_claim_role_task",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_terminal_history_fixture_requires_complete_consistent_outcomes[permanent_transfer-3-11-False]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_terminal_history_fixture_requires_complete_consistent_outcomes[local_archives-5-12-False]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_foundation::test_task_completion_rechecks_queue_eligibility_after_claim",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_phase9_governance_authorization::test_governance_custody_view_exposes_assignments_and_resilience_warning",
+      "original_schema_result": "passed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-direct]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-inherited]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-none]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-simplified-none]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-records_manager_only-none]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-direct]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-inherited]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-none]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-simplified-none]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated::test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-records_manager_only-none]",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_review_edges::test_hidden_external_endpoint_redacts_proposals_and_round_history_but_allows_withdrawal",
+      "original_schema_result": "failed"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_review_edges::test_real_proposal_pagination_and_bounded_selected_relationship_search",
+      "original_schema_result": "failed"
+    }
+  ],
+  "all_owned_disposable_databases_dropped": true
+}

@@ -149,7 +149,10 @@ initialize_database() {
   DATABASE_URL="${DATABASE_URL:-postgresql://erms:replace-with-a-secure-password@127.0.0.1:5432/erms}"
   if ! psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -Atc 'SELECT 1' >/dev/null 2>&1; then
     info "Initializing PostgreSQL database from database/schema.sql"
-    psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f "${PROJECT_DIR}/database/schema.sql" >/dev/null
+    psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 \
+      -f "${PROJECT_DIR}/database/schema.sql" \
+      -f "${PROJECT_DIR}/database/seeds/000_required_reference_data.sql" \
+      -f "${PROJECT_DIR}/database/baseline.sql" >/dev/null
   fi
 }
 

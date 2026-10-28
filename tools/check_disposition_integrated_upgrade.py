@@ -19,11 +19,14 @@ from tools.check_disposition_completion_upgrade import full_catalogue, snapshot
 from tools.check_disposition_foundation_upgrade import baseline_data
 
 
+from tools.historical_schema import historical_schema
+
+
 def main():
     configuration = {**dotenv_values(ROOT / '.env'), **os.environ}
     base = configuration['DATABASE_URL']
     admin = make_conninfo(base, dbname='postgres')
-    schema = (ROOT / 'database/schema.sql').read_text()
+    schema = historical_schema()
     old = schema.split('-- Shared configuration foundation.', 1)[0]
     migrations = sorted((ROOT / 'database/migrations').glob('*.sql'))
     migrations = [p for p in migrations if 50 <= int(p.name.split('_', 1)[0]) <= 71]

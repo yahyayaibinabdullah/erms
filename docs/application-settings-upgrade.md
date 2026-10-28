@@ -11,7 +11,8 @@ disposition operations and document delivery remain later phases.
 
 ## Database and API deployment
 
-For a new empty database, initialize from `database/schema.sql` alone. For an
+For a new empty database, load `database/schema.sql`, then explicitly run
+`database/seeds/000_required_reference_data.sql` and `database/baseline.sql`. For an
 existing database already current through migration 049, inspect
 `schema_migrations`, back up through the established deployment procedure, and
 apply the missing upgrades in order:
@@ -257,3 +258,39 @@ both migration and append-only local reconciliation. Operators may deliberately
 remove reported obsolete entries after successful validation; code never removes
 them automatically. See configuration-authority-inventory.json and run
 `python3 tools/check_configuration_authority.py` to verify the production inventory.
+
+## Current environment-template reconciliation
+
+The root example, generated API example, standalone indexer example and all
+three deployment templates contain deployment configuration only. All **55**
+current database-managed settings, including the four request-presentation
+settings added on 27 October 2026, are absent from these files. Configure them
+through Administration > Settings; obsolete private environment entries have
+no runtime authority and are not removed automatically.
+
+The authority checker covers all six templates, their service ownership and
+the API/WebUI/indexer environment readers. It incorporates the approved request
+presentation amendment without rewriting the historical phase ledger. The
+API-only generated copy remains checked against its authoritative deployment
+template:
+
+```bash
+python3 tools/sync_api_env_template.py --check
+python3 tools/check_configuration_authority.py
+```
+
+Local and server examples intentionally differ in bindings, credentials,
+display names, executable paths, indexer storage paths and cookie security.
+Optional Redis session infrastructure is WebUI-owned. A deployed indexer needs
+an explicit unique worker identity and issued API key; the local launcher can
+provide its own identity and provision its key. These differences do not move
+application policies back into environment files.
+
+`SSL_CERT_FILE` is optional Python/OpenSSL process infrastructure for a private
+CA or local MailDev, not a database application setting. Leave it unset for
+valid public certificates to use platform trust. It belongs only in sending
+API/communications environments for this use; certificate verification remains
+enabled. See [local trust setup](local-tooling.md#certificate-trust-and-local-files).
+Deployment environment changes require restarting the affected service;
+database setting edits follow the existing cache policy. This reconciliation
+adds no variables and requires no private `.env` edits or database migration.

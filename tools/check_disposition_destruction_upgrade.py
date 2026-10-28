@@ -12,6 +12,10 @@ from tools.check_disposition_routing_upgrade import fixtures
 MARKER='-- Durable digital destruction runs (066).\n'
 
 
+from tools.historical_schema import historical_schema
+from tools.historical_schema import PRE_CONSOLIDATION_REF
+
+
 def full_catalogue(c):
     result=prior_catalogue(c)
     result['hold_guard']=c.execute("SELECT pg_get_functiondef('protect_held_resource()'::regprocedure)").fetchall()
@@ -31,8 +35,8 @@ def snapshot(c):
 
 def main():
     base={**dotenv_values(ROOT/'.env'),**os.environ}['DATABASE_URL'];admin=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text();migrations=[(ROOT/'database/migrations'/name).read_text() for name in ('066_disposition_destruction_runs.sql','067_disposition_content_erasure.sql','068_disposition_retained_records.sql')]
-    baseline=subprocess.check_output(['git','show','HEAD:database/schema.sql'],cwd=ROOT,text=True)
+    schema=historical_schema();migrations=[(ROOT/'database/migrations'/name).read_text() for name in ('066_disposition_destruction_runs.sql','067_disposition_content_erasure.sql','068_disposition_retained_records.sql')]
+    baseline=subprocess.check_output(['git','show',PRE_CONSOLIDATION_REF+':database/schema.sql'],cwd=ROOT,text=True)
     assert schema.split(MARKER,1)[1]==migrations[0]+'\n-- Controlled storage erasure (067).\n'+migrations[1]+'\n-- Retained disposition records (068).\n'+migrations[2]
     assert schema.split(MARKER,1)[0].rstrip()==baseline.rstrip(),'Earlier canonical schema changed'
     names=[]

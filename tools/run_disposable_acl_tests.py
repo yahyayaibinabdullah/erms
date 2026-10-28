@@ -5,12 +5,15 @@ import subprocess
 import sys
 import uuid
 
+
 import psycopg
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
 from dotenv import dotenv_values
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.initialize_database import initialize
 
 
 def main():
@@ -43,7 +46,10 @@ def main():
         created = True
         print(f"Created disposable database {database_name}", flush=True)
         with psycopg.connect(test_url) as connection:
-            connection.execute(schema_source, prepare=False)
+            if baseline_ref:
+                connection.execute(schema_source, prepare=False)
+            else:
+                initialize(connection)
             for migration_path in ([] if defer_migrations else migration_paths):
                 connection.commit()
                 connection.execute(migration_path.read_text(), prepare=False)

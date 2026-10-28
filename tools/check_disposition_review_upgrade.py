@@ -13,6 +13,9 @@ ROOT=Path(__file__).resolve().parents[1]
 MARKER='-- Destruction proposals and review decisions (059).\n'
 
 
+from tools.historical_schema import historical_schema
+
+
 def full_catalogue(c):
     result=routing_catalogue(c)
     result['audit_redaction_view']=c.execute("SELECT definition FROM pg_views WHERE schemaname='public' AND viewname='authorized_event_history'").fetchall()
@@ -32,7 +35,7 @@ def snapshot(c):
 
 def main():
     configuration={**dotenv_values(ROOT/'.env'),**os.environ};base=configuration['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Atomic proposal approval and execution (060).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/059_disposition_review.sql').read_text()
+    schema=historical_schema().split('-- Atomic proposal approval and execution (060).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/059_disposition_review.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
     baseline=schema.split(MARKER,1)[0]
     names=[]

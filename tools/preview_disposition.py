@@ -20,6 +20,10 @@ from dotenv import dotenv_values
 from cryptography.fernet import Fernet
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+
+from tools.initialize_database import initialize
 
 
 def preview_pdf():
@@ -307,7 +311,7 @@ def main():
                 c.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(name)))
             created=True;print('Created disposable database '+name,flush=True)
             with psycopg.connect(url) as c:
-                c.execute((ROOT/'database/schema.sql').read_text(),prepare=False)
+                initialize(c)
                 for seed_name in ('messaging.sql','hold-notification-producers.sql','relationship-types.sql'):
                     c.execute((ROOT/'database/seeds'/seed_name).read_text(),prepare=False)
             frontend_packages=ROOT/'frontend/webui/.venv/lib/python3.11/site-packages'

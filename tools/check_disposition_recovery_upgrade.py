@@ -12,6 +12,10 @@ from tools.check_disposition_routing_upgrade import fixtures
 MARKER='-- Termination and partial recovery (065).\n'
 
 
+from tools.historical_schema import historical_schema
+from tools.historical_schema import PRE_CONSOLIDATION_REF
+
+
 def full_catalogue(c):
     result=prior_catalogue(c)
     result['hold_guard']=c.execute("SELECT pg_get_functiondef('protect_held_resource()'::regprocedure)").fetchall()
@@ -29,8 +33,8 @@ def snapshot(c):
 
 def main():
     base={**dotenv_values(ROOT/'.env'),**os.environ}['DATABASE_URL'];admin=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text();migration=(ROOT/'database/migrations/065_disposition_recovery.sql').read_text()
-    baseline=subprocess.check_output(['git','show','HEAD:database/schema.sql'],cwd=ROOT,text=True)
+    schema=historical_schema();migration=(ROOT/'database/migrations/065_disposition_recovery.sql').read_text()
+    baseline=subprocess.check_output(['git','show',PRE_CONSOLIDATION_REF+':database/schema.sql'],cwd=ROOT,text=True)
     assert schema.split(MARKER,1)[1]==migration
     assert schema.split(MARKER,1)[0].rstrip()==baseline.rstrip(),'Earlier canonical schema changed'
     names=[]

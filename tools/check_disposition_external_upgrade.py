@@ -13,6 +13,10 @@ from tools.check_disposition_routing_upgrade import fixtures
 MARKER='-- External requests and decisions (062).\n'
 
 
+from tools.historical_schema import historical_schema
+from tools.historical_schema import PRE_CONSOLIDATION_REF
+
+
 def snapshot(c):
     result={}
     for schema,table in c.execute("SELECT schemaname,tablename FROM pg_tables WHERE schemaname IN ('public','disposition_private') AND tablename<>'schema_migrations' ORDER BY 1,2").fetchall():
@@ -22,9 +26,9 @@ def snapshot(c):
 
 def main():
     base={**dotenv_values(ROOT/'.env'),**os.environ}['DATABASE_URL'];admin=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- External document email and reminders (063).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/062_disposition_external_approval.sql').read_text()
+    schema=historical_schema().split('-- External document email and reminders (063).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/062_disposition_external_approval.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
-    baseline=subprocess.check_output(['git','show','HEAD:database/schema.sql'],cwd=ROOT,text=True)
+    baseline=subprocess.check_output(['git','show',PRE_CONSOLIDATION_REF+':database/schema.sql'],cwd=ROOT,text=True)
     assert schema.split(MARKER,1)[0].rstrip()==baseline.rstrip(),'Earlier canonical schema changed'
     names=[]
     try:

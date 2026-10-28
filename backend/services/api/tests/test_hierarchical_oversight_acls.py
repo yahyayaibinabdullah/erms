@@ -26,6 +26,9 @@ SCOPES = [
 ]
 
 
+from tools.historical_schema import historical_schema
+
+
 def db():
     return psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row)
 
@@ -365,7 +368,7 @@ def test_upgrade_preserves_every_existing_acl_grant_and_changes_only_future_defa
             admin.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database_name)))
         created = True
         with psycopg.connect(upgrade_url) as c:
-            previous = (root / "database/schema.sql").read_text().split("-- Hierarchical oversight authorization")[0]
+            previous = historical_schema().split("-- Hierarchical oversight authorization")[0]
             c.execute(previous, prepare=False)
             unit = c.execute("INSERT INTO org_units(code,name) VALUES ('upgrade-unit','Upgrade unit') RETURNING id").fetchone()[0]
             role = c.execute("INSERT INTO roles(org_unit_id,code,name) VALUES (%s,'upgrade-role','Upgrade role') RETURNING id", (unit,)).fetchone()[0]

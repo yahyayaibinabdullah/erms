@@ -1016,6 +1016,36 @@
     "is_html": false
   },
   {
+    "message_key": "audit.entity.disposition_job",
+    "context_group": "audit.entity",
+    "default_text": "Disposition job",
+    "semantic_meaning": "Entity type for a disposition job in Audit Trail filters and event subjects; a job is a process instance, not an assigned task.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "Entity type for a disposition job in Audit Trail filters and event subjects; a job is a process instance, not an assigned task. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition job",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.entity.disposition_task",
+    "context_group": "audit.entity",
+    "default_text": "Disposition task",
+    "semantic_meaning": "Entity type for an assigned disposition task in Audit Trail filters and event subjects; distinct from its parent job.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "Entity type for an assigned disposition task in Audit Trail filters and event subjects; distinct from its parent job. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Disposition task",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.access_explanation_viewed",
     "context_group": "audit.events",
     "default_text": "Access Explanation Viewed",
@@ -1151,6 +1181,51 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Authorization Denied",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.certificate_stage_started",
+    "context_group": "audit.event",
+    "default_text": "Certificate Generation Stage Started",
+    "semantic_meaning": "The workflow entered certificate generation; this does not imply that the job is completed.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "The workflow entered certificate generation; this does not imply that the job is completed. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate Generation Stage Started",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.certificate_task_completed",
+    "context_group": "audit.event",
+    "default_text": "Certificate Task Completed",
+    "semantic_meaning": "The final human certificate task changed to completed; downloading a certificate is a separate action.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "The final human certificate task changed to completed; downloading a certificate is a separate action. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate Task Completed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.certificate_task_created",
+    "context_group": "audit.event",
+    "default_text": "Certificate Task Created",
+    "semantic_meaning": "A new final certificate task was created; no download or task completion has yet occurred.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "A new final certificate task was created; no download or task completion has yet occurred. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Certificate Task Created",
     "is_html": false
   },
   {
@@ -1490,6 +1565,21 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.digital_destruction_task_completed",
+    "context_group": "audit.event",
+    "default_text": "Digital Destruction Task Completed",
+    "semantic_meaning": "The digital-destruction task changed to completed; this does not mean another destruction run occurred.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "The digital-destruction task changed to completed; this does not mean another destruction run occurred. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Digital Destruction Task Completed",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.digital_destruction_unit_completed",
     "context_group": "audit.event",
     "default_text": "Disposition Unit Digitally Destroyed",
@@ -1658,6 +1748,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition Job Assigned",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_job_completion_recorded",
+    "context_group": "audit.event",
+    "default_text": "Job Completion Recorded",
+    "semantic_meaning": "Audit of the job row entering completed state; distinguish from the separate Destruction Job Completed business outcome.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "Audit of the job row entering completed state; distinguish from the separate Destruction Job Completed business outcome. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Job Completion Recorded",
     "is_html": false
   },
   {
@@ -2148,6 +2253,21 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "External Rejection Recorded",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.final_completion_recorded",
+    "context_group": "audit.event",
+    "default_text": "Completion Processing Recorded",
+    "semantic_meaning": "Neutral operation label when completion details are unavailable or access-restricted; also used by the operation filter.",
+    "common_locations": [
+      "Disposition job history list and details",
+      "Global Audit Trail list, filters and details"
+    ],
+    "translator_guidance": "Neutral operation label when completion details are unavailable or access-restricted; also used by the operation filter. Use the established terminology: Job = عملية; Task = مهمة; Digital destruction = الإتلاف الرقمي. Keep task creation, task completion and job completion distinct.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Completion Processing Recorded",
     "is_html": false
   },
   {

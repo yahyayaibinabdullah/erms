@@ -12,6 +12,9 @@ from backend.services.api.tests.test_disposition_review import (
 )
 
 
+from tools.historical_schema import historical_schema
+
+
 def restricted_review(c, stage, kind):
     job, root, um, fa, mgr = seeded(c, fa=True)
     reviewer = person(c, 'Intermediate reviewer')
@@ -121,7 +124,7 @@ def test_intermediate_completion_retains_current_task_and_root_checks(client, fa
 def test_upgrade_preserves_occupied_review_and_allows_retry(client):
     with db() as c:
         # Restore the old definition only inside this disposable test transaction.
-        source = Path('database/schema.sql').read_text()
+        source = historical_schema()
         start = source.index('CREATE FUNCTION disposition_private.decide_review_work(')
         end = source.index('END $$;', start) + len('END $$;')
         c.execute(source[start:end].replace('CREATE FUNCTION', 'CREATE OR REPLACE FUNCTION', 1), prepare=False)

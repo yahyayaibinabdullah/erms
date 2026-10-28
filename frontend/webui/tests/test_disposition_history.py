@@ -87,3 +87,28 @@ def test_global_audit_keeps_shell_and_uses_shared_fields(language):
         assert not any(isinstance(e,ui.table) for e in host.descendants())
         assert all(not e.value for e in host.descendants() if isinstance(e,ui.expansion))
     host.delete()
+
+
+def test_completion_dialogs_share_the_same_contextual_title(language):
+    import ast
+    from frontend.webui.capabilities import can_navigate
+    row={'id':143910,'entity_type':'disposition_task','entity_id':7,'operation':'FINAL_COMPLETE',
+         'display_presentation':'disposition','occurred_at':'2026-10-27T10:24:30Z','source':'web_ui',
+         'metadata':{'before':{'task_type':'certificate_download','task_state':'open'},'after':{'task_type':'certificate_download','task_state':'completed'}},
+         'can_view_technical_details':True}
+    expected=event_labels.event_label(row['operation'],event=row)
+    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
+    function=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='show_event_detail')
+    env={'__package__':'frontend.webui','Any':object,'ui':ui,'json':json,'event_entity_identity':lambda e:('Disposition task','DT-2026-1'),
+         'event_actor_identity':lambda e:('Fathiya',None),'event_label':event_labels.event_label,'format_timestamp':str,
+         'can_open_event_entity':lambda e:False,'render_message':messages.render_message_plain,
+         'disposition_text':messages.text,'can_navigate':can_navigate,'auth_state':{'principal':{'global_privileges':['audit.view']}},'event_value':str}
+    exec(compile(ast.fix_missing_locations(ast.Module(body=[function],type_ignores=[])),'audit-dialog','exec'),env)
+    for display in (lambda:event_details(row,str),lambda:env['show_event_detail'](row)):
+        with ui.column() as host:
+            display()
+            assert any(isinstance(e,ui.label) and e.text==expected for e in host.descendants())
+            assert not any(isinstance(e,ui.label) and e.text=='FINAL_COMPLETE' for e in host.descendants())
+            assert any(isinstance(e,ui.code) and 'FINAL_COMPLETE' in e.content for e in host.descendants())
+            assert all(not e.value for e in host.descendants() if isinstance(e,ui.expansion))
+        host.delete()

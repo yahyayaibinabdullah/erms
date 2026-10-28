@@ -258,6 +258,8 @@ start_database() {
             --publish "127.0.0.1:${STACK_DB_PORT}:5432" \
             --volume "${STACK_DB_VOLUME}:/var/lib/postgresql/data" \
             --volume "${PROJECT_DIR}/database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro" \
+            --volume "${PROJECT_DIR}/database/seeds/000_required_reference_data.sql:/docker-entrypoint-initdb.d/002-reference-data.sql:ro" \
+            --volume "${PROJECT_DIR}/database/baseline.sql:/docker-entrypoint-initdb.d/003-baseline.sql:ro" \
             "${STACK_DB_IMAGE}" >/dev/null
     fi
     MANAGED_DATABASE=true

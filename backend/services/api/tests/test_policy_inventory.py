@@ -36,11 +36,13 @@ def test_canonical_schema_is_self_contained_and_current():
 
     assert "\\i " not in schema
     assert "\\ir " not in schema
-    assert "CREATE TABLE schema_migrations" in schema
+    assert "CREATE TABLE public.schema_migrations" in schema
     executable = "\n".join(line for line in schema.splitlines() if not line.lstrip().startswith("--"))
     assert "database/migrations/" not in executable
-    assert "050_application_settings" in schema
-    assert "aggregation.location.change" in schema
+    assert "050_application_settings" in (PROJECT_ROOT / "database/baseline.sql").read_text()
+    assert "INSERT INTO schema_migrations" not in schema
+    assert "CREATE OR REPLACE FUNCTION" not in schema
+    assert "aggregation.location.change" in (PROJECT_ROOT / "database/seeds/000_required_reference_data.sql").read_text()
     assert "aggregations_protect_vital_deletion" in schema
     assert "aggregations_owner_review_due_idx" in schema
 

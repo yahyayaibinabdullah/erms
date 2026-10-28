@@ -1,0 +1,59 @@
+{
+  "schema_equal": true,
+  "required_data_equal": true,
+  "objects": {
+    "tables": 128,
+    "views": 6,
+    "functions": 333,
+    "triggers": 312
+  },
+  "normalized_schema_sha256": "f5ffabd09b88542455e34fc1a119f974df728ba3d0c6a25e5ae5ea31b9dee03f",
+  "nonempty_reference_tables": {
+    "public.application_settings": 55,
+    "public.application_settings_state": 1,
+    "public.permission_dependencies": 41,
+    "public.permissions": 35,
+    "public.privilege_dependencies": 29,
+    "public.privileges": 65,
+    "public.profile_privileges": 215,
+    "public.profiles": 6,
+    "public.roles": 1,
+    "public.schema_migrations": 39,
+    "public.security_levels": 4,
+    "public.supported_languages": 2
+  },
+  "audit_sources": {
+    "reference": {
+      "database": 29,
+      "migration": 53,
+      "seeding": 104
+    },
+    "clean": {
+      "seeding": 348
+    }
+  },
+  "notification_coverage_initialization": {
+    "reference": [],
+    "clean": [
+      {
+        "revision": 2,
+        "singleton": true
+      }
+    ]
+  },
+  "excluded_reference_fields": [
+    "date_created",
+    "date_updated",
+    "applied_at",
+    "database_id"
+  ],
+  "audit_note": "Fresh seed emits current CREATE/seed events; historical upgrade events are not replayed.",
+  "canonical": {
+    "statements": 1852,
+    "functions": 333
+  },
+  "reference_ref": "a476ff2dc6e96f29d8d1047ccbbc656fa5455657",
+  "reference_sql_sha256": "b75a99d6b222f845311428e1a8f338a70a4efbca2b5be1ef54b346012bc96b71",
+  "canonical_sql_sha256": "3822c3a73f0e74ffada4d9336449706b936348ce6b97b5bb2417481409fab13e",
+  "disposable_databases_dropped": true
+}

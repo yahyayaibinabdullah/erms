@@ -1,0 +1,46 @@
+-- Registers the installation's version. It executes no historical migrations.
+-- Fresh-install bookkeeping: these versions are INCLUDED in the canonical schema.
+-- This does not execute upgrades. Never apply this file to an older database.
+BEGIN;
+DO $$ BEGIN IF EXISTS(SELECT 1 FROM schema_migrations) THEN RAISE EXCEPTION 'Schema baseline is already recorded'; END IF; IF to_regprocedure('disposition_private.complete_certificate_task(bigint,bigint,bigint)') IS NULL THEN RAISE EXCEPTION 'Load the latest canonical schema before recording its baseline'; END IF; END $$;
+INSERT INTO schema_migrations(version) VALUES
+ ('049_resource_relationships'),
+ ('050_application_settings'),
+ ('051_database_indexing_policy'),
+ ('052_application_settings_reference_audit'),
+ ('053_disposition_foundation'),
+ ('054_disposition_eligibility'),
+ ('055_disposition_membership'),
+ ('056_disposition_artifacts'),
+ ('057_disposition_templates'),
+ ('058_disposition_routing'),
+ ('059_disposition_review'),
+ ('060_disposition_approval'),
+ ('061_disposition_review_save'),
+ ('062_disposition_external_approval'),
+ ('063_disposition_communications'),
+ ('064_disposition_physical'),
+ ('065_disposition_recovery'),
+ ('066_disposition_destruction_runs'),
+ ('067_disposition_content_erasure'),
+ ('068_disposition_retained_records'),
+ ('069_disposition_completion'),
+ ('070_disposition_decision_minimization'),
+ ('071_remove_destruction_release_gates'),
+ ('072_acceleration_closes_root'),
+ ('073_file_administrator_profile'),
+ ('077_acceleration_eligibility_protections'),
+ ('078_disposition_job_creation'),
+ ('080_fix_held_component_trigger'),
+ ('081_organization_wide_disposition_templates'),
+ ('082_unified_review_comments'),
+ ('083_single_eligible_reviewer'),
+ ('084_reasonless_task_claim'),
+ ('085_prevent_duplicate_review_proposals'),
+ ('086_intermediate_review_completion'),
+ ('087_manager_request_email'),
+ ('088_request_presentation_settings'),
+ ('089_governance_terminal_search'),
+ ('090_unify_user_translation_authorization'),
+ ('091_explicit_certificate_task_completion');
+COMMIT;

@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "427303428d678b09926b0a84d44536a9c70d9a305ba1188239d503cf2e980dd9",
-  "catalogue_sha256": "e0205870c1ee7ba19225b399db923d95deb563ffdf4201b804fbcd030dcb4452",
+  "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -1288,6 +1288,46 @@
       }
     },
     {
+      "message_key": "audit.entity.disposition_job",
+      "translated_text": "عملية التصرف النهائي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "audit.entity.disposition_task",
+      "translated_text": "مهمة التصرف النهائي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
       "message_key": "audit.event.access_explanation_viewed",
       "translated_text": "عرض تفسير الوصول",
       "quality_flags": [],
@@ -1393,6 +1433,66 @@
         "source_status": "published",
         "date_reviewed": "2026-09-28T10:30:03.437443+00:00",
         "date_published": "2026-09-28T10:30:03.437443+00:00"
+      }
+    },
+    {
+      "message_key": "audit.event.certificate_stage_started",
+      "translated_text": "بدء مرحلة إنشاء الشهادة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "audit.event.certificate_task_completed",
+      "translated_text": "إكمال مهمة الشهادة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "audit.event.certificate_task_created",
+      "translated_text": "إنشاء مهمة الشهادة",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -1740,6 +1840,26 @@
       }
     },
     {
+      "message_key": "audit.event.digital_destruction_task_completed",
+      "translated_text": "إكمال مهمة الإتلاف الرقمي",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
       "message_key": "audit.event.digital_destruction_unit_completed",
       "translated_text": "أُتلفت وحدة التصرف رقميًا",
       "origin": "generated",
@@ -2004,6 +2124,26 @@
           "date_published": "2026-10-21 09:53:16.645915+04:00",
           "version": 3
         }
+      }
+    },
+    {
+      "message_key": "audit.event.disposition_job_completion_recorded",
+      "translated_text": "تسجيل اكتمال العملية",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -2935,6 +3075,26 @@
         "catalogue_sha256": "c6cb41cfaf54b9e90648ec8ecdf5da595ed38336216657752baa459860a9cccf",
         "specification_sha256": "032437e770b97a8a70a2dd727b5934a5a8f50d384b067d652b813b8a097ec019",
         "terminology_sha256": "a4413f17dd3c8d7fa10ceb8ee60ef225f0c3164a308a33bdca0b30e8fdbed51c"
+      }
+    },
+    {
+      "message_key": "audit.event.final_completion_recorded",
+      "translated_text": "تسجيل معالجة الإكمال",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "completion-history-state-context-v1",
+        "generated_at": "2026-10-28T06:52:16.067955+00:00",
+        "batch_id": "completion-history-20261028",
+        "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {

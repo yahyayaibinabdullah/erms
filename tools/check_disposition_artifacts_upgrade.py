@@ -15,6 +15,9 @@ MARKER='-- Disposition governed artifacts (056).\n'
 ADDED=['origin','supersedes_document_id','evidence_version','classification_scheme_id','classification_id','aggregation_id','acting_role_id','provenance']
 
 
+from tools.historical_schema import historical_schema
+
+
 def snapshot(c):
     tables=['aggregations','records','digital_components','digital_component_content_sets','digital_component_blobs',
       'event_history','application_settings','disposition_jobs','disposition_job_documents','disposition_private.command_receipts']
@@ -47,7 +50,7 @@ def legacy_evidence(c):
 
 def main():
     config={**dotenv_values(ROOT/'.env'),**os.environ};base=config['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Disposition controlled templates (057).',1)[0].rstrip()+'\n';old=schema.split(MARKER)[0];migration=(ROOT/'database/migrations/056_disposition_artifacts.sql').read_text();names=[]
+    schema=historical_schema().split('-- Disposition controlled templates (057).',1)[0].rstrip()+'\n';old=schema.split(MARKER)[0];migration=(ROOT/'database/migrations/056_disposition_artifacts.sql').read_text();names=[]
     try:
         for kind in ('fresh','upgrade'):
             name='erms_disposition11_test_'+kind+'_'+uuid4().hex

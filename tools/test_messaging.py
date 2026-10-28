@@ -15,9 +15,14 @@ from psycopg.conninfo import conninfo_to_dict, make_conninfo
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 MARKER = (
     "-- Notifications and messaging: complete storage model (specification section 7)."
 )
+
+
+from tools.historical_schema import historical_schema
+from tools.initialize_database import initialize
 
 
 def main():
@@ -32,7 +37,7 @@ def main():
     )
     result = 1
     try:
-        canonical = (ROOT / "database/schema.sql").read_text()
+        canonical = historical_schema()
         baseline, kernel = canonical.split(MARKER, 1)
         migration = (
             ROOT / "database/migrations/033_add_messaging_kernel.sql"
@@ -46,7 +51,8 @@ def main():
             names.append(name)
             print("Created disposable database " + name, flush=True)
             with psycopg.connect(**dict(admin_info, dbname=name)) as connection:
-                connection.execute(canonical if suffix == "fresh" else baseline)
+                if suffix == "fresh":initialize(connection)
+                else:connection.execute(baseline)
                 if suffix == "upgrade":
                     # Upgrade a populated predecessor, not another empty schema.
                     connection.execute(

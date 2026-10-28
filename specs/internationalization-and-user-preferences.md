@@ -3,7 +3,7 @@
 **Status:** Approved — implementation baseline  
 **Project:** ERMS / Wathiq  
 **Prepared:** 26 September 2026  
-**Revision:** 0.23 — canonical administrator-to-agent artifact lifecycle
+**Revision:** 0.24 — Arabic-primary database collation recommendation (28 October 2026)
 
 ## 1. Purpose
 
@@ -1210,6 +1210,36 @@ at the event time. Later translation edits must not rewrite history. History UI
 may show a current localized live-entity label separately, clearly identified
 as current rather than historical.
 
+#### 11.5.1 Database default and language-specific ordering
+
+For Arabic-primary deployments supporting English, the recommended default
+database collation is **ICU `ar` with UTF-8 encoding**. It applies Arabic
+tailoring while retaining English and other Unicode text support. ICU `und`
+is a deliberate language-neutral alternative; libc relies on host-OS locale
+rules and is not the preferred default for a new Arabic-primary deployment.
+ICU results also depend on its library/data version, which deployment evidence
+must record. Creation, controlled conversion and upgrade procedures are defined
+in [application configuration section 4.1.1](application-configuration.md#411-database-encoding-and-collation-provisioning).
+
+This default does not change the English system/UI default, per-user language
+resolution, stored text, RTL rendering, or the preceding localized-ordering
+contract. Explicit column/query collations take precedence; English-facing
+lists can use an approved English collation with the same stable pagination
+tie-breakers. Existing numeric code collations and portable export ordering
+remain separate contracts.
+
+Sorting related forms close together does not make them equal. The database
+default remains deterministic; `علم` and `عِلْم`, or `Apple` and `apple`, remain
+distinct values. Nondeterministic equality, search normalization and numeric
+ordering are not enabled by this recommendation. ICU `ar` alone still orders
+`File 1`, `File 10`, `File 2`; natural numeric order requires explicit options.
+
+The [database collation guide](../docs/database-collation.md#measured-examples)
+records measured libc versus ICU `ar` examples for names, vowel marks and digit
+scripts, along with read-only reproduction queries and their platform/version
+scope. These examples illustrate the recommendation rather than freezing every
+library version's full sort order.
+
 ## 12. Search and discovery
 
 Metadata search for the seven covered multilingual entities must consider the
@@ -1454,6 +1484,11 @@ Tests must cover:
   covered entities in preferred language without N+1 queries, plus verbatim
   Aggregation/Record labels in those same presentation surfaces and favourites;
 - localized sorting with deterministic pagination;
+- explicit database provider/locale/version verification for new deployments
+  and deliberate rebuilds, default ICU `ar` versus explicit Arabic-collation
+  sample ordering, English sorting, retained equality distinctions, and
+  separate numeric-order behavior; mutable regressions run in disposable
+  databases while retained targets receive read-only verification;
 - English, Arabic, mixed-language, missing-translation, and translated-metadata
   search cases under authorization filters;
 - instant round trips, date non-shifting, non-whole-hour zones, positive and
@@ -1580,6 +1615,7 @@ The feature is accepted only when:
 | Low-regression schema strategy | 11.2, 17 | English compatibility and migration comparison tests |
 | Advanced but unobtrusive entity editing | 11.4 | usability and browser workflow evidence |
 | Localized selectors | 11.5 | selector/query-count/fallback tests |
+| Arabic-primary database collation recommendation | 11.5.1; Application Configuration 4.1.1 | recorded provider/locale/version, read-only Arabic/English examples, backup-snapshot parity and disposable ICU `ar` regression evidence |
 | Translation caching | 14 | ETag, hit/miss, invalidation, and stale-cache recovery tests |
 | Best-effort Arabic bootstrap with human review | 7.4, 19, 21 | generation report, origin/review state, and publication-gate tests |
 | Approved, idiomatic, accessible Arabic | 21.1 | glossary-conformance, singular/plural context, idiomatic-quality sampling, accessibility review, and administrator-review report tests |

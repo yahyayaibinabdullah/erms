@@ -30,7 +30,7 @@ def readable_event_fields(row,format_timestamp):
 def event_details(row,format_timestamp):
     blocker=row['operation'] in ('DISPOSITION_BLOCKERS_DETECTED','DISPOSITION_BLOCKERS_RESOLVED')
     with ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[900px] max-w-full gap-4'):
-        ui.label(event_label(row['operation'])).classes('text-xl font-semibold')
+        ui.label(event_label(row['operation'],event=row)).classes('text-xl font-semibold')
         for key,value in [('history_detected_by' if blocker else 'actor',row.get('actor_name')),('history_detected_at' if blocker else 'occurred',format_timestamp(row['occurred_at']))]:
             if value:ui.label(text(key)+' · '+str(value)).props('dir=auto')
         if row.get('reason') and not blocker:ui.label(text('reason')+' · '+row['reason']).props('dir=auto')
@@ -57,7 +57,7 @@ async def revision_history(*,api,job_id,kind,identity,active,on_error,format_tim
         async def fetch(p):
             result=await api.disposition_page(f'jobs/{job_id}/review-history/{kind}/{identity}',limit=p.size,offset=(p.page-1)*p.size)
             for row in result['items']:
-                row['operation_label']=event_label(row['operation']);row['time_label']=format_timestamp(row['occurred_at'])
+                row['operation_label']=event_label(row['operation'],event=row);row['time_label']=format_timestamp(row['occurred_at'])
             return result
         page=PageTable(columns=[column('time_label','occurred'),column('operation_label','operation'),column('actor_name','actor'),column('reason'),column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
         details_action(page,format_timestamp)

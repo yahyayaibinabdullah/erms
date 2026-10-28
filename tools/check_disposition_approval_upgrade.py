@@ -13,6 +13,9 @@ ROOT=Path(__file__).resolve().parents[1]
 MARKER='-- Atomic proposal approval and execution (060).\n'
 
 
+from tools.historical_schema import historical_schema
+
+
 def full_catalogue(c):
     result=routing_catalogue(c)
     result['execution_audit_trigger']=c.execute("SELECT pg_get_triggerdef(oid) FROM pg_trigger WHERE tgname='event_history_disposition_execution'").fetchall()
@@ -33,7 +36,7 @@ def snapshot(c):
 
 def main():
     configuration={**dotenv_values(ROOT/'.env'),**os.environ};base=configuration['DATABASE_URL'];admin_url=make_conninfo(base,dbname='postgres')
-    schema=(ROOT/'database/schema.sql').read_text().split('-- Preserve review claims across save transactions (061).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/060_disposition_approval.sql').read_text()
+    schema=historical_schema().split('-- Preserve review claims across save transactions (061).',1)[0].rstrip()+'\n';migration=(ROOT/'database/migrations/060_disposition_approval.sql').read_text()
     assert schema.split(MARKER,1)[1]==migration
     baseline=schema.split(MARKER,1)[0]
     names=[]

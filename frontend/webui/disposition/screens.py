@@ -609,7 +609,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             async def fetch_history(p):
                 result=await api.disposition_page(f'jobs/{identity}/history',limit=p.size,offset=(p.page-1)*p.size)
                 for row in result['items']:
-                    row['operation_label']=event_label(row['operation']);row['time_label']=format_timestamp(row['occurred_at'])
+                    row['operation_label']=event_label(row['operation'],event=row);row['time_label']=format_timestamp(row['occurred_at'])
                     row['actor_label']=row.get('actor_name') or '—';row['reason_label']=row.get('reason') or '—'
                 return result
             history=PageTable(columns=[column('time_label','occurred'),column('operation_label','operation'),column('actor_label','actor'),column('reason_label','reason'),column('actions')],fetch=fetch_history,active=lambda:section_active('history'),on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'))
