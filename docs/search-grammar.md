@@ -242,6 +242,25 @@ records with “draft” in the title:
 `id`, `parent_aggregation_id`, `aggregation_number`, `title`, `description`,
 `date_created`, `date_opened`, `date_closed`
 
+Aggregation searches additionally accept these **filter-only** effective-rule
+fields (also supported in schema-version-1 saved searches):
+
+- `effective_retention.current_period_years`
+- `effective_retention.intermediate_period_years`
+- `effective_retention.final_disposition`
+
+Periods accept nonnegative whole years with `eq`, `ne`, `gt`, `gte`, `lt`,
+`lte`, `between`, `in`, and `not_in`. The action accepts `eq`, `ne`, `in`, and
+`not_in` with `destruction`, `transfer_to_external_archive`,
+`selective_preservation`, or `retain_as_local_archives`. These fields reject
+null/text operators, Records targets, and sorting.
+
+The governing root's local rule overrides its effective classification rule;
+children use the same governing rule. Values are configured durations and
+actions, resolved afresh before counts and pagination, for both open and closed
+aggregations under existing visibility rules. See the
+[approved extension](../specs/advanced-search-effective-retention-extension.md).
+
 ### Records
 
 `id`, `aggregation_id`, `record_number`, `title`, `description`, `date_created`,
@@ -279,7 +298,8 @@ records with “draft” in the title:
 `id`, `user_id`, `role_id`, `date_assigned`, `valid_from`,
 `valid_until`
 
-The same field allowlists apply to sorting. Case-insensitive text operators are
+The same ordinary field allowlists apply to sorting; filter-only fields are
+excluded. Case-insensitive text operators are
 valid only for text fields. Null operators are valid only for nullable fields.
 
 ## Safety and complexity limits

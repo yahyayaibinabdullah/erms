@@ -366,3 +366,38 @@ def test_disposition_filter_available_only_for_governance_and_compiles_existing_
     for code in (10,11,12):
         expression=compile_advanced_search_node({'type':'condition','kind':'structured','field':'disposition_status','operator':'eq','value':code},resource)
         assert expression=={'field':'disposition_status','operator':'eq','value':code}
+
+
+def test_effective_retention_filters_round_trip_and_validate_typed_values():
+    from frontend.webui.app import ADVANCED_SEARCH_FIELDS, ADVANCED_SEARCH_CONTROLLED_VALUES
+    prefix = 'effective_retention.'
+    fields = {prefix+'current_period_years', prefix+'intermediate_period_years', prefix+'final_disposition'}
+    assert fields <= advanced_search_field_options('aggregations').keys()
+    assert not fields & advanced_search_field_options('records').keys()
+    expression = {'and': [
+        {'field': prefix+'current_period_years', 'operator': 'between', 'value': [0, 2]},
+        {'field': prefix+'intermediate_period_years', 'operator': 'gte', 'value': 5},
+        {'field': prefix+'final_disposition', 'operator': 'in', 'value': ['destruction', 'selective_preservation']},
+    ]}
+    assert compile_advanced_search_node(advanced_search_node_from_expression(expression), 'aggregations') == expression
+    action_kind = ADVANCED_SEARCH_FIELDS['aggregations'][prefix+'final_disposition'][1]
+    assert set(advanced_search_operators(action_kind, False)) == {'eq','ne','in','not_in'}
+    assert len(ADVANCED_SEARCH_CONTROLLED_VALUES[prefix+'final_disposition']) == 4
+    assert advanced_search_empty_value(prefix+'final_disposition','eq',action_kind) is None
+    converted = advanced_search_node_from_expression({'field':prefix+'current_period_years','operator':'in','value':['0','5']})
+    assert compile_advanced_search_node(converted,'aggregations')['value'] == [0,5]
+
+
+@pytest.mark.parametrize('field,operator,value', [
+    ('current_period_years','eq',-1), ('current_period_years','eq',1.5),
+    ('current_period_years','eq',True), ('current_period_years','in',['1.5']),
+    ('intermediate_period_years','between',[0,-1]),
+    ('final_disposition','eq','invalid'), ('final_disposition','in',['destruction','invalid']),
+    ('final_disposition','contains_ci','destruction'), ('final_disposition','gt','destruction'),
+])
+def test_effective_retention_builder_rejects_invalid_values_and_operators(field,operator,value):
+    node=advanced_search_node_from_expression({'field':'effective_retention.'+field,'operator':operator,'value':value})
+    with pytest.raises(ValueError):
+        compile_advanced_search_node(node,'aggregations')
+    with pytest.raises(ValueError):
+        compile_advanced_search_node(node,'records')

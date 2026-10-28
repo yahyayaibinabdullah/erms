@@ -132,6 +132,9 @@ ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
     },
     "aggregations": {
         "aggregation_number": ("advanced_search.field.aggregation_number", "text", False),
+        "effective_retention.current_period_years": ("advanced_search.field.effective_current_period_years", "integer", False),
+        "effective_retention.intermediate_period_years": ("advanced_search.field.effective_intermediate_period_years", "integer", False),
+        "effective_retention.final_disposition": ("advanced_search.field.effective_disposition_action", "choice", False),
         "disposition_status": ("disposition.ui.status", "integer", False),
         "title": ("advanced_search.field.title", "text", False),
         "description": ("advanced_search.field.description", "text", True),
@@ -154,11 +157,20 @@ ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
 ADVANCED_SEARCH_COMPONENT_FIELDS = frozenset(
     field for field in ADVANCED_SEARCH_FIELDS["records"] if field.startswith("component.")
 )
+ADVANCED_SEARCH_RETENTION_FIELDS = frozenset(
+    field for field in ADVANCED_SEARCH_FIELDS["aggregations"] if field.startswith("effective_retention.")
+)
 ADVANCED_SEARCH_RELATIONSHIP_FIELDS = frozenset({
     "aggregation_id", "parent_aggregation_id", "classification_id",
     "security_level_id", "owning_org_unit_id",
 })
 ADVANCED_SEARCH_CONTROLLED_VALUES: dict[str, dict[Any, str]] = {
+    "effective_retention.final_disposition": {
+        "destruction": "disposition.ui.destruction",
+        "transfer_to_external_archive": "disposition.ui.permanent_transfer",
+        "selective_preservation": "disposition.ui.selective_transfer",
+        "retain_as_local_archives": "disposition.ui.local_archives",
+    },
     "disposition_status": {1: "disposition.ui.status_1",2: "disposition.ui.status_2",3: "disposition.ui.status_3",4: "disposition.ui.status_4",5: "disposition.ui.status_5",6: "disposition.ui.status_6",7: "disposition.ui.status_7",8: "disposition.ui.status_8",9: "disposition.ui.status_9",10: "disposition.ui.status_10",11: "disposition.ui.status_11",12: "disposition.ui.status_12",13: "disposition.ui.status_13"},
     "medium": {"digital": "advanced_search.value.digital", "physical": "advanced_search.value.physical", "mixed": "advanced_search.value.mixed"},
     "component.content_status": {
@@ -368,13 +380,15 @@ def advanced_search_field_options(resource: str, *, can_manage_disposition: bool
 def advanced_search_empty_value(field: str, operator: str, kind: str) -> Any:
     if operator in {"between", "in", "not_in"}:
         return []
-    if field in ADVANCED_SEARCH_RELATIONSHIP_FIELDS or kind in {"integer", "boolean"}:
+    if field in ADVANCED_SEARCH_RELATIONSHIP_FIELDS or kind in {"integer", "boolean", "choice"}:
         return None
     return ""
 
 
 def advanced_search_operators(kind: str, nullable: bool) -> dict[str, str]:
     common = {"eq": render_message("advanced_search.operator.is"), "ne": render_message("advanced_search.operator.is_not")}
+    if kind == "choice":
+        common |= {"in": render_message("advanced_search.operator.is_one_of"), "not_in": render_message("advanced_search.operator.is_not_one_of")}
     if kind == "text":
         common |= {"contains_ci": render_message("advanced_search.operator.contains"), "starts_with_ci": render_message("advanced_search.operator.starts_with"), "ends_with_ci": render_message("advanced_search.operator.ends_with"), "in": render_message("advanced_search.operator.is_one_of"), "not_in": render_message("advanced_search.operator.is_not_one_of")}
     elif kind in {"integer", "datetime"}:
@@ -433,6 +447,24 @@ def compile_advanced_search_node(node: dict[str, Any], resource: str) -> dict[st
                     raise ValueError(render_message("advanced_search.validation.value_required"))
             elif value in (None, ""):
                 raise ValueError(render_message("advanced_search.validation.value_required"))
+            if field in ADVANCED_SEARCH_RETENTION_FIELDS:
+                values = value if operator in {"between", "in", "not_in"} else [value]
+                if field == "effective_retention.final_disposition":
+                    if any(item not in ADVANCED_SEARCH_CONTROLLED_VALUES[field] for item in values):
+                        raise ValueError(render_message("advanced_search.validation.retention_action"))
+                else:
+                    normalized = []
+                    try:
+                        for item in values:
+                            number = int(item)
+                            if isinstance(item, bool) or number < 0 or (not isinstance(item, str) and number != item):
+                                raise ValueError
+                            normalized.append(number)
+                    except (ValueError, TypeError, OverflowError):
+                        raise ValueError(render_message("advanced_search.validation.retention_years")) from None
+                    value = normalized if operator in {"between", "in", "not_in"} else normalized[0]
+                if operator == "between" and len(values) != 2:
+                    raise ValueError(render_message("advanced_search.validation.value_required"))
             result["value"] = value
         return result
     children = node.get("children", [])
@@ -18847,14 +18879,29 @@ def index(q: str = "") -> None:
                                 value_control = ui.select({True: render_message("webui.render_condition.select.yes_917fd8af"), False: render_message("webui.render_condition.select.no_b3020c97")}, value=node.get("value"), label=render_message("webui.render_condition.select.value_3acb61a0")).props("outlined dense options-dense clearable").classes("w-32")
                             elif operator_name == "between":
                                 values = node.get("value") if isinstance(node.get("value"), list) else ["", ""]
-                                first = ui.input(render_message("webui.render_condition.input.from_8e3ed147"), value=values[0] if values else "").props("outlined dense clearable").classes("min-w-40")
-                                second = ui.input(render_message("webui.render_condition.input.to_5f691965"), value=values[1] if len(values) > 1 else "").props("outlined dense clearable").classes("min-w-40")
+                                if field_name in ADVANCED_SEARCH_RETENTION_FIELDS:
+                                    first = ui.number(render_message("webui.render_condition.input.from_8e3ed147"), value=values[0] if values else None, min=0, step=1).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
+                                    second = ui.number(render_message("webui.render_condition.input.to_5f691965"), value=values[1] if len(values) > 1 else None, min=0, step=1).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
+                                else:
+                                    first = ui.input(render_message("webui.render_condition.input.from_8e3ed147"), value=values[0] if values else "").props("outlined dense clearable").classes("min-w-40")
+                                    second = ui.input(render_message("webui.render_condition.input.to_5f691965"), value=values[1] if len(values) > 1 else "").props("outlined dense clearable").classes("min-w-40")
                                 if field_kind == "datetime":
                                     first.props(add="type=datetime-local dir=ltr").classes(add="advanced-search-technical-value")
                                     second.props(add="type=datetime-local dir=ltr").classes(add="advanced-search-technical-value")
                                 first.on_value_change(lambda event: (node.__setitem__("value", [event.value, (node.get("value") or ["", ""])[1]]), update_search_enabled()))
                                 second.on_value_change(lambda event: (node.__setitem__("value", [(node.get("value") or ["", ""])[0], event.value]), update_search_enabled()))
                                 value_control = None
+                            elif operator_name in {"in", "not_in"} and field_kind == "choice":
+                                controlled_options = {
+                                    value: render_message(message_key)
+                                    for value, message_key in ADVANCED_SEARCH_CONTROLLED_VALUES[field_name].items()
+                                }
+                                selected_values = node.get("value") if isinstance(node.get("value"), list) else []
+                                value_control = ui.select(
+                                    controlled_options, value=[value for value in selected_values if value in controlled_options],
+                                    label=render_message("webui.render_condition.select.value_3acb61a0"), multiple=True,
+                                ).props("outlined dense options-dense clearable use-chips").classes("grow min-w-56")
+                                value_control.on_value_change(lambda event: (node.__setitem__("value", event.value or []), update_search_enabled()))
                             elif operator_name in {"in", "not_in"}:
                                 rendered = ", ".join(str(item) for item in node.get("value", [])) if isinstance(node.get("value"), list) else ""
                                 value_control = ui.input(render_message("webui.render_condition.input.values_comma_separated_c3e84e2f"), value=rendered).props("outlined dense clearable").classes("advanced-search-auto-value grow min-w-56")
@@ -18917,7 +18964,8 @@ def index(q: str = "") -> None:
                                 if field_name == "component.content_status":
                                     style_status_chip_select(value_control)
                             elif field_kind == "integer":
-                                value_control = ui.number(render_message("advanced_search.field.value"), value=node.get("value")).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
+                                number_options = {"min": 0, "step": 1} if field_name in ADVANCED_SEARCH_RETENTION_FIELDS else {}
+                                value_control = ui.number(render_message("advanced_search.field.value"), value=node.get("value"), **number_options).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
                             else:
                                 value_control = ui.input(render_message("webui.render_condition.input.value_8dc59edc"), value=node.get("value", "")).props("outlined dense clearable").classes("advanced-search-auto-value grow min-w-56")
                                 if field_kind == "datetime":
@@ -19010,7 +19058,7 @@ def index(q: str = "") -> None:
             options = {
                 name: render_message(details[0])
                 for name, details in ADVANCED_SEARCH_FIELDS[workspace["resource"]].items()
-                if name not in ADVANCED_SEARCH_COMPONENT_FIELDS and (name!="disposition_status" or (auth_state.get("principal") or {}).get("can_manage_disposition"))
+                if name not in ADVANCED_SEARCH_COMPONENT_FIELDS and name not in ADVANCED_SEARCH_RETENTION_FIELDS and (name!="disposition_status" or (auth_state.get("principal") or {}).get("can_manage_disposition"))
             }
             options["id"] = render_message("advanced_search.sort.identifier")
             try:

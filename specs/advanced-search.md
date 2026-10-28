@@ -5,6 +5,9 @@
 **Prepared:** 25 September 2026  
 **Revision:** 1.0 — approved component-metadata-search amendment
 
+**Approved extension:** [Effective retention filters](advanced-search-effective-retention-extension.md)
+— 28 October 2026; one implementation phase, including Arabic translations.
+
 ## 1. Purpose
 
 This specification defines an Advanced Search workspace for aggregations and

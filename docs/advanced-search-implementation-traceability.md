@@ -1,7 +1,9 @@
 # Advanced Search implementation traceability
 
 **Specification:** `specs/advanced-search.md`, approved revision 1.0  
-**Current delivery phase:** Phase 4 — record component metadata criteria
+**Approved extension:** `specs/advanced-search-effective-retention-extension.md`, 28 October 2026
+
+**Current delivery phase:** Effective-retention extension — one implementation phase
 
 | Requirement | Planned phase | Implementation evidence | Verification evidence | Status | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -31,7 +33,25 @@
 | §5.3 and AS-26 component builder UX | 4 | grouped Record/Digital component field labels, typed and clearable controls, contextual same-component help, chip-rendered controlled content-status catalogue, sort exclusion and RTL logical-edge CSS in `frontend/webui/app.py` | 176 frontend tests including contextual-help, chip-rendering and controlled-selector regression checks | verified | Component guidance appears only when a component field is present; builder exposes no joins, quantifiers, SQL, component table names or component full-text operation |
 | §5.3 governed relationship pickers | 4 | card-style searchable relationship options; classification and organization-unit Browse actions; classification-scheme-to-aggregation hierarchy browser in `frontend/webui/app.py` | 176 frontend tests including hierarchy-path regression checks | verified | Medium has a controlled selector; aggregation selection drills through governed classification and aggregation nodes; selected values remain IDs and can be cleared |
 
-All four approved Advanced Search phases are complete.
+All four original Advanced Search phases are complete. The effective-retention
+extension is reconciled separately below.
+
+## Effective-retention extension — 28 October 2026
+
+One phase covers the approved extension's query contract, effective-rule
+semantics, implementation, Arabic drafts, and verification. Detailed evidence,
+commands, database cleanup, performance measurements, and browser captures are
+in [the verification record](verification/effective-retention-search.md).
+
+| Requirement | Implementation evidence | Verification evidence | Status |
+| --- | --- | --- | --- |
+| §§1–2, AS-ER-01: current governing rule and inheritance | `AGGREGATION_RETENTION_SEARCH_FIELDS`, `_compile_expression`, `_search_from` in `backend/services/api/search.py`; existing `aggregation_effective_retention_rule` | API resolver parity, classification inheritance/change, local override/removal, child reparenting, open/closed and zero-year cases | verified |
+| §1, AS-ER-02: typed, bounded aggregation-only filters | Existing comparison compiler plus controlled action and nonnegative integer validation; builder operator catalogue and filter-only sort exclusion | All permitted numeric/action operators, invalid types/values/operators, Boolean/full-text combinations, injection, 50-leaf/five-level/100-value bounds, Records/sort rejection; builder validation tests | verified |
+| §3, AS-ER-03: authorization, paging and saved freshness | Existing authorized search views, visibility predicates and schema-version-1 saved-search execution; one optional lateral rule source for count/page | ACL-restricted totals, deterministic page slices, result shape, saved reopen/execution cap and freshness; existing saved-search and terminal-visibility regressions | verified |
+| §3, AS-ER-04: bilingual controls and navigation | `frontend/webui/app.py`; five new English definitions and Arabic drafts merged by key with existing Arabic wording/provenance preserved | English/Arabic live browser criteria, action multiselect, numeric range/fraction validation, saved restore, navigation, mutation freshness, pending-request abandonment; catalogue/terminology checks | verified |
+| §§3–4, AS-ER-05: performance and traceability | Optional resolver join only for retention predicates, shared source for count/page, no new cache/index/schema/environment setting | Authorized-query `EXPLAIN (ANALYZE, BUFFERS)` on 1,000 aggregations; complete evidence record and this reconciliation | verified |
+
+Arabic additions remain unpublished drafts requiring administrator review.
 
 ## Matched-component result presentation
 

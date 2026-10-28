@@ -198,6 +198,48 @@
     "is_html": false
   },
   {
+    "message_key": "advanced_search.field.effective_current_period_years",
+    "context_group": "advanced_search.field",
+    "default_text": "Effective current period (years)",
+    "semantic_meaning": "Configured current retention duration resolved from the governing root, including overrides and classification inheritance.",
+    "common_locations": [
+      "Advanced Search: Aggregations"
+    ],
+    "translator_guidance": "Use existing retention and disposition terminology. Effective means the governing rule after inheritance and overrides; durations are configured years, not elapsed time. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Effective current period (years)",
+    "is_html": false
+  },
+  {
+    "message_key": "advanced_search.field.effective_disposition_action",
+    "context_group": "advanced_search.field",
+    "default_text": "Effective disposition action",
+    "semantic_meaning": "Final disposition action from the governing root effective retention rule.",
+    "common_locations": [
+      "Advanced Search: Aggregations"
+    ],
+    "translator_guidance": "Use existing retention and disposition terminology. Effective means the governing rule after inheritance and overrides; durations are configured years, not elapsed time. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Effective disposition action",
+    "is_html": false
+  },
+  {
+    "message_key": "advanced_search.field.effective_intermediate_period_years",
+    "context_group": "advanced_search.field",
+    "default_text": "Effective intermediate period (years)",
+    "semantic_meaning": "Configured intermediate retention duration resolved from the governing root, including overrides and classification inheritance.",
+    "common_locations": [
+      "Advanced Search: Aggregations"
+    ],
+    "translator_guidance": "Use existing retention and disposition terminology. Effective means the governing rule after inheritance and overrides; durations are configured years, not elapsed time. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Effective intermediate period (years)",
+    "is_html": false
+  },
+  {
     "message_key": "advanced_search.field.file_name",
     "context_group": "advanced_search.field",
     "default_text": "File name",
@@ -803,6 +845,34 @@
     "grammatical_role": "complete sentence",
     "parameter_schema": {},
     "rendered_example": "Choose a valid operator for every condition.",
+    "is_html": false
+  },
+  {
+    "message_key": "advanced_search.validation.retention_action",
+    "context_group": "advanced_search.validation",
+    "default_text": "Choose a valid disposition action.",
+    "semantic_meaning": "Validation requiring existing controlled disposition actions for effective retention search.",
+    "common_locations": [
+      "Advanced Search: Aggregations"
+    ],
+    "translator_guidance": "Use existing retention and disposition terminology. Effective means the governing rule after inheritance and overrides; durations are configured years, not elapsed time. Preserve named placeholders.",
+    "grammatical_role": "validation message",
+    "parameter_schema": {},
+    "rendered_example": "Choose a valid disposition action.",
+    "is_html": false
+  },
+  {
+    "message_key": "advanced_search.validation.retention_years",
+    "context_group": "advanced_search.validation",
+    "default_text": "Enter nonnegative whole years.",
+    "semantic_meaning": "Validation for effective retention durations; zero is valid and fractional or negative durations are invalid.",
+    "common_locations": [
+      "Advanced Search: Aggregations"
+    ],
+    "translator_guidance": "Use existing retention and disposition terminology. Effective means the governing rule after inheritance and overrides; durations are configured years, not elapsed time. Preserve named placeholders.",
+    "grammatical_role": "validation message",
+    "parameter_schema": {},
+    "rendered_example": "Enter nonnegative whole years.",
     "is_html": false
   },
   {

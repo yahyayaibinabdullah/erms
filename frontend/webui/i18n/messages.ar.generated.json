@@ -3,8 +3,8 @@
   "model": "database-reviewed-translations",
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
-  "specification_sha256": "427303428d678b09926b0a84d44536a9c70d9a305ba1188239d503cf2e980dd9",
-  "catalogue_sha256": "3b1aef6c8d4943d811d6dba8881dce2d7bbcf619a66e5f90cd306026dac8df19",
+  "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+  "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -592,6 +592,60 @@
       }
     },
     {
+      "message_key": "advanced_search.field.effective_current_period_years",
+      "translated_text": "الفترة الجارية الفعلية (بالسنوات)",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-effective-retention-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "effective-retention-search-20261028",
+        "generated_at": "2026-10-28T08:52:53+00:00"
+      }
+    },
+    {
+      "message_key": "advanced_search.field.effective_disposition_action",
+      "translated_text": "إجراء التصرف النهائي الفعلي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-effective-retention-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "effective-retention-search-20261028",
+        "generated_at": "2026-10-28T08:52:53+00:00"
+      }
+    },
+    {
+      "message_key": "advanced_search.field.effective_intermediate_period_years",
+      "translated_text": "الفترة الوسيطة الفعلية (بالسنوات)",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-effective-retention-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "effective-retention-search-20261028",
+        "generated_at": "2026-10-28T08:52:53+00:00"
+      }
+    },
+    {
       "message_key": "advanced_search.field.file_name",
       "translated_text": "اسم الملف الرقمي",
       "quality_flags": [],
@@ -1105,6 +1159,42 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
         "date_published": "2026-09-26T16:20:14.562571+00:00"
+      }
+    },
+    {
+      "message_key": "advanced_search.validation.retention_action",
+      "translated_text": "اختر إجراءً صحيحًا للتصرف النهائي.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-effective-retention-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "effective-retention-search-20261028",
+        "generated_at": "2026-10-28T08:52:53+00:00"
+      }
+    },
+    {
+      "message_key": "advanced_search.validation.retention_years",
+      "translated_text": "أدخل عددًا صحيحًا من السنوات لا يقل عن صفر.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-effective-retention-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "effective-retention-search-20261028",
+        "generated_at": "2026-10-28T08:52:53+00:00"
       }
     },
     {
