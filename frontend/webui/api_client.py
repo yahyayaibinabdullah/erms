@@ -735,6 +735,12 @@ class ErmsApiClient:
         return await self.request("PUT", "/api/v1/application-settings",
                                   json={"changes": changes}, headers={"X-Change-Reason": reason})
 
+    async def test_smtp_send(self, recipient: str) -> dict[str, Any]:
+        # SMTP operations use the administrator's configured socket timeout;
+        # the ordinary 30-second API read timeout must not imply a failed send.
+        return await self.request("POST", "/api/v1/application-settings/test-send",
+                                  json={"recipient": recipient}, timeout=httpx.Timeout(None, connect=5))
+
     async def security_summary(
         self, *, hours: int = 24, start_at: str | None = None, end_at: str | None = None,
     ) -> dict[str, Any]:

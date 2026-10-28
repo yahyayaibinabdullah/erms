@@ -138,7 +138,7 @@ def _target_policy(method: str, path: str) -> tuple[str, str | None, str | None]
         if path.endswith("/documents/{document_id}/preview"):
             return "resource_scoped", "record.component.view", "record.component.view"
         return "relationship_scoped", None, None
-    if path == "/api/v1/application-settings":
+    if path in {"/api/v1/application-settings", "/api/v1/application-settings/test-send"}:
         return "globally_privileged", "app.settings.manage", None
     # Reconcile the generator with the already committed relationship policies.
     if path.startswith("/api/v1/relationships/types/"):

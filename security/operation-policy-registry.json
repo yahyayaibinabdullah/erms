@@ -884,6 +884,23 @@
       "phase_12_enforced": false
     },
     {
+      "id": "POST:/api/v1/application-settings/test-send",
+      "method": "POST",
+      "path": "/api/v1/application-settings/test-send",
+      "current_access_class": "globally_privileged",
+      "target_policy_class": "globally_privileged",
+      "global_privilege": "app.settings.manage",
+      "resource_permission": null,
+      "phase_0_enforced": false,
+      "phase_4_enforced": true,
+      "phase_5_enforced": false,
+      "phase_7_enforced": false,
+      "phase_8_enforced": false,
+      "phase_9_enforced": false,
+      "phase_11_enforced": false,
+      "phase_12_enforced": false
+    },
+    {
       "id": "POST:/api/v1/auth/change-password",
       "method": "POST",
       "path": "/api/v1/auth/change-password",

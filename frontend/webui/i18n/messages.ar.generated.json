@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
-  "catalogue_sha256": "b30de366d9cf9bc9c59815102560637e226214845dc69b714c06a7e7f21b1828",
+  "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -30758,6 +30758,204 @@
         "source_status": "published",
         "date_reviewed": "2026-10-14T15:10:41.600042+00:00",
         "date_published": "2026-10-14T15:10:41.600042+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.accepted",
+      "translated_text": "قبل خادم البريد رسالة الاختبار. هذا لا يؤكد وصولها إلى صندوق الوارد.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.action",
+      "translated_text": "اختبار الإرسال",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.close",
+      "translated_text": "إغلاق",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.failed",
+      "translated_text": "تعذّر إرسال رسالة الاختبار. تحقّق من إعدادات خادم البريد المحفوظة.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.guidance",
+      "translated_text": "يستخدم الاختبار إعدادات خادم البريد المحفوظة. احفظ أي تغييرات أولًا، ثم أدخل عنوان البريد الذي سيستقبل رسالة الاختبار.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.incomplete",
+      "translated_text": "أكمل إعدادات خادم البريد والأمان والمصادقة والمرسل وبيانات الاعتماد المطلوبة واحفظها قبل الاختبار.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.invalid_recipient",
+      "translated_text": "أدخل عنوان بريد إلكتروني صحيحًا لمستلم واحد.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.recipient",
+      "translated_text": "عنوان البريد الإلكتروني للمستلم",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.send",
+      "translated_text": "إرسال رسالة الاختبار",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.sending",
+      "translated_text": "جارٍ إرسال رسالة الاختبار…",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
+      }
+    },
+    {
+      "message_key": "settings.email_test.unknown",
+      "translated_text": "تعذّر التأكد من نتيجة الإرسال. تحقّق من صندوق وارد المستلم قبل المحاولة مجددًا.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-smtp-test-ar-v1",
+        "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
+        "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "smtp-test-send-20261028",
+        "generated_at": "2026-10-28T09:47:52+00:00"
       }
     },
     {

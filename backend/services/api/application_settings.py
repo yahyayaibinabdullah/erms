@@ -225,18 +225,20 @@ def capture_artifact_settings(connection_factory=None):
     return _fresh_capture(capture, connection_factory)
 
 
-def capture_email_settings(*, decrypt_secret, connection_factory=None):
+def capture_email_settings(*, decrypt_secret, connection_factory=None, recipient: str | None = None):
     def capture(c):
         rows = _rows(c, include_send_secret=True)
         snapshot = _snapshot(rows)
-        required = ("DISPOSITION_EXTERNAL_AUTHORITY_EMAIL", "SMTP_HOST", "SMTP_PORT", "SMTP_SECURITY", "SMTP_AUTH_ENABLED", "SMTP_SENDER_EMAIL")
-        if any(snapshot[key] is None for key in required):
+        required = ("SMTP_HOST", "SMTP_PORT", "SMTP_SECURITY", "SMTP_AUTH_ENABLED", "SMTP_SENDER_EMAIL")
+        target = recipient if recipient is not None else snapshot["DISPOSITION_EXTERNAL_AUTHORITY_EMAIL"]
+        if target is None or any(snapshot[key] is None for key in required):
             raise SettingsInvalid("application_settings_email_incomplete")
+        validate_value(REGISTRY["SMTP_SENDER_EMAIL"], target)
         password = None
         if snapshot["SMTP_AUTH_ENABLED"]:
             encrypted = next(row["send_secret"] for row in rows if row["key"] == "SMTP_PASSWORD")
             password = decrypt_secret(bytes(encrypted), snapshot.database_id)
-        return EmailSettings(snapshot["DISPOSITION_EXTERNAL_AUTHORITY_EMAIL"], snapshot["SMTP_HOST"],
+        return EmailSettings(target, snapshot["SMTP_HOST"],
                              snapshot["SMTP_PORT"], snapshot["SMTP_SECURITY"], snapshot["SMTP_AUTH_ENABLED"],
                              snapshot["SMTP_USERNAME"], password, snapshot["SMTP_SENDER_EMAIL"],
                              snapshot["SMTP_SENDER_NAME"], snapshot["SMTP_REPLY_TO_EMAIL"], snapshot["SMTP_TIMEOUT_SECONDS"])

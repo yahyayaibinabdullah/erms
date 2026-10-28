@@ -1222,3 +1222,21 @@ def test_approval_summary_is_cancellable_read_only_post_and_preserves_reference_
     assert captured[0].method=='POST' and captured[0].url.path=='/api/v1/disposition/tasks/8/approval-summary'
     assert captured[0].headers['if-match']=='2'
     assert json.loads(captured[0].content)=={'acting_role_id':7,'task_version':3,'changes':[]}
+
+
+def test_smtp_test_posts_only_recipient_and_honors_smtp_timeout_without_retry():
+    calls=[]
+    async def handler(request):
+        calls.append(request)
+        return httpx.Response(200,json={'outcome':'smtp_accepted','smtp_code':250})
+    async def exercise():
+        client=ErmsApiClient('http://api.test',transport=httpx.MockTransport(handler))
+        try:
+            result=await client.test_smtp_send('recipient@test.invalid')
+            assert result['outcome']=='smtp_accepted'
+        finally:await client.close()
+    asyncio.run(exercise())
+    assert len(calls)==1 and calls[0].method=='POST'
+    assert calls[0].url.path=='/api/v1/application-settings/test-send'
+    assert json.loads(calls[0].content)=={'recipient':'recipient@test.invalid'}
+    assert calls[0].extensions['timeout']['read'] is None

@@ -7,6 +7,7 @@ selected IDs only; no options catalogue or additional authoritative cache exists
 """
 import asyncio
 from collections import defaultdict
+from email.headerregistry import Address
 from typing import Any
 from zoneinfo import available_timezones
 
@@ -46,6 +47,16 @@ WARNING_LABEL_KEYS = {
 def reference_label(row):
     title = (row.get('localized') or {}).get('title') or row.get('title') or str(row['id'])
     return f"{row['code']} · {title}" if row.get('code') else title
+
+
+def valid_test_recipient(value):
+    if not isinstance(value, str) or not 3 <= len(value) <= 320 or '\r' in value or '\n' in value:
+        return False
+    try:
+        address = Address(addr_spec=value)
+        return bool(address.username and address.domain) and address.addr_spec == value
+    except ValueError:
+        return False
 
 
 def proposed_value(item, value):
@@ -387,8 +398,81 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
             reason = ui.input(render_message('settings.field.reason')).props('outlined dense').classes('w-full')
             feedback = ui.label('').classes('text-sm').props('role=status')
             with ui.row().classes('w-full justify-end'):
+                test_send = ui.button(render_message('settings.email_test.action'), icon='outgoing_mail').props('outline no-caps') if category == 'email' else None
                 save = ui.button(render_message('common.action.save'), icon='save').props('no-caps')
             form.update(reason=reason, save=save, feedback=feedback)
+
+        async def test_email():
+            if form['busy'] or form.get('test_open') or not current():
+                return
+            form['test_open'] = True
+            pending = {'sending': False}
+            with host:
+                dialog = ui.dialog()
+                with dialog, ui.card().classes('w-[480px] max-w-[calc(100vw-32px)] gap-4').props(f'dir={direction()}'):
+                    ui.label(render_message('settings.email_test.action')).classes('text-xl font-semibold')
+                    ui.label(render_message('settings.email_test.guidance')).classes('text-sm text-slate-600 leading-relaxed')
+                    recipient = ui.input(render_message('settings.email_test.recipient')).props(
+                        'outlined dense type=email maxlength=320 input-style="direction: ltr; unicode-bidi: isolate"'
+                    ).classes('w-full')
+                    result = ui.label('').classes('text-sm leading-relaxed').props('role=status aria-live=polite')
+                    with ui.row().classes('w-full justify-end gap-2'):
+                        ui.button(render_message('settings.email_test.close'), on_click=dialog.close).props('flat no-caps')
+                        send = ui.button(render_message('settings.email_test.send'), icon='send').props('no-caps')
+
+            def live_dialog():
+                return current() and state['forms'].get(category) is form and not dialog.is_deleted and dialog.value
+
+            def closed():
+                form['test_open'] = False
+                if not pending['sending'] and current() and not test_send.is_deleted:
+                    test_send.enable()
+
+            async def send_test():
+                if pending['sending'] or not live_dialog():
+                    return
+                target = (recipient.value or '').strip()
+                if not valid_test_recipient(target):
+                    result.text = render_message('settings.email_test.invalid_recipient')
+                    return
+                pending['sending'] = True
+                form['busy'] = True
+                send.disable(); recipient.disable(); save.disable(); refresh.disable()
+                result.text = render_message('settings.email_test.sending')
+                try:
+                    response = await api.test_smtp_send(target)
+                    if live_dialog():
+                        with dialog:
+                            result.text = render_message(
+                                'settings.email_test.accepted' if response['outcome'] == 'smtp_accepted'
+                                else 'settings.email_test.failed' if response['outcome'] == 'failed'
+                                else 'settings.email_test.unknown'
+                            )
+                except asyncio.CancelledError:
+                    return
+                except ApiError as error:
+                    if live_dialog():
+                        with dialog:
+                            result.text = render_message('settings.email_test.unknown') if error.status_code >= 500 and not isinstance(error.detail, dict) else on_error(error)
+                finally:
+                    pending['sending'] = False
+                    form['busy'] = False
+                    if current() and state['forms'].get(category) is form:
+                        refresh.enable(); save.enable()
+                        if not form.get('test_open') and not test_send.is_deleted:
+                            test_send.enable()
+                    if live_dialog():
+                        send.enable(); recipient.enable()
+
+            send.on_click(send_test)
+            dialog.on_value_change(lambda event: closed() if not event.value else None)
+            form.update(test_dialog=dialog, test_recipient=recipient, test_result=result, test_submit=send)
+            test_send.disable()
+            dialog.open()
+
+        if test_send is not None:
+            form['test_send'] = test_send
+            test_send.on_click(test_email)
 
         async def submit():
             if form['busy'] or not current():

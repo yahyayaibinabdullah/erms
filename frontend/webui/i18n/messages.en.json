@@ -26991,6 +26991,160 @@
     "is_html": false
   },
   {
+    "message_key": "settings.email_test.accepted",
+    "context_group": "settings.email_test",
+    "default_text": "Accepted by the SMTP server. This does not confirm inbox delivery.",
+    "semantic_meaning": "Successful SMTP acceptance is distinct from delivery into the recipient inbox.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Accepted by the SMTP server. This does not confirm inbox delivery.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.action",
+    "context_group": "settings.email_test",
+    "default_text": "Test Send",
+    "semantic_meaning": "Action and dialog title for sending a fixed SMTP test email.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Test Send",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.close",
+    "context_group": "settings.email_test",
+    "default_text": "Close",
+    "semantic_meaning": "Close the SMTP test dialog; an already started send may continue.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Close",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.failed",
+    "context_group": "settings.email_test",
+    "default_text": "The test email could not be sent. Check the saved SMTP settings.",
+    "semantic_meaning": "Definite SMTP connection, authentication, envelope or DATA rejection; never disclose raw errors or credentials.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "The test email could not be sent. Check the saved SMTP settings.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.guidance",
+    "context_group": "settings.email_test",
+    "default_text": "Uses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.",
+    "semantic_meaning": "Explain that unsaved SMTP edits are not used and the recipient is temporary.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Uses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.incomplete",
+    "context_group": "settings.email_test",
+    "default_text": "Complete and save the SMTP server, security, authentication, sender and any required credentials before testing.",
+    "semantic_meaning": "Saved SMTP configuration is incomplete; the test does not require a Disposition authority recipient.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Complete and save the SMTP server, security, authentication, sender and any required credentials before testing.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.invalid_recipient",
+    "context_group": "settings.email_test",
+    "default_text": "Enter one valid recipient email address.",
+    "semantic_meaning": "Reject blank, malformed, multiple-recipient or header-injection addresses.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Enter one valid recipient email address.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.recipient",
+    "context_group": "settings.email_test",
+    "default_text": "Recipient email address",
+    "semantic_meaning": "Address of the recipient of the SMTP test; not a saved application setting.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Recipient email address",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.send",
+    "context_group": "settings.email_test",
+    "default_text": "Send test email",
+    "semantic_meaning": "Explicitly send one fixed test email to the entered recipient.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Send test email",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.sending",
+    "context_group": "settings.email_test",
+    "default_text": "Sending test email…",
+    "semantic_meaning": "A single SMTP test send is in progress; duplicate submissions are disabled.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Sending test email…",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.email_test.unknown",
+    "context_group": "settings.email_test",
+    "default_text": "The sending outcome could not be confirmed. Check the recipient inbox before trying again.",
+    "semantic_meaning": "Uncertain SMTP acceptance or lost API response; do not imply failure or resend automatically.",
+    "common_locations": [
+      "Administration → Settings → Email → Test Send"
+    ],
+    "translator_guidance": "Use clear administrative Arabic. SMTP means the configured outgoing mail server. Distinguish server acceptance from inbox delivery; never imply automatic retry. Preserve named placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "The sending outcome could not be confirmed. Check the recipient inbox before trying again.",
+    "is_html": false
+  },
+  {
     "message_key": "settings.error.group_inconsistent",
     "context_group": "settings.error",
     "default_text": "The related settings are inconsistent; no changes were saved.",
