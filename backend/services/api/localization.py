@@ -867,6 +867,7 @@ def update_language(
 def admin_messages(
     language_tag: str,
     key: str = "",
+    source_text: str = "",
     translated_text: str = "",
     semantic_meaning: str = "",
     status_filter: str = Query(default="all", alias="status"),
@@ -910,7 +911,7 @@ def admin_messages(
     )
     predicates = ["NOT definition.is_deprecated"]
     params: list[Any] = [language["language_tag"]]
-    for column, value in (("definition.message_key",key),(translated_text_sql,translated_text),("definition.semantic_meaning",semantic_meaning),("definition.context_group",context)):
+    for column, value in (("definition.message_key",key),("definition.default_text",source_text),(translated_text_sql,translated_text),("definition.semantic_meaning",semantic_meaning),("definition.context_group",context)):
         if value.strip():
             predicates.append(f"COALESCE({column},'') ILIKE %s")
             params.append(f"%{value.strip()}%")

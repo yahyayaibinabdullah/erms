@@ -20513,6 +20513,7 @@ def index(q: str = "") -> None:
                         render_message("webui.select_translation_administration.input.key_16b82d81"),
                         value=initial_key or "",
                     ).props("outlined dense clearable debounce=350").classes("w-56")
+                    source_filter = ui.input(render_message("localization.filter.source_text")).props("outlined dense clearable debounce=350").classes("w-56")
                     text_filter = ui.input(render_message("webui.select_translation_administration.input.translated_text_054048b6")).props("outlined dense clearable debounce=350").classes("w-56")
                     meaning_filter = ui.input(render_message("webui.select_translation_administration.input.semantic_meaning_b8e3fe8d")).props("outlined dense clearable debounce=350").classes("w-60")
                     status_filter = ui.select({"all":render_message("localization.filter.status.all"),"draft":render_message("localization.filter.status.draft"),"published":render_message("localization.filter.status.published")},value="all",label=render_message("webui.select_translation_administration.select.status_9d5af32b")).props("outlined dense options-dense").classes("w-40")
@@ -20929,6 +20930,14 @@ def index(q: str = "") -> None:
             dialog.open()
 
         async def load_messages(reset: bool=False, restore_scroll: float | None = None) -> None:
+            if state.get("resource") != "translations" or results.is_deleted:
+                return
+            # Clear-all also runs in a background task. Resolve every label in
+            # this page's client/language context, including summary updates.
+            with table_container:
+                await load_translation_messages(reset, restore_scroll)
+
+        async def load_translation_messages(reset: bool=False, restore_scroll: float | None = None) -> None:
             message_load["sequence"] += 1
             request_sequence = message_load["sequence"]
             if reset: page["offset"]=0
@@ -20937,6 +20946,7 @@ def index(q: str = "") -> None:
                 request_params = dict(
                     language_tag=administration_language["value"],
                     key=strip_diagnostic_metadata(key_filter.value or ""),
+                    source_text=strip_diagnostic_metadata(source_filter.value or ""),
                     translated_text=strip_diagnostic_metadata(text_filter.value or ""),
                     semantic_meaning=strip_diagnostic_metadata(meaning_filter.value or ""),
                     status=status_filter.value,origin=origin_filter.value,
@@ -20955,14 +20965,18 @@ def index(q: str = "") -> None:
                     request_params["offset"] = 0
                     data = await api.localization_messages(**request_params)
                     group_total = data.get("group_total", len(data.get("context_groups", [])))
+                if request_sequence != message_load["sequence"] or state.get("resource") != "translations" or results.is_deleted:
+                    return
                 generation = await api.localization_generation_report(administration_language["value"])
             except ApiError as error:
-                if request_sequence == message_load["sequence"]:
+                if request_sequence == message_load["sequence"] and state.get("resource") == "translations" and not results.is_deleted:
                     ui.notify(error_message(error),color="negative",close_button=True)
                 return
             # Debounced controls can have more than one request in flight. An
             # older response must never replace the newest filter result.
             if request_sequence != message_load["sequence"]:
+                return
+            if state.get("resource") != "translations" or results.is_deleted:
                 return
             generation_coverage.text = render_message(
                 "localization.generation.review.coverage",
@@ -20989,6 +21003,7 @@ def index(q: str = "") -> None:
             for item in data["items"]: grouped.setdefault(item["context_group"],[]).append(item)
             filters_active = bool(
                 (key_filter.value or "").strip()
+                or (source_filter.value or "").strip()
                 or (text_filter.value or "").strip()
                 or (meaning_filter.value or "").strip()
                 or status_filter.value != "all"
@@ -21038,7 +21053,7 @@ def index(q: str = "") -> None:
                 )
 
         def clear_all() -> None:
-            key_filter.value="";text_filter.value="";meaning_filter.value="";status_filter.value="all";origin_filter.value="all";review_filter.value="all";attention_filter.value=False
+            key_filter.value="";source_filter.value="";text_filter.value="";meaning_filter.value="";status_filter.value="all";origin_filter.value="all";review_filter.value="all";attention_filter.value=False
             background_tasks.create(load_messages(True))
 
         async def select_administration_language(language_tag: str) -> None:
@@ -21056,7 +21071,7 @@ def index(q: str = "") -> None:
                 card.props(f"aria-pressed={'true' if selected else 'false'}")
             await load_messages(True)
 
-        for control in (key_filter,text_filter,meaning_filter,status_filter,origin_filter,review_filter,attention_filter): control.on_value_change(lambda:load_messages(True))
+        for control in (key_filter,source_filter,text_filter,meaning_filter,status_filter,origin_filter,review_filter,attention_filter): control.on_value_change(lambda:load_messages(True))
         for tag, card in language_cards.items():
             card.on("click", lambda _, language_tag=tag: select_administration_language(language_tag))
         clear_filters.on("click",clear_all);add_language.on("click",language_dialog)

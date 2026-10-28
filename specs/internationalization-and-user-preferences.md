@@ -3,7 +3,7 @@
 **Status:** Approved — implementation baseline  
 **Project:** ERMS / Wathiq  
 **Prepared:** 26 September 2026  
-**Revision:** 0.24 — Arabic-primary database collation recommendation (28 October 2026)
+**Revision:** 0.25 — English source text filter in Translation Administration (28 October 2026)
 
 ## 1. Purpose
 
@@ -428,13 +428,14 @@ The listing provides these explicit filters:
 | Filter | Behavior |
 | --- | --- |
 | **Key** | Case-insensitive partial match against the complete `message_key` |
+| **English source text** | Case-insensitive partial match against the authoritative English `default_text`, independently of the selected translation language |
 | **Translated text** | Case-insensitive partial match against `translated_text` for the selected language |
 | **Semantic meaning** | Case-insensitive partial match against the definition's `semantic_meaning` guidance |
 | **Status** | Controlled selection of all, `draft`, or `published` |
 | **Origin** | Controlled selection of all, `source_copy`, `manual`, `generated`, or `imported` |
 
 Context, review state, and **Needs attention** remain available as additional
-filters. The five primary filters are individually labelled and must not be
+filters. The six primary filters are individually labelled and must not be
 hidden inside one ambiguous general-search field. Active filters combine with
 logical AND, while an empty text filter or **All** selection does not constrain
 results. Text filters are debounced, changing any filter resets pagination to
@@ -1272,7 +1273,7 @@ GET  /api/v1/i18n/catalogues/{language_tag}
 GET  /api/v1/admin/i18n/languages
 POST /api/v1/admin/i18n/languages
 PUT  /api/v1/admin/i18n/languages/{language_tag}
-GET  /api/v1/admin/i18n/messages?language_tag={tag}&key={text}&translated_text={text}&semantic_meaning={text}&status={status}&origin={origin}&limit={n}&offset={n}
+GET  /api/v1/admin/i18n/messages?language_tag={tag}&key={text}&source_text={text}&translated_text={text}&semantic_meaning={text}&status={status}&origin={origin}&limit={n}&offset={n}
 PUT  /api/v1/admin/i18n/messages/{message_key}/translations/{language_tag}
 POST /api/v1/admin/i18n/messages/{message_key}/translations/{language_tag}/publish
 ```
@@ -1554,7 +1555,7 @@ The feature is accepted only when:
    exposes its exact accessible reason, remains discoverable through
    needs-attention filters and collapsed-group counts, and is not communicated
    by color alone;
-9. an administrator can independently filter by message key, translated text,
+9. an administrator can independently filter by message key, English source text, translated text,
    semantic meaning, status, and origin; combined filters, pagination, result
    totals, clear-all, and return-from-edit behavior remain correct;
 10. two administrators can safely maintain translations concurrently without
@@ -1602,7 +1603,7 @@ The feature is accepted only when:
 | Simple interpolated messages | 7.2 | parser, type formatting, escaping, and placeholder-parity tests |
 | Blank translations cannot be used | 5, 7.3–7.4, 19 | WebUI/API/database rejection, atomic publication, cache, and accessibility tests |
 | Invalid translations are visibly identifiable | 7.4, 8, 19 | status-reason, filtering, collapsed-group, visual-regression, RTL, and accessibility tests |
-| Translation catalogue filters | 7.4, 13, 19 | key/text/meaning/status/origin, combination, paging, state-restoration, and bounded-query tests |
+| Translation catalogue filters | 7.4, 13, 19 | key/English source/translated text/meaning/status/origin, combination, paging, state-restoration, and bounded-query tests |
 | Translation keys and Arabic drafts follow screen development | 7.5, 19, 21 | definition and generated-draft add/update/delete reconciliation, provenance/hash, stale-key, placeholder, Arabic-quality, protected-translation, source-change, explicit-seed, and CI tests |
 | Complete UI and user-error translation | 7, 19.2 | key manifest, error-code mapping, CI completeness, browser coverage |
 | Administration-screen design language | 8, 9, 16, 19 | live-browser comparison, density, icon accessibility, guidance, and RTL evidence |

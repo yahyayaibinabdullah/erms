@@ -223,6 +223,55 @@ def test_translation_administration_pages_complete_context_groups(client):
     assert second_payload["items"][0]["context_group"] != first_group
 
 
+@pytest.mark.parametrize('language_tag', ['en', 'ar'])
+def test_source_text_filter_matches_authoritative_english_and_combines_with_other_filters(client, language_tag):
+    item = _translation(client)
+    response = client.put(
+        f'/api/v1/admin/i18n/messages/{MESSAGE_KEY}/translations/{language_tag}',
+        headers={'If-Match': str(item['translation_version'] if language_tag == 'ar' else 0),
+                 'X-Change-Reason': 'Verify independent source and translated wording filters'},
+        json={'translated_text': 'Distinct translated wording {language}.', 'origin': 'manual', 'reviewed': True},
+    )
+    assert response.status_code == 200, response.text
+    params = dict(language_tag=language_tag, key=MESSAGE_KEY, source_text='  NOT AVAILABLE  ',
+                  translated_text='distinct translated', semantic_meaning='requested language',
+                  status='draft', origin='manual', limit=1, offset=0)
+    matched = client.get('/api/v1/admin/i18n/messages', params=params)
+    assert matched.status_code == 200, matched.text
+    payload = matched.json()
+    assert payload['total'] == payload['group_total'] == 1
+    assert [row['message_key'] for row in payload['items']] == [MESSAGE_KEY]
+    assert 'not available' in payload['items'][0]['default_text'].lower()
+    for changed in ({'source_text': 'Distinct translated'}, {'translated_text': 'no such translation'},
+                    {'status': 'published'}, {'origin': 'generated'}):
+        assert client.get('/api/v1/admin/i18n/messages', params={**params, **changed}).json()['total'] == 0
+
+
+def test_source_text_filter_includes_missing_translations_and_empty_text_is_unconstrained(client):
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        connection.execute("SELECT set_config('app.change_reason','Prepare missing translation filter case',true)")
+        connection.execute('DELETE FROM ui_message_translations WHERE message_key=%s AND language_tag=%s', (MESSAGE_KEY, 'ar'))
+    params = dict(language_tag='ar', key=MESSAGE_KEY, source_text='not available')
+    payload = client.get('/api/v1/admin/i18n/messages', params=params).json()
+    assert payload['total'] == 1 and payload['items'][0]['translated_text'] is None
+    assert payload['items'][0]['validity'] == 'missing'
+    unfiltered = client.get('/api/v1/admin/i18n/messages', params={'language_tag': 'ar', 'limit': 1}).json()
+    blank = client.get('/api/v1/admin/i18n/messages', params={'language_tag': 'ar', 'limit': 1, 'source_text': '   '}).json()
+    assert blank == unfiltered
+
+
+def test_source_text_filter_preserves_filtered_totals_and_context_group_paging(client):
+    params = dict(language_tag='ar', source_text='email', limit=1)
+    first = client.get('/api/v1/admin/i18n/messages', params={**params, 'offset': 0}).json()
+    second = client.get('/api/v1/admin/i18n/messages', params={**params, 'offset': 1}).json()
+    assert first['group_total'] > 1 and first['total'] > 1
+    assert first['total'] == second['total'] and first['group_total'] == second['group_total']
+    assert len({row['context_group'] for row in first['items']}) == 1
+    assert len({row['context_group'] for row in second['items']}) == 1
+    assert first['items'][0]['context_group'] != second['items'][0]['context_group']
+    assert all('email' in row['default_text'].lower() for row in first['items'] + second['items'])
+
+
 def test_catalogue_reports_fallback_keys_without_exposing_draft_metadata(client):
     catalogue = client.get("/api/v1/i18n/catalogues/ar")
     assert catalogue.status_code == 200

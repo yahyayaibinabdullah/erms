@@ -3,8 +3,8 @@
   "model": "database-reviewed-translations",
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
-  "specification_sha256": "2cd80106e23e3108e35f197916e9e9040cad50341f26449eb622509f7a3e059e",
-  "catalogue_sha256": "bb1dc7aba67b49060adc03cf91230b7eed9be70d1d4115d8ab84504af01fa96f",
+  "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+  "catalogue_sha256": "e1c2aa80286507c4bcf3281df03e59612e96143221ea9d2d015c55bac4ed49a6",
   "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
   "batch_id": "admin-export-ar-20261014213201",
   "generated_at": "2026-10-14T21:32:01.416869+04:00",
@@ -607,7 +607,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "effective-retention-search-20261028",
         "generated_at": "2026-10-28T08:52:53+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "advanced_search.field.effective_disposition_action",
@@ -625,7 +627,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "effective-retention-search-20261028",
         "generated_at": "2026-10-28T08:52:53+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "advanced_search.field.effective_intermediate_period_years",
@@ -643,7 +647,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "effective-retention-search-20261028",
         "generated_at": "2026-10-28T08:52:53+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "advanced_search.field.file_name",
@@ -1177,7 +1183,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "effective-retention-search-20261028",
         "generated_at": "2026-10-28T08:52:53+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "advanced_search.validation.retention_years",
@@ -1195,7 +1203,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "effective-retention-search-20261028",
         "generated_at": "2026-10-28T08:52:53+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "advanced_search.validation.value_required",
@@ -23212,6 +23222,26 @@
       }
     },
     {
+      "message_key": "localization.filter.source_text",
+      "translated_text": "النص المصدر بالإنجليزية",
+      "origin": "generated",
+      "status": "draft",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "6",
+        "prompt_version": "wathiq-source-text-filter-ar-v1",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "catalogue_sha256": "e1c2aa80286507c4bcf3281df03e59612e96143221ea9d2d015c55bac4ed49a6",
+        "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
+        "batch_id": "translation-source-filter-20261028",
+        "generated_at": "2026-10-28T13:03:19+00:00"
+      }
+    },
+    {
       "message_key": "localization.filter.status.all",
       "translated_text": "جميع الحالات",
       "quality_flags": [],
@@ -30776,7 +30806,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.action",
@@ -30794,7 +30826,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.close",
@@ -30812,7 +30846,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.failed",
@@ -30830,7 +30866,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.guidance",
@@ -30848,7 +30886,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.incomplete",
@@ -30866,7 +30906,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.invalid_recipient",
@@ -30884,7 +30926,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.recipient",
@@ -30902,7 +30946,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.send",
@@ -30920,7 +30966,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.sending",
@@ -30938,7 +30986,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.email_test.unknown",
@@ -30956,7 +31006,9 @@
         "terminology_sha256": "647d0819e23fb5d6eb3dd952628f681870875f0bea1228f1c80cf79afbc62963",
         "batch_id": "smtp-test-send-20261028",
         "generated_at": "2026-10-28T09:47:52+00:00"
-      }
+      },
+      "origin": "generated",
+      "status": "draft"
     },
     {
       "message_key": "settings.error.group_inconsistent",

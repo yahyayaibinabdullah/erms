@@ -17957,6 +17957,20 @@
     "is_html": false
   },
   {
+    "message_key": "localization.filter.source_text",
+    "context_group": "localization",
+    "default_text": "English source text",
+    "semantic_meaning": "Independent filter matching the authoritative English source wording of translation message definitions, regardless of selected language.",
+    "common_locations": [
+      "Administration → Translations → catalogue filters"
+    ],
+    "translator_guidance": "Label a search field for the original English wording. Distinguish this from the selected-language translated text filter.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "English source text",
+    "is_html": false
+  },
+  {
     "message_key": "localization.filter.status.all",
     "context_group": "localization.filter",
     "default_text": "All statuses",
