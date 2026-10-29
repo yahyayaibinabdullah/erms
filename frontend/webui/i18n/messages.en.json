@@ -6673,6 +6673,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.add_aggregations",
+    "context_group": "disposition.ui",
+    "default_text": "Add aggregations",
+    "semantic_meaning": "Open the eligibility listing to select aggregations for this disposition job.",
+    "common_locations": [
+      "Disposition task Aggregations tab",
+      "Disposition job details"
+    ],
+    "translator_guidance": "Use ملف / ملفات for aggregation. This action opens selection; no aggregations are selected yet.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Add aggregations",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.add_to_holds",
     "context_group": "disposition.ui",
     "default_text": "Add aggregation to holds",

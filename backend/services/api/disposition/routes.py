@@ -404,9 +404,9 @@ def decide_review(task_id: int,payload: DecideReview,request: Request,version: i
 
 
 @router.get('/tasks/{task_id}/review-work')
-def read_review_work(task_id: int,c: Connection=Depends(get_consistent_connection,scope='function')):
+def read_review_work(task_id: int,request: Request,c: Connection=Depends(get_consistent_connection,scope='function')):
     from . import proposals
-    return proposals.work(c,task_id)
+    return proposals.work(c,task_id,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}/proposals')

@@ -4,13 +4,14 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.14
+**Revision:** 1.15
 **Amendment approved:** 29 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.15 | 29 October 2026 | Allow eligible additions by the claimed Records Manager during Simplified destruction review, preserving admission and original-round integrity |
 | 1.14 | 29 October 2026 | Allow compatible exceptional acceleration of reopened active members within their existing job; preserve membership, blockers and review invalidation |
 | 1.13 | 29 October 2026 | Default the Disposition Jobs page to Active while retaining explicit lifecycle filters and server pagination |
 | 1.12 | 29 October 2026 | Summarize membership additions in one toast with count and job number; show paginated details only for failed additions |
@@ -757,6 +758,15 @@ Section 13.
 
 ### 10.2 Membership rules
 
+Destruction jobs normally change membership during preparation/correction.
+As defined in Destruction Process Section 10, the current claimed Records
+Manager reviewer may also **add** eligible units in Simplified review before
+approval. This exception uses the job's saved route, grants no immediate removal
+permission and preserves all common admission rules. The original round stays
+immutable; final approval covers the complete current set while requiring all
+originally submitted units to remain unchanged. Standard review and later
+approval/execution stages retain their existing restrictions.
+
 Routine addition of governing roots to a job does not require a change reason.
 The API accepts an omitted or blank reason for `membership_add`; actor, acting
 role, time, job, roots, outcomes and command identity remain audited. Exact
@@ -768,8 +778,8 @@ selection and explains the incompatibility. Every selected root must match the
 job's disposition type; for destruction, all selected owners must be within the
 job owner's subtree. Mixed compatible/incompatible selections cannot choose
 that job: split the selection or choose a suitable broader-scope job. Current
-job lifecycle, preparation stage, assignment and access/protection checks are
-also advisory inputs. Checks are server-side and bounded to the selected roots
+job lifecycle, permitted membership stage, assignment and access/protection checks
+are also advisory inputs. Checks are server-side and bounded to the selected roots
 and displayed job page; no entire organizational hierarchy is downloaded.
 Missing or inaccessible roots must not disclose ownership. Save-time locking,
 authorization, current-hierarchy checks and partial-success semantics remain

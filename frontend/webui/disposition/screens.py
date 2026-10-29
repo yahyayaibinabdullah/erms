@@ -396,6 +396,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
             async def choose(job_id):
                 current=await api.disposition_page(f'jobs/{job_id}')
                 if not alive():return
+                add_context={'roles':[{'id':current['membership_add_role_id']}]} if current.get('membership_add_role_id') else context
                 async def added(result):
                     addition_feedback(container=results,active=alive,result=result,labels=labels,job_number=current['job_number'])
                     await page.load()
@@ -405,7 +406,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                         if row.get('selectable'):ui.label(row['identity']).props('dir=auto')
                     return lambda:{'items':selected}
                 with host:
-                    await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='add',build=build,path=f'jobs/{job_id}/memberships',version=current['version'],after=added,reason_required=False,notify_result=False)
+                    await command_dialog(api=api,context=add_context,active=alive,on_error=on_error,title='add',build=build,path=f'jobs/{job_id}/memberships',version=current['version'],after=added,reason_required=False,notify_result=False)
             if target_job:await choose(target_job)
             else:await choose_job_dialog(api=api,context=context,bind_remote=bind_remote,active=alive,on_error=on_error,choose=choose,root_ids=[r['root_id'] for r in selected])
         context,_=await asyncio.gather(context_task,page.load())
@@ -542,7 +543,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 with ui.row().classes('w-full gap-3'):
                     if job.get('assignment_editable'):ui.button(text('assign'),icon='person',on_click=assign).tooltip(text('assign')).props('outline no-caps')
                     if job['owner_editable']:ui.button(text('change_owner'),icon='corporate_fare',on_click=change_owner).tooltip(text('change_owner')).props('outline no-caps')
-                    if job['membership_editable']:ui.button(text('add'),icon='playlist_add',on_click=add_members).tooltip(text('add')).props('no-caps')
+                    if job.get('membership_addable',job['membership_editable']):ui.button(text('add_aggregations'),icon='playlist_add',on_click=add_members).tooltip(text('add_aggregations')).props('no-caps')
             review=None
             if job['job_type']=='destruction':
                 from .review import ReviewForm,workflow_panel
@@ -560,7 +561,11 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             from .recovery import controls as recovery_controls,resolve_unit
             if not task_view:recovery_controls(api=api,job=job,value=workspace.get('recovery'),active=alive,on_error=on_error,after=reload,can_mutate=lambda:not review or not review.dirty())
         with panels['members']:
-            ui.separator();ui.label(text('workspace_members')).classes('text-lg font-semibold')
+            ui.separator()
+            with ui.row().classes('w-full items-center justify-between gap-3'):
+                ui.label(text('workspace_members')).classes('text-lg font-semibold')
+                if task_view and job.get('membership_addable',job['membership_editable']):
+                    ui.button(text('add_aggregations'),icon='playlist_add',on_click=add_members).tooltip(text('add_aggregations')).props('no-caps')
             with ui.row().classes('w-full gap-3 items-start'):
                 member_query=ui.input(text('search_aggregations'),value=member_saved.get('query','')).props(f'outlined dense maxlength=200 hint={text("search_aggregations_hint")!r}').classes('grow')
                 member_state=ui.select({'':text('any'),**{k:text(k) for k in ('active','removed','completed_history','terminated_history')}},label=text('membership'),value=member_saved.get('state','')).props('outlined dense')

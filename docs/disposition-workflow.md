@@ -109,3 +109,29 @@ restoration may retain approval; changed approved facts use the existing
 correction/return flow. Saved preparation proposals remain in place. Explicit removal remains
 available for incompatible members. See the
 [approved amendment and upgrade guide](disposition-in-job-acceleration.md).
+
+
+## Correction comments and Simplified review additions
+
+The current correction task shows the actual latest return comments, reviewer,
+stage, round and time above the Officer's own editable comments. The original
+text is read-only and retains line breaks. Earlier comments and decisions remain
+in history. This reuses the authorized preceding-round projection inside the
+existing review-work response, without another browser request.
+
+During **Simplified** Records Manager review, the Manager holding the current
+claimed task may use **Add aggregations** in its Aggregations tab or Job details.
+The usual eligibility, whole-unit, ownership, protection, access, assigned-Officer
+and one-active-job checks apply. Addition uses the current task role, preserves
+saved work and the review round, and does not execute proposals or grant immediate
+removal rights. Save pending edits before navigating away. Returning refreshes the
+job; final approval covers all current members and proposals. Original submitted
+units must still be unchanged. The original submission snapshot is retained.
+Standard review still requires correction/resubmission for additional units;
+Records Manager Only preparation/correction remains unchanged.
+
+Deploy migration `094_simplified_review_additions.sql` to an existing database,
+then restart API/WebUI. A new database uses the canonical schema and baseline.
+No configuration or privilege change is required. Catalogue synchronization
+adds the Add aggregations message and one unpublished Arabic draft for review. See the
+[verification and requirement mapping](verification/simplified-review-and-correction.md).

@@ -60,6 +60,21 @@ def process_diagram(job, *, expanded=False, api=None, active=lambda:True, on_err
             previous_rounds(job,api,notice,active,on_error,format_timestamp)
 
 
+def return_notice(latest,format_timestamp):
+    """Use the recorded return facts in both job details and correction tasks."""
+    if latest.get('redacted'):
+        ui.label(text('history_unavailable'));return
+    rejected=next((d for d in reversed(latest['decisions']) if d['decision']=='rejected'),None)
+    if rejected:
+        ui.label(text('tracker_returned',stage=text(rejected['review_stage']),number=latest['round_number'])).classes('text-amber-800 font-semibold')
+        ui.label(' · '.join(v for v in (rejected.get('actor_name'),format_timestamp(rejected['decided_at'])) if v)).props('dir=auto')
+        ui.label(rejected.get('reason') or '').props('dir=auto').classes('whitespace-pre-wrap')
+    elif latest.get('invalidated_at'):
+        ui.label(text('tracker_invalidated')).classes('text-amber-800')
+        ui.label(format_timestamp(latest['invalidated_at']))
+        ui.label(latest['invalidation_reason']).props('dir=auto')
+
+
 def previous_rounds(job,api,notice,active,on_error,format_timestamp):
     """Page-local data, reloaded on navigation/mutation; no shared history cache."""
     with ui.expansion(text('tracker_previous'),icon='history',value=False).classes('w-full') as expansion:
@@ -97,18 +112,9 @@ def previous_rounds(job,api,notice,active,on_error,format_timestamp):
                         ui.label(text('tracker_invalidated')+' · '+format_timestamp(row['invalidated_at']))
                         ui.label(row['invalidation_reason']).props('dir=auto')
                     ui.separator()
-                if initial and result['items'] and not result['items'][0].get('redacted'):
-                    latest=result['items'][0]
-                    rejected=next((d for d in reversed(latest['decisions']) if d['decision']=='rejected'),None)
+                if initial and result['items']:
                     with notice:
-                        if rejected:
-                            ui.label(text('tracker_returned',stage=text(rejected['review_stage']),number=latest['round_number'])).classes('text-amber-800 font-semibold')
-                            ui.label(' · '.join(v for v in (rejected.get('actor_name'),format_timestamp(rejected['decided_at'])) if v)).props('dir=auto')
-                            ui.label(rejected.get('reason') or '').props('dir=auto').classes('whitespace-pre-wrap')
-                        elif latest.get('invalidated_at'):
-                            ui.label(text('tracker_invalidated')).classes('text-amber-800')
-                            ui.label(format_timestamp(latest['invalidated_at']))
-                            ui.label(latest['invalidation_reason']).props('dir=auto')
+                        return_notice(result['items'][0],format_timestamp)
                 state['offset']+=len(result['items']);state['more']=result['has_more'];state['loaded']=True
                 feedback.text='' if state['offset'] else text('tracker_no_previous')
                 more.text=text('tracker_more');more.set_visibility(state['more'])

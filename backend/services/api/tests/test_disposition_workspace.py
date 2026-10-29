@@ -25,6 +25,10 @@ def test_queue_claim_gates_and_task_only_reviewer(client):
         job,root,um,fa,mgr=seeded(c,fa=True)
         reviewer=person(c,'Task-only File Administrator')
         limited=role(c,'limited-fa','FILE_ADMIN',user=reviewer)
+        # Keep this a queue-claim scenario: a sole eligible reviewer is
+        # intentionally auto-claimed by the existing routing policy.
+        other=person(c,'Other reviewer')
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,limited))
         c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=1',(limited,))
         submit(c,job)
         actor(c,reviewer)
@@ -34,8 +38,7 @@ def test_queue_claim_gates_and_task_only_reviewer(client):
         t=view['task'];act(c,t,'claim',limited)
         view=workspace.read(c,job['id'],t['id'])
         assert set(view['actions'])=={'save','propose','complete_review','release','reassign'}
-        other=person(c,'Other reviewer')
-        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,limited));actor(c,other)
+        actor(c,other)
         assert workspace.read(c,job['id'])['actions']==[]
         assert workflow.tasks(c,limit=10,offset=0)['items'][0]['claimant']=='Task-only File Administrator'
         with pytest.raises(HTTPException):workspace.read(c,job['id'],999999)
@@ -107,9 +110,9 @@ def test_reassignment_candidates_scope_and_current_indicator_filters(client):
         # Resolve the mark before valid submission; Save keeps it as history.
         p=proposals.page(c,job['id'],limit=1,offset=0)['items'][0]
         save(c,job,changes=[{'action':'withdraw','proposal_id':p['id'],'expected_version':p['version']}])
-        submit(c,job);t=task(c,job['id']);act(c,t,'claim',fa)
         other=person(c,'Eligible handover colleague')
         c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa))
+        submit(c,job);t=task(c,job['id']);act(c,t,'claim',fa)
         assert workspace.assignment_candidates(c,t['id'],acting_role_id=fa,kind='users',query='E')['items']==[]
         rows=workspace.assignment_candidates(c,t['id'],acting_role_id=fa,kind='users',selected=other)['items']
         assert rows[0]['id']==other
@@ -141,9 +144,10 @@ def test_committed_claim_preserves_timestamp_when_saving_in_a_new_transaction(cl
     with db() as c:
         job,root,um,fa,mgr=seeded(c,route,fa=fa_stage)
         created=save(c,job,changes=[create(c,root)])['changes'][0]
-        submit(c,job);t=task(c,job['id'])
         person_id=person(c,'Committed claimant')
-        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(person_id,t['destination_role_id']))
+        initial_role=fa if route=='standard' and fa_stage else um if route=='standard' else mgr
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(person_id,initial_role))
+        submit(c,job);t=task(c,job['id'])
         actor(c,person_id);act(c,t,'claim',t['destination_role_id']);claimed=task(c,job['id']);c.commit()
     with db() as c:
         actor(c,person_id);work=proposals.work(c,claimed['id'])

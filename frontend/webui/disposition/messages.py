@@ -2,6 +2,7 @@
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'add_aggregations': 'disposition.ui.add_aggregations',
  'approval_results_guidance': 'disposition.ui.approval_results_guidance',
  'approval_title': 'disposition.ui.approval_title',
  'approval_summary': 'disposition.ui.approval_summary',

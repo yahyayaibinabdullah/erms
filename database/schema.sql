@@ -289,7 +289,10 @@ BEGIN
  IF j.review_route='records_manager_only' THEN total_reason:=p_overall_reason;
  ELSE
   SELECT * INTO rr FROM disposition_review_rounds WHERE job_id=j.id AND round_number=j.current_review_round FOR UPDATE;
-  IF NOT FOUND OR rr.completed_at IS NOT NULL OR rr.invalidated_at IS NOT NULL OR rr.membership_snapshot IS DISTINCT FROM before_members THEN RAISE EXCEPTION 'disposition_review_snapshot_stale'; END IF;
+  IF NOT FOUND OR rr.completed_at IS NOT NULL OR rr.invalidated_at IS NOT NULL OR
+   (rr.membership_snapshot IS DISTINCT FROM before_members AND NOT (j.review_route='simplified' AND NOT EXISTS(
+    SELECT value FROM jsonb_array_elements(rr.membership_snapshot)
+    EXCEPT SELECT value FROM jsonb_array_elements(before_members)))) THEN RAISE EXCEPTION 'disposition_review_snapshot_stale'; END IF;
   total_reason:=rr.submission_reason;
  END IF;
  IF total_reason IS NULL OR total_reason ~ '^[[:space:]]*$' THEN RAISE EXCEPTION 'disposition_submission_reason_required'; END IF;
@@ -883,6 +886,18 @@ BEGIN
  IF EXISTS(SELECT 1 FROM disposition_destruction_runs WHERE job_id=p_job AND state IN ('queued','running')) THEN RAISE EXCEPTION 'disposition_completion_unfinished'; END IF;
  IF NOT EXISTS(SELECT 1 FROM disposition_retained_records WHERE job_id=p_job AND method='postgresql_transactional_erasure') THEN RAISE EXCEPTION 'disposition_completion_stage_invalid'; END IF;
 END $$;
+
+CREATE FUNCTION disposition_private.can_add_review_members(p_job bigint, p_role bigint DEFAULT NULL::bigint) RETURNS boolean
+    LANGUAGE sql STABLE
+    AS $$
+ SELECT current_setting('app.actor_type',true)='user' AND EXISTS(
+  SELECT 1 FROM disposition_jobs j JOIN disposition_tasks t ON t.job_id=j.id
+  WHERE j.id=p_job AND j.job_type='destruction' AND j.lifecycle_state='active'
+   AND j.review_route='simplified' AND j.workflow_stage='records_manager_review'
+   AND t.workflow_stage=j.workflow_stage AND t.task_type='records_manager_review'
+   AND t.task_state='claimed' AND t.claimed_by_user_id=current_user_id()
+   AND disposition_private.task_eligible(current_user_id(),t.id,p_role))
+$$;
 
 CREATE FUNCTION disposition_private.check_digital_job(p_job bigint, p_role bigint, p_initial boolean DEFAULT false) RETURNS void
     LANGUAGE plpgsql
@@ -2750,6 +2765,8 @@ CREATE FUNCTION disposition_private.require_membership_stage(p_job bigint) RETUR
 DECLARE job disposition_jobs%ROWTYPE;
 BEGIN
  IF disposition_private.approval_active(p_job) AND disposition_private.context_operation()='membership_remove' THEN RETURN; END IF;
+ IF disposition_private.context_operation()='membership_add' AND disposition_private.can_add_review_members(p_job,
+  (SELECT r.acting_role_id FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current())) THEN RETURN; END IF;
  SELECT * INTO job FROM disposition_jobs WHERE id=p_job;
  IF job.lifecycle_state<>'active' THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
  IF job.job_type='destruction' AND job.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') THEN
@@ -12824,6 +12841,8 @@ REVOKE ALL ON FUNCTION disposition_private.capture_retiring_identities(p_root bi
 REVOKE ALL ON FUNCTION disposition_private.change_job_owner(p_job bigint, p_version integer, p_owner bigint) FROM PUBLIC;
 
 REVOKE ALL ON FUNCTION disposition_private.check_completion(p_job bigint, p_task bigint, p_role bigint) FROM PUBLIC;
+
+REVOKE ALL ON FUNCTION disposition_private.can_add_review_members(p_job bigint, p_role bigint) FROM PUBLIC;
 
 REVOKE ALL ON FUNCTION disposition_private.check_digital_job(p_job bigint, p_role bigint, p_initial boolean) FROM PUBLIC;
 

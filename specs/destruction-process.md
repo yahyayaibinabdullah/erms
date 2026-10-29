@@ -4,13 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.7
+**Revision:** 1.8
 **Amendment approved:** 29 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.8 | 29 October 2026 | Permit additions by the working Records Manager during Simplified review; display recorded return comments directly in correction tasks |
 | 1.7 | 29 October 2026 | Restore reopened compatible members through in-job acceleration without removal/re-addition; retain protection and renewed-review requirements |
 | 1.6 | 29 October 2026 | Separate the effective retention-rule source from the Local override indicator; show No local override for inherited classification rules |
 | 1.5 | 29 October 2026 | Hide the My Tasks Priority column pending a separately defined priority policy |
@@ -310,7 +311,9 @@ approval. It does not destroy the aggregation or change its governance settings.
 The complete disposition unit returns to its appropriate eligibility status
 under the common specification, and the membership removal and status changes
 are recorded in history. The officer cannot change membership while the job
-is with reviewers.
+is with reviewers. The Simplified-only Records Manager addition exception in
+Section 10 does not authorize the officer or permit immediate review-stage
+removal.
 
 By contrast, relationship removal changes the resources' links. During this
 review process it remains a proposal until Records Manager approval and
@@ -902,6 +905,15 @@ their own comments while their task is open; they cannot overwrite another
 participant's comments. Saved versions and earlier rounds remain available to
 authorized subsequent reviewers under existing access/redaction rules.
 
+On entry to an authorized correction task, show the latest recorded return
+notice directly above the Officer's editable Review comments: preceding round,
+rejecting stage, reviewer, timestamp and the original full rejection comments.
+Keep multiline authored text intact, separate from the Officer's own comments.
+Reuse the existing return-history authorization/redaction and localized actor
+names. Show external-return or invalidation facts accurately; do not label an
+invalidation as a rejection. Loading the notice is read-only and does not require
+opening Job details or expanding history. Earlier returns remain in history.
+
 Legacy notes and reasons remain in immutable history. If an existing editable
 draft contains distinct notes and an overall reason, the single editor includes
 both without duplicating identical text. Opening it causes no write or dirty
@@ -1149,6 +1161,36 @@ After Unit Manager approval in Standard, or Records Officer submission in
 Simplified, Wathiq routes the complete job to active people
 with a currently effective `INFO_GOV_MGR` information-governance role that
 supplies `disposition.jobs.manage`.
+
+For a job whose **saved route is Simplified**, the Records Manager holding the
+current claimed review task may add eligible aggregations before final approval.
+This includes a review task automatically claimed for its sole eligible reviewer.
+Provide the existing Add aggregations action in the task's Aggregations tab and
+in Job details, using the bounded eligibility listing and existing add command.
+The command attributes the addition to that task's eligible Records Manager role.
+Unclaimed tasks, another person's claim, Standard review and post-approval stages
+do not permit this exception. This permission covers additions only; immediate
+membership removal during review remains forbidden.
+
+Apply every existing admission rule: closed and eligible complete disposition
+unit, matching action, owning-unit subtree, effective protections, one active
+job, current versions, the Manager's access, and the assigned Officer's continuing
+eligibility and access. Each successful addition creates an ordinary membership
+and moves the complete unit to Pending destruction with permanent attribution.
+Preserve partial-success results and exact retry behavior. Do not advance the
+workflow, create a new round, execute proposals or overwrite saved comments.
+The Manager reviews the complete updated membership and proposal set before
+approval. Refresh the workspace after returning from addition; unsaved work must
+be explicitly saved before leaving the task, under existing navigation rules.
+
+Keep the original submitted round snapshot immutable. Final Simplified approval
+may include added units alongside every unchanged originally submitted unit;
+it must still reject a changed or missing original unit. Approval preview tokens
+and the final decision/execution snapshots cover the complete current membership.
+An addition makes an older confirmation/version stale. No new review round is
+needed solely for these Simplified additions. If the Manager rejects the job,
+normal Officer correction and resubmission create the next round. Standard and
+Records Manager Only routing and all post-approval correction rules are unchanged.
 
 The Records Manager reviews the complete list. If the Records Manager believes
 an aggregation should not be destroyed, they mark it **Proposed for removal**
@@ -2296,10 +2338,10 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-02 | Every destruction job has one owning unit and accepts roots owned by that unit or any descendant, preserving resource ownership, retention rules, ACLs, and common admission conditions; combined review is routed by the job's owning unit, whose managing role approves the whole batch; the owning unit may change only while the job is active, empty, and has never been sent to File Administrator or Unit Manager review | API, current-hierarchy admission, direct and multi-level descendant ownership, outside-subtree rejection, mixed-selection partial success, ownership/ACL/retention preservation, consolidated reviewer routing and access enforcement, per-aggregation owning-unit display, add-and-remove-before-submission, first-submission locking, skipped-File-Administrator routing, correction-round locking, completed/terminated-job rejection, event-history, concurrency, and rollback tests |
 | DEST-03 | File Administrator review shows all earlier proposals with their proposers and the overall submission reason, and records new proposed-removal marks with mandatory reasons or governance proposals with optional reasons without changing resources or membership | Authorization, org-unit routing, proposal-type, optional-proposal-reason, mandatory-removal-reason, UI, redaction, no-side-effect, and event-history tests |
 | DEST-04 | Unit Manager review shows every proposal and its proposer, permits additional proposals, makes approval impossible while any item is marked for removal, and returns a rejected job to its assigned Records Officer | Workflow, routing, proposal-attribution, validation, no-side-effect, and history tests |
-| DEST-05 | The assigned Records Officer removes job membership immediately during an open preparation or correction task, with the common eligibility-status restoration and history; membership changes are forbidden while reviewers hold the job; proposed-removal marks do not themselves remove units, and relationship removal remains a proposal until Records Manager approval; every resubmission follows the job's saved route without losing prior rounds | Immediate preparation/correction membership removal, status-transition, no destruction or governance mutation on membership removal, reviewer-stage membership rejection, proposed-removal no-side-effect, deferred relationship removal, both-route workflow-round, skipped-stage, routing-change, stale-version, and event-history tests |
+| DEST-05 | The assigned Records Officer removes job membership immediately during an open preparation or correction task, with the common eligibility-status restoration and history; membership changes are forbidden while reviewers hold the job except eligible additions by the claimed Simplified Records Manager under Section 10; proposed-removal marks do not themselves remove units, and relationship removal remains a proposal until Records Manager approval; every resubmission follows the job's saved route without losing prior rounds | Immediate preparation/correction membership removal, status-transition, no destruction or governance mutation on membership removal, reviewer-stage membership rejection, proposed-removal no-side-effect, deferred relationship removal, both-route workflow-round, skipped-stage, routing-change, stale-version, and event-history tests |
 | DEST-31 | The organization-wide Destruction review route defaults to Standard or may be set to Simplified through Administration Settings; each new job stores an immutable route used throughout internal correction and external-rejection cycles; Simplified bypasses File Administrator and Unit Manager only, with all other safeguards unchanged | Default and allowed values, authorized settings change, new-job route capture, existing-job isolation, per-job override rejection, both-route initial and repeat review, Standard no-role skip and unusable-role block, Simplified absence of bypassed tasks/approvals, route and bypass history/workspace/form display, and unchanged authorization/blocker/evidence tests |
 | DEST-32 | Earlier uploaded evidence is previewable in subsequent tasks subject to access rules; only the assigned Records Officer or an authorized Records Manager may correct uploads, preserving all evidence versions, governed-record links, and attributed job history without changing decisions or confirmations | Cross-task and later-round preview, access/redaction enforcement, both authorized correction roles, File Administrator/Unit Manager correction rejection, later-task correction availability, version and original-record preservation, current-version display, actor identity/type audit, storage rules, atomicity, retry deduplication, immutable confirmation preservation, and generated-document replacement rejection tests |
-| DEST-06 | Records Manager rejection repeats the applicable review loop; approval snapshots the exact reviewed membership, versions, and complete active proposal set | Authorization, conditional-stage, workflow, proposal-conflict, invalidation, concurrency, and snapshot tests |
+| DEST-06 | Records Manager rejection repeats the applicable review loop; approval snapshots the exact reviewed membership, versions, and complete active proposal set; Simplified permits the working Manager to add eligible units without changing original submission history; correction tasks display the actual recorded return | Authorization, conditional-stage, workflow, proposal-conflict, invalidation, concurrency, and snapshot tests |
 | DEST-07 | The external request uses only post-proposal remaining membership and lists governing roots only, including each root’s descendant-inclusive record years/count and assigned physical/mixed location; it never lists records or sub-aggregations separately | Root-only hierarchy, removed-unit exclusion, subtree count/year, timezone, location inheritance, document-rendering and large-job tests |
 | DEST-08 | External approval requires a unique never-reused destruction number and approval letter, and saving the letter creates exactly one linked governed record | Boundary, uniqueness, idempotency, storage, authorization, and rollback tests |
 | DEST-30 | External rejection requires correction notes and a rejection-letter upload saved as a linked governed record in the latest open aggregation under the configured evidence classification; it returns the active job to its assigned Records Officer; resubmission starts a new applicable internal review cycle and new Records Manager approval generates a new request, preserving earlier requests, decisions, evidence, notes, and applied proposal history | Required correction notes and letter, evidence destination and digital-component creation, rejection/evidence/history/correction-task atomicity, retry deduplication, downstream note visibility, no destruction on rejected request, renewed review and conditional File Administrator routing, new request/version generation, repeated rejection cycles, historical decision and evidence retention, and no replay or automatic reversal of executed proposals tests |

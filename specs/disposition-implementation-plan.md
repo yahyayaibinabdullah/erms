@@ -964,3 +964,22 @@ approval. Changed approved facts use existing renewal/correction routing.
 Preparation-stage proposals and stage remain intact without a new round. Migration 093, the canonical schema and
 API/UI regression cases are traced in
 `docs/disposition-in-job-acceleration.md` and its verification report.
+
+
+## Approved amendment — Simplified additions and correction comments (29 October 2026)
+
+Implement Disposition revision 1.15 and Destruction Process revision 1.8:
+
+- First restore recorded return comments to the current correction task, using
+  existing history authorization and read-only localized projections.
+- Allow only the current claimed Simplified Records Manager to add eligible
+  units during review; preserve common admission gates and immediate-removal
+  restrictions, saved work and the immutable submission snapshot.
+- Approve the complete updated set with fresh versions/tokens; retain strict
+  matching of each original submitted unit and existing route/correction rules.
+- Verify correction-comment delivery, task/role/route authorization, direct API
+  and SQL denial paths, admission blockers, stale/concurrent/retried additions,
+  complete approval snapshots, bilingual rendering and populated upgrades.
+
+Evidence and requirement mapping belong in
+`docs/verification/simplified-review-and-correction.md`.

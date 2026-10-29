@@ -99263,5 +99263,53 @@
       "specs/disposition.md": "931947271634788fc4dd6d4176673e4b561c3a48befa9fac686f7d01d27f6a56",
       "specs/destruction-process.md": "bf24cfd34fda781b27af72b92f84dad7680e4fe3fa93aeb70bcc9e2386899272"
     }
+  },
+  "simplified_review_additions_and_correction_comments": {
+    "approved": "2026-10-29",
+    "status": "complete",
+    "requirements": [
+      "DISP-27",
+      "DEST-05",
+      "DEST-06",
+      "DEST section 6.6",
+      "DEST section 10"
+    ],
+    "contract": {
+      "specs/disposition.md": "1e91757d45a2d009dbe3b730eedf727273063d18882c2ef4617ee28216b0b1ad",
+      "specs/destruction-process.md": "ed088c01413a229b62d192a0f2fa853f4de1969dd571015e971a36d50be8dea3"
+    },
+    "implementation": [
+      "backend/services/api/disposition/proposals.py",
+      "backend/services/api/disposition/queries.py",
+      "backend/services/api/disposition/routes.py",
+      "database/migrations/094_simplified_review_additions.sql",
+      "frontend/webui/disposition/review.py",
+      "frontend/webui/disposition/process.py",
+      "frontend/webui/disposition/screens.py"
+    ],
+    "verification": [
+      "backend/services/api/tests/test_disposition_correction_notice.py",
+      "backend/services/api/tests/test_disposition_simplified_additions.py",
+      "frontend/webui/tests/test_disposition_correction_notice.py",
+      "frontend/webui/tests/test_disposition_simplified_additions.py",
+      "tools/tests/test_canonical_schema.py",
+      "docs/verification/simplified-review-and-correction.md"
+    ],
+    "boundary": "Historical phase evidence and snapshots are retained; this explicit Simplified addition exception supersedes the older blanket reviewer-stage membership prohibition only within its approved scope.",
+    "verified": {
+      "broad_api_passes_before_legacy_fixture_correction": 270,
+      "final_workspace_and_correction_passes": 16,
+      "focused_simplified_passes": 10,
+      "populated_upgrade_passes": 1,
+      "frontend_and_schema_passes": 317,
+      "disposable_databases_removed": 13,
+      "demo": {
+        "migration": "094_simplified_review_additions",
+        "canonical_functions_verified": true,
+        "jobs_tasks_proposals_comments_and_aggregations_preserved": true,
+        "existing_arabic_translation_rows_preserved": 3976,
+        "new_unpublished_arabic_drafts": 1
+      }
+    }
   }
 }

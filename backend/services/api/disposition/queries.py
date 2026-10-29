@@ -151,6 +151,12 @@ def job(c, identity, language_tag='en'):
     preparer=c.execute("SELECT current_user_id()=%s AND disposition_private.governance_person(current_user_id(),%s) allowed",(row['assigned_user_id'],'INFO_GOV_MGR' if row.get('review_route')=='records_manager_only' else 'INFO_GOV_OFFICER')).fetchone()['allowed'] if row['job_type']=='destruction' else True
     own_preparation_task=row.pop('own_preparation_task')
     row['membership_editable']=row['lifecycle_state']=='active' and (row['job_type']!='destruction' or preparer and own_preparation_task and row['workflow_stage'] in ('officer_preparation','officer_correction','manager_preparation','manager_correction'))
+    review_adder=c.execute('''SELECT t.destination_role_id AS role_id FROM disposition_tasks t
+        WHERE t.job_id=%s AND t.workflow_stage='records_manager_review' AND t.task_state='claimed'
+        AND t.claimed_by_user_id=current_user_id() AND disposition_private.can_add_review_members(t.job_id,t.destination_role_id)
+        ORDER BY t.id LIMIT 1''',(identity,)).fetchone() if row['review_route']=='simplified' and row['workflow_stage']=='records_manager_review' else None
+    row['membership_add_role_id']=review_adder['role_id'] if review_adder else None
+    row['membership_addable']=row['membership_editable'] or review_adder is not None
     return row
 
 
@@ -280,10 +286,10 @@ def job_selection_compatibility(c, job_ids, root_ids):
     ) SELECT j.id,CASE
       WHEN j.lifecycle_state<>'active' THEN 'disposition_inactive_job'
       WHEN j.assigned_user_id IS NULL THEN 'disposition_assignment_required'
-      WHEN j.job_type='destruction' AND j.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') THEN 'disposition_membership_stage_invalid'
-      WHEN j.job_type='destruction' AND j.assigned_user_id<>current_user_id() THEN 'disposition_assigned_preparer_required'
+      WHEN j.job_type='destruction' AND j.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') AND NOT disposition_private.can_add_review_members(j.id) THEN 'disposition_membership_stage_invalid'
+      WHEN j.job_type='destruction' AND j.assigned_user_id<>current_user_id() AND NOT disposition_private.can_add_review_members(j.id) THEN 'disposition_assigned_preparer_required'
       WHEN j.job_type='destruction' AND NOT disposition_private.governance_person(j.assigned_user_id,CASE WHEN j.review_route='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END) THEN 'disposition_assignee_not_authorized'
-      WHEN j.job_type='destruction' AND NOT EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage AND t.destination_user_id=current_user_id() AND t.task_state='open' AND t.task_type IN ('preparation','correction')) THEN 'disposition_membership_stage_invalid'
+      WHEN j.job_type='destruction' AND NOT EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage AND t.destination_user_id=current_user_id() AND t.task_state='open' AND t.task_type IN ('preparation','correction')) AND NOT disposition_private.can_add_review_members(j.id) THEN 'disposition_membership_stage_invalid'
       WHEN EXISTS(SELECT 1 FROM aggregations a WHERE a.id=ANY(%s) AND (a.disposition_status NOT BETWEEN 2 AND 5 OR a.disposition_status<>j.disposition_status-4)) THEN 'disposition_job_type_status_mismatch'
       WHEN j.job_type='destruction' AND EXISTS(SELECT 1 FROM unnest(%s::bigint[]) r(id) WHERE NOT EXISTS(SELECT 1 FROM owners o WHERE o.root_id=r.id AND o.id=j.owning_org_unit_id)) THEN 'disposition_owning_unit_mismatch'
       WHEN EXISTS(SELECT 1 FROM aggregations a WHERE a.id=ANY(%s) AND a.date_closed IS NULL) THEN 'disposition_root_not_closed'

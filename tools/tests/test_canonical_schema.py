@@ -137,3 +137,12 @@ def test_in_job_acceleration_functions_match_the_upgrade(name):
     migration=next(s for s in statements((ROOT/'database/migrations/093_restore_reopened_job_members.sql').read_text())
                    if s.startswith(prefix.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION')))
     assert function_body(canonical)==function_body(migration)
+
+
+@pytest.mark.parametrize('name',['can_add_review_members','require_membership_stage','approve_proposals'])
+def test_simplified_review_addition_functions_match_the_upgrade(name):
+    prefix='CREATE FUNCTION disposition_private.'+name+'('
+    canonical=next(s for s in statements((ROOT/'database/schema.sql').read_text()) if s.startswith(prefix))
+    migration=next(s for s in statements((ROOT/'database/migrations/094_simplified_review_additions.sql').read_text())
+                   if s.startswith(prefix.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION')))
+    assert function_body(canonical)==function_body(migration)

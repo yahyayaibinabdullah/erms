@@ -44,5 +44,6 @@ INSERT INTO schema_migrations(version) VALUES
  ('090_unify_user_translation_authorization'),
  ('091_explicit_certificate_task_completion'),
  ('092_compatible_aggregation_medium_changes'),
-('093_restore_reopened_job_members');
+ ('093_restore_reopened_job_members'),
+ ('094_simplified_review_additions');
 COMMIT;

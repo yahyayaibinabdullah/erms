@@ -125,6 +125,10 @@ class ReviewForm:
         if not self.alive():return
         self.work=work
         with self.body:
+            if work.get('return_context'):
+                from .process import return_notice
+                with ui.column().classes('w-full gap-1').props('role=status'):
+                    return_notice(work['return_context'],self.format_timestamp)
             if work.get('submission_reason'):
                 ui.label(text('submission_comments')).classes('font-semibold');ui.label(work['submission_reason']).props('dir=auto').classes('whitespace-pre-wrap')
             if 'save' in self.actions:

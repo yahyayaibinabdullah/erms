@@ -93,18 +93,23 @@ def page(c, job_id, *, limit, offset, review_round=None, state=None, root_id=Non
     return {'items':rows,'total':total}
 
 
-def work(c, task_id):
+def work(c, task_id, language_tag='en'):
     task=c.execute('SELECT * FROM disposition_tasks WHERE id=%s',(task_id,)).fetchone()
     if not task:raise HTTPException(404,detail={'code':'disposition_review_task_unavailable'})
     require_workspace(c,task['job_id'])
     if not c.execute('SELECT disposition_private.task_eligible(current_user_id(),%s) allowed',(task_id,)).fetchone()['allowed']:
         raise HTTPException(403,detail={'code':'disposition_task_ineligible'})
-    job=c.execute('SELECT version,current_review_round,review_route,workflow_stage FROM disposition_jobs WHERE id=%s',(task['job_id'],)).fetchone()
+    job=c.execute('SELECT id,version,current_review_round,review_route,workflow_stage FROM disposition_jobs WHERE id=%s',(task['job_id'],)).fetchone()
     own=c.execute('SELECT * FROM disposition_review_notes WHERE task_id=%s AND author_user_id=current_user_id()',(task_id,)).fetchone()
+    return_context=None
+    if task['task_state'] in ('open','claimed') and task['workflow_stage']==job['workflow_stage'] and job['workflow_stage'] in ('officer_correction','manager_correction'):
+        from . import progress
+        previous=progress.page(c,job,limit=1,language_tag=language_tag)['items']
+        return_context=previous[0] if previous else None
     return {'job_id':task['job_id'],'job_version':job['version'],'task_id':task_id,'task_version':task['version'],
       'task_state':task['task_state'],'workflow_stage':job['workflow_stage'],'review_route':job['review_route'],
       'review_round':max(1,job['current_review_round']),'overall_reason':task['draft_overall_reason'],
-      'own_notes':own,'submission_reason':(c.execute('SELECT submission_reason FROM disposition_review_rounds WHERE job_id=%s AND round_number=%s',(task['job_id'],job['current_review_round'])).fetchone() or {}).get('submission_reason')}
+      'own_notes':own,'return_context':return_context,'submission_reason':(c.execute('SELECT submission_reason FROM disposition_review_rounds WHERE job_id=%s AND round_number=%s',(task['job_id'],job['current_review_round'])).fetchone() or {}).get('submission_reason')}
 
 
 def notes(c, job_id, *, limit, offset):
