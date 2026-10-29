@@ -1,0 +1,178 @@
+{
+  "database": "demo",
+  "changed_arabic_keys": 21,
+  "added_keys": 0,
+  "removed_keys": 0,
+  "total_active_keys": 3909,
+  "unrelated_demo_entries_preserved": 3939,
+  "published_values_preserved": true,
+  "published": false,
+  "human_review_required": 21,
+  "demo_drafts_match_artifact": true,
+  "publication_validation": "passed",
+  "draft_origin": "imported",
+  "audited_draft_updates": 21,
+  "promoted_admin_keys": [
+    "disposition.ui.email_acceptance_hint",
+    "disposition.ui.prepare_hint"
+  ],
+  "changes": [
+    {
+      "message_key": "disposition.ui.accelerate_scope",
+      "english_before": "This exceptional action closes this root if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
+      "english_after": "This exceptional action closes this aggregation if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
+      "arabic_before": "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل أوامر الحجز وحالة الأهمية الحيوية ودرجات السرية المانعة للتصرف مانعةً للإضافة إلى عملية التصرف ولتنفيذه. وتبقى صلاحيات الإغلاق وقيود أوامر الحجز التي تحفظ حالة المورد سارية.",
+      "arabic_after": "يُغلق هذا الإجراء الاستثنائي الملف إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل أوامر الحجز وحالة الأهمية الحيوية ودرجات السرية المانعة للتصرف مانعةً للإضافة إلى عملية التصرف ولتنفيذه. وتبقى صلاحيات الإغلاق وقيود أوامر الحجز التي تحفظ حالة المورد سارية."
+    },
+    {
+      "message_key": "disposition.ui.add",
+      "english_before": "Add selected roots to job",
+      "english_after": "Add selected aggregations to job",
+      "arabic_before": "إضافة الملفات الجذرية المحددة إلى العملية",
+      "arabic_after": "إضافة الملفات المحددة إلى العملية"
+    },
+    {
+      "message_key": "disposition.ui.closed_required",
+      "english_before": "Close this root before adding it to a job",
+      "english_after": "Close this aggregation before adding it to a job",
+      "arabic_before": "أغلق هذا الملف الجذري قبل إضافته إلى عملية",
+      "arabic_after": "أغلق هذا الملف قبل إضافته إلى عملية"
+    },
+    {
+      "message_key": "disposition.ui.disposition_assignee_access_required",
+      "english_before": "The assigned person cannot access one or more selected roots.",
+      "english_after": "The assigned person cannot access one or more selected aggregations.",
+      "arabic_before": "لا يستطيع الشخص المسند إليه الوصول إلى بعض الملفات الجذرية المحددة.",
+      "arabic_after": "لا يستطيع الشخص المسند إليه الوصول إلى بعض الملفات المحددة."
+    },
+    {
+      "message_key": "disposition.ui.disposition_destination_open_root_missing",
+      "english_before": "No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
+      "english_after": "No open aggregation exists for this destination. Create or open a suitable aggregation before continuing.",
+      "arabic_before": "لا يوجد ملف جذري مفتوح لهذه الوجهة. أنشئ ملفاً جذرياً مناسباً أو افتحه قبل المتابعة.",
+      "arabic_after": "لا يوجد ملف مفتوح لهذه الوجهة. أنشئ ملفاً مناسباً أو افتحه قبل المتابعة."
+    },
+    {
+      "message_key": "disposition.ui.disposition_owning_unit_mismatch",
+      "english_before": "The root is outside this destruction job’s owning unit.",
+      "english_after": "The aggregation is outside this destruction job’s owning unit.",
+      "arabic_before": "الملف الجذري خارج نطاق الوحدة المالكة لعملية الإتلاف هذه.",
+      "arabic_after": "الملف خارج نطاق الوحدة المالكة لعملية الإتلاف هذه."
+    },
+    {
+      "message_key": "disposition.ui.disposition_resource_access_required",
+      "english_before": "Current access to this root is required.",
+      "english_after": "Current access to this aggregation is required.",
+      "arabic_before": "يلزم توفر صلاحية الوصول الحالية إلى هذا الملف الجذري.",
+      "arabic_after": "يلزم توفر صلاحية الوصول الحالية إلى هذا الملف."
+    },
+    {
+      "message_key": "disposition.ui.disposition_root_not_closed",
+      "english_before": "The root must be closed before admission.",
+      "english_after": "The aggregation must be closed before admission.",
+      "arabic_before": "يجب إغلاق الملف الجذري قبل الإضافة.",
+      "arabic_after": "يجب إغلاق الملف قبل الإضافة."
+    },
+    {
+      "message_key": "disposition.ui.empty_after_execution",
+      "english_before": "No governing roots remain: return to assigned preparer",
+      "english_after": "No aggregations remain: return to assigned preparer",
+      "arabic_before": "لم تتبق ملفات جذرية حاكمة: العودة إلى المُعد المكلّف",
+      "arabic_after": "لم تتبق ملفات: العودة إلى المُعد المكلّف"
+    },
+    {
+      "message_key": "disposition.ui.history_completed_units",
+      "english_before": "Completed roots",
+      "english_after": "Completed aggregations",
+      "arabic_before": "الملفات الجذرية المكتملة",
+      "arabic_after": "الملفات المكتملة"
+    },
+    {
+      "message_key": "disposition.ui.history_failed_units",
+      "english_before": "Failed roots",
+      "english_after": "Failed aggregations",
+      "arabic_before": "الملفات الجذرية التي تعذر تنفيذها",
+      "arabic_after": "الملفات التي تعذر تنفيذها"
+    },
+    {
+      "message_key": "disposition.ui.history_remaining_units",
+      "english_before": "Remaining roots",
+      "english_after": "Remaining aggregations",
+      "arabic_before": "الملفات الجذرية المتبقية",
+      "arabic_after": "الملفات المتبقية"
+    },
+    {
+      "message_key": "disposition.ui.history_removed_units",
+      "english_before": "Removed roots",
+      "english_after": "Removed aggregations",
+      "arabic_before": "الملفات الجذرية المزالة",
+      "arabic_after": "الملفات المزالة"
+    },
+    {
+      "message_key": "disposition.ui.history_total_units",
+      "english_before": "Total roots",
+      "english_after": "Total aggregations",
+      "arabic_before": "إجمالي الملفات الجذرية",
+      "arabic_after": "إجمالي الملفات"
+    },
+    {
+      "message_key": "disposition.ui.min_roots",
+      "english_before": "Minimum governing roots",
+      "english_after": "Minimum aggregations",
+      "arabic_before": "الحد الأدنى للملفات الجذرية الحاكمة",
+      "arabic_after": "الحد الأدنى للملفات"
+    },
+    {
+      "message_key": "disposition.ui.no_add",
+      "english_before": "No roots were added. Review the individual results.",
+      "english_after": "No aggregations were added. Review the individual results.",
+      "arabic_before": "لم تُضف أي ملفات جذرية. راجع النتائج الفردية.",
+      "arabic_after": "لم تُضف أي ملفات. راجع النتائج الفردية."
+    },
+    {
+      "message_key": "disposition.ui.partial_add",
+      "english_before": "Some roots were not added. Review the individual results.",
+      "english_after": "Some aggregations were not added. Review the individual results.",
+      "arabic_before": "لم تُضف بعض الملفات الجذرية. راجع النتائج الفردية.",
+      "arabic_after": "لم تُضف بعض الملفات. راجع النتائج الفردية."
+    },
+    {
+      "message_key": "disposition.ui.recover_count",
+      "english_before": "Affected governing root aggregations: {count}",
+      "english_after": "Affected aggregations: {count}",
+      "arabic_before": "عدد الملفات الجذرية الحاكمة المتأثرة: {count}",
+      "arabic_after": "عدد الملفات المتأثرة: {count}"
+    },
+    {
+      "message_key": "disposition.ui.root_count",
+      "english_before": "Governing roots",
+      "english_after": "Aggregations",
+      "arabic_before": "الملفات الجذرية الحاكمة",
+      "arabic_after": "الملفات"
+    },
+    {
+      "message_key": "disposition.ui.select_hint",
+      "english_before": "Select accessible, unblocked closed roots. Each selected root is checked again when added.",
+      "english_after": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
+      "arabic_before": "حدد الملفات الجذرية المغلقة المتاحة وغير المحظورة. يُعاد فحص كل ملف عند إضافته.",
+      "arabic_after": "حدد الملفات المغلقة المتاحة وغير المحظورة. يُعاد فحص كل ملف عند إضافته."
+    },
+    {
+      "message_key": "settings.custody.no_root",
+      "english_before": "{setting} has no open root aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
+      "english_after": "{setting} has no open aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
+      "arabic_before": "لا يوجد ملف رئيسي مفتوح في {setting}. لا يمكن استخدام الملفات المغلقة أو الفرعية أو التصنيفات الأخرى.",
+      "arabic_after": "لا يوجد ملف مفتوح في {setting}. لا يمكن استخدام الملفات المغلقة أو الفرعية أو التصنيفات الأخرى."
+    }
+  ],
+  "verified_date": "2026-10-29",
+  "english_message_updates": 21,
+  "arabic_message_updates": 21,
+  "active_key_count": 3909,
+  "preserved_unrelated_artifact_entries": 3886,
+  "captured_newer_published_demo_corrections": 2,
+  "catalogue_coverage_order_placeholders_blanks_markup_terminology_provenance_hashes": "passed",
+  "api_tests_passed": 29,
+  "frontend_tests_passed": 315,
+  "disposable_test_databases_cleaned": true
+}

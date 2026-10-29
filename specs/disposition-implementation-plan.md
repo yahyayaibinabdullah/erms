@@ -470,7 +470,8 @@ Total active time: **1.83 hours**. Phase 11 is next.
 **Scope:** Build the eligibility listing, required filters/grouping/sorting,
 blocked-unit explanations and protected redacted descendants. Add job creation,
 assignment, membership management, history, and status display in descendant
-metadata/search/browse. Show per-item addition results. Apply destruction-stage
+metadata/search/browse. Show aggregate addition feedback and on-demand per-item
+failure details (29 October 2026 amendment). Apply destruction-stage
 restrictions when its stages are introduced; common controls must not bypass them.
 
 **Verification and completion:** Real persistence, permission intersections,
@@ -946,3 +947,20 @@ Update status from actual progress; specification approval is not implementation
 | 22 | Complete | 2026-10-19 (time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
 | 23 | Complete | 2026-10-20 (initial time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
 | 24 | Complete | 2026-10-20 (initial time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
+
+
+### Approved follow-up: restore reopened members within their job
+
+**Approved:** 29 October 2026. **Requirements:** DISP-13, DISP-24, DISP-25,
+DISP-38, DISP-40, DISP-42 and DEST-06; Disposition Sections 5.2, 6.1 and 11.
+
+Compatible acceleration closes a reopened member, restores its whole unit to
+the existing active job's pending status and clears the reopening flag without
+removal/re-addition. Retain scope, authorization, reason, version, hold/closure
+and irreversible-work guards; preserve identity, history and protection facts.
+Approval validity follows the existing approved-facts comparison: exact
+restoration, including a legitimate historical closure date, may preserve
+approval. Changed approved facts use existing renewal/correction routing.
+Preparation-stage proposals and stage remain intact without a new round. Migration 093, the canonical schema and
+API/UI regression cases are traced in
+`docs/disposition-in-job-acceleration.md` and its verification report.

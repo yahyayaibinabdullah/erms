@@ -497,6 +497,7 @@ def synchronize_generated_arabic_drafts(*, missing_only: bool = False) -> dict[s
                 WHERE translation.message_key=seed.message_key
                   AND translation.language_tag='ar'
                   AND translation.translated_text=ANY(seed.superseded_texts)
+                  AND translation.translated_text IS DISTINCT FROM seed.translated_text
                   AND NOT %s
                   AND NOT (
                       translation.origin='source_copy'

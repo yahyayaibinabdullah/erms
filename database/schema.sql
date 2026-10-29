@@ -28,6 +28,7 @@ CREATE FUNCTION disposition_private.accelerate(p_root bigint, p_version bigint) 
     LANGUAGE plpgsql
     AS $$
 DECLARE root aggregations%ROWTYPE; evaluation record;
+ member disposition_job_memberships%ROWTYPE; job disposition_jobs%ROWTYPE; target integer;
 BEGIN
  PERFORM disposition_private.require_command();
  IF disposition_private.context_operation()<>'eligibility_accelerate' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
@@ -36,16 +37,42 @@ BEGIN
  IF NOT FOUND OR root.version<>p_version THEN RAISE EXCEPTION USING ERRCODE='40001',MESSAGE='disposition_stale_version'; END IF;
  IF NOT current_user_can_view_aggregation(p_root) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_resource_access_required'; END IF;
  IF root.parent_aggregation_id IS NOT NULL THEN RAISE EXCEPTION 'disposition_requires_governing_root'; END IF;
- IF root.disposition_status<>1 OR EXISTS(SELECT 1 FROM disposition_job_memberships WHERE root_aggregation_id=p_root AND membership_state='active') THEN RAISE EXCEPTION 'disposition_acceleration_state_invalid'; END IF;
+ IF root.disposition_status<>1 THEN RAISE EXCEPTION 'disposition_acceleration_state_invalid'; END IF;
+ SELECT * INTO member FROM disposition_job_memberships WHERE root_aggregation_id=p_root AND membership_state='active' FOR UPDATE;
+ IF FOUND THEN
+  SELECT * INTO job FROM disposition_jobs WHERE id=member.job_id FOR UPDATE;
+  PERFORM disposition_private.require_job_access(job.id);
+  IF job.lifecycle_state<>'active' THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
+  IF NOT member.removal_required OR member.removal_required_reason IS DISTINCT FROM 'reopened' THEN RAISE EXCEPTION 'disposition_acceleration_state_invalid'; END IF;
+  IF job.job_type='destruction' AND NOT EXISTS(WITH RECURSIVE owners AS (
+   SELECT id,parent_org_unit_id FROM org_units WHERE id=root.owning_org_unit_id
+   UNION ALL SELECT p.id,p.parent_org_unit_id FROM org_units p JOIN owners c ON p.id=c.parent_org_unit_id)
+   SELECT 1 FROM owners WHERE id=job.owning_org_unit_id) THEN RAISE EXCEPTION 'disposition_owning_unit_mismatch'; END IF;
+ END IF;
+ SELECT * INTO evaluation FROM disposition_private.eligibility(p_root);
+ IF evaluation.eligible_status IS NULL THEN RAISE EXCEPTION 'disposition_retention_rule_required'; END IF;
+ IF member.id IS NOT NULL AND evaluation.eligible_status IS DISTINCT FROM job.disposition_status-4 THEN RAISE EXCEPTION 'disposition_job_type_status_mismatch'; END IF;
  IF root.date_closed IS NULL THEN
   IF NOT current_user_can_aggregation_operation(p_root,'aggregation.close','aggregation.close') THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='insufficient_privilege'; END IF;
   UPDATE aggregations SET date_closed=CURRENT_TIMESTAMP WHERE id=p_root RETURNING * INTO root;
  END IF;
  SELECT * INTO evaluation FROM disposition_private.eligibility(p_root);
- IF evaluation.eligible_status IS NULL THEN RAISE EXCEPTION 'disposition_retention_rule_required'; END IF;
- PERFORM disposition_private.transition_unit(p_root,root.version,evaluation.eligible_status);
- PERFORM append_domain_event('aggregation',p_root,'DISPOSITION_ACCELERATED',to_jsonb(evaluation));
- RETURN jsonb_build_object('root_id',p_root,'status',evaluation.eligible_status);
+ target:=evaluation.eligible_status;
+ IF member.id IS NOT NULL THEN
+  target:=job.disposition_status;
+  -- Reuse the private, transaction-scoped unit context only for this exact
+  -- restoration. Closure already passed the ordinary permissions/hold guards.
+  INSERT INTO disposition_private.recalculation_context(transaction_id,backend_id,root_id,old_evaluation,old_status,cause,applying,target_status)
+   VALUES(txid_current(),pg_backend_pid(),p_root,to_jsonb(evaluation),root.disposition_status,'accelerated',true,target);
+  UPDATE disposition_job_memberships SET removal_required=false,removal_required_reason=NULL WHERE id=member.id;
+ END IF;
+ PERFORM disposition_private.transition_unit(p_root,root.version,target);
+ IF member.id IS NOT NULL THEN
+  DELETE FROM disposition_private.recalculation_context WHERE transaction_id=txid_current() AND backend_id=pg_backend_pid() AND root_id=p_root;
+ END IF;
+ PERFORM disposition_private.assert_unit(p_root);
+ PERFORM append_domain_event('aggregation',p_root,'DISPOSITION_ACCELERATED',to_jsonb(evaluation)||jsonb_build_object('job_id',member.job_id,'membership_id',member.id,'new_status',target,'removal_required',false));
+ RETURN jsonb_build_object('root_id',p_root,'status',target);
 END $$;
 
 CREATE FUNCTION disposition_private.activate_certificate(p_job bigint, p_request uuid, p_token uuid) RETURNS void
@@ -140,7 +167,7 @@ CREATE FUNCTION disposition_private.allowed_transition(old_status integer, new_s
     AS $$
  SELECT old_status=new_status OR CASE cause
  WHEN 'eligibility_evaluate' THEN old_status=1 AND new_status BETWEEN 2 AND 5
- WHEN 'eligibility_accelerate' THEN old_status=1 AND new_status BETWEEN 2 AND 5
+ WHEN 'eligibility_accelerate' THEN old_status=1 AND new_status BETWEEN 2 AND 9
  WHEN 'membership_add' THEN (old_status,new_status) IN ((2,6),(3,7),(4,8),(5,9))
  WHEN 'membership_remove' THEN (old_status,new_status) IN ((6,2),(7,3),(8,4),(9,5))
  WHEN 'job_terminate' THEN (old_status,new_status) IN ((6,2),(7,3),(8,4),(9,5),(6,13),(6,10))
@@ -512,7 +539,8 @@ BEGIN
   IF root.disposition_status BETWEEN 6 AND 9 AND (root.disposition_status<>job.disposition_status OR root.disposition_status<>
    CASE job.job_type WHEN 'destruction' THEN 6 WHEN 'permanent_transfer' THEN 7 WHEN 'selective_transfer' THEN 8 ELSE 9 END) THEN RAISE EXCEPTION 'disposition_job_status_mismatch'; END IF;
   -- Reopened/recalculated members remain in history and block job progress
-  -- until explicitly removed. They cannot acquire a free-standing pending status.
+  -- until explicitly removed or restored by compatible in-job acceleration.
+  -- They cannot acquire a free-standing pending status.
   IF root.disposition_status NOT BETWEEN 6 AND 9 AND NOT (root.disposition_status=10 AND root.disposition_job_id=member.job_id) AND NOT (member.removal_required AND root.disposition_status BETWEEN 1 AND 5) THEN
    RAISE EXCEPTION 'disposition_active_member_not_pending'; END IF;
  ELSIF root.disposition_status BETWEEN 6 AND 9 THEN RAISE EXCEPTION 'disposition_pending_requires_membership'; END IF;
@@ -1684,6 +1712,10 @@ DECLARE previous jsonb; following jsonb; fields text[] := ARRAY['disposition_sta
 BEGIN
  IF TG_OP='UPDATE' AND NEW.disposition_status=10 AND disposition_private.destruction_active('finalize',disposition_private.root_id(CASE WHEN TG_TABLE_NAME='aggregations' THEN OLD.id ELSE (to_jsonb(OLD)->>'aggregation_id')::bigint END)) THEN RETURN NEW; END IF;
 
+ IF TG_OP='UPDATE' AND disposition_private.context_operation()='eligibility_accelerate' AND NEW.disposition_status BETWEEN 6 AND 9
+  AND NOT disposition_private.hook_applying(disposition_private.root_id(CASE WHEN TG_TABLE_NAME='aggregations' THEN NEW.id ELSE (to_jsonb(NEW)->>'aggregation_id')::bigint END)) THEN
+  RAISE EXCEPTION 'disposition_recalculation_scope_invalid';
+ END IF;
  IF TG_OP='UPDATE' AND disposition_private.hook_applying() THEN
   IF NOT EXISTS(SELECT 1 FROM disposition_private.recalculation_context c WHERE c.transaction_id=txid_current() AND c.backend_id=pg_backend_pid() AND c.applying
    AND c.root_id=disposition_private.root_id(CASE WHEN TG_TABLE_NAME='aggregations' THEN NEW.id ELSE (to_jsonb(NEW)->>'aggregation_id')::bigint END) AND c.target_status=NEW.disposition_status)
@@ -1889,7 +1921,7 @@ BEGIN
   ELSE
    IF NOT disposition_private.hook_applying(NEW.root_aggregation_id) AND NOT current_user_can_view_aggregation(NEW.root_aggregation_id) AND NOT (disposition_private.destruction_active('finalize',NEW.root_aggregation_id) AND disposition_private.history_resource_access(current_user_id(),'aggregation',NEW.root_aggregation_id)) AND NOT (op='job_terminate' AND disposition_private.retained_access('aggregation',NEW.root_aggregation_id,false)) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_resource_access_required'; END IF;
    IF NEW.root_aggregation_id<>OLD.root_aggregation_id OR NEW.added_at<>OLD.added_at OR NEW.added_by_user_id<>OLD.added_by_user_id THEN RAISE EXCEPTION 'disposition_identity_immutable'; END IF;
-   IF op='recalculate' AND disposition_private.hook_applying(NEW.root_aggregation_id) THEN
+   IF op IN ('recalculate','eligibility_accelerate') AND disposition_private.hook_applying(NEW.root_aggregation_id) THEN
     IF (to_jsonb(NEW)-ARRAY['removal_required','removal_required_reason','version','date_updated']) IS DISTINCT FROM (to_jsonb(OLD)-ARRAY['removal_required','removal_required_reason','version','date_updated']) THEN RAISE EXCEPTION 'disposition_recalculation_scope_invalid'; END IF;
    ELSIF NOT ((op='membership_remove' AND NEW.membership_state='removed') OR (op='job_terminate' AND NEW.membership_state='terminated_history') OR (op='final_complete' AND NEW.membership_state='completed_history')) THEN RAISE EXCEPTION 'disposition_invalid_membership_transition'; END IF;
    IF NEW.membership_state='removed' THEN NEW.removed_at:=CURRENT_TIMESTAMP; NEW.removed_by_user_id:=uid; END IF;
@@ -4278,6 +4310,22 @@ CREATE FUNCTION public.effective_holds_for_record(p_record_id bigint, p_at_time 
     GROUP BY hold.id,hold.code,hold.name,hold.preserve_resource_state
 $$;
 
+CREATE FUNCTION public.aggregation_medium_contents_compatible(p_aggregation bigint, p_medium text) RETURNS boolean
+    LANGUAGE sql VOLATILE
+    AS $$
+    WITH RECURSIVE subtree AS (
+        SELECT id,medium FROM aggregations WHERE id=p_aggregation
+        UNION ALL
+        SELECT child.id,child.medium FROM aggregations child
+        JOIN subtree parent ON child.parent_aggregation_id=parent.id
+    )
+    SELECT NOT EXISTS (SELECT 1 FROM subtree WHERE id<>p_aggregation AND medium IS DISTINCT FROM p_medium)
+       AND NOT EXISTS (SELECT 1 FROM records r JOIN subtree s ON s.id=r.aggregation_id
+                       WHERE p_medium<>'mixed' AND r.medium IS DISTINCT FROM p_medium)
+       AND NOT EXISTS (SELECT 1 FROM record_drafts d JOIN subtree s ON s.id=d.aggregation_id
+                       WHERE d.medium IS NOT NULL AND p_medium<>'mixed' AND d.medium IS DISTINCT FROM p_medium)
+$$;
+
 CREATE FUNCTION public.enforce_aggregation_medium_hierarchy() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
@@ -4291,11 +4339,13 @@ BEGIN
                 MESSAGE='aggregation_medium_mismatch: a child aggregation must use its parent medium';
         END IF;
     END IF;
-    IF TG_OP='UPDATE' AND NEW.medium IS DISTINCT FROM OLD.medium AND (
-        EXISTS (SELECT 1 FROM aggregations WHERE parent_aggregation_id=OLD.id)
-        OR EXISTS (SELECT 1 FROM records WHERE aggregation_id=OLD.id)) THEN
-        RAISE EXCEPTION USING ERRCODE='23514', CONSTRAINT='medium_change_requires_empty_aggregation',
-            MESSAGE='medium_change_requires_empty_aggregation: an aggregation must be empty before changing medium';
+    -- The UPDATE already locks this aggregation. Child/record/draft writers
+    -- acquire the same parent row FOR UPDATE before checking their medium.
+    -- VOLATILE validation sees commits made before that lock was acquired.
+    IF TG_OP='UPDATE' AND NEW.medium IS DISTINCT FROM OLD.medium
+       AND NOT aggregation_medium_contents_compatible(OLD.id,NEW.medium) THEN
+        RAISE EXCEPTION USING ERRCODE='23514', CONSTRAINT='aggregation_medium_contents_conflict',
+            MESSAGE='aggregation_medium_contents_conflict: the selected medium conflicts with contained aggregations, records or drafts';
     END IF;
     RETURN NEW;
 END;

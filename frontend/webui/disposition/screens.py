@@ -8,7 +8,7 @@ from ..api_client import ApiError
 from ..locale_services import current_locale_context, working_datetime_to_utc, LocalizedTimezoneError, format_local_date, utc_instant_to_working
 from ..remote_select import RemoteSelect
 from ..relationship_select import relationship_select
-from ..resource_relationships import PageTable
+from ..resource_relationships import PageTable, text as relationship_text
 from .acting_role import automatic_role
 from .messages import action_required_label,text, status_label, KEYS
 
@@ -70,7 +70,7 @@ def wall_filter(name, saved):
 
 
 async def command_dialog(*, api, context, active, on_error, title, build, path, version=None,
-                         after, confirm=None, reason_required=True):
+                         after, confirm=None, reason_required=True, notify_result=True):
     """A retry retains its UUID for the exact payload/reason, including failures."""
     if not active(): return
     with ui.dialog() as dialog, ui.card().classes('messaging-workspace w-[600px] max-w-full gap-4'):
@@ -101,15 +101,65 @@ async def command_dialog(*, api, context, active, on_error, title, build, path, 
                 return
             if not alive():return
             dialog.close()
-            if isinstance(result.get('items'),list):
+            if notify_result and isinstance(result.get('items'),list):
                 successes=sum(bool(item.get('success')) for item in result['items'])
                 ui.notify(text('saved' if successes==len(result['items']) else 'partial_add' if successes else 'no_add'),type='positive' if successes==len(result['items']) else 'warning')
-            else:ui.notify(text('saved'),type='positive')
+            elif notify_result:ui.notify(text('saved'),type='positive')
             await after(result)
         with ui.row().classes('w-full justify-end gap-2'):
             ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
             button=ui.button(text('save'),icon='save',on_click=save).tooltip(text('save')).props('no-caps')
     dialog.open()
+
+
+def addition_feedback(*, container, active, result, labels, job_number):
+    """One summary; only failures occupy page-local, bounded result details."""
+    if not active() or container.is_deleted:return
+    items=result['items']
+    failures=[item for item in items if not item.get('success')]
+    added=len(items)-len(failures)
+    container.clear()
+    container.set_visibility(bool(failures))
+    with container:
+        message=(text('addition_success_one' if added==1 else 'addition_success_many',count=added,job=job_number)
+                 if added and not failures else text('addition_partial',added=added,total=len(items),failed=len(failures),job=job_number)
+                 if added else text('addition_none',job=job_number))
+        ui.notify(message,type='positive' if added and not failures else 'warning')
+        if not failures:return
+
+        def show_failures():
+            if not active() or container.is_deleted:return
+            with container,ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[760px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)] gap-3').props('dir='+('rtl' if current_locale_context()[0]=='ar' else 'ltr')):
+                ui.label(text('addition_failures_title')).classes('text-xl font-semibold')
+                ui.label(job_number).props('dir=auto')
+                content=ui.column().classes('w-full gap-2 overflow-y-auto')
+                paging={'offset':0}
+                with ui.row().classes('w-full justify-end items-center gap-2'):
+                    previous=ui.button(icon='chevron_right' if current_locale_context()[0]=='ar' else 'chevron_left',on_click=lambda:render(-1)).props('flat round dense')
+                    previous.props('aria-label="'+relationship_text('previous')+'"').tooltip(relationship_text('previous'))
+                    count=ui.label('').classes('text-sm').props('role=status aria-live=polite')
+                    next_button=ui.button(icon='chevron_left' if current_locale_context()[0]=='ar' else 'chevron_right',on_click=lambda:render(1)).props('flat round dense')
+                    next_button.props('aria-label="'+relationship_text('next')+'"').tooltip(relationship_text('next'))
+                    ui.button(text('close'),on_click=dialog.close).props('flat no-caps')
+
+                def render(delta=0):
+                    if not active() or dialog.is_deleted or not dialog.value:return
+                    paging['offset']=max(0,min(((len(failures)-1)//10)*10,paging['offset']+delta*10))
+                    start=paging['offset'];end=min(start+10,len(failures))
+                    content.clear()
+                    with content:
+                        for item in failures[start:end]:
+                            identity=(text('restricted') if item.get('code')=='disposition_resource_access_required'
+                                      else labels.get(item['root_id'],text('restricted')))
+                            with ui.card().classes('w-full shadow-none border border-slate-200 p-3 gap-1'):
+                                ui.label(identity).classes('font-semibold break-words').props('dir=auto')
+                                ui.label(text(item['code']) if item.get('code') in KEYS else text('not_added')).classes('text-sm text-negative').props('role=status')
+                    count.text=text('addition_failure_range',start=start+1,end=end,total=len(failures))
+                    previous.set_enabled(start>0);next_button.set_enabled(end<len(failures))
+            dialog.open()
+            render()
+
+        ui.button(text('addition_view_failures',count=len(failures)),icon='error_outline',on_click=show_failures).props('outline no-caps')
 
 
 async def create_dialog(*, api, context, bind_remote, active, on_error, after, owner_suggestion=None):
@@ -204,7 +254,7 @@ async def jobs_screen(*, api, container, active, on_error, bind_remote, open_job
             with ui.grid().classes('w-full gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3'):
                 search=ui.input(text('search'),value=saved.get('query','')).props('outlined dense maxlength=200')
                 kind=ui.select({'':text('any'),**{v:text(v) for v in TYPES}},value=saved.get('job_type',''),label=text('job_type')).props('outlined dense')
-                lifecycle=ui.select({'':text('any'),**{v:text(v) for v in ('active','completed','terminated')}},value=saved.get('lifecycle',''),label=text('lifecycle')).props('outlined dense')
+                lifecycle=ui.select({'':text('any'),**{v:text(v) for v in ('active','completed','terminated')}},value=saved.get('lifecycle','active'),label=text('lifecycle')).props('outlined dense')
                 owner=ui.input(text('owner'),value=saved.get('owner','')).props('outlined dense maxlength=200')
                 assignee=ui.input(text('assignee'),value=saved.get('assignee','')).props('outlined dense maxlength=200')
                 unassigned=ui.checkbox(text('unassigned'),value=saved.get('unassigned',False))
@@ -264,6 +314,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
             add_button=ui.button(text('add'),icon='playlist_add',on_click=lambda:add_selected()).tooltip(text('add')).props('no-caps')
             add_button.disable()
         results=ui.column().classes('w-full gap-2').props('aria-live=polite')
+        results.set_visibility(False)
         async def fetch(p):
             current={'status':status.value,'due_from':due_from.value,'due_to':due_to.value,'due_from_fold':from_fold.value,'due_to_fold':to_fold.value,'group_owner':grouped.value,
                      'sort':sort.value,**{key:control.value for key,control in boolean.items()},
@@ -346,11 +397,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                 current=await api.disposition_page(f'jobs/{job_id}')
                 if not alive():return
                 async def added(result):
-                    results.clear()
-                    with results:
-                        ui.label(text('results')).classes('font-semibold')
-                        for item in result['items']:
-                            ui.label(labels.get(item['root_id'],str(item['root_id']))+' · '+(text('added') if item['success'] else text(item['code']) if item.get('code') in KEYS else text('not_added'))).classes('text-positive' if item['success'] else 'text-negative').props('role=status')
+                    addition_feedback(container=results,active=alive,result=result,labels=labels,job_number=current['job_number'])
                     await page.load()
                 def build(dialog_active):
                     ui.label(current['job_number']).props('dir=auto')
@@ -358,7 +405,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                         if row.get('selectable'):ui.label(row['identity']).props('dir=auto')
                     return lambda:{'items':selected}
                 with host:
-                    await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='add',build=build,path=f'jobs/{job_id}/memberships',version=current['version'],after=added,reason_required=False)
+                    await command_dialog(api=api,context=context,active=alive,on_error=on_error,title='add',build=build,path=f'jobs/{job_id}/memberships',version=current['version'],after=added,reason_required=False,notify_result=False)
             if target_job:await choose(target_job)
             else:await choose_job_dialog(api=api,context=context,bind_remote=bind_remote,active=alive,on_error=on_error,choose=choose,root_ids=[r['root_id'] for r in selected])
         context,_=await asyncio.gather(context_task,page.load())
@@ -514,8 +561,8 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             if not task_view:recovery_controls(api=api,job=job,value=workspace.get('recovery'),active=alive,on_error=on_error,after=reload,can_mutate=lambda:not review or not review.dirty())
         with panels['members']:
             ui.separator();ui.label(text('workspace_members')).classes('text-lg font-semibold')
-            with ui.row().classes('w-full gap-3 items-end'):
-                member_query=ui.input(text('search'),value=member_saved.get('query','')).props('outlined dense maxlength=200').classes('grow')
+            with ui.row().classes('w-full gap-3 items-start'):
+                member_query=ui.input(text('search_aggregations'),value=member_saved.get('query','')).props(f'outlined dense maxlength=200 hint={text("search_aggregations_hint")!r}').classes('grow')
                 member_state=ui.select({'':text('any'),**{k:text(k) for k in ('active','removed','completed_history','terminated_history')}},label=text('membership'),value=member_saved.get('state','')).props('outlined dense')
             async def fetch_members(p):
                 result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size,query=member_query.value,state=member_state.value or None,sort=p.sort or 'id',descending=p.descending if p.sort else True)
@@ -523,8 +570,12 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     row['last_viewed']=row['id']==view.get('opened_member') and not row['redacted']
                     row['classification_label']=' · '.join(v for v in (row.get('classification_code'),row.get('classification_title')) if v) or '—'
                     rule=row.get('effective_rule') or {}
-                    row['rule_label']=' · '.join(str(v) for v in (text('current_period_years')+': '+str(rule['current_period_years']) if rule.get('current_period_years') is not None else None,text('intermediate_period_years')+': '+str(rule['intermediate_period_years']) if rule.get('intermediate_period_years') is not None else None,text(ACTIONS[rule['final_disposition']]) if rule.get('final_disposition') in ACTIONS else None) if v is not None) or '—'
-                    row['local_label']=text('local_override') if rule.get('rule_source')=='aggregation' else ' · '.join(v for v in (text('classification'),row.get('rule_source_code'),row.get('rule_source_title')) if v) if rule else '—'
+                    rule_values=' · '.join(str(v) for v in (text('current_period_years')+': '+str(rule['current_period_years']) if rule.get('current_period_years') is not None else None,text('intermediate_period_years')+': '+str(rule['intermediate_period_years']) if rule.get('intermediate_period_years') is not None else None,text(ACTIONS[rule['final_disposition']]) if rule.get('final_disposition') in ACTIONS else None) if v is not None)
+                    source=rule.get('rule_source')
+                    rule_origin=(text('local_override') if source=='aggregation' else
+                                 ' · '.join(v for v in (text('classification'),row.get('rule_source_code'),row.get('rule_source_title')) if v) if source=='classification' else '')
+                    row['rule_label']=' · '.join(v for v in (rule_origin,rule_values) if v) or '—'
+                    row['local_label']=text('local_override') if source=='aggregation' else text('no_local_override') if source=='classification' else '—'
                     row['medium_label']=text(row['medium']) if row.get('medium') in KEYS else '—'
                     row['identity']=text('restricted') if row['redacted'] else text('retained_unit',id=row['root_aggregation_id']) if row.get('destroyed') else row['aggregation_number']+' · '+row['title']
                     row['membership_label']=text(row['membership_state'])
@@ -659,6 +710,7 @@ async def accelerate_dialog(*, api, root, active, on_error, after):
         ui.label(root['aggregation_number']+' · '+root['title']).props('dir=auto')
         ui.label(status_label(facts['eligible_status']))
         ui.label(text('accelerate_scope')).classes('text-sm')
+        ui.label(text('accelerate_existing_job')).classes('text-sm')
         return lambda:{}
     await command_dialog(api=api,context=context,active=active,on_error=on_error,title='accelerate',build=build,
                          path=f"aggregations/{root['id']}/accelerate",version=facts['version'],after=after)

@@ -52,6 +52,8 @@ def test_required_data_and_version_bookkeeping_are_separate():
 # These final definitions previously differed between a fresh installation and
 # the same feature's approved upgrade. Compare with independent migration sources.
 MIGRATION_ALIGNED_FUNCTIONS = (
+    'aggregation_medium_contents_compatible',
+    'enforce_aggregation_medium_hierarchy',
     'aggregation_effective_assigned_location_source_id',
     'aggregation_effective_current_location_source_id',
     'aggregation_has_vital_descendants',
@@ -123,3 +125,15 @@ def test_lifecycle_columns_follow_the_migration_004_final_order(table, before, a
     current = next(s for s in statements((ROOT / 'database/schema.sql').read_text())
                    if s.startswith('CREATE TABLE public.' + table + ' ('))
     assert current.index(before) < current.index(after)
+
+
+@pytest.mark.parametrize('name', [
+    'accelerate', 'allowed_transition', 'guard_resource', 'guard_workflow',
+    'assert_unit',
+])
+def test_in_job_acceleration_functions_match_the_upgrade(name):
+    prefix='CREATE FUNCTION disposition_private.'+name+'('
+    canonical=next(s for s in statements((ROOT/'database/schema.sql').read_text()) if s.startswith(prefix))
+    migration=next(s for s in statements((ROOT/'database/migrations/093_restore_reopened_job_members.sql').read_text())
+                   if s.startswith(prefix.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION')))
+    assert function_body(canonical)==function_body(migration)

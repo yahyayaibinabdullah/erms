@@ -128,16 +128,19 @@ async def test_proposal_dialog_creates_draft_until_save_and_hydrates_only_target
 
 
 @pytest.mark.asyncio
-async def test_inbox_requests_real_offsets_and_keeps_server_claimant(host):
+@pytest.mark.parametrize('saved_sort',['','priority'])
+async def test_inbox_requests_real_offsets_and_keeps_server_claimant(host,saved_sort):
     calls=[];opened=[]
     async def request(path,**params):
         calls.append((path,params));return {'items':[dict(id=8,job_id=5,job_number='DEST-5',job_type='destruction',owner='Unit',task_type='preparation',workflow_stage='officer_preparation',task_state='claimed',claimant='Another reviewer',date_created='2026-10-19T00:00:00Z',age_seconds=172800,priority=0,root_count=1000,removal_required=True)],'total':100}
     async def open_task(*args):opened.append(args)
     with host:
-        await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,open_task=open_task,format_timestamp=str,saved={'page':2,'size':10})
+        await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,open_task=open_task,format_timestamp=str,saved={'page':2,'size':10,'sort':saved_sort,'descending':bool(saved_sort)})
     table=next(e for e in host.descendants() if isinstance(e,ui.table))
     assert table.rows[0]['claimant']=='Another reviewer' and table.rows[0]['age_days']==2
     assert calls[0][1]['limit']==10 and calls[0][1]['offset']==10
+    assert calls[0][1]['sort']=='received' and calls[0][1]['descending'] is False
+    assert not any(c['name']=='priority' for c in table.columns)
     assert 'erms-page-table' in table.classes
     assert all(c['headerStyle']=='vertical-align: top' for c in table.columns)
     assert all(c['align']==('right' if text('my_tasks')=='مهامي' else 'left') for c in table.columns)
@@ -424,6 +427,43 @@ async def test_workspace_tabs_lazy_refresh_and_preserve_unsaved_work(host,monkey
         before=len(api.reads);mounted[0]=False;navigation.value='members'
         await asyncio.sleep(.02)
         assert len(api.reads)==before
+
+
+@pytest.mark.asyncio
+async def test_member_rule_origin_is_separate_from_local_override_and_unknown_is_not_absence(host,monkeypatch):
+    from frontend.webui.disposition.screens import job_screen
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    workspace=view(actions=())
+    workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',membership_editable=False,owner_editable=False)
+    base=dict(id=1,root_aggregation_id=10,aggregation_number='AGG-10',title='Member',redacted=False,membership_state='active',disposition_status=6,added_at='2026-10-29T00:00:00Z',classification_code='CHILD',classification_title='Assigned child classification',rule_source_code='PARENT',rule_source_title='Defining parent classification')
+    rule=dict(current_period_years=2,intermediate_period_years=3,final_disposition='destruction')
+    rows=[dict(base,effective_rule=dict(rule,rule_source='classification')),
+          dict(base,id=2,effective_rule=dict(rule,rule_source='aggregation')),
+          dict(base,id=3,redacted=True,effective_rule=None,classification_code=None,classification_title=None,rule_source_code=None,rule_source_title=None),
+          dict(base,id=4,effective_rule=None,rule_source_code=None,rule_source_title=None)]
+    class MembersApi(Api):
+        async def disposition_page(self,path,**params):
+            self.reads.append((path,params))
+            if path.endswith('/workspace'):return workspace
+            if path.endswith('/memberships'):return {'items':deepcopy(rows),'total':len(rows)}
+            return {'items':[],'total':0}
+    api=MembersApi()
+    async def noop(*args):pass
+    with host:
+        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=noop,open_eligibility=noop,open_resource=noop,format_timestamp=str,event_label=str,saved={'section':'members'})
+        table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(c['name']=='local_label' for c in e.columns))
+        inherited,local,redacted,unknown=table.rows
+        assert inherited['classification_label']=='CHILD · Assigned child classification'
+        assert inherited['local_label']==text('no_local_override')
+        assert 'PARENT · Defining parent classification' in inherited['rule_label'] and 'CHILD' not in inherited['rule_label']
+        assert text('current_period_years')+': 2' in inherited['rule_label'] and text('intermediate_period_years')+': 3' in inherited['rule_label']
+        assert text('destruction') in inherited['rule_label']
+        assert local['local_label']==text('local_override') and text('local_override') in local['rule_label']
+        assert 'PARENT' not in local['rule_label']
+        assert redacted['local_label']==redacted['rule_label']==redacted['classification_label']=='—'
+        assert unknown['local_label']==unknown['rule_label']=='—'
+    requests=[params for path,params in api.reads if path.endswith('/memberships')]
+    assert len(requests)==1 and requests[0]['limit']==25 and requests[0]['offset']==0
 
 
 @pytest.mark.parametrize('task_id',[None,8])
@@ -874,8 +914,7 @@ async def test_review_stage_actions_navigate_only_after_committed_completion(hos
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('job_type', ['destruction','permanent_transfer'])
-async def test_inbox_blocker_describes_final_action_not_job_admission(host, job_type):
-    from frontend.webui.disposition.messages import action_required_label
+async def test_inbox_keeps_required_action_and_blocker_filter_without_duplicate_column(host, job_type):
     calls=[]
     async def request(path,**params):
         calls.append(params)
@@ -884,11 +923,12 @@ async def test_inbox_blocker_describes_final_action_not_job_admission(host, job_
     with host:
         await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,open_task=open_task,format_timestamp=str,saved={'indicator':'blocked'})
         table=next(e for e in host.descendants() if isinstance(e,ui.table))
-        assert table.rows[0]['indicator']==text('destruction_blocked' if job_type=='destruction' else 'disposition_blocked')
-        assert table.rows[0]['indicator']!=text('blocked')
+        assert table.columns[0]['name']=='action_label' and table.columns[0]['label']==text('task_type')
+        assert table.rows[0]['action_label']==text('records_manager_review')
+        assert not any(c['name']=='indicator' or c['label']==text('action_required') for c in table.columns)
+        assert 'indicator' not in table.rows[0]
         select=next(e for e in host.descendants() if isinstance(e,ui.select) and e._props.get('label')==text('action_required'))
         assert select.options['blocked']==text('disposition_blocked')
-        assert action_required_label('blocked',job_type)==table.rows[0]['indicator']
     assert calls[0]['indicator']=='blocked'
 
 

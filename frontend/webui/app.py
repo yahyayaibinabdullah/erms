@@ -1062,6 +1062,11 @@ def error_message(error: ApiError) -> str:
                 error.detail["message_key"], **(error.detail.get("parameters") or {}),
             )
         messages = {
+            "aggregation_medium_contents_conflict": "resource_medium.error.contents_conflict",
+            "aggregation_medium_mismatch": "resource_medium.error.parent_conflict",
+            "record_medium_not_allowed_by_parent": "resource_medium.error.record_parent_conflict",
+            "medium_change_reason_required": "resource_medium.error.reason_required",
+            "physical_record_has_digital_components": "resource_medium.error.components_present",
             "insufficient_privilege": "authorization.error.insufficient_privilege",
             "insufficient_resource_permission": "authorization.error.insufficient_resource_permission",
             "insufficient_clearance": "authorization.error.insufficient_clearance",
@@ -1080,6 +1085,21 @@ def error_message(error: ApiError) -> str:
         503: "common.error.service_unavailable",
     }
     return render_message_plain(status_messages.get(error.status_code, "shared.errors.unexpected"))
+
+
+def clear_medium_error(control) -> None:
+    # NiceGUI validation requires its error prop to remain present.
+    control.error = None
+
+
+def highlight_medium_error(error: ApiError, control) -> None:
+    if control is not None and isinstance(error.detail, dict) and error.detail.get("code") in {
+        "aggregation_medium_contents_conflict", "aggregation_medium_mismatch",
+        "record_medium_not_allowed_by_parent", "physical_record_has_digital_components",
+    }:
+        control.props['error'] = True
+        control.props['error-message'] = error_message(error)
+        control.update()
 
 
 def show_api_error(error: ApiError) -> None:
@@ -8780,6 +8800,10 @@ def index(q: str = "") -> None:
                         initial_value,
                         lookup_options.get(field.name),
                     )
+                    if field.name == "medium":
+                        controls[field.name].on_value_change(
+                            lambda _, control=controls[field.name]: clear_medium_error(control)
+                        )
                     if creating and field.name in {"aggregation_number", "record_number"}:
                         add_number_suggestion(controls[field.name], spec.key, controls)
                     if field.name == "security_level_id" and spec.key in {"aggregations", "records"}:
@@ -9377,6 +9401,7 @@ def index(q: str = "") -> None:
                         number_field = "aggregation_number" if spec.key == "aggregations" else "record_number"
                         if await show_number_conflict(error, spec.key, controls[number_field], root=spec.key == "aggregations" and controls["parent_aggregation_id"].value is None):
                             return
+                    highlight_medium_error(error, controls.get("medium"))
                     show_api_error(error)
 
             with ui.row().classes("w-full justify-end gap-2"):

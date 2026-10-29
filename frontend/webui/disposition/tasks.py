@@ -7,7 +7,8 @@ from .screens import column,restore_page
 
 
 async def tasks_screen(*,api,container,active,on_error,open_task,format_timestamp,saved=None,remember=lambda value:None,filters_expanded=False,remember_filters=lambda value:None,**unused):
-    saved=saved or {}
+    saved=dict(saved or {})
+    if saved.get('sort')=='priority':saved.update(sort='',descending=False)
     with container,ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
         def disclosure_changed(event):
@@ -34,12 +35,11 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
                 row['received_label']=format_timestamp(row['date_created']);row['age_days']=max(0,int(row['age_seconds'])//86400)
                 row['state_label']=text(row['task_state'])
                 row['digital_label']=(text('execution_'+row['digital_state'])+' · '+str(row['digital_completed'])+'/'+str(row['digital_total'])) if row.get('digital_state') else '—'
-                row['indicator']=' · '.join(action_required_label(k,row['job_type']) for k,flag in [('blocked',row.get('blocked')),('removal_required',row.get('action_removal_required') or row.get('removal_required')),('failed_reports',row.get('failed_reports')),('destruction_failed',row.get('destruction_failed')),('certificate_failed',row.get('certificate_failed'))] if flag) or '—'
             result['_view']=view
             return result
         def task_column(*args, **kwargs):
             return {**column(*args, **kwargs), 'headerStyle': 'vertical-align: top'}
-        page=PageTable(columns=[task_column('action_label','task_type',True),task_column('job_number',sortable=True),task_column('type_label','job_type',True),task_column('owner',sortable=True),task_column('stage_label','stage',True),task_column('direct_assignee',sortable=True),task_column('role_queue',sortable=True),task_column('claimant',sortable=True),task_column('received_label','received',True),task_column('age_days','age',True),task_column('priority',sortable=True),task_column('root_count',sortable=True),task_column('state_label','task_state',True),task_column('indicator','action_required'),task_column('digital_label','execution_progress',True),task_column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),initial=saved,on_loaded=lambda p,r:remember(r['_view']))
+        page=PageTable(columns=[task_column('action_label','task_type',True),task_column('job_number',sortable=True),task_column('type_label','job_type',True),task_column('owner',sortable=True),task_column('stage_label','stage',True),task_column('direct_assignee',sortable=True),task_column('role_queue',sortable=True),task_column('claimant',sortable=True),task_column('received_label','received',True),task_column('age_days','age',True),task_column('root_count',sortable=True),task_column('state_label','task_state',True),task_column('digital_label','execution_progress',True),task_column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),initial=saved,on_loaded=lambda p,r:remember(r['_view']))
         restore_page(page,saved)
         page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn flat dense icon="open_in_new" aria-label="'''+escape(text('open'))+'''" @click="$parent.$emit('open-task',props.row.id)"><q-tooltip>'''+escape(text('open'))+'''</q-tooltip></q-btn></q-td>''')
         async def opened(event):

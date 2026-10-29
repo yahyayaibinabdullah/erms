@@ -99216,5 +99216,52 @@
       "evidence": "docs/verification/acceleration-protections.md",
       "supersedes": "Historical Phase 9 scope statements treating vital/security/hold protections as acceleration blockers. Notification follow-up remains pending."
     }
-  ]
+  ],
+  "in_job_acceleration_amendment": {
+    "approved": "2026-10-29",
+    "status": "complete",
+    "requirements": [
+      "DISP-13",
+      "DISP-24",
+      "DISP-25",
+      "DISP-38",
+      "DISP-40",
+      "DISP-42",
+      "DISP-43",
+      "DEST-06"
+    ],
+    "specifications": {
+      "specs/disposition.md": "1.14",
+      "specs/destruction-process.md": "1.7"
+    },
+    "implementation": [
+      "database/migrations/093_restore_reopened_job_members.sql",
+      "database/schema.sql",
+      "frontend/webui/disposition/screens.py",
+      "frontend/webui/disposition/messages.py"
+    ],
+    "verification": [
+      "backend/services/api/tests/test_disposition_in_job_acceleration.py",
+      "frontend/webui/tests/test_disposition_in_job_acceleration.py",
+      "tools/tests/test_canonical_schema.py"
+    ],
+    "evidence": "docs/verification/in-job-acceleration.md",
+    "documentation": "docs/disposition-in-job-acceleration.md",
+    "scope": "Restore compatible reopened members without a new membership episode. Use a new closure timestamp only when closing an open member; preserve supplied valid historical closure. Preserve saved preparation proposals/stage. Existing semantic approved-fact comparison permits exact restoration to retain approval; changed approved facts require renewed review. Existing blockers and execution checks remain.",
+    "baseline_note": "Historical phase evidence and source snapshots are retained; this approved amendment supersedes the earlier removal-only requirement for this scenario.",
+    "verification_results": {
+      "affected_api_regressions": 226,
+      "additional_atomicity_and_hold_checks": 2,
+      "frontend_and_schema_checks": 300,
+      "populated_upgrade": "passed",
+      "live_browser": [
+        "en-LTR",
+        "ar-RTL"
+      ]
+    },
+    "specification_sha256": {
+      "specs/disposition.md": "931947271634788fc4dd6d4176673e4b561c3a48befa9fac686f7d01d27f6a56",
+      "specs/destruction-process.md": "bf24cfd34fda781b27af72b92f84dad7680e4fe3fa93aeb70bcc9e2386899272"
+    }
+  }
 }

@@ -4,13 +4,17 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.3
-**Amendment approved:** 22 October 2026
+**Revision:** 1.7
+**Amendment approved:** 29 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.7 | 29 October 2026 | Restore reopened compatible members through in-job acceleration without removal/re-addition; retain protection and renewed-review requirements |
+| 1.6 | 29 October 2026 | Separate the effective retention-rule source from the Local override indicator; show No local override for inherited classification rules |
+| 1.5 | 29 October 2026 | Hide the My Tasks Priority column pending a separately defined priority policy |
+| 1.4 | 29 October 2026 | Keep the single Required action column in My Tasks; move final-execution blocker presentation to job details while retaining server-side indicator filters |
 | 1.3 | 22 October 2026 | Clarify eligible-but-blocked accelerated units and normal versus preserve-state holds during closure |
 | 1.2 | 21 October 2026 | Apply common immediate exceptional-acceleration notifications independently of periodic destruction-eligibility reminders |
 | 1.1 | 13 October 2026 | Added Records Manager Only routing and explicit Save without submission for every review participant |
@@ -625,9 +629,17 @@ It does not download all tasks or jobs to the browser. Each row shows at least:
 - direct assignee or role queue;
 - claimant, when claimed;
 - date received and age;
-- priority;
-- number of governing root aggregations; and
-- blocked, removal-required, failed, or other action-required indicators.
+- number of governing root aggregations.
+
+The first **Required action** column identifies the task's next action. Do not
+show a second **Action required** indicator column. Final-execution blockers
+belong in job details with their safe reasons and permitted relationship
+endpoints. Existing server-side indicator filters remain available.
+
+Hide the **Priority** column until its assignment and use are defined in a
+later approved amendment. Restoring a saved sort on this hidden column uses
+the default received-date order. The stored priority field and shared API
+contracts retain their existing behavior.
 
 The inbox supports server-side filtering and sorting by these fields where
 applicable. It has deliberate loading, empty, and error states and remains
@@ -639,7 +651,7 @@ task, job stage, current role assignments, resource access, and job version. A
 client cannot reveal or enable an unauthorized action by choosing a URL or form
 identifier.
 
-The **Action required** blocker indicator on My Tasks and job details describes
+The **Action required** blocker indicator in job details describes
 final execution: **Destruction blocked** for a destruction job, otherwise
 **Disposition blocked**. It must not say the resource is blocked from joining a
 job when it already belongs to that job. The cross-job task filter uses
@@ -773,6 +785,13 @@ Job details and task details share authorized data and components but have disti
    owning organizational unit, disposition status, classification, effective retention rule and source,
    local-override indicator, medium, blockers, proposed-removal state, review
    proposals, and reasons the current user may see.
+   The **Classification** column identifies the assigned classification. The
+   **Effective retention-rule source** column identifies the actual defining
+   classification or local override alongside the effective periods and action.
+   **Local override** shows **No local override** for a classification rule and
+   **Local override** when the effective rule is local to the aggregation; it
+   must not contain classification details. Unknown or redacted rule information
+   uses the existing unavailable-value marker rather than asserting no override.
 4. **Current task panel** — instructions and only the fields and actions needed
    for the claimed task.
 5. **Evidence and documents** — versioned Request for Destruction Forms,
@@ -1190,7 +1209,15 @@ the complete execution plan in Section 10.1. Approval records the authenticated
 Records Manager, time, review round, exact membership and versions approved,
 and the complete set of proposals approved. A later change to membership, an
 effective retention rule, or other approved facts invalidates that approval and
-requires a new complete review round.
+requires a new complete review round. Reopening and subsequent
+in-job acceleration under Disposition Sections 6.1 and 11 use the existing
+comparison of approved facts. A valid historical closure date may be restored,
+including for a migrated physical file accidentally reopened. If all approved
+facts are restored, the earlier approval may remain valid; reopening alone
+does not force a new approval. Changed approved facts require the existing
+correction/return and complete-review flow. A preparation-stage job containing
+saved proposals only keeps its proposals and stage without a new review round.
+Current blockers and execution checks continue to apply independently.
 
 Check current relationships again before destruction. A newly added outside-job
 link blocks destruction even if earlier relationship proposals were approved
@@ -2303,9 +2330,9 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-29 | Records Officer preparation/correction and File Administrator, Unit Manager, and Records Manager review forms provide one Review comments field, optional on draft save and routine review, mandatory on submission/resubmission, rejection and Records Manager Only approval; comments are attributed and retained with submissions/decisions; legacy notes and reasons remain readable | All-stage form and downstream-visibility tests, own-note editing while task open, other-author edit rejection, successor attribution, saved-version history, correction-round retention, optional-note submission, mandatory-overall-reason enforcement, no-side-effect, access/redaction, and LTR/RTL live-browser tests |
 | DEST-19 | Final Records Manager approval validates and executes the complete proposal set using every underlying operation's current authorization; execution records the approving Records Manager as actor with actor_type = 'user' while preserving proposers and all proposal changes in history; any validation or execution failure leaves proposals, resources, membership, statuses, and approval unchanged | Vital, security, hold, relationship, retention-rule, stale-version, authorization, execution actor identity/type and acting-role attribution, preserved proposal and change-history linkage, atomic rollback, and protected-error tests |
 | DEST-20 | Proposal execution removes every directly or transitively proposal-blocked or non-matching unit before form generation, preserves applied proposals and correct post-removal statuses, and returns an empty resulting job to the Records Officer | Combined-proposal, cascading-link, fixed-point membership, status, empty-job, form-exclusion, and event-history tests |
-| DEST-21 | My tasks is server-paginated, shows direct and role-queue work with deliberate states, opens the correct authorized form, and does not expose protected job or proposal details | API pagination/filter/sort, authorization, redaction, form-routing, loading/empty/error, and live-browser LTR/RTL tests |
+| DEST-21 | My tasks is server-paginated, shows direct and role-queue work with one Required action column, hides Priority pending its definition, keeps final-execution blocker reasons in job details, opens the correct authorized form, and does not expose protected job or proposal details | API pagination/filter/sort, authorization, redaction, form-routing, single-action-column, hidden-priority/saved-sort fallback and job-blocker details, loading/empty/error, and live-browser LTR/RTL tests |
 | DEST-22 | One eligible person atomically claims a shared role task; loss of eligibility returns it to the queue; release and reassignment preserve work and permanently identify every claimant and actor | Concurrent-claim, role/profile/access change, release, reassignment, stale-version, and event-history tests |
-| DEST-23 | The common workspace presents current job facts, workflow progress, paginated aggregations, attributed proposals, task-specific actions, evidence, and history; asynchronous work remains visible after navigation and notifies only on completion, failure, or required action | Live-browser role-by-role workflow, server-state refresh, background-progress, notification, accessibility, LTR/RTL, and redaction tests |
+| DEST-23 | The common workspace presents current job facts, workflow progress, paginated aggregations with distinct assigned classification, effective-rule source and local-override indicator, attributed proposals, task-specific actions, evidence, and history; asynchronous work remains visible after navigation and notifies only on completion, failure, or required action | Live-browser role-by-role workflow, server-state refresh, source/override distinction including unavailable/redacted rules, background-progress, notification, accessibility, LTR/RTL, and redaction tests |
 | DEST-24 | Destruction proposal tables enforce proposal-type payloads, target scope, optional governance-proposal reasons, mandatory proposed-removal reasons, proposer attribution, hold membership, withdrawal, execution, and immutable effects, including creation and removal of named aggregation relationships; each Records Officer submission requires nonblank Review comments retained by review round | Schema constraint, optional-proposal-reason, blank-overall-reason rejection, initial submission and resubmission reason history, subtype, target, multi-hold, relationship creation/removal within and outside the job, exact relationship identity, deferred removal, stale-relationship rejection, removal authorization, retention-rule, concurrency, and history tests |
 | DEST-25 | External decisions retain separate historical rows per request/review round; physical confirmation retains one immutable row per job; both preserve required evidence, actor/time, never-reused applicable identifiers, and atomic governed-record creation | Repeated external rejection/approval history, immutable physical confirmation, uniqueness, termination, retry, evidence, authorization, direct-database, and rollback tests |
 | DEST-26 | Destruction runs, unit progress, and manifests support idempotent bounded work, one running execution per job, irreversible successful units, approved proof fields, and no retained content or prohibited derivatives | Worker-claim, duplicate-request, retry, interruption, manifest-minimization, privacy, and database tests |

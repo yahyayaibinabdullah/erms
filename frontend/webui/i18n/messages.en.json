@@ -6520,9 +6520,24 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.accelerate_existing_job",
+    "context_group": "disposition.ui",
+    "default_text": "If this reopened aggregation is already in a compatible job, acceleration keeps it in that job and clears its reopening flag. Other blockers remain. Saved proposals are retained; renewed review is required only if approved facts have changed.",
+    "semantic_meaning": "If this reopened aggregation is already in a compatible job, acceleration keeps it in that job and clears its reopening flag. Other blockers remain. Saved proposals are retained; renewed review is required only if approved facts have changed.",
+    "common_locations": [
+      "Disposition workspace",
+      "Aggregation overview"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "If this reopened aggregation is already in a compatible job, acceleration keeps it in that job and clears its reopening flag. Other blockers remain. Saved proposals are retained; renewed review is required only if approved facts have changed.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.accelerate_scope",
     "context_group": "disposition.ui",
-    "default_text": "This exceptional action closes this root if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
+    "default_text": "This exceptional action closes this aggregation if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
     "semantic_meaning": "Confirmation of atomic closure and early eligibility, independent of protections that still block admission and execution; preserve-state closure restrictions remain.",
     "common_locations": [
       "Disposition workspace"
@@ -6530,7 +6545,7 @@
     "translator_guidance": "Use approved domain terminology and preserve the scope of the disposition action.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "This exceptional action closes this root if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
+    "rendered_example": "This exceptional action closes this aggregation if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
     "is_html": false
   },
   {
@@ -6644,8 +6659,8 @@
   {
     "message_key": "disposition.ui.add",
     "context_group": "disposition.ui",
-    "default_text": "Add selected roots to job",
-    "semantic_meaning": "Disposition eligibility and common job interface: Add selected roots to job",
+    "default_text": "Add selected aggregations to job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Add selected aggregations to job",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -6654,7 +6669,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Add selected roots to job",
+    "rendered_example": "Add selected aggregations to job",
     "is_html": false
   },
   {
@@ -6672,22 +6687,6 @@
     "is_html": false
   },
   {
-    "message_key": "disposition.ui.added",
-    "context_group": "disposition.ui",
-    "default_text": "Added",
-    "semantic_meaning": "Disposition eligibility and common job interface: Added",
-    "common_locations": [
-      "Disposition eligibility",
-      "Disposition jobs",
-      "Resource disposition metadata"
-    ],
-    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Added",
-    "is_html": false
-  },
-  {
     "message_key": "disposition.ui.added_at",
     "context_group": "disposition.ui",
     "default_text": "Added at",
@@ -6701,6 +6700,123 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Added at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_failure_range",
+    "context_group": "disposition.ui",
+    "default_text": "{start}–{end} of {total}",
+    "semantic_meaning": "Pagination status for the bounded command response, ten failures per page.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "start": "integer",
+      "end": "integer",
+      "total": "integer"
+    },
+    "rendered_example": "1–5 of 5",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_failures_title",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregations not added",
+    "semantic_meaning": "Failure-detail dialog title; successfully added aggregations never appear here.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Aggregations not added",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_none",
+    "context_group": "disposition.ui",
+    "default_text": "No aggregations were added to disposition job {job}. Review the failure details.",
+    "semantic_meaning": "No selected aggregation was added; direct the user to persistent failure details.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {
+      "job": "identifier"
+    },
+    "rendered_example": "No aggregations were added to disposition job DT-2026-004. Review the failure details.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_partial",
+    "context_group": "disposition.ui",
+    "default_text": "Added {added} of {total} aggregations to disposition job {job}. {failed} could not be added.",
+    "semantic_meaning": "A mixed result: report actual successes and failures without claiming all selected aggregations were added.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {
+      "added": "integer",
+      "total": "integer",
+      "failed": "integer",
+      "job": "identifier"
+    },
+    "rendered_example": "Added 3 of 5 aggregations to disposition job DT-2026-004. 2 could not be added.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_success_many",
+    "context_group": "disposition.ui",
+    "default_text": "Added {count} aggregations to disposition job {job}.",
+    "semantic_meaning": "All selected aggregations were added; display the actual count and destination job number.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {
+      "count": "integer",
+      "job": "identifier"
+    },
+    "rendered_example": "Added 3 aggregations to disposition job DT-2026-004.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_success_one",
+    "context_group": "disposition.ui",
+    "default_text": "Added {count} aggregation to disposition job {job}.",
+    "semantic_meaning": "All selected aggregations were added; the added count is exactly one.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {
+      "count": "integer",
+      "job": "identifier"
+    },
+    "rendered_example": "Added 1 aggregation to disposition job DT-2026-004.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.addition_view_failures",
+    "context_group": "disposition.ui",
+    "default_text": "View failures ({count})",
+    "semantic_meaning": "Open the paginated details for failed additions only.",
+    "common_locations": [
+      "Disposition eligibility → Add selected aggregations to job → outcome feedback"
+    ],
+    "translator_guidance": "Use aggregation → ملف/ملفات and Disposition Job → عملية تصرف. Keep complete named values unchanged, including the job number. Distinguish complete, partial and zero success.",
+    "grammatical_role": "action",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "View failures (3)",
     "is_html": false
   },
   {
@@ -7574,8 +7690,8 @@
   {
     "message_key": "disposition.ui.closed_required",
     "context_group": "disposition.ui",
-    "default_text": "Close this root before adding it to a job",
-    "semantic_meaning": "Disposition eligibility and common job interface: Close this root before adding it to a job",
+    "default_text": "Close this aggregation before adding it to a job",
+    "semantic_meaning": "Disposition eligibility and common job interface: Close this aggregation before adding it to a job",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -7584,7 +7700,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Close this root before adding it to a job",
+    "rendered_example": "Close this aggregation before adding it to a job",
     "is_html": false
   },
   {
@@ -8234,6 +8350,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_acceleration_state_invalid",
+    "context_group": "disposition.ui",
+    "default_text": "This aggregation cannot be accelerated in its current disposition state. Only an aggregation not ready for disposition, including a reopened member awaiting recovery, can be accelerated.",
+    "semantic_meaning": "This aggregation cannot be accelerated in its current disposition state. Only an aggregation not ready for disposition, including a reopened member awaiting recovery, can be accelerated.",
+    "common_locations": [
+      "Disposition workspace",
+      "Aggregation overview"
+    ],
+    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "This aggregation cannot be accelerated in its current disposition state. Only an aggregation not ready for disposition, including a reopened member awaiting recovery, can be accelerated.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_admission_blocked",
     "context_group": "disposition.ui",
     "default_text": "Current vital, security or legal-hold protection prevents admission.",
@@ -8280,8 +8411,8 @@
   {
     "message_key": "disposition.ui.disposition_assignee_access_required",
     "context_group": "disposition.ui",
-    "default_text": "The assigned person cannot access one or more selected roots.",
-    "semantic_meaning": "Disposition eligibility and common job interface: The assigned person cannot access one or more selected roots.",
+    "default_text": "The assigned person cannot access one or more selected aggregations.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The assigned person cannot access one or more selected aggregations.",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -8290,7 +8421,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "The assigned person cannot access one or more selected roots.",
+    "rendered_example": "The assigned person cannot access one or more selected aggregations.",
     "is_html": false
   },
   {
@@ -8577,8 +8708,8 @@
   {
     "message_key": "disposition.ui.disposition_destination_open_root_missing",
     "context_group": "disposition.ui",
-    "default_text": "No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
-    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
+    "default_text": "No open aggregation exists for this destination. Create or open a suitable aggregation before continuing.",
+    "semantic_meaning": "Disposition governed artifact storage and evidence versioning: No open aggregation exists for this destination. Create or open a suitable aggregation before continuing.",
     "common_locations": [
       "Disposition job documents",
       "Evidence correction dialog"
@@ -8586,7 +8717,7 @@
     "translator_guidance": "Use approved records-management terminology; distinguish governed records from files, generated reports from uploaded evidence, and current from earlier versions.",
     "grammatical_role": "message",
     "parameter_schema": {},
-    "rendered_example": "No open root aggregation exists for this destination. Create or open a suitable root before continuing.",
+    "rendered_example": "No open aggregation exists for this destination. Create or open a suitable aggregation before continuing.",
     "is_html": false
   },
   {
@@ -9122,8 +9253,8 @@
   {
     "message_key": "disposition.ui.disposition_owning_unit_mismatch",
     "context_group": "disposition.ui",
-    "default_text": "The root is outside this destruction job’s owning unit.",
-    "semantic_meaning": "Disposition eligibility and common job interface: The root is outside this destruction job’s owning unit.",
+    "default_text": "The aggregation is outside this destruction job’s owning unit.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The aggregation is outside this destruction job’s owning unit.",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -9132,7 +9263,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "The root is outside this destruction job’s owning unit.",
+    "rendered_example": "The aggregation is outside this destruction job’s owning unit.",
     "is_html": false
   },
   {
@@ -9575,8 +9706,8 @@
   {
     "message_key": "disposition.ui.disposition_resource_access_required",
     "context_group": "disposition.ui",
-    "default_text": "Current access to this root is required.",
-    "semantic_meaning": "Disposition eligibility and common job interface: Current access to this root is required.",
+    "default_text": "Current access to this aggregation is required.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Current access to this aggregation is required.",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -9585,7 +9716,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Current access to this root is required.",
+    "rendered_example": "Current access to this aggregation is required.",
     "is_html": false
   },
   {
@@ -9619,8 +9750,8 @@
   {
     "message_key": "disposition.ui.disposition_root_not_closed",
     "context_group": "disposition.ui",
-    "default_text": "The root must be closed before admission.",
-    "semantic_meaning": "Disposition eligibility and common job interface: The root must be closed before admission.",
+    "default_text": "The aggregation must be closed before admission.",
+    "semantic_meaning": "Disposition eligibility and common job interface: The aggregation must be closed before admission.",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -9629,7 +9760,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "The root must be closed before admission.",
+    "rendered_example": "The aggregation must be closed before admission.",
     "is_html": false
   },
   {
@@ -10326,15 +10457,15 @@
   {
     "message_key": "disposition.ui.empty_after_execution",
     "context_group": "disposition.ui",
-    "default_text": "No governing roots remain: return to assigned preparer",
-    "semantic_meaning": "Destruction task workspace: No governing roots remain: return to assigned preparer",
+    "default_text": "No aggregations remain: return to assigned preparer",
+    "semantic_meaning": "Destruction task workspace: No aggregations remain: return to assigned preparer",
     "common_locations": [
       "Disposition task inbox and review workspace"
     ],
     "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "No governing roots remain: return to assigned preparer",
+    "rendered_example": "No aggregations remain: return to assigned preparer",
     "is_html": false
   },
   {
@@ -11167,7 +11298,7 @@
   {
     "message_key": "disposition.ui.history_completed_units",
     "context_group": "disposition.ui",
-    "default_text": "Completed roots",
+    "default_text": "Completed aggregations",
     "semantic_meaning": "Readable disposition event history: completed_units",
     "common_locations": [
       "Disposition job event details"
@@ -11175,7 +11306,7 @@
     "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Completed roots",
+    "rendered_example": "Completed aggregations",
     "is_html": false
   },
   {
@@ -11363,7 +11494,7 @@
   {
     "message_key": "disposition.ui.history_failed_units",
     "context_group": "disposition.ui",
-    "default_text": "Failed roots",
+    "default_text": "Failed aggregations",
     "semantic_meaning": "Readable disposition event history: failed_units",
     "common_locations": [
       "Disposition job event details"
@@ -11371,7 +11502,7 @@
     "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Failed roots",
+    "rendered_example": "Failed aggregations",
     "is_html": false
   },
   {
@@ -11601,7 +11732,7 @@
   {
     "message_key": "disposition.ui.history_remaining_units",
     "context_group": "disposition.ui",
-    "default_text": "Remaining roots",
+    "default_text": "Remaining aggregations",
     "semantic_meaning": "Readable disposition event history: remaining_units",
     "common_locations": [
       "Disposition job event details"
@@ -11609,7 +11740,7 @@
     "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Remaining roots",
+    "rendered_example": "Remaining aggregations",
     "is_html": false
   },
   {
@@ -11657,7 +11788,7 @@
   {
     "message_key": "disposition.ui.history_removed_units",
     "context_group": "disposition.ui",
-    "default_text": "Removed roots",
+    "default_text": "Removed aggregations",
     "semantic_meaning": "Readable disposition event history: removed_units",
     "common_locations": [
       "Disposition job event details"
@@ -11665,7 +11796,7 @@
     "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Removed roots",
+    "rendered_example": "Removed aggregations",
     "is_html": false
   },
   {
@@ -11825,7 +11956,7 @@
   {
     "message_key": "disposition.ui.history_total_units",
     "context_group": "disposition.ui",
-    "default_text": "Total roots",
+    "default_text": "Total aggregations",
     "semantic_meaning": "Readable disposition event history: total_units",
     "common_locations": [
       "Disposition job event details"
@@ -11833,7 +11964,7 @@
     "translator_guidance": "History disclosure label or explanation; preserve placeholders.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Total roots",
+    "rendered_example": "Total aggregations",
     "is_html": false
   },
   {
@@ -12279,15 +12410,15 @@
   {
     "message_key": "disposition.ui.min_roots",
     "context_group": "disposition.ui",
-    "default_text": "Minimum governing roots",
-    "semantic_meaning": "Destruction task workspace: Minimum governing roots",
+    "default_text": "Minimum aggregations",
+    "semantic_meaning": "Destruction task workspace: Minimum aggregations",
     "common_locations": [
       "Disposition task inbox and review workspace"
     ],
     "translator_guidance": "Use approved records management terminology. Translate the field, instruction or workflow node in context.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Minimum governing roots",
+    "rendered_example": "Minimum aggregations",
     "is_html": false
   },
   {
@@ -12381,15 +12512,15 @@
   {
     "message_key": "disposition.ui.no_add",
     "context_group": "disposition.ui",
-    "default_text": "No roots were added. Review the individual results.",
-    "semantic_meaning": "Membership addition completed with partial or no success; never imply rejected roots were saved.",
+    "default_text": "No aggregations were added. Review the individual results.",
+    "semantic_meaning": "Membership addition completed with partial or no success; never imply rejected aggregations were saved.",
     "common_locations": [
       "Disposition eligibility addition feedback"
     ],
     "translator_guidance": "Explain that the listed individual admission failures remain unsaved.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "No roots were added. Review the individual results.",
+    "rendered_example": "No aggregations were added. Review the individual results.",
     "is_html": false
   },
   {
@@ -12451,6 +12582,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "No authorized documents are available for this job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.no_local_override",
+    "context_group": "disposition.ui",
+    "default_text": "No local override",
+    "semantic_meaning": "The job aggregation uses its classification retention rule and has no aggregation-local retention override.",
+    "common_locations": [
+      "Disposition job workspace → Aggregations → Local override column"
+    ],
+    "translator_guidance": "Use the approved Local override terminology. This states absence of an aggregation-local retention rule; it does not describe missing information or repeat the classification identity.",
+    "grammatical_role": "status label",
+    "parameter_schema": {},
+    "rendered_example": "No local override",
     "is_html": false
   },
   {
@@ -12671,7 +12816,7 @@
     "message_key": "disposition.ui.owner_common_ancestor",
     "context_group": "disposition.ui",
     "default_text": "Suggested from the selected aggregations’ common parent unit. This unit determines review routing.",
-    "semantic_meaning": "Explanation of the suggested destruction job owner based on selected roots.",
+    "semantic_meaning": "Explanation of the suggested destruction job owner based on selected aggregations.",
     "common_locations": [
       "Create job from eligibility"
     ],
@@ -12685,7 +12830,7 @@
     "message_key": "disposition.ui.owner_no_common_ancestor",
     "context_group": "disposition.ui",
     "default_text": "The selected aggregations have no common parent unit. Split the selection into separate jobs.",
-    "semantic_meaning": "Explanation of the suggested destruction job owner based on selected roots.",
+    "semantic_meaning": "Explanation of the suggested destruction job owner based on selected aggregations.",
     "common_locations": [
       "Create job from eligibility"
     ],
@@ -12698,15 +12843,15 @@
   {
     "message_key": "disposition.ui.partial_add",
     "context_group": "disposition.ui",
-    "default_text": "Some roots were not added. Review the individual results.",
-    "semantic_meaning": "Membership addition completed with partial or no success; never imply rejected roots were saved.",
+    "default_text": "Some aggregations were not added. Review the individual results.",
+    "semantic_meaning": "Membership addition completed with partial or no success; never imply rejected aggregations were saved.",
     "common_locations": [
       "Disposition eligibility addition feedback"
     ],
     "translator_guidance": "Explain that the listed individual admission failures remain unsaved.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Some roots were not added. Review the individual results.",
+    "rendered_example": "Some aggregations were not added. Review the individual results.",
     "is_html": false
   },
   {
@@ -12995,20 +13140,6 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Previous destination",
-    "is_html": false
-  },
-  {
-    "message_key": "disposition.ui.priority",
-    "context_group": "disposition.ui",
-    "default_text": "Priority",
-    "semantic_meaning": "Destruction task workspace: Priority",
-    "common_locations": [
-      "Disposition task inbox and review workspace"
-    ],
-    "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Priority",
     "is_html": false
   },
   {
@@ -13301,8 +13432,8 @@
   {
     "message_key": "disposition.ui.recover_count",
     "context_group": "disposition.ui",
-    "default_text": "Affected governing root aggregations: {count}",
-    "semantic_meaning": "Termination and explicit partial-disposition recovery: Affected governing root aggregations: {count}",
+    "default_text": "Affected aggregations: {count}",
+    "semantic_meaning": "Termination and explicit partial-disposition recovery: Affected aggregations: {count}",
     "common_locations": [
       "Disposition job workspace and audit history"
     ],
@@ -13311,7 +13442,7 @@
     "parameter_schema": {
       "count": "integer"
     },
-    "rendered_example": "Affected governing root aggregations: 3",
+    "rendered_example": "Affected aggregations: 3",
     "is_html": false
   },
   {
@@ -13692,19 +13823,18 @@
     "is_html": false
   },
   {
-    "message_key": "disposition.ui.reopened",
+    "message_key": "disposition.ui.reopened_recovery",
     "context_group": "disposition.ui",
-    "default_text": "Reopened — must be removed from this job",
-    "semantic_meaning": "Disposition eligibility and common job interface: Reopened — must be removed from this job",
+    "default_text": "Reopened — accelerate within this job if compatible, or remove it",
+    "semantic_meaning": "Reopened — accelerate within this job if compatible, or remove it",
     "common_locations": [
-      "Disposition eligibility",
-      "Disposition jobs",
-      "Resource disposition metadata"
+      "Disposition workspace",
+      "Aggregation overview"
     ],
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
-    "grammatical_role": "label",
+    "grammatical_role": "message",
     "parameter_schema": {},
-    "rendered_example": "Reopened — must be removed from this job",
+    "rendered_example": "Reopened — accelerate within this job if compatible, or remove it",
     "is_html": false
   },
   {
@@ -13868,22 +13998,6 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Free-text reasons and protected facts are withheld because they may identify restricted resources.",
-    "is_html": false
-  },
-  {
-    "message_key": "disposition.ui.results",
-    "context_group": "disposition.ui",
-    "default_text": "Addition results",
-    "semantic_meaning": "Disposition eligibility and common job interface: Addition results",
-    "common_locations": [
-      "Disposition eligibility",
-      "Disposition jobs",
-      "Resource disposition metadata"
-    ],
-    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Addition results",
     "is_html": false
   },
   {
@@ -14277,15 +14391,15 @@
   {
     "message_key": "disposition.ui.root_count",
     "context_group": "disposition.ui",
-    "default_text": "Governing roots",
-    "semantic_meaning": "Destruction task workspace: Governing roots",
+    "default_text": "Aggregations",
+    "semantic_meaning": "Destruction task workspace: Aggregations",
     "common_locations": [
       "Disposition task inbox and review workspace"
     ],
     "translator_guidance": "Use approved records management terminology. Translate the task action or field in context.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Governing roots",
+    "rendered_example": "Aggregations",
     "is_html": false
   },
   {
@@ -14381,6 +14495,36 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.search_aggregations",
+    "context_group": "disposition.ui",
+    "default_text": "Search aggregations",
+    "semantic_meaning": "Search aggregation memberships within the current disposition job. Search aggregations",
+    "common_locations": [
+      "Disposition job aggregation tab",
+      "Disposition task aggregation tab"
+    ],
+    "translator_guidance": "Aggregation means ملف / ملفات. The search is confined to this job and matches aggregation number/title, owning organization unit name, or classification code/title; it does not search job numbers or other table columns.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search aggregations",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.search_aggregations_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Search by aggregation number or title, owning organization unit name, or classification code or title. Press Enter to search.",
+    "semantic_meaning": "Search aggregation memberships within the current disposition job. Search by aggregation number or title, owning organization unit name, or classification code or title. Press Enter to search.",
+    "common_locations": [
+      "Disposition job aggregation tab",
+      "Disposition task aggregation tab"
+    ],
+    "translator_guidance": "Aggregation means ملف / ملفات. The search is confined to this job and matches aggregation number/title, owning organization unit name, or classification code/title; it does not search job numbers or other table columns.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Search by aggregation number or title, owning organization unit name, or classification code or title. Press Enter to search.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.section",
     "context_group": "disposition.ui",
     "default_text": "Disposition",
@@ -14444,8 +14588,8 @@
   {
     "message_key": "disposition.ui.select_hint",
     "context_group": "disposition.ui",
-    "default_text": "Select accessible, unblocked closed roots. Each selected root is checked again when added.",
-    "semantic_meaning": "Disposition eligibility and common job interface: Select accessible, unblocked closed roots. Each selected root is checked again when added.",
+    "default_text": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
+    "semantic_meaning": "Disposition eligibility and common job interface: Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
     "common_locations": [
       "Disposition eligibility",
       "Disposition jobs",
@@ -14454,7 +14598,7 @@
     "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Select accessible, unblocked closed roots. Each selected root is checked again when added.",
+    "rendered_example": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
     "is_html": false
   },
   {
@@ -26283,6 +26427,76 @@
     "is_html": false
   },
   {
+    "message_key": "resource_medium.error.components_present",
+    "context_group": "resource_medium.error",
+    "default_text": "Remove the digital components before changing this record to Physical.",
+    "semantic_meaning": "Specific medium compatibility or change validation failure; components_present",
+    "common_locations": [
+      "Aggregation and record metadata editors → Medium validation"
+    ],
+    "translator_guidance": "Use approved Aggregation → ملف and Record → وثيقة terminology. Explain the validation reason without claiming that an unrelated field is highlighted.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {},
+    "rendered_example": "Remove the digital components before changing this record to Physical.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_medium.error.contents_conflict",
+    "context_group": "resource_medium.error",
+    "default_text": "The selected medium conflicts with a contained aggregation, record or draft. Choose a compatible medium.",
+    "semantic_meaning": "Specific medium compatibility or change validation failure; contents_conflict",
+    "common_locations": [
+      "Aggregation and record metadata editors → Medium validation"
+    ],
+    "translator_guidance": "Use approved Aggregation → ملف and Record → وثيقة terminology. Explain the validation reason without claiming that an unrelated field is highlighted.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {},
+    "rendered_example": "The selected medium conflicts with a contained aggregation, record or draft. Choose a compatible medium.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_medium.error.parent_conflict",
+    "context_group": "resource_medium.error",
+    "default_text": "A child aggregation must have the same medium as its parent aggregation.",
+    "semantic_meaning": "Specific medium compatibility or change validation failure; parent_conflict",
+    "common_locations": [
+      "Aggregation and record metadata editors → Medium validation"
+    ],
+    "translator_guidance": "Use approved Aggregation → ملف and Record → وثيقة terminology. Explain the validation reason without claiming that an unrelated field is highlighted.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {},
+    "rendered_example": "A child aggregation must have the same medium as its parent aggregation.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_medium.error.reason_required",
+    "context_group": "resource_medium.error",
+    "default_text": "Enter a reason for changing the medium.",
+    "semantic_meaning": "Specific medium compatibility or change validation failure; reason_required",
+    "common_locations": [
+      "Aggregation and record metadata editors → Medium validation"
+    ],
+    "translator_guidance": "Use approved Aggregation → ملف and Record → وثيقة terminology. Explain the validation reason without claiming that an unrelated field is highlighted.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {},
+    "rendered_example": "Enter a reason for changing the medium.",
+    "is_html": false
+  },
+  {
+    "message_key": "resource_medium.error.record_parent_conflict",
+    "context_group": "resource_medium.error",
+    "default_text": "The record’s medium is incompatible with its parent aggregation. Choose a compatible medium.",
+    "semantic_meaning": "Specific medium compatibility or change validation failure; record_parent_conflict",
+    "common_locations": [
+      "Aggregation and record metadata editors → Medium validation"
+    ],
+    "translator_guidance": "Use approved Aggregation → ملف and Record → وثيقة terminology. Explain the validation reason without claiming that an unrelated field is highlighted.",
+    "grammatical_role": "complete sentence",
+    "parameter_schema": {},
+    "rendered_example": "The record’s medium is incompatible with its parent aggregation. Choose a compatible medium.",
+    "is_html": false
+  },
+  {
     "message_key": "resource_picker.add_selected",
     "context_group": "resource_picker",
     "default_text": "Add selected",
@@ -26943,8 +27157,8 @@
   {
     "message_key": "settings.custody.no_root",
     "context_group": "settings.custody",
-    "default_text": "{setting} has no open root aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
-    "semantic_meaning": "Administration Settings no root.",
+    "default_text": "{setting} has no open aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
+    "semantic_meaning": "Administration Settings no aggregation.",
     "common_locations": [
       "Administration → Settings",
       "Governance Custody"
@@ -26954,7 +27168,7 @@
     "parameter_schema": {
       "setting": "text"
     },
-    "rendered_example": "{setting} has no open root aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
+    "rendered_example": "{setting} has no open aggregation. Closed aggregations, child aggregations and other classifications cannot be used.",
     "is_html": false
   },
   {

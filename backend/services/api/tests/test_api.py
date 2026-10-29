@@ -99,7 +99,7 @@ def test_aggregation_crud_and_hierarchy(client: TestClient, aggregation: dict):
     assert client.get(f"/api/v1/aggregations/{child['id']}").status_code == 404
 
 
-def test_medium_hierarchy_creation_and_empty_only_changes(client: TestClient):
+def test_medium_hierarchy_creation_and_compatible_changes(client: TestClient):
     physical = client.post("/api/v1/aggregations", json={
         "aggregation_number": "PHY-001", "title": "Physical root",
         "classification_id": 1, "medium": "physical",
@@ -131,7 +131,7 @@ def test_medium_hierarchy_creation_and_empty_only_changes(client: TestClient):
         headers={"If-Match": str(physical["version"])},
     )
     assert change_response.status_code == 422
-    assert change_response.json()["detail"]["code"] == "medium_change_requires_empty_aggregation"
+    assert change_response.json()["detail"]["code"] == "aggregation_medium_contents_conflict"
 
 
 def test_mixed_aggregation_accepts_every_record_medium(client: TestClient, aggregation: dict):

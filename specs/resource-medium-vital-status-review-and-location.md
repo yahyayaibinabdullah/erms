@@ -1,9 +1,10 @@
 # Resource Medium, Vital Status, Review, and Location — Technical Specification
 
-**Status:** Review draft — policy decisions incorporated; no implementation authorized
+**Status:** Existing phase authorizations retained; compatible medium-change amendment approved 29 October 2026
 **Prepared:** 21 September 2026
 **Project:** ERMS / Wathiq
-**Revision:** 0.9
+**Revision:** 0.10
+**Medium-change amendment approved:** 29 October 2026
 
 ## 1. Purpose
 
@@ -306,30 +307,43 @@ validate this before enabling the constraint.
 
 ## 8. Changing medium after creation
 
-### 8.1 Recommendation
+### 8.1 Aggregation medium changes — approved 29 October 2026
 
-Allow an aggregation's medium to change through ordinary authorized metadata
-editing **only while it is empty**:
+An authorized user may change an open aggregation's medium through ordinary
+metadata editing, including when it contains aggregations or records, provided
+that the resulting hierarchy and contents remain compatible. A nonblank reason
+is required and the existing MEDIUM_CHANGED event records the old and new
+values and the actor in the same transaction.
 
-- it has no child aggregations;
-- it has no child records; and
-- if it is itself a child, the new value is compatible with its parent—which,
-  under the matrix, means it must still equal the parent's medium.
+Validate the parent, every descendant aggregation and record, and existing
+record drafts against the proposed medium. Child aggregations retain the same
+medium as their parent; records under Digital or Physical must match it, while
+Mixed allows all three record media. Existing component restrictions continue
+to apply. Do not change descendant media, delete components, or discard drafts
+as a side effect of changing the aggregation.
 
-In practice, an empty child aggregation cannot change independently because all
-child aggregations must equal their parent. An empty root aggregation may
-change freely among the three values.
+Examples:
 
-Once an aggregation contains anything, its medium should be treated as
-immutable in this phase. Do not cascade a parent medium change into descendants:
-doing so would rewrite factual metadata and could misrepresent physical or
-digital holdings. Do not merely validate that the present subtree happens to be
-compatible; future operational meaning and migration risk justify the simpler,
-stable boundary.
+- Physical → Mixed with physical records and no child aggregations is allowed.
+- Digital → Mixed with digital records and no child aggregations is allowed.
+- Physical → Digital is blocked while it contains physical records.
+- Digital → Physical is blocked while it contains digital records.
+- Mixed → Digital requires every contained record to be digital.
+- Mixed → Physical requires every contained record to be physical.
+- An empty root aggregation may change between any two media. All transitions
+  still check the parent, descendant aggregations and drafts for compatibility.
+- Changing a parent while an unchanged child aggregation would have a different
+  medium is blocked, including a conflicting aggregation deeper in the tree.
+- A child aggregation cannot independently adopt a medium different from its
+  parent. Closure, authorization, hold and other existing restrictions remain.
 
-A future governed conversion workflow may support non-empty changes using an
-impact preview, reason, authorization, validation of every descendant, and an
-atomic event history. That workflow is outside this scope.
+The API and PostgreSQL enforce the same compatibility check atomically. Parent
+row locks coordinate medium changes with insertion, movement and medium changes
+of children, records and drafts. Rejected changes leave versions, contents and
+event history unchanged. Errors explain the actual incompatibility without
+exposing hidden identities. The editor shows the localized reason and marks the
+Medium control when it is the invalid field; it does not substitute a generic
+instruction to correct unspecified highlighted information.
 
 ### 8.2 Record medium changes
 
@@ -490,7 +504,7 @@ The new rules compose with existing gates; they do not replace them.
 | Create aggregation/record | Existing create privilege, parent permission, clearance, ownership, classification, and closure rules | Medium must satisfy the hierarchy matrix |
 | Move aggregation/record | Existing source/destination authorization and confirmation | Destination and complete affected subtree must remain medium-compatible |
 | Add component | Existing component privilege, record permission, clearance, and closure rules | Record medium must be `digital` or `mixed` |
-| Change medium | Existing metadata authorization plus reason | Empty-aggregation/parent/component/closure constraints |
+| Change medium | Existing metadata authorization plus reason | Complete-subtree/parent/component/closure compatibility constraints |
 | Delete aggregation/record | Existing delete privilege, ACL permission, clearance, closure, and dependency rules | Resource and aggregation descendants must not be vital |
 | Change vital status | Matching global privilege and effective ACL permission, or information-governance ACL bypass | Reason and governance qualification required; permitted on closed resources |
 | Change next-review date | Matching `aggregation.review_date.change` or `record.review_date.change` global privilege and effective ACL permission, or information-governance ACL bypass | Governed reason required; value must be null or strictly in the future; permitted on closed resources; scheduling only, not review completion |
@@ -559,7 +573,7 @@ Errors use stable codes and accessible messages. Suggested codes include:
 - `aggregation_medium_mismatch`;
 - `record_medium_not_allowed_by_parent`;
 - `physical_record_disallows_digital_components`;
-- `medium_change_requires_empty_aggregation`;
+- `aggregation_medium_contents_conflict`;
 - `medium_change_requires_component_removal`;
 - `next_review_date_must_be_future`;
 - `location_change_reason_required`;
@@ -770,7 +784,9 @@ Tests must cover at least:
 - root, child, record, move, and subtree-move behavior;
 - digital/mixed component creation and physical rejection;
 - draft medium changes with staged files;
-- empty and non-empty aggregation medium changes;
+- empty and non-empty aggregation medium changes, including Digital → Mixed
+  with digital records, the complete record-medium compatibility matrix,
+  incompatible child aggregations and drafts, and rejected-change rollback;
 - record medium changes with and without components;
 - vital record and aggregation deletion denial;
 - attempted parent deletion with a vital descendant;
@@ -801,8 +817,11 @@ Tests must cover at least:
   inheritance, preservation of explicit child values during parent changes,
   null/unknown locations, and rejection of record-location writes;
 - migration validation and seed compatibility; and
-- concurrency races between component upload/medium change and
-  deletion/vital-status change.
+- concurrency races between aggregation medium changes and record insertion
+  in both lock orders, between component upload/medium change, and between
+  deletion/vital-status change;
+- specific English/Arabic validation messages, visible Medium field errors, and
+  correction/retry without losing entered values.
 
 Database-backed tests must use a fresh disposable PostgreSQL database in
 accordance with project policy.
@@ -859,8 +878,8 @@ accordance with project policy.
 - verify backup/restore, seed compatibility, accessibility, and performance.
 
 A full review-workflow entity, notification delivery service, warehouse/space
-management, and non-empty medium conversion remain future phases unless
-separately approved.
+management, and cascading medium conversion remain future phases unless
+separately approved. Compatible non-empty metadata changes follow Section 8.1.
 
 ## 21. Risks and limitations
 
@@ -924,8 +943,8 @@ separately approved.
     `DASHBOARD_REVIEW_PREVIEW_LIMIT` items, defaulting to five. Overdue items
     show oldest first; upcoming items show soonest first; both use ascending
     resource ID as a stable secondary sort. Counts remain complete.
-12. Aggregation medium may change only while the aggregation is empty and no
-   cascading conversion occurs.
+12. Aggregation medium may change while non-empty when its parent and complete
+    contents remain compatible under Section 8.1; no cascading conversion occurs.
 13. Stored assigned and current locations exist only on aggregations. Their
     changes are governed by the `aggregation.location.change` global privilege
     and matching ACL permission, require a reason, and may be performed on

@@ -29,7 +29,9 @@ async def test_job_page_loads_context_and_one_bounded_page_concurrently(host):
         await jobs_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda identity:None,remember=remembered.append)
     assert {x[0] for x in calls}=={'context','jobs'}
     assert calls[1][1]['limit']==25 and calls[1][1]['offset']==0
+    assert calls[1][1]['lifecycle']=='active'
     assert remembered[0]['page']==1
+    assert remembered[0]['lifecycle']=='active'
 
 
 @pytest.mark.asyncio
@@ -138,15 +140,18 @@ async def test_create_job_has_no_acting_role_choice_with_multiple_eligible_roles
 
 
 @pytest.mark.asyncio
-async def test_restored_page_size_and_offset_make_exactly_one_page_request(host):
+@pytest.mark.parametrize('lifecycle',[None,'','active','completed','terminated'])
+async def test_restored_job_filter_page_size_and_offset_make_exactly_one_page_request(host,lifecycle):
     calls=[]
+    saved={'page':2,'size':10}
+    if lifecycle is not None:saved['lifecycle']=lifecycle
     async def request(path,**params):
         calls.append((path,params))
         return {'roles':[{'id':1,'name':'IG role'}]} if path=='context' else {'items':[],'total':50}
     with host:
-        await jobs_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda identity:None,saved={'page':2,'size':10})
+        await jobs_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda identity:None,saved=saved)
         await asyncio.sleep(0)
-    assert [params for path,params in calls if path=='jobs']==[{'limit':10,'offset':10,'query':'','lifecycle':None,'job_type':None,'owner':'','assignee':'','unassigned':False,'sort':'id','descending':True}]
+    assert [params for path,params in calls if path=='jobs']==[{'limit':10,'offset':10,'query':'','lifecycle':('active' if lifecycle is None else lifecycle or None),'job_type':None,'owner':'','assignee':'','unassigned':False,'sort':'id','descending':True}]
 
 
 def test_due_filters_use_working_timezone_and_require_explicit_overlap_choice(host):
@@ -192,7 +197,7 @@ async def test_command_reason_warning_and_mixed_result_never_claim_total_success
         if inspect.isawaitable(response):await response
         await asyncio.sleep(0)
     assert len(calls)==1 and len(saved)==1
-    assert notices[-1]==('Some roots were not added. Review the individual results.','warning')
+    assert notices[-1]==('Some aggregations were not added. Review the individual results.','warning')
 
 
 @pytest.mark.asyncio

@@ -51,6 +51,26 @@ def test_task_filters_and_stable_pagination(client):
         assert workflow.tasks(c,limit=10,offset=0,task_type='preparation')['total']==1
 
 
+def test_outside_job_relationship_blocks_final_destruction_without_blocking_preparation(client):
+    from backend.services.api.disposition import blockers
+    from backend.services.api.tests.test_disposition_membership import ready,admit
+    with db() as c:
+        job,root,*_=seeded(c)
+        outside,*_=ready(c)
+        assert not workflow.tasks(c,limit=10,offset=0)['items'][0]['blocked']
+        typ=c.execute("SELECT id FROM relationship_types WHERE resource_kind='aggregation' LIMIT 1").fetchone()['id']
+        c.execute('INSERT INTO aggregation_relationships(source_id,target_id,relationship_type_id) VALUES(%s,%s,%s)',(root,outside,typ))
+        summary=blockers.summary(c,root)
+        assert not summary['blocks_admission'] and summary['relationships_block_final'] and summary['blocks_final']
+        row=workflow.tasks(c,limit=10,offset=0,indicator='blocked')['items'][0]
+        assert row['blocked'] and row['workflow_stage']=='officer_preparation'
+        view=workspace.read(c,job['id'])
+        assert view['job']['action_required']['blocked'] and 'submit' in view['actions']
+        assert admit(c,job['id'],[outside])['items'][0]['success']
+        assert not workflow.tasks(c,limit=10,offset=0)['items'][0]['blocked']
+        assert not workspace.read(c,job['id'])['job']['action_required']['blocked']
+
+
 def test_review_attribution_compact_rounds_and_revision_history(client):
     from backend.services.api.tests.test_disposition_review import save,create,officer
     with db() as c:

@@ -4,13 +4,17 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.10
-**Amendment approved:** 22 October 2026
+**Revision:** 1.14
+**Amendment approved:** 29 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.14 | 29 October 2026 | Allow compatible exceptional acceleration of reopened active members within their existing job; preserve membership, blockers and review invalidation |
+| 1.13 | 29 October 2026 | Default the Disposition Jobs page to Active while retaining explicit lifecycle filters and server pagination |
+| 1.12 | 29 October 2026 | Summarize membership additions in one toast with count and job number; show paginated details only for failed additions |
+| 1.11 | 29 October 2026 | Use aggregation/aggregations in disposition interface wording wherever root/roots refers to an aggregation; use ملف/ملفات in Arabic |
 | 1.10 | 22 October 2026 | Separate accelerated eligibility from hold, vital and security protections; retain job-admission, execution and preserve-state closure checks |
 | 1.9 | 21 October 2026 | Clarified closure as a prerequisite for all eligibility, retention starting at closure, and atomic closure during exceptional acceleration; placed acceleration in the effective retention-rule section |
 | 1.8 | 21 October 2026 | Require immediate exceptional-acceleration notifications to all Information Governance users and the governing root aggregation’s owning Unit Manager through the existing notification subsystem |
@@ -26,6 +30,11 @@
 | 1.2 | 7 October 2026 | Defined the shared purpose-built workflow architecture and logical data model for disposition jobs, membership episodes, tasks, review rounds, decisions, document links, resource outcome fields, protected operations, and canonical SQL ownership |
 
 ## 1. Purpose
+
+Disposition screens, actions, counts, guidance and messages use **aggregation**
+or **aggregations** wherever “root” or “roots” means an aggregation. Arabic uses
+the approved **ملف / ملفات** terminology. Technical identifiers and the
+governing-aggregation eligibility and membership rules retain their meaning.
 
 Disposition is the controlled process that starts after records have been kept
 for their required retention periods. In Wathiq, disposition may result in
@@ -275,7 +284,8 @@ aggregation in the job.
 
 Reopening is another exception outside the normal diagram. Section 6.1 defines
 how reopening resets an eligible or pending disposition unit to status 1 and
-blocks an active job until the aggregation is explicitly removed.
+blocks an active job until the aggregation is explicitly removed or restored
+through compatible acceleration within that job under Section 11.
 
 The transition from status 8 records the selective-transfer decision.
 Selective transfer has no separate final status. The decision results in
@@ -286,7 +296,8 @@ follows the workflow for that outcome.
 
 | Transition | Cause |
 | --- | --- |
-| `1 -> 2/3/4/5` | Scheduled eligibility evaluation or authorized acceleration |
+| `1 -> 2/3/4/5` | Scheduled eligibility evaluation or authorized acceleration outside a job |
+| `1 -> 6/7/8/9` | Authorized acceleration restores a reopened member to its existing compatible active job |
 | `2 -> 6`, `3 -> 7`, `4 -> 8`, `5 -> 9` | Addition to a disposition job of the corresponding type |
 | `6 -> 2`, `7 -> 3`, `8 -> 4`, `9 -> 5` | Removal from the disposition job before final execution |
 | `8 -> 2/3/5` | Recorded and approved selective-transfer decision |
@@ -350,8 +361,9 @@ or direct database operation must not set a pending status without matching
 active-job membership.
 
 A pending status always requires matching active-job membership. A member may
-temporarily have a non-pending status only when it must be removed from its
-active job: a reopened aggregation remains in status 1 under Section 6.1, and
+temporarily have a non-pending status while recovery or removal is required:
+the reopened aggregation stays in status 1 until compatible in-job acceleration
+or explicit removal under Section 6.1, and
 a retention-rule change may leave a member in status 1 or in a non-matching
 eligible status under Section 12. If the recalculated disposition action still
 matches the active job, the member remains in the matching pending status.
@@ -395,22 +407,52 @@ rules. Reopening clears `date_closed`. In the same operation, Wathiq resets the
 root aggregation and every descendant aggregation and record to status 1,
 **Not ready for disposition**.
 
-If the aggregation belongs to an active disposition job, reopening does not
-remove it from that job. The job is immediately blocked and cannot move to its
-next state or complete a final action while the reopened aggregation remains a
-member. The interface must clearly identify the reopened aggregation and state
-that it must be removed.
+If the aggregation belongs to an active disposition job, reopening preserves
+its membership and blocks job progression and final action while it remains in
+status 1. The interface identifies it as reopened and explains the alternatives:
+restore compatible eligibility through exceptional acceleration within the job,
+or explicitly remove it.
 
-An authorized IGU must explicitly remove the reopened aggregation from the
-job. That removal changes only membership; the aggregation and descendants
-remain in status 1. After removal, the job may continue if all its remaining
-members pass the normal checks.
+An authorized IGU may accelerate the reopened member under Section 11. The
+current effective retention action must match the existing job type and the
+aggregation must still satisfy the job's organizational scope. Acceleration
+closes it if open using the current database date/time (never the closure
+date cleared by reopening; if already reclosed, preserve its current closure
+date, including a valid historical date), restores the complete unit directly to that job's matching
+pending status (6, 7, 8 or 9), and clears only its reopening-related
+`removal_required` flag/reason in one transaction. Preserve the membership ID,
+job, original addition time/actor, work and history. Do not require removal and
+re-addition, create another membership episode, advance the workflow, resume
+execution, grant access, clear protections or reuse invalid reviews/approvals.
 
-Wathiq records the reopening, status reset, job block, and later removal in
-permanent event history. If the aggregation is closed again, it remains in
-status 1 until the automatic eligibility service calculates eligibility from
-the new closure date and the retention rule then in effect, or an authorized
-IGU uses the exceptional acceleration process.
+Existing IGU authorization, resource/job access, optimistic version, reason,
+closure permissions, preserve-state hold rules and irreversible-work safeguards
+remain mandatory. A missing rule or incompatible action/scope rejects the
+whole operation; closure, statuses, membership, flags, history and notifications
+remain unchanged. Protection facts and relationships continue to block their
+existing actions. After successful recovery, the job may progress only through
+its usual explicit actions and all other current checks.
+
+In preparation with saved proposals only, recovery preserves those proposals
+and the current stage. It creates no review round and requires no prior
+approval. Where review or approval has occurred, validity follows the existing
+approved-facts comparison and current action checks. Reopening is not an
+unconditional reason to discard approval. If the aggregation is restored to
+its approved state, including its original valid closure date and all approved
+contents and other facts, that approval may remain valid. Historical closure
+dates, including those of migrated physical files, are legitimate. Preserve a
+valid closure date already supplied when the aggregation was reclosed.
+Changed approved contents or other material approved facts require renewed
+review through the existing correction/return and complete-review flow.
+Restoring pending status alone does not renew an invalid approval. Earlier
+work, decisions, documents and permanent history are retained.
+
+Explicit removal remains available. It changes only membership and leaves the
+unit at status 1. Ordinary reclosure alone does not clear the reopening flag;
+automatic eligibility evaluation does not restore an active member. Record
+reopening, the status reset and job block, and subsequent acceleration or
+removal as separate permanent events. Every successful acceleration retains
+its mandatory reason, actor, current rule/due-date provenance and notifications.
 
 ## 7. Automatic eligibility service
 
@@ -769,14 +811,24 @@ authoritative for races, direct API callers and stale clients.
     the membership and change the complete disposition unit to the matching
     pending status as one operation. Each failure report must explain the
     reason without revealing information the IGU is not allowed to see.
+    The API retains per-aggregation outcomes. The UI reports complete success
+    with one toast naming the added count and destination job number, without
+    a persistent success list. Partial success reports the added/selected and
+    failed counts; zero success displays a warning. Failed additions provide
+    a **View failures (count)** action opening failure-only details in pages of
+    ten, with each permitted aggregation identity and safe reason. Successful
+    additions never occupy that detail list. Refresh the current eligibility
+    page after the command and ignore late feedback after navigation.
 12. A unit may be removed until the final action begins. The removal and status
    change must both succeed or both fail. It returns to the matching eligible
    status under Section 5.3. The final action must either complete as one
    operation or safely continue after interruption. Removing job membership
    cannot undo a completed final action.
-13. If a member aggregation is reopened, Section 6.1 applies. The job cannot
-    continue until an authorized IGU explicitly removes that aggregation. The
-    removal leaves its disposition status at 1.
+13. If a member aggregation is reopened, Section 6.1 applies. Job progression
+    remains blocked until an authorized IGU restores compatible pending status
+    through in-job acceleration or explicitly removes it. Removal leaves
+    status 1; acceleration preserves membership and restores matching pending
+    status without advancing the job or reusing invalid approval.
 14. If a member's effective retention rule changes, Section 12 applies. A
     matching disposition action keeps the unit in the job and in its matching
     pending status. A unit whose new due date is not yet due, or whose new
@@ -894,8 +946,12 @@ withdrawal, delegation, expiry, and controls for each disposition action.
 ## 11. Exceptional acceleration
 
 An IGU with `disposition.jobs.manage` may make a root aggregation eligible
-early. The aggregation moves from status 1 to status 2, 3, 4, or 5 according to
-its retention rule without waiting for its retention periods to end. If the
+early. Outside a job it moves from status 1 to status 2, 3, 4, or 5 according to
+its retention rule without waiting for its retention periods to end. A reopened
+active member may instead be restored directly from status 1 to its existing
+job’s matching pending status under Section 6.1. This exception is limited to
+active membership marked for recovery because of reopening; it does not permit
+arbitrary acceleration of pending, final or unrelated removal-required states. If the
 governing root is open, acceleration closes it at the current database time
 before changing eligibility, using the existing closure authorization and
 integrity rules. Closure and eligibility form one atomic action: failure rolls
@@ -953,7 +1009,8 @@ facts and all hold assignments remain unchanged. The same current-state checks
 still reject job admission and final execution under Section 9. Relationships
 also do not prevent acceleration; their final-action blockers remain in force.
 Existing access, clearance, IGU authorization, reason, effective-rule, version,
-and no-active-job checks still apply. A disposition-blocking security level is
+and existing job compatibility checks still apply. Active membership is allowed
+for the reopened-member recovery case in Section 6.1. A disposition-blocking security level is
 separate from the actor's permission to view or act on the resource.
 
 For an open root, distinguish a normal hold from one with
@@ -1445,7 +1502,8 @@ The database must also prevent status 6, 7, 8, or 9 unless the root aggregation
 belongs to one active job of the matching type. Adding active-job membership
 and setting the matching pending status on the complete disposition unit must
 be one operation. The reopening exception may leave a status-1 unit in an
-active job only until its required explicit removal. A retention-rule change
+active job until explicit removal or compatible in-job acceleration restores
+its matching pending status under Section 6.1. A retention-rule change
 may leave a status-1 or non-matching eligible unit in an active job only while
 it is marked for required removal. If the recalculated action still matches
 the job, the complete unit must retain the matching pending status. None of
@@ -1487,7 +1545,7 @@ Reopening an eligible or pending aggregation must clear `date_closed` and reset
 the complete disposition unit to status 1 as one operation. If the aggregation
 belongs to an active job, the database must prevent that job from moving to
 another state or completing a final action until the aggregation is explicitly
-removed.
+removed or restored through compatible in-job acceleration under Section 6.1.
 
 Recalculating an effective retention rule must update the complete disposition
 unit and its event history as one operation. For a member of an active job, a
@@ -1697,10 +1755,10 @@ are required at a minimum:
 | DISP-21 | An authorized IGU may terminate an active job at any stage before completion; every aggregation remains in the terminated job, unaffected units return to the matching eligible state, and all history is preserved | Authorization, workflow, state-transition, terminated-membership, and event-history tests |
 | DISP-22 | Terminating a destruction job after physical destruction but before digital destruction sets the affected mixed unit to status 13 and preserves its digital material; an authorized IGU may then select status 2, 3, 4, or 5 with a required reason, after which the unit may enter a matching new job | Authorization, database, full-unit update, digital-content, job-admission, UI, and event-history tests |
 | DISP-23 | An authorized IGU may resolve every status-13 aggregation in one terminated job through one all-or-nothing bulk action using one selected eligible status and one shared reason | Authorization, database rollback, full-unit update, UI confirmation, job-admission, and linked event-history tests |
-| DISP-24 | Reopening an eligible or pending aggregation clears its closure date, resets the complete unit to status 1, blocks any active job until explicit removal, and keeps the unit at status 1 after removal | Authorization, database rollback, job-blocking, UI, reclosure, recalculation, and event-history tests |
+| DISP-24 | Reopening an eligible or pending aggregation clears its closure date, resets the complete unit to status 1, blocks its active job until explicit removal or compatible in-job acceleration; recovery preserves the membership episode, restores the complete pending unit, clears the reopening flag, retains protections and applies the existing approved-facts comparison; exact restoration can preserve approval while changed approved facts require renewed review | Authorization, database rollback, job-blocking, UI, reclosure, recalculation, and event-history tests |
 | DISP-25 | Status 6, 7, 8, or 9 is possible only with membership in one active job of the matching type, and job addition and full-unit status change succeed or fail together | Database constraint/trigger, direct-SQL bypass, API, import/background-path, concurrency, and rollback tests |
 | DISP-26 | A newly created active job may be unassigned only while it is empty; its assignee is one specific authorized IGU, and the actual authenticated IGU who performs the final action is recorded separately with execution-time identity and action details | Authorization, assignment/reassignment, database/API rejection, executor-versus-assignee, service-account rejection, and event-history tests |
-| DISP-27 | A multi-selection request adds every valid aggregation, leaves each failed aggregation unchanged, preserves successful additions when another selection fails, and reports each result without exposing protected information | API mixed-result, per-item rollback, concurrency, redaction, and UI tests |
+| DISP-27 | A multi-selection request adds every valid aggregation, leaves each failed aggregation unchanged, preserves successful additions when another selection fails, and returns each API result; the UI shows a count/job summary and on-demand paginated failure-only details without exposing protected information | API mixed-result, per-item rollback, concurrency, redaction, summary/pagination, and UI tests |
 | DISP-28 | A redacted root disposition unit cannot be selected or added to a job through the UI, API, import, background, or direct-membership path, while redacted descendants remain visible only as blocker explanations | Authorization, API, direct-database enforcement, import/background-path, redaction, and live-browser tests |
 | DISP-29 | An effective retention-rule change recalculates the due date, action, and complete-unit status; an active-job member keeps status 6, 7, 8, or 9 when its action still matches, while a not-yet-due or non-matching member is marked for explicit removal and blocks job progress | Clock-controlled boundary, rule-resolution, full-unit rollback, matching and non-matching active-job, job-blocking, explicit-removal, and event-history tests |
 | DISP-30 | Completing a destruction job warns the IGU that backups and copies held outside Wathiq must also be destroyed and that ensuring their destruction is outside Wathiq's responsibility | Destruction-completion workflow and live-browser LTR/RTL tests |
@@ -1758,6 +1816,14 @@ the existing browser user storage, keyed by authenticated user ID, and restored
 when that user returns. Filter and sort values use the existing page-view state.
 Applying filters resets pagination; refresh retains the current page. The
 existing bounded loading, empty, error and stale-response behavior is retained.
+
+On the first visit, the Job state filter defaults to **Active**. Completed and
+terminated jobs remain available through their explicit filters or **Any**.
+Retain an explicit lifecycle selection in the existing page-view state when
+restoring navigation history, including Any; do not reset it to Active. Opening
+the jobs page afresh uses the default. The default applies
+to this WebUI listing; other callers of the shared jobs API retain their current
+explicit-filter behavior.
 
 ### Creating a job while choosing an admission destination
 

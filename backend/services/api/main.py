@@ -404,6 +404,18 @@ async def audit_request_context(request: Request, call_next):
 async def database_error_handler(_, exception: psycopg.Error):
     sqlstate = exception.sqlstate
     constraint_messages = {
+        "aggregation_medium_contents_conflict": (
+            "aggregation_medium_contents_conflict",
+            "The selected medium conflicts with contained aggregations, records or drafts.",
+        ),
+        "aggregation_medium_mismatch": (
+            "aggregation_medium_mismatch",
+            "A child aggregation must have the same medium as its parent.",
+        ),
+        "record_medium_not_allowed_by_parent": (
+            "record_medium_not_allowed_by_parent",
+            "The record's medium is incompatible with its parent aggregation.",
+        ),
         "aggregations_dates_in_order": (
             "aggregation_dates_out_of_order",
             "The aggregation's closing date cannot be earlier than its opening date.",
@@ -864,15 +876,14 @@ def update_aggregation(
             connection, "aggregation", aggregation_id,
             "aggregation.modify", "aggregation.modify_metadata",
         )
-        has_contents = connection.execute(
-            """SELECT EXISTS (SELECT 1 FROM aggregations WHERE parent_aggregation_id=%s)
-                      OR EXISTS (SELECT 1 FROM records WHERE aggregation_id=%s) AS value""",
-            (aggregation_id, aggregation_id),
+        compatible = connection.execute(
+            "SELECT aggregation_medium_contents_compatible(%s,%s) AS value",
+            (aggregation_id, payload.medium),
         ).fetchone()["value"]
-        if has_contents:
+        if not compatible:
             raise _medium_error(
-                "medium_change_requires_empty_aggregation",
-                "An aggregation's medium can only be changed while it is empty.",
+                "aggregation_medium_contents_conflict",
+                "The selected medium conflicts with contained aggregations, records or drafts.",
             )
         if existing["parent_aggregation_id"] is not None:
             parent = connection.execute(

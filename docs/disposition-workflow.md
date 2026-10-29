@@ -3,6 +3,13 @@
 The job workspace uses a compact stage tracker. This full branching diagram is
 a documentation reference; actual routing follows the job’s saved review route.
 
+In a job or task workspace, the Aggregations tab's **Search aggregations**
+field searches only memberships of that job. Press Enter to match aggregation
+number or title, owning organization unit name, or classification code or title.
+Matching is case-insensitive and accepts partial text. It does not search the
+job number or the other table columns. The field displays this scope as a hint
+in English and Arabic; the separate Membership filter remains available.
+
 ```mermaid
 flowchart TD
 START(["Start"])
@@ -85,3 +92,20 @@ rounds” shows recorded submissions and decisions, not a second tracker.
 Unreached stages are omitted. Use “Load earlier rounds” for older history.
 The next immutable round is created only when submitted or approved through
 the existing workflow. Previous rounds and their decisions remain unchanged.
+
+
+## Recovering a reopened member
+
+Reopening an aggregation preserves its job membership and blocks progress. An
+authorized IGU can use **Accelerate disposition eligibility** on the aggregation
+to close it and restore its existing job's pending status when its current
+retention action and organizational scope remain compatible. The reopening
+flag clears atomically. Removal and re-addition are unnecessary. Ordinary
+reclosure alone does not restore the member.
+
+Existing blockers and closure restrictions remain. Recovery does not advance
+the job or resume destruction, and approval validity follows the existing approved-facts comparison. Exact
+restoration may retain approval; changed approved facts use the existing
+correction/return flow. Saved preparation proposals remain in place. Explicit removal remains
+available for incompatible members. See the
+[approved amendment and upgrade guide](disposition-in-job-acceleration.md).
