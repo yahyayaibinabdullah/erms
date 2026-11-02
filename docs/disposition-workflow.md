@@ -219,6 +219,20 @@ No configuration or privilege change is required. Catalogue synchronization
 adds the Add aggregations message and one unpublished Arabic draft for review. See the
 [verification and requirement mapping](verification/simplified-review-and-correction.md).
 
+## Emailing the destruction request
+
+During **External approval pending**, **Current Task** offers **Send by email**
+beside **Preview request** and **Download request**, with the configured
+recipient and latest sending attempt. The Records Manager or assigned Records
+Officer sends deliberately; approving proposals and generating the form do not
+send mail. Sending leaves the task open for the authority's received decision.
+
+The action shares retry/busy state and the latest-attempt summary with
+**Evidence and documents**, which retains full **Email attempts** history.
+Existing server authorization controls visibility and sending. No new API,
+privilege or setting is introduced; existing English and Arabic keys are reused.
+See [request email verification](verification/request-task-email.md).
+
 ## Emailing the digital destruction certificate
 
 In **Current Task**, the final certificate section offers **Send by email** next

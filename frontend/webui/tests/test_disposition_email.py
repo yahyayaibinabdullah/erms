@@ -108,6 +108,43 @@ async def certificate_form(host,monkeypatch,*,latest=None,allowed=True):
     return f,api,documents,selected,alive
 
 
+async def request_form(host,monkeypatch,*,latest=None,allowed=True):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    v=view(actions=('external_decide',));v['job'].update(workflow_stage='external_approval_pending',lifecycle_state='active')
+    v['task'].update(task_type='external_approval',workflow_stage='external_approval_pending',request_document_id=99)
+    request=dict(id=99,record_id=4,digital_component_id=5,file_name='request.pdf',document_type='destruction_request',role_ids=[7],latest_attempt=latest)
+    v['external']=dict(round_id=10,request=request,can_generate=False,can_renew=False,approval_current=True,manager_roles=[],renew_roles=[])
+    v['email']=dict(recipient='authority@test.invalid',roles=[dict(id=7,name='Records Officer')],documents=[request] if allowed else [])
+    selected=['task'];alive=[True];api=Api()
+    async def noop(*a):pass
+    with host:
+        documents=ui.column()
+        f=ReviewForm(api=api,workspace=v,active=lambda:alive[0],on_error=str,bind_remote=noop,after=noop,format_timestamp=str,open_resource=None,preview=noop,documents_host=documents,documents_active=lambda:selected[0]=='documents',task_active=lambda:selected[0]=='task')
+        await f.load()
+    return f,api,documents,selected,alive
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('allowed',[True,False])
+async def test_request_actions_share_row_and_respect_current_send_authority(host,monkeypatch,allowed):
+    f,api,documents,_,_=await request_form(host,monkeypatch,allowed=allowed)
+    buttons=[e for e in f.body.descendants() if isinstance(e,ui.button)]
+    preview=next(e for e in buttons if e.text==text('preview_request'))
+    download=next(e for e in buttons if e.text==text('download_request'))
+    assert preview.parent_slot==download.parent_slot
+    sends=[e for e in buttons if e.text==text('send_email')]
+    assert len(sends)==int(allowed)
+    if allowed:
+        assert sends[0].parent_slot==preview.parent_slot
+        assert len(f.email_sends[99]['buttons'])==2
+        assert any(isinstance(e,ui.label) and e.text=='authority@test.invalid' for e in f.body.descendants())
+        assert any(isinstance(e,ui.label) and e.text==text('email_not_sent') for e in f.body.descendants())
+    assert text('external_approve') in [b.text for b in buttons]
+    assert text('external_reject') in [b.text for b in buttons]
+    assert not any(p.endswith('email-attempts') for p,_ in api.reads) and not api.writes
+
+
 @pytest.mark.asyncio
 async def test_certificate_send_present_in_both_tabs_without_initial_extra_read(host,monkeypatch):
     f,api,documents,_,_=await certificate_form(host,monkeypatch)
@@ -119,8 +156,9 @@ async def test_certificate_send_present_in_both_tabs_without_initial_extra_read(
 
 
 @pytest.mark.asyncio
-async def test_cross_tab_uncertain_retry_shares_identity_and_updates_both_summaries(host,monkeypatch):
-    f,api,documents,selected,_=await certificate_form(host,monkeypatch);calls=[]
+@pytest.mark.parametrize('form_builder',[certificate_form,request_form],ids=['certificate','request'])
+async def test_cross_tab_uncertain_retry_shares_identity_and_updates_both_summaries(host,monkeypatch,form_builder):
+    f,api,documents,selected,_=await form_builder(host,monkeypatch);calls=[]
     latest=dict(id=10,document_id=99,status='smtp_accepted',requested_at='09:00',outcome_at='09:01',recipient='authority@test.invalid')
     async def send(path,payload,**kw):
         calls.append((path,deepcopy(payload)))
@@ -134,16 +172,19 @@ async def test_cross_tab_uncertain_retry_shares_identity_and_updates_both_summar
         await click(task_button);selected[0]='documents';await click(doc_button);await click(doc_button)
     assert calls[0]==calls[1] and calls[1][1]['command_id']!=calls[2][1]['command_id']
     assert calls[0][0]=='jobs/5/documents/99/email'
-    assert all(p['document_id']==99 and p['limit']==1 for _,p in api.reads)
+    assert f.task and f.job['lifecycle_state']=='active'
+    assert all(p['document_id']==99 and p['limit']==1 for path,p in api.reads if path.endswith('email-attempts'))
     assert all(text('email_smtp_accepted') in target.text and '09:01' in target.text for target,_ in f.email_sends[99]['summaries'])
 
 
 @pytest.mark.asyncio
-async def test_pending_summary_poll_and_reentry_respect_visibility_and_abandonment(host,monkeypatch):
+@pytest.mark.parametrize('form_builder',[certificate_form,request_form],ids=['certificate','request'])
+async def test_pending_summary_poll_and_reentry_respect_visibility_and_abandonment(host,monkeypatch,form_builder):
     pending=dict(status='sending',requested_at='09:00',outcome_at=None,recipient='authority@test.invalid')
-    f,api,_,selected,alive=await certificate_form(host,monkeypatch,latest=pending)
+    f,api,_,selected,alive=await form_builder(host,monkeypatch,latest=pending)
     state=f.email_sends[99];assert state['timer'].active
-    selected[0]='members';await state['refresh']();assert not api.reads
+    before_reads=list(api.reads)
+    selected[0]='members';await state['refresh']();assert api.reads==before_reads
     async def read(path,**params):api.reads.append((path,params));alive[0]=False;return dict(items=[],total=0)
     api.disposition_page=read;selected[0]='task';before=[label.text for label,_ in state['summaries']]
     await state['refresh']()

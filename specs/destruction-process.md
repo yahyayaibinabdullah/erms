@@ -4,13 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.15
+**Revision:** 1.16
 **Amendment approved:** 2 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.16 | 2 November 2026 | Expose manual request email sending beside preview/download in Current Task, with recipient/latest attempt and shared sending state; retain the task until the authority's decision |
 | 1.15 | 2 November 2026 | Expose optional certificate email sending and its recipient/latest attempt in Current Task, sharing the existing send action and full Evidence and documents history |
 | 1.14 | 2 November 2026 | Adopt the approved physical preparation report grouped by current collection location, with concise aggregation rows, serial numbers, explicit unknown locations and unique totals |
 | 1.13 | 30 October 2026 | Shared sticky task footer for Save changes and pending-work review across tabs; discard local drafts in their disclosures and retain context after saving |
@@ -1582,6 +1583,14 @@ Evidence and documents tab. The assigned Records Officer can use the same
 action in the Send Request for Destruction Form task. Either can download the
 form for physical delivery or another method.
 The task displays the configured external authority email address before sending.
+In **Current Task**, show **Send by email** beside **Preview request** and
+**Download request** for the current request when the server projects send
+authorization. Show the configured recipient and latest attempt's status,
+timestamp and actual recipient, or the translated no-attempt state. Reuse the
+same sending action, pending retry identity, busy state and visibility-aware
+bounded summary refresh as **Evidence and documents**. Keep full **Email
+attempts** history in that tab. Sending or resending leaves the task awaiting
+the authority's decision; it does not complete the task or advance the job.
 
 The Records Manager is responsible for checking the applied proposals and
 sending the request. An authorized Records Manager or the assigned Records
