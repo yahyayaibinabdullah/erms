@@ -99,39 +99,35 @@ MANAGED_DATABASE=false
 
 cleanup() {
     local exit_code=$?
-    trap - EXIT INT TERM
+    trap - EXIT
+    # A second Ctrl-C/TERM must not interrupt cleanup and orphan the services.
+    trap '' INT TERM
 
-    local worker_pid
-    if [[ -n "${SESSION_CLEANUP_PID}" ]] && kill -0 "${SESSION_CLEANUP_PID}" 2>/dev/null; then
-        kill "${SESSION_CLEANUP_PID}" 2>/dev/null || true
-        wait "${SESSION_CLEANUP_PID}" 2>/dev/null || true
+    local service_pid
+    local -a owned_processes=(
+        "--process" "session-cleanup=${SESSION_CLEANUP_PID}"
+        "--process" "content-cleanup=${CONTENT_CLEANUP_PID}"
+        "--process" "disposition-eligibility=${DISPOSITION_ELIGIBILITY_PID}"
+        "--process" "disposition-communications=${DISPOSITION_COMMUNICATIONS_PID}"
+        "--process" "disposition-destruction=${DISPOSITION_DESTRUCTION_PID}"
+        "--process" "indexing-maintenance=${INDEXING_MAINTENANCE_PID}"
+        "--process" "text-indexer=${INDEXER_PID}"
+        "--process" "webui=${UI_PID}"
+        "--process" "api=${API_PID}"
+    )
+    # Snapshot descendants before signalling their parents. This bounded helper
+    # rechecks identities before TERM/KILL and also handles development reloaders.
+    if ! python3 "${PROJECT_DIR}/tools/local_stack_control.py" _cleanup "$$" "${owned_processes[@]}"; then
+        echo "Owned process cleanup failed; inspect .runtime/local-stack/stack.log before restarting." >&2
+        exit 1
     fi
-    if [[ -n "${CONTENT_CLEANUP_PID}" ]] && kill -0 "${CONTENT_CLEANUP_PID}" 2>/dev/null; then
-        kill "${CONTENT_CLEANUP_PID}" 2>/dev/null || true
-        wait "${CONTENT_CLEANUP_PID}" 2>/dev/null || true
-    fi
-    for worker_pid in "${DISPOSITION_ELIGIBILITY_PID}" "${DISPOSITION_COMMUNICATIONS_PID}" "${DISPOSITION_DESTRUCTION_PID}"; do
-        if [[ -n "${worker_pid}" ]] && kill -0 "${worker_pid}" 2>/dev/null; then
-            kill "${worker_pid}" 2>/dev/null || true
-            wait "${worker_pid}" 2>/dev/null || true
-        fi
+    # Every owned service has exited; these waits only reap our direct children.
+    for service_pid in "${SESSION_CLEANUP_PID}" "${CONTENT_CLEANUP_PID}" \
+        "${DISPOSITION_ELIGIBILITY_PID}" "${DISPOSITION_COMMUNICATIONS_PID}" \
+        "${DISPOSITION_DESTRUCTION_PID}" "${INDEXING_MAINTENANCE_PID}" \
+        "${INDEXER_PID}" "${UI_PID}" "${API_PID}"; do
+        if [[ -n "${service_pid}" ]]; then wait "${service_pid}" 2>/dev/null || true; fi
     done
-    if [[ -n "${INDEXING_MAINTENANCE_PID}" ]] && kill -0 "${INDEXING_MAINTENANCE_PID}" 2>/dev/null; then
-        kill "${INDEXING_MAINTENANCE_PID}" 2>/dev/null || true
-        wait "${INDEXING_MAINTENANCE_PID}" 2>/dev/null || true
-    fi
-    if [[ -n "${INDEXER_PID}" ]] && kill -0 "${INDEXER_PID}" 2>/dev/null; then
-        kill "${INDEXER_PID}" 2>/dev/null || true
-        wait "${INDEXER_PID}" 2>/dev/null || true
-    fi
-    if [[ -n "${UI_PID}" ]] && kill -0 "${UI_PID}" 2>/dev/null; then
-        kill "${UI_PID}" 2>/dev/null || true
-        wait "${UI_PID}" 2>/dev/null || true
-    fi
-    if [[ -n "${API_PID}" ]] && kill -0 "${API_PID}" 2>/dev/null; then
-        kill "${API_PID}" 2>/dev/null || true
-        wait "${API_PID}" 2>/dev/null || true
-    fi
     if [[ "${MANAGED_MAILDEV}" == true ]]; then
         "${PROJECT_DIR}/run-maildev.py" down --owner "${MAILDEV_OWNER}" || true
     fi

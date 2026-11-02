@@ -32,6 +32,8 @@ def stack(tmp_path):
     (project / 'tools').mkdir()
     (project / 'tools/local_stack_log.py').write_text(
         (source.parent / 'tools/local_stack_log.py').read_text())
+    (project / 'tools/local_stack_control.py').write_text(
+        (source.parent / 'tools/local_stack_control.py').read_text())
     (project / '.env').write_text('')
     maildev = project / 'run-maildev.py'
     maildev.write_text(f'#!{sys.executable}\n' + '''
@@ -49,7 +51,7 @@ elif sys.argv[1] == 'down' and owner_file.exists() and owner_file.read_text() ==
     maildev.chmod(0o700)
     binary = tmp_path / 'bin'
     binary.mkdir()
-    for name, body in [('python3', f'if [ "$1" = -u ]; then shift; fi\ncase "$1" in */local_stack_log.py) exec "{sys.executable}" "$@";; esac\nexit 0'), ('curl', 'exit 0'),
+    for name, body in [('python3', f'if [ "$1" = -u ]; then shift; fi\ncase "$1" in */local_stack_log.py|*/local_stack_control.py) exec "{sys.executable}" "$@";; esac\nexit 0'), ('curl', 'exit 0'),
                        ('psql', 'echo "${TEST_SCHEMA_READY:-t}"')]:
         file = binary / name
         file.write_text('#!/bin/sh\n' + body + '\n')
@@ -57,7 +59,7 @@ elif sys.argv[1] == 'down' and owner_file.exists() and owner_file.read_text() ==
     python = project / 'backend/services/api/.venv/bin/python'
     python.parent.mkdir(parents=True)
     python.write_text(f'#!{sys.executable}\n' + '''
-import json, os, pathlib, sys, time
+import json, os, pathlib, signal, subprocess, sys, time
 if any(arg.endswith('/004_seed_generated_arabic_ui_translations.py') for arg in sys.argv):
     pathlib.Path(os.environ['TEST_OUTPUT'], 'translation-sync.json').write_text(json.dumps({
         'args':sys.argv[1:], 'database':os.environ.get('DATABASE_URL'),
@@ -65,6 +67,10 @@ if any(arg.endswith('/004_seed_generated_arabic_ui_translations.py') for arg in 
     sys.exit(9 if os.environ.get('TEST_TRANSLATION_FAILURE')=='1' else 0)
 if '-m' not in sys.argv: sys.exit(0)
 module = sys.argv[sys.argv.index('-m') + 1]
+if module.rsplit('.', 1)[-1] == os.environ.get('TEST_STUBBORN_WORKER'):
+    child = subprocess.Popen([sys.executable, '-c', 'import signal,time; signal.signal(signal.SIGTERM,signal.SIG_IGN); time.sleep(120)'])
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    pathlib.Path(os.environ['TEST_OUTPUT'], 'stubborn-child.pid').write_text(str(child.pid))
 pathlib.Path(os.environ['TEST_OUTPUT'], module.rsplit('.', 1)[-1]+'.json').write_text(
     json.dumps({'pid': os.getpid(), 'args': sys.argv[1:],
                 'database': os.environ.get('DATABASE_URL'),
@@ -78,11 +84,12 @@ while True: time.sleep(1)
                CONTENT_INDEXING_MAINTENANCE_ENABLED='true', TEST_OUTPUT=str(tmp_path))
     # Skip only the lock wrapper in this isolated copied project. All launcher
     # startup, migration gating, worker supervision and cleanup run unchanged.
-    def launch(ready='t', maildev_failure=False, maintenance=True, translation_failure=False):
+    def launch(ready='t', maildev_failure=False, maintenance=True, translation_failure=False, stubborn_worker=''):
         env['TEST_SCHEMA_READY'] = ready
         env['TEST_MAILDEV_FAILURE'] = '1' if maildev_failure else '0'
         env['CONTENT_INDEXING_MAINTENANCE_ENABLED'] = 'true' if maintenance else 'false'
         env['TEST_TRANSLATION_FAILURE'] = '1' if translation_failure else '0'
+        env['TEST_STUBBORN_WORKER'] = stubborn_worker
         output = (tmp_path / 'output.log').open('w+')
         process = subprocess.Popen(['bash', '-c',
             'export ERMS_LOCAL_STACK_LOCK_PID=$$; exec bash "$1"',
@@ -90,8 +97,8 @@ while True: time.sleep(1)
             stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
         return process, output
     processes = []
-    def start(ready='t', maildev_failure=False, maintenance=True, translation_failure=False):
-        result = launch(ready, maildev_failure, maintenance, translation_failure)
+    def start(ready='t', maildev_failure=False, maintenance=True, translation_failure=False, stubborn_worker=''):
+        result = launch(ready, maildev_failure, maintenance, translation_failure, stubborn_worker)
         processes.append(result)
         return result
     yield start, tmp_path
@@ -100,6 +107,20 @@ while True: time.sleep(1)
             os.killpg(process.pid, signal.SIGTERM)
             process.wait(timeout=10)
         output.close()
+
+
+def test_foreground_shutdown_bounds_stubborn_worker_and_its_child(stack):
+    start, directory = stack
+    process, output = start(stubborn_worker='communications')
+    eventually(lambda: (directory / 'stubborn-child.pid').exists()
+               and all((directory / (name + '.json')).exists() for name in WORKERS))
+    child = int((directory / 'stubborn-child.pid').read_text())
+    process.send_signal(signal.SIGINT)
+    assert process.wait(timeout=25) == 0
+    assert 'Graceful shutdown timed out' in (directory / 'output.log').read_text()
+    with pytest.raises(ProcessLookupError):
+        os.kill(child, 0)
+    assert (directory / 'maildev.stopped').exists()
 
 
 def test_startup_syncs_only_missing_arabic_on_the_resolved_database(stack):

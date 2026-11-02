@@ -37,18 +37,42 @@ on the next `up`/`restart`; existing undated history is preserved because its
 individual line times cannot be reconstructed.
 
 `up` reuses an already healthy stack, including one started in the foreground.
-`down` can also stop that recorded foreground stack. It signals only the recorded
-launcher after checking PID/start identity; the launcher's normal cleanup stops
-its services. Independently running API, WebUI, PostgreSQL and MailDev instances
+`down` can also stop that recorded foreground stack. It first checks the
+launcher's PID/start identity, captures the owned service trees, and asks the
+launcher to stop. Cleanup includes reloader children, indexer children and all
+managed workers. Independently running API, WebUI, PostgreSQL and MailDev instances
 that were reused remain running. Do not delete runtime state while the stack
 runs. A stale PID never authorizes signalling an unrelated replacement process.
 
 `status` exits 0 only when the recorded launcher is ready, its managed processes
 are alive, API/UI respond and MailDev passes its TLS/mailbox/MCP checks. Stopped,
 starting or unhealthy returns 1. `up` waits up to 240 seconds for health; startup
-failure attempts normal shutdown and returns nonzero. `down` waits up to 45
-seconds, then reports a failure rather than forcibly killing other processes.
+failure performs the same bounded cleanup and returns nonzero. Shutdown first
+allows owned services up to ten seconds to handle `SIGTERM`, then sends
+`SIGKILL` only to remaining identity-verified owned processes and allows three
+seconds to verify their exit. Children are captured before their parents are
+signalled, retained in `state.json`, and checked even if a parent exits first.
+Reloaders' newly observed children are included during cleanup. Every signal
+rechecks the captured identity; no command kills a process group or infers
+ownership from a port or command-name match. Foreground Ctrl-C uses this same
+cleanup, and repeated interrupts cannot interrupt its cleanup trap.
+
+The controller gives the launcher fifteen seconds to finish normal cleanup.
+If an older launcher is stuck in an unbounded wait, it directly cleans the
+recorded surviving service trees with five seconds of graceful termination
+before the same forced-exit verification. `down` has an overall 45-second
+launcher deadline. A cleanup failure returns an error; `restart` does not start
+replacement services until the old launcher and all captured owned processes
+have exited. `up` and foreground registration refuse to overwrite a previous
+stack's surviving ownership records. `status` identifies recorded survivors
+even if their launcher has exited; use `down` or `restart` to finish cleanup.
+Short state updates use a separate `state.lock`, without blocking status behind
+the lifecycle command lock or holding a state lock while waiting for processes.
+MailDev and PostgreSQL retain their existing independent ownership checks.
 No command applies migrations or changes database application settings.
+
+Regression and live lifecycle evidence is recorded in
+[local-stack shutdown verification](verification/local-stack-shutdown.md).
 
 Environment changes take effect on the next start/restart. These commands use the
 same `.env` and exported-environment precedence as foreground mode. A reused

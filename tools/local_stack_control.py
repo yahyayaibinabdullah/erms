@@ -1,5 +1,6 @@
 """Manage the project-local stack; the shell launcher owns service cleanup."""
 import argparse
+from contextlib import contextmanager
 import fcntl
 import json
 import os
@@ -25,6 +26,114 @@ def identity(pid):
 
 def running(state):
     return bool(state and state.get('identity') and identity(state['pid']) == state['identity'])
+
+
+def owned_tree(processes):
+    """Snapshot only matching recorded roots and descendants of those roots.
+
+    Retained child identities remain usable after their parent exits. Never
+    infer ownership from a port, command substring or process-group membership.
+    """
+    if not processes:
+        return []
+    result = subprocess.run(['ps', '-axo', 'pid=', '-o', 'ppid=', '-o', 'lstart=', '-o', 'command='],
+                            capture_output=True, text=True, check=True)
+    table = {}
+    for line in result.stdout.splitlines():
+        match = re.match(r'\s*(\d+)\s+(\d+)\s+(.*)', line)
+        if match:
+            pid, parent, owner = match.groups()
+            table[int(pid)] = {'pid': int(pid), 'parent_pid': int(parent), 'identity': owner.strip()}
+    owned = {p['pid']: table[p['pid']] for p in processes
+             if p.get('identity') and p['pid'] > 1 and p['pid'] in table
+             and table[p['pid']]['identity'] == p['identity']}
+    while True:
+        children = {pid: p for pid, p in table.items()
+                    if pid > 1 and pid not in owned and p['parent_pid'] in owned}
+        if not children:
+            return list(owned.values())
+        owned.update(children)
+
+
+def signal_owned(processes, sig):
+    for process in processes:
+        # Re-check immediately before each signal, including forced termination.
+        if running(process):
+            try:
+                os.kill(process['pid'], sig)
+            except ProcessLookupError:
+                pass
+
+
+def terminate_owned(processes, *, grace=10, kill_wait=3, remember=None):
+    """Bounded graceful/forced cleanup; remember children before parent exit."""
+    known = {(p['pid'], p['identity']): p for p in processes if p.get('identity')}
+    sent = set()
+
+    def discover():
+        live = owned_tree(list(known.values()))
+        added = False
+        for process in live:
+            key = (process['pid'], process['identity'])
+            if key not in known:
+                known[key] = process
+                added = True
+        if remember and added:
+            remember(list(known.values()))
+        return live
+
+    deadline = time.monotonic() + grace
+    while True:
+        live = discover()
+        if not live:
+            return
+        fresh = [p for p in live if (p['pid'], p['identity']) not in sent]
+        signal_owned(fresh, signal.SIGTERM)
+        sent.update((p['pid'], p['identity']) for p in fresh)
+        if time.monotonic() >= deadline:
+            break
+        time.sleep(0.1)
+    live = discover()
+    if live:
+        print('Graceful shutdown timed out; stopping remaining owned processes: '
+              + ', '.join(str(p['pid']) for p in live), flush=True)
+        signal_owned(reversed(live), signal.SIGKILL)
+    deadline = time.monotonic() + kill_wait
+    while time.monotonic() < deadline:
+        live = discover()
+        if not live:
+            return
+        # Include a last child started by a reloader while termination raced.
+        signal_owned(reversed(live), signal.SIGKILL)
+        time.sleep(0.1)
+    raise RuntimeError('Owned processes remain after shutdown: '
+                       + ', '.join(str(p['pid']) for p in live))
+
+
+def recorded_processes(state):
+    if not state:
+        return []
+    return list(state.get('processes', {}).values()) + state.get('shutdown_processes', [])
+
+
+@contextmanager
+def changing_state(state):
+    # Shell hooks cannot take control.lock (up/down waits for those hooks).
+    # Serialize only the short read/merge/write, never process waits or signals.
+    with (RUNTIME / 'state.lock').open('a') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        current = read_state()
+        if not current or (current['pid'], current['identity']) != (state['pid'], state['identity']):
+            raise RuntimeError('Launcher ownership changed; refusing state update.')
+        yield current
+        save(current)
+
+
+def remember_shutdown(state, processes):
+    with changing_state(state) as current:
+        known = {(p['pid'], p['identity']): p for p in current.get('shutdown_processes', [])}
+        known.update({(p['pid'], p['identity']): p for p in processes})
+        current.update(phase='stopping', shutdown_processes=list(known.values()))
 
 
 def read_state():
@@ -87,17 +196,37 @@ def report(state):
         print('MailDev endpoints unavailable; check ./run-maildev.py status')
 
 
-def stop(state):
-    if not running(state):
+def stop(state, *, launcher_grace=15, process_grace=5):
+    processes = owned_tree(recorded_processes(state))
+    launcher_running = running(state)
+    if not launcher_running and not processes:
         print('Local stack is stopped (no owned live launcher).')
         return
     pid = state['pid']
-    os.kill(pid, signal.SIGTERM)
+    remember_shutdown(state, processes)
+    # Repeated down/restart must not interrupt a cleanup trap already in flight.
+    if launcher_running and state.get('phase') != 'stopping':
+        signal_owned([state], signal.SIGTERM)
+    grace_deadline = time.monotonic() + launcher_grace
     deadline = time.monotonic() + 45
+    while running(state) and time.monotonic() < grace_deadline:
+        discovered = owned_tree(recorded_processes(read_state()))
+        if discovered:
+            remember_shutdown(state, discovered)
+        time.sleep(0.1)
+    # Also repairs an older shell stuck in an unbounded wait, or a dead launcher
+    # whose recorded children survived. Never kill the launcher's process group.
+    remaining = owned_tree(recorded_processes(read_state()))
+    if remaining:
+        terminate_owned(remaining, grace=process_grace, remember=lambda p: remember_shutdown(state, p))
     while running(state) and time.monotonic() < deadline:
         time.sleep(0.1)
     if running(state):
-        raise RuntimeError('Local stack did not stop within 45 seconds; inspect stack.log. No unrelated process was killed.')
+        raise RuntimeError('Local stack did not stop within 45 seconds; inspect stack.log. No replacement services were started.')
+    if owned_tree(recorded_processes(read_state())):
+        raise RuntimeError('Owned processes remain; refusing to complete shutdown or start replacements.')
+    with changing_state(state) as current:
+        current['phase'] = 'stopped'
     log(f'Stopped launcher PID {pid}.')
     print('Local stack stopped; services that it reused are left running.')
 
@@ -110,6 +239,8 @@ def start():
             raise RuntimeError('The existing stack is starting, stopping or unhealthy. Inspect logs or use restart.')
         print('Local stack is already healthy; reusing it.')
         return
+    if owned_tree(recorded_processes(previous)):
+        raise RuntimeError('Recorded stack processes remain after the launcher exited. Use down or restart to clean them up first.')
     # The shell takes the existing process-lifetime stack lock. If a foreground
     # startup is racing this call, the losing launcher exits without ownership.
     log_path = RUNTIME / 'stack.log'
@@ -141,9 +272,14 @@ def start():
             time.sleep(0.2)
         raise RuntimeError('Local stack did not become ready within 240 seconds; inspect stack.log.')
     except BaseException:
-        # Popen.poll prevents signalling a reused PID. The shell performs its
-        # normal cleanup; never kill a process group containing reused services.
-        if process.poll() is None:
+        state = read_state()
+        if state and state['pid'] == process.pid:
+            try:
+                stop(state)
+            except RuntimeError as error:
+                log(f'Startup-failure cleanup failed: {error}')
+        elif process.poll() is None:
+            # Before registration there are no managed services yet.
             process.terminate()
             try:
                 process.wait(timeout=45)
@@ -166,6 +302,9 @@ def main():
     ready.add_argument('--process', action='append', default=[])
     stopped = sub.add_parser('_stopped', help=argparse.SUPPRESS)
     stopped.add_argument('pid', type=int)
+    cleanup = sub.add_parser('_cleanup', help=argparse.SUPPRESS)
+    cleanup.add_argument('pid', type=int)
+    cleanup.add_argument('--process', action='append', default=[])
     args = parser.parse_args()
     os.umask(0o077)
     RUNTIME.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -176,30 +315,60 @@ def main():
         owner = identity(args.pid)
         if not owner:
             raise RuntimeError('Cannot register missing launcher process.')
+        previous = read_state()
+        if previous and previous['pid'] != args.pid and (
+                running(previous) or owned_tree(recorded_processes(previous))):
+            raise RuntimeError('An earlier stack still owns live processes. Use down or restart before starting another.')
         save({'pid': args.pid, 'identity': owner, 'phase': 'starting', 'processes': {}})
         log(f'Registered launcher PID {args.pid}.')
         return 0
-    if args.mode in {'_ready', '_stopped'}:
+    if args.mode in {'_ready', '_stopped', '_cleanup'}:
         state = read_state()
         if not state or state['pid'] != args.pid or not running(state):
             raise RuntimeError('Launcher ownership changed; refusing state update.')
+        if args.mode == '_cleanup':
+            if args.pid != os.getppid():
+                raise RuntimeError('Cleanup must be invoked by the owning launcher.')
+            roots = []
+            for item in args.process:
+                name, pid = item.split('=', 1)
+                if pid:
+                    captured = {'pid': int(pid), 'identity': identity(int(pid))}
+                    expected = state.get('processes', {}).get(name)
+                    if expected is None or (captured['pid'], captured['identity']) == (expected['pid'], expected['identity']):
+                        roots.append(captured)
+            # Only direct children supplied by the live owning shell qualify.
+            roots = [p for p in owned_tree(roots) if p['parent_pid'] == args.pid]
+            processes = owned_tree(roots + recorded_processes(state))
+            remember_shutdown(state, processes)
+            terminate_owned(processes, remember=lambda p: remember_shutdown(state, p))
+            return 0
         if args.mode == '_ready':
             processes = {}
             for item in args.process:
                 name, pid = item.split('=', 1)
                 if pid:
                     processes[name] = {'pid': int(pid), 'identity': identity(int(pid))}
-            state.update(phase='ready', api_url=args.api_url.rstrip('/'),
-                         ui_url=args.ui_url.rstrip('/'), processes=processes)
+            with changing_state(state) as current:
+                if current['phase'] == 'stopping':
+                    raise RuntimeError('Stack shutdown is in progress; refusing readiness update.')
+                current.update(phase='ready', api_url=args.api_url.rstrip('/'),
+                               ui_url=args.ui_url.rstrip('/'), processes=processes)
         else:
-            state['phase'] = 'stopped'
-        save(state)
+            with changing_state(state) as current:
+                current['phase'] = 'stopped'
         return 0
     if args.mode == 'status':
         # Atomic state replacement allows status during a long-running up or
         # restart; it must not wait behind the mutating command's control lock.
         state = read_state()
         if not running(state):
+            remaining = owned_tree(recorded_processes(state))
+            if remaining:
+                print('Local stack launcher stopped, but owned processes remain: '
+                      + ', '.join(str(p['pid']) for p in remaining))
+                print('Use down or restart to finish cleanup.')
+                return 1
             print('Local stack is stopped (no owned live launcher).')
             print(f'Logs: {RUNTIME}/stack.log and lifecycle.log')
             return 1
