@@ -130,8 +130,9 @@ def officer_id():
 
 
 def test_hidden_external_endpoint_redacts_proposals_and_round_history_but_allows_withdrawal(client):
+    from backend.services.api.tests.test_disposition_approval import approve
     with db() as c:
-        job,root,*_=seeded(c);other,*_=ready(c)
+        job,root,_,_,mgr=seeded(c,'simplified');other,*_=ready(c)
         kind=c.execute("SELECT id FROM relationship_types WHERE resource_kind='aggregation' AND is_active LIMIT 1").fetchone()['id']
         change=create(c,root,'create_aggregation_relationship',dict(direction='outgoing',related_aggregation_id=other,relationship_type_id=kind))
         pid=save(c,job,changes=[change])['changes'][0]['id'];submit(c,job);claim(c,job)
@@ -139,13 +140,18 @@ def test_hidden_external_endpoint_redacts_proposals_and_round_history_but_allows
         c.execute("SELECT set_config('app.security_level_change_authorized','authorized',true)")
         c.execute('UPDATE aggregations SET security_level_id=%s WHERE id=%s',(level,other));c.execute("SELECT set_config('app.security_level_change_authorized','',true)")
         assert c.execute('SELECT current_user_can_view_aggregation(%s) allowed',(other,)).fetchone()['allowed'] is False
-        assert service.page(c,job['id'],limit=25,offset=0)['items']==[dict(id=pid,version=1,redacted=True)]
+        hidden=service.page(c,job['id'],limit=25,offset=0)['items'][0]
+        assert hidden['id']==pid and hidden['version']==1 and hidden['redacted'] and hidden['partial']
+        assert hidden['target_summary']['title']=='Root'
+        assert not {'current_values','proposed_values','reason','relationship_display_name','relationship_source_label','relationship_target_label'} & set(hidden)
         assert service.rounds(c,job['id'],limit=25,offset=0)['items'][0]['redacted']
         history=queries.history(c,job['id'],limit=100,offset=0)['items'];event=next(e for e in history if e['operation']=='REVIEW_PROPOSAL_CREATED')
         assert event['metadata']=={'redacted':True,'reason':'resource_access_denied'}
         with pytest.raises(psycopg.Error,match='disposition_resource_access_required'):save(c,job,changes=[{**change,'action':'create'}])
-        with pytest.raises(psycopg.Error,match='disposition_resource_access_required'):decide(c,job)
-        save(c,job,changes=[dict(action='withdraw',proposal_id=pid,expected_version=1)]);decide(c,job)
+        with pytest.raises(psycopg.Error,match='disposition_proposal_requires_correction'):approve(c,job,mgr)
+        save(c,job,changes=[dict(action='withdraw',proposal_id=pid,expected_version=1)])
+        assert service.page(c,job['id'],limit=25,offset=0)['items'][0]['proposal_state']=='withdrawn'
+        assert not c.execute('SELECT 1 FROM disposition_proposal_effects').fetchone()
 
 
 def test_rejection_remains_possible_after_member_reopens_and_old_approval_is_invalidated(client):
@@ -214,11 +220,13 @@ def test_concurrent_saves_have_one_winner_and_no_duplicate_proposal(client):
 
 def test_real_proposal_pagination_and_bounded_selected_relationship_search(client):
     with db() as c:
-        job,root,*_=seeded(c);save(c,job,changes=[create(c,root,reason=f'Proposal {i}') for i in range(60)])
+        job,root,*_=seeded(c)
+        c.execute("INSERT INTO holds(code,name,valid_from,owner_user_id) SELECT 'PAGE-'||n,'Page hold '||n,CURRENT_TIMESTAMP,1 FROM generate_series(1,60) n")
+        hold_ids=[r['id'] for r in c.execute("SELECT id FROM holds WHERE code LIKE 'PAGE-%%' ORDER BY id").fetchall()]
+        save(c,job,changes=[create(c,root,'add_to_holds',{'hold_ids':[identity]},reason=f'Proposal {i}') for i,identity in enumerate(hold_ids)])
         first=service.page(c,job['id'],limit=25,offset=0);second=service.page(c,job['id'],limit=25,offset=25)
         assert first['total']==second['total']==60 and len(first['items'])==len(second['items'])==25
         assert not {p['id'] for p in first['items']} & {p['id'] for p in second['items']}
-        c.execute("INSERT INTO holds(code,name,valid_from,owner_user_id) SELECT 'PAGE-'||n,'Page hold '||n,CURRENT_TIMESTAMP,1 FROM generate_series(1,60) n")
         found=service.candidates(c,task(c,job['id'])['id'],acting_role_id=officer(c),kind='holds',query='Page')
         assert len(found['items'])==25
         selected=c.execute("SELECT id FROM holds WHERE code='PAGE-60'").fetchone()['id']
@@ -292,3 +300,22 @@ def test_relationship_candidate_direction_and_localized_search(client):
         assert not get(query='يحل محله',direction='outgoing',language_tag='ar')
         rid=c.execute("""INSERT INTO relationship_types(resource_kind,code,forward_name,reverse_name,is_symmetric,translations) VALUES ('aggregation','symmetric_test','Related to','Related to',true,'{"ar":{"forward_name":"مرتبط بـ","reverse_name":"مرتبط بـ"}}') RETURNING id""").fetchone()['id']
         assert get(selected=rid,direction='incoming')[0]['name']=='Related to'
+
+
+@pytest.mark.parametrize('direction',['incoming','outgoing'])
+@pytest.mark.parametrize('symmetric',[False,True])
+def test_proposal_page_names_relationship_from_target_perspective(client,direction,symmetric):
+    with db() as c,c.transaction(force_rollback=True):
+        job,root,*_=seeded(c);related,*_=ready(c)
+        reverse='Supersedes' if symmetric else 'Is superseded by'
+        arabic_reverse='يحل محل' if symmetric else 'يحل محله'
+        rid=c.execute("""INSERT INTO relationship_types(resource_kind,code,forward_name,reverse_name,is_symmetric,translations)
+          VALUES ('aggregation',%s,'Supersedes',%s,%s,%s) RETURNING id""",('proposal_'+uuid4().hex,reverse,symmetric,Jsonb({'ar':{'forward_name':'يحل محل','reverse_name':arabic_reverse}}))).fetchone()['id']
+        save(c,job,changes=[create(c,root,'create_aggregation_relationship',{'direction':direction,'related_aggregation_id':related,'relationship_type_id':rid})])
+        for language in ('en','ar'):
+            row=service.page(c,job['id'],limit=25,offset=0,language_tag=language)['items'][0]
+            forward='Supersedes' if language=='en' else 'يحل محل';reverse='Is superseded by' if language=='en' else 'يحل محله'
+            assert row['relationship_type_name']==forward
+            assert row['relationship_display_name']==(reverse if direction=='incoming' and not symmetric else forward)
+            assert row['relationship_source_label'] and row['relationship_target_label']
+            assert row['last_revised_at'] is None and row['editor_name'] is None

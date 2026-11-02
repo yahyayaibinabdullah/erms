@@ -164,8 +164,13 @@ def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),o
 
 
 @router.get('/jobs/{job_id}/history')
-def read_history(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
-    return queries.history(c,job_id,limit=limit,offset=offset,language_tag=preferred_language(c,request))
+def read_history(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),grouped: bool=False,c: Connection=Depends(get_connection,scope='function')):
+    return queries.history(c,job_id,limit=limit,offset=offset,language_tag=preferred_language(c,request),grouped=grouped)
+
+
+@router.get('/jobs/{job_id}/history/{event_id}/events')
+def read_history_action_events(job_id: int,event_id: int,request: Request,limit: int=Query(25,ge=1,le=50),offset: int=Query(0,ge=0),c: Connection=Depends(get_connection,scope='function')):
+    return queries.history_action_events(c,job_id,event_id,limit=limit,offset=offset,language_tag=preferred_language(c,request))
 
 
 @router.get('/aggregations/{root_id}/blockers')
@@ -656,9 +661,10 @@ def send_document_email(job_id: int,document_id: int,payload: EmailSend,request:
 
 @router.get('/jobs/{job_id}/email-attempts')
 def email_attempts(job_id: int,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),
-                   sort: Literal['requested_at','status','recipient']='requested_at',descending: bool=True,c: Connection=Depends(get_connection,scope='function')):
+                   sort: Literal['requested_at','status','recipient']='requested_at',descending: bool=True,
+                   document_id: int|None=Query(None,ge=1),c: Connection=Depends(get_connection,scope='function')):
     from . import email
-    return email.page(c,job_id,limit=limit,offset=offset,sort=sort,descending=descending)
+    return email.page(c,job_id,limit=limit,offset=offset,sort=sort,descending=descending,document_id=document_id)
 
 
 class PhysicalWork(Command):

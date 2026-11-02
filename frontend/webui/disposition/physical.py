@@ -18,24 +18,13 @@ def controls(form):
         if not value.get('physical_required',True):
             return
         ui.label(text('physical_preparation_report')).classes('text-lg font-semibold')
+        ui.label(text('physical_preparation_report_hint')).classes('text-sm text-slate-600')
         report=value.get('report')
-        if report:
-            ui.label(report['file_name']).props('dir=auto')
-            with ui.row().classes('w-full gap-2'):
-                async def preview():
-                    if form.preview:await form.preview({'id':report['record_id'],'title':report['file_name']},report['digital_component_id'])
-                async def download():
-                    try:content=await form.api.request('GET',f"/api/v1/disposition/jobs/{form.job['id']}/documents/{report['id']}/content",_cancellable_read=True)
-                    except ApiError as error:form.error(error);return
-                    if form.alive():ui.download(content,report['file_name'])
-                if form.preview and report.get('can_preview',False):ui.button(text('preview_physical_report'),icon='visibility',on_click=preview).tooltip(text('preview_physical_report')).props('outline no-caps')
-                if report.get('can_download',False):ui.button(text('download_physical_report'),icon='download',on_click=download).tooltip(text('download_physical_report')).props('outline no-caps')
-        else:ui.label(text('physical_report_pending')).props('role=alert')
         if value['can_generate']:
             role_id=automatic_role(value['manager_roles'])
             async def generate(_=None):
                 if form.busy or not form.alive():return
-                form.busy=True;button.disable()
+                form.busy=True;generation_control.disable()
                 try:
                     signature=('physical_report',form.job['version'],role_id)
                     result=await form.api.disposition_command(f"jobs/{form.job['id']}/physical-preparation-report",{'command_id':form.retry.setdefault(signature,str(uuid4())),'acting_role_id':role_id},version=form.job['version'],reason=text('generate_physical_report'))
@@ -43,8 +32,26 @@ def controls(form):
                 except ApiError as error:form.error(error)
                 finally:
                     form.busy=False
-                    if form.alive():button.enable()
-            button=ui.button(text('generate_physical_report'),icon='description',on_click=generate).tooltip(text('generate_physical_report')).props('outline no-caps')
+                    if form.alive():generation_control.enable()
+        if report:
+            ui.label(report['file_name']).props('dir=auto')
+            async def preview():
+                if form.alive() and form.preview:await form.preview({'id':report['record_id'],'title':report['file_name']},report['digital_component_id'])
+            async def download():
+                if not form.alive():return
+                try:content=await form.api.request('GET',f"/api/v1/disposition/jobs/{form.job['id']}/documents/{report['id']}/content",_cancellable_read=True)
+                except ApiError as error:form.error(error);return
+                if form.alive():ui.download(content,report['file_name'])
+            with ui.row().classes('detail-action-row w-full items-center gap-2'):
+                if form.preview and report.get('can_preview',False):ui.button(text('preview_physical_report'),icon='visibility',on_click=preview).tooltip(text('preview_physical_report')).props('no-caps')
+                if report.get('can_download',False) or value['can_generate']:
+                    with ui.button(text('physical_report_more'),icon='more_horiz').tooltip(text('physical_report_more')).props('outline no-caps'),ui.menu():
+                        if report.get('can_download',False):ui.menu_item(text('download_physical_report'),on_click=download).props('role=menuitem')
+                        if value['can_generate']:generation_control=ui.menu_item(text('update_physical_report'),on_click=generate).props('role=menuitem')
+            if value['can_generate']:ui.label(text('physical_report_update_hint')).classes('text-sm text-slate-600')
+        else:
+            ui.label(text('physical_report_pending')).props('role=alert')
+            if value['can_generate']:generation_control=ui.button(text('generate_physical_report'),icon='description',on_click=generate).tooltip(text('generate_physical_report')).props('no-caps')
         confirmation=value.get('confirmation')
         if confirmation:
             ui.label(text('physical_confirmed')).classes('font-semibold')

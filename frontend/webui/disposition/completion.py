@@ -43,6 +43,13 @@ def controls(form):
         if certificate:
             ui.label(text('digital_destruction_certificate')).classes('text-lg font-semibold')
             ui.label(certificate['file_name']).props('dir=auto')
+            email_value=form.view.get('email') or {}
+            email_doc=next((d for d in email_value.get('documents',[]) if d['id']==certificate['id'] and d.get('document_type')=='digital_destruction_certificate'),None)
+            if email_doc:
+                ui.label(text('certificate_email_hint')).classes('text-sm text-slate-600')
+                ui.label(text('email_recipient')).classes('text-sm font-semibold')
+                ui.label(email_value['recipient'] or text('not_configured')).props('dir=auto').classes('break-words')
+            actions=ui.row().classes('detail-action-row w-full gap-2')
             if certificate['can_download']:
                 async def download():
                     if not form.alive() or form.busy:return
@@ -55,7 +62,12 @@ def controls(form):
                     finally:
                         form.busy=False
                         if form.alive():download_button.enable()
-                download_button=ui.button(text('download_digital_certificate'),icon='download',on_click=download).tooltip(text('download_digital_certificate')).props('outline no-caps')
+                with actions:download_button=ui.button(text('download_digital_certificate'),icon='download',on_click=download).tooltip(text('download_digital_certificate')).props('outline no-caps')
+            if email_doc:
+                from .email import send_button,latest_attempt
+                active=getattr(form,'task_active',form.alive)
+                with actions:send_button(form,email_value,email_doc,active=active)
+                latest_attempt(form,email_value,email_doc,active=active)
         if 'complete_certificate' in form.actions and certificate:
             async def finish():
                 if not form.alive() or form.busy or not form.acting_role_id:return

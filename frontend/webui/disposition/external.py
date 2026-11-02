@@ -55,15 +55,26 @@ async def task_form(form):
         ui.label(text('await_external')).classes('font-semibold')
         if request:
             ui.label(request['file_name']).props('dir=auto')
+            email_value=form.view.get('email') or {}
+            email_doc=next((d for d in email_value.get('documents',[]) if d['id']==request['id'] and d.get('document_type')=='destruction_request'),None)
+            if email_doc:
+                ui.label(text('email_recipient')).classes('text-sm font-semibold')
+                ui.label(email_value['recipient'] or text('not_configured')).props('dir=auto').classes('break-words')
             async def preview():
                 if form.preview:await form.preview({'id':request['record_id'],'title':request['file_name']},request['digital_component_id'])
             async def download():
                 try:content=await form.api.request('GET',f"/api/v1/disposition/jobs/{form.job['id']}/documents/{request['id']}/content",_cancellable_read=True)
                 except ApiError as error:form.error(error);return
                 if form.alive():ui.download(content,request['file_name'])
-            with ui.row().classes('w-full gap-2'):
+            with ui.row().classes('detail-action-row w-full gap-2'):
                 if form.preview:ui.button(text('preview_request'),icon='visibility',on_click=preview).tooltip(text('preview_request')).props('outline no-caps')
                 ui.button(text('download_request'),icon='download',on_click=download).tooltip(text('download_request')).props('outline no-caps')
+                if email_doc:
+                    from .email import send_button
+                    send_button(form,email_value,email_doc,active=form.task_active)
+            if email_doc:
+                from .email import latest_attempt
+                latest_attempt(form,email_value,email_doc,active=form.task_active)
         if 'external_decide' in form.actions:
             with ui.row().classes('w-full gap-2'):
                 ui.button(text('external_approve'),icon='verified',on_click=lambda:decision_dialog(form,'approved')).tooltip(text('external_approve')).props('no-caps')

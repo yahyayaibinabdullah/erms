@@ -4,6 +4,8 @@ Approval/routing/finalization gates belong to their action services. These
 helpers never approve, remove, destroy or expose a new HTTP operation.
 """
 from collections import defaultdict
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from ..entity_localization import localized_projection
 from . import documents
@@ -206,8 +208,69 @@ def request_snapshot(c,job_id,*,authority_name,review_summaries,review_round,for
       'membership.checksum':documents.checksum(source)},'aggregations':rows}
 
 
-def preparation_snapshot(c,job_id,*,report_version,generated_at):
-    source=capture(c,job_id);rows,totals,classes=physical_rows(source)
-    return {'source':source,'fields':{**job_fields(c,job_id,generated_at),'report.version':report_version,
+def collection_note(label,value,language):
+    """Keep complete Arabic/English phrases together for bilingual line layout."""
+    ar,en=label.split(' / ',1)
+    if language!='bilingual':return wording(label,language)+': '+value
+    ar_value,_,en_value=value.partition(' / ')
+    return ar+': '+ar_value+' / '+en+': '+(en_value or ar_value)
+
+
+def collection_rows(source,language='bilingual',localized=None):
+    """Collection order and concise presentation; keep legacy audit counts intact.
+
+    Locations are free text, not a room/shelf hierarchy. Group by the complete
+    effective current value; never infer a current location from an assigned one.
+    """
+    rows,totals,classes=physical_rows(source)
+    metadata=localized or {}
+    by_number={a['aggregation_number']:a for a in source['aggregations']}
+    owners={(metadata.get(a['id'],{}).get('owner_id',a['owner']),metadata.get(a['id'],{}).get('owner',a['owner'])) for a in source['aggregations']
+            if a['medium'] in ('physical','mixed') and a.get('physical_remaining',True)}
+    common_owner=next(iter(owners))[1] if len(owners)==1 else None
+    rows.sort(key=lambda row:(not bool(by_number[row['aggregation.identifier']]['current_location']),
+      (by_number[row['aggregation.identifier']]['current_location'] or '').casefold(),
+      by_number[row['aggregation.identifier']]['current_location'] or '',
+      row['aggregation.classification_code'],row['aggregation.identifier']))
+    for serial,row in enumerate(rows,1):
+        a=by_number[row['aggregation.identifier']];translated=metadata.get(a['id'],{})
+        current=a['current_location'];assigned=a['assigned_location']
+        owner=translated.get('owner',a['owner'])
+        row.update({
+          'aggregation.serial_number':serial,
+          'aggregation.title':translated.get('title',a['title']),
+          'aggregation.owner':owner,
+          'aggregation.collection_group':current or wording('مواقع تحتاج إلى التحقق / Locations to verify',language),
+          'aggregation.current_location':current or wording('الموقع الحالي غير مسجّل / Current location not recorded',language),
+          'aggregation.medium':wording('مادي / Physical' if a['medium']=='physical' else 'هجين / Mixed',language),
+          'aggregation.assigned_note':collection_note('الموقع المعيّن / Assigned location',assigned,language) if assigned and assigned!=current else '—',
+          'aggregation.owner_note':collection_note('الوحدة التنظيمية المالكة / Owning organizational unit',owner,language) if not common_owner else '—',
+        })
+    return rows,totals,classes,common_owner
+
+
+def preparation_snapshot(c,job_id,*,report_version,generated_at,settings=None):
+    if settings is None:
+        from ..application_settings import load_snapshot
+        settings=load_snapshot(c)
+    language=request_language(c,settings)
+    source=capture(c,job_id)
+    # One bounded query over the authorized membership already captured above.
+    localized={a['id']:{'title':a['title'],'owner_id':a['owner_id'],
+      'owner':bilingual({'name':a['owner'],'translations':a['owner_translations']},language=language)}
+      for a in c.execute('''SELECT a.id,a.title,o.id owner_id,o.name owner,o.translations owner_translations
+        FROM aggregations a JOIN org_units o ON o.id=a.owning_org_unit_id WHERE a.id=ANY(%s)''',
+        ([a['id'] for a in source['aggregations']],)).fetchall()}
+    rows,totals,classes,owner=collection_rows(source,language,localized)
+    organization=request_organization(c,job_id,settings,language)['organization.name']
+    at=datetime.fromisoformat(generated_at).astimezone(ZoneInfo(settings['DEFAULT_WORKING_TIMEZONE']))
+    n=totals['physical_aggregations']+totals['mixed_aggregations']
+    physical=totals['physical_records'];mixed=totals['mixed_records']
+    summary=wording(f'المجموع: {n} ملفات للجمع · {physical} وثائق مادية · {mixed} وثائق هجينة / Total: {n} aggregations to collect · {physical} physical records · {mixed} mixed records',language)
+    return {'source':source,'fields':{**job_fields(c,job_id,generated_at,bilingual_values=True,language=language),
+      'organization.name':organization,'report.language':language,'report.generated_at':at.strftime('%Y-%m-%d %H:%M %Z'),
+      'report.owner':collection_note('الوحدة التنظيمية المالكة / Owning organizational unit',owner,language) if owner else
+        wording('الوحدات التنظيمية المالكة مبيّنة لكل ملف / Owning organizational units shown per aggregation',language),
+      'report.summary':summary,'report.version':report_version,
       'membership.checksum':documents.checksum(source),'classification.totals':classes,
       **{'totals.'+k:v for k,v in totals.items()}},'aggregations':rows}

@@ -71,15 +71,17 @@ def request_body(c,job_id,document,*,current_settings,actor_user_id=None):
     return block('ar')+'\n\n'+block('en') if language=='bilingual' else block(language)
 
 
-def page(c,job_id,*,limit,offset,sort='requested_at',descending=True):
+def page(c,job_id,*,limit,offset,sort='requested_at',descending=True,document_id=None):
     artifacts.require_workspace(c,job_id)
     order={'requested_at':'a.requested_at','status':'a.status','recipient':'a.recipient'}.get(sort,'a.requested_at')
     source=''' FROM disposition_email_attempts a JOIN disposition_job_documents d ON d.id=a.document_id
        JOIN digital_components dc ON dc.id=d.digital_component_id JOIN users u ON u.id=a.actor_user_id JOIN roles r ON r.id=a.acting_role_id
-       WHERE a.job_id=%s AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id)'''
-    total=c.execute('SELECT count(*) total'+source,(job_id,)).fetchone()['total']
+       WHERE a.job_id=%s AND (%s::bigint IS NULL OR a.document_id=%s)
+       AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id)'''
+    parameters=(job_id,document_id,document_id)
+    total=c.execute('SELECT count(*) total'+source,parameters).fetchone()['total']
     rows=c.execute('''SELECT a.id,a.document_id,d.review_round,dc.file_name,a.recipient,a.sender,u.name actor,r.name role,a.actor_type,
-       a.requested_at,a.outcome_at,a.status,a.message_id,a.server_message_id,a.error_code,a.smtp_code'''+source+f" ORDER BY {order} {'DESC' if descending else 'ASC'},a.id DESC LIMIT %s OFFSET %s",(job_id,limit,offset)).fetchall()
+       a.requested_at,a.outcome_at,a.status,a.message_id,a.server_message_id,a.error_code,a.smtp_code'''+source+f" ORDER BY {order} {'DESC' if descending else 'ASC'},a.id DESC LIMIT %s OFFSET %s",(*parameters,limit,offset)).fetchall()
     return {'items':rows,'total':total}
 
 
@@ -88,7 +90,9 @@ def controls(c,job_id):
     roles=c.execute('''SELECT r.id,r.name FROM roles r WHERE disposition_private.person_role(current_user_id(),r.id)
        AND (EXISTS(SELECT 1 FROM profiles p WHERE p.id=r.profile_id AND p.code IN ('INFO_GOV_OFFICER','INFO_GOV_MGR'))) ORDER BY r.id''').fetchall()
     # Only the currently awaiting request and available digital certificates.
-    docs=c.execute("""SELECT d.id,dc.file_name,d.document_type,array(SELECT selected.id FROM unnest(%s::bigint[]) selected(id) WHERE disposition_private.can_email(current_user_id(),d.job_id,d.id,selected.id) ORDER BY selected.id) role_ids
+    docs=c.execute("""SELECT d.id,dc.file_name,d.document_type,array(SELECT selected.id FROM unnest(%s::bigint[]) selected(id) WHERE disposition_private.can_email(current_user_id(),d.job_id,d.id,selected.id) ORDER BY selected.id) role_ids,
+       (SELECT jsonb_build_object('id',a.id,'status',a.status,'requested_at',a.requested_at,'outcome_at',a.outcome_at,'recipient',a.recipient)
+          FROM disposition_email_attempts a WHERE a.job_id=d.job_id AND a.document_id=d.id ORDER BY a.requested_at DESC,a.id DESC LIMIT 1) latest_attempt
        FROM disposition_job_documents d JOIN digital_components dc ON dc.id=d.digital_component_id WHERE d.job_id=%s
        AND d.document_type IN ('destruction_request','digital_destruction_certificate') AND d.document_state='available'
        AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id)

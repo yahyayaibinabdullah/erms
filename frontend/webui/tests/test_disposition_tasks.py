@@ -117,7 +117,7 @@ async def test_proposal_dialog_creates_draft_until_save_and_hydrates_only_target
     f,api,_=await form(host)
     with host:
         await f.edit(root={'root_aggregation_id':10})
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('continue'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
         callback=next(iter(button._event_listeners.values())).handler
         response=callback(None)
         if inspect.isawaitable(response):await response
@@ -248,7 +248,7 @@ async def test_native_save_button_dispatches_the_save_action(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     f,api,_=await form(host);f.comments.value='Verify native Save dispatch'
     with host:
-        button=next(e for e in f.host.descendants() if isinstance(e,ui.button) and e.text==text('save'))
+        button=next(e for e in f.host.descendants() if isinstance(e,ui.button) and e.text==text('save_changes'))
         next(iter(button._event_listeners.values())).handler(None)
         await asyncio.sleep(0);await asyncio.sleep(0);await asyncio.sleep(0)
     assert api.writes and api.writes[0][0]=='tasks/8/review-work'
@@ -284,7 +284,7 @@ async def test_revision_editors_preserve_identity_and_hydrate_selected_relations
         assert not kind_control.enabled
         targets=[e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('target')]
         assert all(not e.enabled for e in targets)
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('continue'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('update_draft_proposal'))
         response=next(iter(button._event_listeners.values())).handler(None)
         if inspect.isawaitable(response):await response
         await asyncio.sleep(0)
@@ -435,7 +435,7 @@ async def test_member_rule_origin_is_separate_from_local_override_and_unknown_is
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
     workspace=view(actions=())
     workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state='active',disposition_status=6,owner='Unit',assignee='Officer',membership_editable=False,owner_editable=False)
-    base=dict(id=1,root_aggregation_id=10,aggregation_number='AGG-10',title='Member',redacted=False,membership_state='active',disposition_status=6,added_at='2026-10-29T00:00:00Z',classification_code='CHILD',classification_title='Assigned child classification',rule_source_code='PARENT',rule_source_title='Defining parent classification')
+    base=dict(id=1,root_aggregation_id=10,aggregation_number='AGG-10',title='Member',redacted=False,membership_state='active',disposition_status=6,added_at='2026-10-29T00:00:00Z',classification_code='CHILD',classification_title='Assigned child classification',rule_source_code='PARENT',rule_source_title='Defining parent classification',proposal_count=2)
     rule=dict(current_period_years=2,intermediate_period_years=3,final_disposition='destruction')
     rows=[dict(base,effective_rule=dict(rule,rule_source='classification')),
           dict(base,id=2,effective_rule=dict(rule,rule_source='aggregation')),
@@ -455,15 +455,54 @@ async def test_member_rule_origin_is_separate_from_local_override_and_unknown_is
         inherited,local,redacted,unknown=table.rows
         assert inherited['classification_label']=='CHILD · Assigned child classification'
         assert inherited['local_label']==text('no_local_override')
-        assert 'PARENT · Defining parent classification' in inherited['rule_label'] and 'CHILD' not in inherited['rule_label']
-        assert text('current_period_years')+': 2' in inherited['rule_label'] and text('intermediate_period_years')+': 3' in inherited['rule_label']
-        assert text('destruction') in inherited['rule_label']
+        assert inherited['rule_label']==text('classification')+' · PARENT'
+        assert 'PARENT · Defining parent classification' in inherited['rule_origin'] and 'CHILD' not in inherited['rule_origin']
         assert local['local_label']==text('local_override') and text('local_override') in local['rule_label']
         assert 'PARENT' not in local['rule_label']
         assert redacted['local_label']==redacted['rule_label']==redacted['classification_label']=='—'
         assert unknown['local_label']==unknown['rule_label']=='—'
+        assert not redacted['can_view_rule'] and not unknown['can_view_rule']
+        rule_handler=next(e.handler for e in table._event_listeners.values() if e.type in ('retention-rule','retentionRule'))
+        rule_handler(SimpleNamespace(args=1))
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog))
+        labels=[e.text for e in dialog.descendants() if isinstance(e,ui.label)]
+        assert inherited['rule_origin'] in labels and text('current_period_years') in labels and '2' in labels
+        assert text('intermediate_period_years') in labels and '3' in labels and text('destruction') in labels
+        dialog.close()
+        rule_handler(SimpleNamespace(args=3))
+        assert not dialog.value
+        proposals_handler=next(e.handler for e in table._event_listeners.values() if e.type in ('show-proposals','showProposals'))
+        await proposals_handler(SimpleNamespace(args=1))
+        assert api.reads[-1]==('jobs/5/proposals',dict(limit=25,offset=0,review_round=None,root_id=10))
     requests=[params for path,params in api.reads if path.endswith('/memberships')]
     assert len(requests)==1 and requests[0]['limit']==25 and requests[0]['offset']==0
+
+
+@pytest.mark.parametrize('lifecycle,state',[('active','active'),('completed','completed_history'),('terminated','terminated_history')])
+@pytest.mark.asyncio
+async def test_member_listing_defaults_to_current_job_members_and_retains_explicit_history(host,monkeypatch,lifecycle,state):
+    from frontend.webui.disposition.screens import job_screen
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    workspace=view(actions=())
+    workspace['job'].update(job_number='DT-2026-1',job_type='destruction',lifecycle_state=lifecycle,disposition_status=6,owner='Unit',assignee='Officer',membership_editable=False,owner_editable=False)
+    class MembersApi(Api):
+        async def disposition_page(self,path,**params):
+            self.reads.append((path,params))
+            return workspace if path.endswith('/workspace') else {'items':[],'total':0}
+    api=MembersApi()
+    async def noop(*args):pass
+    with host:
+        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=noop,open_eligibility=noop,open_resource=noop,format_timestamp=str,event_label=str,saved={'section':'members'})
+        table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(c['name']=='rule_label' for c in e.columns))
+        selector=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('membership'))
+        assert selector.value==state
+        assert api.reads[-1][1]['state']==state
+        assert not {'membership_label','removed_label'} & {c['name'] for c in table.columns}
+        for selection,expected in [('',{'membership_label','removed_label'}),('removed',{'removed_label'}),(state,set())]:
+            selector.value=selection
+            await asyncio.sleep(0)
+            assert {c['name'] for c in table.columns} & {'membership_label','removed_label'}==expected
+            assert api.reads[-1][1]['state']==(selection or None)
 
 
 @pytest.mark.parametrize('task_id',[None,8])
@@ -479,11 +518,12 @@ async def test_job_and_task_details_have_distinct_focus(host,monkeypatch,task_id
             if path.endswith('/workspace'):
                 self.reads.append((path,params));return workspace
             return await super().disposition_page(path,**params)
-    api=WorkspaceApi();opened=[]
+    api=WorkspaceApi();opened=[];remembered=[]
     async def open_job(identity):opened.append(('job',identity))
     async def open_task(identity,task):opened.append(('task',identity,task))
     with host:
-        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=open_job,open_task=open_task,open_eligibility=open_job,open_resource=open_job,format_timestamp=str,event_label=str,task_id=task_id)
+        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=open_job,open_task=open_task,open_eligibility=open_job,open_resource=open_job,format_timestamp=str,event_label=str,task_id=task_id,remember=remembered.append)
+        assert remembered[0]=={'section':'current_task' if task_id else 'workspace_details','job_id':5,'task_id':task_id}
         navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
         tabs=[e._props['name'] for e in host.descendants() if isinstance(e,ui.tab)]
         assert navigation.value==('current_task' if task_id else 'workspace_details')
@@ -528,7 +568,7 @@ async def test_multiple_relationship_removals_queue_and_save_as_one_batch(host,m
         table.selected=deepcopy(links)
         reason=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.textarea) and e.label==text('reason'))
         reason.value='Remove both outside links'
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('continue'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
         result=next(iter(button._event_listeners.values())).handler(None)
         if inspect.isawaitable(result):await result
         await asyncio.sleep(0)
@@ -787,7 +827,7 @@ async def test_removal_picker_disables_saved_queued_and_restricted_rows_and_link
         if inspect.isawaitable(result):await result
         await asyncio.sleep(0)
         assert shown==[{'id':12,'partial':True,'redacted':True}]
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('continue'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
         accept=next(e.handler for e in button._event_listeners.values() if e.type=='click')
         table.selected=deepcopy(table.rows)
         result=accept(None)

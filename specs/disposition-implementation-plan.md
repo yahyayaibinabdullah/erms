@@ -645,9 +645,12 @@ purge. Certificate end-to-end sending is completed in phase 22.
 and 17.
 
 **Scope:** Route using the complete hierarchy's media. Generate and store the
-physical preparation PDF, grouped by terminal classification, with assigned
-and current locations, prescribed descendant counts, non-overlapping totals,
-and missing/inherited-location treatment. Support report versions. Recheck
+physical preparation PDF using the approved collection-location layout: serials,
+concise aggregation identity/classification/medium, effective current-location
+groups, differing assigned locations, explicit locations-to-verify group,
+common/per-row ownership and unique totals. Retain detailed counts/checksums in
+the snapshot. Verify organization/language settings, repeated headers and
+multilingual multipage rendering. Preserve report/template versions. Recheck
 blockers before physical work is authorized. Confirm offline destruction only
 with the checkbox, unique certificate reference, upload, actor/time, and immutable
 physical scope; commit confirmation and governed evidence together.
@@ -983,3 +986,15 @@ Implement Disposition revision 1.15 and Destruction Process revision 1.8:
 
 Evidence and requirement mapping belong in
 `docs/verification/simplified-review-and-correction.md`.
+
+### Approved history-presentation amendment — 29 October 2026
+
+Implement the common disposition revision 1.16 and destruction revision 1.9
+presentation rules in one change: server-paginated action summaries, lazy
+paginated original-event details, contextual change labels shared with the
+global Audit Trail, and earlier-round comments available in review tasks.
+Preserve every audit row, existing authorization/redaction and raw-event API
+behavior. Verify multiple commands/actors/requests, ambiguous legacy events,
+large actions, stable pagination, bilingual rendering, navigation freshness and
+abandoned requests. Record traceability and deployment evidence in
+`docs/verification/disposition-history-actions.md`.

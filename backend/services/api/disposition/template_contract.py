@@ -41,6 +41,21 @@ PHYSICAL_COUNTS = {
     'physical_records': ('وثائق ورقية', 'Physical records'),
     'mixed_records': ('وثائق مختلطة', 'Mixed records'),
 }
+# Additive presentation values: retained v1 snapshots predate these keys.
+PHYSICAL_PRESENTATION_FIELDS = {
+    'organization.name': ('اسم الجهة', 'Organization name'),
+    'report.generated_at': ('تاريخ إصدار التقرير', 'Report generated'),
+    'report.owner': ('الوحدة التنظيمية المالكة', 'Owning organizational unit'),
+    'report.summary': ('المجموع', 'Total'),
+    'report.language': ('لغة قيم التقرير', 'Report values language'),
+}
+PHYSICAL_PRESENTATION_ROWS = {
+    'aggregation.serial_number': ('تسلسل', 'No.'),
+    'aggregation.collection_group': ('موقع الجمع', 'Collection location'),
+    'aggregation.medium': ('الوسيط', 'Medium'),
+    'aggregation.assigned_note': ('الموقع المعيّن المختلف', 'Different assigned location'),
+    'aggregation.owner_note': ('الوحدة التنظيمية المالكة', 'Owning organizational unit'),
+}
 CONTRACTS = {
     'destruction_request': Contract(
         'request-for-destruction.default.v2.docx', 'طلب الموافقة على الإتلاف', 'Request for destruction',
@@ -105,8 +120,8 @@ CONTRACTS = {
             'aggregation.assigned_location': ('الموقع المعيّن', 'Assigned location'),
         }),)),
     'physical_preparation_report': Contract(
-        'physical-preparation-report.default.v1.docx', 'تقرير التحضير للإتلاف الورقي', 'Physical destruction preparation report',
-        {**JOB, 'report.version': ('إصدار التقرير', 'Report version'),
+        'physical-preparation-report.default.v2.docx', 'تقرير التحضير للإتلاف المادي', 'Physical destruction preparation report',
+        {**JOB, **PHYSICAL_PRESENTATION_FIELDS, 'report.version': ('إصدار التقرير', 'Report version'),
          'membership.checksum': ('بصمة العضوية', 'Membership checksum'),
          'classification.totals': ('إجماليات مجموعات التصنيف دون تكرار', 'Classification group totals without double counting'),
          **{'totals.'+k:v for k,v in PHYSICAL_COUNTS.items()}}, 'aggregations', (
@@ -118,6 +133,13 @@ CONTRACTS = {
              'aggregation.assigned_location': ('الموقع المعيّن', 'Assigned location'),
              'aggregation.current_location': ('الموقع الحالي', 'Current location')},
             {'aggregation.descendants.'+k:v for k,v in PHYSICAL_COUNTS.items()},
+            PHYSICAL_PRESENTATION_ROWS,
+        ), tuple(PHYSICAL_PRESENTATION_FIELDS)+tuple(PHYSICAL_PRESENTATION_ROWS)+(
+            'job.id','job.type','job.officer','job.created_at','generated_at','job.owner',
+            'membership.checksum','classification.totals',
+            *('totals.'+k for k in PHYSICAL_COUNTS),
+            'aggregation.classification_title','aggregation.owner','aggregation.assigned_location',
+            *('aggregation.descendants.'+k for k in PHYSICAL_COUNTS),
         )),
 }
 

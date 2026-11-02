@@ -4,13 +4,20 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.8
-**Amendment approved:** 29 October 2026
+**Revision:** 1.15
+**Amendment approved:** 2 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.15 | 2 November 2026 | Expose optional certificate email sending and its recipient/latest attempt in Current Task, sharing the existing send action and full Evidence and documents history |
+| 1.14 | 2 November 2026 | Adopt the approved physical preparation report grouped by current collection location, with concise aggregation rows, serial numbers, explicit unknown locations and unique totals |
+| 1.13 | 30 October 2026 | Shared sticky task footer for Save changes and pending-work review across tabs; discard local drafts in their disclosures and retain context after saving |
+| 1.12 | 29 October 2026 | Reflect unsaved proposal changes immediately in the task's Aggregations listing and aggregation-scoped disclosure while retaining explicit Save and approval boundaries |
+| 1.11 | 29 October 2026 | Structure proposal Details with responsive current/proposed comparisons and grouped information; present lazy, paginated revision entries in the same dialog |
+| 1.10 | 29 October 2026 | Compact review proposals into six columns with actual change summaries, combined proposer/role, round context and explicit creation/revision metadata in Details |
+| 1.9 | 29 October 2026 | Group related job-history events by recorded action with expandable paginated changes; retain earlier submission comments beside the current review context |
 | 1.8 | 29 October 2026 | Permit additions by the working Records Manager during Simplified review; display recorded return comments directly in correction tasks |
 | 1.7 | 29 October 2026 | Restore reopened compatible members through in-job acceleration without removal/re-addition; retain protection and renewed-review requirements |
 | 1.6 | 29 October 2026 | Separate the effective retention-rule source from the Local override indicator; show No local override for inherited classification rules |
@@ -345,6 +352,12 @@ every proposal separately. Submitted comments are shown to subsequent reviewers
 and saved with the
 submission and review round in the job's event history. Earlier submission
 reasons remain in the history when a job is corrected and resubmitted.
+
+Second and later internal review tasks provide collapsed **View previous
+rounds** beside the current submission comments. It displays the existing
+authorized submission/decision summaries with round, author and time, loaded
+only when opened. Authored comments are preserved verbatim. The task retains
+its stage-specific form; full job history remains in Job details.
 
 After successful submission or resubmission from a task detail page, the WebUI
 returns the Records Officer to **My Tasks**. A confirmation identifies the next
@@ -814,6 +827,14 @@ Documents retains authorized preview, corrective upload, email, and request
 regeneration/renewal controls. History retains prior notes, rounds, decisions,
 email attempts and audit events.
 
+The History event list follows the common specification's **Readable disposition
+history** amendment: one row per recorded action, with **Review round N
+submitted** for each submission and an expandable, server-paginated list of
+every resulting change and carried proposal. Review, membership, routing,
+assignment, evidence and completion commands receive the same treatment where
+their recorded correlation is unambiguous. Underlying audit rows, redaction and
+technical-detail authorization are preserved.
+
 **My Tasks → Task details** opens the explicitly selected task ID. It shows the
 stage's instructions, assignee/queue, claim controls and authorized task actions.
 Supporting aggregation membership and evidence are available separately. Overall
@@ -823,6 +844,21 @@ closed or no-longer-current task must not render the next stage's form.
 Refresh and restored navigation preserve the selected task ID. Switching tabs
 preserves unsaved work; supporting lists refresh on entry. Server authorization
 and workflow transitions are unchanged.
+
+The task's Aggregations listing immediately reflects its locally queued proposal
+changes, including legal-hold proposals targeting a member or its descendants.
+The active-proposal count includes unsaved additions and excludes queued
+withdrawals; revisions do not add another proposal. A separate **Unsaved proposal
+changes** indicator (a compact draft icon with an accessible label and tooltip)
+distinguishes draft work from persisted proposals without increasing row height. Its
+aggregation-scoped disclosure includes those draft changes, selected values and
+reasons. Discarding a change reverses its presentation immediately. Tab switching
+and bounded membership refreshes preserve the draft overlay; a failed Save
+retains it, and a successful Save replaces it with the refreshed saved data.
+Drafts do not change actual holds, blockers, resource metadata or membership.
+The existing explicit Save and Records Manager approval/execution rules remain
+authoritative. Historical membership rows and restricted counts receive no
+draft overlay.
 
 The compact tracker in Job details uses native
 NiceGUI components, with checkmarks for completed stages, an explicit Current
@@ -874,16 +910,58 @@ request forms or certificates.
 ### 6.5 Review-proposal presentation
 
 Each aggregation row shows whether active review proposals exist and opens a
-proposal panel. The panel separates current values from proposed values and
-groups proposals by type and target. Every proposal shows its proposer, the
-proposer's role in that review, workflow stage, review round, time, reason if supplied,
-current proposal status, and execution result when available.
+proposal panel. The main proposal listing, including aggregation-scoped dialogs,
+has six columns: **Target**, **Proposed change**, **Status**, **Proposed by**,
+**Reason**, and **Actions**. Show the original proposer's role beneath their name
+in the same cell. When viewing one review round, display its number above the
+table rather than repeating it in every row. Keep status visible because the
+listing can include proposals in different recorded states.
+
+The Proposed change describes the actual proposed effect. A security proposal
+names the proposed security level. A relationship proposal identifies its type
+from the target's perspective and the related aggregation or record, so different
+relationships on the same target remain distinguishable. A retention proposal
+shows both proposed periods in years and the disposition action. A hold proposal
+identifies its selected holds; a compact summary may show the first three and
+the remaining count, with the complete list available in Details. Preserve
+existing authorization and partial-redaction boundaries in every summary.
+
+Move workflow stage, review-round metadata, creation time and last revision
+metadata into **Details** and revision history. Label the timestamps distinctly
+as **Proposed at** and **Last revised at**. When no revision is recorded, display
+**Not revised** instead of an unexplained blank last reviser. Creation and
+unchanged carry-forward into another review round do not count as revisions.
+The details panel separates current values from proposed values and retains
+original proposer/role, stage, round, reason, state, last reviser/role/time and
+execution result when available. Every underlying audit record remains intact.
+
+Details and Revision history share one bounded, responsive dialog with separate
+tabs. Keep the proposal type, target and state visible at the top and Close
+reachable while long content scrolls. Details emphasize the recorded current
+values and proposed values in adjacent panels on wider screens and stacked
+panels on narrow screens. Show relationship endpoints as separately labelled
+From/To values rather than one long arrow-separated line. Do not infer an absent
+relationship or hold assignment where the proposal snapshot does not record it.
+Show the proposal reason directly; group submission/revision metadata and other
+recorded background values under a collapsed Proposal information disclosure.
+An active proposal's state is not presented as an execution result.
+
+Revision history loads only when selected and retains server pagination, counts,
+and deliberate loading/empty/error states. Each dated entry identifies its actor
+and action, and expands inline. Render safely described business-field changes
+as labelled Before/After values, including cleared values; retain the remaining
+permitted audit facts under Recorded information. Detailed entry content is built
+on expansion. Keep existing restricted envelopes and privilege-gated technical
+details; do not open another dialog just to inspect a revision. Refresh on tab
+re-entry and ignore responses after closure or navigation. Every underlying
+audit row and existing history scope remains unchanged.
 
 The task forms for the Records Officer, File Administrator, Unit Manager, and
 Records Manager offer proposal creation, revision, and withdrawal under Section
-5.3 while the participant's own task is open. The panel shows the original
-proposer and the last revising user and time separately and provides the
-revision history. Proposed-removal rows and other proposal types use visible labels and
+5.3 while the participant's own task is open. Details show the original
+proposer and the last revising user and time separately and provide the
+revision history. Arrange available Details, edit and withdraw actions in a
+horizontal group with accessible names and tooltips. Proposed-removal rows and other proposal types use visible labels and
 icons or equivalent non-color cues.
 
 ### 6.6 Review comments and task-specific forms
@@ -954,10 +1032,37 @@ date.
 
 ### 6.6.1 Save work without submitting
 
-Every preparation, review, and correction task provides an explicit **Save**
+Every preparation, review, and correction task provides an explicit **Save changes**
 button for its authorized participant: Records Officer, File Administrator,
 Unit Manager, or Records Manager. This applies to all three routes, not just
 Records Manager Only. Work can be saved, left, and resumed over multiple days.
+
+Use one shared sticky footer, visible across **Current task**, **Aggregations**
+and **Evidence and documents**, above the application's existing status footer.
+It contains **Save changes**, **Review changes**, a count of unsaved changes and
+the explanation that saving persists proposals and comments without submitting.
+Count each queued proposal creation, revision or withdrawal once, plus one if
+Review comments differs from its saved value. Disable Save and Review when
+there are no changes and show **All changes saved**. While saving, disable draft
+mutation and Save controls to prevent repeated or inconsistent writes.
+
+**Review changes** opens the complete local pending work, including changed
+comments. Every unsaved proposal change offers **Discard draft** here, in the
+Current task draft list and in its aggregation's proposals dialog. Discarding
+removes only that queued change, reverses its count immediately and makes no
+server mutation; withdrawing a saved proposal remains a separate saved change.
+Dialogs that disclose pending work also offer **Save changes**, saving all
+pending task work under the same command and closing only after success.
+The proposal editor uses **Add draft proposal** for creation and **Update draft
+proposal** for revisions, distinguishing queuing from persistence.
+
+Successful Save retains the active tab, filters, pagination, selected context
+and scroll position, refreshes the affected data regions and shows brief success
+feedback. A failed Save retains work and displays the specific error in the
+shared footer and open pending-work dialog, even when Current task is hidden.
+Submission, approval and return-for-correction controls remain in Current task.
+Read-only, unclaimed and historical tasks do not gain Save authority or a working
+footer. All controls, counts and feedback support English/LTR and Arabic/RTL.
 
 Save persists proposals and their revisions or withdrawals, removal
 recommendations and the user's Review comments. It does not execute proposals, approve or submit the job,
@@ -1619,23 +1724,47 @@ and digital certificate generation and completes using the physical certificate.
 On entering the physical destruction step, Wathiq generates a
 **Physical destruction preparation report** to support collecting and preparing
 the physical material. It lists every physical or mixed aggregation in the
-job's current disposition units, including descendant aggregations, grouped by
-each listed aggregation's terminal classification. It identifies the job and
-report generation time and includes each aggregation's identifier, title,
-owning organizational unit, assigned location, and current location. Location
-values follow Wathiq's existing location and inheritance rules; missing values
-are shown as not specified rather than invented.
+job's current disposition units, including descendant aggregations. The approved
+collection layout groups rows by their effective **current collection location**.
+Locations are existing free-text values: do not infer a room/shelf hierarchy.
+Missing current locations form a final **Locations to verify** group and say
+**Current location not recorded**. An assigned location is shown as secondary
+information only when recorded and different from the current location; it must
+never stand in for a missing current location. Existing location inheritance
+rules continue to apply.
 
-For each listed aggregation, the report summarizes the number of physical
-aggregations, mixed aggregations, physical records, and mixed records within
-its descendant hierarchy. Descendant counts exclude the listed aggregation
-itself. Classification-group and whole-report totals count each aggregation
-and record once; they must not sum overlapping descendant summaries and
-thereby count nested items more than once. A digital aggregation that contains
-physical or mixed descendants does not cause those descendants to be omitted.
+Show the organization prominently using the Disposition organization override
+or localized root-unit fallback and the same values-language setting as the
+destruction request. The compact header contains the human job number, report
+generation time in the configured working timezone and report version. Show a
+common owning unit once; where units differ, show the owner on each aggregation.
+The three-column list contains a running serial number, aggregation number and
+title with smaller classification code/medium, and the current location with
+any differing assigned location. Use the established Arabic medium terminology
+مادي and هجين. Do not add manual collection checkboxes.
+
+Print one concise totals line with the number of physical/mixed aggregations to
+collect, physical records and mixed records. Count each item once rather than
+summing overlapping descendant summaries. Keep internal job IDs, job type and
+creation date, officer attribution, checksums, classification totals and
+per-row descendant counts in the retained snapshot instead of printing them.
+A digital parent must not hide physical or mixed descendants. Repeat column
+headers across pages, keep each aggregation row intact, align serials with the
+top of the row, and include job/version and page numbers in the footer.
+Earlier issued reports and template versions remain unchanged.
 
 The physical destruction task provides report preview and download, subject
-to existing access rules. The report is also automatically saved as a governed
+to existing access rules. For an existing report, **View preparation report**
+is the main action; a **More** menu contains **Download PDF** and, for authorized
+Records Managers, **Create updated report**. Each action retains its existing
+access checks. A short note explains that creating an updated report saves a
+new version and keeps earlier versions. When no report is available, an
+authorized Records Manager has a **Generate preparation report** action instead.
+All labels and guidance are localized. A concise note below the report heading explains
+that it is used before destruction to locate and prepare physical or mixed
+material, and that it lists aggregations, classifications, owning units,
+locations and counts. This note is localized.
+The report is also automatically saved as a governed
 record in the latest open root aggregation under the configured **Generated
 reports classification**, with links to the job and report version under
 Section 17.2. It is a generated report, not uploaded destruction evidence.
@@ -1649,6 +1778,9 @@ regeneration is a new PDF report version saved under Generated reports
 classification; earlier versions and their snapshots remain in job history.
 
 ### 14.2 Checks and confirmation
+
+The localized readiness-check action is labelled **Check readiness for physical
+destruction**.
 
 Before authorizing progression to physical destruction outside Wathiq, the
 server must recheck current final-action blockers, including outside-job
@@ -1860,7 +1992,26 @@ and append an audited correction. Only explicit completion of that last task
 then completes the job.
 External delivery and receipt are outside Wathiq.
 
-The Records Manager can also select **Send by email** in this certificate task
+The **Current Task** tab shows **Send by email** beside the saved certificate's
+download/preview actions and above **Complete this task**, for a currently
+authorized Records Manager. Show the configured recipient and the latest
+attempt's localized status, timestamp and actual recipient, or an explicit
+no-attempts message. Include this localized note:
+
+> Email the saved certificate to the external archives authority if required.
+> You can also send it after completing this task.
+
+Keep the send action and complete **Email attempts** history in **Evidence and
+documents**. Both locations share one pending submission/retry identity and
+busy state for the exact document; an uncertain response followed by a click in
+the other tab must not create a duplicate attempt. Deliberate subsequent sends
+remain separate attempts. The workspace supplies the initial latest attempt
+without a second initial browser read. Refresh the bounded document-specific
+summary on tab entry and after a send; poll visible pending attempts until a
+terminal outcome, abandoning reads/UI updates when the page is no longer
+active. Sending, downloading and completing remain separate actions.
+
+The Records Manager can select **Send by email** in this certificate task
 to send the exact saved Certificate of Destruction (Digital) as an attachment
 to the external archives authority. The task displays the configured recipient
 address and uses the same authority email address and SMTP settings as request
@@ -2353,8 +2504,8 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before creating the final Records Manager certificate task; explicit completion of this task atomically completes the job; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, and download-history tests |
 | DEST-46 | Request v2 uses configurable organization/Records Unit contacts and approving-Manager language policy, omits internal fields, shows whole-job record-originated year bounds and an root-aggregation-per-row section with subtree years/counts, classification and assigned physical/mixed location; issued documents and v1 defaults remain unchanged | Presentation/settings, language, inheritance, date timezone/empty scope, concurrent-change rejection, retained-default download and real multipage PDF/layout verification |
 | DEST-35 | Request forms show the configured authority name, default Sharjah Archives; an authorized Records Manager or the assigned Records Officer can repeatedly email the exact generated form to the configured authority address through SMTP, with truthful per-attempt status and permanent attributed history | Default/configured authority form rendering, recipient display and validation, task authorization, exact attachment/version, deliberate resend, same-submission retry deduplication, missing configuration, SMTP success/failure/unknown outcomes, no unsupported inbox-delivery claim, secret-safe errors, navigation/status persistence, settings-change history isolation, and no workflow advancement tests |
-| DEST-36 | An authorized Records Manager can repeatedly email the exact saved digital destruction certificate through the same authority-email and SMTP settings, including after job completion, with per-attempt status and attributed history and without regenerating evidence or changing outcomes | Records Manager authorization, configured recipient display, exact certificate attachment, shared SMTP configuration, repeat sending after completion, same-submission retry deduplication, missing configuration, success/failure/unknown status, truthful acceptance wording, secret-safe errors, navigation/status persistence, actor identity/type history, and no certificate/outcome mutation tests |
-| DEST-37 | Physical destruction generates a previewable/downloadable preparation report listing all physical/mixed aggregations in the job, grouped by terminal classification, with assigned/current locations and separate physical/mixed aggregation and record counts, saved as a linked governed record under Generated reports classification | Root and descendant coverage, digital-parent/physical-descendant coverage, classification grouping, location and inheritance/missing-value rendering, descendant counts, non-overlapping group/job totals, preview/download access, configured report destination, version/snapshot history, and retry deduplication tests |
+| DEST-36 | An authorized Records Manager can repeatedly email the exact saved digital destruction certificate from Current Task and Evidence and documents, including after job completion, with recipient/latest-attempt summary and full history, shared retry/busy state, optional-send guidance and no evidence/outcome changes | Current authority, same exact saved attachment and SMTP configuration, cross-tab uncertain retry deduplication, deliberate resends, missing configuration, status/recipient freshness, lazy bounded history, visible pending polling/abandonment, localization/RTL, no automatic send or completion dependency, and secret-safe attributed audit |
+| DEST-37 | Physical destruction generates a previewable/downloadable collection preparation report listing all physical/mixed aggregations, grouped by effective current location, with serials, concise identity/classification/medium, differing assigned locations, explicit unknown locations and unique totals; save it as a linked governed record under Generated reports classification | Root/descendant and digital-parent coverage, location grouping/inheritance/unknowns, differing assigned locations, common/multiple owners, organization and Arabic/English values, unique totals, repeated headers/top-aligned serials/multipage layout, configured destination, retained internal counts/checksums, version history and retry deduplication |
 | DEST-39 | Request and digital certificate use bilingual Arabic-first Changa RTL Word templates stored at the documented repository paths; Records Officers and Records Managers can download and re-upload valid revisions, preserving all versions and artifact provenance, without signatures | Default-file existence, required placeholders and repeat-row coverage, DOCX validity, complete bilingual generation, multi-page RTL/LTR render and Changa checks, no signature blocks, both-role authorization and other-role denial, invalid-upload rejection, revision retention/download, user audit attribution, and generated-artifact template-version linkage tests |
 | DEST-38 | Destination selection uses the most recently opened still-open root under the configured classification; absence of a suitable root blocks the relevant task and produces warnings on that task and Governance Custody until resolved | Opening-date ordering, closed/child/wrong-classification exclusion, both destination types, upload/corrective-upload/report/digital-certificate task blocking, no fallback or false completion, task and custody warnings, and destination recheck/warning clearance tests |
 | DEST-34 | Each successful proposal execution produces a governed proposal execution report record under Generated reports classification in the latest open root aggregation, linked to the job, review round, and every execution result without overwriting earlier reports | Complete proposal-result coverage, configured report destination, governed-record and job/round linkage, execution actor and proposer attribution, change-history references, per-round report retention, and retry deduplication tests |

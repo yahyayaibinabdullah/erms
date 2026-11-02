@@ -21,7 +21,7 @@ from lxml import etree
 from fastapi import HTTPException
 
 from ..document_conversion import _libreoffice_binary, ConversionUnavailable
-from .template_contract import CONTRACTS, row_fields, group_fields
+from .template_contract import CONTRACTS, row_fields, group_fields, PHYSICAL_PRESENTATION_FIELDS, PHYSICAL_PRESENTATION_ROWS
 
 MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 FONT_DIRECTORY=Path(__file__).resolve().parents[1]/'messaging/pdf_assets/disposition'
@@ -91,7 +91,8 @@ def validate(content, kind, maximum):
     combined='\n'.join(texts)
     if not ARABIC.search(combined) or not LATIN.search(combined):invalid('disposition_template_bilingual_required')
     first=next((p for p in paragraphs(trees['word/document.xml']) if paragraph_text(p).strip()),None)
-    if first is None or not ARABIC.match(paragraph_text(first).lstrip()):invalid('disposition_template_bilingual_required')
+    organization_first=kind=='physical_preparation_report' and first is not None and paragraph_text(first).strip()=='{{organization.name}}'
+    if first is None or not (ARABIC.match(paragraph_text(first).lstrip()) or organization_first):invalid('disposition_template_bilingual_required')
     groups=group_fields(contract)
     allowed=set(contract.fields)|{key for fields in groups.values() for key in fields}
     markers={prefix+group for group in groups for prefix in ('#','/')}
@@ -160,21 +161,77 @@ def snapshot_values(kind,snapshot):
     groups=group_fields(contract)
     expected={'fields',*groups}
     if set(snapshot)-{'source'}!=expected or 'source' in snapshot and not isinstance(snapshot['source'],dict):invalid('disposition_document_snapshot_invalid')
-    def clean(row,keys):
-        if not isinstance(row,dict) or set(row)!=set(keys):invalid('disposition_document_snapshot_invalid')
+    def clean(row,keys,legacy_missing=()):
+        if not isinstance(row,dict) or set(row)-set(keys) or set(keys)-set(row)-set(legacy_missing):invalid('disposition_document_snapshot_invalid')
         result={}
         for key,value in row.items():
             if isinstance(value,bool) or not isinstance(value,(str,int)) or not str(value).strip() or '{{' in str(value) or '}}' in str(value):invalid('disposition_document_snapshot_invalid')
             if (key.startswith(('counts.','totals.')) or key.split('.')[-1] in ('roots','descendant_aggregations','records','physical','digital','mixed','current_years','intermediate_years','physical_aggregations','mixed_aggregations','physical_records','mixed_records')) and (not isinstance(value,int) or value<0):invalid('disposition_document_snapshot_invalid')
             result[key]=str(value)
         return result
-    scalar=clean(snapshot.get('fields'),contract.fields)
+    legacy=kind=='physical_preparation_report'
+    scalar=clean(snapshot.get('fields'),contract.fields,PHYSICAL_PRESENTATION_FIELDS if legacy else ())
     cleaned={}
     for group,fields in groups.items():
         rows=snapshot.get(group,[])
         if not isinstance(rows,list):invalid('disposition_document_snapshot_invalid')
-        cleaned[group]=[clean(row,fields) for row in rows]
+        cleaned[group]=[clean(row,fields,PHYSICAL_PRESENTATION_ROWS if legacy else ()) for row in rows]
     return scalar,cleaned
+
+
+def collection_heading(template_row,clone,data,previous_group):
+    """A standalone collection-group token becomes a full-width heading row.
+
+    Only the physical report opts in through this documented template token.
+    Ordinary/custom v1 layouts remain unchanged. Keep the heading with the first
+    aggregation; normal repeating column headers continue across page breaks.
+    """
+    marker='{{aggregation.collection_group}}'
+    for p in paragraphs(clone):
+        text=paragraph_text(p).strip()
+        if text in ('{{aggregation.assigned_note}}','{{aggregation.owner_note}}') and data.get(TOKEN.findall(text)[0])=='—':
+            p.getparent().remove(p)
+        elif text==marker:
+            p.getparent().remove(p)
+            value=data.get('aggregation.collection_group')
+            if value==previous_group:continue
+            heading=etree.Element(W+'tr');props=etree.SubElement(heading,W+'trPr')
+            etree.SubElement(props,W+'cantSplit')
+            cell=etree.SubElement(heading,W+'tc');cp=etree.SubElement(cell,W+'tcPr')
+            table=template_row.getparent();grid=table.find('w:tblGrid',NS)
+            span=len(grid) if grid is not None else len(template_row.findall('w:tc',NS))
+            etree.SubElement(cp,W+'gridSpan').set(W+'val',str(span))
+            etree.SubElement(cp,W+'shd').set(W+'fill','F3F7FA')
+            heading_p=deepcopy(p);_replace(heading_p,data)
+            pp=heading_p.find('w:pPr',NS)
+            if pp is None:pp=etree.SubElement(heading_p,W+'pPr')
+            etree.SubElement(pp,W+'keepNext')
+            cell.append(heading_p);template_row.addprevious(heading)
+    return data.get('aggregation.collection_group',previous_group)
+
+
+def collection_bilingual_lines(tree):
+    # Keep Arabic and English wording on their own lines rather than letting
+    # Word reorder a long mixed-script value around its slash separator.
+    for p in paragraphs(tree):
+        text=paragraph_text(p).strip()
+        if not ARABIC.match(text) or ' / ' not in text or not LATIN.search(text):continue
+        ar,en=text.split(' / ',1);english=deepcopy(p)
+        for paragraph,value in ((p,ar),(english,en)):
+            nodes=paragraph.findall('.//w:t',NS)
+            for i,node in enumerate(nodes):node.text=value if i==0 else ''
+        props=english.find('w:pPr',NS)
+        if props is not None:
+            for tag,val in [('bidi','0'),('jc','left')]:
+                node=props.find('w:'+tag,NS)
+                if node is None:node=etree.SubElement(props,W+tag)
+                node.set(W+'val',val)
+        for run in english.findall('w:r',NS):
+            for rtl in run.findall('w:rPr/w:rtl',NS):rtl.set(W+'val','0')
+        props=p.find('w:pPr',NS)
+        if props is None:props=etree.SubElement(p,W+'pPr')
+        if props.find('w:keepNext',NS) is None:etree.SubElement(props,W+'keepNext')
+        p.addnext(english)
 
 
 def fill(content,kind,snapshot,maximum):
@@ -186,8 +243,10 @@ def fill(content,kind,snapshot,maximum):
         for group,rows in groups.items():
             for row in tree.findall('.//w:tr',NS):
                 if '#'+group not in TOKEN.findall(paragraph_text(row)):continue
+                previous_group=None
                 for data in rows:
                     clone=deepcopy(row)
+                    if kind=='physical_preparation_report':previous_group=collection_heading(row,clone,data,previous_group)
                     for p in paragraphs(clone):
                         text=paragraph_text(p).strip()
                         markers=TOKEN.findall(text)
@@ -209,7 +268,13 @@ def fill(content,kind,snapshot,maximum):
             # duty label. Keep the controlled placeholder contract unchanged.
             for node in tree.findall('.//w:t',NS):
                 if node.text:node.text=node.text.replace('Assigned Records Officer','Assigned Records Manager').replace('مسؤول الوثائق المكلّف','مدير الوثائق المكلّف')
-        if kind in ('destruction_request','proposal_execution_report','digital_destruction_certificate'):
+        if kind=='physical_preparation_report' and 'report.summary' in scalar:
+            collection_bilingual_lines(tree)
+            if scalar.get('report.language','').split('-')[0]=='en':
+                for table in tree.findall('.//w:tbl',NS):
+                    direction=table.find('w:tblPr/w:bidiVisual',NS)
+                    if direction is not None:direction.set(W+'val','0')
+        if kind in ('destruction_request','proposal_execution_report','digital_destruction_certificate','physical_preparation_report'):
             # Placeholder paragraphs are LTR during validation. Select the
             # direction of actual Arabic-first values only after filling.
             for paragraph in paragraphs(tree):

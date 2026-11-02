@@ -1,5 +1,26 @@
 # Destruction workflow reference
 
+Job details → History shows one entry per recorded action. A submission appears
+as **Review round N submitted**; its details show the actor, time and comments
+once. Expand **Recorded changes (N)** to inspect paginated changes, including
+tasks completed/created, workflow changes and each carried proposal with its
+affected aggregation. Review decisions, saves, membership changes, assignment,
+evidence, termination and completion use the same grouping when recorded command
+correlation is unambiguous. Separate actions remain separate; restricted events
+keep their redacted envelopes inside an action. Every original audit record is preserved; the global Audit Trail and
+revision histories retain individual events with clearer change labels.
+
+Second and later review tasks include collapsed **View previous rounds** below
+the latest submitted comments. Opening it shows previous submission comments
+and decisions, with author, time and round. It loads on demand; full job history
+remains in Job details.
+
+The existing history API accepts `grouped=true` for server-paginated action
+summaries; omitting it retains the raw-event contract. A summary's representative
+event ID opens `jobs/{job_id}/history/{event_id}/events`, a separately authorized
+25-row page (maximum 50) of its original events. No shared history cache, schema
+migration, workflow transition or audit-data rewrite is involved.
+
 The job workspace uses a compact stage tracker. This full branching diagram is
 a documentation reference; actual routing follows the job’s saved review route.
 
@@ -9,6 +30,68 @@ number or title, owning organization unit name, or classification code or title.
 Matching is case-insensitive and accepts partial text. It does not search the
 job number or the other table columns. The field displays this scope as a hint
 in English and Arabic; the separate Membership filter remains available.
+
+The tab defaults to **Active** memberships for active jobs, **Completed history**
+for completed jobs, and **Terminated history** for terminated jobs. Choose another
+Membership filter to inspect past episodes. The Membership column appears only
+for **Any**; Removed at appears only for **Removed** or **Any**.
+
+The effective retention-rule source is a short clickable label, such as
+**Classification · 1431** or **Local override**. Open it to see the full defining
+source, both periods in years and the disposition action. A nonzero **Review
+proposals** count opens that aggregation's existing proposals dialog. Zero is
+plain text. All disclosures retain current authorization and server pagination.
+
+In a task, the proposal count immediately includes unsaved additions and queued
+withdrawals. A compact draft icon labelled **Unsaved proposal changes** marks draft
+work without lengthening the row and opens its selected
+values and reasons alongside saved proposals. Revisions leave the count unchanged.
+Discarding a draft reverses the indicator; switching tabs preserves it, and Save
+reconciles it with saved data. A failed Save keeps the draft visible. A proposed
+legal hold does not become an actual hold or blocker until approval executes it.
+
+An editable task has one sticky footer across all three tabs: **Save changes**,
+**Review changes**, and its unsaved count. The count includes each queued proposal
+change and one for edited Review comments. Review changes shows the entire pending
+set. **Discard draft** removes an individual unsaved change from there, the task's
+draft list or the aggregation's proposals dialog. Saved proposals still use
+Withdraw. No changes disables Save and Review and displays All changes saved.
+
+The editor's **Add draft proposal** / **Update draft proposal** buttons queue
+work locally. Save changes, including its equivalent in pending-work dialogs,
+persists all proposals and comments together. Saving keeps the selected tab,
+filter/page context and scroll position; failures retain drafts and show the
+specific error in the shared footer and open disclosure. Submission and decision
+buttons remain in Current task. The footer uses the native NiceGUI PageSticky
+above the application's existing status footer, with room reserved for its
+responsive height. It does not appear on read-only or unclaimed tasks.
+
+Review proposals use six columns: **Target**, **Proposed change**, **Status**,
+**Proposed by**, **Reason**, and **Actions**. Proposed by combines the original
+author and role; the review round appears above the table. Descriptions name
+the proposed security level, relationship type and related item, retention
+periods/action, or selected holds. The first three hold labels and a remaining
+count keep large selections compact; Details retains the complete list.
+
+Workflow stage and audit metadata remain in Details and revision history.
+**Proposed at** is the original creation time; **Last revised at** identifies
+the latest actual revision. **Not revised** means no revision was recorded.
+Carrying an unchanged proposal into another review round preserves that state
+and its original author/time. No proposal or audit history is rewritten.
+
+The proposal dialog has **Details** and **Revision history** tabs. Details puts
+the target and state at the top, compares recorded current and proposed values,
+and shows the reason directly. Relationship endpoints have separate **From** and
+**To** labels. Expand **Proposal information** for submission/revision metadata
+and background values. Comparison panels stack on smaller screens, and Close
+stays reachable while the body scrolls.
+
+Revision history loads on demand in server pages. Expand a dated action to see
+its reason and readable **Before/After** values. **Recorded information** retains
+the remaining permitted audit metadata; technical details retain their existing
+privilege gate. This keeps revision inspection in the same dialog. Returning
+to the history tab refreshes its page; closed/abandoned dialogs ignore delayed
+responses.
 
 ```mermaid
 flowchart TD
@@ -135,3 +218,46 @@ then restart API/WebUI. A new database uses the canonical schema and baseline.
 No configuration or privilege change is required. Catalogue synchronization
 adds the Add aggregations message and one unpublished Arabic draft for review. See the
 [verification and requirement mapping](verification/simplified-review-and-correction.md).
+
+## Emailing the digital destruction certificate
+
+In **Current Task**, the final certificate section offers **Send by email** next
+to download, shows the configured recipient and latest recorded attempt, and
+explains that sending is optional and remains possible after completion.
+**Complete this task** completes the final task and job without sending mail.
+The same send action and full **Email attempts** history remain in **Evidence
+and documents**. Both buttons share one pending retry identity; switching tabs
+after an uncertain response does not create a second submission. An acknowledged
+later send is a new attempt. SMTP acceptance is not confirmed delivery.
+
+The workspace includes the authorized document's latest attempt. Refreshes use
+the existing paginated email-history endpoint with optional `document_id` and
+`limit=1`. Hidden or abandoned pages do not poll; visible pending attempts stop
+polling at a terminal result. Existing role/document checks remain authoritative.
+No migration, environment setting, privilege or automatic email was introduced.
+See [verification and catalogue details](verification/certificate-task-email.md).
+
+## Collecting material for physical destruction
+
+The preparation report now groups physical and mixed aggregations by their
+effective current collection location. Each row has a running serial number,
+aggregation number/title, classification code, medium and current location.
+A differing assigned location appears underneath. Missing current locations
+are listed last under **Locations to verify**; an assigned location never
+implies that the material is currently there. Inherited locations still apply.
+
+The organization is prominent, with the same Disposition organization override,
+localized root-unit fallback and values-language setting as the destruction
+request. A common owning unit appears once; different owners appear per row.
+The compact header contains the human job number, generation time and report
+version. One totals line counts each aggregation/record once. Detailed
+descendant counts and integrity checksums remain in the saved source snapshot.
+Physical/mixed descendants remain included even beneath digital parents.
+
+New reports use the checked-in v2 template. Restart the API after deployment to
+refresh its immutable default-asset cache. Existing issued PDFs and v1 assets
+remain available; choose **More → Create updated report** on an eligible active
+physical-destruction task to save a fresh report using current facts. An
+administrator-uploaded template continues to take precedence over repository
+defaults. No migration, environment setting, privilege or new UI message key is
+required. See [template verification](verification/physical-preparation-template.md).

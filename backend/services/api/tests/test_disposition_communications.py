@@ -257,6 +257,11 @@ def test_certificate_shared_sender_after_completion_requires_actual_manager(clie
     with db() as c:
         actor(c)
         cert=c.execute("SELECT id FROM disposition_job_documents WHERE job_id=%s AND document_type='digital_destruction_certificate'",(job['id'],)).fetchone()
+        from backend.services.api.disposition import completion
+        from backend.services.api.tests.test_disposition_review import task
+        from backend.services.api.tests.test_disposition_membership import job_version
+        t=task(c,job['id'])
+        completion.complete_task(c,job_id=job['id'],task_id=t['id'],task_version=t['version'],expected_version=job_version(c,job['id']),acting_role_id=manager_role,command_id=uuid4())
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['lifecycle_state']=='completed'
         with pytest.raises(Exception,match='disposition_email_not_authorized'):enqueue(c,job,cert['id'],officer_role)
         first=enqueue(c,job,cert['id'],manager_role);second=enqueue(c,job,cert['id'],manager_role);assert first!=second

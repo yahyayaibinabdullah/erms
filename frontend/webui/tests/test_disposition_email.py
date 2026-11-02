@@ -89,3 +89,94 @@ async def test_history_lives_in_documents_and_refreshes_only_while_visible(host,
         assert len(api.reads)==2  # Re-entry refreshes; there is no result cache.
         f.active=lambda:False;await f.refresh_email_history()
         assert len(api.reads)==2
+
+
+async def certificate_form(host,monkeypatch,*,latest=None,allowed=True):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
+    v=view(actions=('complete_certificate',));v['job'].update(workflow_stage='certificate_generation',lifecycle_state='active')
+    v['task'].update(task_type='certificate_download',workflow_stage='certificate_generation')
+    cert=dict(id=99,file_name='certificate.pdf',can_download=True,document_type='digital_destruction_certificate',role_ids=[7],latest_attempt=latest)
+    v['email']=dict(recipient='authority@test.invalid',roles=[dict(id=7,name='Records Manager')],documents=[cert] if allowed else [])
+    v['completion']=dict(completed=False,progress=dict(state='succeeded'),certificate=cert)
+    selected=['task'];alive=[True];api=Api()
+    async def after(*a):pass
+    with host:
+        documents=ui.column()
+        f=ReviewForm(api=api,workspace=v,active=lambda:alive[0],on_error=str,bind_remote=lambda *a,**kw:None,after=after,format_timestamp=str,open_resource=None,documents_host=documents,documents_active=lambda:selected[0]=='documents',task_active=lambda:selected[0]=='task')
+        await f.load()
+    return f,api,documents,selected,alive
+
+
+@pytest.mark.asyncio
+async def test_certificate_send_present_in_both_tabs_without_initial_extra_read(host,monkeypatch):
+    f,api,documents,_,_=await certificate_form(host,monkeypatch)
+    assert len([e for e in f.host.descendants() if isinstance(e,ui.button) and e.text==text('send_email')])==1
+    assert len([e for e in documents.descendants() if isinstance(e,ui.button) and e.text==text('send_email')])==1
+    assert any(isinstance(e,ui.label) and e.text==text('certificate_email_hint') for e in f.host.descendants())
+    assert any(isinstance(e,ui.label) and e.text==text('email_not_sent') for e in f.host.descendants())
+    assert api.reads==[] and api.writes==[]
+
+
+@pytest.mark.asyncio
+async def test_cross_tab_uncertain_retry_shares_identity_and_updates_both_summaries(host,monkeypatch):
+    f,api,documents,selected,_=await certificate_form(host,monkeypatch);calls=[]
+    latest=dict(id=10,document_id=99,status='smtp_accepted',requested_at='09:00',outcome_at='09:01',recipient='authority@test.invalid')
+    async def send(path,payload,**kw):
+        calls.append((path,deepcopy(payload)))
+        if len(calls)==1:raise ApiError(503,{'code':'disposition_email_unknown'})
+        return {'attempt_id':10}
+    async def read(path,**params):api.reads.append((path,params));return dict(items=[latest],total=1)
+    api.disposition_command=send;api.disposition_page=read
+    task_button=next(e for e in f.host.descendants() if isinstance(e,ui.button) and e.text==text('send_email'))
+    doc_button=next(e for e in documents.descendants() if isinstance(e,ui.button) and e.text==text('send_email'))
+    with host:
+        await click(task_button);selected[0]='documents';await click(doc_button);await click(doc_button)
+    assert calls[0]==calls[1] and calls[1][1]['command_id']!=calls[2][1]['command_id']
+    assert calls[0][0]=='jobs/5/documents/99/email'
+    assert all(p['document_id']==99 and p['limit']==1 for _,p in api.reads)
+    assert all(text('email_smtp_accepted') in target.text and '09:01' in target.text for target,_ in f.email_sends[99]['summaries'])
+
+
+@pytest.mark.asyncio
+async def test_pending_summary_poll_and_reentry_respect_visibility_and_abandonment(host,monkeypatch):
+    pending=dict(status='sending',requested_at='09:00',outcome_at=None,recipient='authority@test.invalid')
+    f,api,_,selected,alive=await certificate_form(host,monkeypatch,latest=pending)
+    state=f.email_sends[99];assert state['timer'].active
+    selected[0]='members';await state['refresh']();assert not api.reads
+    async def read(path,**params):api.reads.append((path,params));alive[0]=False;return dict(items=[],total=0)
+    api.disposition_page=read;selected[0]='task';before=[label.text for label,_ in state['summaries']]
+    await state['refresh']()
+    assert [label.text for label,_ in state['summaries']]==before
+    await state['timer'].callback();assert not state['timer'].active
+
+
+@pytest.mark.asyncio
+async def test_send_busy_disables_both_buttons_and_completion_remains_independent(host,monkeypatch):
+    from frontend.webui.tests.test_disposition_external import click as finish_click
+    f,api,documents,selected,_=await certificate_form(host,monkeypatch)
+    task_button=next(e for e in f.host.descendants() if isinstance(e,ui.button) and e.text==text('send_email'))
+    doc_button=next(e for e in documents.descendants() if isinstance(e,ui.button) and e.text==text('send_email'))
+    entered=asyncio.Event();release=asyncio.Event()
+    refreshed=asyncio.Event()
+    async def send(*a,**kw):entered.set();await release.wait();return {'attempt_id':1}
+    async def read(*a,**kw):refreshed.set();return dict(items=[],total=0)
+    api.disposition_command=send
+    api.disposition_page=read
+    with host:
+        sending=asyncio.create_task(click(task_button));await entered.wait()
+        assert not task_button.enabled and not doc_button.enabled
+        selected[0]='documents';await click(doc_button);release.set();await sending;await refreshed.wait()
+    assert not f.busy and task_button.enabled and doc_button.enabled
+    # A separate form can complete with no send and no download.
+    f2,api2,_,_,_=await certificate_form(host,monkeypatch)
+    finish=next(e for e in f2.host.descendants() if isinstance(e,ui.button) and e.text==text('complete_this_task'))
+    with host:await finish_click(finish)
+    assert [path for path,_,_ in api2.writes]==['jobs/5/complete-certificate-task']
+
+
+@pytest.mark.asyncio
+async def test_certificate_without_send_authority_keeps_completion_but_no_email_action(host,monkeypatch):
+    f,api,_,_,_=await certificate_form(host,monkeypatch,allowed=False)
+    buttons=[e.text for e in f.host.descendants() if isinstance(e,ui.button)]
+    assert text('send_email') not in buttons and text('complete_this_task') in buttons and not api.reads

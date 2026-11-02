@@ -4,13 +4,15 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.15
+**Revision:** 1.17
 **Amendment approved:** 29 October 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.17 | 29 October 2026 | Compact job/task aggregation rows, disclose complete effective retention rules on demand, default to current membership and open proposals from nonzero counts |
+| 1.16 | 29 October 2026 | Summarize one recorded disposition action once in job history, retain paginated underlying events, distinguish affected changes, and disclose previous review comments in review tasks |
 | 1.15 | 29 October 2026 | Allow eligible additions by the claimed Records Manager during Simplified destruction review, preserving admission and original-round integrity |
 | 1.14 | 29 October 2026 | Allow compatible exceptional acceleration of reopened active members within their existing job; preserve membership, blockers and review invalidation |
 | 1.13 | 29 October 2026 | Default the Disposition Jobs page to Active while retaining explicit lifecycle filters and server pagination |
@@ -1862,7 +1864,67 @@ navigation preserve task identity. Unsaved task work survives tab switching;
 supporting lists refresh on entry and ignore abandoned responses. Existing
 permissions, routes and transitions remain authoritative.
 
+### Compact aggregation membership listing
+
+The Aggregations tab in job and task details displays a compact effective
+retention-rule source: **Classification · code** or **Local override**. It does
+not repeat the defining classification title, retention periods and disposition
+action in every row. Activating the source opens a read-only dialog containing
+the aggregation identity, full defining source (including classification code
+and title where applicable), current and intermediate periods in years, and
+disposition action. Unknown or restricted rules remain unavailable; the
+disclosure does not grant access or change the rule.
+
+An active job defaults to Active memberships. Completed and terminated jobs
+default to their respective historical membership state so their aggregations
+remain visible. Explicit Membership filter choices remain available and are
+preserved by existing return navigation. Omit the Membership column when a
+single state is selected; show it for Any. Show Removed at only for Removed or
+Any. Membership episodes and their historical dates remain permanently retained.
+
+A Review proposals count above zero is a keyboard-accessible link-style control
+opening the existing aggregation-scoped proposals dialog. Zero remains plain
+text, and restricted counts are unavailable. This reuses the existing authorized,
+server-paginated proposal disclosure and revision/details controls; it does not
+change proposal scope, state, permissions or execution. No proposal request is
+made merely to render the aggregation count.
+
 ### Readable disposition history
+
+Job history presents one row per recorded action, including submission or
+resubmission, review decisions, routing, draft saves, membership changes,
+assignment, evidence, termination and completion. Related events are grouped
+only by recorded command identity within the same transaction, actor, source
+and request. A legacy event without a command ID may join the single known
+command in that scope; ambiguous events remain separate. Similar wording,
+timestamps, reasons or actors alone never establish that two actions are the
+same. Every summary and underlying event uses its existing authorized projection.
+An inaccessible event remains a restricted envelope inside the action; it
+contributes no protected actor, reason, snapshot or reference. Counts include
+restricted envelopes, consistently with the existing raw event count. Raw
+correlation and representative selection are server-internal and do not expose
+protected snapshots. Only the requested summary/detail page is projected and
+enriched; the browser never receives unprojected events.
+
+A review submission is labelled **Review round N submitted** using the recorded
+round. One details action opens a summary with the actor, time and original
+comments once, and a collapsed **Recorded changes (N)** disclosure. The disclosure
+loads original authorized events in server pages of 25 (maximum 50), including
+the completed preparation/correction task, round creation, job changes, new
+review tasks, routing and each carried proposal. Each event has a meaningful
+recorded-change label, affected item and its own readable details. The main
+table counts and pages actions before results reach the browser; grouping must
+not split an action between pages or download all of its events initially.
+Summary rows carry only the recorded scalar facts needed for their labels,
+not complete membership/proposal snapshots. All actions, including those with
+one original event, expose their full authorized facts in the lazy detail page.
+
+The existing raw event list, revision history and global Audit Trail preserve
+their individual event rows and reuse the contextual change labels. Every
+underlying event remains immutable and individually authorized. Current job
+state must never be used to invent a historical outcome. No data migration or
+audit deletion is required. Supporting reads are refreshed on navigation or
+disclosure, with no shared history cache; abandoned responses are ignored.
 
 Job history and proposal/note revision dialogs present human-readable event
 facts in the user's language. Membership events identify the job number,
@@ -1934,3 +1996,10 @@ The latest preceding round is fetched once for the notice and reused in the
 expanded history. This is read-only presentation, with no new workflow states,
 privileges, mutations or changes to historical audit rows. Task details retain
 their stage-specific focus.
+
+During a second or later internal review, task details also offer collapsed
+**View previous rounds** beside the latest submitted comments. Opening it loads
+the existing authorized, paginated round summaries with original submission
+comments and review decisions, attributed to their authors and times. This is
+read-only review context and does not load job-wide audit history or add a
+request to initial task rendering.

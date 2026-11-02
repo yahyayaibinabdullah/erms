@@ -15,6 +15,7 @@ for field in ('assigned','added_by','removed_by','proposer','approving','executo
 
 # Use existing contextual vocabulary where its meaning is identical.
 FIELDS = {
+ 'current_period_years':'current_period_years','intermediate_period_years':'intermediate_period_years','instructions':'instructions',
  'job_number':'job_number','job_type':'job_type','lifecycle_state':'lifecycle','workflow_stage':'stage',
  'disposition_status':'status','old_status':'before_values','new_status':'after_values',
  'membership_state':'history_membership_state','task_state':'task_state','review_round':'current_round','round_number':'current_round',
@@ -54,6 +55,30 @@ ENUM_FIELDS={'job_type','lifecycle_state','workflow_stage','membership_state','t
 
 
 ENUM_ALIASES={'available':'history_available','generating':'history_generating','succeeded':'history_succeeded','queued':'history_queued','running':'history_running','pending':'history_pending','endorsed':'history_endorsed','sent':'history_sent','cancelled':'history_cancelled','released':'history_released','retain_as_local_archives':'local_archives','selective_preservation':'selective_transfer','transfer_to_external_archive':'permanent_transfer'}
+
+
+def subject(row):
+    """Distinguish affected proposals/members using authorized names, never IDs."""
+    metadata=row.get('metadata') or {}
+    if metadata.get('redacted'):return text('history_unavailable')
+    after=row.get('after_state') or metadata.get('after') or row.get('before_state') or metadata.get('before') or metadata
+    refs=row.get('display_references') or {}
+    entity=row.get('entity_type')
+    if entity=='disposition_review_proposal':
+        kind=after.get('proposal_type')
+        identity=after.get('target_record_id') or after.get('target_aggregation_id') or after.get('governing_root_id')
+        target=refs.get(('record:' if after.get('target_record_id') else 'aggregation:')+str(identity)) or text('history_unavailable')
+        return ' · '.join((text(kind) if kind in KEYS else text('proposals'),target))
+    for kind,identity in [('record',after.get('target_record_id') or after.get('record_id')),
+                          ('aggregation',after.get('root_aggregation_id') or after.get('root_id') or after.get('governing_root_id'))]:
+        if identity:return refs.get(f'{kind}:{identity}') or text('history_unavailable')
+    if entity=='disposition_review_round' and after.get('round_number'):
+        return text('tracker_round',number=after['round_number'])
+    if entity in ('disposition_task','disposition_review_note','disposition_review_decision'):
+        stage=after.get('workflow_stage') or after.get('review_stage')
+        if stage in KEYS:return text(stage)
+    kind={'aggregation':'aggregation','record':'record','disposition_job':'job'}.get(entity)
+    return refs.get(f"{kind}:{row.get('entity_id')}") or refs.get(f"job:{after.get('job_id')}") or text('history_unavailable')
 
 def facts(value, references, format_timestamp, prefix=''):
     result=[]

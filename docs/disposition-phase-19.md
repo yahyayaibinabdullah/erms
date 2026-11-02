@@ -6,6 +6,12 @@ as required by the implementation plan. Recovery, digital execution and final
 completion retain Phases 20–22 as their owners. No persistent database was
 changed and no commit was created.
 
+The collection-report presentation was subsequently revised by user approval
+on 2 November 2026. Current location grouping, concise rows and printed totals
+are defined in destruction §14.1 and documented in
+[the updated template verification](verification/physical-preparation-template.md).
+The original phase evidence below remains a historical acceptance record.
+
 ## Requirement → implementation → verification
 
 | Approved contract | Implementation | Evidence |

@@ -264,7 +264,7 @@ def test_hidden_related_resource_preserves_readable_proposal_target_before_claim
         assert rows[0]['partial'] and rows[0]['proposal_type']=='remove_aggregation_relationship'
         assert rows[0]['proposal_state']=='active' and rows[0]['proposer_name']
         assert rows[0]['review_round']==1 and rows[0]['proposed_at']
-        assert not {'current_values','proposed_values','reason','relationship_source_label','relationship_target_label','execution_message'} & set(rows[0])
+        assert not {'current_values','proposed_values','reason','relationship_source_label','relationship_target_label','relationship_display_name','proposed_security_name','execution_message'} & set(rows[0])
         with pytest.raises(psycopg.Error,match='disposition_task_claim_required'),c.transaction():
             workspace.targets(c,task(c,job['id'])['id'],acting_role_id=fa,root_id=root,kind='aggregations',selected=root)
         # A real File Administrator without IG management may inspect blockers.

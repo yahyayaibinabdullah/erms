@@ -24,7 +24,7 @@ def generate_report(c,*,job_id,expected_version,command_id,acting_role_id,settin
         if job['lifecycle_state']!='active' or job['workflow_stage']!='physical_destruction' or c.execute('SELECT 1 FROM disposition_physical_confirmations WHERE job_id=%s',(job_id,)).fetchone():invalid('disposition_physical_stage_invalid')
         version=c.execute("SELECT count(*)+1 n FROM disposition_job_documents WHERE job_id=%s AND document_type='physical_preparation_report'",(job_id,)).fetchone()['n']
         at=c.execute('SELECT clock_timestamp() at').fetchone()['at'].isoformat()
-        snapshot=document_snapshots.preparation_snapshot(c,job_id,report_version=version,generated_at=at)
+        snapshot=document_snapshots.preparation_snapshot(c,job_id,report_version=version,generated_at=at,settings=settings)
     def recheck(x):
         x.execute('SELECT disposition_private.lock_request_facts(%s)',(job_id,))
         if document_snapshots.capture(x,job_id)!=snapshot['source']:invalid('disposition_physical_report_stale')

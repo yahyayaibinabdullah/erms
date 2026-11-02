@@ -254,7 +254,6 @@ def test_http_operational_release_and_missing_file_never_save_evidence(client):
 
 
 def test_real_inherited_locations_and_report_totals_are_frozen(client):
-    from backend.services.api.disposition.document_snapshots import NOT_SPECIFIED
     with db() as c:
         job,root,mgr,_=approved(c)
         c.execute("SELECT set_config('app.location_change_authorized','authorized',true)")
@@ -264,7 +263,7 @@ def test_real_inherited_locations_and_report_totals_are_frozen(client):
         saved=artifacts.document(c,job['id'],report(c,job,mgr)['id']);snapshot=saved['provenance']['snapshot']
         assert all(r['aggregation.assigned_location']=='Shelf A' for r in snapshot['aggregations'])
         assert [r['aggregation.current_location'] for r in snapshot['aggregations']].count('Shelf B')==2
-        assert [r['aggregation.current_location'] for r in snapshot['aggregations']].count(NOT_SPECIFIED)==1
+        assert [r['aggregation.current_location'] for r in snapshot['aggregations']].count('الموقع الحالي غير مسجّل / Current location not recorded')==1
         assert snapshot['fields']['totals.mixed_aggregations']==3 and snapshot['fields']['totals.mixed_records']==1
 
 

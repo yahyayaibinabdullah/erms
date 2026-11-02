@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-29",
+  "frontend_checks_passed": 263,
+  "distinct_api_checks_verified": 51,
+  "final_targeted_api_checks_passed": 5,
+  "six_columns": [
+    "Target",
+    "Proposed change",
+    "Status",
+    "Proposed by",
+    "Reason",
+    "Actions"
+  ],
+  "representative_relationship_row_height_px": {
+    "ltr": 99,
+    "rtl": 97
+  },
+  "horizontal_actions_verified": true,
+  "disposable_databases_removed": [
+    "erms_messaging_test_acl_13f3099ce89d44e3b1777a187085e22a",
+    "erms_messaging_test_acl_593b8f75d32442e8894c33c39a571720",
+    "erms_messaging_test_acl_834bb1dd75154b75864a28166c4a52fb",
+    "erms_messaging_test_acl_361ac18dbe91410c80e6e31064551a74"
+  ],
+  "preview_ports_closed": {
+    "18000": true,
+    "18080": true,
+    "18081": true
+  },
+  "managed_stack_restarted": true,
+  "managed_health": {
+    "api": 200,
+    "webui": 200
+  }
+}

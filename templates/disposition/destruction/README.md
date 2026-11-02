@@ -179,7 +179,37 @@ unchanged. Authoring source: `tools/build_proposal_report_v2.py`.
 
 ### Physical destruction preparation report
 
-File: `physical-preparation-report.default.v1.docx`. Type: `physical_preparation_report`.
+Working file: `physical-preparation-report.default.v2.docx`. Type: `physical_preparation_report`.
+Authoring source: `tools/build_physical_report_v2.py`. Retain v1 for previous
+downloads and issued documents. The following legacy snapshot values remain
+available to custom layouts; v2 deliberately omits internal IDs, checksums,
+classification totals and repeated descendant counts from the printed page.
+
+The v2 layout groups by the complete effective current location (existing free
+text, without inferred room/shelf structure). Unknown current locations form a
+final **مواقع تحتاج إلى التحقق / Locations to verify** group. Each aggregation
+gets a serial, number/title, smaller classification code/medium and its current
+location. The assigned location appears only when different. A common owner is
+shown once, otherwise owners appear per row. The organization and values use
+the same Disposition settings and localized root-unit fallback as the request.
+The header shows job number, local generation time and version. One unique
+totals line replaces repeated count blocks. The footer includes job/version and
+dynamic page numbers; table headers repeat and aggregation rows do not split.
+
+Additional v2 scalar values: `organization.name`, `report.generated_at`
+(configured working timezone), `report.owner`, `report.summary` and internal
+`report.language`. Bilingual values use separate Arabic/English lines; English
+preferred values use left-to-right table order. The bilingual headings remain.
+This layout may start with the `organization.name` placeholder immediately
+before the Arabic-first bilingual title, without a redundant organization label.
+Additional row values: `aggregation.serial_number`, `aggregation.collection_group`,
+`aggregation.medium`, `aggregation.assigned_note`, `aggregation.owner_note`.
+A standalone `{{aggregation.collection_group}}` paragraph inside the repeating
+row becomes a full-width heading whenever the group changes. The two note
+paragraphs are omitted when their value is `—`. These keys are additive and
+optional for retained v1 snapshots/templates; other snapshot validation remains
+strict. Do not embed the group token in ordinary prose when requesting this
+heading treatment.
 
 | Scalar placeholder | Meaning |
 | --- | --- |
@@ -198,7 +228,7 @@ File: `physical-preparation-report.default.v1.docx`. Type: `physical_preparation
 | `{{totals.physical_records}}` | Physical records |
 | `{{totals.mixed_records}}` | Mixed records |
 
-Section heading: **الملفات المطلوب إتلافها / Aggregations requested for destruction**.
+Section heading: **الملفات المطلوب جمعها / Aggregations to collect**.
 
 Repeating row: `{{#aggregations}}` … `{{/aggregations}}`.
 
@@ -220,7 +250,7 @@ Repeating row: `{{#aggregations}}` … `{{/aggregations}}`.
 
 Request rows list governing roots only. Iterative subtree accumulation includes descendant records in each root’s count and year bounds without listing descendants. Whole-job counts include each record once. The effective assigned location follows existing inheritance, and rendering rechecks the data under workflow/resource locks before saving.
 
-Preparation rows list every physical/mixed aggregation, including descendants below digital parents, sorted by terminal classification. Row descendant counts exclude that aggregation itself, include its descendant records, and may overlap other rows. Classification and whole-report totals count each aggregation/record once instead of adding those overlapping row summaries. Assigned/current locations follow existing inheritance rules. The full membership/location/count source snapshot is retained with each generated version.
+Preparation rows list every physical/mixed aggregation still requiring physical handling, including descendants below digital parents, ordered by current collection location, classification code and aggregation number, with missing current locations last. Legacy row descendant counts remain in the snapshot: they exclude that aggregation itself, include descendant records, and may overlap other rows. Classification and whole-report totals count each aggregation/record once instead of adding overlapping row summaries. Assigned/current locations follow existing inheritance rules. The full membership/location/count source snapshot is retained with each generated version.
 
 Execution rows retain each proposal result, original proposer, executing Manager and acting role, applied reason/source, removed complete units and preserved change-history references. Certificate fields use the real approved external destruction number and completed-job integrity value; no external number is minted here.
 

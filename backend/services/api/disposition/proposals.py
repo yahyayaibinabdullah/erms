@@ -55,11 +55,12 @@ def page(c, job_id, *, limit, offset, review_round=None, state=None, root_id=Non
     if proposal_id is not None:clauses.append('p.id=%s');params.append(proposal_id)
     if state:clauses.append('p.proposal_state=%s');params.append(state)
     if root_id is not None:clauses.append('p.governing_root_id=%s');params.append(root_id)
-    source=' FROM disposition_review_proposals p LEFT JOIN users proposer ON proposer.id=p.proposer_user_id LEFT JOIN roles proposer_role ON proposer_role.id=p.proposer_role_id LEFT JOIN users editor ON editor.id=p.last_revised_by_user_id LEFT JOIN roles editor_role ON editor_role.id=p.last_revised_role_id WHERE '+' AND '.join(clauses)
+    source=' FROM disposition_review_proposals p LEFT JOIN users proposer ON proposer.id=p.proposer_user_id LEFT JOIN roles proposer_role ON proposer_role.id=p.proposer_role_id LEFT JOIN users editor ON editor.id=p.last_revised_by_user_id LEFT JOIN roles editor_role ON editor_role.id=p.last_revised_role_id LEFT JOIN relationship_types relation_type ON relation_type.id=(p.current_values#>>\'{relationship,relationship_type_id}\')::bigint LEFT JOIN security_levels proposed_security ON proposed_security.id=(p.proposed_values->>\'security_level_id\')::bigint WHERE '+' AND '.join(clauses)
     total=c.execute('SELECT count(*) total'+source,params).fetchone()['total']
     rows=c.execute("""SELECT p.*,proposer.translations AS proposer_translations,proposer_role.translations AS proposer_role_translations,editor.translations AS editor_translations,editor_role.translations AS editor_role_translations,proposer.name AS proposer_name,proposer_role.name AS proposer_role_name,editor.name AS editor_name,editor_role.name AS editor_role_name,
         (SELECT name FROM security_levels WHERE id=(p.current_values->>'security_level_id')::bigint) AS current_security_name,
-        (SELECT forward_name FROM relationship_types WHERE id=(p.current_values#>>'{relationship,relationship_type_id}')::bigint) AS relationship_type_name,
+        relation_type.forward_name AS relationship_type_name,relation_type.reverse_name AS relationship_reverse_name,relation_type.is_symmetric AS relationship_symmetric,relation_type.translations AS relationship_translations,
+        proposed_security.name AS proposed_security_name,proposed_security.translations AS proposed_security_translations,
         CASE WHEN p.current_values#>>'{relationship,resource_kind}'='record' THEN (SELECT record_number||' · '||title FROM records WHERE id=(p.current_values#>>'{relationship,source_id}')::bigint) ELSE (SELECT aggregation_number||' · '||title FROM aggregations WHERE id=(p.current_values#>>'{relationship,source_id}')::bigint) END AS relationship_source_label,
         CASE WHEN p.current_values#>>'{relationship,resource_kind}'='record' THEN (SELECT record_number||' · '||title FROM records WHERE id=(p.current_values#>>'{relationship,target_id}')::bigint) ELSE (SELECT aggregation_number||' · '||title FROM aggregations WHERE id=(p.current_values#>>'{relationship,target_id}')::bigint) END AS relationship_target_label,
         EXISTS(SELECT 1 FROM disposition_job_memberships m WHERE m.job_id=p.job_id AND m.root_aggregation_id=p.governing_root_id AND m.membership_state='active') AS in_current_membership,disposition_private.proposal_visible(to_jsonb(p)) visible"""+source+' ORDER BY p.governing_root_id,p.target_aggregation_id,p.target_record_id,p.proposal_type,p.id LIMIT %s OFFSET %s',[*params,limit,offset]).fetchall()
@@ -74,6 +75,14 @@ def page(c, job_id, *, limit, offset, review_round=None, state=None, root_id=Non
         for target in c.execute(f'SELECT id,{kind}_number AS number,title FROM {table} WHERE id=ANY(%s) AND current_user_can_view_{kind}(id)',(identities,)).fetchall():
             target_labels[(kind,target['id'])]={'number':target['number'],'title':target['title']}
     for i,row in enumerate(rows):
+        relation_translations=row.pop('relationship_translations')
+        row['relationship_type_name']=localized_projection({'forward_name':row.get('relationship_type_name'),'translations':relation_translations},language_tag,'forward_name')['forward_name']
+        reverse=localized_projection({'reverse_name':row.pop('relationship_reverse_name'),'translations':relation_translations},language_tag,'reverse_name')['reverse_name']
+        relation=row['current_values'].get('relationship') or {}
+        incoming=relation.get('target_id')==(row.get('target_record_id') or row['target_aggregation_id'])
+        symmetric=row.pop('relationship_symmetric')
+        row['relationship_display_name']=reverse if incoming and not symmetric else row['relationship_type_name']
+        row['proposed_security_name']=localized_projection({'name':row.get('proposed_security_name'),'translations':row.pop('proposed_security_translations')},language_tag,'name')['name']
         for prefix in ('proposer','proposer_role','editor','editor_role'):
             row[prefix+'_name']=localized_projection({'name':row.get(prefix+'_name'),'translations':row.pop(prefix+'_translations')},language_tag,'name')['name']
         if not row.pop('visible'):

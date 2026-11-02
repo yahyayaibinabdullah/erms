@@ -75,7 +75,7 @@ def return_notice(latest,format_timestamp):
         ui.label(latest['invalidation_reason']).props('dir=auto')
 
 
-def previous_rounds(job,api,notice,active,on_error,format_timestamp):
+def previous_rounds(job,api,notice,active,on_error,format_timestamp,*,load_notice=True):
     """Page-local data, reloaded on navigation/mutation; no shared history cache."""
     with ui.expansion(text('tracker_previous'),icon='history',value=False).classes('w-full') as expansion:
         content=ui.column().classes('w-full gap-3')
@@ -112,7 +112,7 @@ def previous_rounds(job,api,notice,active,on_error,format_timestamp):
                         ui.label(text('tracker_invalidated')+' · '+format_timestamp(row['invalidated_at']))
                         ui.label(row['invalidation_reason']).props('dir=auto')
                     ui.separator()
-                if initial and result['items']:
+                if load_notice and initial and result['items']:
                     with notice:
                         return_notice(result['items'][0],format_timestamp)
                 state['offset']+=len(result['items']);state['more']=result['has_more'];state['loaded']=True
@@ -126,4 +126,4 @@ def previous_rounds(job,api,notice,active,on_error,format_timestamp):
             if alive():more.enable()
     more.on_click(lambda:load(initial=not state['loaded']))
     expansion.on_value_change(lambda e:load(initial=True) if e.value and not state['loaded'] else None)
-    ui.timer(.01,lambda:load(initial=True),once=True)
+    if load_notice:ui.timer(.01,lambda:load(initial=True),once=True)

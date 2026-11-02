@@ -1443,6 +1443,22 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.current_review_round_changed",
+    "context_group": "audit.event",
+    "default_text": "Current review round updated to {number}",
+    "semantic_meaning": "Readable disposition history: Current review round updated to {number}",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Current review round updated to 2",
+    "is_html": false,
+    "parameter_schema": {
+      "number": "integer"
+    },
+    "grammatical_role": "label"
+  },
+  {
     "message_key": "audit.event.default_child_aggregation_acl_replaced",
     "context_group": "audit.events",
     "default_text": "Default Child Aggregation ACL Replaced",
@@ -2729,6 +2745,54 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.review_round_submitted",
+    "context_group": "audit.event",
+    "default_text": "Review round {number} submitted",
+    "semantic_meaning": "Readable disposition history: Review round {number} submitted",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Review round 2 submitted",
+    "is_html": false,
+    "parameter_schema": {
+      "number": "integer"
+    },
+    "grammatical_role": "label"
+  },
+  {
+    "message_key": "audit.event.review_stage_approved",
+    "context_group": "audit.event",
+    "default_text": "{stage}: approved",
+    "semantic_meaning": "Readable disposition history: {stage}: approved",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Records Manager review: approved",
+    "is_html": false,
+    "parameter_schema": {
+      "stage": "text"
+    },
+    "grammatical_role": "label"
+  },
+  {
+    "message_key": "audit.event.review_stage_rejected",
+    "context_group": "audit.event",
+    "default_text": "{stage}: returned for corrections",
+    "semantic_meaning": "Readable disposition history: {stage}: returned for corrections",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Records Manager review: returned for corrections",
+    "is_html": false,
+    "parameter_schema": {
+      "stage": "text"
+    },
+    "grammatical_role": "label"
+  },
+  {
     "message_key": "audit.event.role_profile_backfill_completed",
     "context_group": "audit.events",
     "default_text": "Role Profile Backfill Completed",
@@ -2935,6 +2999,54 @@
     "parameter_schema": {},
     "rendered_example": "Vital Status Changed",
     "is_html": false
+  },
+  {
+    "message_key": "audit.event.workflow_stage_changed",
+    "context_group": "audit.event",
+    "default_text": "Workflow stage changed to {stage}",
+    "semantic_meaning": "Readable disposition history: Workflow stage changed to {stage}",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Workflow stage changed to Records Manager review",
+    "is_html": false,
+    "parameter_schema": {
+      "stage": "text"
+    },
+    "grammatical_role": "label"
+  },
+  {
+    "message_key": "audit.event.workflow_task_completed",
+    "context_group": "audit.event",
+    "default_text": "{stage}: task completed",
+    "semantic_meaning": "Readable disposition history: {stage}: task completed",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Records Manager review: task completed",
+    "is_html": false,
+    "parameter_schema": {
+      "stage": "text"
+    },
+    "grammatical_role": "label"
+  },
+  {
+    "message_key": "audit.event.workflow_task_created",
+    "context_group": "audit.event",
+    "default_text": "{stage}: task created",
+    "semantic_meaning": "Readable disposition history: {stage}: task created",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Records Manager review: task created",
+    "is_html": false,
+    "parameter_schema": {
+      "stage": "text"
+    },
+    "grammatical_role": "label"
   },
   {
     "message_key": "audit.filter.actor_identity",
@@ -6688,6 +6800,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.add_draft_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "Add draft proposal",
+    "semantic_meaning": "Queue a new proposal locally; the shared Save changes action persists it.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add draft proposal",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.add_to_holds",
     "context_group": "disposition.ui",
     "default_text": "Add aggregation to holds",
@@ -6876,6 +7002,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Aggregation",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.all_changes_saved",
+    "context_group": "disposition.ui",
+    "default_text": "All changes saved",
+    "semantic_meaning": "The current task has no unsaved proposal changes or comments.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "All changes saved",
     "is_html": false
   },
   {
@@ -7425,6 +7565,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.certificate_email_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Email the saved certificate to the external archives authority if required. You can also send it after completing this task.",
+    "semantic_meaning": "Optional email guidance before final certificate task completion; sending remains available afterward.",
+    "common_locations": [
+      "Disposition Current Task certificate section",
+      "Disposition Evidence and documents"
+    ],
+    "translator_guidance": "Use the approved Arabic terminology. Email is optional; task completion does not send mail. SMTP acceptance is not confirmed delivery.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Email the saved certificate to the external archives authority if required. You can also send it after completing this task.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.certificate_failed",
     "context_group": "disposition.ui",
     "default_text": "Certificate recovery required",
@@ -7587,15 +7742,15 @@
   {
     "message_key": "disposition.ui.check_physical_work",
     "context_group": "disposition.ui",
-    "default_text": "Check blockers before physical work",
-    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Check blockers before physical work",
+    "default_text": "Check readiness for physical destruction",
+    "semantic_meaning": "Check current authorization, approval, report availability and blockers before physical destruction outside Wathiq. Does not perform destruction or complete the task.",
     "common_locations": [
       "Disposition physical preparation workspace"
     ],
-    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
-    "grammatical_role": "label",
+    "translator_guidance": "Use approved disposition terminology. This action checks readiness for physical destruction; it does not perform or confirm destruction.",
+    "grammatical_role": "action",
     "parameter_schema": {},
-    "rendered_example": "Check blockers before physical work",
+    "rendered_example": "Check readiness for physical destruction",
     "is_html": false
   },
   {
@@ -8362,6 +8517,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Direction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.discard_draft",
+    "context_group": "disposition.ui",
+    "default_text": "Discard draft",
+    "semantic_meaning": "Discard one local unsaved proposal change; saved proposals still use Withdraw.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Discard draft",
     "is_html": false
   },
   {
@@ -10139,15 +10308,15 @@
   {
     "message_key": "disposition.ui.download_physical_report",
     "context_group": "disposition.ui",
-    "default_text": "Download preparation report",
-    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Download preparation report",
+    "default_text": "Download PDF",
+    "semantic_meaning": "Download the current saved physical preparation report PDF from the More menu.",
     "common_locations": [
       "Disposition physical preparation workspace"
     ],
-    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
-    "grammatical_role": "label",
+    "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
+    "grammatical_role": "action",
     "parameter_schema": {},
-    "rendered_example": "Download preparation report",
+    "rendered_example": "Download PDF",
     "is_html": false
   },
   {
@@ -10190,6 +10359,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Proposal change added. Select Save to persist it.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.draft_added_save_changes",
+    "context_group": "disposition.ui",
+    "default_text": "Draft proposal added. Select Save changes to keep it.",
+    "semantic_meaning": "A local proposal change has been queued but is not persisted yet.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Draft proposal added. Select Save changes to keep it.",
     "is_html": false
   },
   {
@@ -10325,6 +10508,36 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Failed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_latest_attempt",
+    "context_group": "disposition.ui",
+    "default_text": "Latest email attempt",
+    "semantic_meaning": "Label for the most recent attempt for this exact saved document, not a receipt or delivery confirmation.",
+    "common_locations": [
+      "Disposition Current Task certificate section",
+      "Disposition Evidence and documents"
+    ],
+    "translator_guidance": "Use the approved Arabic terminology. Email is optional; task completion does not send mail. SMTP acceptance is not confirmed delivery.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Latest email attempt",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.email_not_sent",
+    "context_group": "disposition.ui",
+    "default_text": "No email attempts recorded.",
+    "semantic_meaning": "Empty state when the saved document has no recorded email attempts.",
+    "common_locations": [
+      "Disposition Current Task certificate section",
+      "Disposition Evidence and documents"
+    ],
+    "translator_guidance": "Use the approved Arabic terminology. Email is optional; task completion does not send mail. SMTP acceptance is not confirmed delivery.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "No email attempts recorded.",
     "is_html": false
   },
   {
@@ -11053,15 +11266,15 @@
   {
     "message_key": "disposition.ui.generate_physical_report",
     "context_group": "disposition.ui",
-    "default_text": "Generate a new preparation report",
-    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Generate a new preparation report",
+    "default_text": "Generate preparation report",
+    "semantic_meaning": "Generate and save the initial physical preparation report when no report is available.",
     "common_locations": [
       "Disposition physical preparation workspace"
     ],
-    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
-    "grammatical_role": "label",
+    "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
+    "grammatical_role": "action",
     "parameter_schema": {},
-    "rendered_example": "Generate a new preparation report",
+    "rendered_example": "Generate preparation report",
     "is_html": false
   },
   {
@@ -11157,6 +11370,36 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.history_action_changes",
+    "context_group": "disposition.ui",
+    "default_text": "Recorded changes ({count})",
+    "semantic_meaning": "Readable disposition history: Recorded changes ({count})",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Recorded changes (2)",
+    "is_html": false,
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "grammatical_role": "label"
+  },
+  {
+    "message_key": "disposition.ui.history_action_explanation",
+    "context_group": "disposition.ui",
+    "default_text": "This action produced the changes below. Every original audit entry is preserved.",
+    "semantic_meaning": "Explain that the expanded rows are the original audit entries resulting from one action.",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "This action produced the changes below. Every original audit entry is preserved.",
+    "is_html": false,
+    "grammatical_role": "label",
+    "parameter_schema": {}
+  },
+  {
     "message_key": "disposition.ui.history_added_at",
     "context_group": "disposition.ui",
     "default_text": "Added at",
@@ -11183,6 +11426,20 @@
     "parameter_schema": {},
     "rendered_example": "Added by",
     "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.history_affected_item",
+    "context_group": "disposition.ui",
+    "default_text": "Affected item",
+    "semantic_meaning": "Readable disposition history: Affected item",
+    "common_locations": [
+      "Disposition job history and authorized event details"
+    ],
+    "translator_guidance": "History label describing a recorded action or change. Preserve placeholders exactly; stage is a complete localized workflow-stage name, number is the recorded review-round number, count is the number of authorized audit records. Aggregation means a records-management file. Do not translate authored comments.",
+    "rendered_example": "Affected item",
+    "is_html": false,
+    "grammatical_role": "label",
+    "parameter_schema": {}
   },
   {
     "message_key": "disposition.ui.history_approval",
@@ -12614,6 +12871,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.no_unsaved_changes",
+    "context_group": "disposition.ui",
+    "default_text": "No unsaved changes.",
+    "semantic_meaning": "The pending-work review dialog is empty after saving or discarding its work.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "No unsaved changes.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.not_added",
     "context_group": "disposition.ui",
     "default_text": "Not added",
@@ -12641,6 +12912,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Not configured",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.not_revised",
+    "context_group": "disposition.ui",
+    "default_text": "Not revised",
+    "semantic_meaning": "Explicit explanation when no proposal revision has been recorded; carrying a proposal to another round is not a revision.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Not revised",
     "is_html": false
   },
   {
@@ -13016,6 +13303,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.physical_preparation_report_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Use this report before destruction to locate and prepare physical or mixed material. It lists aggregations, classifications, owning units, locations and counts.",
+    "semantic_meaning": "Explain the collection and preparation purpose of the report generated before physical destruction; this is not completion evidence.",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "translator_guidance": "Use approved disposition terminology for aggregations, physical and mixed media. Explain the purpose concisely without implying destruction has occurred.",
+    "grammatical_role": "help text",
+    "parameter_schema": {},
+    "rendered_example": "Use this report before destruction to locate and prepare physical or mixed material. It lists aggregations, classifications, owning units, locations and counts.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.physical_recovery_warning",
     "context_group": "disposition.ui",
     "default_text": "Physical destruction cannot be undone. If blockers or required corrections prevent continuing, terminate this job and resolve the remaining material. Resumable technical failures alone do not require termination.",
@@ -13030,6 +13331,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.physical_report_more",
+    "context_group": "disposition.ui",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "parameter_schema": {},
+    "is_html": false,
+    "default_text": "More",
+    "semantic_meaning": "Open secondary actions for the current physical preparation report.",
+    "rendered_example": "More",
+    "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
+    "grammatical_role": "action"
+  },
+  {
     "message_key": "disposition.ui.physical_report_pending",
     "context_group": "disposition.ui",
     "default_text": "The physical preparation report is pending. A Records Manager can generate it here.",
@@ -13042,6 +13357,20 @@
     "parameter_schema": {},
     "rendered_example": "The physical preparation report is pending. A Records Manager can generate it here.",
     "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.physical_report_update_hint",
+    "context_group": "disposition.ui",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "parameter_schema": {},
+    "is_html": false,
+    "default_text": "Creating an updated report saves a new version; earlier versions are kept.",
+    "semantic_meaning": "Explain that updating a preparation report preserves previous saved versions.",
+    "rendered_example": "Creating an updated report saves a new version; earlier versions are kept.",
+    "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
+    "grammatical_role": "help text"
   },
   {
     "message_key": "disposition.ui.physical_scope",
@@ -13117,15 +13446,15 @@
   {
     "message_key": "disposition.ui.preview_physical_report",
     "context_group": "disposition.ui",
-    "default_text": "Preview preparation report",
-    "semantic_meaning": "Physical destruction preparation and protected offline confirmation: Preview preparation report",
+    "default_text": "View preparation report",
+    "semantic_meaning": "Open the current saved physical preparation report in the document viewer.",
     "common_locations": [
       "Disposition physical preparation workspace"
     ],
-    "translator_guidance": "Use approved disposition terminology; distinguish preparation from irreversible confirmation.",
-    "grammatical_role": "label",
+    "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
+    "grammatical_role": "action",
     "parameter_schema": {},
-    "rendered_example": "Preview preparation report",
+    "rendered_example": "View preparation report",
     "is_html": false
   },
   {
@@ -13158,6 +13487,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.proposal_context",
+    "context_group": "disposition.ui",
+    "default_text": "Context when proposed",
+    "semantic_meaning": "Preserved background values at proposal creation, separate from the specific change.",
+    "common_locations": [
+      "Review proposal Details and Revision history dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; From and To refer to recorded relationship endpoints and must retain their direction.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Context when proposed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_details_tab",
+    "context_group": "disposition.ui",
+    "default_text": "Details",
+    "semantic_meaning": "Tab containing structured proposal values and metadata.",
+    "common_locations": [
+      "Review proposal Details and Revision history dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; From and To refer to recorded relationship endpoints and must retain their direction.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Details",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.proposal_execution_report",
     "context_group": "disposition.ui",
     "default_text": "Proposal execution report",
@@ -13170,6 +13527,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Proposal execution report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_information",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal information",
+    "semantic_meaning": "Expandable original submission and revision metadata.",
+    "common_locations": [
+      "Review proposal Details and Revision history dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; From and To refer to recorded relationship endpoints and must retain their direction.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal information",
     "is_html": false
   },
   {
@@ -13187,6 +13558,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.proposal_reason",
+    "context_group": "disposition.ui",
+    "default_text": "Reason",
+    "semantic_meaning": "Reason for the review proposal, separate from job-wide review comments.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reason",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.proposal_state",
     "context_group": "disposition.ui",
     "default_text": "Proposal state",
@@ -13198,6 +13585,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Proposal state",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_status",
+    "context_group": "disposition.ui",
+    "default_text": "Status",
+    "semantic_meaning": "Current proposal state in the review-proposal listing.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Status",
     "is_html": false
   },
   {
@@ -13240,6 +13643,54 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Add proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposed_at",
+    "context_group": "disposition.ui",
+    "default_text": "Proposed at",
+    "semantic_meaning": "Original proposal timestamp, retained when carried into later rounds.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposed at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposed_by",
+    "context_group": "disposition.ui",
+    "default_text": "Proposed by",
+    "semantic_meaning": "Main proposal table column combining original proposer and acting role.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposed by",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposed_change",
+    "context_group": "disposition.ui",
+    "default_text": "Proposed change",
+    "semantic_meaning": "Main proposal table column describing the actual proposed effect.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposed change",
     "is_html": false
   },
   {
@@ -13384,6 +13835,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Save destruction number and approval letter",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.recorded_information",
+    "context_group": "disposition.ui",
+    "default_text": "Recorded information",
+    "semantic_meaning": "Expandable additional audit metadata, retaining every permitted historical fact.",
+    "common_locations": [
+      "Proposal Revision history tab"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Before and After describe recorded proposal revisions, not resource execution.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Recorded information",
     "is_html": false
   },
   {
@@ -13590,6 +14055,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.relationship_from",
+    "context_group": "disposition.ui",
+    "default_text": "From",
+    "semantic_meaning": "Recorded source endpoint of the relationship being proposed for removal.",
+    "common_locations": [
+      "Review proposal Details and Revision history dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; From and To refer to recorded relationship endpoints and must retain their direction.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "From",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.relationship_id",
     "context_group": "disposition.ui",
     "default_text": "Existing relationship",
@@ -13601,6 +14080,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Existing relationship",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.relationship_to",
+    "context_group": "disposition.ui",
+    "default_text": "To",
+    "semantic_meaning": "Recorded target endpoint of the relationship being proposed for removal.",
+    "common_locations": [
+      "Review proposal Details and Revision history dialog"
+    ],
+    "translator_guidance": "Use approved records-management terminology; From and To refer to recorded relationship endpoints and must retain their direction.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "To",
     "is_html": false
   },
   {
@@ -14116,6 +14609,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.retention_rule",
+    "context_group": "disposition.ui",
+    "default_text": "Effective retention rule",
+    "semantic_meaning": "Title and accessible name for the full effective retention rule behind the compact source label in a job or task aggregation table.",
+    "common_locations": [
+      "Disposition job Aggregations tab",
+      "Disposition task Aggregations tab"
+    ],
+    "translator_guidance": "Use approved records-management terminology. The rule includes its defining source, current and intermediate periods in years, and disposition action.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Effective retention rule",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.retention_rule_changed",
     "context_group": "disposition.ui",
     "default_text": "Retention rule changed — must be removed from this job",
@@ -14187,6 +14695,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Generate execution report",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_changes",
+    "context_group": "disposition.ui",
+    "default_text": "Review changes",
+    "semantic_meaning": "Open all unsaved task work from the shared footer.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review changes",
     "is_html": false
   },
   {
@@ -14360,6 +14882,50 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.revised_at",
+    "context_group": "disposition.ui",
+    "default_text": "Last revised at",
+    "semantic_meaning": "Timestamp of the most recent recorded proposal revision.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Last revised at",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.revision_after",
+    "context_group": "disposition.ui",
+    "default_text": "After",
+    "semantic_meaning": "New recorded proposal value in a revision comparison.",
+    "common_locations": [
+      "Proposal Revision history tab"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Before and After describe recorded proposal revisions, not resource execution.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "After",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.revision_before",
+    "context_group": "disposition.ui",
+    "default_text": "Before",
+    "semantic_meaning": "Previous recorded proposal value in a revision comparison.",
+    "common_locations": [
+      "Proposal Revision history tab"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Before and After describe recorded proposal revisions, not resource execution.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Before",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.revision_history",
     "context_group": "disposition.ui",
     "default_text": "Revision history",
@@ -14461,6 +15027,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Save",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.save_changes",
+    "context_group": "disposition.ui",
+    "default_text": "Save changes",
+    "semantic_meaning": "Persist all queued task proposals and Review comments without advancing workflow.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Save changes",
     "is_html": false
   },
   {
@@ -14676,6 +15256,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Send by email",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.shared_save_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Saves proposals and comments without submitting.",
+    "semantic_meaning": "The shared footer saves all task work without submission, approval or execution.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {},
+    "rendered_example": "Saves proposals and comments without submitting.",
     "is_html": false
   },
   {
@@ -15044,6 +15638,118 @@
       "recipients": "text"
     },
     "rendered_example": "Review submitted. Next task: Records Officer (shared queue)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.summary_add_relationship",
+    "context_group": "disposition.ui",
+    "default_text": "Add {relationship} relationship with {related}",
+    "semantic_meaning": "Proposed relationship creation using its localized name from the target perspective and the related aggregation label.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "descriptive sentence",
+    "parameter_schema": {
+      "relationship": "text",
+      "related": "text"
+    },
+    "rendered_example": "Add Related to relationship with AGG-001",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.summary_holds",
+    "context_group": "disposition.ui",
+    "default_text": "Add to holds: {holds}",
+    "semantic_meaning": "Proposed hold additions with a bounded list of permitted hold labels; full list remains in Details.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "descriptive sentence",
+    "parameter_schema": {
+      "holds": "text"
+    },
+    "rendered_example": "Add to holds: HOLD-01",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.summary_more",
+    "context_group": "disposition.ui",
+    "default_text": "and {count} more",
+    "semantic_meaning": "Number of further hold labels omitted from a compact proposal summary.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "descriptive sentence",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "and 2 more",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.summary_remove_relationship",
+    "context_group": "disposition.ui",
+    "default_text": "Remove {relationship} relationship with {related}",
+    "semantic_meaning": "Proposed relationship removal using its localized name from the target perspective and the related aggregation or record label.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "descriptive sentence",
+    "parameter_schema": {
+      "relationship": "text",
+      "related": "text"
+    },
+    "rendered_example": "Remove Related to relationship with AGG-001",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.summary_retention",
+    "context_group": "disposition.ui",
+    "default_text": "Set retention: {current} current years + {intermediate} intermediate years; {action}",
+    "semantic_meaning": "Proposed local retention periods in years and final disposition action.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "descriptive sentence",
+    "parameter_schema": {
+      "current": "integer",
+      "intermediate": "integer",
+      "action": "text"
+    },
+    "rendered_example": "Set retention: 2 current years + 3 intermediate years; Destruction",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.summary_security",
+    "context_group": "disposition.ui",
+    "default_text": "Set security level to {level}",
+    "semantic_meaning": "Proposed security upgrade with the permitted localized security-level name.",
+    "common_locations": [
+      "Destruction review proposal table",
+      "Aggregation-scoped proposal dialog",
+      "Proposal details"
+    ],
+    "translator_guidance": "Use approved records-management terminology. Preserve all placeholders. Related identities and reasons are authored domain values; do not translate them.",
+    "grammatical_role": "descriptive sentence",
+    "parameter_schema": {
+      "level": "text"
+    },
+    "rendered_example": "Set security level to Top secret",
     "is_html": false
   },
   {
@@ -15486,6 +16192,36 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.unsaved_change_one",
+    "context_group": "disposition.ui",
+    "default_text": "1 unsaved change",
+    "semantic_meaning": "Exactly one queued proposal change or changed Review comments field.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "1 unsaved change",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.unsaved_changes_count",
+    "context_group": "disposition.ui",
+    "default_text": "{count} unsaved changes",
+    "semantic_meaning": "Count queued proposal changes plus one for changed Review comments.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "message",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "3 unsaved changes",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.unsaved_warning",
     "context_group": "disposition.ui",
     "default_text": "There are unsaved changes. Save before leaving this task.",
@@ -15498,6 +16234,34 @@
     "parameter_schema": {},
     "rendered_example": "There are unsaved changes. Save before leaving this task.",
     "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.update_draft_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "Update draft proposal",
+    "semantic_meaning": "Queue a revision locally without saving or executing it.",
+    "common_locations": [
+      "Disposition task shared footer and unsaved proposal dialogs"
+    ],
+    "translator_guidance": "Preserve placeholders. Distinguish unsaved drafts, saved proposals, submission and execution. Use approved records management terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Update draft proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.update_physical_report",
+    "context_group": "disposition.ui",
+    "common_locations": [
+      "Disposition physical preparation workspace"
+    ],
+    "parameter_schema": {},
+    "is_html": false,
+    "default_text": "Create updated report",
+    "semantic_meaning": "Generate and save a new physical preparation report version using current data, keeping earlier versions.",
+    "rendered_example": "Create updated report",
+    "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
+    "grammatical_role": "action"
   },
   {
     "message_key": "disposition.ui.upload_template",

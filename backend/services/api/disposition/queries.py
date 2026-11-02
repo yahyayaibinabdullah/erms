@@ -194,26 +194,25 @@ def members(c, identity, *, limit, offset, query='', sort='id', descending=True,
     return {'items':rows,'total':total}
 
 
-def history(c, identity, *, limit, offset, language_tag='en'):
+def history(c, identity, *, limit, offset, language_tag='en', grouped=False):
     job(c,identity)
+    if grouped:
+        from .history_actions import page
+        return page(c,identity,limit=limit,offset=offset,language_tag=language_tag)
     # Join by event ID before projection: filtering a redacted entity_id would
     # accidentally hide the immutable redacted event envelope itself.
-    source=''' FROM event_history raw JOIN authorized_event_history e ON e.id=raw.id
-      WHERE (raw.entity_type='aggregation' AND COALESCE(raw.metadata->>'recovery_job_id',raw.metadata->>'job_id')=%s::text) OR (raw.entity_type='disposition_job' AND raw.entity_id=%s)
-      OR (raw.entity_type='disposition_job_membership' AND raw.entity_id IN
-        (SELECT id FROM disposition_job_memberships WHERE job_id=%s))
-      OR (raw.entity_type IN ('disposition_task','disposition_review_round','disposition_review_decision') AND
-       ((raw.entity_type='disposition_task' AND raw.entity_id IN (SELECT id FROM disposition_tasks WHERE job_id=%s)) OR
-        (raw.entity_type='disposition_review_round' AND raw.entity_id IN (SELECT id FROM disposition_review_rounds WHERE job_id=%s)) OR
-        (raw.entity_type='disposition_review_decision' AND raw.entity_id IN (SELECT id FROM disposition_review_decisions WHERE job_id=%s))))
-      OR (raw.entity_type='disposition_review_proposal' AND raw.entity_id IN (SELECT id FROM disposition_review_proposals WHERE job_id=%s))
-      OR (raw.entity_type='disposition_review_note' AND raw.entity_id IN (SELECT id FROM disposition_review_notes WHERE job_id=%s))
-      OR (raw.entity_type='disposition_job_document' AND raw.entity_id IN
-        (SELECT id FROM disposition_job_documents WHERE job_id=%s))'''
+    from .history_actions import SOURCE
+    source=SOURCE
     total=c.execute('SELECT count(*) total'+source,(identity,)*9).fetchone()['total']
     from .history_display import enrich
     rows=c.execute('SELECT e.*'+source+' ORDER BY e.occurred_at DESC,e.id DESC LIMIT %s OFFSET %s',(*(identity,)*9,limit,offset)).fetchall()
     return {'total':total,'items':enrich(c,rows,language_tag)}
+
+
+def history_action_events(c, identity, event_id, *, limit, offset, language_tag='en'):
+    job(c,identity)
+    from .history_actions import events
+    return events(c,identity,event_id,limit=limit,offset=offset,language_tag=language_tag)
 
 
 def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id=None, language_tag='en'):

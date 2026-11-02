@@ -47,12 +47,18 @@ def references(value):
         for item in value:yield from references(item)
 
 
+def event_references(row):
+    yield from references(row)
+    kind={'aggregation':'aggregation','record':'record','disposition_job':'job'}.get(row.get('entity_type'))
+    if kind and row.get('entity_id'):yield kind,row['entity_id']
+
+
 def enrich(c, rows, language_tag='en'):
     allowed=c.execute("SELECT user_has_global_privilege(current_user_id(),'audit.view') allowed").fetchone()['allowed']
     requested={kind:set() for kind in QUERIES}
     visible=[row for row in rows if not (row.get('metadata') or {}).get('redacted')]
     for row in visible:
-        for kind,identity in references(row):requested[kind].add(identity)
+        for kind,identity in event_references(row):requested[kind].add(identity)
     labels={}
     for kind,ids in requested.items():
         if not ids:continue
@@ -65,7 +71,7 @@ def enrich(c, rows, language_tag='en'):
             labels[f"{kind}:{value['id']}"]=' · '.join(str(value[k]) for k in ('code','name') if value.get(k))
     for row in rows:
         row['can_view_technical_details']=bool(allowed)
-        row['display_references']={f'{kind}:{identity}':labels.get(f'{kind}:{identity}') for kind,identity in references(row)} if row in visible else {}
+        row['display_references']={f'{kind}:{identity}':labels.get(f'{kind}:{identity}') for kind,identity in event_references(row)} if row in visible else {}
         if row in visible and row.get('actor_user_id'):
             row['actor_name']=labels.get(f"user:{row['actor_user_id']}") or row.get('actor_name')
     return rows

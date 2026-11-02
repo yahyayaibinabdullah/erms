@@ -142,9 +142,9 @@ EVENT_MESSAGE_KEYS = {
 def event_label(code: str, *, event: dict | None = None) -> str:
     """Describe the recorded change using only the authorized event projection.
 
-    FINAL_COMPLETE is a command shared by multiple row changes, not a business
-    outcome. Older events already carry the before/after values needed to tell
-    those changes apart. Redacted or incomplete envelopes use a neutral label.
+    Workflow commands can record several row changes. Use their event-time
+    before/after values to distinguish the business facts, including older
+    events. Redacted or incomplete envelopes retain a neutral command label.
     """
     if code == 'FINAL_COMPLETE' and event:
         metadata = event.get('metadata') or {}
@@ -169,5 +169,34 @@ def event_label(code: str, *, event: dict | None = None) -> str:
                     return render_message('audit.event.disposition_job_completion_recorded')
                 if 'workflow_stage' in before and after.get('workflow_stage') == 'certificate_generation' and before['workflow_stage'] != 'certificate_generation':
                     return render_message('audit.event.certificate_stage_started')
+    if event and code in ('REVIEW_SUBMIT','REVIEW_DECIDE','REVIEW_SAVE','JOB_CREATE','JOB_TERMINATE','TASK_COMPLETE','MEMBERSHIP_ADD','MEMBERSHIP_REMOVE'):
+        metadata=event.get('metadata') or {}
+        if not metadata.get('redacted'):
+            from .disposition.messages import text,KEYS
+            before=event.get('before_state')
+            after=event.get('after_state')
+            before=metadata.get('before') if before is None else before
+            after=metadata.get('after') if after is None else after
+            created=before is None and ('before_state' in event or 'before' in metadata)
+            before=before if isinstance(before,dict) else {}
+            after=after if isinstance(after,dict) else {}
+            entity=event.get('entity_type')
+            if entity=='disposition_review_round' and code=='REVIEW_SUBMIT' and isinstance(after.get('round_number'),int):
+                return render_message('audit.event.review_round_submitted',number=after['round_number'])
+            if entity=='disposition_review_decision' and after.get('review_stage') in KEYS:
+                if after.get('decision')=='approved':
+                    return render_message('audit.event.review_stage_approved',stage=text(after['review_stage']))
+                if after.get('decision')=='rejected':
+                    return render_message('audit.event.review_stage_rejected',stage=text(after['review_stage']))
+            if entity=='disposition_task' and after.get('workflow_stage') in KEYS:
+                if created:
+                    return render_message('audit.event.workflow_task_created',stage=text(after['workflow_stage']))
+                if before.get('task_state') and after.get('task_state')=='completed' and before['task_state']!='completed':
+                    return render_message('audit.event.workflow_task_completed',stage=text(after['workflow_stage']))
+            if entity=='disposition_job':
+                if before.get('workflow_stage') and after.get('workflow_stage') in KEYS and before['workflow_stage']!=after['workflow_stage']:
+                    return render_message('audit.event.workflow_stage_changed',stage=text(after['workflow_stage']))
+                if before.get('current_review_round') is not None and isinstance(after.get('current_review_round'),int) and before['current_review_round']!=after['current_review_round']:
+                    return render_message('audit.event.current_review_round_changed',number=after['current_review_round'])
     key = EVENT_MESSAGE_KEYS.get(code)
     return render_message(key) if key else code
