@@ -107,7 +107,7 @@ def amend(c, user, envelope_id, payload):
         pref = c.execute(
             "SELECT working_timezone FROM user_preferences WHERE user_id=%s", (user,)
         ).fetchone()
-        zone = pref["working_timezone"] if pref else default_working_timezone()
+        zone = pref["working_timezone"] if pref else default_working_timezone(c)
         try:
             boundary = datetime.combine(
                 date + timedelta(days=1), time(), ZoneInfo(zone)

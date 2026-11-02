@@ -5,6 +5,9 @@ from backend.services.api.scheme_transfer.tests.test_transfer import upload
 from backend.services.api.scheme_transfer.codec import decode, TransferError
 
 
+from tools.historical_schema import historical_schema
+
+
 @pytest.mark.parametrize('format,language', [('json',None),('csv',None),('docx','en'),('docx','ar'),('docx','fr')])
 def test_successful_export_history(client, connection, package, format, language):
     sid = upload(client, package).json()['id']
@@ -94,7 +97,7 @@ def test_actor_redaction_upgrade_matches_canonical(connection):
     from pathlib import Path
     root = Path(__file__).resolve().parents[5]
     canonical = connection.execute("SELECT pg_get_viewdef('authorized_event_history'::regclass) AS definition").fetchone()['definition']
-    schema = (root/'database/schema.sql').read_text()
+    schema = historical_schema()
     view = schema.split('CREATE VIEW authorized_event_history AS',1)[1].split('CREATE VIEW authorized_aggregations_for_search',1)[0]
     old = view.replace('CASE WHEN visible.allowed THEN event.actor_user_id END AS actor_user_id','event.actor_user_id').replace('CASE WHEN visible.allowed THEN event.actor_name END AS actor_name','event.actor_name').replace('CASE WHEN visible.allowed THEN event.actor_email END AS actor_email','event.actor_email')
     connection.execute('CREATE OR REPLACE VIEW authorized_event_history AS'+old)

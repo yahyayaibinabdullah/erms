@@ -3,8 +3,8 @@
 **Status:** Approved
 **Approved:** 12 October 2026
 **Prepared:** 12 October 2026
-**Revision:** 1.1
-**Amendment approved:** 13 October 2026
+**Revision:** 1.2
+**Amendment approved:** 13 October 2026; 28 October 2026 (Email Test Send)
 
 ## 1. Purpose
 
@@ -153,6 +153,37 @@ Only administrators with the confirmed settings-management authority may
 manage these settings; Records Officers and Records Managers use them without
 seeing credentials.
 
+### 4.1 Test Send — approved 28 October 2026
+
+The Email group provides **Test Send** under the existing `app.settings.manage`
+privilege. A small dialog accepts one recipient email address and sends a fixed
+test message, without attachments, through the current saved SMTP configuration.
+The dialog explains that unsaved edits are not used; testing does not save or
+change settings. The test recipient is temporary and does not require or change
+the Disposition external-authority address.
+
+`POST /api/v1/application-settings/test-send` accepts only `recipient`. It reads
+current committed SMTP settings and resolves the protected password on the
+server. Reuse the existing SMTP transport, including STARTTLS/implicit TLS,
+certificate validation, authentication, sender/reply-to and configured timeout.
+Send a fixed English/Arabic test message. Return `smtp_accepted`, `failed`, or
+`unknown` and an optional numeric SMTP response code; never return credentials,
+raw SMTP exceptions or server response text. SMTP acceptance is not a guarantee
+of inbox delivery. Do not retry automatically or create a disposition job,
+document, or disposition send-history entry.
+
+Provide sending/result feedback, prevent duplicate in-flight submissions, and
+ignore late UI updates after the dialog/page/identity is abandoned. Include
+English and Arabic/RTL labels and messages. Verification must cover privilege
+denial, address validation, fresh saved configuration, missing configuration,
+protected credentials, both TLS modes, acceptance/failure/uncertain outcomes,
+no automatic retry or settings mutation, and navigation safety. Use disposable
+databases and synthetic local MailDev recipients for integration tests; preserve
+SMTP certificate verification and persistent settings.
+
+Implementation and requirement verification are recorded in
+[Email Test Send verification](../docs/verification/smtp-test-send.md).
+
 ## 5. Governance Custody warnings
 
 If any disposition destination setting has not been configured after deployment,
@@ -217,3 +248,23 @@ The privilege name and System Administrator grant are resolved. Shared settings
 persistence and protected SMTP-secret handling follow Application Configuration
 Sections 5.6–5.7, 6.1, 7, and 8. The general migration proposals still marked
 open in that draft are separate from the resolved disposition and email rules.
+
+## Disposition request presentation amendment — 27 October 2026
+
+The Disposition category includes four database-managed settings:
+
+| Setting | Type and default | Meaning |
+| --- | --- | --- |
+| `DISPOSITION_ORGANIZATION_NAME` | Optional text, unset | Requesting organization name override; otherwise the tenancy root organization |
+| `DISPOSITION_RECORDS_UNIT_EMAIL` | Optional email, unset | Records Unit contact address printed on requests |
+| `DISPOSITION_RECORDS_UNIT_PHONE` | Optional text, unset | Records Unit contact phone printed on requests |
+| `DISPOSITION_REQUEST_LANGUAGE` | Choice, `arabic_first_bilingual` | Arabic-first bilingual values or `manager_preference`, the generating user’s preferred language (displayed as “User’s preferred language”) |
+
+These are presentation settings for newly generated destruction requests.
+Changes use the existing administrator-only validation, version checks and
+Audit Trail. They do not change SMTP destinations, task assignment, access,
+or existing PDFs/attachments. Missing contact values print “Not specified”;
+entity translations fall back to canonical text when absent. The existing
+application working timezone governs record year bounds. Settings refresh
+through the existing settings-cache policy; no new cache or environment
+variables are introduced. See destruction-process §11.2–11.3.

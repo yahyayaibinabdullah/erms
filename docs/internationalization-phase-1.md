@@ -63,9 +63,9 @@ interpolated value in Unicode bidirectional isolation marks.
 The reserved person-only global privilege is `localization.administer`. It is
 seeded only to `SYS_ADMIN` and `ALL_PRIVS`. The seven approved entity rights are
 `classification_scheme.modify_metadata`, `classification.modify_metadata`,
-`user.modify_metadata`, `role.modify_metadata`, `org_unit.modify_metadata`, and
+`identity.users.administer` for users, `role.modify_metadata`, `org_unit.modify_metadata`, and
 `security_level.modify_metadata`, and `profile.modify_metadata`. They are present in the protected `ALL_PRIVS`
-compatibility profile but are not implicitly granted to ordinary built-in
-profiles; administrators can assign them through the normal authorization
-model. Aggregations and Records have no multilingual metadata privilege or
+compatibility profile. Users deliberately reuse ordinary user administration;
+the other entity metadata rights remain independently assignable through the
+normal authorization model. Aggregations and Records have no multilingual metadata privilege or
 storage.

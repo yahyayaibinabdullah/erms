@@ -1,5 +1,25 @@
 # Project instructions
 
+## Local stack lifecycle
+
+- `./run-local-stack.sh` without a mode retains foreground/Ctrl-C operation;
+  `up`, `down`, `status` and `restart` manage the recorded stack. See
+  `docs/local-tooling.md` for ownership, health and timeout behavior.
+- Stack logs and process state belong in gitignored `.runtime/local-stack/`.
+  Preserve process identity checks and do not stop reused external services.
+
+## Local email testing
+
+- Use root `./run-maildev.py up|down|status|restart` for local MailDev testing;
+  setup, TLS trust and runtime options are documented in
+  `docs/local-tooling.md` under “Local MailDev with TLS and MCP”.
+- `./run-local-stack.sh` starts/reuses MailDev automatically and stops only an
+  instance it started. Keep the helper's lifecycle ownership checks intact.
+- Keep certificates, keys, captured messages and logs in gitignored
+  `.runtime/maildev/`. Never disable SMTP certificate validation or change
+  persistent database settings merely to run a test. Never stop an unrelated
+  MailDev process to free a port; use the launcher's port options instead.
+
 ## Specification fidelity
 
 - An approved specification is the authoritative product contract. Implement
@@ -17,6 +37,15 @@
 
 ## Environment variable templates
 
+- Any change to `.env.example` must reconcile local `.env` handling and all
+  relevant example environment files in the same change, including
+  `api.env.example`, `webui.env.example`, `text-indexer.env.example` and any
+  example files introduced in the future. Discover the current files across
+  the repository; the list below is not exhaustive. Preserve private `.env`
+  values, keep service-specific settings scoped to their consumers, document
+  intentional differences, and extend template consistency checks when adding
+  a new example file. Run `python3 tools/check_configuration_authority.py`
+  before handoff.
 - Every newly added environment variable must be documented in `.env.example`
   and every relevant service template in the same change. A code default does
   not replace template documentation. Apply the same reconciliation when
@@ -134,6 +163,11 @@
   and published wording and provenance. Generate only missing new keys or
   explicitly invalidated machine-generated values. Never regenerate the whole
   artifact over curated translations.
+- Always provide generated Arabic drafts for untranslated active UI keys in
+  the same change; do not leave English source copies for later translation.
+  For the authorized local `demo` database, use the explicit Arabic seed utility
+  with `--missing-only` to fill missing drafts after catalogue synchronization.
+  Preserve all existing translations and leave drafts unpublished for review.
 - Keep `frontend/webui/i18n/messages.en.json` sorted lexicographically by the
   complete contextual `message_key` after every catalogue edit. Reorder every
   maintained language artifact to that exact sequence without changing its

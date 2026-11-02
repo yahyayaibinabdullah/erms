@@ -2,7 +2,9 @@
 
 Phase 6 hardens the approved implementation for operations and production-like
 data volumes. It does not add a review workflow, notifications, warehouse
-management, or non-empty medium conversion.
+management, or non-empty medium conversion at that phase. The later approved
+[compatible medium-change amendment](resource-medium-compatible-changes.md)
+now permits compatible changes without cascading conversion.
 
 ## Database and migration assurance
 

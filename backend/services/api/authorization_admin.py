@@ -150,7 +150,10 @@ def assert_continuity(connection: Connection, before_admins: int, before_custodi
 @router.get("/privileges", response_model=list[PrivilegeRead])
 def list_privileges(request: Request, response: Response, limit: int=Query(500,ge=1,le=500), offset: int=Query(0,ge=0), connection: Connection=Depends(get_connection,scope="function")):
     rows = list(connection.execute(
-        "SELECT * FROM privileges ORDER BY category,code LIMIT %s OFFSET %s", (limit,offset)
+        """SELECT privilege.*, ARRAY(SELECT required_privilege_id
+               FROM privilege_dependencies WHERE privilege_id=privilege.id
+               ORDER BY required_privilege_id) AS required_privilege_ids
+           FROM privileges privilege ORDER BY category,code LIMIT %s OFFSET %s""", (limit,offset)
     ).fetchall())
     return apply_collection_etag(request, response, rows) or rows
 

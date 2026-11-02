@@ -18,6 +18,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Per-process network binding",
@@ -42,6 +43,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Per-process network binding",
@@ -62,6 +64,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Development/process-launch behavior",
@@ -82,6 +85,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Per-instance process capacity",
@@ -102,6 +106,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "API-owned authenticated-encryption key, stored in local `.env` or supplied by the production shell environment, which takes precedence; shared by API instances using the same database; changing it requires API restart",
@@ -141,6 +146,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Depends on the deployment's HTTPS boundary and must not be weakened from the application UI",
@@ -559,11 +565,12 @@
       "consumers": [
         {
           "path": "backend/services/api/content_storage.py",
-          "line": 285
+          "line": 289
         }
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Storage-provider/infrastructure selection",
@@ -754,12 +761,25 @@
           "line": 71
         },
         {
+          "path": "backend/services/api/disposition/destruction_worker.py",
+          "line": 26
+        },
+        {
+          "path": "backend/services/api/disposition/communications.py",
+          "line": 14
+        },
+        {
+          "path": "backend/services/api/disposition/eligibility.py",
+          "line": 76
+        },
+        {
           "path": "frontend/webui/scripts/sync_privilege_translation_keys.py",
-          "line": 140
+          "line": 139
         }
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Required before application configuration can be read; contains database location and credentials",
@@ -780,6 +800,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Per-process database capacity",
@@ -800,6 +821,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Per-process database capacity",
@@ -820,6 +842,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Per-process connection-pool behavior",
@@ -882,13 +905,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Scheme for both disposition destinations; unset blocks the relevant artifact tasks.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -900,13 +927,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/reminders.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Calendar months between future eligibility reminders; no historical reminders are sent.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -917,14 +948,12 @@
       "default_or_requirement": "Standard",
       "category": "disposition",
       "consumers": [
-        {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
-        }
+        "database/migrations/058_disposition_routing.sql: job creation and saved-route workflow",
+        "backend/services/api/disposition/queries.py: new-job and saved-job assignee selectors"
       ],
       "templates": [],
       "purpose": "New jobs capture this route permanently. Records Manager Only omits independent internal review.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "captured_on_job_creation; immutable_saved_route_and_all_three_routes_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -936,13 +965,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Recipient for subsequent document email attempts; unset prevents sending.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -954,13 +987,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Recipient authority on new request forms; earlier forms retain their original name.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -972,13 +1009,97 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Terminal classification in the selected scheme for generated reports, excluding the digital destruction certificate.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_ORGANIZATION_NAME",
+      "authority": "database",
+      "contract": "specs/administration-settings.md#disposition-request-presentation-amendment--27-october-2026",
+      "default_or_requirement": null,
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/disposition/document_snapshots.py",
+          "scope": "Captures current database presentation settings for new documents."
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Captures correspondence language and organization at deliberate send."
+        }
+      ],
+      "templates": [],
+      "purpose": "Requesting organization on new destruction requests; unset uses the tenancy root organization. Earlier requests retain their saved values.",
+      "runtime_status": "database_only_request_presentation_consumer",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_RECORDS_UNIT_EMAIL",
+      "authority": "database",
+      "contract": "specs/administration-settings.md#disposition-request-presentation-amendment--27-october-2026",
+      "default_or_requirement": null,
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/disposition/document_snapshots.py",
+          "scope": "Captures current database presentation settings for new documents."
+        }
+      ],
+      "templates": [],
+      "purpose": "Contact email on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+      "runtime_status": "database_only_request_presentation_consumer",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_RECORDS_UNIT_PHONE",
+      "authority": "database",
+      "contract": "specs/administration-settings.md#disposition-request-presentation-amendment--27-october-2026",
+      "default_or_requirement": null,
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/disposition/document_snapshots.py",
+          "scope": "Captures current database presentation settings for new documents."
+        }
+      ],
+      "templates": [],
+      "purpose": "Contact phone on new destruction requests; unset is shown as Not specified. Earlier requests retain their saved values.",
+      "runtime_status": "database_only_request_presentation_consumer",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "DISPOSITION_REQUEST_LANGUAGE",
+      "authority": "database",
+      "contract": "specs/administration-settings.md#disposition-request-presentation-amendment--27-october-2026",
+      "default_or_requirement": "arabic_first_bilingual",
+      "category": "disposition",
+      "consumers": [
+        {
+          "path": "backend/services/api/disposition/document_snapshots.py",
+          "scope": "Captures current database presentation settings for new documents."
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Captures correspondence language and organization at deliberate send."
+        }
+      ],
+      "templates": [],
+      "purpose": "Use the preferred language of the user generating the destruction request.",
+      "runtime_status": "database_only_request_presentation_consumer",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -990,13 +1111,17 @@
       "category": "disposition",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/artifacts.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Terminal classification in the selected scheme for uploads and the digital destruction certificate.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1067,11 +1192,12 @@
       "consumers": [
         {
           "path": "backend/services/api/document_conversion.py",
-          "line": 29
+          "line": 35
         }
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Host executable path",
@@ -1159,6 +1285,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1179,6 +1306,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1199,6 +1327,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1219,6 +1348,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1239,6 +1369,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1259,6 +1390,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1279,6 +1411,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1299,6 +1432,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1319,6 +1453,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1339,6 +1474,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1359,6 +1495,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1379,6 +1516,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1399,6 +1537,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1419,6 +1558,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1439,6 +1579,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1459,6 +1600,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1479,6 +1621,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1499,6 +1642,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1519,6 +1663,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1539,6 +1684,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1559,6 +1705,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1579,6 +1726,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1599,6 +1747,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1699,13 +1848,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Configure whether authentication is needed; enabled requires username and password.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1717,13 +1870,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Outgoing mail server; unset prevents sending.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1735,13 +1892,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Protected credential replacement; saved passwords are never readable. Required when authentication is enabled.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1753,13 +1914,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Port from 1 to 65535; untouched default follows security mode: 587 for STARTTLS or 465 for implicit TLS.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1771,13 +1936,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Optional reply-to address for outgoing document email.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1789,13 +1958,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Configure STARTTLS or implicit TLS; certificate verification stays enabled.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1807,13 +1980,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Sender address required for outgoing document email.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1825,13 +2002,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Optional sender display name.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1843,13 +2024,17 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Positive connection and send timeout in seconds.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -1861,14 +2046,39 @@
       "category": "email",
       "consumers": [
         {
-          "path": "backend/services/api/application_settings_registry.py",
-          "scope": "Registered Settings API/UI; workflow activation remains with the assigned phase"
+          "path": "backend/services/api/application_settings.py",
+          "scope": "Validated database snapshot and current operation-boundary capture"
+        },
+        {
+          "path": "backend/services/api/disposition/email.py",
+          "scope": "Implemented action/worker consumer verified in phases 11–23; rollout rehearsed in Phase24"
         }
       ],
       "templates": [],
       "purpose": "Username required when SMTP authentication is enabled.",
-      "runtime_status": "foundation_implemented; owning consumer/UI phases pending",
+      "runtime_status": "database_only_workflow_consumer_implemented_and_verified_through_phase_24",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SSL_CERT_FILE",
+      "authority": "deployment",
+      "contract": "docs/local-tooling.md#certificate-trust-and-local-files",
+      "default_or_requirement": "Unset; platform trust. Optional CA file for local MailDev or an operator-managed private CA.",
+      "category": null,
+      "consumers": [
+        {
+          "path": "backend/services/api/disposition/communications.py",
+          "scope": "Python/OpenSSL TLS trust in API and communications sending processes; no application-settings fallback."
+        }
+      ],
+      "templates": [
+        ".env.example",
+        ".env.example.api",
+        "backend/services/api/deploy/api.env.example"
+      ],
+      "purpose": "Optional process TLS trust override; leave unset for valid public certificates. Never disables certificate verification.",
+      "restart": "Restart/relaunch the consuming service after deployment changes",
       "service": "API"
     },
     {
@@ -1885,6 +2095,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1919,6 +2130,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1939,6 +2151,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1959,6 +2172,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -1979,6 +2193,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2047,6 +2262,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2067,6 +2283,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2087,6 +2304,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2107,6 +2325,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2127,6 +2346,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2147,6 +2367,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2167,6 +2388,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2187,6 +2409,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2226,6 +2449,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2246,6 +2470,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2266,6 +2491,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2286,6 +2512,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2305,6 +2532,7 @@
         }
       ],
       "templates": [
+        ".env.example.text_indexer",
         "backend/services/text_indexer/deploy/text-indexer.env.example"
       ],
       "purpose": "Deployment process/extraction control; see the approved contract and service template",
@@ -2349,6 +2577,7 @@
       ],
       "templates": [
         ".env.example",
+        ".env.example.api",
         "backend/services/api/deploy/api.env.example"
       ],
       "purpose": "Build/deployment identity",
@@ -2457,7 +2686,10 @@
     }
   ],
   "reconciliation": [
-    "All 51 database settings have explicit API registry categories.",
+    "All 55 database settings have explicit API registry categories.",
+    "All six environment templates are checked, including the generated API and standalone indexer examples.",
+    "Later request-presentation settings follow the approved Administration Settings amendment; original phase evidence remains historical.",
+    "SSL_CERT_FILE is optional process TLS infrastructure; public certificates use platform trust.",
     "WEBUI_FULL_TEXT_SEARCH_ENABLED is removed; API FULL_TEXT_SEARCH_ENABLED is the only authority.",
     "MESSAGING_* retains its separately approved deployment ownership.",
     "CONTENT_DOWNLOAD_DB_BATCH_SIZE has no current consumer/template; no unused setting was invented.",

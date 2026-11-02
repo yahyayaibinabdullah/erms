@@ -84,3 +84,15 @@ def test_governed_capabilities_fail_closed_when_a_response_field_is_missing():
 def test_notification_administration_is_independent_of_exchange_monitor_and_audit():
     assert can_navigate('messages-notifications', {'messaging.notifications.administer'})
     assert not can_navigate('messages-notifications', {'messaging.monitor','audit.view','messaging.user_messages.exchange'})
+
+
+def test_disposition_navigation_requires_current_server_capabilities():
+    from frontend.webui.capabilities import can_navigate_disposition
+    for principal in (None, {}, {'can_manage_disposition': False}):
+        assert not can_navigate_disposition('disposition-tasks', principal)
+    reviewer = {'can_access_disposition_tasks': True, 'can_manage_disposition': False}
+    assert can_navigate_disposition('disposition-tasks', reviewer)
+    assert not can_navigate_disposition('disposition-jobs', reviewer)
+    assert not can_navigate_disposition('disposition-eligibility', reviewer)
+    assert can_navigate_disposition('disposition-job', reviewer)
+    assert can_navigate_disposition('dashboard', {})

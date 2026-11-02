@@ -157,10 +157,17 @@ def test_denial_is_audited_without_sensitive_request_data(client):
 
 
 def test_governance_labels_are_readable_without_catalogue_administration(client):
+    catalogue = client.get("/api/v1/security-levels").json()
+    custom = client.post("/api/v1/security-levels", json={
+        "code": "LABEL-" + uuid4().hex[:12], "name": "Custom readable label",
+        "level_number": max(item["level_number"] for item in catalogue) + 1,
+    }, headers={"X-Change-Reason": "Create disposable custom governance label"})
+    assert custom.status_code == 201, custom.text
+    expected_codes = {item["code"] for item in catalogue} | {custom.json()["code"]}
     token, _, _ = _account(client, privileges=(), suffix="level-reader")
     response = client.get("/api/v1/security-levels", headers=_bearer(token))
     assert response.status_code == 200
-    assert {item["code"] for item in response.json()} == {"G", "R", "S", "TS"}
+    assert {item["code"] for item in response.json()} == expected_codes
 
     path = client.get("/api/v1/classifications/1/path", headers=_bearer(token))
     assert path.status_code == 200

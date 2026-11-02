@@ -1,0 +1,20 @@
+{
+  "result": "passed",
+  "fresh_backend_cases": 119,
+  "upgraded_backend_cases": 25,
+  "webui_tools_cases": 635,
+  "focused_webui_cases": 71,
+  "note": "Focused cases are a subset, not additional unique coverage. API counts are scoped workflow suites, not the full API suite.",
+  "logs": [
+    "backend-fresh.log",
+    "backend-upgrade.log",
+    "frontend-tools.log",
+    "rollout-rehearsal-final.log",
+    "catalogue-api.log"
+  ],
+  "browser": "browser.json",
+  "translation": "translation-preservation.json",
+  "cleanup": "cleanup.json",
+  "demo": "demo-migration.json",
+  "final_api_contract_cases": 15
+}

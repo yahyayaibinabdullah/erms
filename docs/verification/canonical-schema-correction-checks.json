@@ -1,0 +1,206 @@
+{
+  "verified_on": "2026-10-28",
+  "scope": "Canonical schema discrepancy corrections; no persistent database changes",
+  "unit_and_source_alignment": {
+    "tests": 57,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "fresh_install_api_regressions": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "api_modules": [
+    "test_localization.py",
+    "test_localization_catalogue.py",
+    "test_entity_translations.py",
+    "test_legal_holds_api.py"
+  ],
+  "parity_report": "canonical-schema-migration-parity.json",
+  "canonical_sql_sha256": "2b6aae405cf6ff0af25e79604cb106206180f24b293ec5323bfc00bc9a9d4c01",
+  "cleanup": {
+    "server_version": "18.4 (Postgres.app)",
+    "owned_disposable_databases_checked": 3,
+    "remaining": [],
+    "persistent_databases_modified": false
+  },
+  "checks": {
+    "git_diff_check": true,
+    "python_compilation": true,
+    "api_environment_template_check": true
+  },
+  "aligned_function_sources": {
+    "public.aggregation_has_vital_descendants": "database/migrations/001_fix_vital_descendant_scope.sql",
+    "public.protect_vital_resource_deletion": "database/migrations/001_fix_vital_descendant_scope.sql",
+    "public.aggregation_effective_assigned_location_source_id": "database/migrations/003_location_sources_and_governed_history.sql",
+    "public.aggregation_effective_current_location_source_id": "database/migrations/003_location_sources_and_governed_history.sql",
+    "public.record_entity_history": "database/migrations/003_location_sources_and_governed_history.sql",
+    "public.org_unit_effectively_active": "database/migrations/004_normalize_user_management_lifecycle.sql",
+    "public.validate_user_management_lifecycle_dates": "database/migrations/004_normalize_user_management_lifecycle.sql",
+    "public.current_hold_actor_is_manager": "database/migrations/008_rename_hold_membership_to_held_items.sql",
+    "public.append_hold_assignment_domain_events": "database/migrations/006_correct_legal_hold_authorization.sql",
+    "public.validate_saved_search_owner": "database/migrations/018_add_advanced_search_phase1.sql",
+    "public.touch_saved_search": "database/migrations/018_add_advanced_search_phase1.sql",
+    "public.enforce_saved_search_change_reason": "database/migrations/018_add_advanced_search_phase1.sql",
+    "public.enforce_one_enabled_default_language": "database/migrations/019_add_internationalization_foundation.sql",
+    "public.touch_localization_row": "database/migrations/019_add_internationalization_foundation.sql",
+    "public.record_user_preference_history": "database/migrations/019_add_internationalization_foundation.sql",
+    "public.require_localization_change_reason": "database/migrations/020_add_ui_message_catalogue.sql",
+    "public.record_localization_catalogue_history": "database/migrations/020_add_ui_message_catalogue.sql"
+  },
+  "constraint_corrections": [
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_catalogue_revision_check",
+      "after": "supported_languages_revision_positive"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_check",
+      "after": "supported_languages_default_enabled"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_direction_check",
+      "after": "supported_languages_direction_valid"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_english_name_check",
+      "after": "supported_languages_english_name_not_blank"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_formatting_config_check",
+      "after": "supported_languages_formatting_object"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_language_tag_check",
+      "after": "supported_languages_tag_shape"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_native_name_check",
+      "after": "supported_languages_native_name_not_blank"
+    },
+    {
+      "table": "supported_languages",
+      "before": "supported_languages_version_check",
+      "after": "supported_languages_version_positive"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_common_locations_check",
+      "after": "ui_message_definitions_locations_array"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_context_group_check",
+      "after": "ui_message_definitions_context_not_blank"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_default_text_check",
+      "after": "ui_message_definitions_default_not_blank"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_grammatical_role_check",
+      "after": "ui_message_definitions_role_not_blank"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_message_key_check",
+      "after": "ui_message_definitions_key_shape"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_parameter_schema_check",
+      "after": "ui_message_definitions_parameter_object"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_rendered_example_check",
+      "after": "ui_message_definitions_example_not_blank"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_semantic_meaning_check",
+      "after": "ui_message_definitions_meaning_not_blank"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_translator_guidance_check",
+      "after": "ui_message_definitions_guidance_not_blank"
+    },
+    {
+      "table": "ui_message_definitions",
+      "before": "ui_message_definitions_version_check",
+      "after": "ui_message_definitions_version_positive"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_check",
+      "after": "ui_message_translations_generated_reviewed_before_publish"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_check1",
+      "after": "ui_message_translations_review_pair"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_check2",
+      "after": "ui_message_translations_publish_pair"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_generation_metadata_check",
+      "after": "ui_message_translations_generation_object"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_origin_check",
+      "after": "ui_message_translations_origin_valid"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_published_text_check",
+      "after": "ui_message_translations_published_not_blank"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_status_check",
+      "after": "ui_message_translations_status_valid"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_translated_text_check",
+      "after": "ui_message_translations_text_not_blank"
+    },
+    {
+      "table": "ui_message_translations",
+      "before": "ui_message_translations_version_check",
+      "after": "ui_message_translations_version_positive"
+    },
+    {
+      "table": "user_preferences",
+      "before": "user_preferences_version_check",
+      "after": "user_preferences_version_positive"
+    },
+    {
+      "table": "user_preferences",
+      "before": "user_preferences_working_timezone_check",
+      "after": "user_preferences_timezone_not_blank"
+    }
+  ],
+  "visible_column_order_corrections": {
+    "org_units": "database/migrations/004_normalize_user_management_lifecycle.sql",
+    "roles": "database/migrations/004_normalize_user_management_lifecycle.sql",
+    "users": "database/migrations/004_normalize_user_management_lifecycle.sql"
+  }
+}

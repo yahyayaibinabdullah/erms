@@ -112,7 +112,7 @@ async def test_audit_target_opens_api_category_with_one_settings_read(user:User,
 async def test_every_setting_has_visible_explanation_and_controls_and_no_secret(user:User,language):
     api,holder,_=await open_page(user,language)
     state=holder['state']
-    assert sum(len(f['controls']) for f in state['forms'].values())==51
+    assert sum(len(f['controls']) for f in state['forms'].values())==len(REGISTRY)
     texts=[label.text for label in user.find(ui.label).elements]
     assert all(item['description'] in texts for item in api.items.values())
     assert state['forms']['email']['password'].value==''
@@ -366,3 +366,69 @@ async def test_scheme_first_browse_unlocks_both_two_character_destination_search
     searches=[v for kind,v in api.calls if kind=='search']
     assert len(searches)==2
     assert all(v[1]=='te' and v[2]['limit']==25 and v[2]['filters']=={'classification_scheme_id':1,'is_terminal':True} for v in searches)
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+async def test_smtp_dialog_validates_recipient_uses_saved_configuration_and_preserves_drafts(user:User,language):
+    api,holder,_=await open_page(user,language,initial_setting_key='SMTP_HOST')
+    form=holder['state']['forms']['email'];calls=[]
+    async def send(recipient):
+        calls.append(recipient)
+        return {'outcome':'smtp_accepted','smtp_code':250}
+    api.test_smtp_send=send
+    with user:
+        form['controls']['SMTP_HOST'].value='unsaved-host.invalid'
+        form['password'].value='unsaved-password'
+    mark(user,form['test_send']).click();await asyncio.sleep(.03)
+    mark(user,form['test_submit']).click();await asyncio.sleep(.02)
+    texts=AR if language=='ar' else EN
+    assert not calls and form['test_result'].text==texts['settings.email_test.invalid_recipient']
+    mark(user,form['test_recipient']).type('recipient@test.invalid')
+    mark(user,form['test_submit']).click();await asyncio.sleep(.03)
+    assert calls==['recipient@test.invalid'] and not api.saved
+    assert form['test_result'].text==texts['settings.email_test.accepted']
+    assert form['controls']['SMTP_HOST'].value=='unsaved-host.invalid'
+    assert form['password'].value=='unsaved-password' and not form['busy']
+    assert next(child for child in form['test_dialog'].descendants() if isinstance(child,ui.card)).props['dir']==('rtl' if language=='ar' else 'ltr')
+
+
+@pytest.mark.parametrize('outcome',['failed','unknown'])
+async def test_smtp_test_reports_truthful_outcome_without_retry(user:User,outcome):
+    api,holder,_=await open_page(user,initial_setting_key='SMTP_HOST');form=holder['state']['forms']['email'];calls=[]
+    async def send(recipient):
+        calls.append(recipient);return {'outcome':outcome,'smtp_code':None}
+    api.test_smtp_send=send
+    mark(user,form['test_send']).click();await asyncio.sleep(.02)
+    mark(user,form['test_recipient']).type('recipient@test.invalid')
+    mark(user,form['test_submit']).click();await asyncio.sleep(.03)
+    assert form['test_result'].text==EN['settings.email_test.'+outcome]
+    assert len(calls)==1 and form['test_submit'].enabled
+
+
+@pytest.mark.parametrize('abandoned',['page','dialog'])
+async def test_smtp_test_blocks_duplicates_and_ignores_abandoned_dialog_result(user:User,abandoned):
+    api,holder,live=await open_page(user,initial_setting_key='SMTP_HOST');form=holder['state']['forms']['email']
+    gate=asyncio.Event();calls=[]
+    async def send(recipient):
+        calls.append(recipient);await gate.wait();return {'outcome':'smtp_accepted','smtp_code':250}
+    api.test_smtp_send=send
+    mark(user,form['test_send']).click();await asyncio.sleep(.02)
+    mark(user,form['test_recipient']).type('recipient@test.invalid')
+    mark(user,form['test_submit']).click();mark(user,form['test_submit']).click();await asyncio.sleep(.02)
+    assert len(calls)==1 and form['busy'] and not form['test_send'].enabled
+    old_result=form['test_result']
+    if abandoned=='page':live['active']=False
+    with user:form['test_dialog'].close()
+    gate.set();await asyncio.sleep(.03)
+    assert old_result.text==EN['settings.email_test.sending'] and not api.saved
+    if abandoned=='dialog':assert form['test_send'].enabled and not form['busy']
+
+
+async def test_smtp_test_api_disconnect_is_unknown_not_definite_failure(user:User):
+    api,holder,_=await open_page(user,initial_setting_key='SMTP_HOST');form=holder['state']['forms']['email']
+    async def send(recipient):raise ApiError(503,'Cannot connect to the ERMS API')
+    api.test_smtp_send=send
+    mark(user,form['test_send']).click();await asyncio.sleep(.02)
+    mark(user,form['test_recipient']).type('recipient@test.invalid')
+    mark(user,form['test_submit']).click();await asyncio.sleep(.03)
+    assert form['test_result'].text==EN['settings.email_test.unknown']

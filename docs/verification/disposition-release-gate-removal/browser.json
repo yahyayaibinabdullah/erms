@@ -1,0 +1,24 @@
+{
+  "result": "passed",
+  "browser": "Codex In-app Browser",
+  "fixture_database": "erms_messaging_test_acl_725b2fb5814543639577ce6895abc014",
+  "checks": [
+    "English and Arabic physical task has no release-pending warning",
+    "Normal task claim and acting role remain required",
+    "Claimed Manager receives blocker-check and physical-confirmation controls",
+    "Confirmation dialogs retain reference, unchecked success checkbox, certificate upload and current destination",
+    "No confirmation was submitted and no destruction executed in the browser",
+    "Arabic lang=ar dir=rtl; English LTR and RTL dialog rendering inspected"
+  ],
+  "digital_scope": "Both-language native digital controls and full workflow destruction safeguards covered by automated tests; no live digital action submitted",
+  "console_observations": [
+    "One MutationObserver observe target error was captured at initial page startup; task loading, claim and confirmation dialog continued to work."
+  ],
+  "screenshots": [
+    "physical-confirmation-en.jpg",
+    "physical-confirmation-ar.jpg"
+  ],
+  "translation_fixture": "Existing drafts rendered only in disposable DB; no persistent publication or human approval",
+  "tab_closed": true,
+  "viewport_override_used": false
+}

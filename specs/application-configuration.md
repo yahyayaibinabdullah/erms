@@ -4,8 +4,8 @@
 **Approved:** 12 October 2026
 **Project:** ERMS
 **Prepared:** 2 October 2026
-**Revision:** 1.2 — Environment-managed settings encryption key
-**Amendment approved:** 14 October 2026 (key storage); 13 October 2026 (Records Manager Only route)
+**Revision:** 1.3 — Database locale deployment recommendation
+**Amendment approved:** 14 October 2026 (key storage); 13 October 2026 (Records Manager Only route); 28 October 2026 (ICU `ar` recommendation)
 
 ## 1. Purpose
 
@@ -72,7 +72,8 @@ keeps all of its process and extraction settings as deployment configuration.
 
 ## 4. Exact deployment-setting inventory
 
-The following settings remain environment/`.env` settings.
+The following process settings remain environment/`.env` settings.
+Database-creation metadata is described separately in section 4.1.1.
 
 ### 4.1 FastAPI and PostgreSQL connectivity
 
@@ -87,6 +88,37 @@ The following settings remain environment/`.env` settings.
 | `DB_POOL_MAX_SIZE` | `10` | Per-process database capacity |
 | `DB_POOL_TIMEOUT` | `10` seconds | Per-process connection-pool behavior |
 | `WATHIQ_APPLICATION_REVISION` | Packaged Git revision when required | Build/deployment identity |
+
+#### 4.1.1 Database encoding and collation provisioning
+
+For Arabic-primary Wathiq deployments that also support English, the
+recommended database baseline is **UTF-8, provider ICU, locale `ar`**. This is
+provisioning metadata chosen with `CREATE DATABASE` before canonical schema
+initialization. It is not a new environment variable, runtime application
+setting or editable administration field. `DATABASE_URL` selects a database;
+it does not switch that database's default collation.
+
+ICU `ar` provides Arabic language tailoring while retaining English/Unicode
+text support. ICU `und` is the alternative for an explicitly language-neutral
+default. Existing libc databases remain compatible until a deliberate
+backup/rebuild/restore conversion is approved. Their settings must not change
+silently during startup or migration.
+
+Database creation/restore procedures must record the provider, locale and
+version explicitly. Ordinary clones preserve their source settings; intentional
+ICU `ar` conversions record the expected locale/sort difference separately from
+schema/data parity against one backup snapshot. A version refresh does not
+rebuild dependent indexes or change providers. OS/ICU upgrades require the
+documented dependent-object rebuild and verification procedure.
+
+The recommendation does not change UI language defaults, localized list-order
+contracts, equality, Arabic search normalization or numeric code ordering.
+Detailed examples, provisioning commands and operator checks are in
+[Database collation for Arabic and English](../docs/database-collation.md) and
+[the deployment guide](../docs/deployment.md#postgresql-locale-recommendation).
+Current launchers/bootstrap initialize schema and reference data but do not
+enforce ICU `ar`; this documentation records the deployment recommendation,
+not an automatic conversion feature.
 
 ### 4.2 WebUI process and session infrastructure
 
@@ -426,8 +458,9 @@ deployment secrets such as database credentials remain excluded.
 
 There is no automatic import from `.env`.
 
-For a new database, `database/schema.sql` creates the settings with the defaults
-in section 5. For an existing database, the migration inserts missing defaults
+For a new database, `database/schema.sql` defines the complete settings schema.
+The separate required seed `database/seeds/000_required_reference_data.sql`
+initializes the settings with the defaults in section 5. For an existing database, the migration inserts missing defaults
 without overwriting existing database values. Existing non-default environment
 values for migrated settings must be preserved through an explicit, reviewed
 migration using the governed administration path before switching their consumers

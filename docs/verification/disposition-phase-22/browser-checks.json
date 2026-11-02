@@ -1,0 +1,64 @@
+{
+  "english": {
+    "result": "passed",
+    "checks": [
+      "certificate-only recovery after successful deletion",
+      "left job during recovery and returned to completed job",
+      "task counts include all three destroyed roots",
+      "Wathiq light-blue task and membership table comparison",
+      "completed before certificate download",
+      "external backup/copy warning",
+      "download closes task and preserves completed outcome",
+      "repeat certificate email after completion",
+      "two persisted SMTP-accepted outcomes",
+      "no browser console errors observed"
+    ]
+  },
+  "arabic": {
+    "component_tests": "passed",
+    "live_browser": "passed",
+    "verified_date": "2026-10-20",
+    "checks": [
+      "Arabic certificate-only failure and safe retry message",
+      "recovery continues after dashboard navigation",
+      "completed job before certificate download",
+      "three completed destroyed memberships",
+      "external-copy warning and current Manager role",
+      "send and accepted history before download",
+      "saved PDF download closes only the download task",
+      "repeat send after download and two persisted synthetic accepted outcomes",
+      "completed job survives reload and repeated navigation",
+      "download task absent from current inbox after completion",
+      "RTL table light-blue headers, wrapping and horizontal scrolling match established LTR tables",
+      "lang=ar, dir=rtl and computed RTL direction; no page-level horizontal overflow",
+      "no browser console errors or warnings observed"
+    ],
+    "evidence": [
+      "tasks-rtl.jpg",
+      "recovery-rtl.jpg",
+      "completed-email-before-download-rtl.jpg",
+      "completed-email-after-download-rtl.jpg",
+      "completion-rtl-viewport.jpg",
+      "completed-rtl.jpg",
+      "live-arabic-layout.json",
+      "live-arabic-state.json",
+      "live-arabic-cleanup.json"
+    ],
+    "draft_rendering": "Existing checked-in drafts made renderable only in disposable preview through existing publication endpoint; no human language approval or persistent publication claimed. Artifact hash unchanged.",
+    "smtp_transport": "Synthetic isolated transport; no external email sent in this run. Prior real MailDev results retained."
+  },
+  "final_certificate_task_email_history_before_download": {
+    "component_tests": "passed",
+    "live_recheck_after_last_fix": "passed (Arabic in-app browser, 20 October 2026)"
+  },
+  "navigation_abandonment_component_tests": "passed",
+  "owned_tab_close": "Current application tab closed and viewport reset; initial connection-error tab could not be closed under browser URL policy and remains unmarked for automatic cleanup. Prior Chrome tab status remains historical.",
+  "prior_browser_profile_used": "YahyaYaiBinAbdullah (Gmail)",
+  "completion_browser": "Codex In-app Browser",
+  "final_traceability_checks": {
+    "source_and_phase_coverage": "passed",
+    "phase_22_requirements_have_passing_phase_evidence": true,
+    "database_free_ledger_tests": 24,
+    "diff_whitespace": "passed"
+  }
+}

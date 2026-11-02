@@ -1,6 +1,8 @@
 """GH-001–007: runner-owned disposable databases only, including real gateways."""
 
 import asyncio
+import json
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import socket
 import time
@@ -281,9 +283,11 @@ def test_new_arabic_entries_seed_with_their_own_generation_provenance(client):
     assert result["failed"] == 0 and result["awaiting_generation"] == 0
     with db() as c:
         row = c.execute("SELECT origin,status,generation_metadata FROM ui_message_translations WHERE language_tag='ar' AND message_key='messaging.monitor.overdue'").fetchone()
-        assert row["origin"] == "generated" and row["status"] == "draft"
-        assert row["generation_metadata"]["generator"] == "OpenAI Codex"
-        assert row["generation_metadata"]["prompt_version"] == "gateway-health-lifecycle-v1"
+        artifact = json.loads((Path(__file__).resolve().parents[4] / "frontend/webui/i18n/messages.ar.generated.json").read_text())
+        canonical = next(item for item in artifact["items"] if item["message_key"] == 'messaging.monitor.overdue')
+        assert row["origin"] == "imported" and row["status"] == "draft"
+        assert row["generation_metadata"]["export_provenance"] == canonical["provenance"]
+        assert canonical["provenance"]["source_origin"] == "generated"
         old = c.execute("SELECT origin,generation_metadata FROM ui_message_translations WHERE language_tag='ar' AND message_key='messaging.monitor.disconnected'").fetchone()
         assert old["origin"] == "imported"
         assert old["generation_metadata"]["export_provenance"]["kind"] == "admin_catalogue_export"

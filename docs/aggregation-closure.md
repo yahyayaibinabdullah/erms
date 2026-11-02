@@ -27,6 +27,26 @@ closure source shown by the UI.
 - Reopening requires a non-blank reason. API clients supply it in the
   `X-Change-Reason` header; the web UI collects it in the Reopen dialog.
 
+## Closing vital or held aggregations
+
+These rules apply to the ordinary **Close** action, independently of
+disposition acceleration:
+
+| Protection | Does it prevent closing? |
+| --- | --- |
+| Vital status on the aggregation or its descendants | No |
+| Effective legal hold without **Preserve resource metadata and state** | No |
+| Applicable effective hold with **Preserve resource metadata and state** | Yes |
+
+The user still needs the normal close permission, a valid closing date and
+compliance with the existing closure integrity rules. Closing preserves vital
+status and every hold assignment. It does not remove their protections against
+disposition or make the aggregation immediately eligible: ordinary retention
+starts at closure and must complete, unless explicitly accelerated.
+
+See [Legal Holds §5](../specs/legal-holds.md#5-enhanced-resource-state-preservation)
+and [the accelerated eligibility scenario](operations.md#1421-accelerated-eligibility-with-protections).
+
 ## Operations prohibited in an effectively closed branch
 
 The database rejects the following operations with a conflict error:

@@ -1,0 +1,30 @@
+{
+  "result": "passed",
+  "api": "api-acceptance.json",
+  "webui_tools": {
+    "full_suite": "frontend-tools-release.log",
+    "passed_in_full_run": 634,
+    "initial_failures": 1,
+    "corrected_failure": "frontend/webui/tests/test_hierarchical_oversight_acls.py::test_oversight_catalogue_covers_both_languages_and_preserves_curated_rows",
+    "final_correction_evidence": "final-source-regressions.log",
+    "final_source_checks_passed": 49,
+    "unique_cases_after_correction": 635
+  },
+  "indexer": "indexer.log",
+  "integration": [
+    "integrated-fresh.log",
+    "integrated-upgrade.log"
+  ],
+  "populated_upgrade": "populated-upgrade-final.log",
+  "browser": [
+    "browser-checks.json",
+    "navigation-checks.json"
+  ],
+  "translation": "terminology-corrections.json",
+  "cleanup": "cleanup.json",
+  "translation_preservation": "translation-preservation-final.log",
+  "glossary": "terminology-accepted.log",
+  "catalogue": "i18n-accepted.log",
+  "configuration": "configuration-authority-final.log",
+  "templates": "environment-templates-final.log"
+}

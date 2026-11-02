@@ -23,3 +23,16 @@ directly under `LI`, whereas PDF/UA-1 requires `Lbl`/`LBody` children. The PDF
 finisher reparents the existing block tags into `LBody`, preserving marked content,
 parent pointers, and reading order. Nested English/Arabic lists and real amendment
 histories are independently validated to cover this renderer-specific correction.
+
+`disposition/Changa.ttf` is the static regular Changa face with the three
+existing subsets merged using `fontTools.merge.Merger` 4.66.1 (Latin, Latin
+Extended, then Arabic). It contains 644 Unicode code points. It retains the
+same Changa family/PostScript name and SIL OFL license above. This offline
+artifact avoids selecting one of several partial faces with the same name in
+LibreOffice. The disposition converter gives its child process a private
+Fontconfig file containing this directory and a temporary cache directory;
+no host font installation, font download or new deployment variable is used.
+Every output PDF is checked for embedded Changa, including descendant fonts
+and form resources; substitution fails generation. On native platforms whose
+LibreOffice uses a different font backend, install this licensed face for the
+API account if necessary; output validation still fails closed.

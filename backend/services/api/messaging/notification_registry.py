@@ -136,7 +136,8 @@ class NotificationRegistry:
 def application_definitions():
     # Explicitly assembled, separately approved feature contracts.
     from ..hold_notifications import definitions
-    return definitions()
+    from ..disposition.notifications import definitions as disposition_definitions
+    return (*definitions(), *disposition_definitions())
 
 
 registry = NotificationRegistry()

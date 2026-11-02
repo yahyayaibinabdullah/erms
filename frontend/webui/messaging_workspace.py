@@ -162,6 +162,8 @@ async def messaging_workspace(
     capture_record=None,
     browse_recipients=None,
     inspect_resource=None,
+    open_disposition_task=None,
+    open_disposition_eligibility=None,
 ):
     view = {
         "revision": 0,
@@ -940,6 +942,12 @@ async def messaging_workspace(
                     await receipts()
 
     def render_body(message):
+        if message.get("disposition_eligibility") and open_disposition_eligibility:
+            from .disposition.messages import text as disposition_text
+            ui.button(disposition_text("eligibility"),icon="event_available",on_click=open_disposition_eligibility).props("outline no-caps")
+        if message.get('disposition_task') and open_disposition_task:
+            from .disposition.messages import text as disposition_text
+            ui.button(disposition_text('open'),icon='task_alt',on_click=lambda:open_disposition_task(message['disposition_task']['job_id'],message['disposition_task']['task_id'])).props('outline no-caps')
         with ui.column().classes('w-full gap-2 break-words').props('dir=' + message.get('direction', 'auto')):
             body = body_without_resources(message['body_rich_text'])
             if body.strip():

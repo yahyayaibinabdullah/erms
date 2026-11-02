@@ -13,6 +13,7 @@ from uuid import uuid4
 import httpx
 
 from .config import MIME_TYPES, Settings
+from backend.services.processing_workspace import workspace as owned_workspace,recover as recover_owned
 from .text import chunks
 from .tika import ExtractionError, extract, extract_image_ocr, extract_pdf, self_test
 
@@ -31,6 +32,7 @@ class Worker:
         )
 
     def recover_temporary_files(self) -> int:
+        recovered=recover_owned(self.settings.temp_root,self._acknowledge_copy,limit=self.settings.temp_sweep_limit)
         root=self.settings.temp_root
         root.mkdir(mode=0o700,parents=True,exist_ok=True); os.chmod(root,0o700)
         cutoff=time.time()-(self.settings.stale_temp_hours*3600)
@@ -55,12 +57,22 @@ class Worker:
             except FileNotFoundError:
                 continue
             removed+=1
-        return removed
+        if any(root.glob('wathiq-index-*')):
+            raise RuntimeError('legacy_indexer_temporary_cleanup_required; drain old workers and remove their owned scratch first')
+        return removed+recovered
+
+    def _register_copy(self,metadata):
+        response=self.client.post(f"/api/v1/internal/text-indexing/jobs/{metadata['job_id']}/processing-copy",json={k:v for k,v in metadata.items() if k!='job_id'})
+        response.raise_for_status()
+
+    def _acknowledge_copy(self,metadata):
+        response=self.client.delete(f"/api/v1/internal/text-indexing/processing-copies/{metadata['token']}",params={'worker_id':metadata['worker_id']})
+        response.raise_for_status()
 
     def _claim(self) -> list[dict]:
         response = self.client.post("/api/v1/internal/text-indexing/jobs/claim", json={
             "worker_id": self.settings.worker_id, "instance_nonce": self.nonce,
-            "requested_count": self.settings.claim_batch_size, "contract_version": "1",
+            "requested_count": self.settings.claim_batch_size, "contract_version": "1", "processing_copy_protocol":1,
             "extractor_version": "4.0.0",
             "extraction_config_version": "tika-4.0.0-ocr-eng-ara-v1",
             "index_config_version": "fts-content-v1",
@@ -122,7 +134,7 @@ class Worker:
         try:
             if job["content_size"] > self.settings.max_input_bytes:
                 raise ExtractionError("limit_exceeded", "input exceeds configured byte limit")
-            with tempfile.TemporaryDirectory(prefix="wathiq-index-", dir=self.settings.temp_root) as directory:
+            with owned_workspace(self.settings.temp_root,{'job_id':job_id,**lease},self._register_copy,self._acknowledge_copy) as directory:
                 os.chmod(directory, 0o700)
                 source = Path(directory) / "source.bin"
                 digest = hashlib.sha256()

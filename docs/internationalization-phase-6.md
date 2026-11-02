@@ -94,6 +94,14 @@ it is repeatable and protects administrator work. Exact values declared
 superseded are staged as corrected drafts through the same audited path. API
 startup does not apply or reapply generated drafts.
 
+For routine WebUI development, always supply Arabic drafts for untranslated
+active keys alongside their English definitions. Run the explicit seed utility
+with `--missing-only` against the authorized target to fill untouched source-copy
+drafts while preserving every existing translation, including values previously
+declared superseded. This mode is repeatable and does not publish translations.
+Generation and seeding remain explicit development/deployment steps, rather than
+API-startup side effects.
+
 Every named-placeholder set matches its English definition. No generated draft
 is reviewed or published. The corrected generation pass translates complete
 messages in context into Modern Standard Arabic; it does not perform word-by-word

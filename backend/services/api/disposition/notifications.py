@@ -1,0 +1,85 @@
+"""Task availability uses the existing atomic messaging service and receipts.
+
+No job title, resource names or protected content enter a notification. The
+inbox/workspace link presentation is owned by Phase 16. Administrators activate
+this optional producer through the existing notification administration flow.
+"""
+from ..messaging.notification_registry import SystemNotificationDefinition, Placeholder
+from ..messaging.models import Selector
+from ..messaging.config import LIMITS
+from ..messaging.notifications import emit_system_notification
+
+ASSIGNED = 'disposition.task_assigned'
+DESTRUCTION_OUTCOME='disposition.destruction_outcome'
+COMPLETION_OUTCOME='disposition.completion_outcome'
+
+
+def audience(c, context):
+    return [Selector(selector_kind='user',target_id=row['id']) for row in c.execute('''
+      SELECT u.id FROM users u JOIN disposition_tasks t ON t.id=%s
+      WHERE t.task_state IN ('open','claimed')
+      AND (t.claimed_by_user_id IS NULL OR t.claimed_by_user_id=u.id)
+      AND disposition_private.task_eligible(u.id,t.id)
+      ORDER BY u.id LIMIT %s''', (context['task_id'],LIMITS['MAX_SELECTORS_PER_SEND']+1)).fetchall()]
+
+
+def destruction_audience(c,context):
+    return [Selector(selector_kind='user',target_id=row['id']) for row in c.execute("""SELECT DISTINCT u.id FROM users u JOIN disposition_tasks t ON disposition_private.task_eligible(u.id,t.id)
+      JOIN disposition_destruction_runs r ON r.job_id=t.job_id WHERE r.id=%s AND t.task_type='digital_destruction' AND t.task_state IN ('open','claimed') ORDER BY u.id LIMIT %s""",(context['run_id'],LIMITS['MAX_SELECTORS_PER_SEND']+1)).fetchall()]
+
+
+def completion_audience(c,context):
+    return [Selector(selector_kind='user',target_id=row['id']) for row in c.execute('''SELECT DISTINCT u.id FROM users u JOIN user_role_assignments a ON a.user_id=u.id
+      WHERE disposition_private.person_role(u.id,a.role_id) AND disposition_private.review_role(%s,'records_manager_review',a.role_id)
+      AND disposition_private.can_review_content(u.id,%s) ORDER BY u.id LIMIT %s''',(context['job_id'],context['job_id'],LIMITS['MAX_SELECTORS_PER_SEND']+1)).fetchall()]
+
+
+def definitions():
+    from .reminders import definition
+    return (SystemNotificationDefinition(
+        producer_code=ASSIGNED,feature_code='disposition',event_type='task_assigned',
+        contract_version=1,required_for_business_commit=False,allow_static_audience=False,
+        placeholders={'task_id':Placeholder(type='integer')},
+        audience_resolvers={'current_eligible_task_recipients':audience},
+        sample_context={'task_id':1},
+    ),SystemNotificationDefinition(producer_code=DESTRUCTION_OUTCOME,feature_code='disposition',event_type='destruction_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'run_id':Placeholder(type='integer')},audience_resolvers={'current_eligible_managers':destruction_audience},sample_context={'run_id':1}),SystemNotificationDefinition(producer_code=COMPLETION_OUTCOME,feature_code='disposition',event_type='completion_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'job_id':Placeholder(type='integer')},audience_resolvers={'current_eligible_managers':completion_audience},sample_context={'job_id':1}),definition())
+
+
+def publish_command_tasks(c, command_id=None):
+    """Called before finish_command: exact business/event/message commit boundary.
+
+    Committed command retries never enter this function. Source event IDs and
+    messaging receipts also prevent duplicate deliveries after an outer retry.
+    Disabled/unconfigured producers are dormant; configured send failures roll
+    back the business transaction. No unbounded audience or history download.
+    """
+    publish_destruction_outcomes(c)
+    publish_completion_outcomes(c)
+    if not c.execute('SELECT 1 FROM system_notification_producers WHERE producer_code=%s AND active_configuration_version_id IS NOT NULL',(ASSIGNED,)).fetchone():
+        return
+    # A command can route a bounded number of role tasks. Consume only its final
+    # availability event for each task; a claim alone produces no assignment.
+    rows=c.execute('''SELECT DISTINCT ON (e.entity_id) e.id,e.entity_id FROM event_history e
+      JOIN disposition_tasks t ON t.id=e.entity_id
+      WHERE e.metadata->>'command_id'=COALESCE(%s::text,(SELECT command_id::text FROM disposition_private.command_context WHERE transaction_id=txid_current())) AND e.entity_type='disposition_task'
+      AND t.task_state IN ('open','claimed') AND e.operation IN ('JOB_CREATE','JOB_ASSIGN','REVIEW_SUBMIT','REVIEW_DECIDE','TASK_RELEASE','TASK_REASSIGN','FINAL_COMPLETE')
+      ORDER BY e.entity_id,e.id DESC''',(str(command_id) if command_id is not None else None,)).fetchall()
+    for row in rows:
+        emit_system_notification(transaction=c,producer_code=ASSIGNED,source_event_id=str(row['id']),
+          context={'task_id':row['entity_id']},triggered_by_user_id=c.execute('SELECT current_user_id() id').fetchone()['id'])
+
+
+def publish_destruction_outcomes(c,run_id=None):
+    if not c.execute('SELECT 1 FROM system_notification_producers WHERE producer_code=%s AND active_configuration_version_id IS NOT NULL',(DESTRUCTION_OUTCOME,)).fetchone():return
+    # Immutable source event identity + notification receipts deduplicate this
+    # outcome. Ordinary running/count updates never send repetitive messages.
+    rows=c.execute("""SELECT id,(metadata->>'run_id')::bigint AS run_id FROM event_history WHERE operation IN ('DIGITAL_DESTRUCTION_FAILED','DIGITAL_DESTRUCTION_SUCCEEDED')
+      AND ((%s::bigint IS NOT NULL AND metadata->>'run_id'=%s::text) OR (%s::bigint IS NULL AND transaction_id=txid_current())) ORDER BY id""",(run_id,run_id,run_id)).fetchall()
+    for row in rows:emit_system_notification(transaction=c,producer_code=DESTRUCTION_OUTCOME,source_event_id=str(row['id']),context={'run_id':row['run_id']},triggered_by_user_id=c.execute('SELECT requested_by_user_id id FROM disposition_destruction_runs WHERE id=%s',(row['run_id'],)).fetchone()['id'])
+
+
+def publish_completion_outcomes(c,job_id=None):
+    if not c.execute('SELECT 1 FROM system_notification_producers WHERE producer_code=%s AND active_configuration_version_id IS NOT NULL',(COMPLETION_OUTCOME,)).fetchone():return
+    rows=c.execute("""SELECT id,entity_id,actor_user_id FROM event_history WHERE entity_type='disposition_job' AND operation IN ('DESTRUCTION_JOB_COMPLETED','DIGITAL_CERTIFICATE_FAILED')
+      AND ((%s::bigint IS NOT NULL AND entity_id=%s) OR (%s::bigint IS NULL AND transaction_id=txid_current())) ORDER BY id""",(job_id,job_id,job_id)).fetchall()
+    for row in rows:emit_system_notification(transaction=c,producer_code=COMPLETION_OUTCOME,source_event_id=str(row['id']),context={'job_id':row['entity_id']},triggered_by_user_id=row['actor_user_id'])

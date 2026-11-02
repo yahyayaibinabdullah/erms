@@ -1,0 +1,16 @@
+{
+  "active_keys_per_language": 3411,
+  "preserved_existing_items": 3405,
+  "added_keys": [
+    "audit.event.disposition_proposal_carried",
+    "audit.event.disposition_proposal_created",
+    "audit.event.disposition_proposal_revised",
+    "audit.event.disposition_proposal_withdrawn",
+    "audit.event.disposition_review_notes_saved",
+    "audit.event.disposition_review_saved"
+  ],
+  "new_items_require_human_review": true,
+  "administrator_export_promoted": false,
+  "catalogue_sha256": "68c196bb2a451442ac9e615b368e0c1e162ef77069bce2920fde8bdbfdff8cda",
+  "checks": "Exact-key coverage/order, all nonblank and placeholder contracts, immutable prior wording/provenance/flags, new Arabic terminology/quality/provenance and artifact hashes pass. Prior administrator-curated wording is preserved rather than subjected to bootstrap regeneration."
+}

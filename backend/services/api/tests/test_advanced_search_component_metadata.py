@@ -130,6 +130,8 @@ def test_component_fields_are_records_only_filters_and_not_sort_fields(
 def test_record_metadata_combines_with_arabic_component_full_text(
     client: TestClient,
 ):
+    from backend.services.api.tests.test_application_settings_phase4 import save
+    assert save(client, {"FULL_TEXT_SEARCH_ENABLED": True}).status_code == 200
     response = client.post("/api/v1/records/search", json={
         "where": {"and": [
             {"field": "title", "operator": "contains_ci", "value": "ملف"},

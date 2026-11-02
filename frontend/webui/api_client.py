@@ -82,7 +82,8 @@ class ErmsApiClient:
             headers.setdefault("Authorization", f"Bearer {self._session_token}")
         kwargs["headers"] = headers
         normalized_method = method.upper()
-        if normalized_method not in {"GET", "HEAD"}:
+        if normalized_method not in {"GET", "HEAD"} and not cancellable_read:
+            # Explicit read-only POST previews do not invalidate reference data.
             # Reference lists are intentionally broad: any successful or failed
             # mutation may affect labels, eligibility, status, or authorization.
             self.clear_reference_cache()
@@ -733,6 +734,12 @@ class ErmsApiClient:
     async def save_application_settings(self, changes, reason: str) -> dict[str, Any]:
         return await self.request("PUT", "/api/v1/application-settings",
                                   json={"changes": changes}, headers={"X-Change-Reason": reason})
+
+    async def test_smtp_send(self, recipient: str) -> dict[str, Any]:
+        # SMTP operations use the administrator's configured socket timeout;
+        # the ordinary 30-second API read timeout must not imply a failed send.
+        return await self.request("POST", "/api/v1/application-settings/test-send",
+                                  json={"recipient": recipient}, timeout=httpx.Timeout(None, connect=5))
 
     async def security_summary(
         self, *, hours: int = 24, start_at: str | None = None, end_at: str | None = None,
@@ -1399,3 +1406,46 @@ class ErmsApiClient:
             f"/api/v1/user-role-assignments/{assignment_id}",
             headers={"If-Match": str(version)},
         )
+
+    async def disposition_page(self, path: str, **parameters: Any) -> dict[str, Any]:
+        """Live bounded pages; use the existing identity-scoped in-flight reads."""
+        return await self.request('GET', '/api/v1/disposition/' + path,
+                                  params={key: value for key, value in parameters.items() if value is not None})
+
+    async def disposition_approval_summary(self, task_id, *, acting_role_id, task_version, changes, version):
+        return await self.request('POST',f'/api/v1/disposition/tasks/{task_id}/approval-summary',
+                                  json={'acting_role_id':acting_role_id,'task_version':task_version,'changes':changes},
+                                  headers={'If-Match':str(version)},_cancellable_read=True)
+
+    async def disposition_command(self, path: str, payload: dict[str, Any], *, reason: str,
+                                  version: int | None = None) -> dict[str, Any]:
+        headers = {'X-Change-Reason': reason}
+        if version is not None:
+            headers['If-Match'] = str(version)
+        return await self.request('POST', '/api/v1/disposition/' + path, json=payload, headers=headers)
+
+
+    async def correct_disposition_evidence(self, job_id, document_id, *, version, command_id,
+                                           acting_role_id, destination_token, reason, name, content, mime_type):
+        return await self.request('POST',f'/api/v1/disposition/jobs/{job_id}/documents/{document_id}/corrections',
+          data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'destination_token':destination_token},
+          files={'file':(name,content,mime_type)},headers={'If-Match':str(version),'X-Change-Reason':reason})
+
+    async def revise_disposition_template(self, job_id, kind, *, command_id, acting_role_id,
+                                          expected_reference, reason, name, content):
+        return await self.request('POST',(f'/api/v1/disposition/jobs/{job_id}/templates' if job_id is not None else '/api/v1/disposition/templates')+f'/{kind}/revisions',
+          data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'expected_reference':expected_reference},
+          files={'file':(name,content,'application/vnd.openxmlformats-officedocument.wordprocessingml.document')},
+          headers={'X-Change-Reason':reason})
+
+    async def record_external_decision(self,task_id,*,version,command_id,acting_role_id,task_version,request_document_id,
+            decision,correction_notes,destruction_number,destination_token,name,content,mime_type):
+        data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'task_version':str(task_version),
+          'request_document_id':str(request_document_id),'decision':decision,'destination_token':destination_token}
+        if correction_notes is not None:data['correction_notes']=correction_notes
+        if destruction_number is not None:data['destruction_number']=destruction_number
+        return await self.request('POST',f'/api/v1/disposition/tasks/{task_id}/external-decision',data=data,
+          files={'file':(name,content,mime_type)},headers={'If-Match':str(version)})
+
+    async def confirm_physical(self,task_id,*,version,command_id,acting_role_id,task_version,successful,certificate_reference,destination_token,name,content,mime_type):
+        return await self.request('POST',f'/api/v1/disposition/tasks/{task_id}/physical-confirmation',data={'command_id':str(command_id),'acting_role_id':str(acting_role_id),'task_version':str(task_version),'successful':str(successful).lower(),'certificate_reference':certificate_reference,'destination_token':destination_token},files={'file':(name,content,mime_type)},headers={'If-Match':str(version)})

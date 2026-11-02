@@ -142,7 +142,9 @@ def test_hidden_resources_are_non_disclosing_across_read_surfaces(client):
     assert client.get(f"/api/v1/digital-components/{component['id']}").status_code == 404
     assert client.get(f"/api/v1/digital-components?record_id={hidden_record['id']}").json() == []
     favourites = client.get("/api/v1/favourites").json()
-    assert favourites == {"aggregations": [], "records": []}
+    assert set(favourites) == {"aggregations", "records", "application_configuration"}
+    assert favourites["aggregations"] == [] and favourites["records"] == []
+    assert isinstance(favourites["application_configuration"], dict)
 
     audit = client.get("/api/v1/event-history", params={
         "entity_type": "aggregation", "entity_id": hidden["id"], "limit": 10,

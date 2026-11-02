@@ -1,0 +1,466 @@
+{
+  "changed_arabic_keys": 75,
+  "added_keys": 0,
+  "removed_keys": 0,
+  "total_active_keys": 3882,
+  "administrator_export_promoted": false,
+  "fresh_demo_export_baseline_captured": true,
+  "published": false,
+  "human_review_required": 75,
+  "unrelated_demo_entries_preserved": 3854,
+  "canonical_order_coverage_placeholders_blanks_markup_provenance_hashes": "passed",
+  "demo_drafts_match_artifact": true,
+  "published_values_preserved": true,
+  "changes": [
+    {
+      "message_key": "audit.event.disposition_job_assigned",
+      "english": "Disposition Job Assigned",
+      "before": "إسناد مهمة التصرف النهائي",
+      "after": "إسناد عملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_job_created",
+      "english": "Disposition Job Created",
+      "before": "إنشاء مهمة التصرف النهائي",
+      "after": "إنشاء عملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_job_owning_unit_changed",
+      "english": "Disposition Job Owning Unit Changed",
+      "before": "تغيير الوحدة التنظيمية المالكة لمهمة التصرف النهائي",
+      "after": "تغيير الوحدة التنظيمية المالكة لعملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_job_terminated",
+      "english": "Disposition Job Terminated",
+      "before": "إنهاء مهمة التصرف النهائي",
+      "after": "إنهاء عملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_membership_added",
+      "english": "Added to Disposition Job",
+      "before": "إضافة إلى مهمة التصرف النهائي",
+      "after": "إضافة إلى عملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_membership_removed",
+      "english": "Removed from Disposition Job",
+      "before": "إزالة من مهمة التصرف النهائي",
+      "after": "إزالة من عملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_removal_required",
+      "english": "Removal from Disposition Job Required",
+      "before": "تجب الإزالة من مهمة التصرف النهائي",
+      "after": "تجب الإزالة من عملية التصرف"
+    },
+    {
+      "message_key": "audit.event.disposition_termination_outcomes",
+      "english": "Disposition Termination Outcomes Recorded",
+      "before": "تم تسجيل نتائج إنهاء مهمة التصرف",
+      "after": "تم تسجيل نتائج إنهاء عملية التصرف"
+    },
+    {
+      "message_key": "disposition.ui.accelerate_scope",
+      "english": "This exceptional action closes this root if open and makes it and all descendants eligible under the effective retention rule. Holds, vital status and blocking security levels still prevent job admission and disposition. Closure permissions and preserve-state hold restrictions still apply.",
+      "before": "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل أوامر الحجز وحالة الأهمية الحيوية ودرجات السرية المانعة للتصرف مانعةً للإضافة إلى مهمة التصرف ولتنفيذه. وتبقى صلاحيات الإغلاق وقيود أوامر الحجز التي تحفظ حالة المورد سارية.",
+      "after": "يُغلق هذا الإجراء الاستثنائي الملف الجذري إذا كان مفتوحاً، ويجعله وجميع عناصره التابعة مؤهلة للتصرف وفقاً لقاعدة الحفظ الفعلية. وتظل أوامر الحجز وحالة الأهمية الحيوية ودرجات السرية المانعة للتصرف مانعةً للإضافة إلى عملية التصرف ولتنفيذه. وتبقى صلاحيات الإغلاق وقيود أوامر الحجز التي تحفظ حالة المورد سارية."
+    },
+    {
+      "message_key": "disposition.ui.active_job",
+      "english": "Active job",
+      "before": "المهمة النشطة",
+      "after": "العملية النشطة"
+    },
+    {
+      "message_key": "disposition.ui.add",
+      "english": "Add selected roots to job",
+      "before": "إضافة الملفات الجذرية المحددة إلى المهمة",
+      "after": "إضافة الملفات الجذرية المحددة إلى العملية"
+    },
+    {
+      "message_key": "disposition.ui.approval_changed",
+      "english": "Approved job facts have changed. A new complete review round is required before this request can be approved or used.",
+      "before": "تغيّرت البيانات المعتمدة للمهمة. تلزم جولة مراجعة كاملة جديدة قبل الموافقة على هذا الطلب أو استخدامه.",
+      "after": "تغيّرت البيانات المعتمدة للعملية. تلزم جولة مراجعة كاملة جديدة قبل الموافقة على هذا الطلب أو استخدامه."
+    },
+    {
+      "message_key": "disposition.ui.approval_next_conditional",
+      "english": "The system will generate a proposal execution report. If aggregations remain, it will generate a destruction request and create the external-approval task; otherwise, it will return the job for preparation or correction.",
+      "before": "سينشئ النظام تقرير تنفيذ المقترحات. إذا بقيت ملفات، فسينشئ طلب إتلاف ومهمة للموافقة الخارجية؛ وإلا فسيعيد المهمة للإعداد أو التصحيح.",
+      "after": "سينشئ النظام تقرير تنفيذ المقترحات. إذا بقيت ملفات، فسينشئ طلب إتلاف ومهمة للموافقة الخارجية؛ وإلا فسيعيد العملية للإعداد أو التصحيح."
+    },
+    {
+      "message_key": "disposition.ui.approval_next_empty",
+      "english": "Applying these proposals will leave no aggregations in this job. The system will generate the proposal execution report and return the job to {stage}. No destruction request or external-approval task will be created.",
+      "before": "لن تبقى أي ملفات في هذه المهمة بعد تطبيق هذه المقترحات. سينشئ النظام تقرير تنفيذ المقترحات ويعيد المهمة إلى {stage}. لن يُنشأ طلب إتلاف أو مهمة للموافقة الخارجية.",
+      "after": "لن تبقى أي ملفات في هذه العملية بعد تطبيق هذه المقترحات. سينشئ النظام تقرير تنفيذ المقترحات ويعيد العملية إلى {stage}. لن يُنشأ طلب إتلاف أو مهمة للموافقة الخارجية."
+    },
+    {
+      "message_key": "disposition.ui.approval_no_proposals",
+      "english": "Approve this job with no active proposals.",
+      "before": "اعتماد هذه المهمة دون مقترحات نشطة.",
+      "after": "اعتماد هذه العملية دون مقترحات نشطة."
+    },
+    {
+      "message_key": "disposition.ui.approval_title",
+      "english": "Approve this destruction job?",
+      "before": "هل تريد اعتماد مهمة الإتلاف هذه؟",
+      "after": "هل تريد اعتماد عملية الإتلاف هذه؟"
+    },
+    {
+      "message_key": "disposition.ui.blocked",
+      "english": "Blocked from disposition job",
+      "before": "محظور من الإضافة إلى مهمة تصرف",
+      "after": "محظور من الإضافة إلى عملية تصرف"
+    },
+    {
+      "message_key": "disposition.ui.claim_explanation",
+      "english": "Claiming assigns this task to you so you can add review proposals and complete your review. Other reviewers cannot edit or complete it while you hold the claim. Claiming does not approve proposals or advance the job.",
+      "before": "عند استلام هذه المهمة، تصبح مسؤولاً عنها ويمكنك إضافة مقترحات المراجعة وإكمال مراجعتك. لا يمكن للمراجعين الآخرين تعديلها أو إكمالها ما دامت مسندة إليك. لا يعني استلام المهمة اعتماد المقترحات أو نقل المهمة إلى المرحلة التالية.",
+      "after": "عند استلام هذه المهمة، تصبح مسؤولاً عنها ويمكنك إضافة مقترحات المراجعة وإكمال مراجعتك. لا يمكن للمراجعين الآخرين تعديلها أو إكمالها ما دامت مسندة إليك. لا يعني استلام المهمة اعتماد المقترحات أو نقل العملية إلى المرحلة التالية."
+    },
+    {
+      "message_key": "disposition.ui.closed_required",
+      "english": "Close this root before adding it to a job",
+      "before": "أغلق هذا الملف الجذري قبل إضافته إلى مهمة",
+      "after": "أغلق هذا الملف الجذري قبل إضافته إلى عملية"
+    },
+    {
+      "message_key": "disposition.ui.confirm_remove",
+      "english": "Remove this aggregation from the job? Its membership history will be retained.",
+      "before": "إزالة هذا الملف من المهمة؟ سيُحتفظ بسجل عضويته.",
+      "after": "إزالة هذا الملف من العملية؟ سيُحتفظ بسجل عضويته."
+    },
+    {
+      "message_key": "disposition.ui.correction",
+      "english": "Correct rejected destruction job",
+      "before": "تصحيح مهمة الإتلاف المرفوضة",
+      "after": "تصحيح عملية الإتلاف المرفوضة"
+    },
+    {
+      "message_key": "disposition.ui.create",
+      "english": "Create job",
+      "before": "إنشاء مهمة",
+      "after": "إنشاء عملية"
+    },
+    {
+      "message_key": "disposition.ui.digital_done_completion_pending",
+      "english": "Required digital destruction succeeded. The job remains incomplete until its completion evidence is saved.",
+      "before": "نجح الإتلاف الرقمي المطلوب. وتبقى المهمة غير مكتملة حتى تُحفظ أدلة إتمامها.",
+      "after": "نجح الإتلاف الرقمي المطلوب. وتبقى العملية غير مكتملة حتى تُحفظ أدلة إتمامها."
+    },
+    {
+      "message_key": "disposition.ui.disposition_approval_invalidated",
+      "english": "Approved facts changed. Return this job for a new complete review round.",
+      "before": "تغيّرت البيانات المعتمدة. أعِد هذه المهمة لجولة مراجعة كاملة جديدة.",
+      "after": "تغيّرت البيانات المعتمدة. أعِد هذه العملية لجولة مراجعة كاملة جديدة."
+    },
+    {
+      "message_key": "disposition.ui.disposition_assignee_not_authorized",
+      "english": "The selected person is not currently authorized for this job type.",
+      "before": "الشخص المحدد غير مخول حالياً لهذا النوع من المهام.",
+      "after": "الشخص المحدد غير مخول حالياً لهذا النوع من العمليات."
+    },
+    {
+      "message_key": "disposition.ui.disposition_assignment_required",
+      "english": "Assign an authorized person before adding members.",
+      "before": "أسند المهمة إلى شخص مخول قبل إضافة أعضاء.",
+      "after": "أسند العملية إلى شخص مخول قبل إضافة أعضاء."
+    },
+    {
+      "message_key": "disposition.ui.disposition_decision_reason_required",
+      "english": "Enter a reason for rejecting this job.",
+      "before": "أدخل سبب رفض هذه المهمة.",
+      "after": "أدخل سبب رفض هذه العملية."
+    },
+    {
+      "message_key": "disposition.ui.disposition_destruction_number_used",
+      "english": "This destruction number is reserved for another job and cannot be reused.",
+      "before": "رقم الإتلاف هذا محجوز لمهمة أخرى، ولا يمكن إعادة استخدامه.",
+      "after": "رقم الإتلاف هذا محجوز لعملية أخرى، ولا يمكن إعادة استخدامه."
+    },
+    {
+      "message_key": "disposition.ui.disposition_digital_stage_invalid",
+      "english": "This job is not at the digital destruction stage.",
+      "before": "هذه المهمة ليست في مرحلة الإتلاف الرقمي.",
+      "after": "هذه العملية ليست في مرحلة الإتلاف الرقمي."
+    },
+    {
+      "message_key": "disposition.ui.disposition_evidence_inside_job",
+      "english": "Job evidence must remain outside the aggregations scheduled for destruction.",
+      "before": "يجب أن تبقى أدلة المهمة خارج الملفات المقرر إتلافها.",
+      "after": "يجب أن تبقى أدلة العملية خارج الملفات المقرر إتلافها."
+    },
+    {
+      "message_key": "disposition.ui.disposition_evidence_version_invalid",
+      "english": "This evidence has already been corrected. Refresh the job to use its current version.",
+      "before": "سبق تصحيح هذا الدليل. حدّث المهمة لاستخدام إصداره الحالي.",
+      "after": "سبق تصحيح هذا الدليل. حدّث العملية لاستخدام إصداره الحالي."
+    },
+    {
+      "message_key": "disposition.ui.disposition_inactive_job",
+      "english": "This job is no longer active.",
+      "before": "هذه المهمة لم تعد نشطة.",
+      "after": "هذه العملية لم تعد نشطة."
+    },
+    {
+      "message_key": "disposition.ui.disposition_job_type_status_mismatch",
+      "english": "The eligibility status does not match this job type.",
+      "before": "حالة الأهلية لا تتوافق مع نوع هذه المهمة.",
+      "after": "حالة الأهلية لا تتوافق مع نوع هذه العملية."
+    },
+    {
+      "message_key": "disposition.ui.disposition_owning_unit_mismatch",
+      "english": "The root is outside this destruction job’s owning unit.",
+      "before": "الملف الجذري خارج نطاق الوحدة المالكة لمهمة الإتلاف هذه.",
+      "after": "الملف الجذري خارج نطاق الوحدة المالكة لعملية الإتلاف هذه."
+    },
+    {
+      "message_key": "disposition.ui.disposition_partial_history_required",
+      "english": "The partially disposed unit must retain its terminated-job and physical-destruction history.",
+      "before": "يجب أن تحتفظ وحدة التصرف الجزئي بسجل المهمة المنتهية والإتلاف الورقي.",
+      "after": "يجب أن تحتفظ وحدة التصرف الجزئي بسجل العملية المنتهية والإتلاف الورقي."
+    },
+    {
+      "message_key": "disposition.ui.disposition_physical_recovery_required",
+      "english": "Physical destruction is already confirmed. Corrections require termination and partial disposition recovery.",
+      "before": "سبق تأكيد الإتلاف الورقي. تتطلب التصحيحات إنهاء المهمة واستعادة التصرف الجزئي.",
+      "after": "سبق تأكيد الإتلاف الورقي. تتطلب التصحيحات إنهاء العملية واستعادة التصرف الجزئي."
+    },
+    {
+      "message_key": "disposition.ui.disposition_physical_scope_invalid",
+      "english": "The physical confirmation scope no longer matches the job. Refresh the workspace.",
+      "before": "لم يعد نطاق تأكيد الإتلاف الورقي مطابقاً للمهمة. حدّث مساحة العمل.",
+      "after": "لم يعد نطاق تأكيد الإتلاف الورقي مطابقاً للعملية. حدّث مساحة العمل."
+    },
+    {
+      "message_key": "disposition.ui.disposition_physical_stage_invalid",
+      "english": "This job is not awaiting physical destruction confirmation. Refresh the workspace.",
+      "before": "هذه المهمة ليست بانتظار تأكيد الإتلاف الورقي. حدّث مساحة العمل.",
+      "after": "هذه العملية ليست بانتظار تأكيد الإتلاف الورقي. حدّث مساحة العمل."
+    },
+    {
+      "message_key": "disposition.ui.disposition_recovery_job_required",
+      "english": "Recovery requires a terminated job. Refresh the workspace.",
+      "before": "تتطلب المعالجة مهمة منتهية. حدّث مساحة العمل.",
+      "after": "تتطلب المعالجة عملية منتهية. حدّث مساحة العمل."
+    },
+    {
+      "message_key": "disposition.ui.disposition_request_stage_invalid",
+      "english": "This job is no longer waiting for request generation. Refresh the workspace.",
+      "before": "لم تعد هذه المهمة بانتظار إنشاء الطلب. حدّث مساحة العمل.",
+      "after": "لم تعد هذه العملية بانتظار إنشاء الطلب. حدّث مساحة العمل."
+    },
+    {
+      "message_key": "disposition.ui.disposition_submission_reason_required",
+      "english": "Enter an overall job reason before submitting or approving.",
+      "before": "أدخل سبباً عاماً للمهمة قبل الإرسال أو الاعتماد.",
+      "after": "أدخل سبباً عاماً للعملية قبل الإرسال أو الاعتماد."
+    },
+    {
+      "message_key": "disposition.ui.external_rejected",
+      "english": "Rejection and its letter were saved. The job has returned for correction.",
+      "before": "حُفظ الرفض وخطابه، وأُعيدت المهمة للتصحيح.",
+      "after": "حُفظ الرفض وخطابه، وأُعيدت العملية للتصحيح."
+    },
+    {
+      "message_key": "disposition.ui.final_blocked",
+      "english": "Outside-job relationships block final disposition only",
+      "before": "العلاقات خارج المهمة تمنع التصرف النهائي فقط",
+      "after": "العلاقات خارج العملية تمنع التصرف النهائي فقط"
+    },
+    {
+      "message_key": "disposition.ui.history_job_completed",
+      "english": "Job completed",
+      "before": "اكتملت المهمة",
+      "after": "اكتملت العملية"
+    },
+    {
+      "message_key": "disposition.ui.history_removal_required",
+      "english": "Removal from job required",
+      "before": "الإزالة من المهمة مطلوبة",
+      "after": "الإزالة من العملية مطلوبة"
+    },
+    {
+      "message_key": "disposition.ui.in_active_job",
+      "english": "In an active job",
+      "before": "ضمن مهمة نشطة",
+      "after": "ضمن عملية نشطة"
+    },
+    {
+      "message_key": "disposition.ui.job_completed",
+      "english": "Disposition job completed.",
+      "before": "اكتملت مهمة التصرف.",
+      "after": "اكتملت عملية التصرف."
+    },
+    {
+      "message_key": "disposition.ui.job_created",
+      "english": "Active job created",
+      "before": "إنشاء مهمة نشطة",
+      "after": "إنشاء عملية نشطة"
+    },
+    {
+      "message_key": "disposition.ui.job_number",
+      "english": "Job number",
+      "before": "رقم المهمة",
+      "after": "رقم العملية"
+    },
+    {
+      "message_key": "disposition.ui.job_type",
+      "english": "Job type",
+      "before": "نوع المهمة",
+      "after": "نوع العملية"
+    },
+    {
+      "message_key": "disposition.ui.jobs",
+      "english": "Disposition jobs",
+      "before": "مهام التصرف",
+      "after": "عمليات التصرف"
+    },
+    {
+      "message_key": "disposition.ui.lifecycle",
+      "english": "Job state",
+      "before": "حالة المهمة",
+      "after": "حالة العملية"
+    },
+    {
+      "message_key": "disposition.ui.no_active_job",
+      "english": "No active job",
+      "before": "لا توجد مهمة نشطة",
+      "after": "لا توجد عملية نشطة"
+    },
+    {
+      "message_key": "disposition.ui.no_documents",
+      "english": "No authorized documents are available for this job.",
+      "before": "لا تتوفر مستندات مصرح بعرضها لهذه المهمة.",
+      "after": "لا تتوفر مستندات مصرح بعرضها لهذه العملية."
+    },
+    {
+      "message_key": "disposition.ui.overall_reason",
+      "english": "Overall job reason",
+      "before": "السبب العام للمهمة",
+      "after": "السبب العام للعملية"
+    },
+    {
+      "message_key": "disposition.ui.owner_no_common_ancestor",
+      "english": "The selected aggregations have no common parent unit. Split the selection into separate jobs.",
+      "before": "لا توجد وحدة أم مشتركة للملفات المحددة. قسّم الملفات المحددة إلى مهام منفصلة.",
+      "after": "لا توجد وحدة أم مشتركة للملفات المحددة. قسّم الملفات المحددة إلى عمليات منفصلة."
+    },
+    {
+      "message_key": "disposition.ui.physical_recovery_warning",
+      "english": "Physical destruction cannot be undone. If blockers or required corrections prevent continuing, terminate this job and resolve the remaining material. Resumable technical failures alone do not require termination.",
+      "before": "لا يمكن التراجع عن الإتلاف الورقي. إذا منعت الموانع أو التصحيحات المطلوبة متابعة المهمة، فأنهها وعالج المواد المتبقية. الأعطال التقنية القابلة للاستئناف وحدها لا تستلزم إنهاء المهمة.",
+      "after": "لا يمكن التراجع عن الإتلاف الورقي. إذا منعت الموانع أو التصحيحات المطلوبة متابعة العملية، فأنهها وعالج المواد المتبقية. الأعطال التقنية القابلة للاستئناف وحدها لا تستلزم إنهاء العملية."
+    },
+    {
+      "message_key": "disposition.ui.preparation",
+      "english": "Prepare destruction job",
+      "before": "إعداد مهمة الإتلاف",
+      "after": "إعداد عملية الإتلاف"
+    },
+    {
+      "message_key": "disposition.ui.ready",
+      "english": "Available for job admission",
+      "before": "متاح للإضافة إلى مهمة تصرف",
+      "after": "متاح للإضافة إلى عملية تصرف"
+    },
+    {
+      "message_key": "disposition.ui.recovery_hint",
+      "english": "Choose the eligible status for the remaining material and explain its treatment. Earlier physical destruction and terminated-job history remain permanent.",
+      "before": "اختر حالة أهلية المواد المتبقية ووضح كيفية معالجتها. يظل الإتلاف الورقي السابق وسجل المهمة المنتهية محفوظين بصورة دائمة.",
+      "after": "اختر حالة أهلية المواد المتبقية ووضح كيفية معالجتها. يظل الإتلاف الورقي السابق وسجل العملية المنتهية محفوظين بصورة دائمة."
+    },
+    {
+      "message_key": "disposition.ui.remove",
+      "english": "Remove from job",
+      "before": "إزالة من المهمة",
+      "after": "إزالة من العملية"
+    },
+    {
+      "message_key": "disposition.ui.remove_from_job",
+      "english": "Mark for removal from job",
+      "before": "وضع علامة للإزالة من المهمة",
+      "after": "وضع علامة للإزالة من العملية"
+    },
+    {
+      "message_key": "disposition.ui.renew_review",
+      "english": "Return for renewed review",
+      "before": "إعادة المهمة لمراجعة جديدة",
+      "after": "إعادة العملية لمراجعة جديدة"
+    },
+    {
+      "message_key": "disposition.ui.reopened",
+      "english": "Reopened — must be removed from this job",
+      "before": "أُعيد فتحه — يجب إزالته من هذه المهمة",
+      "after": "أُعيد فتحه — يجب إزالته من هذه العملية"
+    },
+    {
+      "message_key": "disposition.ui.retention_rule_changed",
+      "english": "Retention rule changed — must be removed from this job",
+      "before": "تغيرت قاعدة الحفظ — يجب إزالته من هذه المهمة",
+      "after": "تغيرت قاعدة الحفظ — يجب إزالته من هذه العملية"
+    },
+    {
+      "message_key": "disposition.ui.review_comments_hint",
+      "english": "Optional for draft saves and routine reviews. Required to submit, return for correction, or approve a Records Manager Only job.",
+      "before": "اختيارية عند حفظ المسودة والمراجعة الاعتيادية. مطلوبة للإرسال أو الإعادة للتصحيح أو اعتماد مهمة بمسار مدير الوثائق فقط.",
+      "after": "اختيارية عند حفظ المسودة والمراجعة الاعتيادية. مطلوبة للإرسال أو الإعادة للتصحيح أو اعتماد عملية بمسار مدير الوثائق فقط."
+    },
+    {
+      "message_key": "disposition.ui.search",
+      "english": "Search job number",
+      "before": "البحث برقم المهمة",
+      "after": "البحث برقم العملية"
+    },
+    {
+      "message_key": "disposition.ui.select_job",
+      "english": "Choose a disposition job",
+      "before": "اختيار مهمة تصرف",
+      "after": "اختيار عملية تصرف"
+    },
+    {
+      "message_key": "disposition.ui.terminate_confirm",
+      "english": "I confirm termination of this job.",
+      "before": "أؤكد إنهاء هذه المهمة.",
+      "after": "أؤكد إنهاء هذه العملية."
+    },
+    {
+      "message_key": "disposition.ui.terminate_hint",
+      "english": "Termination preserves job history and returns untouched units to their eligible status.",
+      "before": "يحتفظ إنهاء المهمة بسجلها ويعيد الوحدات التي لم يُنفذ عليها إجراء نهائي إلى حالة الأهلية.",
+      "after": "يحتفظ إنهاء العملية بسجلها ويعيد الوحدات التي لم يُنفذ عليها إجراء نهائي إلى حالة الأهلية."
+    },
+    {
+      "message_key": "disposition.ui.terminate_job",
+      "english": "Terminate job",
+      "before": "إنهاء المهمة",
+      "after": "إنهاء العملية"
+    },
+    {
+      "message_key": "disposition.ui.workspace_details",
+      "english": "Job details",
+      "before": "تفاصيل المهمة",
+      "after": "تفاصيل العملية"
+    },
+    {
+      "message_key": "privilege.disposition.jobs.manage.name",
+      "english": "Manage Disposition Jobs",
+      "before": "إدارة مهام التصرف",
+      "after": "إدارة عمليات التصرف"
+    },
+    {
+      "message_key": "settings.field.disposition_destruction_review_route.description",
+      "english": "New jobs capture this route permanently. Records Manager Only omits independent internal review. Type: choice. Choices: Standard, Simplified, Records Manager Only. Initial default: Standard. New operations read committed settings directly; no restart is required.",
+      "before": "يحفظ كل عمل جديد هذا المسار بصورة دائمة. يتيح مسار مدير الوثائق فقط العمل دون مراجعة داخلية مستقلة. النوع: اختيار. الخيارات: القياسي، المبسّط، مدير الوثائق فقط. القيمة الافتراضية الأولية: القياسي. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل.",
+      "after": "تحفظ كل عملية إتلاف جديدة هذا المسار بصورة دائمة. يتيح مسار مدير الوثائق فقط العمل دون مراجعة داخلية مستقلة. النوع: اختيار. الخيارات: القياسي، المبسّط، مدير الوثائق فقط. القيمة الافتراضية الأولية: القياسي. تقرأ العمليات الجديدة الإعدادات المحفوظة مباشرة؛ لا يلزم إعادة التشغيل."
+    },
+    {
+      "message_key": "settings.page.propagation",
+      "english": "Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.",
+      "before": "قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم الوظائف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية.",
+      "after": "قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم عمليات التصرف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية."
+    }
+  ]
+}

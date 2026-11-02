@@ -45,7 +45,7 @@ def test_assignable_aggregation_update_respects_contents(client, aggregation, re
 
 def test_seeded_catalogue_and_lowest_level_defaults(client: TestClient, aggregation: dict, record: dict):
     catalogue = levels(client)
-    assert [(item["code"], item["level_number"]) for item in catalogue.values()] == [
+    assert [(code, catalogue[code]["level_number"]) for code in ("G", "R", "S", "TS")] == [
         ("G", 0), ("R", 50), ("S", 75), ("TS", 100),
     ]
     assert aggregation["security_level_id"] == catalogue["G"]["id"]
@@ -56,7 +56,7 @@ def test_seeded_catalogue_and_lowest_level_defaults(client: TestClient, aggregat
     assert catalogue["G"]["roles_assigned_count"] >= 1
     assert catalogue["G"]["aggregation_count"] >= 1
     assert catalogue["G"]["record_count"] >= 1
-    for level in catalogue.values():
+    for level in (catalogue[code] for code in ("G", "R", "S", "TS")):
         history = client.get(f"/api/v1/security-levels/{level['id']}/history")
         assert history.status_code == 200, history.text
         assert sum(event["operation"] == "CREATE" for event in history.json()) == 1

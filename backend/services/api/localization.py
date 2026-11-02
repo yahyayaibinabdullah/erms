@@ -168,6 +168,13 @@ ARABIC_TERMINOLOGY = {
     "Current period": "الفترة الجارية",
     "Intermediate period": "الفترة الوسيطة",
     "Destruction": "الإتلاف",
+    "Disposition Job": "عملية تصرف",
+    "Disposition Jobs": "عمليات التصرف",
+    "Destruction Job": "عملية إتلاف",
+    "Task": "مهمة",
+    "Tasks": "مهام",
+    "My Tasks": "مهامي",
+    "Role": "الدور",
     "Legal Hold": "تعليق القنوني",
     "Mixed (record medium)": "هجين",
     "Physical (record medium)": "مادي",
@@ -371,7 +378,8 @@ def synchronize_message_definitions() -> None:
             clear_catalogue_cache()
 
 
-def synchronize_generated_arabic_drafts() -> dict[str, int]:
+def synchronize_generated_arabic_drafts(*, missing_only: bool = False) -> dict[str, int]:
+    """Seed source copies; optionally preserve even explicitly superseded text."""
     path = Path(__file__).resolve().parents[3] / "frontend/webui/i18n/messages.ar.generated.json"
     if not path.exists():
         return {
@@ -489,12 +497,15 @@ def synchronize_generated_arabic_drafts() -> dict[str, int]:
                 WHERE translation.message_key=seed.message_key
                   AND translation.language_tag='ar'
                   AND translation.translated_text=ANY(seed.superseded_texts)
+                  AND translation.translated_text IS DISTINCT FROM seed.translated_text
+                  AND NOT %s
                   AND NOT (
                       translation.origin='source_copy'
                       AND translation.reviewed_by_user_id IS NULL
                       AND translation.published_text IS NULL
                   )
-            RETURNING translation.message_key"""
+            RETURNING translation.message_key""",
+            (missing_only,),
         ).fetchall()
         counts["corrected"] = len(corrected)
         counts["protected"] = len(candidates) - counts["stored"] - counts["corrected"]
@@ -857,6 +868,7 @@ def update_language(
 def admin_messages(
     language_tag: str,
     key: str = "",
+    source_text: str = "",
     translated_text: str = "",
     semantic_meaning: str = "",
     status_filter: str = Query(default="all", alias="status"),
@@ -900,7 +912,7 @@ def admin_messages(
     )
     predicates = ["NOT definition.is_deprecated"]
     params: list[Any] = [language["language_tag"]]
-    for column, value in (("definition.message_key",key),(translated_text_sql,translated_text),("definition.semantic_meaning",semantic_meaning),("definition.context_group",context)):
+    for column, value in (("definition.message_key",key),("definition.default_text",source_text),(translated_text_sql,translated_text),("definition.semantic_meaning",semantic_meaning),("definition.context_group",context)):
         if value.strip():
             predicates.append(f"COALESCE({column},'') ILIKE %s")
             params.append(f"%{value.strip()}%")
@@ -1622,7 +1634,9 @@ def _bulk_validation_errors(rows: list[dict]) -> list[dict[str, str]]:
             errors.append({"message_key":row["message_key"],"code":str(detail.get("code") or "invalid_translation")})
             continue
         flags = (row.get("generation_metadata") or {}).get("quality_flags") or []
-        if flags:
+        # This endpoint performs the human review. The routine review marker
+        # is acknowledged by publication; concrete or unknown defects still block.
+        if any(flag != "needs_human_review" for flag in flags):
             errors.append({"message_key":row["message_key"],"code":"generation_quality_attention"})
     return errors
 
@@ -1676,6 +1690,10 @@ def bulk_review_publish_translations(
         connection.execute(
             """UPDATE ui_message_translations
                   SET translated_text=%s,published_text=%s,status='published',needs_review=false,
+                      generation_metadata=CASE WHEN generation_metadata ? 'quality_flags'
+                        THEN jsonb_set(generation_metadata,'{quality_flags}',
+                          (generation_metadata->'quality_flags')-'needs_human_review')
+                        ELSE generation_metadata END,
                       reviewed_by_user_id=%s,date_reviewed=%s,
                       published_by_user_id=%s,date_published=%s,updated_by_user_id=%s
                 WHERE message_key=%s AND language_tag=%s""",

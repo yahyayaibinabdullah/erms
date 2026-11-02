@@ -1,0 +1,237 @@
+{
+  "result": "passed",
+  "database": "erms_messaging_test_acl_4699435c5bf4433ba52bf7b51c509f84",
+  "ltr": {
+    "direction": "ltr",
+    "header_align": "left",
+    "header_background": "rgb(238, 247, 253)",
+    "header_padding": "7px 16px",
+    "table_client_width": 982,
+    "table_scroll_width": 982
+  },
+  "rtl": {
+    "direction": "rtl",
+    "header_align": "right",
+    "header_background": "rgb(238, 247, 253)",
+    "header_padding": "7px 16px",
+    "table_client_width": 982,
+    "table_scroll_width": 982
+  },
+  "mobile_ltr": {
+    "viewport": 390,
+    "document_scroll_width": 390,
+    "table_wrapper_width": 232,
+    "table_wrapper_scroll_width": 232
+  },
+  "real_file_chooser_upload": true,
+  "missing_reason_warning_toast_and_persistent_alert": true,
+  "positive_save_toast": "Changes saved",
+  "current_version_after_ui_save": 3,
+  "earlier_version_retained": 2,
+  "history_readable_and_attributed": true,
+  "generated_report_correction_absent": true,
+  "preview_real_pdf_page": "1 of 1 at 120%",
+  "profile_mismatch_resolved": true,
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/memberships?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/documents?limit=25&offset=25&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/documents?limit=25&offset=0&sort=file_name&descending=false",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/memberships?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs?limit=25&offset=0&query=&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/memberships?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/history?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/disposition/jobs/28/documents/30/corrections",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/context",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/memberships?limit=25&offset=0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=destruction_request",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/artifact-destination?document_type=external_approval_letter",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/documents?limit=25&offset=0&sort=id&descending=true",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/disposition/jobs/28/history?limit=25&offset=0",
+      "status": 200
+    }
+  ]
+}

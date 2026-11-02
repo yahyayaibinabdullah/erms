@@ -1,0 +1,25 @@
+{
+  "transport": "Verified TLS bridge bound to loopback, forwarding to user MailDev localhost:1025",
+  "database": "erms_messaging_test_acl_ad3d3f6b51a24299b30b3bbeaeedb8ce",
+  "job_id": 30,
+  "recipient": "archives@test.invalid",
+  "sender": "phase18-ad3d3f6b51a24299b30b3bbeaeedb8ce@test.invalid",
+  "messages": [
+    {
+      "maildev_id": "wkylp02c",
+      "subject": "Certificate of Destruction (Digital)",
+      "attachment": "digital_destruction_certificate-30.pdf",
+      "smtp_state": "smtp_accepted"
+    },
+    {
+      "maildev_id": "54xt57f3",
+      "subject": "Certificate of Destruction (Digital)",
+      "attachment": "digital_destruction_certificate-30.pdf",
+      "smtp_state": "smtp_accepted"
+    }
+  ],
+  "mcp_search_and_message_metadata": "verified",
+  "mcp_attachment_download": "Attachment not found despite exact listed filename; independent captured-byte comparison pending",
+  "exact_saved_attachment_transport_test": "passed",
+  "mailbox_messages_deleted": false
+}

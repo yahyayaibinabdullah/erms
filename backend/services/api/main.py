@@ -81,6 +81,7 @@ from .scheme_transfer.routes import router as scheme_transfer_router
 from .browse import router as browse_router
 from .favourites import router as favourites_router
 from .resource_relationships import router as resource_relationships_router
+from .disposition.routes import router as disposition_router
 from .application_settings_routes import router as application_settings_router
 from .application_configuration import router as application_configuration_router
 from .application_settings import cache as settings_cache
@@ -166,6 +167,8 @@ async def lifespan(application: FastAPI):
     try:
         with pool.connection() as connection:
             settings_cache.for_connection(connection)  # Fail on missing/invalid rows.
+            from .processing_copies import recover_renditions
+            recover_renditions()
             from .application_settings_migration import readiness
             if not readiness(connection)["ready"]:
                 raise RuntimeError("application_settings_migration_incomplete; run the reviewed preview/apply command")
@@ -205,6 +208,7 @@ app.include_router(classification_management_router)
 app.include_router(browse_router)
 app.include_router(favourites_router)
 app.include_router(resource_relationships_router)
+app.include_router(disposition_router)
 app.include_router(application_settings_router)
 app.include_router(application_configuration_router)
 app.include_router(security_levels_router)
@@ -400,6 +404,18 @@ async def audit_request_context(request: Request, call_next):
 async def database_error_handler(_, exception: psycopg.Error):
     sqlstate = exception.sqlstate
     constraint_messages = {
+        "aggregation_medium_contents_conflict": (
+            "aggregation_medium_contents_conflict",
+            "The selected medium conflicts with contained aggregations, records or drafts.",
+        ),
+        "aggregation_medium_mismatch": (
+            "aggregation_medium_mismatch",
+            "A child aggregation must have the same medium as its parent.",
+        ),
+        "record_medium_not_allowed_by_parent": (
+            "record_medium_not_allowed_by_parent",
+            "The record's medium is incompatible with its parent aggregation.",
+        ),
         "aggregations_dates_in_order": (
             "aggregation_dates_out_of_order",
             "The aggregation's closing date cannot be earlier than its opening date.",
@@ -456,6 +472,9 @@ async def database_error_handler(_, exception: psycopg.Error):
                 )
         except psycopg.Error:
             pass
+    if primary.startswith("disposition_") and primary.replace("_", "").isalnum():
+        return JSONResponse(status_code=403 if sqlstate=="42501" else 409,
+                            content={"detail": {"code": primary}})
     if sqlstate == "23505" and constraint_name in {
         "aggregations_aggregation_number_key", "records_record_number_key",
     }:
@@ -822,6 +841,10 @@ def update_aggregation(
     version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    # Coordinate policy/closure changes before acquiring any resource row lock.
+    if payload.model_fields_set & {"classification_id", "parent_aggregation_id", "date_closed"}:
+        connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
+        connection.execute("SELECT lock_hold_policy_shared()")
     existing = lock_visible_resource(connection, "aggregation", aggregation_id)
     fields = payload.model_fields_set
     metadata_fields = {"aggregation_number", "title", "description", "date_opened"}
@@ -853,15 +876,14 @@ def update_aggregation(
             connection, "aggregation", aggregation_id,
             "aggregation.modify", "aggregation.modify_metadata",
         )
-        has_contents = connection.execute(
-            """SELECT EXISTS (SELECT 1 FROM aggregations WHERE parent_aggregation_id=%s)
-                      OR EXISTS (SELECT 1 FROM records WHERE aggregation_id=%s) AS value""",
-            (aggregation_id, aggregation_id),
+        compatible = connection.execute(
+            "SELECT aggregation_medium_contents_compatible(%s,%s) AS value",
+            (aggregation_id, payload.medium),
         ).fetchone()["value"]
-        if has_contents:
+        if not compatible:
             raise _medium_error(
-                "medium_change_requires_empty_aggregation",
-                "An aggregation's medium can only be changed while it is empty.",
+                "aggregation_medium_contents_conflict",
+                "The selected medium conflicts with contained aggregations, records or drafts.",
             )
         if existing["parent_aggregation_id"] is not None:
             parent = connection.execute(
@@ -1975,8 +1997,12 @@ def download_digital_component_content(
     )
 
 
+from .processing_copies import protect_response
+
+
+@protect_response
 def _component_rendition_response(
-    component: dict, request: Request, connection: Connection,
+    component: dict, request: Request, connection: Connection, *, _temporary_root=None,
 ):
     storage = configured_storage()
     component_id = component["id"]
@@ -2006,6 +2032,7 @@ def _component_rendition_response(
             "Accept-Ranges": "bytes",
             "ETag": f'"sha256-{component["checksum_value"]}"',
             "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store",
             "Content-Security-Policy": "sandbox",
         }
         if response_status == 206:
@@ -2034,7 +2061,7 @@ def _component_rendition_response(
     if content is None:
         raise HTTPException(status_code=404, detail="digital component content not found")
     try:
-        rendition, method = pdf_rendition(content, component["file_name"], mime_type, settings=content_settings)
+        rendition, method = pdf_rendition(content, component["file_name"], mime_type, settings=content_settings,temporary_root=_temporary_root)
     except UnsupportedPreview as error:
         raise HTTPException(status_code=415, detail=str(error)) from error
     except ConversionUnavailable as error:
@@ -2050,6 +2077,7 @@ def _component_rendition_response(
         headers={
             "Content-Disposition": f"inline; filename*=UTF-8''{encoded_name}",
             "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store",
             "Content-Security-Policy": "sandbox",
         },
     )
@@ -2068,6 +2096,7 @@ def view_digital_component_rendition(
     request: Request,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     component, _ = require_component_operation(
         connection, component_id, "record.component.view", "record.component.view")
     return _component_rendition_response(component, request, connection)
@@ -2087,6 +2116,7 @@ def print_digital_component_rendition(
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     """Return a printable rendition only when the print operation is authorized."""
+    connection.execute("SELECT pg_advisory_xact_lock(7357,1)")
     component, _ = require_component_operation(
         connection, component_id, "record.component.print", "record.component.print")
     return _component_rendition_response(component, request, connection)
@@ -2160,6 +2190,7 @@ def delete_digital_component_content(
     dependencies=[Depends(require_audit_view)],
 )
 def list_event_history(
+    request: Request,
     entity_type: str | None = None,
     entity_id: int | None = None,
     operation: str | None = None,
@@ -2169,7 +2200,7 @@ def list_event_history(
     offset: int = Query(default=0, ge=0),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return list_rows(
+    rows = list_rows(
         connection,
         "event_history",
         limit=limit,
@@ -2185,6 +2216,9 @@ def list_event_history(
         descending=True,
     )
 
+    from .disposition.history_display import enrich_audit_page
+    return enrich_audit_page(connection, rows, preferred_language(connection, request))
+
 
 @app.post(
     "/api/v1/event-history/search",
@@ -2193,10 +2227,13 @@ def list_event_history(
     dependencies=[Depends(require_audit_view)],
 )
 def search_event_history(
-    payload: SearchRequest,
+    request: Request,    payload: SearchRequest,
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return search_rows(connection, "event_history", payload, endpoint="/api/v1/event-history/search")
+    from .disposition.history_display import enrich_audit_page
+    result = search_rows(connection, "event_history", payload, endpoint="/api/v1/event-history/search")
+    enrich_audit_page(connection, result["items"], preferred_language(connection, request))
+    return result
 
 
 @app.get(
@@ -2275,8 +2312,10 @@ def list_event_history_actors(
     tags=["event history"],
     dependencies=[Depends(require_audit_view)],
 )
-def get_event_history(event_id: int, connection: Connection = Depends(get_connection, scope="function")):
-    return get_or_404(connection, "event_history", event_id)
+def get_event_history(event_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
+    from .disposition.history_display import enrich_audit_page
+    row = get_or_404(connection, "event_history", event_id)
+    return enrich_audit_page(connection, [row], preferred_language(connection, request))[0]
 
 
 def _entity_history(

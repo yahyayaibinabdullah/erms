@@ -253,7 +253,7 @@ def send(c: Connection, user: int, payload: Send, *, request_fingerprint=None):
         pref = c.execute(
             "SELECT working_timezone FROM user_preferences WHERE user_id=%s", (user,)
         ).fetchone()
-        due_zone = pref["working_timezone"] if pref else default_working_timezone()
+        due_zone = pref["working_timezone"] if pref else default_working_timezone(c)
         now = c.execute("SELECT CURRENT_TIMESTAMP AS instant").fetchone()["instant"]
         zone = ZoneInfo(due_zone)
         if payload.action_due_date < now.astimezone(zone).date():

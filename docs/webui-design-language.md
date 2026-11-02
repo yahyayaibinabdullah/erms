@@ -902,6 +902,30 @@ with a visible gap. This applies to management, lifecycle, audit, hold controls,
 advanced actions, and credential actions. Identity-header Back/Favourite/Preview
 groups retain their separate opposite-side placement.
 
+On 21 October 2026, the Aggregation overview retention-card header and footer
+also adopted the existing `detail-action-row` treatment. Live inspection found
+`direction: rtl` but `flex-direction: row-reverse` on the header and button
+contents: the clock was at the physical left and acceleration at the right.
+Native NiceGUI Row offers wrapping and alignment, but cannot override that
+legacy global rule through a direction option; a fixed grid would lose the
+existing variable-width wrapping. Reusing the established scoped correction
+restores natural RTL order and logical icon spacing without new global CSS.
+Arabic source-copy drafts are repaired through the guarded explicit seed,
+not by exposing unreviewed translations to ordinary users. Demo repair filled
+543 drafts and preserved all 3,192 previously translated rows, including
+versions and provenance; the user requested that the new drafts remain
+unpublished for review. No canonical wording or provenance was replaced.
+Verification: 25 disposition-screen tests, two RTL tests, catalogue and approved
+terminology checks, and live 1440px/375px retention-card inspection. The RTL
+header/button flow is now `row`, the clock is at reading start, and the action
+is at the trailing edge. Both narrow headers wrap without header overflow;
+the RTL card also has no horizontal overflow. The existing English card
+content outside the header reports 28px overflow at 375px; that unchanged
+content is outside this header-direction correction.
+See [RTL desktop evidence](verification/retention-rtl/arabic.png) and
+[RTL narrow evidence](verification/retention-rtl/arabic-narrow.png), with
+[English comparison](verification/retention-rtl/english.png).
+
 The shared action-panel correction and verification are documented in
 [detail action RTL verification](detail-action-rtl-verification.md).
 

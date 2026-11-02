@@ -171,6 +171,14 @@ The authoritative operation matrix is:
 | Hold assignment/removal and hold administration | Allowed by Sections 7–9 | Allowed |
 | View, download, share, or print | Allowed by normal authorization | Allowed |
 
+For ordinary aggregation closure, a hold without `preserve_resource_state`
+does not prevent closing the aggregation. If an applicable effective hold
+enables that flag, closing is blocked as a lifecycle-state change. This rule
+applies independently of disposition acceleration. Vital status by itself
+also does not prevent closure; normal close authorization and date validation
+still apply. Closing never removes a hold or clears vital status, and their
+disposition protections remain in force.
+
 The enhanced option covers governed operations because their separate
 privileges describe **who may normally perform them**, not whether performing
 them is compatible with a preservation instruction. Close/reopen changes the

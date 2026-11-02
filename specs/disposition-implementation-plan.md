@@ -2,8 +2,8 @@
 
 **Status:** Approved implementation plan
 **Approved:** 12 October 2026
-**Revision:** 1.2
-**Amendment approved:** 13 October 2026
+**Revision:** 1.4
+**Amendment approved:** 21 October 2026
 **Date:** 12 October 2026
 
 ## 1. Purpose and scope
@@ -18,8 +18,8 @@ This plan follows these specifications:
 
 - [Administration Settings](administration-settings.md), revision 1.1;
 - [Application Configuration](application-configuration.md), revision 1.1;
-- [Disposition](disposition.md), revision 1.6; and
-- [Destruction Process](destruction-process.md), revision 1.1.
+- [Disposition](disposition.md), revision 1.9; and
+- [Destruction Process](destruction-process.md), revision 1.2.
 
 The destruction specification is named `destruction-process.md` in this
 repository. All four specifications and this implementation plan are approved
@@ -314,6 +314,19 @@ retry handling; later phases supply action-specific commands.
 invalid transitions, ordinary-CRUD and direct-SQL bypass attempts, concurrent
 membership changes, terminal-field consistency, and historical-row preservation.
 
+**Completed 15 October 2026:** Canonical schema and independent migration 053
+implement the common resource outcomes, jobs, membership episodes, tasks, rounds,
+decisions and governed-document links. Private actor/access/version/claim/state
+operations, complete-unit deferred checks, immutable history and command receipts
+protect the shared foundation. All 75 foundation cases passed on both fresh and
+upgrade paths; 91 affected resource/authorization regressions and 39 supporting
+checks passed. Catalogue parity and prior-data/grant/history preservation passed;
+all 34 disposable databases are independently confirmed absent. No persistent
+database, environment/template or translation artifact changed. Operational
+eligibility, action-specific job/review commands and final execution remain in
+their later phases. See [Phase 7 evidence](../docs/disposition-phase-7.md).
+Total active time: **0.54 hours**. Phase 8 is next.
+
 ### Phase 8 Implement eligibility calculation and current blockers
 
 **Priority:** Disposition foundation. **Dependencies:** Phase 7.
@@ -328,6 +341,81 @@ final disposition. Include record endpoints, both directions, and all link types
 **Verification and completion:** Exact due boundary, leap/calendar behavior,
 timezone display independence, local overrides, open roots, inherited holds,
 hidden descendants, same-job links, concurrent changes, and repeated worker runs.
+
+**Completed 2026-10-15.** Bounded database-clock eligibility and current
+all-descendant protection/relationship facts are implemented. The 57-case suite
+passed on both fresh and independent-upgrade paths; all 75 Phase 7 cases,
+53 affected regressions, 39 tool checks and three shared-label/export checks
+passed. Fresh/upgrade schema parity and existing-data preservation passed.
+All 20 disposable databases, including failed runs, were independently confirmed
+absent. Migration 054 is ready; no persistent database or service was changed.
+Two new Arabic audit-label drafts preserve all prior curated entries and require
+normal deployment seeding/review/publication. Evidence and operator steps:
+[Phase 8 verification](../docs/disposition-phase-8.md) and the requirement ledger.
+Total active time: **0.57 hours**. Phase 9 is next.
+
+### Approved amendment: closure is required for all eligibility
+
+**Approved:** 21 October 2026. **Requirements:** DISP-03 and DISP-13, Disposition Sections 2, 3, 6, 7 and 11.
+
+Retention starts at closure; time spent open never counts. Every eligibility
+path must keep open roots in status 1. Verify normal eligibility, recalculation
+and reopening against this invariant and the strict due-date boundary.
+Close an open root at database time in the same transaction as acceleration,
+with existing closure authorization, unchanged prior closure dates, effective
+subtree closure, and rollback of both changes on any failure. Move the action
+to the effective retention-rule section and explain automatic closure in its
+confirmation. Verify fresh-schema and migration paths, closure and permission
+failures, blockers, retries and LTR/RTL presentation. The notification follow-up
+below remains separately pending.
+
+Implementation evidence (21 October 2026): canonical schema and migration
+`072_acceleration_closes_root.sql`; 128 fresh-schema membership/eligibility
+checks, 71 prior-schema-plus-migration checks, and an additional forced-failure
+rollback check passed in disposable databases. Live preview confirmed closure
+and eligibility together, reopening resets status 1, and the action's retention
+card location in [English](../docs/verification/acceleration-closure/english.png)
+and [RTL](../docs/verification/acceleration-closure/rtl.png). RTL uses English
+fallback for unpublished disposition translations; revised Arabic confirmation
+remains a generated draft requiring human review and publication. Catalogue
+coverage/order, terminology and artifact-hash checks passed. Migration 072 has
+not been applied to the persistent demo database.
+
+### Approved correction: eligible-but-blocked acceleration
+
+**Approved:** 22 October 2026. Implements Disposition §7/§9/§11 and DISP-13.
+Normal and accelerated eligibility are independent of vital status, blocking
+security levels and effective holds. Keep admission/execution checks, existing
+closure permission and state-preserving hold rules. Normal holds allow closure;
+closed preserve-state-held roots allow status-only acceleration. Do not remove
+protections or add units to jobs automatically. Verify all four outcomes,
+root/descendant/record protections, normal/preserve-state holds, open/closed
+roots, unchanged holds/content/closure, retries, failed closure rollback and
+continued rejection at admission. Implementation and verification are recorded
+in [the protection correction report](../docs/verification/acceleration-protections.md).
+Historical Phase 9 evidence below predates and is superseded by this correction
+where it describes protections as acceleration blockers.
+Verification (22 October 2026): 194 fresh-schema, 57 migration-path, 13 final-
+execution protection and 25 WebUI checks passed. English/LTR and Arabic/RTL
+confirmation verified in a disposable preview. Prerequisite 072 and migration
+077 applied to demo without changing resource rows; Arabic source draft awaits
+administrator review/publication.
+
+### Approved follow-up: exceptional-acceleration notifications
+
+**Approved:** 21 October 2026. **Status:** Implementation and verification pending.
+**Requirement:** DISP-43, Disposition Section 11.1, and Destruction Process Section 3.
+
+The existing acceleration action, reason capture and authorization are
+implemented. Admission and execution blocker checks remain mandatory; blockers
+do not prevent the eligibility change. Extend successful acceleration to trigger immediate
+notifications through the existing subsystem to all active Information
+Governance role holders and the accelerated root's owning Unit Manager.
+Cover all four outcomes, authoritative owning-unit manager resolution,
+effective role assignments, per-person deduplication across both audiences,
+rollback, retries, confidentiality and live delivery. Keep the periodic
+destruction-eligibility reminder independent. Historical phase completion
+records below predate this amendment and do not certify this new requirement.
 
 ### Phase 9 Implement job membership and changing eligibility
 
@@ -347,14 +435,43 @@ repeated add/remove, assignment without access, open/reclosed roots, matching
 and mismatching rule changes, unchanged inherited rules, required removal, and
 all-or-nothing propagation. Terminal units cannot be readmitted.
 
+**Completed 2026-10-15.** Protected job creation, specific assignment,
+per-item membership, owning-unit rules, acceleration, pre-irreversible
+termination and atomic reopening/rule/hierarchy recalculation are implemented.
+Matching members retain pending status; incompatible/reopened members require
+explicit removal and block progress. On each fresh/upgrade path, 201 full-suite
+cases and three final CHECK cases passed; 83 affected API regressions, 39 tool
+checks and five bilingual label/export checks passed. Final schema/055 catalogue
+parity and existing active-membership/data preservation passed. All 26 disposable
+databases were independently confirmed absent. Ten new Arabic audit-label drafts
+preserve every prior item/provenance and require normal review/publication.
+Migration 055 and deployment guidance are ready; no persistent database,
+private environment or deployed service was changed. Evidence:
+[Phase 9 verification](../docs/disposition-phase-9.md) and the requirement ledger.
+Total active time: **0.58 hours**. Phase 10 is next.
+
 ### Phase 10 Deliver eligibility and common job screens
+
+**Completed 2026-10-15.** Server-paged eligibility, owner grouping, protected
+blocker explanations, common job management/history and descendant status
+presentation are implemented. Real create/assign/add/remove/acceleration,
+mutation feedback/freshness, authorization/redaction and desktop/mobile
+LTR/RTL and keyboard checks passed. Final focused frontend checks: 110 passed;
+final read/filter cases: 10 plus 1 passed; catalogue/publication checks: 19
+passed; traceability checks: 24 passed. All 19 disposable databases were
+independently confirmed absent. All 3,204 existing Arabic items were preserved;
+133 new drafts retain human-review flags and require explicit review/publication.
+No persistent database or deployed service was changed. Evidence:
+[Phase 10 verification](../docs/disposition-phase-10.md) and the requirement ledger.
+Total active time: **1.83 hours**. Phase 11 is next.
 
 **Priority:** Disposition usability. **Dependencies:** Phase 9.
 
 **Scope:** Build the eligibility listing, required filters/grouping/sorting,
 blocked-unit explanations and protected redacted descendants. Add job creation,
 assignment, membership management, history, and status display in descendant
-metadata/search/browse. Show per-item addition results. Apply destruction-stage
+metadata/search/browse. Show aggregate addition feedback and on-demand per-item
+failure details (29 October 2026 amendment). Apply destruction-stage
 restrictions when its stages are introduced; common controls must not bypass them.
 
 **Verification and completion:** Real persistence, permission intersections,
@@ -362,6 +479,14 @@ large paginated lists, inaccessible root selection rejection, blocker rendering,
 descendant status accuracy, repeat navigation, and LTR/RTL checks.
 
 ### Phase 11 Implement artifact destinations and governed evidence storage
+
+**Status:** Complete (15 October 2026). Governed artifact storage, current-settings
+destinations, versioned corrective uploads and authorized preview/history are
+implemented and verified. Migration 056 is ready; no persistent database upgrade
+was run. The 37 new Arabic entries remain flagged drafts for human review and
+publication. Evidence: [Phase 11 verification](../docs/disposition-phase-11.md).
+Total active time: **0.99 hours**; elapsed time: **1.36 hours**,
+including the separately recorded blocked browser-tool wait. Phase 12 is next.
 
 **Priority:** Workflow foundation. **Dependencies:** Phases 2, 3, and 7.
 
@@ -385,6 +510,11 @@ warnings, rollback, retry deduplication, evidence-version authorization, and
 original-record preservation.
 
 ### Phase 12 Implement controlled Word templates and PDF generation
+
+**Status:** Complete (15 October 2026). See `docs/disposition-phase-12.md` and
+the requirement ledger for scoped verification. Measured elapsed/active effort: 1.31 hours.
+Migration 057 is ready but not applied to persistent databases; 24 new Arabic
+drafts require review/publication. Phase 13 is next.
 
 **Priority:** Workflow foundation. **Dependencies:** Phase 11.
 
@@ -515,9 +645,12 @@ purge. Certificate end-to-end sending is completed in phase 22.
 and 17.
 
 **Scope:** Route using the complete hierarchy's media. Generate and store the
-physical preparation PDF, grouped by terminal classification, with assigned
-and current locations, prescribed descendant counts, non-overlapping totals,
-and missing/inherited-location treatment. Support report versions. Recheck
+physical preparation PDF using the approved collection-location layout: serials,
+concise aggregation identity/classification/medium, effective current-location
+groups, differing assigned locations, explicit locations-to-verify group,
+common/per-row ownership and unique totals. Retain detailed counts/checksums in
+the snapshot. Verify organization/language settings, repeated headers and
+multilingual multipage rendering. Preserve report/template versions. Recheck
 blockers before physical work is authorized. Confirm offline destruction only
 with the checkbox, unique certificate reference, upload, actor/time, and immutable
 physical scope; commit confirmation and governed evidence together.
@@ -571,6 +704,14 @@ disposition/audit access. Do not rely solely on mocked file deletion.
 
 ### Phase 22 Complete certificates and final task behavior
 
+**Status:** Complete (20 October 2026). See `docs/disposition-phase-22.md` for
+automated, English and Arabic live verification evidence. Operational release
+remains subject to Phase 23.
+
+**Scope clarification approved:** 20 October 2026. Separate evidence-file expiry
+and deletion are outside this phase; protected governed evidence and permanent
+provenance/history remain required.
+
 **Priority:** Destruction completion. **Dependencies:** Phases 18 and 21.
 
 **Scope:** Generate and save exactly one digital certificate as evidence before
@@ -585,10 +726,13 @@ completion, failure, or required action through existing notifications.
 certificate storage failure after successful deletion; missing destinations;
 retry deduplication; complete final fields; download not gating completion;
 post-completion send history; completion warnings; and evidence surviving unit
-destruction. Verify evidence-retention expiry preserves permanent provenance
-and deletion history under the existing approved retention policy.
+destruction. Verify supporting evidence and its permanent provenance/history
+survive the original unit's destruction. A separate evidence-file expiry or
+deletion workflow is outside this phase.
 
 ### Phase 23 Run complete workflow and upgrade acceptance
+
+**Status:** Complete (20 October 2026). See `docs/disposition-phase-23.md`.
 
 **Priority:** Release gate. **Dependencies:** All applicable preceding phases.
 
@@ -607,6 +751,10 @@ translation, pagination and performance verification. Resolve failures at their
 owning phase; do not waive them as integration follow-ups.
 
 ### Phase 24 Prepare the controlled rollout and implementation handoff
+
+**Status:** Complete (20 October 2026). See `docs/disposition-phase-24.md` and
+`docs/disposition-rollout.md`. Preparation only; persistent deployment and
+operational destruction require separate authorization.
 
 **Priority:** Delivery. **Dependencies:** Phase 23.
 
@@ -628,6 +776,15 @@ and safe task blocking. Distinguish reversible deployment changes from content
 already destroyed, which cannot be restored by code rollback. Applying changes
 to persistent databases or enabling operational destruction requires the user's
 deployment authorization; producing this plan does not provide it.
+
+## Approved operational simplification — 20 October 2026
+
+The user approved removing the temporary physical/digital implementation release
+gates. After all migrations through 071, destruction is available subject to the
+existing permissions and workflow checks. No per-database function rewrite or
+separate enablement setting is required. Existing release-acceptance evidence
+is retained; historical statements about temporary disabled execution describe
+the earlier rollout only. See `docs/disposition-release-gate-removal.md`.
 
 ## 4. Requirement coverage index
 
@@ -754,6 +911,14 @@ test runs, significant reuse, or rework that affects comparisons with future wor
 | 2 (readable reference audit) | 2026-10-14 16:35:10 | 2026-10-14 16:42:21 | 0.12 | 0.00 | Measured | User-approved scheme/classification code/title snapshots for old/new Settings values. Canonical schema and standalone migration 052; 31 disposable-DB regressions and 15 schema/cache checks passed. All three test databases confirmed dropped. Tested trigger migration applied to demo with settings/history preservation verified and private rollback definition saved; no restart required. Final documentation bookkeeping follows captured end boundary. |
 | 3 (audit labels/navigation) | 2026-10-14 17:03:58 | 2026-10-14 17:22:28 | 0.31 | 0.00 | Measured | Shared readable labels for all three Settings operation codes, including historical events; authorized/guarded current-entity links open the API-selected Settings category with one read. 32 interaction + one export regression pass, live English/Arabic details and links verified, disposable preview confirmed dropped. Four contextual labels merged while preserving all prior Arabic entries; four demo labels published with all pre-existing translation rows preserved. Final documentation bookkeeping follows captured end boundary. |
 
+| 7 | 2026-10-15 03:28:46 | 2026-10-15 04:01:10 | 0.54 | 0.00 | Measured | Common schema/053 and private command/claim/unit foundation; 75 cases passed on each fresh/upgrade path, 91 affected regressions and 39 tools checks passed; exact database catalogue parity and prior resource/identity/settings/grant/history preservation. All 34 disposable databases confirmed absent. No persistent DB/environment/translation change; action-specific entry points/final execution stay closed. Final evidence bookkeeping follows captured end boundary. |
+
+| 8 | 2026-10-15 04:30:35 | 2026-10-15 05:04:59 | 0.57 | 0.00 | Measured | Database UTC eligibility/054, bounded worker, current protections and both-direction relationships with scoped redaction/coordination locks; 57 cases passed on fresh and upgrade paths, all 75 Phase 7 cases plus 53 affected regressions, 39 tools and three labels/export checks passed. Latest catalogue parity and existing data preserved; all 20 disposable databases independently confirmed absent. Two Arabic drafts added preserving all 3192 prior entries; no persistent DB/environment/service changes. Final completion bookkeeping follows captured end boundary. |
+
+| 9 | 2026-10-15 05:39:43 | 2026-10-15 06:14:25 | 0.58 | 0.00 | Measured | Protected common job/membership/assignment/owning-unit/acceleration/termination commands and atomic policy/reopening/hierarchy recalculation; 201 full-suite plus three final CHECK cases passed on each fresh/upgrade path, 83 API regressions, 39 tools and five labels/export checks passed. Exact final catalogue parity and prior active membership/data preserved; all 26 disposable databases independently absent. Ten Arabic drafts merged preserving all 3194 prior items; no persistent DB/environment/service change. Final evidence bookkeeping follows captured end boundary. |
+
+| 22 | Not captured | 2026-10-19 20:59:12 | — | — | Incomplete timing | Certificate-only recovery, digital/mixed and physical-only completion, final download/email behavior, notification and upgrade tests; English browser and MailDev checks passed. Live Arabic connection unavailable; DISP-35 policy unresolved. No measured active-hours claim. See docs/disposition-phase-22.md. |
+
 ### Phase totals
 
 A dash means no implementation time has been recorded, not zero hours worked.
@@ -767,21 +932,69 @@ Update status from actual progress; specification approval is not implementation
 | 4 | Complete | 2026-10-14 09:16:16 UTC | 2026-10-14 12:13:42 UTC | 2.25 (interruption boundary approximate) | — | 0.71 |
 | 5 | Complete | 2026-10-14 12:15:58 UTC | 2026-10-14 12:33:52 UTC | 0.30 | — | 0.00 |
 | 6 | Complete | 2026-10-14 13:22:58 UTC | 2026-10-14 13:51:03 UTC | 0.47 | — | 0.00 |
-| 7 | Not started | — | — | — | — | — |
-| 8 | Not started | — | — | — | — | — |
-| 9 | Not started | — | — | — | — | — |
-| 10 | Not started | — | — | — | — | — |
-| 11 | Not started | — | — | — | — | — |
-| 12 | Not started | — | — | — | — | — |
-| 13 | Not started | — | — | — | — | — |
-| 14 | Not started | — | — | — | — | — |
-| 15 | Not started | — | — | — | — | — |
-| 16 | Not started | — | — | — | — | — |
-| 17 | Not started | — | — | — | — | — |
-| 18 | Not started | — | — | — | — | — |
-| 19 | Not started | — | — | — | — | — |
-| 20 | Not started | — | — | — | — | — |
-| 21 | Not started | — | — | — | — | — |
-| 22 | Not started | — | — | — | — | — |
-| 23 | Not started | — | — | — | — | — |
-| 24 | Not started | — | — | — | — | — |
+| 7 | Complete | 2026-10-15 03:28:46 UTC | 2026-10-15 04:01:10 UTC | 0.54 | — | 0.00 |
+| 8 | Complete | 2026-10-15 04:30:35 UTC | 2026-10-15 05:04:59 UTC | 0.57 | — | 0.00 |
+| 9 | Complete | 2026-10-15 05:39:43 UTC | 2026-10-15 06:14:25 UTC | 0.58 | — | 0.00 |
+| 10 | Complete | 2026-10-15 06:16:18 | 2026-10-15 08:06:07 | 1.83 | — | 0.0 |
+| 11 | Complete | 2026-10-15 08:10:36 | 2026-10-15 09:31:56 | 0.99 | — | 0.3625 |
+| 12 | Complete | 2026-10-15 09:55:03 | 2026-10-15 11:13:53 | 1.31 | — | — |
+| 13 | Complete | 2026-10-19 05:06:47 | 2026-10-19 05:43:40 | 0.61 | — | — |
+| 14 | Complete | 2026-10-19 05:44:21 | 2026-10-19 06:19:31 | 0.59 | — | — |
+| 15 | Complete | — | 2026-10-19T07:21:16.948547+00:00 | — | — | — |
+| 16 | Complete | — | 2026-10-19T09:34:41.191119+00:00 | — | — | — |
+| 17 | Complete | — | 2026-10-19T10:29:02.932984+00:00 | — | — | — |
+| 18 | Complete | — | 2026-10-19T15:06:17.058127+00:00 | — | — | — |
+| 19 | Complete | — | — | — | — | — |
+| 20 | Complete | — | — | — | — | — |
+| 21 | Complete | — | — | — | — | — |
+| 22 | Complete | 2026-10-19 (time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
+| 23 | Complete | 2026-10-20 (initial time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
+| 24 | Complete | 2026-10-20 (initial time unrecorded) | 2026-10-20 | — (incomplete timing) | — | — |
+
+
+### Approved follow-up: restore reopened members within their job
+
+**Approved:** 29 October 2026. **Requirements:** DISP-13, DISP-24, DISP-25,
+DISP-38, DISP-40, DISP-42 and DEST-06; Disposition Sections 5.2, 6.1 and 11.
+
+Compatible acceleration closes a reopened member, restores its whole unit to
+the existing active job's pending status and clears the reopening flag without
+removal/re-addition. Retain scope, authorization, reason, version, hold/closure
+and irreversible-work guards; preserve identity, history and protection facts.
+Approval validity follows the existing approved-facts comparison: exact
+restoration, including a legitimate historical closure date, may preserve
+approval. Changed approved facts use existing renewal/correction routing.
+Preparation-stage proposals and stage remain intact without a new round. Migration 093, the canonical schema and
+API/UI regression cases are traced in
+`docs/disposition-in-job-acceleration.md` and its verification report.
+
+
+## Approved amendment — Simplified additions and correction comments (29 October 2026)
+
+Implement Disposition revision 1.15 and Destruction Process revision 1.8:
+
+- First restore recorded return comments to the current correction task, using
+  existing history authorization and read-only localized projections.
+- Allow only the current claimed Simplified Records Manager to add eligible
+  units during review; preserve common admission gates and immediate-removal
+  restrictions, saved work and the immutable submission snapshot.
+- Approve the complete updated set with fresh versions/tokens; retain strict
+  matching of each original submitted unit and existing route/correction rules.
+- Verify correction-comment delivery, task/role/route authorization, direct API
+  and SQL denial paths, admission blockers, stale/concurrent/retried additions,
+  complete approval snapshots, bilingual rendering and populated upgrades.
+
+Evidence and requirement mapping belong in
+`docs/verification/simplified-review-and-correction.md`.
+
+### Approved history-presentation amendment — 29 October 2026
+
+Implement the common disposition revision 1.16 and destruction revision 1.9
+presentation rules in one change: server-paginated action summaries, lazy
+paginated original-event details, contextual change labels shared with the
+global Audit Trail, and earlier-round comments available in review tasks.
+Preserve every audit row, existing authorization/redaction and raw-event API
+behavior. Verify multiple commands/actors/requests, ambiguous legacy events,
+large actions, stable pagination, bilingual rendering, navigation freshness and
+abandoned requests. Record traceability and deployment evidence in
+`docs/verification/disposition-history-actions.md`.

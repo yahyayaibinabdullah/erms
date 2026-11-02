@@ -55,7 +55,11 @@ def test_claim_content_stage_publish_and_terminal_retry_are_lease_scoped(client,
              "lease_generation":job["lease_generation"]}
     download_headers = {**headers,"X-Worker-ID":lease["worker_id"],"X-Lease-Token":lease["lease_token"],
                         "X-Lease-Generation":str(lease["lease_generation"])}
+    from uuid import uuid4
+    copy_token=str(uuid4())
+    assert client.post(f"/api/v1/internal/text-indexing/jobs/{job['job_id']}/processing-copy",headers=headers,json={**lease,'token':copy_token}).status_code==200
     content = client.get(f"/api/v1/internal/text-indexing/jobs/{job['job_id']}/content",headers=download_headers)
+    assert client.delete(f'/api/v1/internal/text-indexing/processing-copies/{copy_token}',headers=headers,params={'worker_id':lease['worker_id']}).status_code==200
     assert content.status_code == 200
     assert content.content == b"approved budget evidence"
     text = "Approved budget evidence for the authoritative records programme. " * 4

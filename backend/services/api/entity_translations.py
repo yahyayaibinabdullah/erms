@@ -46,7 +46,7 @@ ENTITY_CONFIGURATIONS = {
     "classifications": EntityConfiguration(
         "classifications", "title", "classification.modify_metadata"
     ),
-    "users": EntityConfiguration("users", "name", "user.modify_metadata"),
+    "users": EntityConfiguration("users", "name", "identity.users.administer"),
     "roles": EntityConfiguration("roles", "name", "role.modify_metadata"),
     "org-units": EntityConfiguration("org_units", "name", "org_unit.modify_metadata"),
     "security-levels": EntityConfiguration(

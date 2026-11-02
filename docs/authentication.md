@@ -109,7 +109,8 @@ cannot authenticate interactively.
 
 ## Initial bootstrap administrator
 
-After loading `database/schema.sql` into a genuinely empty database, provision
+After loading `database/schema.sql`, the required reference-data seed and
+`database/baseline.sql` into a genuinely empty database, provision
 the first administrator with the API service's own Python environment:
 
 ```bash

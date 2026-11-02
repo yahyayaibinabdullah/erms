@@ -5,6 +5,8 @@ from .i18n_catalogue import render_message_plain
 def audit_entity_type_label(value: str) -> str:
     labels = {
         'application_setting': render_message_plain('audit.entity.application_setting'),
+        'disposition_job': render_message_plain('audit.entity.disposition_job'),
+        'disposition_task': render_message_plain('audit.entity.disposition_task'),
         'aggregation': render_message_plain('dashboard.resource.aggregation'),
         'record': render_message_plain('dashboard.resource.record'),
         'classification': render_message_plain('entity_metadata.field.classification'),
@@ -36,3 +38,16 @@ def audit_entity_type_label(value: str) -> str:
         'login_session': render_message_plain('navigation.item.login_sessions'),
     }
     return labels.get(value, value.replace("_", " ").title())
+
+
+def disposition_event_identity(event: dict) -> tuple[str, str]:
+    """Readable job/task subject without exposing internal IDs or redacted facts."""
+    entity_type = event['entity_type']
+    heading = audit_entity_type_label(entity_type)
+    metadata = event.get('metadata') or {}
+    if metadata.get('redacted'):
+        return heading, ''
+    snapshot = event.get('after_state') or event.get('before_state') or metadata.get('after') or metadata.get('before') or {}
+    job_id = event['entity_id'] if entity_type == 'disposition_job' else snapshot.get('job_id') or metadata.get('job_id')
+    identity = snapshot.get('job_number') or (event.get('display_references') or {}).get(f'job:{job_id}') or ''
+    return heading, identity

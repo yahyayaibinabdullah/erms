@@ -6,6 +6,72 @@ Unknown historical/integration codes remain visible verbatim.
 from .i18n_catalogue import render_message
 
 EVENT_MESSAGE_KEYS = {
+    'FINAL_COMPLETE': 'audit.event.final_completion_recorded',
+    'DIGITAL_CERTIFICATE_SAVED': 'audit.event.disposition_document_saved',
+    'CERTIFICATE_TASK_COMPLETED': 'audit.event.certificate_task_completed',
+    'DESTRUCTION_JOB_COMPLETED': 'audit.event.destruction_job_completed',
+    'DIGITAL_CERTIFICATE_FAILED': 'audit.event.digital_certificate_failed',
+    'DIGITAL_CERTIFICATE_RETRY_REQUESTED': 'audit.event.digital_certificate_retry_requested',
+    'DIGITAL_CERTIFICATE_DOWNLOADED': 'audit.event.digital_certificate_downloaded',
+
+    'DIGITAL_DESTRUCTION_REQUESTED': 'audit.event.digital_destruction_requested',
+    'DIGITAL_DESTRUCTION_FAILED': 'audit.event.digital_destruction_failed',
+    'DIGITAL_DESTRUCTION_UNIT_COMPLETED': 'audit.event.digital_destruction_unit_completed',
+    'DIGITAL_DESTRUCTION_SUCCEEDED': 'audit.event.digital_destruction_succeeded',
+    'DIGITAL_DESTRUCTION_PROGRESS': 'audit.event.digital_destruction_progress',
+    'DISPOSITION_RETAINED_RECORD_MIGRATED': 'audit.event.disposition_retained_record_migrated',
+
+    'DISPOSITION_UNIT_DESTROYED': 'audit.event.disposition_unit_destroyed',
+    'DISPOSITION_PARTIALLY_DISPOSED': 'audit.event.disposition_partially_disposed',
+    'DISPOSITION_PARTIAL_RESOLVED': 'audit.event.disposition_partial_resolved',
+    'DISPOSITION_PARTIAL_BULK_RESOLVED': 'audit.event.disposition_partial_bulk_resolved',
+    'DISPOSITION_TERMINATION_OUTCOMES': 'audit.event.disposition_termination_outcomes',
+
+    'PHYSICAL_DESTRUCTION_CONFIRMED': 'audit.event.physical_destruction_confirmed',
+    'PHYSICAL_WORK_CHECKED': 'audit.event.physical_work_checked',
+    'DISPOSITION_EMAIL_REQUESTED': 'audit.event.disposition_email_requested',
+    'DISPOSITION_EMAIL_OUTCOME': 'audit.event.disposition_email_outcome',
+
+
+    'DESTRUCTION_REQUEST_GENERATED': 'audit.event.destruction_request_generated',
+    'DESTRUCTION_REQUEST_PENDING': 'audit.event.destruction_request_pending',
+    'EXTERNAL_APPROVAL_RECORDED': 'audit.event.external_approval_recorded',
+    'EXTERNAL_REJECTION_RECORDED': 'audit.event.external_rejection_recorded',
+    'REVIEW_APPROVAL_INVALIDATED': 'audit.event.disposition_review_approval_invalidated',
+
+    'REVIEW_PROPOSALS_APPROVED': 'audit.event.disposition_proposals_approved',
+    'REVIEW_PROPOSAL_EXECUTED': 'audit.event.disposition_proposal_executed',
+    'REVIEW_EXECUTION_REPORT_PENDING': 'audit.event.disposition_execution_report_pending',
+
+    'REVIEW_SAVE': 'audit.event.disposition_review_saved',
+    'REVIEW_PROPOSAL_CREATED': 'audit.event.disposition_proposal_created',
+    'REVIEW_PROPOSAL_REVISED': 'audit.event.disposition_proposal_revised',
+    'REVIEW_PROPOSAL_WITHDRAWN': 'audit.event.disposition_proposal_withdrawn',
+    'REVIEW_PROPOSAL_CARRIED': 'audit.event.disposition_proposal_carried',
+    'REVIEW_NOTES_SAVED': 'audit.event.disposition_review_notes_saved',
+
+    'TASK_CLAIM': 'audit.event.disposition_task_claimed',
+    'TASK_RELEASE': 'audit.event.disposition_task_released',
+    'TASK_REASSIGN': 'audit.event.disposition_task_reassigned',
+    'TASK_COMPLETE': 'audit.event.disposition_task_completed',
+    'TASK_ROUTED': 'audit.event.disposition_task_routed',
+    'REVIEW_SUBMIT': 'audit.event.disposition_review_submitted',
+    'REVIEW_DECIDE': 'audit.event.disposition_review_decided',
+
+    'TEMPLATE_REVISED': 'audit.event.disposition_template_revised',
+    'EVIDENCE_CORRECTED': 'audit.event.disposition_evidence_corrected',
+    'ARTIFACT_SAVED': 'audit.event.disposition_artifact_saved',
+    'DOCUMENT_SAVE': 'audit.event.disposition_document_saved',
+    "JOB_CREATE": "audit.event.disposition_job_created",
+    "JOB_ASSIGN": "audit.event.disposition_job_assigned",
+    "JOB_OWNER_CHANGE": "audit.event.disposition_job_owning_unit_changed",
+    "MEMBERSHIP_ADD": "audit.event.disposition_membership_added",
+    "MEMBERSHIP_REMOVE": "audit.event.disposition_membership_removed",
+    "JOB_TERMINATE": "audit.event.disposition_job_terminated",
+    "DISPOSITION_ACCELERATED": "audit.event.disposition_accelerated",
+    "DISPOSITION_RECALCULATED": "audit.event.disposition_recalculated",
+    "DISPOSITION_REOPENED": "audit.event.disposition_reopened",
+    "DISPOSITION_REMOVAL_REQUIRED": "audit.event.disposition_removal_required",
     "APPLICATION_SETTING_CHANGED": "audit.event.application_setting_changed",
     "APPLICATION_SETTING_SEEDED": "audit.event.application_setting_seeded",
     "APPLICATION_SETTINGS_MIGRATION_COMPLETED": "audit.event.application_settings_migration_completed",
@@ -33,6 +99,10 @@ EVENT_MESSAGE_KEYS = {
     "DEFAULT_CHILD_AGGREGATION_ACL_REPLACED": "audit.event.default_child_aggregation_acl_replaced",
     "DEFAULT_CHILD_RECORD_ACL_REPLACED": "audit.event.default_child_record_acl_replaced",
     "DELETE": "audit.event.delete",
+    "DISPOSITION_BLOCKERS_DETECTED": "audit.event.disposition_blockers_detected",
+    "DISPOSITION_BLOCKERS_RESOLVED": "audit.event.disposition_blockers_resolved",
+    "DISPOSITION_ELIGIBILITY_EVALUATED": "audit.event.disposition_eligibility_evaluated",
+    "DISPOSITION_STATUS_CHANGED": "audit.event.disposition_status_changed",
     "GOVERNANCE_ROLE_CHANGED": "audit.event.governance_role_changed",
     "HELD_RESOURCE_MOVED": "audit.event.held_resource_moved",
     "HOLD_CONTRIBUTORS_REPLACED": "audit.event.hold_contributors_replaced",
@@ -69,6 +139,64 @@ EVENT_MESSAGE_KEYS = {
 }
 
 
-def event_label(code: str) -> str:
+def event_label(code: str, *, event: dict | None = None) -> str:
+    """Describe the recorded change using only the authorized event projection.
+
+    Workflow commands can record several row changes. Use their event-time
+    before/after values to distinguish the business facts, including older
+    events. Redacted or incomplete envelopes retain a neutral command label.
+    """
+    if code == 'FINAL_COMPLETE' and event:
+        metadata = event.get('metadata') or {}
+        if not metadata.get('redacted'):
+            before = event.get('before_state')
+            after = event.get('after_state')
+            before = metadata.get('before') if before is None else before
+            after = metadata.get('after') if after is None else after
+            created = before is None and ('before_state' in event or 'before' in metadata)
+            before = before if isinstance(before, dict) else {}
+            after = after if isinstance(after, dict) else {}
+            if event.get('entity_type') == 'disposition_task':
+                if after.get('task_type') == 'certificate_download':
+                    if created and after.get('task_state') in ('open', 'claimed'):
+                        return render_message('audit.event.certificate_task_created')
+                    if 'task_state' in before and after.get('task_state') == 'completed' and before['task_state'] != 'completed':
+                        return render_message('audit.event.certificate_task_completed')
+                if 'task_state' in before and after.get('task_type') == 'digital_destruction' and after.get('task_state') == 'completed' and before['task_state'] != 'completed':
+                    return render_message('audit.event.digital_destruction_task_completed')
+            elif event.get('entity_type') == 'disposition_job':
+                if 'lifecycle_state' in before and after.get('lifecycle_state') == 'completed' and before['lifecycle_state'] != 'completed':
+                    return render_message('audit.event.disposition_job_completion_recorded')
+                if 'workflow_stage' in before and after.get('workflow_stage') == 'certificate_generation' and before['workflow_stage'] != 'certificate_generation':
+                    return render_message('audit.event.certificate_stage_started')
+    if event and code in ('REVIEW_SUBMIT','REVIEW_DECIDE','REVIEW_SAVE','JOB_CREATE','JOB_TERMINATE','TASK_COMPLETE','MEMBERSHIP_ADD','MEMBERSHIP_REMOVE'):
+        metadata=event.get('metadata') or {}
+        if not metadata.get('redacted'):
+            from .disposition.messages import text,KEYS
+            before=event.get('before_state')
+            after=event.get('after_state')
+            before=metadata.get('before') if before is None else before
+            after=metadata.get('after') if after is None else after
+            created=before is None and ('before_state' in event or 'before' in metadata)
+            before=before if isinstance(before,dict) else {}
+            after=after if isinstance(after,dict) else {}
+            entity=event.get('entity_type')
+            if entity=='disposition_review_round' and code=='REVIEW_SUBMIT' and isinstance(after.get('round_number'),int):
+                return render_message('audit.event.review_round_submitted',number=after['round_number'])
+            if entity=='disposition_review_decision' and after.get('review_stage') in KEYS:
+                if after.get('decision')=='approved':
+                    return render_message('audit.event.review_stage_approved',stage=text(after['review_stage']))
+                if after.get('decision')=='rejected':
+                    return render_message('audit.event.review_stage_rejected',stage=text(after['review_stage']))
+            if entity=='disposition_task' and after.get('workflow_stage') in KEYS:
+                if created:
+                    return render_message('audit.event.workflow_task_created',stage=text(after['workflow_stage']))
+                if before.get('task_state') and after.get('task_state')=='completed' and before['task_state']!='completed':
+                    return render_message('audit.event.workflow_task_completed',stage=text(after['workflow_stage']))
+            if entity=='disposition_job':
+                if before.get('workflow_stage') and after.get('workflow_stage') in KEYS and before['workflow_stage']!=after['workflow_stage']:
+                    return render_message('audit.event.workflow_stage_changed',stage=text(after['workflow_stage']))
+                if before.get('current_review_round') is not None and isinstance(after.get('current_review_round'),int) and before['current_review_round']!=after['current_review_round']:
+                    return render_message('audit.event.current_review_round_changed',number=after['current_review_round'])
     key = EVENT_MESSAGE_KEYS.get(code)
     return render_message(key) if key else code

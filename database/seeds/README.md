@@ -1,6 +1,10 @@
 # ERMS seed data
 
-Seed scripts create optional reference, demonstration, or load-test data. They
+Seed scripts create reference, demonstration, or load-test data.
+`000_required_reference_data.sql` installs the required built-in defaults for a
+new canonical database; it is not optional and must run before the API starts.
+It refuses an already initialized reference catalogue. Other seeds remain
+explicit optional feature/demo/load fixtures unless documented otherwise. They
 are not schema migrations and must not insert rows into `schema_migrations`.
 Apply them explicitly with `psql`, after the canonical schema and required
 migrations have been installed.

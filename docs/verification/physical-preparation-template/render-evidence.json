@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-02",
+  "template": "physical-preparation-report.default.v2.docx",
+  "template_sha256": "401e16eed3dd92323ef68d79e8ff8a8a03ba7d474e8aea9bd3c12b7566d51881",
+  "samples": [
+    {
+      "sample": "english",
+      "pages": 1,
+      "sha256": "f4634ca86ab97fbdde31fc6cca9b8214817d7064d2c6e178219a20be4d8344de",
+      "embedded_font_check": "passed",
+      "page_numbers_in_pdf": 1
+    },
+    {
+      "sample": "arabic-first-bilingual",
+      "pages": 1,
+      "sha256": "87a4a9d35459d45141719e24c1aaca0f46ecc6b0a20d3049900eea48640ce46d",
+      "embedded_font_check": "passed",
+      "page_numbers_in_pdf": 1
+    },
+    {
+      "sample": "multipage",
+      "pages": 5,
+      "sha256": "9b7e64f0bfe72f8c9eeda371a9502d167e81d1b199b9fdb74ac2ee9ad7f55397",
+      "embedded_font_check": "passed",
+      "page_numbers_in_pdf": 5
+    }
+  ],
+  "data": "Illustrative collection fixture; no persistent database modified"
+}

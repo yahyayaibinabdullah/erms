@@ -75,6 +75,8 @@ SEARCH_FIELDS: dict[str, dict[str, SearchField]] = {
         "on_effective_hold": BOOLEAN,
         "resource_state_changes_blocked": BOOLEAN,
         "effective_hold_id": INTEGER,
+        "disposition_status": INTEGER,
+        "disposition_job_id": NULLABLE_INTEGER,
     },
     "records": {
         "id": INTEGER,
@@ -95,6 +97,8 @@ SEARCH_FIELDS: dict[str, dict[str, SearchField]] = {
         "on_effective_hold": BOOLEAN,
         "resource_state_changes_blocked": BOOLEAN,
         "effective_hold_id": INTEGER,
+        "disposition_status": INTEGER,
+        "disposition_job_id": NULLABLE_INTEGER,
     },
     "digital_components": {
         "id": INTEGER,
@@ -206,6 +210,18 @@ RECORD_COMPONENT_SEARCH_FIELDS: dict[str, tuple[SearchField, str]] = {
     "component.checksum_value": (TEXT, "checksum_value"),
     "component.content_status": (TEXT, "content_status"),
 }
+
+# These are filters, not resource columns or sort keys. One optional lateral
+# resolver supplies the same effective rule to every predicate in the query.
+AGGREGATION_RETENTION_SEARCH_FIELDS: dict[str, tuple[SearchField, str]] = {
+    "effective_retention.current_period_years": (INTEGER, "current_period_years"),
+    "effective_retention.intermediate_period_years": (INTEGER, "intermediate_period_years"),
+    "effective_retention.final_disposition": (TEXT, "final_disposition"),
+}
+RETENTION_DISPOSITIONS = frozenset({
+    "destruction", "transfer_to_external_archive",
+    "selective_preservation", "retain_as_local_archives",
+})
 
 SET_OPERATORS = {"in", "not_in"}
 TEXT_OPERATORS = {"contains_ci", "starts_with_ci", "ends_with_ci", "matches_ci"}
@@ -346,6 +362,26 @@ def _compile_expression(
         condition_counter[0] += 1
         if condition_counter[0] > MAX_SEARCH_CONDITIONS:
             raise _invalid(f"searches may contain at most {MAX_SEARCH_CONDITIONS} conditions")
+        retention_field = AGGREGATION_RETENTION_SEARCH_FIELDS.get(expression.field)
+        if retention_field is not None:
+            if resource != "aggregations":
+                raise _invalid(f"field '{expression.field}' is not searchable")
+            field, column = retention_field
+            allowed = {"eq", "ne", "in", "not_in"}
+            if field.type is FieldType.INTEGER:
+                allowed |= {"gt", "gte", "lt", "lte", "between"}
+            if expression.operator not in allowed:
+                raise _invalid(f"operator '{expression.operator}' is not supported for '{expression.field}'")
+            comparison, parameters = _compile_comparison(
+                expression, {expression.field: field},
+                table_alias="search_retention", column_name=column,
+            )
+            if field.type is FieldType.INTEGER:
+                if any(value < 0 for value in parameters):
+                    raise _invalid(f"field '{expression.field}' requires nonnegative whole years")
+            elif any(value not in RETENTION_DISPOSITIONS for value in parameters):
+                raise _invalid(f"invalid disposition action for '{expression.field}'")
+            return comparison, parameters
         component_field = RECORD_COMPONENT_SEARCH_FIELDS.get(expression.field)
         if component_field is not None:
             if resource != "records":
@@ -522,6 +558,29 @@ def _expression_has_component_field(expression: SearchExpression) -> bool:
         _expression_has_component_field(child)
         for child in (expression.and_ or expression.or_ or [])
     )
+
+
+def _search_from(
+    table: sql.Composable, resource: str, expression: SearchExpression | None,
+) -> sql.Composable:
+    def has_retention(node: SearchExpression | None) -> bool:
+        if node is None:
+            return False
+        if node.field is not None:
+            return node.field in AGGREGATION_RETENTION_SEARCH_FIELDS
+        return has_retention(node.not_) or any(
+            has_retention(child) for child in (node.and_ or node.or_ or [])
+        )
+
+    source = sql.SQL("{} resource").format(table)
+    if resource == "aggregations" and has_retention(expression):
+        # LEFT JOIN preserves other OR alternatives if resolution
+        # returns no rule. No synthetic zero or action is introduced.
+        source += sql.SQL(
+            " LEFT JOIN LATERAL aggregation_effective_retention_rule(resource.id) "
+            "search_retention ON true"
+        )
+    return source
 
 
 def _full_text_leaves(expression: SearchExpression | None, *, positive: bool = True) -> list[tuple[str, Any]]:
@@ -737,6 +796,18 @@ def _audit_actor_candidates(expression: SearchExpression | None):
             [value for child in compiled for value in child[1]])
 
 
+
+def _filters_disposition(expression):
+    if expression is None:return False
+    return expression.field=='disposition_status' or any(_filters_disposition(child) for child in (expression.and_ or expression.or_ or [])) or _filters_disposition(expression.not_)
+
+
+def _resource_visibility(resource,expression):
+    kind='record' if resource=='records' else 'aggregation'
+    live=f"current_user_can_view_{kind}(resource.id)"
+    if not _filters_disposition(expression):return sql.SQL(live)
+    return sql.SQL("("+live+" OR (resource.disposition_status=10 AND disposition_private.retained_access('"+kind+"',resource.id,false)))")
+
 def search_rows(
     connection: Connection,
     table: str,
@@ -762,8 +833,8 @@ def search_rows(
         })
     fields = SEARCH_FIELDS[table]
     visibility = {
-        "aggregations": sql.SQL("current_user_can_view_aggregation(resource.id)"),
-        "records": sql.SQL("current_user_can_view_record(resource.id)"),
+        "aggregations": _resource_visibility("aggregations",request.where),
+        "records": _resource_visibility("records",request.where),
         "digital_components": sql.SQL(
             "EXISTS (SELECT 1 FROM records visible_record WHERE visible_record.id=resource.record_id "
             "AND current_user_can_list_record_components(visible_record.id))"
@@ -830,13 +901,14 @@ def search_rows(
         "aggregations": "authorized_aggregations_for_search",
         "records": "authorized_records_for_search",
     }.get(table, table))
-    count_query = sql.SQL("SELECT count(*) AS total FROM {} resource{}").format(
-        table_identifier, where_clause
+    source = _search_from(table_identifier, table, request.where)
+    count_query = sql.SQL("SELECT count(*) AS total FROM {}{}").format(
+        source, where_clause
     )
     if table == "event_history":
         count_query = sql.SQL(
-            "SELECT count(*) AS total FROM (SELECT 1 FROM {} resource{} LIMIT {}) audit_count"
-        ).format(table_identifier, where_clause, sql.Literal(min(audit_cap + 1, 9223372036854775807)))
+            "SELECT count(*) AS total FROM (SELECT 1 FROM {}{} LIMIT {}) audit_count"
+        ).format(source, where_clause, sql.Literal(min(audit_cap + 1, 9223372036854775807)))
     total = connection.execute(count_query, parameters).fetchone()["total"]
     truncated = table == "event_history" and total > audit_cap
     if table == "event_history":
@@ -872,9 +944,9 @@ def search_rows(
         sql.SQL("{} {}").format(sort_expression(field), sql.SQL(direction.upper()))
         for field, direction in sort_fields
     )
-    result_query = sql.SQL("SELECT resource.*,({})::double precision AS _fts_relevance FROM {} resource{} ORDER BY {} LIMIT %s OFFSET %s").format(
+    result_query = sql.SQL("SELECT resource.*,({})::double precision AS _fts_relevance FROM {}{} ORDER BY {} LIMIT %s OFFSET %s").format(
         relevance,
-        table_identifier,
+        source,
         where_clause,
         order_clause,
     )
@@ -912,6 +984,7 @@ def search_rows(
                 """SELECT EXISTS(SELECT 1 FROM digital_component_search_documents document
                      WHERE document.status IN ('pending','processing','stale')
                        AND current_user_can_view_record(document.record_id)
+                       AND EXISTS(SELECT 1 FROM records pending_record WHERE pending_record.id=document.record_id AND (pending_record.disposition_status NOT IN (10,11,12) OR disposition_private.can_manage()))
                        AND current_user_can_record_component_operation(
                            document.record_id,'record.component.view','record.component.view')) AS value"""
             ).fetchone()["value"]
@@ -964,7 +1037,7 @@ def _global_branch(
     )
     relevance,relevance_parameters=_relevance_expression(resource,leaves)
     table=sql.Identifier("authorized_records_for_search" if resource=="records" else "authorized_aggregations_for_search")
-    visibility=sql.SQL("current_user_can_view_record(resource.id)") if resource=="records" else sql.SQL("current_user_can_view_aggregation(resource.id)")
+    visibility=_resource_visibility(resource,expression)
     outer=sql.SQL("")
     outer_parameters: list[Any]=[]
     branch_type="record" if resource=="records" else "aggregation"
@@ -979,9 +1052,9 @@ def _global_branch(
             outer=sql.SQL("WHERE score<%s OR (score=%s AND id>%s)")
             outer_parameters=[after["score"],after["score"],after["id"]]
     query=sql.SQL(
-        "WITH matched AS (SELECT resource.*,({})::double precision AS score FROM {} resource "
+        "WITH matched AS (SELECT resource.*,({})::double precision AS score FROM {} "
         "WHERE ({}) AND ({})) SELECT * FROM matched {} ORDER BY score DESC,id ASC LIMIT %s"
-    ).format(relevance,table,visibility,clause,outer)
+    ).format(relevance,_search_from(table,resource,expression),visibility,clause,outer)
     return list(connection.execute(
         query,[*relevance_parameters,*clause_parameters,*outer_parameters,limit+1],
     ).fetchall())
@@ -1071,6 +1144,7 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
              JOIN digital_components component ON component.id=document.digital_component_id
             WHERE document.status IN ('pending','processing','stale')
               AND current_user_can_view_record(document.record_id)
+                       AND EXISTS(SELECT 1 FROM records pending_record WHERE pending_record.id=document.record_id AND (pending_record.disposition_status NOT IN (10,11,12) OR disposition_private.can_manage()))
               AND current_user_can_record_component_operation(document.record_id,'record.component.view','record.component.view')) AS value"""
     ).fetchone()["value"]
     result={"items":page,"next_cursor":next_cursor,

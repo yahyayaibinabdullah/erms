@@ -47,6 +47,7 @@ class SecurityLevelRead(SecurityLevelCreate):
 
 
 class PrivilegeRead(ApiModel):
+    required_privilege_ids: list[int] = Field(default_factory=list)
     id: int
     code: str
     name: str
@@ -578,6 +579,13 @@ class AggregationRead(ApiModel):
     child_aggregation_acl_version: int
     child_record_acl_version: int
     version: int
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    final_disposition_at: datetime | None = None
+    final_disposition_by_user_id: int | None = None
+    disposition_job_id: int | None = None
+    destruction_number: str | None = None
+    transfer_number: str | None = None
+    final_disposition_event_id: int | None = None
 
     @model_validator(mode="after")
     def derive_parent_aggregation_state(self):
@@ -664,6 +672,8 @@ class BrowseAggregationNode(ApiModel):
     date_closed: datetime | None
     medium: Literal["digital", "physical", "mixed"] = "mixed"
     is_vital: bool = False
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    disposition_job_id: int | None = None
     has_vital_descendants: bool = False
     date_of_next_review: datetime | None = None
     assigned_location: str | None = None
@@ -693,6 +703,8 @@ class BrowseRecordNode(ApiModel):
     date_originated: datetime
     medium: Literal["digital", "physical", "mixed"] = "mixed"
     is_vital: bool = False
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    disposition_job_id: int | None = None
     date_of_next_review: datetime | None = None
     effective_assigned_location: str | None = None
     effective_current_location: str | None = None
@@ -813,6 +825,13 @@ class AggregationRetentionRuleRead(AggregationRetentionRuleCreate):
     version: int
 
 
+class RetentionAccelerationRead(ApiModel):
+    event_id: int
+    occurred_at: datetime
+    actor_name: str | None = None
+    reason: str | None = None
+
+
 class EffectiveRetentionRuleRead(ApiModel):
     governing_root_aggregation_id: int | None = None
     classification_id: int | None = None
@@ -825,6 +844,7 @@ class EffectiveRetentionRuleRead(ApiModel):
     final_disposition: DispositionAction
     instructions: str | None = None
     justification: str | None = None
+    acceleration: RetentionAccelerationRead | None = None
 
 
 class RecordCreate(ApiModel):
@@ -947,6 +967,13 @@ class RecordRead(ApiModel):
     inherit_acl_from_parent: bool
     resource_acl_version: int
     version: int
+    disposition_status: int = Field(default=1, ge=1, le=13)
+    final_disposition_at: datetime | None = None
+    final_disposition_by_user_id: int | None = None
+    disposition_job_id: int | None = None
+    destruction_number: str | None = None
+    transfer_number: str | None = None
+    final_disposition_event_id: int | None = None
 
     @model_validator(mode="after")
     def derive_aggregation_state(self):
@@ -1069,11 +1096,14 @@ class DigitalComponentRead(ApiModel):
 
 
 class EventHistoryRead(ApiModel):
+    display_presentation: str | None = None
+    display_references: dict[str, str | None] = Field(default_factory=dict)
+    can_view_technical_details: bool = False
     id: int
     occurred_at: datetime
     transaction_id: int
     entity_type: str
-    entity_id: int
+    entity_id: int | None
     operation: str
     actor_user_id: int | None
     actor_name: str | None
@@ -1361,6 +1391,9 @@ class PrincipalRead(ApiModel):
     must_change_password: bool
     previous_login_at: datetime | None
     global_privileges: list[str]
+    can_manage_disposition: bool = False
+    can_manage_disposition_templates: bool = False
+    can_access_disposition_tasks: bool = False
 
 
 class LoginSessionRead(ApiModel):

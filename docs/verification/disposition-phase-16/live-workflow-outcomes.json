@@ -1,0 +1,266 @@
+[
+  {
+    "id": 29,
+    "job_number": "PHASE16-STANDARD",
+    "review_route": "standard",
+    "workflow_stage": "records_manager_review",
+    "current_review_round": 2,
+    "tasks": [
+      {
+        "task_type": "preparation",
+        "workflow_stage": "officer_preparation",
+        "review_round": null,
+        "task_state": "completed",
+        "destination_user_id": 2,
+        "destination_role_id": null,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": "2026-10-19 12:54:00.560678+04:00"
+      },
+      {
+        "task_type": "file_administrator_review",
+        "workflow_stage": "file_administrator_review",
+        "review_round": 1,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 6,
+        "claimed_by_user_id": 3,
+        "claimed_at": "2026-10-19 12:56:12.084592+04:00",
+        "completed_at": "2026-10-19 13:03:20.962759+04:00"
+      },
+      {
+        "task_type": "unit_manager_review",
+        "workflow_stage": "unit_manager_review",
+        "review_round": 1,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 7,
+        "claimed_by_user_id": 4,
+        "claimed_at": "2026-10-19 13:05:28.972147+04:00",
+        "completed_at": "2026-10-19 13:07:23.145173+04:00"
+      },
+      {
+        "task_type": "correction",
+        "workflow_stage": "officer_correction",
+        "review_round": 1,
+        "task_state": "completed",
+        "destination_user_id": 2,
+        "destination_role_id": null,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": "2026-10-19 13:12:34.582218+04:00"
+      },
+      {
+        "task_type": "file_administrator_review",
+        "workflow_stage": "file_administrator_review",
+        "review_round": 2,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 6,
+        "claimed_by_user_id": 3,
+        "claimed_at": "2026-10-19 13:14:53.792649+04:00",
+        "completed_at": "2026-10-19 13:15:04.677942+04:00"
+      },
+      {
+        "task_type": "unit_manager_review",
+        "workflow_stage": "unit_manager_review",
+        "review_round": 2,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 7,
+        "claimed_by_user_id": 4,
+        "claimed_at": "2026-10-19 13:16:12.507387+04:00",
+        "completed_at": "2026-10-19 13:16:31.205956+04:00"
+      },
+      {
+        "task_type": "records_manager_review",
+        "workflow_stage": "records_manager_review",
+        "review_round": 2,
+        "task_state": "cancelled",
+        "destination_user_id": null,
+        "destination_role_id": 5,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": null
+      },
+      {
+        "task_type": "records_manager_review",
+        "workflow_stage": "records_manager_review",
+        "review_round": 2,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 8,
+        "claimed_by_user_id": 5,
+        "claimed_at": "2026-10-19 13:17:37.392323+04:00",
+        "completed_at": "2026-10-19 13:17:53.540589+04:00"
+      }
+    ],
+    "decisions": [
+      {
+        "review_stage": "file_administrator_review",
+        "decision": "approved",
+        "reason": "Complete authorized review"
+      },
+      {
+        "review_stage": "unit_manager_review",
+        "decision": "rejected",
+        "reason": "Return marked aggregations for correction"
+      },
+      {
+        "review_stage": "file_administrator_review",
+        "decision": "approved",
+        "reason": "Complete authorized review"
+      },
+      {
+        "review_stage": "unit_manager_review",
+        "decision": "approved",
+        "reason": "Complete authorized review"
+      },
+      {
+        "review_stage": "records_manager_review",
+        "decision": "approved",
+        "reason": "Standard round two: removed marked root; preserve the reviewed vital proposal."
+      }
+    ],
+    "documents": [
+      {
+        "document_type": "external_approval_letter",
+        "document_state": "available",
+        "review_round": null
+      },
+      {
+        "document_type": "proposal_execution_report",
+        "document_state": "available",
+        "review_round": 2
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "job_number": "PHASE16-SIMPLIFIED",
+    "review_route": "simplified",
+    "workflow_stage": "records_manager_review",
+    "current_review_round": 2,
+    "tasks": [
+      {
+        "task_type": "preparation",
+        "workflow_stage": "officer_preparation",
+        "review_round": null,
+        "task_state": "completed",
+        "destination_user_id": 2,
+        "destination_role_id": null,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": "2026-10-19 13:20:52.907091+04:00"
+      },
+      {
+        "task_type": "records_manager_review",
+        "workflow_stage": "records_manager_review",
+        "review_round": 1,
+        "task_state": "cancelled",
+        "destination_user_id": null,
+        "destination_role_id": 5,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": null
+      },
+      {
+        "task_type": "records_manager_review",
+        "workflow_stage": "records_manager_review",
+        "review_round": 1,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 8,
+        "claimed_by_user_id": 5,
+        "claimed_at": "2026-10-19 13:21:43.857809+04:00",
+        "completed_at": "2026-10-19 13:22:00.297117+04:00"
+      },
+      {
+        "task_type": "correction",
+        "workflow_stage": "officer_correction",
+        "review_round": 1,
+        "task_state": "completed",
+        "destination_user_id": 2,
+        "destination_role_id": null,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": "2026-10-19 13:22:36.254192+04:00"
+      },
+      {
+        "task_type": "records_manager_review",
+        "workflow_stage": "records_manager_review",
+        "review_round": 2,
+        "task_state": "cancelled",
+        "destination_user_id": null,
+        "destination_role_id": 5,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": null
+      },
+      {
+        "task_type": "records_manager_review",
+        "workflow_stage": "records_manager_review",
+        "review_round": 2,
+        "task_state": "completed",
+        "destination_user_id": null,
+        "destination_role_id": 8,
+        "claimed_by_user_id": 5,
+        "claimed_at": "2026-10-19 13:23:24.396985+04:00",
+        "completed_at": "2026-10-19 13:23:43.201091+04:00"
+      }
+    ],
+    "decisions": [
+      {
+        "review_stage": "records_manager_review",
+        "decision": "rejected",
+        "reason": "Return for correction: make the overall job justification more specific."
+      },
+      {
+        "review_stage": "records_manager_review",
+        "decision": "approved",
+        "reason": "Simplified corrected justification: all twenty governing roots have completed retention and are proposed for destruction as one reviewed set."
+      }
+    ],
+    "documents": [
+      {
+        "document_type": "proposal_execution_report",
+        "document_state": "available",
+        "review_round": 2
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "job_number": "PHASE16-RECORDS_MANAGER_ONLY",
+    "review_route": "records_manager_only",
+    "workflow_stage": "manager_preparation",
+    "current_review_round": 1,
+    "tasks": [
+      {
+        "task_type": "preparation",
+        "workflow_stage": "manager_preparation",
+        "review_round": null,
+        "task_state": "completed",
+        "destination_user_id": 5,
+        "destination_role_id": null,
+        "claimed_by_user_id": null,
+        "claimed_at": null,
+        "completed_at": "2026-10-19 13:19:12.179460+04:00"
+      }
+    ],
+    "decisions": [
+      {
+        "review_stage": "manager_preparation",
+        "decision": "approved",
+        "reason": "Manager Only combined approval acceptance: complete governing membership verified."
+      }
+    ],
+    "documents": [
+      {
+        "document_type": "proposal_execution_report",
+        "document_state": "available",
+        "review_round": 1
+      }
+    ]
+  }
+]

@@ -141,7 +141,7 @@ Create a local user/database if needed:
 
 ```bash
 createuser -s postgres 2>/dev/null || true
-createdb erms 2>/dev/null || true
+createdb --template=template0 --encoding=UTF8 --locale-provider=icu --icu-locale=ar erms
 ```
 
 If the local Postgres server is already running, confirm it with:
@@ -155,10 +155,19 @@ psql -h 127.0.0.1 -p 5432 -U postgres -l
 ```bash
 sudo service postgresql start
 sudo -u postgres createuser --superuser "$USER" 2>/dev/null || true
-createdb erms 2>/dev/null || true
+createdb --template=template0 --encoding=UTF8 --locale-provider=icu --icu-locale=ar erms
 ```
 
 ### Initialize the canonical database schema
+
+Run `createdb` only when the database does not exist, using the intended host,
+port and administrative role. The explicit ICU `ar` options are recommended for
+Arabic-primary/English deployments; do not suppress a provider/locale error and
+continue with an unintended database. An existing database retains its locale.
+Before initialization, inspect its encoding, `datlocprovider`, `datlocale` and
+version using the [collation guide](database-collation.md), which also explains
+the measured libc differences and deliberate rebuild procedure. The local
+launcher/bootstrap does not automatically impose or convert this locale.
 
 The repo initializes a fresh database from the canonical schema, not from migrations:
 
@@ -167,7 +176,9 @@ set -a
 source .env
 set +a
 
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/schema.sql \
+  -f database/seeds/000_required_reference_data.sql \
+  -f database/baseline.sql
 ```
 
 If the `DATABASE_URL` in `.env` is not already a reachable local PostgreSQL instance, update it before running the schema import.

@@ -1,4 +1,7 @@
 from __future__ import annotations
+from frontend.webui.disposition.tasks import tasks_screen
+from frontend.webui.disposition.screens import eligibility_screen, jobs_screen, job_screen, accelerate_dialog
+from frontend.webui.disposition.messages import text as disposition_text, status_label as disposition_status_label
 
 from frontend.webui.event_labels import event_label
 
@@ -17,6 +20,8 @@ from nicegui import app, background_tasks, context, events, ui
 
 from .api_client import ApiError, ErmsApiClient
 from .remote_select import RemoteSelect
+from .relationship_select import relationship_select
+from .navigation_drawer import navigation_menu
 from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .classification_workspace import classification_workspace
 from .application_settings import settings_page, disposition_warning_panel
@@ -31,9 +36,12 @@ from .retention_timeline import render_disposition_date, render_retention_stages
 from .capabilities import (
     capability_allowed,
     can_add_from_collection,
+    can_edit_entity_translation,
     can_navigate,
+    can_navigate_disposition,
     can_open_organization_detail,
 )
+from .profile_privileges import closure as privilege_closure, dependents as privilege_dependents
 from .acl_editor import acl_grants_payload, dependents_of, permission_closure
 from .authorization_ui import (
     gate_label, OPERATIONS, acl_source_label, aggregation_reference_label,
@@ -99,6 +107,7 @@ STOP_PROPAGATION_CLICK_HANDLER = "(event) => { event.stopPropagation(); emit(); 
 ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
     "records": {
         "record_number": ("advanced_search.field.record_number", "text", False),
+        "disposition_status": ("disposition.ui.status", "integer", False),
         "title": ("advanced_search.field.title", "text", False),
         "description": ("advanced_search.field.description", "text", True),
         "aggregation_id": ("advanced_search.field.aggregation", "integer", True),
@@ -123,6 +132,10 @@ ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
     },
     "aggregations": {
         "aggregation_number": ("advanced_search.field.aggregation_number", "text", False),
+        "effective_retention.current_period_years": ("advanced_search.field.effective_current_period_years", "integer", False),
+        "effective_retention.intermediate_period_years": ("advanced_search.field.effective_intermediate_period_years", "integer", False),
+        "effective_retention.final_disposition": ("advanced_search.field.effective_disposition_action", "choice", False),
+        "disposition_status": ("disposition.ui.status", "integer", False),
         "title": ("advanced_search.field.title", "text", False),
         "description": ("advanced_search.field.description", "text", True),
         "parent_aggregation_id": ("advanced_search.field.parent_aggregation", "integer", True),
@@ -144,11 +157,21 @@ ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
 ADVANCED_SEARCH_COMPONENT_FIELDS = frozenset(
     field for field in ADVANCED_SEARCH_FIELDS["records"] if field.startswith("component.")
 )
+ADVANCED_SEARCH_RETENTION_FIELDS = frozenset(
+    field for field in ADVANCED_SEARCH_FIELDS["aggregations"] if field.startswith("effective_retention.")
+)
 ADVANCED_SEARCH_RELATIONSHIP_FIELDS = frozenset({
     "aggregation_id", "parent_aggregation_id", "classification_id",
     "security_level_id", "owning_org_unit_id",
 })
 ADVANCED_SEARCH_CONTROLLED_VALUES: dict[str, dict[Any, str]] = {
+    "effective_retention.final_disposition": {
+        "destruction": "disposition.ui.destruction",
+        "transfer_to_external_archive": "disposition.ui.permanent_transfer",
+        "selective_preservation": "disposition.ui.selective_transfer",
+        "retain_as_local_archives": "disposition.ui.local_archives",
+    },
+    "disposition_status": {1: "disposition.ui.status_1",2: "disposition.ui.status_2",3: "disposition.ui.status_3",4: "disposition.ui.status_4",5: "disposition.ui.status_5",6: "disposition.ui.status_6",7: "disposition.ui.status_7",8: "disposition.ui.status_8",9: "disposition.ui.status_9",10: "disposition.ui.status_10",11: "disposition.ui.status_11",12: "disposition.ui.status_12",13: "disposition.ui.status_13"},
     "medium": {"digital": "advanced_search.value.digital", "physical": "advanced_search.value.physical", "mixed": "advanced_search.value.mixed"},
     "component.content_status": {
         "pending": "advanced_search.value.pending", "uploading": "advanced_search.value.uploading", "available": "advanced_search.value.available",
@@ -334,7 +357,7 @@ def localized_profile_value(row: dict[str, Any], field: str) -> Any:
     return row.get(field)
 
 
-def advanced_search_field_options(resource: str) -> dict[str, str]:
+def advanced_search_field_options(resource: str, *, can_manage_disposition: bool = False) -> dict[str, str]:
     """Return visibly grouped labels while retaining canonical field values."""
     return {
         field: (
@@ -350,19 +373,22 @@ def advanced_search_field_options(resource: str) -> dict[str, str]:
             )
         )
         for field, details in ADVANCED_SEARCH_FIELDS[resource].items()
+        if field != "disposition_status" or can_manage_disposition
     }
 
 
 def advanced_search_empty_value(field: str, operator: str, kind: str) -> Any:
     if operator in {"between", "in", "not_in"}:
         return []
-    if field in ADVANCED_SEARCH_RELATIONSHIP_FIELDS or kind in {"integer", "boolean"}:
+    if field in ADVANCED_SEARCH_RELATIONSHIP_FIELDS or kind in {"integer", "boolean", "choice"}:
         return None
     return ""
 
 
 def advanced_search_operators(kind: str, nullable: bool) -> dict[str, str]:
     common = {"eq": render_message("advanced_search.operator.is"), "ne": render_message("advanced_search.operator.is_not")}
+    if kind == "choice":
+        common |= {"in": render_message("advanced_search.operator.is_one_of"), "not_in": render_message("advanced_search.operator.is_not_one_of")}
     if kind == "text":
         common |= {"contains_ci": render_message("advanced_search.operator.contains"), "starts_with_ci": render_message("advanced_search.operator.starts_with"), "ends_with_ci": render_message("advanced_search.operator.ends_with"), "in": render_message("advanced_search.operator.is_one_of"), "not_in": render_message("advanced_search.operator.is_not_one_of")}
     elif kind in {"integer", "datetime"}:
@@ -421,6 +447,24 @@ def compile_advanced_search_node(node: dict[str, Any], resource: str) -> dict[st
                     raise ValueError(render_message("advanced_search.validation.value_required"))
             elif value in (None, ""):
                 raise ValueError(render_message("advanced_search.validation.value_required"))
+            if field in ADVANCED_SEARCH_RETENTION_FIELDS:
+                values = value if operator in {"between", "in", "not_in"} else [value]
+                if field == "effective_retention.final_disposition":
+                    if any(item not in ADVANCED_SEARCH_CONTROLLED_VALUES[field] for item in values):
+                        raise ValueError(render_message("advanced_search.validation.retention_action"))
+                else:
+                    normalized = []
+                    try:
+                        for item in values:
+                            number = int(item)
+                            if isinstance(item, bool) or number < 0 or (not isinstance(item, str) and number != item):
+                                raise ValueError
+                            normalized.append(number)
+                    except (ValueError, TypeError, OverflowError):
+                        raise ValueError(render_message("advanced_search.validation.retention_years")) from None
+                    value = normalized if operator in {"between", "in", "not_in"} else normalized[0]
+                if operator == "between" and len(values) != 2:
+                    raise ValueError(render_message("advanced_search.validation.value_required"))
             result["value"] = value
         return result
     children = node.get("children", [])
@@ -1007,11 +1051,22 @@ def error_message(error: ApiError) -> str:
     if "saved_searches_owner_name_ci_unique" in error.message:
         return render_message_plain("saved_search.error.name_exists")
     if isinstance(error.detail, dict):
+        if error.detail.get("code") == "privilege_dependency_violation":
+            return "\n".join(
+                render_message_plain("authorization.profile.error.missing_prerequisite",
+                                     privilege=item["privilege_code"], required=item["required_code"])
+                for item in error.detail.get("missing", [])
+            )
         if error.detail.get("message_key"):
             return render_message_plain(
                 error.detail["message_key"], **(error.detail.get("parameters") or {}),
             )
         messages = {
+            "aggregation_medium_contents_conflict": "resource_medium.error.contents_conflict",
+            "aggregation_medium_mismatch": "resource_medium.error.parent_conflict",
+            "record_medium_not_allowed_by_parent": "resource_medium.error.record_parent_conflict",
+            "medium_change_reason_required": "resource_medium.error.reason_required",
+            "physical_record_has_digital_components": "resource_medium.error.components_present",
             "insufficient_privilege": "authorization.error.insufficient_privilege",
             "insufficient_resource_permission": "authorization.error.insufficient_resource_permission",
             "insufficient_clearance": "authorization.error.insufficient_clearance",
@@ -1030,6 +1085,21 @@ def error_message(error: ApiError) -> str:
         503: "common.error.service_unavailable",
     }
     return render_message_plain(status_messages.get(error.status_code, "shared.errors.unexpected"))
+
+
+def clear_medium_error(control) -> None:
+    # NiceGUI validation requires its error prop to remain present.
+    control.error = None
+
+
+def highlight_medium_error(error: ApiError, control) -> None:
+    if control is not None and isinstance(error.detail, dict) and error.detail.get("code") in {
+        "aggregation_medium_contents_conflict", "aggregation_medium_mismatch",
+        "record_medium_not_allowed_by_parent", "physical_record_has_digital_components",
+    }:
+        control.props['error'] = True
+        control.props['error-message'] = error_message(error)
+        control.update()
 
 
 def show_api_error(error: ApiError) -> None:
@@ -1185,63 +1255,6 @@ def decorate_relationship_rows(
             )
         decorated.append(item)
     return decorated
-
-
-def relationship_select(
-    label: str,
-    options: dict[int, str],
-    *,
-    value: Any = None,
-    required: bool = False,
-    multiple: bool = False,
-    remote: bool = False,
-):
-    lowered_label = label.lower()
-    icon = (
-        "folder" if "aggregation" in lowered_label
-        else "corporate_fare" if "organization" in lowered_label or "unit" in lowered_label
-        else "badge" if "role" in lowered_label
-        else "person" if "user" in lowered_label
-        else "link"
-    )
-    control = (RemoteSelect if remote else ui.select)(
-        options,
-        label=label,
-        value=value,
-        with_input=True,
-        clearable=not required,
-        multiple=multiple,
-    ).props(
-        "outlined use-input input-debounce=0 behavior=menu options-dense"
-    ).classes("w-full relationship-select")
-    if remote:
-        control.classes("remote-relationship-select")
-    control.add_slot("prepend", f'<q-avatar size="34px" color="blue-1" text-color="primary" icon="{icon}" />')
-    option_template = """
-        <q-item v-bind="props.itemProps" class="relationship-option q-py-sm">
-          <q-item-section avatar>
-            <q-avatar color="blue-1" text-color="primary" icon="__ICON__" size="36px" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-weight-medium">{{ props.opt.label.includes(' · ') ? props.opt.label.split(' · ').slice(1).join(' · ') : props.opt.label }}</q-item-label>
-            <q-item-label v-if="props.opt.email" caption dir="ltr">{{ props.opt.email }}</q-item-label>
-            <q-item-label v-if="props.opt.reason" caption>{{ props.opt.reason }}</q-item-label>
-            <q-item-label caption class="row items-center q-gutter-xs">
-              <q-badge v-if="props.opt.label.includes(' · ')" outline color="primary" :label="props.opt.label.split(' · ')[0]" />
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side><q-icon name="chevron_right" color="grey-5" /></q-item-section>
-        </q-item>
-    """.replace("__ICON__", icon)
-    control.add_slot("option", option_template)
-    if multiple:
-        # NiceGUI has no input-buffer or popup setter. Use QSelect's public
-        # methods after selection so the old menu cannot intercept another field.
-        def settle_selection():
-            control.run_method("updateInputValue", "")
-            control.run_method("hidePopup")
-        control.on_value_change(settle_selection)
-    return control
 
 
 def style_person_select(control: Any, *, multiple: bool = False) -> None:
@@ -3647,7 +3660,7 @@ def index(q: str = "") -> None:
         }
     """)
 
-    with ui.header().classes("erms-header items-center gap-3"):
+    with ui.header().classes("erms-header items-center gap-3") as shell_header:
         header_network = ui.element("canvas").classes(
             "wathiq-network-canvas wathiq-header-network"
         ).props("aria-hidden=true")
@@ -3774,6 +3787,11 @@ def index(q: str = "") -> None:
             drawer_toggle_tooltip = ui.tooltip(render_message("webui.index.tooltip.collapse_navigation_abf7124d"))
         navigation: dict[str, Any] = {}
         localized_navigation = {
+            "disposition_heading": disposition_text("section"),
+            "disposition-eligibility": disposition_text("eligibility"),
+            "disposition-jobs": disposition_text("jobs"),
+            "disposition-templates": disposition_text("templates"),
+            "disposition-tasks": disposition_text("my_tasks"),
             "records_heading": render_message("navigation.section.records"),
             "organization_heading": render_message("navigation.section.organization"),
             "messages_heading": render_message("messaging.navigation.messages"),
@@ -3798,6 +3816,7 @@ def index(q: str = "") -> None:
                 )
                 for heading_key, entries in (
                     ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"), ("relationship-types", "link"))),
+                    ("disposition_heading", (("disposition-tasks", "task_alt"), ("disposition-eligibility", "event_available"), ("disposition-jobs", "work_outline"), ("disposition-templates", "description"))),
                     ("messages_heading", (("messages-inbox", "inbox"), ("messages-outbox", "outbox"), ("messages-drafts", "drafts"), ("messages-monitor", "monitor_heart"), ("messages-notifications", "notifications"))),
                     ("organization_heading", (("org-units", "corporate_fare"), ("roles", "badge"), ("users", "group"))),
                 ):
@@ -3871,6 +3890,8 @@ def index(q: str = "") -> None:
             "org-unit-details": "org-units",
             "role-details": "roles",
             "user-details": "users",
+            "disposition-job": "disposition-jobs",
+            "disposition-task": "disposition-tasks",
         }.get(page, page)
         for button, _, key in drawer_links:
             if key == navigation_key:
@@ -3880,6 +3901,14 @@ def index(q: str = "") -> None:
                 button.classes(remove="erms-nav-link--active")
                 button.props(remove="aria-current")
             button.update()
+
+    with shell_header:
+        mobile_navigation = navigation_menu(
+            drawer,
+            expand_label=render_message("webui.toggle_navigation_drawer.text.expand_navigation_65731dae"),
+            collapse_label=render_message("webui.toggle_navigation_drawer.text.collapse_navigation_1f139a52"),
+        )
+        mobile_navigation.move(target_index=1)
 
     drawer_collapsed = False
 
@@ -3897,7 +3926,9 @@ def index(q: str = "") -> None:
                 (auth_state.get("principal") or {}).get("global_privileges", [])
             )
         link_visibility = {
-            key: can_navigate(key, granted) for _, _, key in drawer_links
+            key: can_navigate(key, granted)
+            and can_navigate_disposition(key, auth_state.get("principal"))
+            for _, _, key in drawer_links
         }
         for button, _, key in drawer_links:
             # Holds visibility is resolved separately from assigned hold access.
@@ -3913,7 +3944,8 @@ def index(q: str = "") -> None:
             drawer.classes(add="erms-drawer--collapsed p-0")
             drawer_toggle_button.props(
                 remove="aria-label icon",
-                add="aria-label='Expand navigation' icon=chevron_right",
+                add='aria-label=' + json.dumps(render_message("webui.toggle_navigation_drawer.text.expand_navigation_65731dae"), ensure_ascii=False)
+                    + ' icon=' + ('chevron_left' if initial_direction == 'rtl' else 'chevron_right'),
             )
             drawer_toggle_tooltip.text = render_message("webui.toggle_navigation_drawer.text.expand_navigation_65731dae")
             for heading in drawer_headings:
@@ -3927,7 +3959,8 @@ def index(q: str = "") -> None:
             drawer.classes(remove="erms-drawer--collapsed p-0")
             drawer_toggle_button.props(
                 remove="aria-label icon",
-                add="aria-label='Collapse navigation' icon=chevron_left",
+                add='aria-label=' + json.dumps(render_message("webui.toggle_navigation_drawer.text.collapse_navigation_1f139a52"), ensure_ascii=False)
+                    + ' icon=' + ('chevron_right' if initial_direction == 'rtl' else 'chevron_left'),
             )
             drawer_toggle_tooltip.text = render_message("webui.toggle_navigation_drawer.text.collapse_navigation_1f139a52")
             for button, label, _ in drawer_links:
@@ -4021,6 +4054,7 @@ def index(q: str = "") -> None:
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
             "aggregation_mode": state.get("aggregation_mode", "search"),
             "settings_category": state.get("settings_category", "general"),
+            "disposition_view": dict(state.get("disposition_view") or {}),
             "global_search_query": state.get("global_search_query", ""),
             "global_search_page": state.get("global_search_page", 1),
             "global_search_filter": state.get("global_search_filter", "all"),
@@ -4408,6 +4442,10 @@ def index(q: str = "") -> None:
             render_navigation_breadcrumbs()
 
     breadcrumb_message_keys = {
+        "disposition-eligibility": "disposition.ui.eligibility",
+        "disposition-jobs": "disposition.ui.jobs",
+        "disposition-templates": "disposition.ui.templates",
+        "disposition-tasks": "disposition.ui.my_tasks",
         "messages-inbox": "messaging.navigation.inbox",
         "messages-outbox": "messaging.navigation.outbox",
         "messages-drafts": "messaging.navigation.drafts",
@@ -4564,6 +4602,9 @@ def index(q: str = "") -> None:
                     await run_global_search(query)
             else:
                 await select_dashboard()
+        elif page in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates", "disposition-job", "disposition-task"):
+            disposition_saved=saved.get("disposition_view") or {}
+            await select_disposition(page, disposition_saved.get("job_id") if page=="disposition-task" else entity_id if page=="disposition-job" else None, disposition_saved,task_id=entity_id if page=="disposition-task" else None)
         elif page == "relationship-types":
             await select_relationship_types()
         elif page.startswith("messages-"):
@@ -4580,6 +4621,10 @@ def index(q: str = "") -> None:
             if page == "aggregations":
                 state["aggregation_mode"] = saved.get("aggregation_mode", "search")
             await select_entity(page)
+            # Browse restores its own expanded branches, selection and scroll.
+            # A search made before switching modes must not replace that tree.
+            if page == "aggregations" and state.get("aggregation_mode") == "browse":
+                return
             search_input.value = saved.get("search_text", "")
             state["lifecycle_filter"] = saved.get("lifecycle_filter", "all")
             if saved.get("searched") and search_input.value and ENTITIES[page].search_first:
@@ -4681,6 +4726,7 @@ def index(q: str = "") -> None:
         state.pop("classification_workspace_token", None)
         api.cancel_pending_reads()
         drawer.hide()
+        mobile_navigation.set_visibility(False)
         user_menu.close()
         diagnostics_separator.set_visibility(False)
         diagnostics_section.set_visibility(False)
@@ -4845,6 +4891,7 @@ def index(q: str = "") -> None:
                                 "text-sm font-semibold text-slate-800 truncate"
                             ).tooltip(item.get("title") or render_message("webui.render_compact_resource_result.tooltip.untitled_72cde12a"))
                         with ui.row().classes("compact-result-meta w-full items-center no-wrap gap-1"):
+                            ui.label(disposition_status_label(item.get("disposition_status", 1))).classes("text-xs text-slate-600").tooltip(disposition_text("status"))
                             ui.label(format_date(date_value)).classes(
                                 "compact-result-date"
                             ).tooltip(render_message("webui.render_compact_resource_result.tooltip.originated_d00c8b65") if is_record else render_message("webui.render_compact_resource_result.tooltip.opened_4b8fc56f"))
@@ -4988,6 +5035,9 @@ def index(q: str = "") -> None:
 
     def event_entity_identity(event: dict[str, Any]) -> tuple[str, str]:
         entity_type = event["entity_type"]
+        if entity_type in ('disposition_job', 'disposition_task'):
+            from .audit_labels import disposition_event_identity
+            return disposition_event_identity(event)
         snapshot = event.get("after_state") or event.get("before_state") or {}
         if event.get("operation") == "EXPORT" and entity_type == "classification_scheme":
             snapshot = (event.get("metadata") or {}).get("scheme") or snapshot
@@ -5080,6 +5130,13 @@ def index(q: str = "") -> None:
                 event["_current_entity"] = entity
             except ApiError as error:
                 if error.status_code == 404:
+                    if event['entity_type'] in ('aggregation','record','digital_component'):
+                        try:proof=await api.disposition_page(f"retained/{event['entity_type']}/{event['entity_id']}",audit=True)
+                        except ApiError:proof=None
+                        if proof:
+                            from .disposition.destruction import retained_detail
+                            await retained_detail(api=api,proof=proof,active=lambda:True,on_error=error_message,format_timestamp=format_timestamp)
+                            return
                     ui.notify(render_message("webui.navigate_to_event_entity.notify.this_entity_no_longer_exists_its_historica_a20fef91"), color="warning")
                 else:
                     ui.notify(error_message(error), color="negative", close_button=True)
@@ -5116,6 +5173,7 @@ def index(q: str = "") -> None:
                 await open_editor(entity)
 
     def show_event_detail(event: dict[str, Any]) -> None:
+        disposition_event = event.get('display_presentation') == 'disposition'
         entity_heading, entity_identity = event_entity_identity(event)
         dialog = ui.dialog()
         before = event.get("before_state") or {}
@@ -5132,7 +5190,9 @@ def index(q: str = "") -> None:
             with ui.row().classes("w-full items-center px-5 pt-5"):
                 ui.avatar(icon="history", color="blue-1", text_color="primary")
                 with ui.column().classes("gap-0 grow"):
-                    ui.label(event_label(event["operation"])).classes("text-xl font-semibold").tooltip(event["operation"])
+                    operation_heading = ui.label(event_label(event["operation"], event=event)).classes("text-xl font-semibold")
+                    if not disposition_event:
+                        operation_heading.tooltip(event["operation"])
                     ui.label(entity_heading).classes("text-sm text-slate-500")
                     if entity_identity:
                         ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
@@ -5155,11 +5215,14 @@ def index(q: str = "") -> None:
                     with ui.column().classes("gap-0"):
                         ui.label(render_message("webui.show_event_detail.label.source_c6457d34")).classes("component-meta-label")
                         ui.label(event.get("source") or "—").classes("text-sm text-slate-700")
-                if event.get("reason"):
+                if event.get("reason") and event["operation"] not in ("DISPOSITION_BLOCKERS_DETECTED", "DISPOSITION_BLOCKERS_RESOLVED"):
                     with ui.card().classes("w-full bg-blue-50 shadow-none border border-blue-100"):
                         ui.label(render_message("webui.show_event_detail.label.change_reason_93b265ba")).classes("component-meta-label")
                         ui.label(event["reason"]).classes("text-sm")
-                if changed:
+                if disposition_event:
+                    from .disposition.history import readable_event_fields
+                    readable_event_fields(event, format_timestamp)
+                elif changed:
                     ui.label(render_message("webui.show_event_detail.label.field_changes_252aeebc")).classes("font-semibold")
                     change_rows = [
                         {
@@ -5178,19 +5241,21 @@ def index(q: str = "") -> None:
                     ).props("flat bordered wrap-cells hide-pagination").classes("w-full shrink-0")
                     for key in ("before", "after"):
                         change_table.add_slot(f"body-cell-{key}", f'<q-td :props="props"><div class="audit-value">{{{{ props.row.{key} }}}}</div></q-td>')
-                with ui.grid(columns=2).classes("w-full gap-3"):
-                    for label, value in (
-                        ("Request ID", event.get("request_id")),
-                        ("Correlation ID", event.get("correlation_id")),
-                        ("Transaction", event.get("transaction_id")),
-                        ("Event ID", event.get("id")),
-                    ):
-                        with ui.column().classes("gap-0 min-w-0"):
-                            ui.label(label).classes("component-meta-label")
-                            ui.label(event_value(value)).classes("text-xs text-slate-600 break-all")
-                if event.get("metadata"):
-                    ui.label(render_message("webui.show_event_detail.label.metadata_426a77f1")).classes("font-semibold")
-                    ui.code(json.dumps(event["metadata"], ensure_ascii=False, indent=2, sort_keys=True)).classes("w-full text-xs")
+                if can_navigate("audit-trail", (auth_state.get("principal") or {}).get("global_privileges", [])):
+                    with ui.expansion(disposition_text('history_technical'), icon='code', value=False).classes('w-full'):
+                        with ui.grid(columns=2).classes("w-full gap-3"):
+                            for label, value in (
+                                ("Request ID", event.get("request_id")),
+                                ("Correlation ID", event.get("correlation_id")),
+                                ("Transaction", event.get("transaction_id")),
+                                ("Event ID", event.get("id")),
+                            ):
+                                with ui.column().classes("gap-0 min-w-0"):
+                                    ui.label(label).classes("component-meta-label")
+                                    ui.label(event_value(value)).classes("text-xs text-slate-600 break-all")
+                        if disposition_event or event.get("metadata"):
+                            ui.label(render_message("webui.show_event_detail.label.metadata_426a77f1")).classes("font-semibold")
+                            ui.code(json.dumps(event if disposition_event else event["metadata"], ensure_ascii=False, indent=2, sort_keys=True, default=str)).classes("w-full text-xs")
         dialog.open()
 
     def render_event_timeline(events_list: list[dict[str, Any]], container: Any) -> None:
@@ -5210,13 +5275,15 @@ def index(q: str = "") -> None:
                         "text-xs text-slate-400 font-medium mt-2"
                     ).tooltip(render_message("webui.render_event_timeline.tooltip.events_sharing_this_correlation_id_belong_6351adea"))
                 previous_correlation = correlation
-                operation = event_label(event["operation"])
+                operation = event_label(event["operation"], event=event)
                 entity_heading, entity_identity = event_entity_identity(event)
                 with ui.card().classes("audit-event w-full px-4 py-3"):
                     with ui.row().classes("w-full items-center no-wrap gap-3"):
                         ui.avatar(icon={"CREATE": "add", "UPDATE": "edit", "DELETE": "delete"}.get(event["operation"], "bolt"), color="blue-1", text_color="primary", size="36px")
                         with ui.column().classes("gap-0 grow min-w-0"):
-                            ui.label(operation).classes("font-semibold").tooltip(event["operation"])
+                            operation_heading = ui.label(operation).classes("font-semibold")
+                            if event.get('display_presentation') != 'disposition':
+                                operation_heading.tooltip(event["operation"])
                             ui.label(entity_heading).classes("text-xs text-slate-500")
                             if entity_identity:
                                 ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
@@ -7430,6 +7497,7 @@ def index(q: str = "") -> None:
                                 ),
                             ])
                         record_metadata.extend([
+                            ("disposition_status", disposition_text("status"), disposition_status_label(record.get("disposition_status", 1))),
                             ("review", render_message("entity_metadata.field.review"), review_display(record.get("date_of_next_review"))),
                             # The state disambiguates a protected existing
                             # container from an absent relationship; records
@@ -8366,6 +8434,15 @@ def index(q: str = "") -> None:
                 )
             )
         )
+        translation_edit_allowed = can_edit_entity_translation(
+            spec.key, (auth_state.get("principal") or {}).get("global_privileges", [])
+        )
+        if translation_only and not translation_edit_allowed:
+            ui.notify(
+                render_message("webui.open_editor.notify.your_effective_roles_do_not_allow_editing_ae0f56e0", singular=spec.singular),
+                color="warning", close_button=True,
+            )
+            return
         effective_locked_fields = set(locked_fields or set())
         if row and spec.key in {"aggregations", "records"}:
             try:
@@ -8723,6 +8800,10 @@ def index(q: str = "") -> None:
                         initial_value,
                         lookup_options.get(field.name),
                     )
+                    if field.name == "medium":
+                        controls[field.name].on_value_change(
+                            lambda _, control=controls[field.name]: clear_medium_error(control)
+                        )
                     if creating and field.name in {"aggregation_number", "record_number"}:
                         add_number_suggestion(controls[field.name], spec.key, controls)
                     if field.name == "security_level_id" and spec.key in {"aggregations", "records"}:
@@ -8861,7 +8942,7 @@ def index(q: str = "") -> None:
                     [], tuple[str, dict[str, str], str] | None
                 ] | None = None
                 profile_change_reason = None
-                if not creating and spec.key in multilingual_fields:
+                if not creating and spec.key in multilingual_fields and translation_edit_allowed:
                     bootstrap = state.get("localization") or {}
                     language_options = {
                         item["language_tag"]: f'{item["native_name"]} · {item["english_name"]}'
@@ -8895,6 +8976,8 @@ def index(q: str = "") -> None:
                             ).classes("w-full")
                             for field in multilingual_fields[spec.key]
                         }
+                        for control in translation_controls.values():
+                            control.disable()
                         translation_reason = (
                             None if spec.key == "profiles" else ui.input(
                                 render_message("webui.open_editor.input.reason_for_translation_change_82d24ea1")
@@ -8949,11 +9032,16 @@ def index(q: str = "") -> None:
                                 }
                                 translation_status.set_text(translation_loaded_status)
                             except ApiError as error:
-                                if load_generation == translation_state["load_generation"]:
-                                    for control in translation_controls.values():
-                                        control.enable()
-                                        control.update()
-                                show_api_error(error)
+                                if (load_generation != translation_state["load_generation"]
+                                    or language_control.value != language or not dialog.value):
+                                    return
+                                # Language changes run in a background task. Restore
+                                # this editor's client context for localized errors.
+                                # Failed loads keep fields disabled and cannot save
+                                # a translation against an unknown baseline/version.
+                                with translation_status.client:
+                                    translation_status.set_text(error_message(error))
+                                    show_api_error(error)
 
                         def pending_entity_translation() -> tuple[
                             str, dict[str, str], str
@@ -9313,6 +9401,7 @@ def index(q: str = "") -> None:
                         number_field = "aggregation_number" if spec.key == "aggregations" else "record_number"
                         if await show_number_conflict(error, spec.key, controls[number_field], root=spec.key == "aggregations" and controls["parent_aggregation_id"].value is None):
                             return
+                    highlight_medium_error(error, controls.get("medium"))
                     show_api_error(error)
 
             with ui.row().classes("w-full justify-end gap-2"):
@@ -10067,6 +10156,7 @@ def index(q: str = "") -> None:
                                 )
                             )
                             aggregation_metadata.extend([
+                                ("disposition_status", disposition_text("status"), disposition_status_label(current.get("disposition_status", 1))),
                                 ("review", render_message("entity_metadata.field.review"), review_display(current.get("date_of_next_review"))),
                                 governing_relationship,
                                 (
@@ -10359,7 +10449,7 @@ def index(q: str = "") -> None:
                         with ui.card().classes(
                             "retention-card aggregation-retention-compact shadow-none p-4 gap-3"
                         ):
-                            with ui.row().classes("w-full items-center gap-3"):
+                            with ui.row().classes("detail-action-row w-full items-center gap-3"):
                                 ui.avatar(icon="schedule", color="blue-1", text_color="primary", size="38px")
                                 with ui.column().classes("gap-0 grow"):
                                     ui.label(render_message("webui.open_aggregation.label.effective_retention_rule_4dce9765")).classes("text-base font-semibold text-slate-900")
@@ -10389,13 +10479,18 @@ def index(q: str = "") -> None:
                                         )
                                     ui.label(source_text).classes("text-xs text-sky-700")
                                 ui.badge(render_message("webui.open_aggregation.badge.effective_a28f890c"), color="primary").props("outline")
+                                if current.get("parent_aggregation_id") is None and current.get("disposition_status",1)==1 and (auth_state.get("principal") or {}).get("can_manage_disposition"):
+                                    async def accelerated(result):await open_aggregation(await api.get("aggregations",current["id"]))
+                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
+                                        api=api,root=current,active=lambda:state.get("resource")=="aggregation-details" and (state.get("aggregation_detail") or {}).get("id")==current["id"],
+                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
                             render_retention_stages(effective_rule, localized_disposition_value)
                             render_disposition_date(
                                 effective_rule,
                                 aggregation_context_by_id.get(effective_rule["governing_root_aggregation_id"]),
                                 *current_locale_context(),
                             )
-                            with ui.element("div").classes("aggregation-retention-footer w-full"):
+                            with ui.element("div").classes("aggregation-retention-footer detail-action-row w-full"):
                                 if classification_path:
                                     classification_text = " › ".join(
                                         f"{item['code']} — {item['title']}" for item in classification_path
@@ -11011,16 +11106,65 @@ def index(q: str = "") -> None:
                     bool(controls) and all(control.value for control in controls.values())
                 )
 
-            for privilege_control in controls.values():
+            dependencies = {item["id"]: set(item["required_privilege_ids"]) for item in all_privileges}
+            selection = set(selected_ids)
+            applying_selection = False
+
+            def apply_selection(updated):
+                nonlocal applying_selection
+                applying_selection = True
+                try:
+                    selection.clear()
+                    selection.update(updated)
+                    for identifier, control in controls.items():
+                        control.set_value(identifier in selection)
+                finally:
+                    applying_selection = False
+                update_unrestricted_profile_warning()
+
+            def selection_changed(identifier, checked):
+                if applying_selection:
+                    return
+                if checked:
+                    updated = privilege_closure(selection | {identifier}, dependencies)
+                    added = updated - selection - {identifier}
+                    apply_selection(updated)
+                    if added:
+                        names = ", ".join(item["code"] for item in all_privileges if item["id"] in added)
+                        ui.notify(render_message("authorization.profile.prerequisites_added", privileges=names), color="info")
+                    return
+                affected = privilege_dependents(identifier, selection, dependencies)
+                if not affected:
+                    apply_selection(selection - {identifier})
+                    return
+                # Keep the valid selection until the user confirms removal.
+                apply_selection(set(selection))
+                with ui.dialog().props("persistent") as confirm, ui.card():
+                    names = ", ".join(item["code"] for item in all_privileges if item["id"] in affected)
+                    ui.label(render_message("authorization.profile.remove_dependents", privileges=names))
+                    with ui.row():
+                        ui.button(render_message("webui.show_profile_privilege_editor.button.cancel_d03380ff"), on_click=confirm.close).props("flat")
+                        def remove_together():
+                            apply_selection(selection - affected - {identifier})
+                            confirm.close()
+                        ui.button(render_message("authorization.profile.remove_together"), on_click=remove_together)
+                confirm.open()
+
+            for identifier, privilege_control in controls.items():
                 privilege_control.on_value_change(
-                    lambda _: update_unrestricted_profile_warning()
+                    lambda event, identifier=identifier: selection_changed(identifier, event.value)
                 )
             update_unrestricted_profile_warning()
             reason = ui.textarea(render_message("webui.show_profile_privilege_editor.textarea.reason_for_changing_this_profile_6813db02"), placeholder=render_message("webui.show_profile_privilege_editor.textarea.required_e75da8d4")).props(
                 "outlined autogrow"
             ).classes("w-full")
 
+            dependency_feedback = ui.column().classes("w-full gap-1")
+
             async def save_privileges() -> None:
+                dependency_feedback.clear()
+                for control in controls.values():
+                    control.props(remove="error error-message")
                 change_reason = (reason.value or "").strip()
                 if not change_reason:
                     ui.notify(render_message("webui.save_privileges.notify.a_reason_is_required_ae7186e1"), color="warning")
@@ -11035,6 +11179,20 @@ def index(q: str = "") -> None:
                     ui.notify(render_message("webui.save_privileges.notify.profile_privileges_saved_3a8e587a"), color="positive")
                     await select_entity("profiles")
                 except ApiError as error:
+                    if isinstance(error.detail, dict) and error.detail.get("code") == "privilege_dependency_violation":
+                        missing = error.detail.get("missing", [])
+                        required_codes = {item["required_code"] for item in missing}
+                        privilege_search.set_value("")
+                        filter_privileges()
+                        for privilege, _ in privilege_entries:
+                            if privilege["code"] in required_codes:
+                                controls[privilege["id"]].props("error")
+                        with dependency_feedback:
+                            for item in missing:
+                                ui.label(render_message(
+                                    "authorization.profile.error.missing_prerequisite",
+                                    privilege=item["privilege_code"], required=item["required_code"],
+                                )).classes("text-negative").props('role="alert"')
                     show_api_error(error)
 
             with ui.row().classes("w-full justify-end gap-2"):
@@ -12055,6 +12213,7 @@ def index(q: str = "") -> None:
 
     def populate_user_menu(principal: dict[str, Any]) -> None:
         drawer.show()
+        mobile_navigation.set_visibility(True)
         header_network.set_visibility(True)
         auth_state["principal"] = principal
         privileges = set(principal.get("global_privileges", []))
@@ -18728,7 +18887,10 @@ def index(q: str = "") -> None:
                                 update_search_enabled(), refresh_sort_options(), persist_workspace(),
                             ))
                     else:
-                        fields = advanced_search_field_options(workspace["resource"])
+                        fields = advanced_search_field_options(workspace["resource"],can_manage_disposition=bool((auth_state.get("principal") or {}).get("can_manage_disposition")))
+                        if node.get("field")=="disposition_status" and "disposition_status" not in fields:
+                            ui.label(disposition_text("restricted")).props("role=status")
+                            return
                         field_name = node.get("field") if node.get("field") in fields else "title"
                         node["field"] = field_name
                         field_control = ui.select(fields, value=field_name, label=render_message("webui.render_condition.select.field_02092225")).props("outlined dense options-dense").classes("min-w-44 grow")
@@ -18742,14 +18904,29 @@ def index(q: str = "") -> None:
                                 value_control = ui.select({True: render_message("webui.render_condition.select.yes_917fd8af"), False: render_message("webui.render_condition.select.no_b3020c97")}, value=node.get("value"), label=render_message("webui.render_condition.select.value_3acb61a0")).props("outlined dense options-dense clearable").classes("w-32")
                             elif operator_name == "between":
                                 values = node.get("value") if isinstance(node.get("value"), list) else ["", ""]
-                                first = ui.input(render_message("webui.render_condition.input.from_8e3ed147"), value=values[0] if values else "").props("outlined dense clearable").classes("min-w-40")
-                                second = ui.input(render_message("webui.render_condition.input.to_5f691965"), value=values[1] if len(values) > 1 else "").props("outlined dense clearable").classes("min-w-40")
+                                if field_name in ADVANCED_SEARCH_RETENTION_FIELDS:
+                                    first = ui.number(render_message("webui.render_condition.input.from_8e3ed147"), value=values[0] if values else None, min=0, step=1).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
+                                    second = ui.number(render_message("webui.render_condition.input.to_5f691965"), value=values[1] if len(values) > 1 else None, min=0, step=1).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
+                                else:
+                                    first = ui.input(render_message("webui.render_condition.input.from_8e3ed147"), value=values[0] if values else "").props("outlined dense clearable").classes("min-w-40")
+                                    second = ui.input(render_message("webui.render_condition.input.to_5f691965"), value=values[1] if len(values) > 1 else "").props("outlined dense clearable").classes("min-w-40")
                                 if field_kind == "datetime":
                                     first.props(add="type=datetime-local dir=ltr").classes(add="advanced-search-technical-value")
                                     second.props(add="type=datetime-local dir=ltr").classes(add="advanced-search-technical-value")
                                 first.on_value_change(lambda event: (node.__setitem__("value", [event.value, (node.get("value") or ["", ""])[1]]), update_search_enabled()))
                                 second.on_value_change(lambda event: (node.__setitem__("value", [(node.get("value") or ["", ""])[0], event.value]), update_search_enabled()))
                                 value_control = None
+                            elif operator_name in {"in", "not_in"} and field_kind == "choice":
+                                controlled_options = {
+                                    value: render_message(message_key)
+                                    for value, message_key in ADVANCED_SEARCH_CONTROLLED_VALUES[field_name].items()
+                                }
+                                selected_values = node.get("value") if isinstance(node.get("value"), list) else []
+                                value_control = ui.select(
+                                    controlled_options, value=[value for value in selected_values if value in controlled_options],
+                                    label=render_message("webui.render_condition.select.value_3acb61a0"), multiple=True,
+                                ).props("outlined dense options-dense clearable use-chips").classes("grow min-w-56")
+                                value_control.on_value_change(lambda event: (node.__setitem__("value", event.value or []), update_search_enabled()))
                             elif operator_name in {"in", "not_in"}:
                                 rendered = ", ".join(str(item) for item in node.get("value", [])) if isinstance(node.get("value"), list) else ""
                                 value_control = ui.input(render_message("webui.render_condition.input.values_comma_separated_c3e84e2f"), value=rendered).props("outlined dense clearable").classes("advanced-search-auto-value grow min-w-56")
@@ -18812,7 +18989,8 @@ def index(q: str = "") -> None:
                                 if field_name == "component.content_status":
                                     style_status_chip_select(value_control)
                             elif field_kind == "integer":
-                                value_control = ui.number(render_message("advanced_search.field.value"), value=node.get("value")).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
+                                number_options = {"min": 0, "step": 1} if field_name in ADVANCED_SEARCH_RETENTION_FIELDS else {}
+                                value_control = ui.number(render_message("advanced_search.field.value"), value=node.get("value"), **number_options).props("outlined dense clearable dir=ltr").classes("advanced-search-technical-value min-w-40")
                             else:
                                 value_control = ui.input(render_message("webui.render_condition.input.value_8dc59edc"), value=node.get("value", "")).props("outlined dense clearable").classes("advanced-search-auto-value grow min-w-56")
                                 if field_kind == "datetime":
@@ -18905,7 +19083,7 @@ def index(q: str = "") -> None:
             options = {
                 name: render_message(details[0])
                 for name, details in ADVANCED_SEARCH_FIELDS[workspace["resource"]].items()
-                if name not in ADVANCED_SEARCH_COMPONENT_FIELDS
+                if name not in ADVANCED_SEARCH_COMPONENT_FIELDS and name not in ADVANCED_SEARCH_RETENTION_FIELDS and (name!="disposition_status" or (auth_state.get("principal") or {}).get("can_manage_disposition"))
             }
             options["id"] = render_message("advanced_search.sort.identifier")
             try:
@@ -19053,7 +19231,7 @@ def index(q: str = "") -> None:
                             )
                             render_compact_resource_result(
                                 "records", item,
-                                on_open=lambda selected: open_advanced_record(int(selected["id"])),
+                                on_open=lambda selected: open_advanced_record(int(selected["id"]),selected.get("disposition_status")),
                                 components=displayed_components,
                                 metadata_matched=bool(search_meta.get("metadata_matched")),
                                 content_matched=bool(matching_components),
@@ -19075,19 +19253,33 @@ def index(q: str = "") -> None:
                         else:
                             render_compact_resource_result(
                                 "aggregations", item,
-                                on_open=lambda selected: open_advanced_aggregation(int(selected["id"])),
+                                on_open=lambda selected: open_advanced_aggregation(int(selected["id"]),selected.get("disposition_status")),
                                 metadata_matched=bool(search_meta.get("metadata_matched")),
                                 show_medium=True,
                             )
             restore_compact_result_anchor(workspace.pop("return_anchor", None))
 
-        async def open_advanced_record(identifier: int) -> None:
+        async def open_destroyed_search_result(kind: str, identifier: int):
+            from frontend.webui.disposition.destruction import retained_detail
+            try:proof=await api.disposition_page(f"retained/{kind}/{identifier}")
+            except ApiError as error:
+                if search_view_is_current():ui.notify(error_message(error),type='negative')
+                return
+            if search_view_is_current():await retained_detail(api=api,proof=proof,active=search_view_is_current,on_error=error_message,format_timestamp=format_timestamp)
+
+        async def open_advanced_record(identifier: int, disposition_status: int | None = None) -> None:
+            if disposition_status==10:
+                await open_destroyed_search_result('record',identifier)
+                return
             workspace["return_anchor"] = f"compact-result-records-{int(identifier)}"
             persist_workspace()
             state.pop("discard_navigation_guard", None)
             await select_record_details(identifier)
 
-        async def open_advanced_aggregation(identifier: int) -> None:
+        async def open_advanced_aggregation(identifier: int, disposition_status: int | None = None) -> None:
+            if disposition_status==10:
+                await open_destroyed_search_result('aggregation',identifier)
+                return
             workspace["return_anchor"] = f"compact-result-aggregations-{int(identifier)}"
             persist_workspace()
             state.pop("discard_navigation_guard", None)
@@ -19224,6 +19416,79 @@ def index(q: str = "") -> None:
             on_category=remember_settings_category,
         )
 
+    async def select_disposition(page="disposition-eligibility", identity=None, saved=None, target_job=None, task_id=None):
+        principal=auth_state.get("principal")
+        if not principal or not can_navigate_disposition(page, principal):
+            return
+        task_id=task_id or (saved or {}).get("task_id")
+        if task_id and page=="disposition-job":page="disposition-task"
+        token=object()
+        label=disposition_text("templates" if page=="disposition-templates" else "current_task" if task_id else "workspace_details" if page=="disposition-job" else "my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
+        register_navigation(page,label,entity_id=task_id if page=="disposition-task" else identity)
+        state.update(resource=page, disposition_page_token=token, rows=[], searched=True,
+                     aggregation_detail=None, disposition_view={**dict(saved or {}),**({"task_id":task_id,"job_id":identity} if task_id else {})})
+        show_authenticated_view();title.text=label;subtitle.text="";guidance.text=""
+        for control in (search_bar,aggregation_mode_bar,add_button,add_record_button):control.set_visibility(False)
+        table_container.clear()
+        def active():
+            return auth_state.get("principal") is principal and state.get("resource")==page and state.get("disposition_page_token") is token
+        def remember(value):
+            if active():
+                state["disposition_view"]=value
+                if navigation_state["trail"] and navigation_state["trail"][-1]["page"]==page:
+                    navigation_state["trail"][-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
+        async def open_tasks():await select_disposition("disposition-tasks")
+        async def open_approval_results(identity):await select_disposition("disposition-job",identity,saved={"section":"documents","approval_results":True})
+        async def open_job(identity):await select_disposition("disposition-job",identity)
+        async def open_task(job_id,identity):await select_disposition("disposition-job",job_id,task_id=identity)
+        def register_dirty(dirty):
+            async def guard(action):
+                if dirty():
+                    ui.notify(disposition_text("unsaved_warning"),type="warning");return False
+                return True
+            state["discard_navigation_guard"]=guard
+        async def open_eligibility(job_id):await select_disposition("disposition-eligibility",target_job=job_id)
+        async def open_resource(kind,identity):await guarded_page_navigation(lambda:open_related_resource(kind,identity))
+        common=dict(api=api,container=table_container,active=active,on_error=error_message,
+                    bind_remote=bind_remote_relationship_select,open_job=open_job)
+        try:
+            if page in ("disposition-job","disposition-task"):
+                await job_screen(**common,identity=identity,open_eligibility=open_eligibility,
+                                 open_resource=open_resource,format_timestamp=format_timestamp,event_label=event_label,preview=preview_record_components,task_id=task_id,register_dirty=register_dirty,browse_resource=browse_advanced_aggregation,open_task=open_task,open_tasks=open_tasks,open_approval_results=open_approval_results,saved=saved,remember=remember)
+            elif page=="disposition-templates":
+                from .disposition.templates import templates_screen
+                await templates_screen(api=api,container=table_container,active=active,on_error=error_message,format_timestamp=format_timestamp)
+            elif page=="disposition-tasks":
+                filter_preference_key=f"disposition_task_filters:{principal['user']['id']}"
+                def remember_task_filters(expanded):
+                    if active():
+                        app.storage.user[filter_preference_key]=bool(expanded)
+                await tasks_screen(**common,open_task=open_task,format_timestamp=format_timestamp,saved=saved,remember=remember,
+                                   filters_expanded=app.storage.user.get(filter_preference_key,False),
+                                   remember_filters=remember_task_filters)
+            elif page=="disposition-eligibility":
+                filter_preference_key=f"disposition_eligibility_filters:{principal['user']['id']}"
+                def remember_eligibility_filters(expanded):
+                    if active():
+                        app.storage.user[filter_preference_key]=bool(expanded)
+                await eligibility_screen(**common,open_resource=open_resource,format_timestamp=format_timestamp,
+                                         saved=saved,remember=remember,target_job=target_job,
+                                         filters_expanded=app.storage.user.get(filter_preference_key,False),
+                                         remember_filters=remember_eligibility_filters)
+            else:
+                filter_preference_key=f"disposition_job_filters:{principal['user']['id']}"
+                def remember_job_filters(expanded):
+                    if active():
+                        app.storage.user[filter_preference_key]=bool(expanded)
+                await jobs_screen(**common,saved=saved,remember=remember,
+                                  filters_expanded=app.storage.user.get(filter_preference_key,False),
+                                  remember_filters=remember_job_filters)
+        except asyncio.CancelledError:
+            return
+        except ApiError as error:
+            if active():
+                with table_container:ui.label(error_message(error)).classes("text-negative").props("role=alert")
+
     async def select_relationship_types() -> None:
         principal = auth_state.get("principal")
         if not principal or not can_navigate("relationship-types", principal.get("global_privileges", [])):
@@ -19341,6 +19606,8 @@ def index(q: str = "") -> None:
             relationship_select=relationship_select,
             bind_relationship=bind_remote_relationship_select,
             open_resource=open_message_resource, format_timestamp=format_timestamp,
+            open_disposition_eligibility=lambda:guarded_page_navigation(lambda:select_disposition("disposition-eligibility")),
+            open_disposition_task=lambda job_id,task_id:guarded_page_navigation(lambda:select_disposition("disposition-job",job_id,task_id=task_id)),
             inspect_resource=inspect_message_resource,
             on_read=refresh_message_unread,
             browse_recipients=show_organization_structure if "organization.browse" in principal.get("global_privileges", []) else None,
@@ -19410,7 +19677,9 @@ def index(q: str = "") -> None:
                             ui.notify(error_message(error), color="negative", close_button=True)
                     finally:
                         state["personal_sections_loading"][resource_key] = False
-                    if state.get("resource") == resource_key:
+                    if state.get("resource") == resource_key and not (
+                        resource_key == "aggregations" and state.get("aggregation_mode") == "browse"
+                    ):
                         personal_host = state["personal_section_hosts"].get(resource_key)
                         if personal_host is not None and not getattr(personal_host, "_deleted", False):
                             render_resource_personal_sections(
@@ -20269,6 +20538,7 @@ def index(q: str = "") -> None:
                         render_message("webui.select_translation_administration.input.key_16b82d81"),
                         value=initial_key or "",
                     ).props("outlined dense clearable debounce=350").classes("w-56")
+                    source_filter = ui.input(render_message("localization.filter.source_text")).props("outlined dense clearable debounce=350").classes("w-56")
                     text_filter = ui.input(render_message("webui.select_translation_administration.input.translated_text_054048b6")).props("outlined dense clearable debounce=350").classes("w-56")
                     meaning_filter = ui.input(render_message("webui.select_translation_administration.input.semantic_meaning_b8e3fe8d")).props("outlined dense clearable debounce=350").classes("w-60")
                     status_filter = ui.select({"all":render_message("localization.filter.status.all"),"draft":render_message("localization.filter.status.draft"),"published":render_message("localization.filter.status.published")},value="all",label=render_message("webui.select_translation_administration.select.status_9d5af32b")).props("outlined dense options-dense").classes("w-40")
@@ -20685,6 +20955,14 @@ def index(q: str = "") -> None:
             dialog.open()
 
         async def load_messages(reset: bool=False, restore_scroll: float | None = None) -> None:
+            if state.get("resource") != "translations" or results.is_deleted:
+                return
+            # Clear-all also runs in a background task. Resolve every label in
+            # this page's client/language context, including summary updates.
+            with table_container:
+                await load_translation_messages(reset, restore_scroll)
+
+        async def load_translation_messages(reset: bool=False, restore_scroll: float | None = None) -> None:
             message_load["sequence"] += 1
             request_sequence = message_load["sequence"]
             if reset: page["offset"]=0
@@ -20693,6 +20971,7 @@ def index(q: str = "") -> None:
                 request_params = dict(
                     language_tag=administration_language["value"],
                     key=strip_diagnostic_metadata(key_filter.value or ""),
+                    source_text=strip_diagnostic_metadata(source_filter.value or ""),
                     translated_text=strip_diagnostic_metadata(text_filter.value or ""),
                     semantic_meaning=strip_diagnostic_metadata(meaning_filter.value or ""),
                     status=status_filter.value,origin=origin_filter.value,
@@ -20711,14 +20990,18 @@ def index(q: str = "") -> None:
                     request_params["offset"] = 0
                     data = await api.localization_messages(**request_params)
                     group_total = data.get("group_total", len(data.get("context_groups", [])))
+                if request_sequence != message_load["sequence"] or state.get("resource") != "translations" or results.is_deleted:
+                    return
                 generation = await api.localization_generation_report(administration_language["value"])
             except ApiError as error:
-                if request_sequence == message_load["sequence"]:
+                if request_sequence == message_load["sequence"] and state.get("resource") == "translations" and not results.is_deleted:
                     ui.notify(error_message(error),color="negative",close_button=True)
                 return
             # Debounced controls can have more than one request in flight. An
             # older response must never replace the newest filter result.
             if request_sequence != message_load["sequence"]:
+                return
+            if state.get("resource") != "translations" or results.is_deleted:
                 return
             generation_coverage.text = render_message(
                 "localization.generation.review.coverage",
@@ -20745,6 +21028,7 @@ def index(q: str = "") -> None:
             for item in data["items"]: grouped.setdefault(item["context_group"],[]).append(item)
             filters_active = bool(
                 (key_filter.value or "").strip()
+                or (source_filter.value or "").strip()
                 or (text_filter.value or "").strip()
                 or (meaning_filter.value or "").strip()
                 or status_filter.value != "all"
@@ -20794,7 +21078,7 @@ def index(q: str = "") -> None:
                 )
 
         def clear_all() -> None:
-            key_filter.value="";text_filter.value="";meaning_filter.value="";status_filter.value="all";origin_filter.value="all";review_filter.value="all";attention_filter.value=False
+            key_filter.value="";source_filter.value="";text_filter.value="";meaning_filter.value="";status_filter.value="all";origin_filter.value="all";review_filter.value="all";attention_filter.value=False
             background_tasks.create(load_messages(True))
 
         async def select_administration_language(language_tag: str) -> None:
@@ -20812,7 +21096,7 @@ def index(q: str = "") -> None:
                 card.props(f"aria-pressed={'true' if selected else 'false'}")
             await load_messages(True)
 
-        for control in (key_filter,text_filter,meaning_filter,status_filter,origin_filter,review_filter,attention_filter): control.on_value_change(lambda:load_messages(True))
+        for control in (key_filter,source_filter,text_filter,meaning_filter,status_filter,origin_filter,review_filter,attention_filter): control.on_value_change(lambda:load_messages(True))
         for tag, card in language_cards.items():
             card.on("click", lambda _, language_tag=tag: select_administration_language(language_tag))
         clear_filters.on("click",clear_all);add_language.on("click",language_dialog)
@@ -20875,6 +21159,8 @@ def index(q: str = "") -> None:
             button.on("click", lambda: guarded_page_navigation(select_classification_workspace))
         elif key == "advanced-search":
             button.on("click", lambda: guarded_page_navigation(select_advanced_search))
+        elif key in ("disposition-tasks", "disposition-eligibility", "disposition-jobs", "disposition-templates"):
+            button.on("click", lambda _, page=key: guarded_page_navigation(lambda: select_disposition(page)))
         elif key == "relationship-types":
             button.on("click", lambda: guarded_page_navigation(select_relationship_types))
         elif key == "translations":

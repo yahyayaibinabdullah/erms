@@ -3,7 +3,7 @@
 **Status:** Approved — implementation baseline  
 **Project:** ERMS / Wathiq  
 **Prepared:** 26 September 2026  
-**Revision:** 0.23 — canonical administrator-to-agent artifact lifecycle
+**Revision:** 0.25 — English source text filter in Translation Administration (28 October 2026)
 
 ## 1. Purpose
 
@@ -428,13 +428,14 @@ The listing provides these explicit filters:
 | Filter | Behavior |
 | --- | --- |
 | **Key** | Case-insensitive partial match against the complete `message_key` |
+| **English source text** | Case-insensitive partial match against the authoritative English `default_text`, independently of the selected translation language |
 | **Translated text** | Case-insensitive partial match against `translated_text` for the selected language |
 | **Semantic meaning** | Case-insensitive partial match against the definition's `semantic_meaning` guidance |
 | **Status** | Controlled selection of all, `draft`, or `published` |
 | **Origin** | Controlled selection of all, `source_copy`, `manual`, `generated`, or `imported` |
 
 Context, review state, and **Needs attention** remain available as additional
-filters. The five primary filters are individually labelled and must not be
+filters. The six primary filters are individually labelled and must not be
 hidden inside one ambiguous general-search field. Active filters combine with
 logical AND, while an empty text filter or **All** selection does not constrain
 results. Text filters are debounced, changing any filter resets pagination to
@@ -534,6 +535,13 @@ The workflow uses the same rules for every supported language:
    and published together. Non-source-language source copies are excluded and
    reported as awaiting translation. If any selected eligible draft is invalid,
    nothing is published.
+   The routine generated-draft flag `needs_human_review` is a review reminder,
+   not a translation defect. It must not block this explicit review-and-publish
+   action or its preview. Successful publication removes that marker, preserves
+   the remaining generation provenance, and records the reviewer and publisher.
+   Other quality flags (including unknown flags), invalid placeholders, blank
+   text and malformed markup still block the complete selected batch. Failed
+   or stale submissions must leave flags, publication and revision unchanged.
 5. Context-level bulk actions apply to the language and context visibly being
    viewed. They use the same validation and all-or-nothing behavior.
 6. English definitions are the original application wording and may be
@@ -627,9 +635,13 @@ authoritative English definitions and generation inputs.
 
 The generic seed utility must not be modified for individual message keys. It
 reads the complete current generated Arabic draft catalogue and applies it only
-to absent or untouched `source_copy` rows. It must run explicitly against a
-selected database and must not run during API startup, schema creation, or a
-migration. Existing manual, imported, generated, reviewed, or published rows
+to absent or untouched `source_copy` rows. It may run explicitly against a
+selected database. The local `run-local-stack.sh` launcher also invokes it with
+`--missing-only` against its resolved `DATABASE_URL`, after readiness/preflight
+checks and before starting or reusing application services. A failed sync stops
+that launch with its error; it never publishes translations. The launcher uses
+the existing utility rather than a second catalogue-merging implementation.
+It must not run during API startup, schema creation, or a migration. Existing manual, imported, generated, reviewed, or published rows
 remain protected. If an English source changes after a generated row has been
 seeded, synchronization marks the row **Needs review**; replacing that existing
 database draft requires the governed review/reconciliation workflow and must
@@ -1110,13 +1122,14 @@ to modify that entity's metadata may add, update, or remove its translations;
 this feature does not grant broader entity access. They do not need
 `localization.administer` or System Administrator status.
 
-The required right is the corresponding `<entity>.modify_metadata` right:
+The required right is listed below. User translations use the same right as
+ordinary user administration; other entity types retain their metadata right:
 
 | Entity | Required metadata right |
 | --- | --- |
 | Classification scheme | `classification_scheme.modify_metadata` |
 | Classification | `classification.modify_metadata` |
-| User | `user.modify_metadata` |
+| User | `identity.users.administer` |
 | Role | `role.modify_metadata` |
 | Organizational unit | `org_unit.modify_metadata` |
 | Security level | `security_level.modify_metadata` |
@@ -1126,6 +1139,13 @@ The required right is the corresponding `<entity>.modify_metadata` right:
 and `SYS_ADMIN` profiles. This lets a System Administrator maintain localized
 Profile names and descriptions without first modifying their own authorization
 profile. The right remains independently assignable to other profiles.
+
+`identity.users.administer` authorizes both reading and changing users' localized
+names/descriptions, including from the ordinary Edit User form. No separate
+user-translation privilege or `localization.administer` grant is required.
+The former `user.modify_metadata` privilege is retired; remove its profile
+memberships and dependency links without granting user administration to its
+former holders. Preserve historical audit events and deprecate its message keys.
 
 The authorization check uses the same scope, resource access, state, and other
 integrity gates as an ordinary metadata edit for that entity. Translating
@@ -1140,12 +1160,12 @@ control disabled and the **Translations** disclosure enabled. Saving that form
 must call only the locale-scoped entity-translation endpoint. The ordinary
 entity update endpoint continues to reject every canonical-field mutation,
 including requests that attempt to combine canonical and translated changes.
-The corresponding `<entity>.modify_metadata` right is still required.
+The corresponding right in the table above is still required.
 
 If an existing implementation currently represents one of these administrative
 metadata operations under a broader legacy administration privilege, the
-internationalization implementation must add or map the listed
-`<entity>.modify_metadata` right through the normal privilege migration and
+internationalization implementation must add or map the listed right (except
+users, which deliberately reuse `identity.users.administer`) through the normal privilege migration and
 dependency process. It must not require `localization.administer` as a shortcut.
 Read-only users may see effective values but cannot edit translations.
 
@@ -1191,6 +1211,36 @@ at the event time. Later translation edits must not rewrite history. History UI
 may show a current localized live-entity label separately, clearly identified
 as current rather than historical.
 
+#### 11.5.1 Database default and language-specific ordering
+
+For Arabic-primary deployments supporting English, the recommended default
+database collation is **ICU `ar` with UTF-8 encoding**. It applies Arabic
+tailoring while retaining English and other Unicode text support. ICU `und`
+is a deliberate language-neutral alternative; libc relies on host-OS locale
+rules and is not the preferred default for a new Arabic-primary deployment.
+ICU results also depend on its library/data version, which deployment evidence
+must record. Creation, controlled conversion and upgrade procedures are defined
+in [application configuration section 4.1.1](application-configuration.md#411-database-encoding-and-collation-provisioning).
+
+This default does not change the English system/UI default, per-user language
+resolution, stored text, RTL rendering, or the preceding localized-ordering
+contract. Explicit column/query collations take precedence; English-facing
+lists can use an approved English collation with the same stable pagination
+tie-breakers. Existing numeric code collations and portable export ordering
+remain separate contracts.
+
+Sorting related forms close together does not make them equal. The database
+default remains deterministic; `علم` and `عِلْم`, or `Apple` and `apple`, remain
+distinct values. Nondeterministic equality, search normalization and numeric
+ordering are not enabled by this recommendation. ICU `ar` alone still orders
+`File 1`, `File 10`, `File 2`; natural numeric order requires explicit options.
+
+The [database collation guide](../docs/database-collation.md#measured-examples)
+records measured libc versus ICU `ar` examples for names, vowel marks and digit
+scripts, along with read-only reproduction queries and their platform/version
+scope. These examples illustrate the recommendation rather than freezing every
+library version's full sort order.
+
 ## 12. Search and discovery
 
 Metadata search for the seven covered multilingual entities must consider the
@@ -1223,7 +1273,7 @@ GET  /api/v1/i18n/catalogues/{language_tag}
 GET  /api/v1/admin/i18n/languages
 POST /api/v1/admin/i18n/languages
 PUT  /api/v1/admin/i18n/languages/{language_tag}
-GET  /api/v1/admin/i18n/messages?language_tag={tag}&key={text}&translated_text={text}&semantic_meaning={text}&status={status}&origin={origin}&limit={n}&offset={n}
+GET  /api/v1/admin/i18n/messages?language_tag={tag}&key={text}&source_text={text}&translated_text={text}&semantic_meaning={text}&status={status}&origin={origin}&limit={n}&offset={n}
 PUT  /api/v1/admin/i18n/messages/{message_key}/translations/{language_tag}
 POST /api/v1/admin/i18n/messages/{message_key}/translations/{language_tag}/publish
 ```
@@ -1240,7 +1290,7 @@ capabilities and semantics are required. Administrative mutations require
 `localization.administer`, `If-Match`, and a nonblank `X-Change-Reason` where
 established governance conventions require one. Locale-scoped translation
 patches on the seven covered entities do not use `localization.administer`; they require
-the corresponding `<entity>.modify_metadata` authorization from section 11.4.
+the entity-specific authorization from section 11.4.
 
 The bootstrap response contains effective language, direction, working
 timezone, default/fallback language, enabled-language summaries, catalogue
@@ -1300,7 +1350,7 @@ private and must not enter a shared public cache.
   syntax or markup.
 - Translation-catalogue and supported-language administration requires
   `localization.administer`; entity translation editing requires only the
-  corresponding `<entity>.modify_metadata` authorization. Both are protected
+  corresponding entity-specific authorization. Both are protected
   from cross-site request forgery under the established session model.
 - Locale, direction, timezone, catalogue key, sort/collation, and field name
   are selected from server allowlists; none may become raw SQL or template
@@ -1340,7 +1390,7 @@ Migration steps are:
    tables and their constraints/indexes;
 2. seed `localization.administer` into the System Administrator and protected
    all-privileges profiles, and add or map the seven
-   `<entity>.modify_metadata` rights through the established privilege and
+   entity-specific rights from section 11.4 through the established privilege and
    dependency catalogues;
 3. seed enabled English and Arabic language metadata with English as default;
 4. import the application-owned English message definitions, contextual
@@ -1422,7 +1472,7 @@ Tests must cover:
   preservation;
 - authorization tests proving `localization.administer` is required for every
   catalogue/language mutation and that each entity translation accepts its
-  matching `<entity>.modify_metadata` actor while denying read-only actors;
+  matching authorized actor from section 11.4 while denying read-only actors;
 - negative tests proving a catalogue administrator cannot edit an entity
   translation without its metadata right and an entity metadata editor cannot
   administer the general catalogue;
@@ -1435,6 +1485,11 @@ Tests must cover:
   covered entities in preferred language without N+1 queries, plus verbatim
   Aggregation/Record labels in those same presentation surfaces and favourites;
 - localized sorting with deterministic pagination;
+- explicit database provider/locale/version verification for new deployments
+  and deliberate rebuilds, default ICU `ar` versus explicit Arabic-collation
+  sample ordering, English sorting, retained equality distinctions, and
+  separate numeric-order behavior; mutable regressions run in disposable
+  databases while retained targets receive read-only verification;
 - English, Arabic, mixed-language, missing-translation, and translated-metadata
   search cases under authorization filters;
 - instant round trips, date non-shifting, non-whole-hour zones, positive and
@@ -1500,7 +1555,7 @@ The feature is accepted only when:
    exposes its exact accessible reason, remains discoverable through
    needs-attention filters and collapsed-group counts, and is not communicated
    by color alone;
-9. an administrator can independently filter by message key, translated text,
+9. an administrator can independently filter by message key, English source text, translated text,
    semantic meaning, status, and origin; combined filters, pagination, result
    totals, clear-all, and return-from-edit behavior remain correct;
 10. two administrators can safely maintain translations concurrently without
@@ -1548,12 +1603,12 @@ The feature is accepted only when:
 | Simple interpolated messages | 7.2 | parser, type formatting, escaping, and placeholder-parity tests |
 | Blank translations cannot be used | 5, 7.3–7.4, 19 | WebUI/API/database rejection, atomic publication, cache, and accessibility tests |
 | Invalid translations are visibly identifiable | 7.4, 8, 19 | status-reason, filtering, collapsed-group, visual-regression, RTL, and accessibility tests |
-| Translation catalogue filters | 7.4, 13, 19 | key/text/meaning/status/origin, combination, paging, state-restoration, and bounded-query tests |
+| Translation catalogue filters | 7.4, 13, 19 | key/English source/translated text/meaning/status/origin, combination, paging, state-restoration, and bounded-query tests |
 | Translation keys and Arabic drafts follow screen development | 7.5, 19, 21 | definition and generated-draft add/update/delete reconciliation, provenance/hash, stale-key, placeholder, Arabic-quality, protected-translation, source-change, explicit-seed, and CI tests |
 | Complete UI and user-error translation | 7, 19.2 | key manifest, error-code mapping, CI completeness, browser coverage |
 | Administration-screen design language | 8, 9, 16, 19 | live-browser comparison, density, icon accessibility, guidance, and RTL evidence |
 | General translation administration | 7.4, 13, 15 | `localization.administer` allow/deny matrix |
-| Entity translation authorization | 11.4, 13, 15 | seven-entity `<entity>.modify_metadata` allow/deny matrix |
+| Entity translation authorization | 11.4, 13, 15 | seven-entity authorization allow/deny matrix |
 | Concurrent administrative translation | 7.4, 13 | different-key concurrency and same-key conflict tests |
 | Full Arabic RTL | 9, 16, 19 | desktop/mobile browser, keyboard, accessibility evidence |
 | Multilingual entity data | 11, 17 | schema/API/UI tests for all seven covered entities |
@@ -1561,6 +1616,7 @@ The feature is accepted only when:
 | Low-regression schema strategy | 11.2, 17 | English compatibility and migration comparison tests |
 | Advanced but unobtrusive entity editing | 11.4 | usability and browser workflow evidence |
 | Localized selectors | 11.5 | selector/query-count/fallback tests |
+| Arabic-primary database collation recommendation | 11.5.1; Application Configuration 4.1.1 | recorded provider/locale/version, read-only Arabic/English examples, backup-snapshot parity and disposable ICU `ar` regression evidence |
 | Translation caching | 14 | ETag, hit/miss, invalidation, and stale-cache recovery tests |
 | Best-effort Arabic bootstrap with human review | 7.4, 19, 21 | generation report, origin/review state, and publication-gate tests |
 | Approved, idiomatic, accessible Arabic | 21.1 | glossary-conformance, singular/plural context, idiomatic-quality sampling, accessibility review, and administrator-review report tests |
@@ -1691,6 +1747,13 @@ terminology as reference and translator guidance:
 | Current period | الفترة الجارية |
 | Intermediate period | الفترة الوسيطة |
 | Destruction | الإتلاف |
+| Disposition Job | عملية تصرف |
+| Disposition Jobs | عمليات التصرف |
+| Destruction Job | عملية إتلاف |
+| Task | مهمة |
+| Tasks | مهام |
+| My Tasks | مهامي |
+| Role | الدور |
 | Legal Hold | تعليق القنوني |
 | Mixed (record medium) | هجين |
 | Physical (record medium) | مادي |

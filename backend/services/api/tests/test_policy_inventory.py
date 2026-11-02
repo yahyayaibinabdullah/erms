@@ -36,11 +36,13 @@ def test_canonical_schema_is_self_contained_and_current():
 
     assert "\\i " not in schema
     assert "\\ir " not in schema
-    assert "CREATE TABLE schema_migrations" in schema
+    assert "CREATE TABLE public.schema_migrations" in schema
     executable = "\n".join(line for line in schema.splitlines() if not line.lstrip().startswith("--"))
     assert "database/migrations/" not in executable
-    assert "050_application_settings" in schema
-    assert "aggregation.location.change" in schema
+    assert "050_application_settings" in (PROJECT_ROOT / "database/baseline.sql").read_text()
+    assert "INSERT INTO schema_migrations" not in schema
+    assert "CREATE OR REPLACE FUNCTION" not in schema
+    assert "aggregation.location.change" in (PROJECT_ROOT / "database/seeds/000_required_reference_data.sql").read_text()
     assert "aggregations_protect_vital_deletion" in schema
     assert "aggregations_owner_review_due_idx" in schema
 
@@ -97,6 +99,17 @@ def test_api_operation_inventory_is_complete_and_current():
 def test_unclassified_api_operation_is_rejected_instead_of_getting_a_fallback():
     with pytest.raises(ValueError, match="has no explicit policy classification"):
         _target_policy("POST", "/api/v1/new-unreviewed-operation")
+
+
+def test_disposition_policy_distinguishes_management_and_limited_task_scope():
+    assert _target_policy('POST', '/api/v1/disposition/jobs') == (
+        'globally_privileged', 'disposition.jobs.manage', None,
+    )
+    assert _target_policy('POST', '/api/v1/disposition/tasks/{task_id}/claim') == (
+        'relationship_scoped', None, None,
+    )
+    with pytest.raises(ValueError, match='has no explicit policy classification'):
+        _target_policy('POST', '/api/v1/disposition/future-unreviewed-command')
 
 
 def test_number_suggestions_have_explicit_relationship_scoped_policy():

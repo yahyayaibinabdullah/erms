@@ -1,0 +1,17 @@
+{
+  "membership_fixture_roots": 58,
+  "page_size": 25,
+  "observed_additional_pages": [
+    "GET /api/v1/disposition/jobs/29/memberships?limit=25&offset=25&query=&sort=id&descending=true HTTP/1.1"
+  ],
+  "cache": "No new data cache. History retains mounted page controls only, scoped to client/identity/language, and refreshes on every disclosure reopen or mutation.",
+  "secondary_disclosures": "Notes, rounds, decisions and native Mermaid lazy until opened.",
+  "verification": [
+    "82 frontend/shared navigation, PageTable and messaging tests passed",
+    "Live two-tab optimistic conflict preserved draft and showed toast",
+    "Repeated live inbox/workspace navigation, current mutation data and abandoned workspace load checked",
+    "LTR/RTL table computed style, geometry and comparable relationship table inspected"
+  ],
+  "console_errors": [],
+  "final_server_logs": "Final wrapper log retained; its temporary child logs were deleted by normal preview cleanup. Final source visual checks, screenshots and browser acceptance JSON are retained."
+}

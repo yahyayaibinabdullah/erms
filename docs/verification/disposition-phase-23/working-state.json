@@ -1,0 +1,32 @@
+{
+  "status": "in_progress",
+  "first_recorded_time_utc": "2026-10-20 00:42:14",
+  "timing": "Initial reading before this clock boundary is unmeasured. Do not claim exact full-phase duration.",
+  "paused_pytest_children": {},
+  "running_shards": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "sessions": {
+    "shard1": 48547,
+    "shard2": 53666,
+    "shard3": 14800,
+    "shard4": 33278,
+    "integrated_upgrade": 71740,
+    "browser_preview": 68965
+  },
+  "preview_controller_pid": 34347,
+  "preview_database": "erms_messaging_test_acl_166ca6cfe7c04fe1b2ded20facbba67f",
+  "preview_cleanup": "Application tab and viewport reset; server processes closed; controller confirms database dropped. Independent final absence check still required.",
+  "broad_original": "Interrupted in favor of latest-schema shards; 200 passed, two stale assertions; database drop confirmed by runner after interruption.",
+  "remaining": [
+    "Finish all shards, resume paused children, fix/rerun failures",
+    "Run final strengthened minimization/guard assertions",
+    "Run explicit deferred 066\u2013068 legacy physical backfill path (suite normally skips it)",
+    "Verify complete ledger requirement/phase evidence and reconcile gaps",
+    "Confirm all owned databases absent, all servers closed and preview directory removed",
+    "Finalize Phase23 documents/ledger without enabling release"
+  ]
+}

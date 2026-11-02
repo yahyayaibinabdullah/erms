@@ -1,0 +1,42 @@
+--- a/specs/disposition.md
++++ b/specs/disposition.md
+@@ -1057,10 +1057,12 @@
+ 
+ Uploaded approval documents, destruction certificates, photographs or videos
+ of physical destruction, correspondence with the external archival authority,
+-and other supporting evidence files are retained for the period required by
+-the approved evidence-retention policy. If an evidence file is later deleted
+-under that policy, Wathiq permanently retains its identifier, provenance,
+-descriptive metadata, deletion date, deletion authority, and deletion event.
++and other supporting evidence files remain protected governed Wathiq records,
++stored separately from the destroyed disposition units. A separate evidence-file
++expiry or deletion workflow is outside the current implementation scope.
++Any future approved evidence-deletion policy must permanently preserve each
++file's identifier, provenance, descriptive metadata, deletion date, deletion
++authority, and deletion event.
+ 
+ Wathiq must not retain:
+ 
+@@ -1523,7 +1525,7 @@
+ | DISP-32 | A hierarchy change that preserves the effective retention rule preserves disposition status and job membership; a hierarchy change that alters the rule applies the complete recalculation and active-job handling in Section 12 | Authorized hierarchy-change, effective-rule comparison, matching and non-matching job, rollback, job-blocking, and event-history tests |
+ | DISP-33 | Destruction and transfer numbers are unique externally supplied values, accept letters, numbers, and special characters, contain at most 20 characters, and are never generated or allocated by Wathiq | Boundary, character-preservation, uniqueness, API, database, and final-action tests |
+ | DISP-34 | A job is active upon creation, completed only when its final action completes, and terminated only when an authorized IGU terminates it before completion | Job-creation, completion, termination, invalid-transition, API, database, and event-history tests |
+-| DISP-35 | Supporting destruction evidence follows the approved evidence-retention policy, while its identifier, provenance, descriptive metadata, deletion details, and deletion event remain permanent | Retention-expiry, evidence deletion, audit-history, authorization, and rollback tests |
++| DISP-35 | Supporting destruction evidence remains protected as governed records outside the destroyed units, with permanent identifiers, provenance and event history; a separate evidence-expiry/deletion workflow is deferred pending an approved policy | Evidence survival, storage-boundary, provenance, authorization and immutability tests; expiry/deletion acceptance is outside the current implementation scope |
+ | DISP-36 | Aggregation and record relationships allow job admission and acceleration but outside-job links block final disposition until authorized removal, regardless of eligibility; links within one unit or the same job do not block or require removal; removal from either endpoint clears the link blocker for both units | Admission, acceleration, descendant, both-direction, all-type, same-job, authorization, redaction, audit, removal-refresh, concurrency, and live-browser Officer/Manager review tests |
+ | DISP-37 | Shared jobs enforce controlled type, lifecycle, action-specific stage, assignment, status, completion, termination, and optimistic-concurrency fields without a generic workflow engine | Schema, constraint, transition, API, and stale-version tests |
+ | DISP-38 | Membership episodes preserve every addition and removal and permit no more than one active job per governing root | Partial-uniqueness, repeated-membership, termination, completion, concurrency, and history tests |
+--- a/specs/disposition-implementation-plan.md
++++ b/specs/disposition-implementation-plan.md
+@@ -651,8 +651,9 @@
+ certificate storage failure after successful deletion; missing destinations;
+ retry deduplication; complete final fields; download not gating completion;
+ post-completion send history; completion warnings; and evidence surviving unit
+-destruction. Verify evidence-retention expiry preserves permanent provenance
+-and deletion history under the existing approved retention policy.
++destruction. Verify supporting evidence and its permanent provenance/history
++survive the original unit's destruction. A separate evidence-file expiry or
++deletion workflow is outside this phase.
+ 
+ ### Phase 23 Run complete workflow and upgrade acceptance
+ 

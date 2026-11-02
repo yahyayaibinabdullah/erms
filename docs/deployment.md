@@ -1,9 +1,92 @@
 # Linux deployment
 
-ERMS has four independently managed components: the FastAPI backend, the
-NiceGUI web UI, the REST-only text indexer, and PostgreSQL. Use separate systemd units for the API, UI, and indexer
-for an ongoing Linux deployment. They can run on the same server or on separate
-servers; PostgreSQL can also be hosted independently.
+This is the production deployment entry point for the frontend, backend,
+background workers and supporting infrastructure. Services can share a server
+or run on separate servers; PostgreSQL can also be independently hosted.
+Use the inventory below when planning the deployment, then follow this guide
+for installation and the linked [Operations catalogue](operations.md) for
+worker configuration, scheduling and recovery procedures.
+
+## Production service inventory
+
+| Service or responsibility | When needed | Production process and ownership |
+| --- | --- | --- |
+| PostgreSQL | Core application | Independently managed database service; initialize from the canonical schema or apply pending migrations for an existing database. |
+| FastAPI backend | Core application | [`erms-api.service`](../backend/services/api/deploy/erms-api.service); may have multiple API processes/instances sharing one database. |
+| NiceGUI frontend | Browser application | [`erms-webui.service`](../frontend/webui/deploy/erms-webui.service); calls the API. Multiple instances require session affinity and WebSocket support. |
+| HTTPS reverse proxy/load balancer | Public browser access | Operator-managed TLS endpoint in front of the frontend; route WebSockets and provide affinity when using multiple frontend instances. |
+| Login-session cleanup | Authentication retention | One [`erms-session-cleanup.service`](../backend/services/api/deploy/erms-session-cleanup.service) per logical database, or a scheduler running the one-shot command; [procedure](operations.md#6-login-session-cleanup). |
+| Segmented-content cleanup | Stored-content retention and abandoned upload cleanup | One [`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service) per logical database, or deployment scheduler running the one-shot command; [procedure](operations.md#5-segmented-content-cleanup). |
+| Text indexer | Full-text extraction/indexing | [`erms-text-indexer.service`](../backend/services/text_indexer/deploy/erms-text-indexer.service); REST-only service with its own process pool and API identity. Follow the staged rollout below. |
+| Indexing/credential maintenance | Indexing history, staging and retained indexer credentials | One [`erms-text-indexing-maintenance.service`](../backend/services/api/deploy/erms-text-indexing-maintenance.service) per logical database, or one-shot scheduled cleanup; [procedure](operations.md#7-full-text-indexing-history-and-staging-cleanup). |
+| Disposition eligibility | Disposition workflows | One [`erms-disposition-eligibility.service`](../backend/services/api/deploy/erms-disposition-eligibility.service) per logical database; evaluates eligibility and reconciles task claims. |
+| Disposition communications | Disposition email and reminders | One [`erms-disposition-communications.service`](../backend/services/api/deploy/erms-disposition-communications.service) per logical database; processes queued email and reminders. |
+| Destruction/completion | Authorized digital destruction and completion certificates | One [`erms-disposition-destruction.service`](../backend/services/api/deploy/erms-disposition-destruction.service) per logical database; executes authorized queued work and certificate completion. |
+| SMTP service | Outgoing disposition email | Operator-provided SMTP endpoint with verified TLS; configure database application settings and the shared deployment encryption key. MailDev is for local testing only. |
+| Redis | Optional shared NiceGUI user storage | Operator-managed service; not required for a single frontend and does not remove multi-instance affinity requirements. |
+
+The API does **not** start these standalone workers. Run each worker once per
+logical database, separately from API replica scaling; choose either a
+continuous cleanup worker or its scheduled one-shot alternative, not both.
+The text indexer's temporary-file cleanup is internal to that service and needs
+no separate daemon. LibreOffice, veraPDF/Java and the indexer's Tika installation
+are feature dependencies described below, rather than additional ERMS services.
+`run-local-stack.sh` and MailDev are development tools, not production
+supervisors or mail infrastructure.
+
+### Production setup order
+
+1. Prepare PostgreSQL, the service account, Python environments and the feature
+   dependencies described under [server preparation](#server-preparation-and-configuration).
+2. For an empty database, load `database/schema.sql`, then explicitly run
+   `database/seeds/000_required_reference_data.sql` and `database/baseline.sql`.
+   For an existing database, apply pending upgrades through migration 091;
+   do not rerun the fresh-install files. Follow
+   [database instructions](../database/README.md) and the reviewed
+   [settings migration/readiness procedure](application-settings-upgrade.md).
+3. Configure the service environment files, database application settings,
+   authentication/bootstrap, encryption key and required seeds. For disposition,
+   complete the [initial configuration checklist](operations.md#141-initial-setup-and-configuration),
+   including roles, destinations, classifications, document templates and SMTP.
+4. Start and verify the API, then the frontend/proxy. Install the independent
+   cleanup workers or schedules. Provision and start indexing according to the
+   staged rollout when using full-text search.
+5. After disposition setup, start its three independent workers and verify their
+   output and audit evidence using [worker operations](operations.md#142-worker-startup-and-verification).
+   Destruction remains subject to the existing permissions and workflow checks.
+
+The [systemd section](#separate-systemd-services) below lists the packaged units
+and install/start commands. Keep this inventory and the Operations catalogue
+updated whenever a production process or scheduled responsibility changes.
+
+## PostgreSQL locale recommendation
+
+For a new Arabic-primary deployment that also supports English, provision
+**UTF-8 with ICU locale `ar`**, explicitly selected at database creation before
+loading `database/schema.sql`. ICU uses Arabic language tailoring and reduces
+host-OS differences relative to libc when library versions/settings agree.
+`und` remains a deliberate alternative for a language-neutral multilingual
+baseline. This database choice does not change UI language defaults or user
+preferences.
+
+Follow [database collation provisioning and verification](database-collation.md)
+for `CREATE DATABASE`, provider/locale/version inspection, and the measured
+Arabic name, vowel-mark and Arabic/Western-digit examples. Verify
+`datlocprovider = i` and `datlocale = ar`; do not infer the active provider solely
+from `LC_COLLATE` or an `en_US.UTF-8` label.
+
+Existing libc databases require a planned backup/rebuild/restore to change the
+default provider. Ordinary clones should preserve source locale settings;
+intentional ICU `ar` conversions must record that difference and compare schema,
+all table data and sequence states with one backup snapshot. Test mutating API
+fixtures only in a separate disposable ICU `ar` database. A restart, schema
+import or collation-version refresh does not perform this conversion.
+
+Record ICU/collation versions in deployment evidence. After a version change,
+rebuild affected dependent objects and verify them before acknowledging the new
+version. Existing launchers/bootstrap do not enforce ICU `ar`, so inspect their
+result or provision the database explicitly. No application setting or `.env`
+variable switches an existing database's default locale.
 
 ## Deployment options
 
@@ -130,6 +213,43 @@ their API requests consume the API pools already counted above.
 The repository defaults are `DB_POOL_MIN_SIZE=1` and `DB_POOL_MAX_SIZE=10`.
 Budget against the maximum, even though pools can use fewer connections when
 idle. At these defaults, each API worker can use up to **11 database connections**.
+
+### Initial sizing with the current background workers
+
+For an initial small production deployment, retain `DB_POOL_MIN_SIZE=1`,
+`DB_POOL_MAX_SIZE=10` and `DB_POOL_TIMEOUT=10` seconds **per API process**.
+These are API deployment environment settings, not database-backed Application
+Settings. Restart API processes after changing them. Keep PostgreSQL
+`max_connections=100` as an initial server budget if the server has sufficient
+memory and no competing applications; measure before increasing pool limits.
+This is a starting recommendation, not a measured workload capacity guarantee.
+
+With one instance of each of the six standalone database workers (content
+cleanup, session cleanup, indexing maintenance, disposition eligibility,
+communications and destruction/completion), budget six additional concurrent
+connections for their current sequential work. These workers open direct
+connections for work rather than maintaining six API-sized pools; they do not
+necessarily hold a connection while sleeping. UI, MailDev and REST text-indexer
+processes add no direct database connections.
+
+| Example allocation | One API process | Two API processes |
+| --- | ---: | ---: |
+| API pools at maximum plus messaging listeners | 11 | 22 |
+| Six standalone workers active together | 6 | 6 |
+| Application subtotal | **17** | **28** |
+| Illustrative monitoring/admin/upgrade and other headroom | 20 | 20 |
+| Default superuser reserve | 3 | 3 |
+| Illustrative total budget | **40** | **51** |
+
+Add connections for other applications/databases, scheduled jobs, concurrent
+deployment copies and any different PostgreSQL reserved-slot configuration.
+For example, temporarily doubling two API processes during a rolling deployment
+raises the application subtotal to `4 × 11 + 6 = 50`. Track pool wait/timeouts,
+query latency and database CPU/memory before tuning; a larger pool alone does
+not increase database throughput. PostgreSQL allocates resources based on
+`max_connections`; see its [connection settings](https://www.postgresql.org/docs/18/runtime-config-connection.html).
+
+### Example connection budget
 
 Worked example (illustrative allocation, not a measured user-capacity guarantee):
 
@@ -453,6 +573,11 @@ within each service’s `deploy` directory:
 
 - [`erms-api.service`](../backend/services/api/deploy/erms-api.service)
 - [`erms-session-cleanup.service`](../backend/services/api/deploy/erms-session-cleanup.service)
+- [`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service)
+- [`erms-text-indexing-maintenance.service`](../backend/services/api/deploy/erms-text-indexing-maintenance.service)
+- [`erms-disposition-eligibility.service`](../backend/services/api/deploy/erms-disposition-eligibility.service)
+- [`erms-disposition-communications.service`](../backend/services/api/deploy/erms-disposition-communications.service)
+- [`erms-disposition-destruction.service`](../backend/services/api/deploy/erms-disposition-destruction.service)
 - [`erms-webui.service`](../frontend/webui/deploy/erms-webui.service)
 - [`erms-text-indexer.service`](../backend/services/text_indexer/deploy/erms-text-indexer.service)
 - [`api.env.example`](../backend/services/api/deploy/api.env.example)
@@ -461,9 +586,13 @@ within each service’s `deploy` directory:
 
 They assume `/opt/erms`, a service account and group named `erms`, and
 `/etc/erms/api.env` and `/etc/erms/webui.env`. Adapt paths and account names
-if needed. The repository currently has one backend application service:
-FastAPI. Authentication, search, and document conversion run within it and do
-not need separate units. PostgreSQL uses its independently managed service.
+if needed. FastAPI hosts the backend request handlers, including authentication,
+search queries and document conversion. The indexer, maintenance and disposition
+workers listed above run separately and do not start with FastAPI. API-owned
+workers share `/etc/erms/api.env` and the API Python environment; install its
+dependencies before starting them. PostgreSQL uses its independently managed
+service. Use either the packaged content-cleanup service or its scheduled
+one-shot alternative, never both.
 
 On Ubuntu with Python 3.11 or newer available, prepare the service account:
 
@@ -495,6 +624,11 @@ From the deployed project root, install the units and initial configuration:
 ```bash
 sudo install -m 0644 backend/services/api/deploy/erms-api.service /etc/systemd/system/erms-api.service
 sudo install -m 0644 backend/services/api/deploy/erms-session-cleanup.service /etc/systemd/system/erms-session-cleanup.service
+sudo install -m 0644 backend/services/api/deploy/erms-content-cleanup.service /etc/systemd/system/erms-content-cleanup.service
+sudo install -m 0644 backend/services/api/deploy/erms-text-indexing-maintenance.service /etc/systemd/system/erms-text-indexing-maintenance.service
+sudo install -m 0644 backend/services/api/deploy/erms-disposition-eligibility.service /etc/systemd/system/erms-disposition-eligibility.service
+sudo install -m 0644 backend/services/api/deploy/erms-disposition-communications.service /etc/systemd/system/erms-disposition-communications.service
+sudo install -m 0644 backend/services/api/deploy/erms-disposition-destruction.service /etc/systemd/system/erms-disposition-destruction.service
 sudo install -m 0644 frontend/webui/deploy/erms-webui.service /etc/systemd/system/erms-webui.service
 sudo install -m 0644 backend/services/text_indexer/deploy/erms-text-indexer.service /etc/systemd/system/erms-text-indexer.service
 sudo install -m 0600 backend/services/api/deploy/api.env.example /etc/erms/api.env
@@ -517,6 +651,8 @@ the installed unit configuration on Ubuntu before enabling it:
 ```bash
 sudo systemd-analyze verify /etc/systemd/system/erms-api.service /etc/systemd/system/erms-session-cleanup.service /etc/systemd/system/erms-webui.service
 sudo systemd-analyze verify /etc/systemd/system/erms-text-indexer.service
+sudo systemd-analyze verify /etc/systemd/system/erms-content-cleanup.service
+sudo systemd-analyze verify /etc/systemd/system/erms-text-indexing-maintenance.service /etc/systemd/system/erms-disposition-eligibility.service /etc/systemd/system/erms-disposition-communications.service /etc/systemd/system/erms-disposition-destruction.service
 ```
 
 ### Text-indexer process-pool examples
@@ -617,6 +753,53 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now erms-api.service erms-session-cleanup.service erms-webui.service
 sudo systemctl status erms-api.service erms-session-cleanup.service erms-webui.service
 ```
+
+Unless using its scheduled alternative, activate segmented-content cleanup:
+
+```bash
+sudo systemctl enable --now erms-content-cleanup.service
+sudo systemctl status erms-content-cleanup.service
+```
+
+The unit follows the database `CONTENT_CLEANUP_INTERVAL_SECONDS` policy (default
+3,600 seconds); it does not hard-code an interval override.
+
+Unless using its scheduled alternative, start the indexing/credential
+maintenance worker:
+
+```bash
+sudo systemctl enable --now erms-text-indexing-maintenance.service
+sudo systemctl status erms-text-indexing-maintenance.service
+```
+
+Migration `072_acceleration_closes_root.sql` makes exceptional acceleration
+close an open governing aggregation atomically before changing eligibility.
+Apply it before deploying the matching API/WebUI. Open roots require the
+existing aggregation-close authorization as well as disposition authorization;
+existing closure timestamps are preserved. Normal retention begins at closure.
+This migration does not rewrite historical events or backdate closure on legacy
+open eligible roots; review any such pre-upgrade roots before operational use.
+
+Migration `077_acceleration_eligibility_protections.sql` separates accelerated
+eligibility from protection checks. Apply after the existing migrations,
+including 072. It replaces the acceleration function and narrowly permits its
+status-only eligibility update through the hold guard; it rewrites no resource,
+hold, membership or history rows. Normal holds permit closure; preserve-state
+closure restrictions, job admission and final execution checks remain in force.
+See [the operational scenario](operations.md#1421-accelerated-eligibility-with-protections).
+New databases receive this behavior from `database/schema.sql` alone.
+
+After completing the disposition configuration checklist and applying migrations
+through 077, start its three independent workers:
+
+```bash
+sudo systemctl enable --now erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
+sudo systemctl status erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
+```
+
+Start the text indexer using the staged-rollout procedure above. Verify each
+configured cleanup service or its scheduled alternative. Where session cleanup is
+scheduled instead, omit `erms-session-cleanup.service` from the activation command.
 
 On separate servers, use only the service installed on that server. Logs and
 routine lifecycle operations are independent:
@@ -923,3 +1106,286 @@ longer enable scheduling or search. The removed WebUI flag has no authority.
 See [application-settings-upgrade.md](application-settings-upgrade.md) for the
 reviewed 34-key upgrade and [configuration-authority-inventory.json](configuration-authority-inventory.json)
 for ownership, defaults, consumers, service templates and restart requirements.
+
+## Disposition controlled rollout (through migration 072)
+
+Use [the Phase 24 colleague runbook](disposition-rollout.md) for ordered existing
+schema upgrades, fresh installation, per-database reviewed settings migration,
+role/destination/SMTP/template prerequisites, worker startup and recovery. See
+[the disposable rehearsal evidence](disposition-phase-24.md). This is rollout
+preparation; persistent deployment requires explicit authorization. Migration 071
+removes the temporary gates; destruction then uses the existing permissions and
+workflow safeguards without a separate enablement step.
+
+### Built-in File Administrator profile (migration 073)
+
+New databases initialized from `database/schema.sql` include `FILE_ADMIN`
+(File Administrator) with the approved 34-privilege baseline from demo. Existing
+installations apply `073_file_administrator_profile.sql` after preceding
+migrations. An exact existing profile is promoted in place, preserving its ID,
+role assignments, metadata and translations. A conflicting code, name or privilege
+set stops the transaction for explicit administrator reconciliation; the migration
+never overwrites a customized profile. Reapplying an unchanged migration is safe.
+
+This profile includes ACL management, security downgrading and correction of
+record placement in closed aggregations. Existing resource permissions, clearance
+and workflow checks still apply. Assigning this profile does not designate a role
+as File Administrator: configure the organization's File Administrator role
+separately. The migration does not assign roles or grant Information Governance
+status. As with other built-in profiles, it cannot be deleted through the API;
+its privilege composition remains administratively editable.
+
+Verify standalone provisioning and upgrade safety with
+`backend/services/api/.venv/bin/python tools/verify_file_administrator_profile.py`.
+This creates and drops a uniquely named disposable database and checks all 34
+privileges, dependency validity, exact-match promotion, migration reapplication,
+and rollback on customized-profile conflicts. Canonical provisioning also
+includes the existing `messaging.user_messages.exchange` privilege needed by
+this profile; the optional messaging seed remains compatible.
+
+The default Arabic profile name is **مسؤول الملفات**, matching the existing
+File Administrator terminology. Schema provisioning and migration 073 fill a
+missing Arabic name while preserving existing administrator translations,
+Arabic descriptions, and other languages. Deployment security review may tailor
+the default privilege set, including ACL management and security downgrading.
+
+### SA classification disposition reconciliation (migration 074)
+
+`074_sa_terminal_disposition_actions.sql` contains the 254 code/action pairs
+approved in `examples/fileplans/Sheet2.csv` (source SHA256 recorded in the SQL).
+It changes only matching terminal classifications in scheme `SA`, preserving
+retention periods and instructions. It does not create a scheme, classifications,
+or missing retention rules. Databases without `SA` receive no classification
+changes. Codes absent from either side remain unchanged; matching terminals
+without direct retention rules stop the transaction for explicit reconciliation.
+Repeated execution changes only mismatching actions.
+
+The existing audit and disposition-recalculation triggers remain enabled.
+When affected classifications have live aggregations, set the migration session's
+`app.user_id` to an existing administrator with `classifications.administer`;
+the migration supplies its audit source and change reason. Do not disable
+triggers to bypass this requirement. Inherited resource eligibility may be
+recalculated through the normal policy-change hooks; explicit aggregation
+retention overrides remain unchanged.
+
+This is an upgrade to existing file-plan data, not canonical schema DDL or a
+file-plan seed. Validate it with
+`backend/services/api/.venv/bin/python tools/verify_sa_disposition_migration.py`,
+which creates and removes its own disposable database.
+
+### SA retention instructions reconciliation (migration 075)
+
+`075_sa_terminal_retention_instructions.sql` reconciles the instructions field
+of matching SA terminal classification retention rules with the third column
+of `examples/fileplans/Sheet3.csv`. The SQL records the CSV hash and embeds all
+254 mappings, including multiline Arabic notes. Blank cells map to NULL.
+Retention periods and disposition actions are preserved. Other schemes,
+nonterminal classifications, and codes not in the CSV remain unchanged.
+The migration is safe to repeat and does not create missing classification data.
+A matching terminal without a direct retention rule stops the transaction.
+
+As with migration 074, normal audit and policy-recalculation triggers remain
+active; supply an existing `classifications.administer` user through the migration
+session's `app.user_id` when affected live roots require that authorization.
+Use `backend/services/api/.venv/bin/python tools/verify_sa_retention_instructions_migration.py`
+for verification in an automatically created and removed disposable database.
+
+### SA retention periods reconciliation (migration 076)
+
+`076_sa_terminal_retention_periods.sql` embeds the 254 approved current and
+intermediate period pairs from `examples/fileplans/Sheet4.csv`, with its source
+hash. It updates only mismatching periods on matching SA terminal rules and
+preserves instructions, final actions and all other schemes. Missing direct
+rules require explicit reconciliation; missing schemes or unmatched codes are
+not created. Repeated execution is a no-op once periods match.
+
+Use the same authorized migration-session context described for migrations
+074–075 when affected live roots require policy recalculation. Existing audit
+and recalculation triggers remain enabled. Verify with
+`backend/services/api/.venv/bin/python tools/verify_sa_retention_periods_migration.py`;
+this creates and removes a disposable test database.
+
+
+### Standalone disposition template management (migration 081)
+
+Apply `database/migrations/081_organization_wide_disposition_templates.sql`
+after migration 080 before deploying the new API/WebUI. Restart both services.
+The upgrade permits shared template revisions without a source job, preserving
+existing revisions and audit history. Fresh databases need only `schema.sql`.
+Records Officers and Records Managers use Disposition → Document templates;
+no new permissions or environment settings are required. See the organization-wide
+destruction templates section in [Operations](operations.md).
+
+
+### Unified review comments (migration 082)
+
+Apply `database/migrations/082_unified_review_comments.sql` after 081, then
+restart API/WebUI. This enforces nonblank rejection comments even with removal
+proposals, and records a Manager's saved comments with new approval decisions.
+It preserves existing history and requires no environment changes. New databases
+use the latest `database/schema.sql`.
+
+### Automatic assignment of a sole eligible destruction reviewer
+
+Apply `database/migrations/083_single_eligible_reviewer.sql` to existing
+databases. New databases receive the same behavior from `database/schema.sql`.
+The migration preserves existing task assignments and audit history; it applies
+to newly routed internal-review tasks. Restart the API/WebUI for the submission
+confirmation that identifies the claimant. Existing reconciliation returns a
+claimant who loses eligibility to the role queue. No environment changes.
+
+### Claim a task without a reason (migration 084)
+
+Apply `database/migrations/084_reasonless_task_claim.sql` to existing databases
+and restart API/WebUI. New databases use `database/schema.sql`. Claim accepts
+an omitted change reason while retaining actor/time audit, eligibility,
+optimistic concurrency and retry checks. Release and reassignment still require
+a reason. No existing tasks or history are modified; no environment changes.
+
+### Claim guidance and partial proposal-target visibility
+
+Restart API/WebUI after deployment. No SQL migration or environment change is
+required. Synchronize the UI catalogue and use the explicit Arabic draft seed
+utility with `--missing-only`; the three new Arabic drafts require administrator
+review before publication. Existing tasks and access rules are preserved.
+
+### Partial proposal and blocker visibility
+
+Deploy and restart API/WebUI together. No SQL migration or environment change is
+required. Current blocker reads now support authorized task recipients with
+current root access; the response includes a bounded relationships array, with
+each endpoint redacted independently. Partially redacted proposal rows include
+only whitelisted review metadata and an authorized target summary. Synchronize
+the UI catalogue and seed missing Arabic drafts with `--missing-only`; seven new
+Arabic drafts await review and publication.
+
+### Duplicate review proposal prevention (migration 085)
+
+Apply `database/migrations/085_prevent_duplicate_review_proposals.sql` and deploy
+API/WebUI together. New databases receive the same functions, guard and index
+from `database/schema.sql`. No environment settings change. Existing proposal
+rows/history remain untouched; legacy active duplicates require deliberate
+reviewer withdrawal rather than automatic merging. The new save-time error is
+`disposition_proposal_duplicate` (HTTP 409). Synchronize the catalogue and run the
+explicit Arabic seed utility with `--missing-only`; seven new Arabic drafts need
+administrator review before publication.
+
+
+### Intermediate review completion with restricted related resources (migration 086)
+
+Apply `database/migrations/086_intermediate_review_completion.sql` to existing
+databases. New databases receive the same definition from `database/schema.sql`.
+This database-only change allows File Administrator and Unit Manager completion
+without revalidating earlier proposals under the intermediate reviewer's access.
+It retains task/claim, root access, current-role, version, marked-removal and
+routing checks. Proposal writes, Records Officer submission and final Records
+Manager approval/application retain their full existing validation.
+
+No task, proposal, decision or audit rows are rewritten; no task is automatically
+completed and no new permissions are granted. A user whose earlier completion
+failed because related resources were restricted can refresh and retry Complete
+review. No API/WebUI restart, environment change, new translation or catalogue
+synchronization is required. Protected related-resource details remain redacted
+in both English and Arabic. See
+[verification and rationale](verification/intermediate-review-completion.md).
+
+
+### Stage completion recipient confirmations
+
+Deploy the API and WebUI together and restart the managed stack to activate the
+shared stage-handoff response and notification code. There is no database schema
+migration or environment setting. Synchronize the UI catalogue and run the
+explicit Arabic seed utility with `--missing-only` to add the five new generated
+drafts without overwriting existing translations. Drafts remain unpublished for
+administrator review. Both maintained artifacts preserve existing wording and
+provenance; no administrator export is promoted. See
+[stage handoff verification](verification/review-submission-return.md).
+
+### Compact approval confirmation
+
+Deploy the API/WebUI together for the read-only approval-summary endpoint and
+compact count/next-step confirmation. No schema migration or environment change
+is required. Synchronize the catalogue and run the explicit Arabic utility with
+`--missing-only`; nine new drafts remain unpublished pending review. Existing
+translations/provenance are preserved. See
+[verification and preview semantics](verification/approval-confirmation.md).
+
+Request delivery authorization (migration 087): apply
+`database/migrations/087_manager_request_email.sql` to existing databases before
+restarting API/WebUI. New databases use the updated canonical schema. This
+function-only upgrade allows authorized Records Managers, as well as the
+assigned Records Officer, to deliberately send the current approved request.
+It creates no send attempts, changes no task assignments, and sends no mail.
+SMTP and external-authority settings are unchanged. After approval, the Manager
+opens the existing Evidence and documents view to verify/download the report
+and request, then select Send by email. Existing translations are preserved;
+the new Arabic guidance is an unpublished generated draft requiring review.
+
+Destruction request presentation draft (migration 088): apply
+`database/migrations/088_request_presentation_settings.sql` before starting the
+updated API; fresh databases use canonical `schema.sql` alone. The migration
+adds four nullable/defaulted Disposition settings without overwriting configured
+values. Configure **Disposition organization name** if a special sending name
+is wanted (otherwise the tenancy root is used), **Records Unit email** and
+**Records Unit phone**, and optionally switch the values-language policy from
+Arabic-first bilingual to the generating user's preferred language. Missing
+contacts are displayed as Not specified; no contact values are invented.
+These are database settings, with no new environment variables or templates.
+
+The project request DOCX and checksum manifest are updated. Current request
+version labels are provisional in this greenfield review; the owner will decide
+when to consolidate the final file as v1 and remove superseded request drafts.
+Uploaded database template revisions take precedence: an administrator must
+adapt/upload an existing customized request to the new organization/year/root-row
+placeholder contract before generating with it. Demo has no uploaded request
+revision. Existing PDFs, their previews/downloads and email attachments are not
+regenerated. Restart API/WebUI after deploying code/catalogues/packaged DOCX;
+later business-setting changes follow normal settings freshness without restart.
+Synchronize catalogue definitions and run the Arabic seed with --missing-only;
+preserve existing translations and leave the ten new drafts unpublished for
+review. No email is sent by the migration or verification.
+
+Proposal execution report working layout: the packaged default is now
+`proposal-execution-report.default.v2.docx`, with the Disposition organization
+name, affected-root listing and complete executed-proposal listing. No database
+migration or environment setting is added. Restart API/worker processes after
+deploying packaged template assets because defaults are cached per process.
+Existing saved reports, template revisions, audit records and execution results
+are retained; report retries reuse the saved artifact. A previously uploaded
+custom report template takes precedence and must be revised with the documented
+organization/count placeholders and both independent repeating groups to use
+this layout. Do not rerun proposal execution to obtain a report preview.
+
+
+Migration `089_governance_terminal_search.sql` preserves identifying aggregation
+and record titles/numbers on future destruction and enables governance-only
+terminal-status metadata search views. Apply it before restarting API/WebUI.
+It does not restore names previously erased or recreate any content index.
+No new environment setting is required. Existing status-10 rows remain read-only;
+existing issued certificates and permanent proof are not rewritten.
+
+### Unified user administration and localized names (migration 090)
+
+Apply `database/migrations/090_unify_user_translation_authorization.sql` before
+restarting API/WebUI. Users' localized names/descriptions now require the same
+`identity.users.administer` privilege as ordinary user administration. The old
+`user.modify_metadata` privilege, its dependency edges and profile memberships
+are removed; the two obsolete catalogue definitions are deprecated, preserving
+stored translations and audit history. Existing user administrators need no new
+grant. A profile that held only the retired narrow privilege is not promoted to
+user administrator; grant the broader permission only through normal reviewed
+profile administration if intended. Other entity translation rights are unchanged.
+No new environment setting is required. Refresh open User editors after upgrade.
+
+### Explicit final certificate task completion (091)
+
+Apply `database/migrations/091_explicit_certificate_task_completion.sql` before
+starting the updated API/WebUI on an existing database. Fresh databases use
+`database/schema.sql` alone. Stop application workers while upgrading. The
+migration leaves certificate bytes and destruction proof unchanged and returns
+prematurely completed jobs with an open final certificate task to Active, with
+an audited correction. Their Records Managers use **Complete this task** to
+complete the task and job together. Downloads and email are optional. Restart
+the local stack after applying the migration; catalogue synchronization imports
+missing Arabic drafts for review without publishing them. No new environment
+settings are required.

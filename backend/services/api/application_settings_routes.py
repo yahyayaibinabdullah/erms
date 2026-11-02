@@ -1,6 +1,6 @@
 """Explicit authenticated settings models; no generic CRUD or secret reads."""
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, StrictInt
@@ -13,6 +13,7 @@ from .authorization_policy import require_global_privilege
 from .audit_context import decode_change_reason
 from .database import get_connection
 from .entity_localization import preferred_language
+from .localization import _error
 
 
 class SettingChange(BaseModel):
@@ -56,6 +57,16 @@ class SettingsRead(BaseModel):
     model_config = ConfigDict(extra="forbid")
     items: list[SettingRead]
     propagation_seconds: int = 30
+
+
+class SmtpTestSend(BaseModel):
+    model_config = ConfigDict(extra="forbid", hide_input_in_errors=True)
+    recipient: str = Field(min_length=3, max_length=320)
+
+
+class SmtpTestResult(BaseModel):
+    outcome: Literal["smtp_accepted", "failed", "unknown"]
+    smtp_code: int | None = None
 
 
 router = APIRouter(prefix="/api/v1/application-settings", tags=["application settings"],
@@ -151,3 +162,42 @@ def update_settings(payload: SettingsUpdate, request: Request,
         raise settings_error(safe_code, 409 if error.sqlstate == "40001" else 403 if error.sqlstate == "42501" else 422) from None
     cache.invalidate(connection_key(c))
     return read_settings(c, request)
+
+
+@router.post("/test-send", response_model=SmtpTestResult)
+def test_send_email(payload: SmtpTestSend):
+    from email.message import EmailMessage
+    from email.utils import formataddr, formatdate, make_msgid
+    from .application_settings import capture_email_settings
+    from .application_settings_registry import validate_value
+    from .application_settings_secret import decrypt
+    from .disposition.email import smtp_send
+
+    recipient = payload.recipient.strip()
+    try:
+        validate_value(REGISTRY["SMTP_SENDER_EMAIL"], recipient)
+    except SettingsInvalid:
+        raise _error(422, "smtp_test_recipient_invalid", "settings.email_test.invalid_recipient") from None
+    try:
+        settings = capture_email_settings(decrypt_secret=decrypt, recipient=recipient)
+    except SettingsInvalid as error:
+        if str(error) == "application_settings_secret_unavailable":
+            raise settings_error(str(error), 503) from None
+        raise _error(409, "smtp_test_configuration", "settings.email_test.incomplete") from None
+
+    message = EmailMessage()
+    message["To"] = recipient
+    message["From"] = formataddr((settings.sender_name or "", settings.sender_email))
+    if settings.reply_to:
+        message["Reply-To"] = settings.reply_to
+    message["Subject"] = "Wathiq SMTP test / اختبار إرسال البريد من واثق"
+    message["Date"] = formatdate(usegmt=True)
+    message["Message-ID"] = make_msgid()
+    message.set_content(
+        "This is a test email from Wathiq using the saved SMTP configuration.\n\n"
+        "هذه رسالة اختبار من واثق باستخدام إعدادات خادم البريد المحفوظة.\n"
+    )
+    values = settings.safe_values()
+    values["password"] = settings.password.get_secret_value() if settings.password else None
+    outcome, _, code, _ = smtp_send(values, message)
+    return SmtpTestResult(outcome=outcome, smtp_code=code)

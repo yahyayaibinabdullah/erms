@@ -119,7 +119,7 @@ def save(c, user, payload, identity=None, version=None):
         "body_rich_text": clean_body,
         "security_level_id": selected["id"],
         "action_due_timezone": (
-            (pref["working_timezone"] if pref else default_working_timezone())
+            (pref["working_timezone"] if pref else default_working_timezone(c))
             if payload.action_due_date
             else None
         ),

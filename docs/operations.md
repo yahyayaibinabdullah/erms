@@ -1,7 +1,7 @@
 # ERMS Operational Tools Catalogue
 
 **Audience:** DevOps engineers, system administrators, and release engineers  
-**Last reviewed:** 25 September 2026
+**Last reviewed:** 20 October 2026
 
 ## 1. Purpose
 
@@ -9,6 +9,10 @@ This document is the single catalogue of ERMS command-line tools and background
 workers intended for operational use. It identifies what each tool changes, how
 it is invoked, whether it runs once or continuously, required safeguards, and
 whether it is currently implemented or planned.
+
+For the complete frontend/backend/infrastructure inventory and production setup
+order, start with the [production deployment guide](deployment.md#production-service-inventory).
+This catalogue supplies the detailed worker and scheduler procedures linked there.
 
 Feature documentation may explain why an operation exists, but deployment and
 runbook procedures must link back to this catalogue. A new operational command,
@@ -73,18 +77,35 @@ cleanup merely because dependent rows cascade.
 
 | Tool | Status | Default mode | Purpose | Specialized documentation |
 | --- | --- | --- | --- | --- |
+| `./run-local-stack.sh` | Implemented; local development only | Foreground without arguments; explicit `up`, `down`, `status`, `restart` | Manage local services and workers; append logs under `.runtime/local-stack/`; production uses separate supervisors | [Local lifecycle](local-tooling.md#local-stack-lifecycle) |
+| `./run-maildev.py` | Implemented; local development only | Explicit `up`, `down`, `status`, `restart` | Manage loopback MailDev with implicit TLS and MCP; no database access | [Local MailDev](#15-local-development-maildev) |
 | `backend.services.api.content_cleanup` | Implemented | One shot | Remove abandoned uploads, expired drafts, and unreferenced content sets | [Section 5](#5-segmented-content-cleanup) |
 | `backend.services.api.session_cleanup` | Implemented | One shot | Audit and remove expired or long-revoked login sessions | [Section 6](#6-login-session-cleanup) |
 | `backend.services.api.text_indexing_maintenance cleanup` | Implemented | One shot or supervised `--watch` | Remove expired terminal indexing history/jobs, abandoned result staging, and retained revoked/expired text-indexer credentials | [Section 7](#7-full-text-indexing-history-and-staging-cleanup) |
 | `backend.services.api.manage_auth` | Implemented | One shot | Bootstrap authentication and perform deliberate credential recovery | [Section 8](#8-authentication-bootstrap-and-credential-recovery) |
 | Database migration commands | Implemented | One shot | Upgrade the schema exactly once per database | [Section 9](#9-database-migrations) |
 | Database seed commands | Implemented | One shot | Install optional reference, demonstration, or load-test data | [Section 10](#10-optional-database-seeds) |
+| `tools/migrate_application_settings.py` | Implemented | Explicit preview/apply/check | Review and migrate legacy settings independently for each database; never imports on startup | [Settings migration](#general-settings-migration-and-readiness), [rollout instructions](disposition-rollout.md#3-preview-review-apply-and-verify-local-settings-per-database) |
+| `backend.services.api.application_settings_secret --init-local-key` | Implemented | Explicit one shot | Initialize a missing local API encryption-key assignment without printing or replacing an existing key | [Disposition setup](#141-initial-setup-and-configuration) |
+| `backend.services.api.disposition.eligibility` | Implemented | One shot or supervised `--watch` | Evaluate bounded eligible roots and task eligibility | [Disposition workers](#142-worker-startup-and-verification) |
+| `backend.services.api.disposition.communications` | Implemented | One shot or supervised `--watch` | Process queued document email and disposition reminders | [Disposition workers](#142-worker-startup-and-verification) |
+| `backend.services.api.disposition.destruction_worker` | Implemented | One shot or supervised `--watch` | Resume durable authorized digital work and certificate-only completion | [Disposition workers](#142-worker-startup-and-verification), [recovery](#143-recovery-and-rollback) |
+| `tools/rehearse_disposition_rollout.py` | Implemented | Disposable rehearsal | Create fresh/two upgrade test databases, rehearse setup, and drop all created databases | [Phase 24 verification](disposition-phase-24.md) |
 | Pre-production database reset | Planned | One shot, destructive | Recreate a not-yet-operational environment after setup or smoke testing | [Section 11](#11-pre-production-database-reset) |
 
 ## 5. Segmented-content cleanup
 
 **Status:** Implemented
 **Module:** `backend.services.api.content_cleanup`
+
+Production systemd packaging is provided by
+[`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service).
+Install/enable it using the [production deployment guide](deployment.md#separate-systemd-services),
+or schedule the one-shot command instead. The unit follows the database cleanup
+interval (default 3,600 seconds). Run one instance per logical database.
+For local development, `run-local-stack.sh` now starts and supervises this worker
+automatically and stops it on exit. Do not run a separate scheduled or manual
+copy alongside it.
 
 This worker removes expired or failed upload sessions, expired record drafts and
 their staged data, and superseded or failed content sets that are not active.
@@ -108,6 +129,12 @@ domain event when committed work occurs. See
 
 **Status:** Implemented
 **Module:** `backend.services.api.session_cleanup`
+
+`run-local-stack.sh` starts this worker automatically with `--watch`, inherits
+the selected database and uses database retention, batch-size and interval
+defaults. The launcher supervises it and stops it on exit. Do not also run a
+manual copy or scheduled session-cleanup job against that database. Production
+uses the packaged `erms-session-cleanup.service` or its scheduled alternative.
 
 This worker treats `login_sessions` as transient operational security data
 while preserving `event_history` as the durable authentication audit trail.
@@ -635,3 +662,440 @@ Search, manual reindex and indexer request rates are API database settings.
 The Audit Trail cap uses one captured value for count lookahead, page bounds and
 `result_cap`. Apply schema migration 051 and a reviewed 34-key preview/apply
 before deployment; see application-settings-upgrade.md.
+
+## 14. Disposition and destruction operations
+
+This section is the operational starting point for initial setup, configuration,
+worker supervision and recovery. For installation or an upgrade, first follow
+[the ordered deployment instructions](disposition-rollout.md): select the database,
+apply only missing schema migrations, run separate seeds, and review/apply/check
+legacy settings independently for every intended database. A “runbook” simply
+means those step-by-step operating instructions.
+
+Disposition/destruction workers implement governed workflow actions; they are
+not general retention cleanup services in section 3. Do not assume they accept
+cleanup workers' `--dry-run` flag. Their commands below support bounded one-shot
+runs and dedicated supervised watch processes. Preparing or starting services
+does not authorize physical destruction or digital deletion.
+
+### 14.1 Initial setup and configuration
+
+Use Administration → Settings with a person holding `app.settings.manage`.
+That privilege does not grant Records Officer/Manager duties. Confirm current
+organizational role assignments: Officer and Manager IGU roles, owning-unit
+managing role and, for Standard, the nearest configured File Administrator role.
+`disposition.jobs.manage` is already granted to the approved IGU profiles and
+compatibility All Privileges profile; System Administrator alone is not an IGU.
+Ordinary resource authorization, role eligibility, security, holds and vital
+blockers still apply. Assignment never grants content access.
+
+Set the classification scheme and the uploaded-evidence/generated-report
+classifications together. Each must be a valid terminal classification in that
+scheme. Provide an authorized **open root** for each destination outside the
+units being destroyed. Selection uses the current latest open root, with stable
+ID tie-breaking; closing a root changes availability. Request/execution/physical
+preparation reports use the report destination; external letters, physical
+certificates and the digital certificate use the evidence destination. Preserve
+evidence and provenance; no separate evidence-expiry deletion was approved.
+Uploaded evidence/report roots must be set up before the corresponding tasks can succeed.
+Unset destinations warn and block the dependent action; missing roots do not
+fall back to another classification or cause partial workflow advancement.
+
+Choose the review route (Standard default, Simplified or Records Manager Only),
+authority and reminder policy in Settings. A job keeps its captured route after
+the global default changes. Verify initial settings values against each reviewed
+plan and their provenance in Settings; check audit reasons and safe reference
+snapshots. Keep full-text/index scheduling disabled until its separate readiness
+procedure is met.
+
+SMTP host, port, TLS mode, authentication, username, sender/reply-to, timeout and
+**encrypted password** are database settings. Authentication requires a username
+and password. The only encryption secret in the API environment is
+`APPLICATION_SETTINGS_ENCRYPTION_KEY`; share the same key among API instances
+serving the same database and retain it with backups. A production shell/service
+value overrides `.env`. Preserve an existing key; replacing it alone cannot
+recover saved SMTP passwords. For a missing local key, the existing helper is:
+
+```sh
+backend/services/api/.venv/bin/python -m backend.services.api.application_settings_secret --init-local-key
+```
+
+The helper preserves existing assignments, including empty ones. An empty or
+invalid key needs deliberate operator correction and an API restart. No
+`SMTP_PASSWORD` environment assignment or extra key-file setting is introduced.
+STARTTLS/implicit TLS with certificate verification are the supported SMTP
+modes; a plain MailDev listener on port 1025 alone is not a production TLS
+configuration. Unconfigured SMTP/key state permits startup but blocks dependent
+sends safely; it must not be “fixed” by disabling transport verification.
+
+### 14.2 Worker startup and verification
+
+Restart API/WebUI after code/schema/dependency deployment. Local development
+uses `./run-local-stack.sh` for its existing services; it checks selected-database
+migration readiness without importing values. It preserves existing private
+environment values and appends only missing safe deployment defaults. Do not run
+that launcher against a persistent database as part of a test rehearsal.
+
+For local development, `./run-local-stack.sh` automatically starts all three
+disposition workers as separate managed processes, including when it reuses an
+existing API/WebUI. It checks migration 071 before launching them, inherits the
+selected `DATABASE_URL` and exported TLS trust, and stops its workers on Ctrl-C
+or if a managed process exits unexpectedly. Their output appears in the stack
+terminal. Starting the API alone does not start disposition workers. Do not run
+manual worker copies or service units alongside the local stack.
+The local stack also starts/reuses MailDev before the API and disposition
+workers; see [local MailDev](#15-local-development-maildev). It only stops a
+MailDev instance carrying its own lifecycle owner token. Existing instances
+managed separately are left running. Startup failure aborts stack startup;
+database SMTP configuration is never modified.
+
+Disposition workers have their own existing service units. On a systemd host,
+install/review the checked-in units, `/etc/erms/api.env`, service account and
+`/opt/erms` paths before starting them; follow deployment.md for the ordinary
+API/WebUI/indexer/cleanup units. As an alternative to the local stack, workers can run from separate terminals
+with the same selected `DATABASE_URL`; their existing dotenv loader preserves
+exported environment precedence:
+
+```sh
+backend/services/api/.venv/bin/python -m backend.services.api.disposition.eligibility --watch --batch-size 100 --interval-seconds 60
+backend/services/api/.venv/bin/python -m backend.services.api.disposition.communications --watch --batch-size 100 --interval-seconds 30
+backend/services/api/.venv/bin/python -m backend.services.api.disposition.destruction_worker --watch --batch-size 1 --interval-seconds 5
+```
+
+Run one command per supervised process; do not run a second local copy alongside
+its service unit. Omit `--watch` for a bounded one-pass readiness probe. Startup
+of the destruction/completion worker does not itself authorize a workflow action.
+After migration **071**, physical and digital destruction use the existing
+permissions and workflow checks directly. There is no separate enable/disable
+step, release function or application setting. Do not create or rewrite gate
+functions. Migrations 064/066 introduced temporary gates; 071 removes them and
+all callers, regardless of whether they previously returned true or false.
+
+Apply all missing migrations through 071 before deploying the matching API and
+WebUI code, then restart those services and the disposition workers. New empty
+databases use the current canonical schema alone. Do not replay the historical
+064/066 migrations to configure destruction. Existing actor/role and content
+permissions, task claims, current approvals, workflow stages, confirmations,
+versions, holds, security/vital blockers and physical-before-digital ordering
+remain mandatory. Migration 071 changes no job, evidence or content rows and
+neither starts workers nor performs destruction.
+
+Check `/health`, sign-in, Settings readiness/provenance, destination warnings,
+role/task visibility, worker output and audit evidence. Use synthetic rehearsal
+material for approved acceptance; never use live records to test deletion.
+
+| Change | Reload/restart and effect |
+| --- | --- |
+| Database application settings | No service restart; API general cache converges within 30 seconds. Saving invalidates the saving process; other instances expire normally. |
+| Job route | Captured at job creation; edits affect subsequent jobs. |
+| Artifact destination/template and email capture | Fresh committed checks at the defined operation boundary; earlier saved bytes/facts stay retained. |
+| Deployment environment, API key, executable, process paths or service units | Restart/relaunch the consuming API/WebUI/indexer/worker; reload systemd units after unit edits. |
+| Code, requirements, canonical template/font assets | Deploy together and restart consumers. Never overwrite retained uploaded revisions. |
+
+### 14.2.1 Accelerated eligibility with protections
+
+The ordinary **Close** action also permits closing a vital aggregation or one
+under a normal hold, subject to close permission and date/integrity checks.
+An applicable effective hold with **Preserve resource metadata and state**
+blocks closure. This rule is independent of acceleration; see
+[Aggregation closure](aggregation-closure.md#closing-vital-or-held-aggregations).
+
+After migration `077_acceleration_eligibility_protections.sql`, acceleration can
+make a unit **eligible but blocked**, just as normal retention expiry does.
+For example, an IGU can accelerate a closed vital aggregation on legal hold to
+eligible for destruction. The reason and normal due date are audited; the
+hold, vital designation, security and content stay intact. It cannot enter a
+disposition job while a protection applies, and execution checks remain mandatory.
+
+For an open aggregation, acceleration closes the root first using the ordinary
+closure permission. A normal hold permits this. A hold configured to **preserve
+resource state** still prevents closure where the existing hold rules prohibit
+it; the complete action then rolls back, with no successful acceleration event
+or notification. An already closed root under such a hold can accelerate
+because only disposition eligibility changes.
+
+Once protections are lawfully removed, the waived retention wait remains waived;
+refresh the unit and explicitly add it to a matching job when authorized.
+Removing a hold or vital designation never admits or disposes of it automatically.
+Keep the exceptional reason, provenance and notification requirements in
+[Disposition §11](../specs/disposition.md#11-exceptional-acceleration).
+
+### 14.3 Recovery and rollback
+
+| Condition | Recovery |
+| --- | --- |
+| Migration/readiness fails | Keep writers stopped; inspect receipts, fix cause and resume missing DDL. Make a new settings preview for changed inputs/versions. Never mark migration complete manually. |
+| Destination/root unavailable | Configure the correct scheme/classifications/open roots and access, refresh the task, then retry the intended action. Earlier evidence remains in its original governed location. |
+| Conversion/template failure | Repair dependencies or upload an authorized valid template revision; retry the blocked action. Retained prior versions/PDFs remain unchanged. |
+| SMTP failed/unknown | Inspect saved attempt status. SMTP acceptance is not inbox receipt. An uncertain attempt is not automatically replayed; use the authorized deliberate resend flow after checking the recipient. |
+| Worker stops or database/storage is unavailable | Restore connectivity/dependencies, restart the dedicated worker and inspect durable progress. Preserve leases/checkpoints/receipts; do not delete rows to force a rerun. |
+| Content erased but certificate failed | Use the Manager's certificate-only recovery task after fixing the destination/template/rendering issue. Retry completion, never repeat content deletion; final download/email uses the saved certificate. |
+| Role/access lost or stale task | Restore the appropriate assignment/access through approved administration or use authorized task release/reassignment; refresh versions and revalidate blockers. Do not bypass authorization. |
+| Termination after mixed physical destruction | Preserve digital material/status 13. An authorized IGU resolves a permitted eligible status with a reason, using the all-or-nothing bulk flow where applicable; only then admit to a matching new job. |
+
+Code, service configuration and reversible setting changes can be rolled back
+only to a schema-compatible version, with the corresponding previous configuration.
+This is not a reverse-migration promise. Restore a database backup only under the
+established incident/restore procedure and with coordinated writers. Physical
+material and erased digital content cannot be restored by reverting code or
+settings. External recipients' copies are outside application deletion control.
+Do not reopen/reuse destroyed retained records or reset finalization to pretend
+action did not happen. Preserve protected evidence, minimal permanent records,
+identities, rationales and audit provenance.
+
+## 15. Local development MailDev
+
+**Status:** Implemented; local testing only. **Command:** `./run-maildev.py`.
+This helper is independent of ERMS workers, uses no database and does not load
+application environment files. It manages one project-local MailDev instance
+with implicit-TLS SMTP, a mailbox and MCP bound to loopback:
+
+```bash
+./run-maildev.py up
+./run-maildev.py status
+./run-maildev.py restart
+./run-maildev.py down
+```
+
+`./run-local-stack.sh` invokes this helper automatically. Standalone commands
+remain available. Internal `--owner` tokens ensure stack cleanup cannot stop
+an independently started or subsequently restarted instance.
+
+Defaults are SMTP port 1025 and mailbox/MCP port 1080. Flags `--smtp-port`,
+`--web-port`, `--node` and `--maildev` override defaults and are retained across
+restarts. Certificates/keys, PID identity, captured mail and append-only logs
+live in gitignored `.runtime/maildev/`. It refuses occupied ports and only stops
+its recorded process. Startup/status probe verified TLS SMTP, mailbox HTTP and
+MCP initialization. No relay is configured, and no production trust or SMTP
+configuration is changed. See [local tooling](local-tooling.md#local-maildev-with-tls-and-mcp)
+for dependencies, local certificate trust, retention and reset procedures.
+
+
+### Reading accelerated eligibility in the retention section
+
+An accelerated aggregation's **Effective retention rule** section shows its
+current disposition status, acceleration time, actor and exceptional reason.
+The **Normal retention due date** remains the date calculated from closure plus
+both retention periods; it is not the accelerated eligibility date. For example,
+an aggregation closed and accelerated on 22 October 2026 with two current and
+three intermediate years is eligible immediately, while its normal due date
+remains 22 October 2031. Holds, vital status and all other admission/execution
+checks still apply.
+
+This display reads existing immutable events, so no data migration or repeat
+acceleration is needed. Reopening or a changed effective rule clears an
+invalidated acceleration indicator. Refreshing or reopening the details page
+loads current provenance through the existing retention-rule request. Deploy
+both API and WebUI changes together and restart/reload them to activate the
+response field and catalogue changes. The five new Arabic labels remain drafts
+until reviewed and published in Translation Administration.
+
+
+The **Disposition eligibility** table makes the same distinction: accelerated
+rows carry an **Accelerated** date badge, whose tooltip identifies the actor
+and reason. **Normal retention due date** remains the calculated date, and
+**Remaining retention period waived** replaces the overdue count for these
+rows. Ordinary rows retain days overdue. The redundant final-action subtitle
+has been removed from the status cells. The date sort and date-range filters
+still operate on normal retention dates. Existing blockers remain independent.
+
+The Disposition eligibility list marks roots with protection blockers or an
+active job using pale amber rows and a lock with an explanation. Their details
+and job links remain available, but they cannot be selected for admission.
+Use the Active job filter (Any / In an active job / No active job) to include
+or exclude current job members. Historical or removed memberships do not count.
+
+The Active job filter defaults to No active job on the first visit. An explicit
+Any or In an active job selection is retained with the page state. The API
+also defaults to no active job; `active_job=all` explicitly requests both.
+
+Acceleration provenance displays the actor's existing translated name in the
+viewer's language on Aggregation details and in the eligibility tooltip. If a
+translation or user record is unavailable, it uses the event's recorded name.
+This presentation never rewrites the audit event's original actor snapshot.
+
+### Creating disposition jobs
+
+Both authorized Records Managers and Records Officers can create all four job
+types under any configured destruction review route. The creator's eligibility
+for preparation, review and approval is checked independently.
+
+Job numbers are assigned on save: DT (destruction), PT (permanent transfer), ST
+(selective transfer), LA (local archives), followed by the application-timezone
+year and a per-type annual sequence, for example `DT-2026-3`. Existing numbers
+are unchanged; no number should be entered by users. Retries retain the same
+number. Apply migration `078_disposition_job_creation.sql` to existing databases
+before deploying the updated API/UI; new databases use `schema.sql` alone.
+
+Assigned person defaults to the creator when eligible for that job and route,
+and can be changed. A Manager may create a Standard-route destruction job but
+must assign an eligible Officer before adding roots. Creation needs no reason;
+updates, deletions and exceptional actions keep their existing requirements.
+
+The Disposition jobs list filters by number, type, state, owning unit and
+assigned person; Unassigned shows jobs without an assignee. Click any data
+column heading to sort. Filters start collapsed and remember each user's
+expansion choice in the current browser. Apply filters resets to the first
+page; Refresh retains the current page. Owner/person search accepts existing
+translated names as well as canonical names.
+
+When adding eligible roots, the job chooser also offers **Create job**. After
+saving, the new job is selected in the add-roots confirmation automatically.
+Review and confirm that separate addition; creating the job does not add roots.
+Cancelling creation returns to the chooser without losing the selected roots.
+
+For destruction jobs created from selected eligible roots, the owning unit is
+prefilled with their shared unit, or their nearest common ancestor if they have
+different owners. Review this editable suggestion: that unit determines the
+combined review routing and Unit Manager approval. Reviewers still need access
+to the batch's content. If the units have no common ancestor, split the selection
+into separate jobs. Roots outside the chosen unit's subtree remain inadmissible;
+ownership and hierarchy are checked again when adding them. Jobs created from
+the main Jobs page still require an explicit owning-unit selection.
+
+Routine additions of roots to jobs no longer prompt for a change reason.
+Attribution and outcomes remain in event history. The chooser disables jobs
+that cannot accept the whole selection and explains why; split a mixed selection
+or choose a job with the appropriate owning-unit scope. Saving still rechecks
+current conditions, so a concurrent change can still produce an item failure.
+
+Upgrade existing databases with migration
+`079_disposition_admission_reason.sql` before using reason-free additions.
+New databases receive this behavior directly from `database/schema.sql`.
+Removal and exceptional-action reason requirements are unchanged.
+
+Review proposal selectors use the standard relationship controls. Open Security
+Level or Relationship Type for bounded initial choices, or type to filter.
+For Legal Holds and Related Aggregation, type at least two characters to search.
+Related Aggregation also offers Browse for the paged classification/aggregation
+tree. Browser selections are rechecked against task access before acceptance.
+
+### Relationship proposal direction (22 October 2026)
+
+In the relationship proposal form, Related aggregation and its Browse action
+precede Direction, which sits immediately above Relationship type. Type names
+are shown from the target aggregation's perspective: outgoing uses the forward
+name, incoming uses the reverse name, and symmetric types retain their name.
+The selector searches the displayed localized name or code and retains the
+selected type ID when direction changes. Existing authorization and relationship
+endpoint orientation remain unchanged.
+
+### Job details and task details
+
+Open Jobs → Job details for full metadata, overall stage progress, aggregation
+membership, documents and history. Metadata and progress are expanded
+initially. Use its Current task link to open an accessible task.
+
+Open My Tasks → Task details to work on the selected stage, with its instructions,
+assignment and authorized actions. Supporting aggregations and evidence remain
+available; use Job details for the overall workflow and event history. Refresh
+and Back preserve task identity, and tab switching preserves unsaved edits.
+
+### Compact workflow progress
+
+Job details displays Workflow progress as a vertical stage tracker. It identifies Current,
+Upcoming, Completed and Skipped stages using text and icons. Correction rounds
+return to preparation/correction; previous rounds remain in History. Physical
+destruction appears when its applicability is confirmed by the workspace.
+The full branching [workflow reference](disposition-workflow.md) is available
+in documentation instead of being rendered in the job page.
+
+### Reading disposition event details
+
+Disposition job history uses named entities and readable facts rather than
+internal database IDs. Blocker observations describe the conditions detected at
+that time; they are not the current authority for whether disposition may proceed.
+Before/after sections show meaningful changes only. Linked names are current,
+localized names when accessible; historical event data remains unchanged.
+
+Users granted the existing `audit.view` privilege can expand Technical details
+to inspect the authorized raw event JSON. The section starts collapsed and is
+not shown to ordinary users. Access restrictions and destruction protections
+continue to apply. Existing events use this presentation without a migration.
+
+The global Audit Trail applies the same readable disposition facts within its
+standard event dialog. Request/correlation identifiers and raw metadata are in
+its collapsed Technical details section; current-entity navigation is preserved.
+
+
+### Review-round progress display
+
+Job details now presents one current tracker and an initially collapsed history
+of earlier submitted rounds. Correction is labelled as preparing the next
+round, without creating that round early. Return reasons and external review
+outcomes are taken from saved decisions; approval invalidation is distinct.
+No migration or database setting is required. Deploy the API and WebUI together;
+the UI uses the authorized, uncached `/jobs/{id}/workflow-progress` projection.
+Eight new `disposition.ui.tracker_*` translations are generated Arabic drafts
+for administrator review, merged into the canonical artifact without replacing
+curated wording. Use the normal catalogue synchronization/review workflow.
+
+
+### Organization-wide destruction templates
+
+Use **Disposition → Document templates** to download, revise and inspect the
+revision history of the four shared Word templates. Existing Records Officer
+and Records Manager authorization applies; no job needs to exist first. This
+is not a per-job override. The latest accepted revision applies to subsequent
+document generation in both new and existing jobs. Existing PDFs retain their
+original bytes and template reference. Job Documents displays the exact revision
+used, with a download action for authorized template users.
+
+For existing databases, apply migration
+`081_organization_wide_disposition_templates.sql` after its predecessors, then
+restart API and WebUI. New databases use `database/schema.sql`. The migration
+allows uploads without a source job and preserves all existing revisions, job
+references and audit events. No new privilege or environment variable is added.
+
+
+### Proposing multiple relationship removals
+
+In a task's Add proposal dialog, choose Remove aggregation relationship or Remove
+record relationship and select all relevant links. Continue queues one proposal
+per selected link; Save saves the pending proposals together. A shared optional
+reason is copied to each proposal. Existing proposals remain individually editable.
+These actions do not remove relationships or clear blockers: removal still occurs
+only when the Records Manager approves and executes the proposal set.
+
+
+### Returning to a task aggregation review
+
+After opening an aggregation from a task or job, Back restores the Aggregations
+tab, page, filters and sort order. The last-viewed aggregation is highlighted
+and marked, so the reviewer can resume there. Rows are fetched again using
+current permissions; removed or inaccessible rows are not restored from a cache.
+
+
+### Acting-role attribution in disposition and destruction
+
+Users select the assigned person or destination role queue when changing
+responsibility. They no longer select an acting role for authorization or audit
+attribution. Job commands, task forms, evidence/template uploads, document/report
+commands, external decisions, email and execution use one currently qualifying
+role automatically. Permissions and reasons/confirmations remain enforced.
+History still identifies the signed-in user and the role used for the action.
+If an assignment or privilege has changed since opening a page, a stale role is
+rejected; refresh the page to obtain current eligible roles. Exact retries keep
+the original command identity and attribution.
+
+Deploy/restart the WebUI to activate this presentation change. No database
+migration, API-contract change, new privilege or environment setting is needed.
+
+
+### One Review comments field per review task
+
+Preparation, correction and internal review tasks use one Review comments field
+for observations and justification. Draft saves and routine reviews may leave it
+blank. Submission/resubmission, return for correction and Records Manager Only
+approval require nonblank comments. The same text accompanies the submission or
+decision; individual proposal reasons retain their existing rules.
+
+Older notes and reasons remain in history. Distinct legacy draft texts are
+combined in the single editor, and opening the task does not save or mark it
+edited. Only explicit Save or workflow actions persist the unified text.
+
+Apply migration `082_unified_review_comments.sql` after 081 to existing databases
+and restart API/WebUI. Fresh databases use `schema.sql` alone. The migration
+changes validation and attribution for future decisions without updating or
+deleting existing notes, reasons, decisions or events. Legacy API field names
+remain supported; no new environment settings or privileges are required.

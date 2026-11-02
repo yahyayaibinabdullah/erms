@@ -1,0 +1,79 @@
+{
+  "result": "passed",
+  "owned_database": "erms_messaging_test_acl_3f73ea7df32a41009162f21122e6bd1e",
+  "transport": "Production SMTP_SSL with certificate and hostname verification, through temporary loopback TLS bridge to user MailDev:1025",
+  "mcp": "http://localhost:1080/mcp",
+  "saved_attempts": [
+    {
+      "id": 1,
+      "message_id": "<179242182923.63614.4797149577862744068@wathiq.invalid>",
+      "status": "smtp_accepted",
+      "recipient": "archives@test.invalid",
+      "sender": "phase18-3f73ea7df32a41009162f21122e6bd1e@test.invalid",
+      "security": "implicit_tls",
+      "port": 52218,
+      "job_number": "PHASE18-RECORDS_MANAGER_ONLY",
+      "checksum": "97cb622111e8ba38b0f18c7ffd0a89bee88c13d6d9a9df27e44f334883cbcd10",
+      "file_name": "destruction_request-31.pdf"
+    },
+    {
+      "id": 2,
+      "message_id": "<179242197342.63614.12574678578109245397@wathiq.invalid>",
+      "status": "smtp_accepted",
+      "recipient": "archives@test.invalid",
+      "sender": "phase18-3f73ea7df32a41009162f21122e6bd1e@test.invalid",
+      "security": "implicit_tls",
+      "port": 52218,
+      "job_number": "PHASE18-RECORDS_MANAGER_ONLY",
+      "checksum": "97cb622111e8ba38b0f18c7ffd0a89bee88c13d6d9a9df27e44f334883cbcd10",
+      "file_name": "destruction_request-31.pdf"
+    },
+    {
+      "id": 3,
+      "message_id": "<179242217775.63614.9637501760915006728@wathiq.invalid>",
+      "status": "smtp_accepted",
+      "recipient": "archives@test.invalid",
+      "sender": "phase18-3f73ea7df32a41009162f21122e6bd1e@test.invalid",
+      "security": "implicit_tls",
+      "port": 52218,
+      "job_number": "PHASE18-STANDARD",
+      "checksum": "3cb51167801197ccb621bb2830f278641d174069e73b0d6982ffc4f760ebdc94",
+      "file_name": "destruction_request-29.pdf"
+    }
+  ],
+  "verified_captured_messages": [
+    {
+      "maildev_id": "pwl8w0pu",
+      "file_name": "destruction_request-29.pdf",
+      "checksum": "3cb51167801197ccb621bb2830f278641d174069e73b0d6982ffc4f760ebdc94",
+      "matching_saved_attempt_ids": [
+        3
+      ],
+      "attachment_bytes_match_saved_checksum": true
+    },
+    {
+      "maildev_id": "178e87ig",
+      "file_name": "destruction_request-31.pdf",
+      "checksum": "97cb622111e8ba38b0f18c7ffd0a89bee88c13d6d9a9df27e44f334883cbcd10",
+      "matching_saved_attempt_ids": [
+        2
+      ],
+      "attachment_bytes_match_saved_checksum": true
+    },
+    {
+      "maildev_id": "ptqje85l",
+      "file_name": "destruction_request-31.pdf",
+      "checksum": "97cb622111e8ba38b0f18c7ffd0a89bee88c13d6d9a9df27e44f334883cbcd10",
+      "matching_saved_attempt_ids": [
+        1
+      ],
+      "attachment_bytes_match_saved_checksum": true
+    }
+  ],
+  "identity_evidence": "RFC Message-ID and storage filename observed in MailDev Headers/attachment UI; exact PDF bytes retrieved through MailDev MCP.",
+  "existing_messages_modified": false,
+  "test_messages_retained_for_user": true,
+  "tls_bridge_ports": [
+    52218
+  ]
+}

@@ -1,4 +1,4 @@
-"""Named aggregation/record links. Disposition integration is deliberately deferred."""
+"""Named links; writes coordinate with protected disposition blocker checks."""
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -211,6 +211,7 @@ def targets(kind: Kind, resource_id: int, q: str = Query('', max_length=200),
              dependencies=[Depends(require_global_privilege('relationships.link'))])
 def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
                 c: Connection = Depends(get_connection, scope='function')):
+    c.execute('SELECT pg_advisory_xact_lock(7357,1)')
     require_endpoint(c, kind, resource_id)
     require_endpoint(c, kind, payload.target_id)
     source, target = (resource_id, payload.target_id) if payload.direction == 'forward' else (payload.target_id, resource_id)
@@ -226,6 +227,7 @@ def create_link(kind: Kind, resource_id: int, payload: LinkCreate,
                dependencies=[Depends(require_global_privilege('relationships.link'))])
 def delete_link(kind: Kind, resource_id: int, link_id: int,
                 c: Connection = Depends(get_connection, scope='function')):
+    c.execute('SELECT pg_advisory_xact_lock(7357,1)')
     require_endpoint(c, kind, resource_id)
     try:
         with c.transaction():
@@ -244,13 +246,13 @@ def delete_link(kind: Kind, resource_id: int, link_id: int,
 @router.get('/{kind}/{resource_id}')
 def list_links(kind: Kind, resource_id: int, language_tag: Language = 'en',
                limit: int = Query(25, ge=1, le=100), offset: int = Query(0, ge=0),
-               type_id: int | None = Query(None, gt=0),
+               type_id: int | None = Query(None, gt=0), selected_id: int | None = Query(None,gt=0),
                sort: Literal['id', 'type'] = 'id', descending: bool = False,
                c: Connection = Depends(get_connection, scope='function')):
     require_endpoint(c, kind, resource_id)
     table, number = tables(kind)
-    where = '(link.source_id=%s OR link.target_id=%s) AND (%s::bigint IS NULL OR link.relationship_type_id=%s)'
-    params = (resource_id, resource_id, type_id, type_id)
+    where = '(link.source_id=%s OR link.target_id=%s) AND (%s::bigint IS NULL OR link.relationship_type_id=%s) AND (%s::bigint IS NULL OR link.id=%s)'
+    params = (resource_id, resource_id, type_id, type_id, selected_id, selected_id)
     total = c.execute(f'SELECT count(*) AS total FROM {kind}_relationships link WHERE {where}', params).fetchone()['total']
     order = 'definition.code,link.id' if sort == 'type' else 'link.id'
     order = ','.join(column + (' DESC' if descending else ' ASC') for column in order.split(','))

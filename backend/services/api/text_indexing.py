@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi import Query, APIRouter, Depends, Header, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from psycopg import Connection
@@ -40,6 +40,7 @@ class ClaimRequest(BaseModel):
     supported_mime_types: list[str] = Field(min_length=1, max_length=100)
     ocr_languages: list[str] = Field(default_factory=list, max_length=20)
     limits: dict[str, int] = Field(default_factory=dict)
+    processing_copy_protocol: Literal[0,1] = 0
 
 
 class LeaseRequest(BaseModel):
@@ -137,6 +138,7 @@ def claim_jobs(
     payload: ClaimRequest, principal: ServicePrincipal = Depends(_principal),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
+    connection.execute('SELECT pg_advisory_xact_lock(7357,1)')
     existing = connection.execute(
         """SELECT capabilities,active_until FROM text_indexing_workers
             WHERE service_user_id=%s AND worker_id=%s FOR UPDATE""",
@@ -146,6 +148,7 @@ def claim_jobs(
         if existing["capabilities"].get("instance_nonce") != payload.instance_nonce:
             raise HTTPException(status_code=409, detail={"code": "worker_id_already_active"})
     capabilities = {
+        "processing_copy_protocol":payload.processing_copy_protocol,
         "instance_nonce": payload.instance_nonce,
         "supported_mime_types": sorted(set(payload.supported_mime_types)),
         "ocr_languages": sorted(set(payload.ocr_languages)),
@@ -174,7 +177,7 @@ def claim_jobs(
         job = connection.execute(
             """WITH candidate AS (
                    SELECT id FROM content_indexing_jobs
-                    WHERE not_before<=CURRENT_TIMESTAMP
+                    WHERE not_before<=CURRENT_TIMESTAMP AND NOT disposition_private.content_reserved(record_id)
                       AND (status='queued' OR (status='leased' AND lease_expires_at<CURRENT_TIMESTAMP))
                       AND extractor_version=%s AND extraction_config_version=%s
                       AND index_config_version=%s
@@ -261,6 +264,8 @@ def job_content(
 ):
     payload = LeaseRequest(worker_id=worker_id,lease_token=lease_token,lease_generation=lease_generation)
     job = _lease(connection,job_id,payload)
+    if not connection.execute("SELECT 1 FROM disposition_private.processing_copies WHERE component_id=%s AND owner_user_id=%s AND kind='text_indexing' AND worker_id=%s AND indexing_job_id=%s AND indexing_generation=%s",(job['digital_component_id'],principal.user_id,worker_id,job_id,lease_generation)).fetchone():
+        raise HTTPException(409,detail={'code':'processing_copy_required'})
     content_set = connection.execute(
         """SELECT size_in_bytes,segment_count,checksum_algo,checksum_value
              FROM digital_component_content_sets
@@ -421,3 +426,26 @@ def worker_status(worker_id: str, principal: ServicePrincipal = Depends(_princip
     ).fetchone()
     if not row: raise HTTPException(status_code=404,detail="worker not registered")
     return row
+
+
+class ProcessingCopyRequest(LeaseRequest):
+    token: UUID
+
+
+@router.post('/jobs/{job_id}/processing-copy')
+def register_copy(job_id:int,payload:ProcessingCopyRequest,principal:ServicePrincipal=Depends(_principal),connection:Connection=Depends(get_connection,scope='function')):
+    connection.execute('SELECT pg_advisory_xact_lock(7357,1)')
+    job=_lease(connection,job_id,payload,lock=True)
+    try:connection.execute("SELECT disposition_private.register_processing_copy(%s,%s,%s,'text_indexing',%s,%s,%s)",(payload.token,job['digital_component_id'],principal.user_id,payload.worker_id,job_id,payload.lease_generation))
+    except __import__('psycopg').Error:raise HTTPException(409,detail={'code':'lease_lost'}) from None
+    return {'registered':True}
+
+
+@router.delete('/processing-copies/{token}')
+def acknowledge_copy(token:UUID,worker_id:str=Query(min_length=1,max_length=200),principal:ServicePrincipal=Depends(_principal),connection:Connection=Depends(get_connection,scope='function')):
+    # Cleanup receipts remain valid after lease expiry, but only for their
+    # authenticated service owner and exact worker/token. No deletion authority.
+    row=connection.execute('SELECT owner_user_id,worker_id FROM disposition_private.processing_copies WHERE token=%s',(token,)).fetchone()
+    if row and (row['owner_user_id']!=principal.user_id or row['worker_id']!=worker_id):raise HTTPException(403,detail={'code':'processing_copy_owner_required'})
+    connection.execute("DELETE FROM disposition_private.processing_copies WHERE token=%s AND owner_user_id=%s AND kind='text_indexing' AND worker_id=%s",(token,principal.user_id,worker_id))
+    return {'cleaned':True}

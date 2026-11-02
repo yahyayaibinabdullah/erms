@@ -6,7 +6,8 @@ from typing import Any, Callable
 from nicegui import ui
 
 from .i18n_catalogue import render_message
-from .locale_services import format_local_date, utc_instant_to_working
+from .locale_services import format_instant, format_local_date, utc_instant_to_working
+from .disposition.messages import status_label
 
 
 def disposition_dates(
@@ -34,16 +35,37 @@ def render_disposition_date(
     rule: dict[str, Any], governing_root: dict[str, Any] | None,
     language: str, timezone_name: str,
 ) -> None:
+    acceleration = rule.get("acceleration")
+    if acceleration:
+        with ui.row().classes("detail-action-row w-full items-start gap-3 rounded-lg bg-blue-50 p-4"):
+            ui.icon("event_available", color="primary").classes("text-2xl")
+            with ui.column().classes("min-w-0 gap-1"):
+                ui.label(render_message("webui.open_aggregation.retention.accelerated_on", date=format_instant(
+                    acceleration["occurred_at"], timezone_name, language,
+                ))).classes("text-base font-semibold text-slate-900")
+                if governing_root and governing_root.get("disposition_status"):
+                    ui.label(status_label(governing_root["disposition_status"])).classes("text-sm font-semibold text-slate-800")
+                if acceleration.get("actor_name"):
+                    with ui.row().classes("detail-action-row items-baseline gap-1"):
+                        ui.label(render_message("webui.open_aggregation.retention.accelerated_by"))
+                        ui.label(acceleration["actor_name"])
+                if acceleration.get("reason"):
+                    ui.label(render_message("webui.open_aggregation.retention.acceleration_reason")).classes("text-sm font-semibold")
+                    ui.label(acceleration["reason"]).classes("w-full whitespace-pre-wrap break-words")
+                ui.label(render_message("webui.open_aggregation.retention.acceleration_effect")).classes("text-sm text-slate-600")
     dates = disposition_dates(rule, governing_root, timezone_name)
     if dates is None:
         return
     closed, due = dates
-    with ui.row().classes("w-full items-start gap-3 rounded-lg bg-blue-50 p-4"):
+    with ui.row().classes("detail-action-row w-full items-start gap-3 rounded-lg bg-blue-50 p-4"):
         ui.icon("event", color="primary").classes("text-2xl")
         with ui.column().classes("min-w-0 gap-1"):
-            ui.label(render_message("webui.open_aggregation.retention.calculated_disposition_date")).classes("text-sm font-semibold text-slate-800")
+            ui.label(render_message(
+                "webui.open_aggregation.retention.normal_disposition_date" if acceleration
+                else "webui.open_aggregation.retention.calculated_disposition_date"
+            )).classes("text-sm font-semibold text-slate-800")
             ui.label(format_local_date(due, language)).classes("text-xl font-semibold text-slate-900")
-            with ui.row().classes("items-baseline gap-1 text-xs text-slate-500"):
+            with ui.row().classes("detail-action-row items-baseline gap-1 text-xs text-slate-500"):
                 ui.label(render_message("entity_metadata.field.date_closed"))
                 ui.label(format_local_date(closed, language))
 

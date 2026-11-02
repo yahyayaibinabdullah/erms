@@ -93,7 +93,6 @@ NAME_ARABIC = {
     "security.resource.downgrade": "خفض درجة سرية المورد",
     "security_level.modify_metadata": "تعديل البيانات الوصفية لدرجة السرية",
     "security_levels.administer": "إدارة درجات السرية",
-    "user.modify_metadata": "تعديل البيانات الوصفية للمستخدم",
 }
 
 DESCRIPTION_ARABIC = {
