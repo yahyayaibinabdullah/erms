@@ -31,6 +31,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('073_file_administrator_profile'),
  ('077_acceleration_eligibility_protections'),
  ('078_disposition_job_creation'),
+ ('079_disposition_admission_reason'),
  ('080_fix_held_component_trigger'),
  ('081_organization_wide_disposition_templates'),
  ('082_unified_review_comments'),

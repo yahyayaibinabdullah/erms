@@ -964,6 +964,14 @@ Upgrade existing databases with migration
 New databases receive this behavior directly from `database/schema.sql`.
 Removal and exceptional-action reason requirements are unchanged.
 
+Use the corrected current-checkout version of 079 for existing databases whose
+history entry is missing. Its original version omitted that entry. The corrected
+script records the version and preserves validated post-084 reason-free task
+claiming instead of replacing it with the older function/constraint. Repeated
+application is a no-op; detected drift fails for inspection. Fresh-install
+`baseline.sql` also records 079. Local stack startup does not apply migrations
+automatically. See [reconciliation verification](verification/migration-079-reconciliation.md).
+
 Review proposal selectors use the standard relationship controls. Open Security
 Level or Relationship Type for bounded initial choices, or type to filter.
 For Legal Holds and Related Aggregation, type at least two characters to search.

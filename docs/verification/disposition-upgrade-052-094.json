@@ -1,0 +1,557 @@
+{
+  "historical_ref": "4885a15767d797fea61762eec83b37b00f8cd5f1",
+  "historical_sql_sha256": "64ca4ea47a9e261d8852ad0ad2a7dfd29c596168bab892b4940323ac9d2b341b",
+  "disposable_database": "erms_upgrade_052_094_d4a9168bc164419995330ca5a2dc38d0",
+  "applied_migrations": [
+    {
+      "file": "053_disposition_foundation.sql",
+      "sha256": "3d8502bed29bb7ee0bf687aa159520d9a1c84c9f281d18da49d5a30eb5bb8c9f"
+    },
+    {
+      "file": "054_disposition_eligibility.sql",
+      "sha256": "d1a69a86510d92f675b966499e383453aba94c9995d28371072cea4f0708a326"
+    },
+    {
+      "file": "055_disposition_membership.sql",
+      "sha256": "37a5274c9dc9a1861616e79d0403eda400cbd66d4ee43c16c3ba9442abc094db"
+    },
+    {
+      "file": "056_disposition_artifacts.sql",
+      "sha256": "5765d36508706468c4dfd70694a1f6938b44c3a1cc1c81f4d2921dd812459168"
+    },
+    {
+      "file": "057_disposition_templates.sql",
+      "sha256": "3005baf61572bb7d49492de380eb29d8dbc9a562e3b0d7fdb913c26a63f51b3c"
+    },
+    {
+      "file": "058_disposition_routing.sql",
+      "sha256": "7cb1826646a2874381bddb1cfc77f3b24346371a111afefd0a5f00fffad5b4ff"
+    },
+    {
+      "file": "059_disposition_review.sql",
+      "sha256": "93c0a4f74290c063c01e5d5cb9778fed37e6e869866c6b8e049915a6e7045131"
+    },
+    {
+      "file": "060_disposition_approval.sql",
+      "sha256": "3930ae61bc7573a87bc886a040cb321520c7e7ec484039663ca6ee2e205cf394"
+    },
+    {
+      "file": "061_disposition_review_save.sql",
+      "sha256": "d45766ca0c8d60bbf64272b78a36869a39e486725d71e774d1b89f6511fc3632"
+    },
+    {
+      "file": "062_disposition_external_approval.sql",
+      "sha256": "719622083a6eca601283ef08b4c454102ab33af08ee3ca732cbdd1165eff8727"
+    },
+    {
+      "file": "063_disposition_communications.sql",
+      "sha256": "adb6935a035daa09025adc77a8fdc42db1f8f35372b50509b4856021f150cc43"
+    },
+    {
+      "file": "064_disposition_physical.sql",
+      "sha256": "a426ce62b2ba1c74a7c9809a900bb7fe38ee8ee9835617299547df66e4652400"
+    },
+    {
+      "file": "065_disposition_recovery.sql",
+      "sha256": "3dfe00c08adad2f942e0625f03d80a216360047c43df34372b2a7cc94eee4233"
+    },
+    {
+      "file": "066_disposition_destruction_runs.sql",
+      "sha256": "1447559c5b58ec2d4fcdbf9abdb543ffe5f1e25404e22c41d15462fb42b9a6e6"
+    },
+    {
+      "file": "067_disposition_content_erasure.sql",
+      "sha256": "f0a62047938ea92fee67689565610a922dad3468dd953615907cad67913fbbed"
+    },
+    {
+      "file": "068_disposition_retained_records.sql",
+      "sha256": "a501135ff3ad46c6df2ee7a0e69ba3dbe950cb061df790b3dffcd78ceef42876"
+    },
+    {
+      "file": "069_disposition_completion.sql",
+      "sha256": "d58781d07c28c452d17471196da1136fa447fffb8607d52c39d32d3ef301131c"
+    },
+    {
+      "file": "070_disposition_decision_minimization.sql",
+      "sha256": "67e1bf3da4d0f02297a2c7ac64a90403e1661e9104c8a4f480f651775d4f15b4"
+    },
+    {
+      "file": "071_remove_destruction_release_gates.sql",
+      "sha256": "a780257f95accd00d7d21e68202c3be79d7b284b8fcc5a1de8c3646deb5e8114"
+    },
+    {
+      "file": "072_acceleration_closes_root.sql",
+      "sha256": "8a552ee2cc138f7617e19a01d4f5153abca9d0ac389fc55fb25c7364fe59d72b"
+    },
+    {
+      "file": "073_file_administrator_profile.sql",
+      "sha256": "b26d294d123bd928fe38d8714a9f740d341a3bd5dfd2df86056db1529b44e4a7"
+    },
+    {
+      "file": "074_sa_terminal_disposition_actions.sql",
+      "sha256": "3417bd7430084f11302a1ea7d3e490589fdc0ff093d72d14331c7d98c9de5c13"
+    },
+    {
+      "file": "075_sa_terminal_retention_instructions.sql",
+      "sha256": "28aba47c99fef43902090010f559a26ee306efe6b11ea99a8c38e467c639c5d4"
+    },
+    {
+      "file": "076_sa_terminal_retention_periods.sql",
+      "sha256": "288adf5888d09705de45508f65c06f142b314d3cf1c75b5f6c7f9808c88ed81a"
+    },
+    {
+      "file": "077_acceleration_eligibility_protections.sql",
+      "sha256": "b344dfbade39cd392f1f1b49fce5cbf152a6169f1b707cbcdb7de699acbbbeb2"
+    },
+    {
+      "file": "078_disposition_job_creation.sql",
+      "sha256": "5f6806c9c7ed0c8ffaf35eec4470d760c2dac2c999d1d75a53fe5d58f075fc88"
+    },
+    {
+      "file": "079_disposition_admission_reason.sql",
+      "sha256": "94f4d19c9e6415ace27b221154d77c2bd8c2b8e1da1c1457d9eaab01c0b918e8"
+    },
+    {
+      "file": "080_fix_held_component_trigger.sql",
+      "sha256": "34adf01280389c9da81d81192c00d7e022096d825ee46e43f511b962e7007716"
+    },
+    {
+      "file": "081_organization_wide_disposition_templates.sql",
+      "sha256": "fa0f2c3c471d2810532779afe6f97e7a3fcf4503782e82f7f6fbed3351d1891e"
+    },
+    {
+      "file": "082_unified_review_comments.sql",
+      "sha256": "97e18f5f8dcd446c1cb6d7e940792a67d4f5baa6af2996c7a8aa63804ba72431"
+    },
+    {
+      "file": "083_single_eligible_reviewer.sql",
+      "sha256": "7432a9c112e88d8021396df8da684e64701fdeff5d895b6bd23ea86164c24e5e"
+    },
+    {
+      "file": "084_reasonless_task_claim.sql",
+      "sha256": "e4a864a95492cb04fe4a2216ea0da35ea95bc7f62eb56b8c0a260ee6a379a795"
+    },
+    {
+      "file": "085_prevent_duplicate_review_proposals.sql",
+      "sha256": "ffab2cb75a2c78c857b4edc014e84724223a6b7e35b825721afadaa68fbd27bc"
+    },
+    {
+      "file": "086_intermediate_review_completion.sql",
+      "sha256": "bd91b111d0a784a061e99a94e92969932ef38e2ea3b4c662e2838948d40ed915"
+    },
+    {
+      "file": "087_manager_request_email.sql",
+      "sha256": "268edc955b2e4f07cfdf69db88c22f286e4b3ad7bd1532385ea913aee0dae0ad"
+    },
+    {
+      "file": "088_request_presentation_settings.sql",
+      "sha256": "f7f0e0159c7f1b03ea340e29301046295ed3d7996157f489748ce6efc823507b"
+    },
+    {
+      "file": "089_governance_terminal_search.sql",
+      "sha256": "ae30d463e0facae3fc4d4319ce227c0bf14269f77e0472e858dd589428f2e2b6"
+    },
+    {
+      "file": "090_unify_user_translation_authorization.sql",
+      "sha256": "a1f6b66421e334413cff9c68700ef46ec940dce499e20a9a6d31b55e381accd0"
+    },
+    {
+      "file": "091_explicit_certificate_task_completion.sql",
+      "sha256": "eb642fbfdf382e7f9586af1d5f5e4b4a3e842daff5587467e1e8b96aa978d521"
+    },
+    {
+      "file": "092_compatible_aggregation_medium_changes.sql",
+      "sha256": "6de9777624792717a4d8c96b110b7c9f75ca7b6d11338de2de8924c0005d7ecf"
+    },
+    {
+      "file": "093_restore_reopened_job_members.sql",
+      "sha256": "7b467657b4fd1cae38c503e4a75db08a7e135181dffbdda0b3669c8ef16f2fbd"
+    },
+    {
+      "file": "094_simplified_review_additions.sql",
+      "sha256": "d4923143387e5a5b392bfd72f02ca7ca61b4311b0d59ae0277f2b85e822a2ccf"
+    }
+  ],
+  "comparison_database": "demo",
+  "comparison_read_only": true,
+  "reference_locale": {
+    "encoding": "UTF8",
+    "datlocprovider": "c",
+    "datlocale": null,
+    "datcollate": "en_US.UTF-8",
+    "datctype": "en_US.UTF-8",
+    "datcollversion": null
+  },
+  "baseline_versions": [
+    "049_resource_relationships",
+    "050_application_settings",
+    "051_database_indexing_policy",
+    "052_application_settings_reference_audit"
+  ],
+  "current_migration": "094_simplified_review_additions.sql",
+  "missing_upgrade_markers": [],
+  "upgraded_objects": {
+    "tables": 128,
+    "views": 6,
+    "functions": 335,
+    "triggers": 312
+  },
+  "demo_objects": {
+    "tables": 128,
+    "views": 6,
+    "functions": 335,
+    "triggers": 312
+  },
+  "raw_schema_equal": false,
+  "demo_schema_sha256": "dee4dac2bc36eba5abac8c3f344f1c87a8fc1ec0dedb0d56af482ad56d670eab",
+  "upgrade_schema_sha256": "eee622e5cb7fe01161899b7d74cc343c0978dc40ee3414544b87d113b8df1db3",
+  "diff_lines": 640,
+  "disposable_database_dropped": true,
+  "comparison_analysis": {
+    "function_text_differences": [
+      {
+        "function": "public.aggregation_effective_assigned_location_source_id(p_aggregation_id bigint)",
+        "classification": "consistent local CTE alias renaming, optional AS, and formatting",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.aggregation_effective_current_location_source_id(p_aggregation_id bigint)",
+        "classification": "consistent local CTE alias renaming, optional AS, and formatting",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.aggregation_has_vital_descendants(p_id bigint)",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.append_hold_assignment_domain_events()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.current_hold_actor_is_manager(p_hold_id bigint)",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.enforce_one_enabled_default_language()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.enforce_saved_search_change_reason()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.org_unit_effectively_active(p_org_unit_id bigint)",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.protect_vital_resource_deletion()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.record_entity_history()",
+        "classification": "optional AS for the identical key/differences table aliases, and formatting",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.record_localization_catalogue_history()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.record_user_preference_history()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.require_localization_change_reason()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.touch_localization_row()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.touch_saved_search()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.validate_saved_search_owner()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      },
+      {
+        "function": "public.validate_user_management_lifecycle_dates()",
+        "classification": "whitespace, keyword case, or optional terminal semicolon",
+        "tokens_match_after_explicit_comparison": true
+      }
+    ],
+    "constraint_name_differences": [
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_default_enabled",
+        "upgraded_name": "supported_languages_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_direction_valid",
+        "upgraded_name": "supported_languages_direction_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_english_name_not_blank",
+        "upgraded_name": "supported_languages_english_name_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_formatting_object",
+        "upgraded_name": "supported_languages_formatting_config_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_native_name_not_blank",
+        "upgraded_name": "supported_languages_native_name_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_revision_positive",
+        "upgraded_name": "supported_languages_catalogue_revision_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_tag_shape",
+        "upgraded_name": "supported_languages_language_tag_check"
+      },
+      {
+        "table": "public.supported_languages",
+        "demo_name": "supported_languages_version_positive",
+        "upgraded_name": "supported_languages_version_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_context_not_blank",
+        "upgraded_name": "ui_message_definitions_context_group_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_default_not_blank",
+        "upgraded_name": "ui_message_definitions_default_text_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_example_not_blank",
+        "upgraded_name": "ui_message_definitions_rendered_example_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_guidance_not_blank",
+        "upgraded_name": "ui_message_definitions_translator_guidance_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_key_shape",
+        "upgraded_name": "ui_message_definitions_message_key_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_locations_array",
+        "upgraded_name": "ui_message_definitions_common_locations_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_meaning_not_blank",
+        "upgraded_name": "ui_message_definitions_semantic_meaning_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_parameter_object",
+        "upgraded_name": "ui_message_definitions_parameter_schema_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_role_not_blank",
+        "upgraded_name": "ui_message_definitions_grammatical_role_check"
+      },
+      {
+        "table": "public.ui_message_definitions",
+        "demo_name": "ui_message_definitions_version_positive",
+        "upgraded_name": "ui_message_definitions_version_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_generated_reviewed_before_publish",
+        "upgraded_name": "ui_message_translations_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_generation_object",
+        "upgraded_name": "ui_message_translations_generation_metadata_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_origin_valid",
+        "upgraded_name": "ui_message_translations_origin_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_publish_pair",
+        "upgraded_name": "ui_message_translations_check2"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_published_not_blank",
+        "upgraded_name": "ui_message_translations_published_text_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_review_pair",
+        "upgraded_name": "ui_message_translations_check1"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_status_valid",
+        "upgraded_name": "ui_message_translations_status_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_text_not_blank",
+        "upgraded_name": "ui_message_translations_translated_text_check"
+      },
+      {
+        "table": "public.ui_message_translations",
+        "demo_name": "ui_message_translations_version_positive",
+        "upgraded_name": "ui_message_translations_version_check"
+      },
+      {
+        "table": "public.user_preferences",
+        "demo_name": "user_preferences_timezone_not_blank",
+        "upgraded_name": "user_preferences_working_timezone_check"
+      },
+      {
+        "table": "public.user_preferences",
+        "demo_name": "user_preferences_version_positive",
+        "upgraded_name": "user_preferences_version_check"
+      }
+    ],
+    "column_order_differences": [
+      {
+        "table": "public.org_units",
+        "demo": [
+          "id",
+          "parent_org_unit_id",
+          "code",
+          "name",
+          "description",
+          "date_created",
+          "date_deactivated",
+          "version",
+          "status",
+          "translations",
+          "managing_role_id",
+          "file_administrator_role_id"
+        ],
+        "upgraded": [
+          "id",
+          "parent_org_unit_id",
+          "code",
+          "name",
+          "description",
+          "date_created",
+          "date_deactivated",
+          "status",
+          "version",
+          "translations",
+          "managing_role_id",
+          "file_administrator_role_id"
+        ]
+      },
+      {
+        "table": "public.roles",
+        "demo": [
+          "id",
+          "org_unit_id",
+          "supervisor_role_id",
+          "code",
+          "name",
+          "description",
+          "date_created",
+          "date_deactivated",
+          "version",
+          "security_level_id",
+          "profile_id",
+          "is_information_governance",
+          "status",
+          "is_system",
+          "account_type_restriction",
+          "translations"
+        ],
+        "upgraded": [
+          "id",
+          "org_unit_id",
+          "supervisor_role_id",
+          "code",
+          "name",
+          "description",
+          "date_created",
+          "date_deactivated",
+          "status",
+          "version",
+          "security_level_id",
+          "profile_id",
+          "is_information_governance",
+          "is_system",
+          "account_type_restriction",
+          "translations"
+        ]
+      },
+      {
+        "table": "public.users",
+        "demo": [
+          "id",
+          "name",
+          "email",
+          "external_id",
+          "account_type",
+          "date_created",
+          "date_deactivated",
+          "version",
+          "date_suspended",
+          "status",
+          "description",
+          "translations"
+        ],
+        "upgraded": [
+          "id",
+          "name",
+          "email",
+          "external_id",
+          "account_type",
+          "date_created",
+          "date_deactivated",
+          "date_suspended",
+          "status",
+          "version",
+          "description",
+          "translations"
+        ]
+      }
+    ],
+    "other_schema_statements_equal": true,
+    "unexplained_differences": [],
+    "exact_schema_equal": false,
+    "note": "Exact parity fails. Formatting/alias comparisons are explicit and do not erase names or physical column-order differences."
+  },
+  "comparison_scope": "Schema only; no demo data copied and no business tests or writes run against demo. Pre-merge 052 bundled reference data only; tenant-specific SA policy data paths are not exercised.",
+  "result": "All 42 upgrades succeeded; object structure and reviewed function logic agree, but exact schema parity fails on 29 constraint names, three physical column orders and 17 function text representations.",
+  "demo_schema_unchanged_after_verification": true,
+  "disposable_database_absence_verified": true
+}

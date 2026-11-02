@@ -70,7 +70,22 @@ Migrations upgrade an existing database containing data. Inspect
 `schema_migrations` and apply only missing files from `database/migrations/` in
 filename order for upgrades newer than its recorded baseline. A fresh canonical
 installation must not replay older files merely because their historical marker
-is absent:
+is absent.
+
+Migration **079** originally omitted its history insert. Use the corrected
+`079_disposition_admission_reason.sql` from the current checkout when reconciling
+an existing installation. It records its version and is safe to repeat. If
+migration 084 or its reason-free claim behavior is already present, 079 verifies
+the superseding function and reason constraint, records only the missing marker,
+and preserves those newer definitions. Detected drift stops reconciliation for
+inspection. On an older schema, 079 applies its original change; continue later
+migrations in order. Fresh installations record 079 through `baseline.sql`.
+Do not replay an older copy of 079 over a post-084 database: it can reinstate the
+task-claim reason requirement. Pulling code or running the local stack does not
+automatically apply these upgrade scripts. See
+[079 reconciliation evidence](../docs/verification/migration-079-reconciliation.md).
+
+Examples of explicitly applying missing upgrade files:
 
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 \

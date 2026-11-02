@@ -47,6 +47,7 @@ def test_required_data_and_version_bookkeeping_are_separate():
     assert 'INSERT INTO schema_migrations' in baseline
     assert len([s for s in statements(baseline) if s.startswith('INSERT INTO')])==1
     assert '091_explicit_certificate_task_completion' in baseline
+    assert '079_disposition_admission_reason' in baseline
 
 
 # These final definitions previously differed between a fresh installation and
