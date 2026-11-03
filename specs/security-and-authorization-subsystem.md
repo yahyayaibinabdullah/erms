@@ -852,7 +852,14 @@ ACL configuration while retaining deliberate branch-level control.
 
 The default child-record ACL remains a record-permission template and cannot
 directly mirror the aggregation resource ACL because the two use different
-permission catalogues. It defaults to Everyone/all and can be customized.
+permission catalogues. On creation, it is initialized with the aggregation's
+creator ACL role and All org unit members record grant sets defined in Sections
+9.3, 9.4, and 10.1 of
+[Organizational Ownership and Default ACLs](organizational-ownership-and-default-acls.md),
+plus the Owning and Higher-Level Unit Managers and Effective File Administrator
+record grants defined in Section 4.2 of
+[Hierarchical Oversight Default ACLs](hierarchical-oversight-default-acls.md).
+An authorized ACL manager can customize this template.
 
 Changing an ACL near the top of a mirrored chain may affect an arbitrarily deep
 subtree. Preview and validation must therefore traverse all affected descendants
