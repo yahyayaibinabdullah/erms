@@ -16,92 +16,69 @@ async def click(button):
 
 
 @pytest.mark.asyncio
-async def test_review_discard_and_comment_count_are_local(host,monkeypatch):
+async def test_review_comments_count_and_disclosure_are_local(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     f,api,_=await form(host)
     controls=f.draft_controls
     assert controls.count()==0 and not controls.save.enabled and not controls.review.enabled
-    assert controls.status.text==text('all_changes_saved')
-    f.comments.value='Updated review comments'
-    await asyncio.sleep(0)
+    f.comments.value='Updated review comments';await asyncio.sleep(0)
     assert controls.count()==1 and controls.status.text==text('unsaved_change_one')
-    draft=dict(action='create',proposal_type='add_to_holds',governing_root_id=10,target_aggregation_id=10,target_version=6,proposed_values={'hold_ids':[3]},reason='Legal review')
     with host:
-        f.queued(draft,{'target':'AGG-10','hold_ids':'LH-3 · Litigation hold'})
-        assert controls.status.text==text('unsaved_changes_count',count=2)
-        reads=list(api.reads)
         controls.show_review()
         dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
         assert any(isinstance(e,ui.label) and e.text=='Updated review comments' for e in dialog.descendants())
-        discard=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('discard_draft'))
-        await click(discard)
-        assert not f.pending and controls.count()==1 and not api.writes and reads==api.reads
+        assert not any(isinstance(e,ui.button) and e.text==text('discard_draft') for e in dialog.descendants())
+        assert not api.writes
         f.comments.value=f.saved_comments;await asyncio.sleep(0)
         assert controls.count()==0 and not controls.save.enabled
-        assert any(isinstance(e,ui.label) and e.text==text('no_unsaved_changes') for e in dialog.descendants())
         dialog.close();await asyncio.sleep(0)
         assert not f.pending_disclosures and not controls.dialogs
 
 
 @pytest.mark.asyncio
-async def test_save_failure_is_visible_in_footer_and_dialog_and_retry_closes_only_on_success(host,monkeypatch):
+async def test_comment_save_failure_visible_in_footer_and_retry_uses_same_id(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
-    f,api,_=await form(host)
+    f,api,_=await form(host);f.comments.value='Keep this work'
     with host:
-        f.queued(dict(action='create',proposal_type='make_vital',governing_root_id=10,target_aggregation_id=10,target_version=6,proposed_values={}))
-        await f.show_proposals(dict(identity='AGG-10',root_aggregation_id=10))
+        f.draft_controls.show_review()
         dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
-        discard=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('discard_draft'))
-        assert discard.enabled
         save=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('save_changes'))
-        api.error=ApiError(409,{'code':'disposition_stale_task'})
-        await click(save)
-        assert dialog.value and f.pending and f.draft_controls.feedback.text==f.feedback.text
-        assert f.draft_controls.feedback.visible and f.feedback.text
-        assert f.draft_controls.dialogs[0][2].text==f.feedback.text
-        api.error=None
-        await click(save)
-        assert not dialog.value and not f.pending and not f.draft_controls.save.enabled
+        api.error=ApiError(409,{'code':'disposition_stale_task'});await click(save)
+        assert dialog.value and f.draft_controls.feedback.text==f.feedback.text and f.feedback.text
+        api.error=None;await click(save)
+        assert not dialog.value and not f.draft_controls.save.enabled
         assert api.writes[0][1]['command_id']==api.writes[1][1]['command_id']
-        assert all(p=='tasks/8/review-work' for p,_,_ in api.writes)
+        assert all(w[1]['changes']==[] for w in api.writes)
 
 
 @pytest.mark.asyncio
-async def test_saving_disables_all_draft_mutations_and_rejects_repeated_save(host,monkeypatch):
+async def test_saving_comments_blocks_repeated_save_and_proposal_mutations(host,monkeypatch):
     monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     entered=asyncio.Event();finish=asyncio.Event()
     class SlowApi(Api):
         async def disposition_command(self,*args,**kw):
             entered.set();await finish.wait();return await super().disposition_command(*args,**kw)
-    f,api,_=await form(host,SlowApi())
+    f,api,_=await form(host,SlowApi());f.comments.value='In progress'
     with host:
-        draft=dict(action='create',proposal_type='make_vital',governing_root_id=10,target_aggregation_id=10,target_version=6,proposed_values={})
-        f.queued(draft)
         saving=asyncio.create_task(f.perform('save'));await entered.wait()
-        assert f.busy and not f.draft_controls.save.enabled and not f.draft_controls.review.enabled
-        assert not f.comments.enabled and all(not b.enabled for b in f.draft_buttons)
-        f.discard_pending(draft);f.queued(dict(draft));await f.perform('save')
-        assert len(f.pending)==1
+        assert f.busy and not f.draft_controls.save.enabled and not f.comments.enabled
+        await f.perform('save');await f.edit(root={'root_aggregation_id':10})
         finish.set();await saving
-    assert len(api.writes)==1 and not f.pending and f.comments.enabled
-    assert not f.draft_controls.save.enabled
+    assert len(api.writes)==1 and f.comments.enabled and not f.draft_controls.save.enabled
 
 
 @pytest.mark.asyncio
-async def test_withdrawal_review_identifies_the_saved_proposal_and_discard_reverses_only_local_change(host,monkeypatch):
+async def test_withdraw_saves_immediately_without_saving_comments(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
-    f,api,_=await form(host)
+    f,api,_=await form(host);f.comments.value='Still unsaved'
     with host:
-        await f.withdraw(dict(id=9,version=2,editable=True,governing_root_id=10,target_aggregation_id=11,target_label='AGG-11 · Descendant',proposal_type='make_vital'))
+        await f.withdraw(dict(id=9,version=2,editable=True,governing_root_id=10,target_aggregation_id=11,proposal_type='make_vital'))
         dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        assert any(isinstance(e,ui.textarea) and e.label==text('reason_optional') for e in dialog.descendants())
         await click(next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('withdraw')))
-        f.draft_controls.show_review()
-        review=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
-        labels=[e.text for e in review.descendants() if isinstance(e,ui.label)]
-        assert text('target')+' · AGG-11 · Descendant' in labels
-        assert text('proposal_type')+' · '+text('make_vital') in labels
-        await click(next(e for e in review.descendants() if isinstance(e,ui.button) and e.text==text('discard_draft')))
-        assert not f.pending and f.draft_controls.count()==0 and not api.writes
+        assert not dialog.value and f.draft_controls.count()==1
+        assert api.writes[0][1]['changes']==[dict(action='withdraw',proposal_id=9,expected_version=2,reason=None)]
+        assert 'review_notes' not in api.writes[0][1]
 
 
 @pytest.mark.asyncio

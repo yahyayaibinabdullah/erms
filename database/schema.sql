@@ -295,7 +295,7 @@ BEGIN
     EXCEPT SELECT value FROM jsonb_array_elements(before_members)))) THEN RAISE EXCEPTION 'disposition_review_snapshot_stale'; END IF;
   total_reason:=rr.submission_reason;
  END IF;
- IF total_reason IS NULL OR total_reason ~ '^[[:space:]]*$' THEN RAISE EXCEPTION 'disposition_submission_reason_required'; END IF;
+ total_reason:=COALESCE(total_reason,'');
  IF EXISTS(SELECT 1 FROM jsonb_array_elements(before_proposals) v WHERE v->>'proposal_type'='remove_from_job') THEN
   IF j.review_route='records_manager_only' THEN RAISE EXCEPTION 'disposition_marked_removals_require_correction'; ELSE RAISE EXCEPTION 'disposition_marked_removals_require_rejection'; END IF;
  END IF;
@@ -352,7 +352,7 @@ BEGIN
  END LOOP;
  FOR p IN SELECT p1.* FROM disposition_review_proposals p1 WHERE p1.id IN (SELECT (v->>'id')::bigint FROM jsonb_array_elements(before_proposals) v)
  ORDER BY CASE p1.proposal_type WHEN 'local_retention_override' THEN 1 WHEN 'blocking_security' THEN 2 WHEN 'make_vital' THEN 3 WHEN 'add_to_holds' THEN 5 ELSE 4 END,CASE WHEN p1.proposal_type='blocking_security' THEN (WITH RECURSIVE parents AS (SELECT id,parent_aggregation_id FROM aggregations WHERE id=p1.target_aggregation_id UNION ALL SELECT a.id,a.parent_aggregation_id FROM aggregations a JOIN parents b ON a.id=b.parent_aggregation_id) SELECT count(*) FROM parents) ELSE 0 END,p1.id LOOP
-  current_reason:=COALESCE(NULLIF(btrim(p.reason),''),total_reason);source:=CASE WHEN p.reason IS NULL OR p.reason ~ '^[[:space:]]*$' THEN 'submission' ELSE 'proposal' END;
+  current_reason:=CASE WHEN p.reason IS NOT NULL AND p.reason !~ '^[[:space:]]*$' THEN btrim(p.reason) WHEN total_reason !~ '^[[:space:]]*$' THEN btrim(total_reason) ELSE 'Apply approved disposition proposals' END;source:=CASE WHEN p.reason IS NOT NULL AND p.reason !~ '^[[:space:]]*$' THEN 'proposal' WHEN total_reason !~ '^[[:space:]]*$' THEN 'submission' ELSE 'approval' END;
   UPDATE disposition_private.approval_context SET current_proposal_id=p.id,reason_used=current_reason,reason_source=source WHERE transaction_id=txid_current();
   PERFORM set_config('app.change_reason',current_reason,true);
   created:=NULL;material_changed:=true;changed_holds:=ARRAY[]::bigint[];
@@ -403,8 +403,8 @@ BEGIN
    removed:=jsonb_set(removed,ARRAY[p.governing_root_id::text],COALESCE(removed->p.governing_root_id::text,'[]')||jsonb_build_array(p.id));
   END IF;
  END LOOP;
- UPDATE disposition_private.approval_context SET current_proposal_id=NULL,reason_used=total_reason,reason_source='submission',phase='removing' WHERE transaction_id=txid_current();
- PERFORM set_config('app.change_reason',total_reason,true);
+ UPDATE disposition_private.approval_context SET current_proposal_id=NULL,reason_used=CASE WHEN total_reason ~ '^[[:space:]]*$' THEN 'Apply approved disposition proposals' ELSE total_reason END,reason_source=CASE WHEN total_reason ~ '^[[:space:]]*$' THEN 'approval' ELSE 'submission' END,phase='removing' WHERE transaction_id=txid_current();
+ PERFORM set_config('app.change_reason',CASE WHEN total_reason ~ '^[[:space:]]*$' THEN 'Apply approved disposition proposals' ELSE total_reason END,true);
  -- Repeat against actual remaining membership until no newly outside link or
  -- proposal-invalidated unit remains. Independently arising baseline blockers
  -- retain their existing membership and cannot cause automatic removals.
@@ -438,7 +438,7 @@ BEGIN
  END LOOP;
  UPDATE disposition_private.approval_context SET phase='finalizing' WHERE transaction_id=txid_current();
  FOR p IN SELECT p1.* FROM disposition_review_proposals p1 WHERE p1.id IN (SELECT (v->>'id')::bigint FROM jsonb_array_elements(before_proposals) v) ORDER BY p1.id LOOP
-  SELECT jsonb_build_object('approving_user_id',current_user_id(),'acting_role_id',acting,'decision_id',decision_id,'reason_used',COALESCE(NULLIF(btrim(p.reason),''),total_reason),'reason_source',CASE WHEN p.reason IS NULL OR p.reason ~ '^[[:space:]]*$' THEN 'submission' ELSE 'proposal' END,
+  SELECT jsonb_build_object('approving_user_id',current_user_id(),'acting_role_id',acting,'decision_id',decision_id,'reason_used',CASE WHEN p.reason IS NOT NULL AND p.reason !~ '^[[:space:]]*$' THEN btrim(p.reason) WHEN total_reason !~ '^[[:space:]]*$' THEN btrim(total_reason) ELSE 'Apply approved disposition proposals' END,'reason_source',CASE WHEN p.reason IS NOT NULL AND p.reason !~ '^[[:space:]]*$' THEN 'proposal' WHEN total_reason !~ '^[[:space:]]*$' THEN 'submission' ELSE 'approval' END,
    'resource_changed',COALESCE(bool_or(e.effect_type='resource_changed'),false),'effects',COALESCE(jsonb_agg(to_jsonb(e) ORDER BY e.id),'[]')) INTO effect FROM disposition_proposal_effects e WHERE e.proposal_id=p.id;
   -- The join is active work only; immutable proposal/round snapshots retain
   -- every selected hold and its metadata after execution.
@@ -1166,6 +1166,28 @@ BEGIN
  RETURN new_id;
 END $$;
 
+CREATE FUNCTION disposition_private.preparer_eligible(p_user bigint, p_route text) RETURNS boolean
+    LANGUAGE sql STABLE
+    AS $$
+ SELECT disposition_private.governance_person(p_user,'INFO_GOV_MGR')
+ OR (p_route IN ('standard','simplified') AND disposition_private.governance_person(p_user,'INFO_GOV_OFFICER'))
+$$;
+
+CREATE FUNCTION disposition_private.can_add_preparation_members(p_job bigint, p_role bigint DEFAULT NULL::bigint) RETURNS boolean
+    LANGUAGE sql STABLE
+    AS $$
+ SELECT EXISTS(SELECT 1 FROM disposition_jobs j WHERE j.id=p_job AND j.job_type='destruction'
+ AND j.lifecycle_state='active' AND j.workflow_stage IN ('officer_preparation','manager_preparation')
+ AND disposition_private.preparer_eligible(j.assigned_user_id,j.review_route)
+ AND disposition_private.can_review_content(current_user_id(),j.id)
+ AND EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage
+   AND t.destination_user_id=j.assigned_user_id AND t.task_state='open' AND t.task_type IN ('preparation','correction'))
+ AND EXISTS(SELECT 1 FROM roles r JOIN profiles p ON p.id=r.profile_id
+   WHERE (p_role IS NULL OR r.id=p_role) AND p.code='INFO_GOV_MGR'
+   AND r.is_information_governance AND disposition_private.person_role(current_user_id(),r.id)
+   AND disposition_private.governance_person(current_user_id(),'INFO_GOV_MGR')))
+$$;
+
 CREATE FUNCTION disposition_private.create_job(p_number text, p_type text, p_owner bigint, p_assignee bigint) RETURNS jsonb
     LANGUAGE plpgsql
     AS $_$
@@ -1880,7 +1902,8 @@ BEGIN
     NEW.workflow_stage:=CASE WHEN NEW.review_route='records_manager_only' THEN 'manager_preparation' ELSE 'officer_preparation' END;
    ELSE NEW.review_route:=NULL; END IF;
    IF op<>'job_create' OR NEW.lifecycle_state<>'active' OR NEW.created_by_user_id<>uid OR (NEW.job_type='destruction' AND NEW.workflow_stage NOT IN ('officer_preparation','manager_preparation')) THEN RAISE EXCEPTION 'disposition_invalid_job_creation'; END IF;
-   -- Creation precedes preparation: either authorized governance profile may create.
+   IF NEW.assigned_user_id IS NULL THEN RAISE EXCEPTION 'disposition_assignment_required'; END IF;
+   -- Creation requires one eligible preparer; either governance profile may create.
    IF NOT (disposition_private.governance_person(uid,'INFO_GOV_OFFICER') OR disposition_private.governance_person(uid,'INFO_GOV_MGR')) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_assignee_not_authorized'; END IF;
    NEW.date_created:=CURRENT_TIMESTAMP;
   ELSE
@@ -2315,7 +2338,7 @@ BEGIN
  IF (p_record IS NOT NULL) IS DISTINCT FROM (p_type='remove_record_relationship') THEN RAISE EXCEPTION 'disposition_proposal_payload_invalid'; END IF;
  CASE p_type
  WHEN 'remove_from_job' THEN
-  IF p_target<>p_root OR NOT disposition_private.review_keys(p_values,ARRAY[]::text[]) OR (p_reason IS NULL OR p_reason ~ '^[[:space:]]*$') THEN RAISE EXCEPTION 'disposition_removal_reason_required'; END IF;
+  IF p_target<>p_root OR NOT disposition_private.review_keys(p_values,ARRAY[]::text[]) THEN RAISE EXCEPTION 'disposition_proposal_payload_invalid'; END IF;
  WHEN 'make_vital' THEN
   IF NOT disposition_private.review_keys(p_values,ARRAY[]::text[]) THEN RAISE EXCEPTION 'disposition_proposal_payload_invalid'; END IF;
  WHEN 'blocking_security' THEN
@@ -2636,7 +2659,7 @@ BEGIN
  SELECT * INTO j FROM disposition_jobs WHERE id=p_job;
  IF j.version IS DISTINCT FROM p_version THEN RAISE EXCEPTION USING ERRCODE='40001',MESSAGE='disposition_stale_version'; END IF;
  IF j.lifecycle_state<>'active' OR j.workflow_stage NOT IN ('records_manager_review','manager_preparation','manager_correction','external_approval_pending') OR NOT EXISTS(SELECT 1 FROM disposition_review_rounds r WHERE r.id=p_round AND r.job_id=j.id AND r.round_number=j.current_review_round AND r.approval_execution IS NOT NULL AND r.invalidated_at IS NULL) THEN RAISE EXCEPTION 'disposition_approval_unavailable'; END IF;
- IF NOT (disposition_private.person_role(current_user_id(),acting) AND disposition_private.can_review_content(current_user_id(),j.id) AND (disposition_private.review_role(j.id,'records_manager_review',acting) OR current_user_id()=j.assigned_user_id AND EXISTS(SELECT 1 FROM roles ro JOIN profiles p ON p.id=ro.profile_id WHERE ro.id=acting AND ro.is_information_governance AND p.code=CASE j.review_route WHEN 'records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END))) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
+ IF NOT (disposition_private.person_role(current_user_id(),acting) AND disposition_private.can_review_content(current_user_id(),j.id) AND (disposition_private.review_role(j.id,'records_manager_review',acting) OR current_user_id()=j.assigned_user_id AND EXISTS(SELECT 1 FROM roles ro JOIN profiles p ON p.id=ro.profile_id WHERE ro.id=acting AND ro.is_information_governance AND (p.code='INFO_GOV_MGR' OR j.review_route<>'records_manager_only' AND p.code='INFO_GOV_OFFICER')))) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
  IF disposition_private.request_approval_current(j.id,p_round) THEN RAISE EXCEPTION 'disposition_approval_still_current'; END IF;
  INSERT INTO disposition_private.external_context VALUES(txid_current(),pg_backend_pid(),key,j.id,'invalidate');
  UPDATE disposition_review_rounds SET invalidated_at=CURRENT_TIMESTAMP,invalidation_reason='Approved job facts changed; a new complete review round is required' WHERE id=p_round;
@@ -2765,8 +2788,9 @@ CREATE FUNCTION disposition_private.require_membership_stage(p_job bigint) RETUR
 DECLARE job disposition_jobs%ROWTYPE;
 BEGIN
  IF disposition_private.approval_active(p_job) AND disposition_private.context_operation()='membership_remove' THEN RETURN; END IF;
- IF disposition_private.context_operation()='membership_add' AND disposition_private.can_add_review_members(p_job,
-  (SELECT r.acting_role_id FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current())) THEN RETURN; END IF;
+ IF disposition_private.context_operation()='membership_add' AND (disposition_private.can_add_preparation_members(p_job,
+  (SELECT r.acting_role_id FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current())) OR disposition_private.can_add_review_members(p_job,
+  (SELECT r.acting_role_id FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current()))) THEN RETURN; END IF;
  SELECT * INTO job FROM disposition_jobs WHERE id=p_job;
  IF job.lifecycle_state<>'active' THEN RAISE EXCEPTION 'disposition_inactive_job'; END IF;
  IF job.job_type='destruction' AND job.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') THEN
@@ -2782,7 +2806,7 @@ CREATE FUNCTION disposition_private.require_preparer(p_user bigint, p_route text
     LANGUAGE plpgsql
     AS $$
 BEGIN
- IF NOT disposition_private.governance_person(p_user,CASE WHEN p_route='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END)
+ IF NOT disposition_private.preparer_eligible(p_user,p_route)
  THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_assignee_not_authorized'; END IF;
 END $$;
 
@@ -3262,8 +3286,9 @@ BEGIN
  PERFORM disposition_private.require_progress(p_job);
  PERFORM disposition_private.require_job_access(p_job);
  IF NOT disposition_private.can_review_content(current_user_id(),p_job) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_resource_access_required'; END IF;
- INSERT INTO disposition_review_rounds(job_id,round_number,started_by_user_id,membership_snapshot)
- VALUES(p_job,j.current_review_round+1,current_user_id(),disposition_private.membership_snapshot(p_job));
+ INSERT INTO disposition_review_rounds(job_id,round_number,started_by_user_id,membership_snapshot,submission_reason)
+ VALUES(p_job,j.current_review_round+1,current_user_id(),disposition_private.membership_snapshot(p_job),
+ COALESCE((SELECT r.payload->>'overall_reason' FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current()),''));
  result:=disposition_private.route_review(p_job,CASE WHEN j.review_route='standard' THEN 'file_administrator_review' ELSE 'records_manager_review' END);
  RETURN result||jsonb_build_object('review_round',j.current_review_round+1);
 END $$;
@@ -3276,7 +3301,6 @@ BEGIN
  IF disposition_private.context_operation() IS DISTINCT FROM 'review_submit' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
  t:=disposition_private.review_context(p_task,p_job_version,p_task_version);
  IF t.workflow_stage NOT IN ('officer_preparation','officer_correction') THEN RAISE EXCEPTION 'disposition_combined_approval_required'; END IF;
- IF p_reason IS NULL OR p_reason ~ '^[[:space:]]*$' THEN RAISE EXCEPTION 'disposition_submission_reason_required'; END IF;
  IF EXISTS(SELECT 1 FROM disposition_review_proposals candidate JOIN disposition_job_memberships m ON m.job_id=candidate.job_id AND m.root_aggregation_id=candidate.governing_root_id AND m.membership_state='active'
  WHERE candidate.job_id=t.job_id AND candidate.review_round=disposition_private.review_round_for_work(t.job_id) AND candidate.proposal_type='remove_from_job' AND candidate.proposal_state='active') THEN RAISE EXCEPTION 'disposition_marked_removals_require_correction'; END IF;
  PERFORM disposition_private.validate_active_proposals(t.job_id,disposition_private.review_round_for_work(t.job_id));
@@ -3301,11 +3325,11 @@ CREATE FUNCTION disposition_private.task_eligible(p_user bigint, p_task bigint, 
  WHERE t.id=p_task AND (j.lifecycle_state='active' OR j.lifecycle_state='completed' AND t.task_type='certificate_download')
  AND disposition_private.can_review_content(p_user,j.id) AND
  CASE WHEN t.task_type='certificate_download' THEN t.destination_user_id=p_user AND EXISTS(SELECT 1 FROM roles r WHERE disposition_private.person_role(p_user,r.id) AND disposition_private.review_role(j.id,'records_manager_review',r.id) AND (p_role IS NULL OR r.id=p_role)) WHEN t.destination_user_id IS NOT NULL THEN t.destination_user_id=p_user AND j.assigned_user_id=p_user
- AND disposition_private.governance_person(p_user,CASE WHEN j.review_route='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END)
+ AND disposition_private.preparer_eligible(p_user,j.review_route)
  AND (p_role IS NULL OR EXISTS(SELECT 1 FROM roles r JOIN profiles p ON p.id=r.profile_id
  JOIN profile_privileges pp ON pp.profile_id=p.id JOIN privileges v ON v.id=pp.privilege_id
  WHERE r.id=p_role AND r.is_information_governance AND v.code='disposition.jobs.manage'
- AND p.code=CASE WHEN j.review_route='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END
+ AND (p.code='INFO_GOV_MGR' OR j.review_route<>'records_manager_only' AND p.code='INFO_GOV_OFFICER')
  AND disposition_private.person_role(p_user,r.id)))
  ELSE disposition_private.person_role(p_user,t.destination_role_id)
  AND disposition_private.review_role(j.id,t.workflow_stage,t.destination_role_id)
@@ -8624,7 +8648,7 @@ CREATE TABLE public.disposition_review_decisions (
     CONSTRAINT disposition_review_decisions_decision_check CHECK ((decision = ANY (ARRAY['approved'::text, 'rejected'::text]))),
     CONSTRAINT disposition_review_decisions_membership_snapshot_check CHECK ((jsonb_typeof(membership_snapshot) = 'array'::text)),
     CONSTRAINT disposition_review_decisions_proposal_snapshot_check CHECK ((jsonb_typeof(proposal_snapshot) = 'array'::text)),
-    CONSTRAINT disposition_review_decisions_reason_check CHECK ((btrim(reason) <> ''::text)),
+    CONSTRAINT disposition_review_decisions_reason_check CHECK (((decision <> 'rejected'::text) OR (reason !~ '^[[:space:]]*$'::text))),
     CONSTRAINT disposition_review_decisions_review_stage_check CHECK ((review_stage = ANY (ARRAY['file_administrator_review'::text, 'unit_manager_review'::text, 'records_manager_review'::text, 'manager_preparation'::text, 'manager_correction'::text])))
 );
 
@@ -8693,7 +8717,7 @@ CREATE TABLE public.disposition_review_proposals (
     execution_message jsonb,
     version integer DEFAULT 1 NOT NULL,
     date_updated timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT disposition_review_proposals_check CHECK (((proposal_type <> 'remove_from_job'::text) OR ((target_record_id IS NULL) AND (target_aggregation_id = governing_root_id) AND (reason IS NOT NULL) AND (reason !~ '^[[:space:]]*$'::text)))),
+    CONSTRAINT disposition_review_proposals_check CHECK (((proposal_type <> 'remove_from_job'::text) OR ((target_record_id IS NULL) AND (target_aggregation_id = governing_root_id)))),
     CONSTRAINT disposition_review_proposals_check1 CHECK (((target_record_id IS NOT NULL) = (proposal_type = 'remove_record_relationship'::text))),
     CONSTRAINT disposition_review_proposals_check2 CHECK (((proposal_state = 'withdrawn'::text) = ((withdrawn_by_user_id IS NOT NULL) AND (withdrawn_at IS NOT NULL)))),
     CONSTRAINT disposition_review_proposals_check3 CHECK (((proposal_state <> ALL (ARRAY['executed'::text, 'failed'::text])) OR (executed_at IS NOT NULL))),
@@ -13107,3 +13131,6 @@ REVOKE ALL ON FUNCTION disposition_private.unit_ids(p_root bigint) FROM PUBLIC;
 REVOKE ALL ON FUNCTION disposition_private.validate_active_proposals(p_job bigint, p_round integer) FROM PUBLIC;
 
 COMMIT;
+
+REVOKE ALL ON FUNCTION disposition_private.preparer_eligible(bigint,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION disposition_private.can_add_preparation_members(bigint,bigint) FROM PUBLIC;

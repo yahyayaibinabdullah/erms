@@ -299,7 +299,7 @@ async def test_eligibility_acceleration_labels_and_refresh_use_only_current_page
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('route,profile,expected',[('standard','INFO_GOV_MGR',None),('standard','INFO_GOV_OFFICER',7),('records_manager_only','INFO_GOV_MGR',7)])
+@pytest.mark.parametrize('route,profile,expected',[('standard','INFO_GOV_MGR',7),('standard','INFO_GOV_OFFICER',7),('records_manager_only','INFO_GOV_MGR',7)])
 async def test_job_creator_default_is_editable_and_creation_has_no_number_or_reason(host,monkeypatch,route,profile,expected):
     from nicegui import core
     from frontend.webui.disposition.screens import create_dialog
@@ -308,7 +308,7 @@ async def test_job_creator_default_is_editable_and_creation_has_no_number_or_rea
     with host:
         await create_dialog(api=None,context={'destruction_review_route':route,'current_user':{'id':7,'name':'Creator'},'roles':[{'id':1,'name':'Governance','profile_code':profile}]},bind_remote=lambda *a,**k:None,active=lambda:True,on_error=str,after=lambda *a:None)
     selects=[e for e in host.descendants() if isinstance(e,ui.select)]
-    assigned=next(e for e in selects if e.label==text('assignee'))
+    assigned=next(e for e in selects if e.label==text('preparer'))
     kind=next(e for e in selects if e.label==text('job_type'))
     assert assigned.value==expected and assigned.enabled
     assert not any(isinstance(e,ui.textarea) for e in host.descendants())
@@ -441,3 +441,25 @@ async def test_job_chooser_explains_and_rejects_incompatible_selection(host,monk
         listener=next(e for e in table._event_listeners.values() if e.type=='choose')
         await listener.handler(SimpleNamespace(args=1));assert chosen==[]
         await listener.handler(SimpleNamespace(args=2));assert chosen==[2]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('language',['en','ar'])
+async def test_create_requires_preparer_before_posting_any_job(host,monkeypatch,language):
+    from nicegui import core
+    from frontend.webui.disposition import screens
+    from frontend.webui.disposition.messages import text
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    collected=[]
+    async def dialog(**kwargs):collected.append(kwargs['build'](lambda:True))
+    monkeypatch.setattr(screens,'command_dialog',dialog)
+    with host:
+        set_locale_context(language,'Asia/Dubai')
+        await screens.create_dialog(api=None,context={'destruction_review_route':'simplified','current_user':{'id':7,'name':'Manager'},'roles':[{'id':1,'profile_code':'INFO_GOV_MGR'}]},bind_remote=lambda *a,**k:None,active=lambda:True,on_error=str,after=lambda *a:None,owner_suggestion={'owner':{'id':3,'name':'Owner'},'basis':'common_owner'})
+    selects=[e for e in host.descendants() if isinstance(e,ui.select)]
+    preparer=next(e for e in selects if e.label==text('preparer'))
+    assert collected[0]()['assigned_user_id']==7
+    preparer.value=None
+    assert collected[0]() is None and preparer.error==text('preparer_required')
+    preparer.set_options({8:'Officer'},value=8)
+    assert collected[0]()['assigned_user_id']==8

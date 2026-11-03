@@ -258,7 +258,10 @@ def test_eligibility_owner_uses_preferred_entity_translation_and_fallback(client
 def test_job_filters_and_localized_name_sorting_are_server_paged(client):
     from psycopg.types.json import Jsonb
     with db() as c:
-        one=setup(c);two=setup(c,kind='permanent_transfer',assigned=None)
+        one=setup(c);two=setup(c,kind='permanent_transfer')
+        from backend.services.api.disposition import membership
+        from backend.services.api.tests.test_disposition_membership import kwargs
+        membership.assign_job(c,**kwargs(job_id=two['id'],expected_version=two['version'],assigned_user_id=None))
         c.execute('UPDATE org_units SET translations=%s WHERE id=1',(Jsonb({'ar':{'name':'إدارة الوثائق'}}),))
         c.execute('UPDATE users SET translations=%s WHERE id=1',(Jsonb({'ar':{'name':'يحيى'}}),))
         filtered=queries.jobs(c,limit=1,offset=0,job_type='destruction',lifecycle='active',owner='إدارة',assignee='يحيى',language_tag='ar',sort='owner',descending=False)

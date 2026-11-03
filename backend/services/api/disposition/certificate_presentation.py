@@ -41,6 +41,7 @@ def participants(c,job,proof,language):
             ORDER BY e.id DESC LIMIT 1
           ) attribution ON true
           LEFT JOIN roles r ON r.id=attribution.role_id
+          JOIN profiles preparer_profile ON preparer_profile.id=r.profile_id AND preparer_profile.code='INFO_GOV_OFFICER'
           LEFT JOIN org_units o ON o.id=r.org_unit_id
           WHERE t.job_id=%s AND t.task_state='completed'
             AND t.workflow_stage IN ('officer_preparation','officer_correction')

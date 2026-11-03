@@ -415,8 +415,6 @@ def test_symmetric_links_cannot_create_duplicate_or_create_remove_conflicts(clie
 
 
 @pytest.mark.parametrize('route,reason,marked,code',[
- ('records_manager_only',None,False,'disposition_submission_reason_required'),
- ('records_manager_only',' \n\t',False,'disposition_submission_reason_required'),
  ('records_manager_only','Complete preparation',True,'disposition_marked_removals_require_correction'),
  ('simplified',None,True,'disposition_marked_removals_require_rejection')])
 def test_combined_reason_and_removal_marks_block_approval_without_advancing(client,route,reason,marked,code):
@@ -516,3 +514,23 @@ def test_report_with_no_executed_proposals_has_no_affected_roots(client):
         assert snapshot['fields']['execution.count']==0
         assert snapshot['proposals']==[] and snapshot['aggregations']==[]
         assert len(document_snapshots.request_aggregation_rows(c,job['id'],'Asia/Dubai'))==1
+
+
+@pytest.mark.parametrize('route',['standard','simplified','records_manager_only'])
+@pytest.mark.parametrize('blank',['',' \n\t'])
+def test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback(client,route,blank):
+    with db() as c:
+        job,root,mgr=manager(c,route)
+        acting=mgr if route=='records_manager_only' else officer(c)
+        pid=save(c,job,acting=acting,changes=[create(c,root)])['changes'][0]['id']
+        if route!='records_manager_only':
+            submit(c,job,blank)
+            if route=='standard':claim(c,job);decide(c,job)
+            claim(c,job)
+        result=approve(c,job,mgr,overall_reason=blank if route=='records_manager_only' else None)
+        proposal=c.execute('SELECT * FROM disposition_review_proposals WHERE id=%s',(pid,)).fetchone()
+        assert proposal['proposal_state']=='executed'
+        assert proposal['execution_message']['reason_source']=='approval'
+        assert proposal['execution_message']['reason_used']=='Apply approved disposition proposals'
+        rr=c.execute('SELECT submission_reason FROM disposition_review_rounds WHERE id=%s',(result['round_id'],)).fetchone()
+        assert rr['submission_reason']==blank

@@ -603,7 +603,7 @@ execution: authorized task participants may propose it without execution
 privileges, and individual proposal reasons are optional. The approving Records
 Manager executes approved removals with all underlying privileges and endpoint
 access checked at execution. Use the proposal reason when supplied, otherwise
-the mandatory overall submission reason. Relationship privileges do not bypass access to a redacted
+optional submission comments or the system description of the approved operation. Relationship privileges do not bypass access to a redacted
 endpoint.
 
 Adding or removing a relationship does not itself require repeating review
@@ -730,8 +730,9 @@ the public creation API always requests allocation.
 
 The form defaults Assigned person to its creator only when that person is an
 eligible assignee for the selected job type and saved review route. The user
-may choose another eligible person. Otherwise the field starts empty; an empty
-job may remain unassigned under §10.1.1. Changing type reapplies this default.
+may choose another eligible person. Otherwise the field starts empty and the creator must select an eligible
+preparer before saving. Preparer is mandatory both for standalone creation and
+creation from selected aggregations. Changing type reapplies this default.
 Creating a job does not require a change reason. Creator, time, type, number,
 assignment and normal audit history are still recorded. Routine additions of
 roots also require no reason (§10.2); other changes and exceptional actions
@@ -739,10 +740,25 @@ retain their existing reason requirements.
 
 ### 10.1.1 Assignment to a specific IGU
 
-A newly created active job may be unassigned only while it is empty. Before the
-first aggregation is added, the job must be assigned to one specific user who
-is authorized to work on that disposition job. A role cannot be the assignment
-target.
+Every new job must be assigned to one specific eligible preparer at creation.
+Both the creation form and API reject a missing preparer, and the database
+rejects an unassigned insert. A role cannot be the assignment target. Existing
+empty unassigned jobs are preserved on upgrade and must be assigned before
+adding aggregations.
+
+For Standard and Simplified destruction jobs, a Records Manager may prepare
+the job herself or assign preparation to an eligible Records Officer. Both
+profiles are eligible preparers; the selected review route remains unchanged.
+Records Manager Only continues to require a Records Manager preparer. An
+Officer remains ineligible to prepare that route.
+
+During initial preparation, an authorized Records Manager may add eligible
+aggregations to a job assigned to an Officer, including the aggregations
+selected before creation. This does not reassign or complete the Officer's
+preparation task, authorize the Manager to edit that task's draft work, or
+permit membership removal on the Officer's behalf. Current actor and assigned
+preparer access, clearance, membership, owner-scope and blocker checks remain
+mandatory. Correction and later review stages retain their existing rules.
 
 The `disposition.jobs.manage` privilege and existing access rules determine who
 may work on disposition jobs. Assignment identifies the individual responsible
@@ -1426,9 +1442,9 @@ reason, as specified in Section 9. `disposition.jobs.manage` alone does not
 authorize link removal.
 
 For destruction, this execution requirement applies to the approving Records
-Manager, not merely to a task participant proposing removal. The mandatory
-overall submission reason supplies the execution reason if no individual
-proposal reason was provided.
+Manager, not merely to a task participant proposing removal. Optional submission comments supply the execution reason if no individual
+proposal reason was provided; if both are blank, use the system description
+of the approved operation with approval-derived provenance.
 
 Retention-rule administration, including creating, changing, or removing a
 local retention-rule override, is policy management rather than disposition
@@ -1450,10 +1466,11 @@ must define whether the same IGU may prepare, approve, and complete a job. A
 system administrator does not receive `disposition.jobs.manage` or bypass
 record security merely by being an administrator.
 
-Destruction permits the same person to prepare as Records Officer and approve
-or execute as Records Manager if independently authorized for each role and
-task at the time of action. Each action records its acting role; holding one
-role does not supply the other's authorization. The interface resolves this role
+Destruction permits a Records Manager to prepare Standard/Simplified jobs
+without an Officer profile, and the same person may subsequently approve or
+execute when independently authorized for that action and task. Each action
+records its eligible acting role; preparation does not supply approval or
+execution privileges. The interface resolves this role
 automatically from the operation's current eligible-role projection instead of
 asking the user to choose an acting role. Assignment of a person or destination
 role queue remains an explicit business choice. See destruction-process.md,
@@ -1769,7 +1786,7 @@ are required at a minimum:
 | DISP-23 | An authorized IGU may resolve every status-13 aggregation in one terminated job through one all-or-nothing bulk action using one selected eligible status and one shared reason | Authorization, database rollback, full-unit update, UI confirmation, job-admission, and linked event-history tests |
 | DISP-24 | Reopening an eligible or pending aggregation clears its closure date, resets the complete unit to status 1, blocks its active job until explicit removal or compatible in-job acceleration; recovery preserves the membership episode, restores the complete pending unit, clears the reopening flag, retains protections and applies the existing approved-facts comparison; exact restoration can preserve approval while changed approved facts require renewed review | Authorization, database rollback, job-blocking, UI, reclosure, recalculation, and event-history tests |
 | DISP-25 | Status 6, 7, 8, or 9 is possible only with membership in one active job of the matching type, and job addition and full-unit status change succeed or fail together | Database constraint/trigger, direct-SQL bypass, API, import/background-path, concurrency, and rollback tests |
-| DISP-26 | A newly created active job may be unassigned only while it is empty; its assignee is one specific authorized IGU, and the actual authenticated IGU who performs the final action is recorded separately with execution-time identity and action details | Authorization, assignment/reassignment, database/API rejection, executor-versus-assignee, service-account rejection, and event-history tests |
+| DISP-26 | Every new job requires one specific eligible preparer; Managers can prepare Standard/Simplified jobs or add initial aggregations for the assigned Officer while preserving task ownership, and the actual authenticated IGU who performs the final action is recorded separately with execution-time identity and action details | Authorization, assignment/reassignment, database/API rejection, executor-versus-assignee, service-account rejection, and event-history tests |
 | DISP-27 | A multi-selection request adds every valid aggregation, leaves each failed aggregation unchanged, preserves successful additions when another selection fails, and returns each API result; the UI shows a count/job summary and on-demand paginated failure-only details without exposing protected information | API mixed-result, per-item rollback, concurrency, redaction, summary/pagination, and UI tests |
 | DISP-28 | A redacted root disposition unit cannot be selected or added to a job through the UI, API, import, background, or direct-membership path, while redacted descendants remain visible only as blocker explanations | Authorization, API, direct-database enforcement, import/background-path, redaction, and live-browser tests |
 | DISP-29 | An effective retention-rule change recalculates the due date, action, and complete-unit status; an active-job member keeps status 6, 7, 8, or 9 when its action still matches, while a not-yet-due or non-matching member is marked for explicit removal and blocks job progress | Clock-controlled boundary, rule-resolution, full-unit rollback, matching and non-matching active-job, job-blocking, explicit-removal, and event-history tests |
@@ -2003,3 +2020,13 @@ the existing authorized, paginated round summaries with original submission
 comments and review decisions, attributed to their authors and times. This is
 read-only review context and does not load job-wide audit history or add a
 request to initial task rendering.
+
+### Immediate proposal persistence and optional explanations (3 November 2026)
+
+For destruction review tasks, Add/Update and confirmed Withdraw persist proposals
+immediately; Save remains for unsaved Review comments and session work. Proposal
+reasons are optional for every type, including removal from the job. Submission,
+resubmission, routine completion and approval comments are optional on every route;
+rejection/return for correction requires comments explaining the issue. Labels and
+helpers identify optional fields and required correction comments in both languages.
+The detailed contract is destruction-process.md §6.6–6.6.1 (DEST-18/24/29/41).

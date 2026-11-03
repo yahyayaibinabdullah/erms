@@ -6814,6 +6814,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.add_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "Add proposal",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: add_proposal",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add proposal",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.add_to_holds",
     "context_group": "disposition.ui",
     "default_text": "Add aggregation to holds",
@@ -7871,6 +7885,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Close this aggregation before adding it to a job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.comments_save_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Save retains your review comments for later. Proposals are saved when added, updated or withdrawn.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: comments_save_hint",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Save retains your review comments for later. Proposals are saved when added, updated or withdrawn.",
     "is_html": false
   },
   {
@@ -10260,6 +10288,38 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.document_version_current",
+    "context_group": "disposition.ui",
+    "default_text": "Version {version} · Current",
+    "semantic_meaning": "Document evidence version number and whether it is current or earlier, combined in one sortable Version column.",
+    "common_locations": [
+      "Disposition Evidence and documents table"
+    ],
+    "translator_guidance": "Preserve {version}. Current/earlier describe this saved document, not the template revision or job workflow.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "version": "integer"
+    },
+    "rendered_example": "Version 2 · Current",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.document_version_earlier",
+    "context_group": "disposition.ui",
+    "default_text": "Version {version} · Earlier",
+    "semantic_meaning": "Document evidence version number and whether it is current or earlier, combined in one sortable Version column.",
+    "common_locations": [
+      "Disposition Evidence and documents table"
+    ],
+    "translator_guidance": "Preserve {version}. Current/earlier describe this saved document, not the template revision or job workflow.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "version": "integer"
+    },
+    "rendered_example": "Version 1 · Earlier",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.documents",
     "context_group": "disposition.ui",
     "default_text": "Evidence and documents",
@@ -12268,6 +12328,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.immediate_proposals_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Add and Update save proposals immediately. Proposed changes are applied only after approval.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: immediate_proposals_hint",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Add and Update save proposals immediately. Proposed changes are applied only after approval.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.in_active_job",
     "context_group": "disposition.ui",
     "default_text": "In an active job",
@@ -13415,6 +13489,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.preparation_ready_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Review membership and proposals, then submit when ready.",
+    "semantic_meaning": "Preparation guidance without implying mandatory submission comments.",
+    "common_locations": [
+      "Disposition preparation task"
+    ],
+    "translator_guidance": "Membership is membership of a disposition job. Comments are optional.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Review membership and proposals, then submit when ready.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.prepare_hint",
     "context_group": "disposition.ui",
     "default_text": "Review membership and proposals, then enter review comments before submitting.",
@@ -13426,6 +13514,63 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Review membership and proposals, then enter review comments before submitting.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparer",
+    "context_group": "disposition.ui",
+    "default_text": "Preparer",
+    "semantic_meaning": "Required individual responsible for preparing a disposition job.",
+    "common_locations": [
+      "Disposition job creation dialog, including creation from selected aggregations"
+    ],
+    "translator_guidance": "Use established disposition Job terminology; preparer is the assigned person, not the creator.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preparer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparer_guidance",
+    "context_group": "disposition.ui",
+    "default_text": "Required. This person is responsible for preparing the job.",
+    "semantic_meaning": "Required individual responsible for preparing a disposition job.",
+    "common_locations": [
+      "Disposition job creation dialog, including creation from selected aggregations"
+    ],
+    "translator_guidance": "Use established disposition Job terminology; preparer is the assigned person, not the creator.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Required. This person is responsible for preparing the job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparer_required",
+    "context_group": "disposition.ui",
+    "default_text": "Select a preparer before creating the job.",
+    "semantic_meaning": "Required individual responsible for preparing a disposition job.",
+    "common_locations": [
+      "Disposition job creation dialog, including creation from selected aggregations"
+    ],
+    "translator_guidance": "Use established disposition Job terminology; preparer is the assigned person, not the creator.",
+    "grammatical_role": "validation message",
+    "parameter_schema": {},
+    "rendered_example": "Select a preparer before creating the job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preview_digital_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Preview certificate",
+    "semantic_meaning": "Open the saved digital destruction certificate in the standard document viewer.",
+    "common_locations": [
+      "Current Task: final digital certificate section",
+      "Completed destruction job workspace"
+    ],
+    "translator_guidance": "Viewing the saved digital certificate does not regenerate, download, email, or complete the task. Use approved digital destruction terminology.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Preview certificate",
     "is_html": false
   },
   {
@@ -13571,6 +13716,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Reason",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_saved",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal changes saved.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: proposal_saved",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal changes saved.",
     "is_html": false
   },
   {
@@ -13751,6 +13910,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Change reason",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reason_optional",
+    "context_group": "disposition.ui",
+    "default_text": "Reason (optional)",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: reason_optional",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reason (optional)",
     "is_html": false
   },
   {
@@ -14447,6 +14620,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.required_fields",
+    "context_group": "disposition.ui",
+    "default_text": "Complete all required fields. Changes have not been saved.",
+    "semantic_meaning": "Validation for disposition commands which do not require a change reason.",
+    "common_locations": [
+      "Disposition creation and reason-free command dialogs"
+    ],
+    "translator_guidance": "Do not ask for a change reason; this operation does not require one.",
+    "grammatical_role": "validation message",
+    "parameter_schema": {},
+    "rendered_example": "Complete all required fields. Changes have not been saved.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.restricted",
     "context_group": "disposition.ui",
     "default_text": "Restricted resource — insufficient access to add",
@@ -14737,6 +14924,34 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "Optional for draft saves and routine reviews. Required to submit, return for correction, or approve a Records Manager Only job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments_optional",
+    "context_group": "disposition.ui",
+    "default_text": "Review comments (optional unless returning for correction)",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: review_comments_optional",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review comments (optional unless returning for correction)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments_optional_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Comments are optional for Save, Submit, Complete review and Approve. When returning for correction, explain what needs attention.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: review_comments_optional_hint",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Comments are optional for Save, Submit, Complete review and Approve. When returning for correction, explain what needs attention.",
     "is_html": false
   },
   {
@@ -16262,6 +16477,20 @@
     "rendered_example": "Create updated report",
     "translator_guidance": "Use approved disposition terminology. Distinguish opening or downloading the saved report from generating a new retained version.",
     "grammatical_role": "action"
+  },
+  {
+    "message_key": "disposition.ui.update_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "Update proposal",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: update_proposal",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Update proposal",
+    "is_html": false
   },
   {
     "message_key": "disposition.ui.upload_template",

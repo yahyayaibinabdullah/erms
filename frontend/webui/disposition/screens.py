@@ -87,7 +87,7 @@ async def command_dialog(*, api, context, active, on_error, title, build, path, 
             values=collect()
             reason_value=str(reason.value or '').strip() if reason else ''
             if values is None or (reason_required and not reason_value) or not role_id:
-                feedback.text=text('required');ui.notify(text('required'),type='warning')
+                feedback.text=text('required' if reason_required else 'required_fields');ui.notify(feedback.text,type='warning')
                 if reason:reason.run_method('focus')
                 return
             payload={**values,'acting_role_id':role_id}
@@ -170,9 +170,11 @@ async def create_dialog(*, api, context, bind_remote, active, on_error, after, o
             if owner_suggestion and owner_suggestion['basis'] in ('common_ancestor','no_common_ancestor'):
                 ui.label(text('owner_'+owner_suggestion['basis'])).classes('text-sm text-slate-600').props('role=status')
         def default_assignee():
-            profile='INFO_GOV_MGR' if context.get('destruction_review_route')=='records_manager_only' else 'INFO_GOV_OFFICER'
-            return context.get('current_user') if kind.value!='destruction' or any(r.get('profile_code')==profile for r in context['roles']) else None
-        assigned=selector(api=api,bind_remote=bind_remote,kind='assignees',label='assignee',active=alive,job_type=lambda:kind.value,selected=default_assignee())
+            profiles=('INFO_GOV_MGR',) if context.get('destruction_review_route')=='records_manager_only' else ('INFO_GOV_OFFICER','INFO_GOV_MGR')
+            return context.get('current_user') if kind.value!='destruction' or any(r.get('profile_code') in profiles for r in context['roles']) else None
+        assigned=selector(api=api,bind_remote=bind_remote,kind='assignees',label='preparer',active=alive,job_type=lambda:kind.value,selected=default_assignee())
+        assigned.validation={text('preparer_required'):lambda value:bool(value)}
+        ui.label(text('preparer_guidance')).classes('text-sm text-slate-600')
         def changed():
             person=default_assignee()
             assigned.set_options({person['id']:person['name']} if person else {},value=person['id'] if person else None)
@@ -180,7 +182,7 @@ async def create_dialog(*, api, context, bind_remote, active, on_error, after, o
         kind.on_value_change(changed)
         return lambda:({'job_type':kind.value,
                         'owning_org_unit_id':owner.value if kind.value=='destruction' else None,
-                        'assigned_user_id':assigned.value} if kind.value!='destruction' or owner.value else None)
+                        'assigned_user_id':assigned.value} if assigned.validate() and (kind.value!='destruction' or owner.value) else None)
     await command_dialog(api=api,context=context,active=active,on_error=on_error,title='create',build=build,path='jobs',after=after,reason_required=False)
 
 
@@ -545,11 +547,6 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
             panels['history']=ui.column().classes('hidden')
         footer_host=ui.column().classes('w-full') if task_view else None
         def section_active(section):return alive() and navigation.value==section
-        def pending_proposals_changed():
-            if not alive() or members.table._deleted:return
-            with panels['members']:
-                review.decorate_member_proposals(members.table.rows)
-                members.table.update()
         with panels[first_section]:
             if not task_view and job['lifecycle_state']=='active' and context['roles']:
                 with ui.row().classes('w-full gap-3'):
@@ -561,7 +558,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 from .review import ReviewForm,workflow_panel
                 if not task_view:workflow_panel(job,api=api,active=alive,on_error=on_error,format_timestamp=format_timestamp,physical=workspace.get('physical'),destruction=workspace.get('destruction'),completion=workspace.get('completion'),expanded=True)
                 review_workspace=workspace if task_view else {**workspace,'task':None,'roles':[],'actions':[]}
-                review=ReviewForm(api=api,workspace=review_workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource,preview=preview,browse_resource=browse_resource,history_host=panels['history'],documents_host=panels['documents'],documents_active=lambda:section_active('documents'),history_active=lambda:section_active('history'),on_submitted=open_tasks if task_view else None,on_approved=approval_results,on_pending_changed=pending_proposals_changed,footer_host=footer_host,task_active=lambda:section_active(first_section))
+                review=ReviewForm(api=api,workspace=review_workspace,active=alive,on_error=on_error,bind_remote=bind_remote,after=reload,format_timestamp=format_timestamp,open_resource=open_resource,preview=preview,browse_resource=browse_resource,history_host=panels['history'],documents_host=panels['documents'],documents_active=lambda:section_active('documents'),history_active=lambda:section_active('history'),on_submitted=open_tasks if task_view else None,on_approved=approval_results,footer_host=footer_host,task_active=lambda:section_active(first_section))
                 if not task_view:review.host.set_visibility(False)
                 if register_dirty and task_view:register_dirty(review.dirty)
                 async def related_view():
@@ -610,8 +607,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     row['needs_claim']='claim' in workspace.get('actions',[]) and row['membership_state']=='active' and not row['redacted']
                     row['can_propose']=bool(review and 'propose' in review.actions and row['membership_state']=='active' and not row['redacted'])
                     row['can_remove']=job['membership_editable'] and row['membership_state']=='active' and not row['redacted']
-                    row['pending_proposals_label']=''
-                if review:review.decorate_member_proposals(result['items'])
+                    row['proposals_label']=text('proposals')+' · '+str(row.get('proposal_count') or 0)
                 return result
             def remember_members(p,result):
                 view.update(section=navigation.value,job_id=identity,task_id=task_id,
@@ -626,7 +622,7 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 return columns+[column('actions')]
             members=PageTable(columns=member_columns(),fetch=fetch_members,active=lambda:section_active('members'),on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),initial=member_saved,on_loaded=remember_members)
             members.table.add_slot('body-cell-rule_label','''<q-td :props="props"><q-btn v-if="props.row.can_view_rule" flat dense no-caps color="primary" class="underline" :label="props.row.rule_label" aria-label="'''+escape(text('retention_rule'))+'''" @click="$parent.$emit('retention-rule',props.row.id)"><q-tooltip>'''+escape(text('retention_rule'))+'''</q-tooltip></q-btn><span v-else>{{ props.row.rule_label }}</span></q-td>''')
-            members.table.add_slot('body-cell-proposal_count','''<q-td :props="props"><div class="row no-wrap items-center"><q-btn v-if="!props.row.redacted && props.row.proposal_count > 0" flat dense no-caps color="primary" class="underline" :label="String(props.row.proposal_count)" :aria-label="props.row.proposals_label" @click="$parent.$emit('show-proposals',props.row.id)"/><span v-else>{{ props.row.proposal_count == null ? '—' : props.row.proposal_count }}</span><q-btn v-if="props.row.pending_proposals_label" flat dense icon="edit_note" color="primary" :aria-label="props.row.pending_proposals_label" @click="$parent.$emit('show-proposals',props.row.id)"><q-tooltip>{{ props.row.pending_proposals_label }}</q-tooltip></q-btn></div></q-td>''')
+            members.table.add_slot('body-cell-proposal_count','''<q-td :props="props"><div class="row no-wrap items-center"><q-btn v-if="!props.row.redacted && props.row.proposal_count > 0" flat dense no-caps color="primary" class="underline" :label="String(props.row.proposal_count)" :aria-label="props.row.proposals_label" @click="$parent.$emit('show-proposals',props.row.id)"/><span v-else>{{ props.row.proposal_count == null ? '—' : props.row.proposal_count }}</span></div></q-td>''')
             members.table.add_slot('body-cell-identity', '''<q-td :props="props" :class="props.row.last_viewed ? 'bg-blue-50' : ''">
               <span :id="'disposition-member-' + props.row.id" tabindex="-1">{{ props.row.identity }}</span>
               <div v-if="props.row.last_viewed" class="text-primary text-weight-medium"><q-icon name="visibility"/> '''+escape(text('last_viewed'))+'''</div></q-td>''')

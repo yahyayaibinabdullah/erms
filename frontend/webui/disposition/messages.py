@@ -2,6 +2,13 @@
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'document_version_current': 'disposition.ui.document_version_current',
+ 'document_version_earlier': 'disposition.ui.document_version_earlier',
+ 'preparer': 'disposition.ui.preparer',
+ 'preview_digital_certificate': 'disposition.ui.preview_digital_certificate',
+ 'required_fields': 'disposition.ui.required_fields',
+ 'preparer_required': 'disposition.ui.preparer_required',
+ 'preparer_guidance': 'disposition.ui.preparer_guidance',
  'revision_before': 'disposition.ui.revision_before',
  'revision_after': 'disposition.ui.revision_after',
  'recorded_information': 'disposition.ui.recorded_information',
@@ -675,8 +682,16 @@ DISPOSITION_MESSAGE_KEYS = {
  'no_unsaved_changes': 'disposition.ui.no_unsaved_changes',
  'shared_save_hint': 'disposition.ui.shared_save_hint',
  'draft_added_save_changes': 'disposition.ui.draft_added_save_changes',
+ 'add_proposal': 'disposition.ui.add_proposal',
+ 'update_proposal': 'disposition.ui.update_proposal',
+ 'reason_optional': 'disposition.ui.reason_optional',
+ 'review_comments_optional': 'disposition.ui.review_comments_optional',
+ 'review_comments_optional_hint': 'disposition.ui.review_comments_optional_hint',
+ 'immediate_proposals_hint': 'disposition.ui.immediate_proposals_hint',
+ 'proposal_saved': 'disposition.ui.proposal_saved',
+ 'preparation_ready_hint': 'disposition.ui.preparation_ready_hint',
+ 'comments_save_hint': 'disposition.ui.comments_save_hint',
 }
-
 KEYS = DISPOSITION_MESSAGE_KEYS
 
 def text(key, **parameters):

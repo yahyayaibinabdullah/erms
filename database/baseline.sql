@@ -46,5 +46,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('091_explicit_certificate_task_completion'),
  ('092_compatible_aggregation_medium_changes'),
  ('093_restore_reopened_job_members'),
- ('094_simplified_review_additions');
+ ('094_simplified_review_additions'),
+ ('095_required_job_preparer'),
+ ('096_immediate_proposals_optional_reasons');
 COMMIT;

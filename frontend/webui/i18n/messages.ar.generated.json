@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "cfbbf45fa8b4dd7c8c4146852a9990de063190c2096753ee2d46b5df4b0fb2d4",
+  "catalogue_sha256": "d770c10a193b6f94aa60962676b2ba37885b0e399cd56c67bf40565dcfc857c0",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261102132930",
   "generated_at": "2026-11-02T13:29:30.297596+04:00",
@@ -5968,6 +5968,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.add_proposal",
+      "translated_text": "إضافة مقترح",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
       "message_key": "disposition.ui.add_to_holds",
       "translated_text": "إضافة الملف إلى أوامر التعليق",
       "quality_flags": [],
@@ -6805,6 +6825,26 @@
         "source_status": "published",
         "date_reviewed": "2026-10-29T05:37:19.675892+00:00",
         "date_published": "2026-10-29T05:37:19.675892+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.comments_save_hint",
+      "translated_text": "يحفظ زر الحفظ ملاحظات المراجعة للرجوع إليها لاحقاً. وتُحفظ المقترحات عند إضافتها أو تحديثها أو سحبها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -8776,6 +8816,30 @@
       }
     },
     {
+      "message_key": "disposition.ui.document_version_current",
+      "translated_text": "الإصدار {version} · الحالي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Combined evidence document version number and status, 3 November 2026"
+      }
+    },
+    {
+      "message_key": "disposition.ui.document_version_earlier",
+      "translated_text": "الإصدار {version} · السابق",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Combined evidence document version number and status, 3 November 2026"
+      }
+    },
+    {
       "message_key": "disposition.ui.documents",
       "translated_text": "الأدلة والمستندات",
       "quality_flags": [],
@@ -10456,6 +10520,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.immediate_proposals_hint",
+      "translated_text": "تُحفظ المقترحات فور إضافتها أو تحديثها. ولا تُطبّق التغييرات المقترحة إلا بعد الاعتماد.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
       "message_key": "disposition.ui.in_active_job",
       "translated_text": "ضمن عملية نشطة",
       "quality_flags": [],
@@ -11392,6 +11476,26 @@
       }
     },
     {
+      "message_key": "disposition.ui.preparation_ready_hint",
+      "translated_text": "راجع العضوية والمقترحات، ثم أرسلها عندما تصبح جاهزة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:41:37.548487+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "d770c10a193b6f94aa60962676b2ba37885b0e399cd56c67bf40565dcfc857c0",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
       "message_key": "disposition.ui.prepare_hint",
       "translated_text": "راجع العضوية والمقترحات، ثم أدخل السبب العام للمهمة قبل إرسالها.",
       "quality_flags": [],
@@ -11401,6 +11505,54 @@
         "source_status": "published",
         "date_reviewed": "2026-10-26T03:43:41.961224+00:00",
         "date_published": "2026-10-26T03:43:41.961224+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.preparer",
+      "translated_text": "المُعِدّ",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Required job preparer, 3 November 2026"
+      }
+    },
+    {
+      "message_key": "disposition.ui.preparer_guidance",
+      "translated_text": "مطلوب. هذا الشخص مسؤول عن إعداد العملية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Required job preparer, 3 November 2026"
+      }
+    },
+    {
+      "message_key": "disposition.ui.preparer_required",
+      "translated_text": "اختر مُعِدًّا قبل إنشاء العملية.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Required job preparer, 3 November 2026"
+      }
+    },
+    {
+      "message_key": "disposition.ui.preview_digital_certificate",
+      "translated_text": "معاينة شهادة الإتلاف الرقمي",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Digital certificate preview action, 3 November 2026"
       }
     },
     {
@@ -11521,6 +11673,26 @@
         "source_status": "published",
         "date_reviewed": "2026-11-02T09:29:17.970494+00:00",
         "date_published": "2026-11-02T09:29:17.970494+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.proposal_saved",
+      "translated_text": "تم حفظ تغييرات المقترح.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -11665,6 +11837,26 @@
         "source_status": "published",
         "date_reviewed": "2026-10-21T05:53:16.645915+00:00",
         "date_published": "2026-10-21T05:53:16.645915+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.reason_optional",
+      "translated_text": "السبب (اختياري)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -12244,6 +12436,18 @@
       }
     },
     {
+      "message_key": "disposition.ui.required_fields",
+      "translated_text": "أكمل جميع الحقول المطلوبة. لم تُحفظ التغييرات.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Reason-free disposition validation, 3 November 2026"
+      }
+    },
+    {
       "message_key": "disposition.ui.restricted",
       "translated_text": "مورد محجوب — صلاحية الوصول غير كافية للإضافة",
       "quality_flags": [],
@@ -12481,6 +12685,46 @@
         "source_status": "published",
         "date_reviewed": "2026-10-28T09:27:40.489864+00:00",
         "date_published": "2026-10-28T09:27:40.489864+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_comments_optional",
+      "translated_text": "ملاحظات المراجعة (اختيارية إلا عند الإعادة للتصحيح)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_comments_optional_hint",
+      "translated_text": "الملاحظات اختيارية عند الحفظ والإرسال وإكمال المراجعة والاعتماد. عند الإعادة للتصحيح، وضّح ما يحتاج إلى معالجة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -13693,6 +13937,26 @@
         "source_status": "published",
         "date_reviewed": "2026-11-02T09:29:17.970494+00:00",
         "date_published": "2026-11-02T09:29:17.970494+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.update_proposal",
+      "translated_text": "تحديث المقترح",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Immediate proposal saves and optional explanations, 3 November 2026"
+      },
+      "generation_metadata": {
+        "generated_at": "2026-11-03T08:33:28.415918+00:00",
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "immediate-proposals-optional-reasons-v1",
+        "batch_id": "immediate-proposals-20261103",
+        "catalogue_sha256": "6e53bbcc3d54692e23484f45c34d99dbb3e5222f207b6f4e31db132c20025d59",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {

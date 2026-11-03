@@ -100,13 +100,17 @@ def test_invalid_type_payload_rolls_back_the_complete_save(client,bad):
         assert job_version(c,job['id'])==before and task(c,job['id'])['version']==t['version']
 
 
-def test_removal_reason_mandatory_but_governance_and_save_overall_reasons_optional(client):
+def test_all_proposal_reasons_and_submission_comments_optional(client):
     with db() as c:
         job,root,*_=seeded(c)
-        with pytest.raises(psycopg.Error,match='disposition_removal_reason_required'):save(c,job,changes=[create(c,root,'remove_from_job')])
+        pid=save(c,job,changes=[create(c,root,'remove_from_job')])['changes'][0]['id']
+        assert c.execute('SELECT reason FROM disposition_review_proposals WHERE id=%s',(pid,)).fetchone()['reason'] is None
+        # Existing removal-routing rules still require resolving the mark.
+        with pytest.raises(psycopg.Error,match='disposition_marked_removals_require_correction'):submit(c,job,'')
+        save(c,job,changes=[dict(action='withdraw',proposal_id=pid,expected_version=1)])
         save(c,job,changes=[create(c,root)],overall_reason='')
-        with pytest.raises(Exception,match='disposition_submission_reason_required'):submit(c,job,'   ')
-        assert not c.execute('SELECT 1 FROM disposition_review_rounds').fetchone()
+        submit(c,job,'')
+        assert c.execute('SELECT submission_reason FROM disposition_review_rounds').fetchone()['submission_reason']==''
 
 
 @pytest.mark.parametrize('route',['standard','simplified'])

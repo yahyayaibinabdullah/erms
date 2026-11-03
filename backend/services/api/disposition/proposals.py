@@ -26,11 +26,9 @@ def save(c, *, task_id, expected_version, task_version, changes, review_notes=No
 
 def submit(c, *, task_id, expected_version, task_version, overall_reason,
            acting_role_id, command_id: UUID, reason=None):
-    if not overall_reason or not overall_reason.strip():
-        raise HTTPException(422,detail={'code':'disposition_submission_reason_required'})
     payload=dict(task_id=task_id,expected_version=expected_version,task_version=task_version,overall_reason=overall_reason)
     return execute_command(c,command_id=command_id,operation='review_submit',payload=payload,
-      acting_role_id=acting_role_id,reason=overall_reason,apply=lambda x:x.execute(
+      acting_role_id=acting_role_id,reason=(overall_reason or '').strip() or 'Submit destruction review',apply=lambda x:x.execute(
         'SELECT disposition_private.submit_review_work(%s,%s,%s,%s) result',
         (task_id,expected_version,task_version,overall_reason)).fetchone()['result'])
 

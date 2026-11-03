@@ -364,3 +364,18 @@ def test_upgrade_reopens_only_jobs_with_outstanding_final_task(client,monkeypatc
         assert t['task_state']=='open'
         completion.complete_task(c,job_id=job['id'],task_id=t['id'],task_version=t['version'],expected_version=job_version(c,job['id']),acting_role_id=mgr,command_id=uuid4())
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['lifecycle_state']=='completed'
+
+
+def test_certificate_preview_permission_is_distinct_from_download(client,monkeypatch):
+    job,root,mgr=ready(monkeypatch)
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    with db() as c:
+        actor(c)
+        current=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
+        before=completion.view(c,current)['certificate']
+        assert before['can_preview'] and before['can_download']
+        c.execute("DELETE FROM profile_privileges WHERE privilege_id=(SELECT id FROM privileges WHERE code='record.component.view')")
+        after=completion.view(c,current)['certificate']
+        assert after['id']==before['id'] and after['digital_component_id']==before['digital_component_id']
+        assert not after['can_preview'] and after['can_download']
+        assert current['lifecycle_state']=='active'

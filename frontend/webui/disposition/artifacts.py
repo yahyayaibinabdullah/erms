@@ -107,11 +107,12 @@ def documents_panel(*, api, job, active, on_error, after, open_resource, preview
         result=await api.disposition_page(f"jobs/{job['id']}/documents",limit=p.size,offset=(p.page-1)*p.size,sort=p.sort or 'id',descending=p.descending if p.sort else True)
         if not active():return result
         for row in result['items']:
-            row['type_label']=text(row['document_type']);row['current_label']=text('current_version' if row['is_current'] else 'earlier_version')
+            row['type_label']=text(row['document_type'])
+            row['version_label']=text('document_version_current' if row['is_current'] else 'document_version_earlier',version=row['evidence_version'])
             row['created_label']=format_timestamp(row['date_created'])
             row['template_label']=(text('repository_default') if str(row.get('template_version') or '').startswith('default.v') else str(row.get('template_revision_number') or '—'))
         return result
-    table=PageTable(columns=[column('file_name','document',True),column('type_label','document_type',True),column('evidence_version','version',True),column('template_label','template_revision'),column('current_label','evidence_version_state'),column('created_label','occurred',True),column('actions')],
+    table=PageTable(columns=[column('file_name','document',True),column('type_label','document_type',True),dict(column('evidence_version','version',True),field='version_label'),column('template_label','template_revision'),column('created_label','occurred',True),column('actions')],
       fetch=fetch,active=active,on_error=on_error,empty='empty',on_loaded=lambda p,result:roles.__setitem__(slice(None),result['correction_roles']),wrap_cells=True,empty_text=lambda:text('no_documents'),loading_text=lambda:text('loading'))
     table.table.add_slot('body-cell-actions','''<q-td :props="props"><div class="row no-wrap gap-1">
      <q-btn v-if="props.row.can_preview" flat dense icon="visibility" aria-label="'''+escape(text('preview_document'))+'''" @click="$parent.$emit('preview',props.row.id)"><q-tooltip>'''+escape(text('preview_document'))+'''</q-tooltip></q-btn>

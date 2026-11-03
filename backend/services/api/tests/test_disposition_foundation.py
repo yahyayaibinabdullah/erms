@@ -125,7 +125,8 @@ def test_authorized_full_unit_transition_and_pending_membership_are_atomic(clien
 def test_invalid_membership_or_partial_propagation_rolls_back_everything(client,mode):
     with db() as c:
         actor(c); root,child,*_=prepare_unit(c)
-        job=make_job(c,assigned=None if mode=='unassigned' else 1,kind='permanent_transfer' if mode=='wrong_type' else 'destruction')
+        job=make_job(c,assigned=1,kind='permanent_transfer' if mode=='wrong_type' else 'destruction')
+        if mode=='unassigned':command(c,'job_assign',lambda x:(x.execute('UPDATE disposition_jobs SET assigned_user_id=NULL WHERE id=%s',(job,)) and {}))
         events=c.execute('SELECT count(*) n FROM event_history').fetchone()['n']
         def invalid(c):
             if mode=='status_only': transition_unit(c,root,version(c,root),6)
@@ -458,7 +459,9 @@ def test_all_four_job_types_require_matching_pending_membership(client,kind,stat
 
 def test_assignment_is_specific_and_cannot_be_cleared_while_nonempty(client):
     with db() as c:
-        actor(c); job=make_job(c,assigned=None); root,*_=prepare_unit(c)
+        actor(c)
+        with pytest.raises(psycopg.Error,match='disposition_assignment_required'):make_job(c,assigned=None)
+        job=make_job(c); root,*_=prepare_unit(c)
         def assign(c): c.execute('UPDATE disposition_jobs SET assigned_user_id=1 WHERE id=%s',(job,)); return {}
         command(c,'job_assign',assign); add(c,job,root)
         with pytest.raises(psycopg.Error,match='disposition_active_membership_invalid'):

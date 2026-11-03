@@ -280,7 +280,10 @@ def test_selector_follows_saved_job_route_after_global_policy_change(client):
         job,root,um,fa,mgr=seeded(c,'standard')
         manager=person(c,'Only Manager');role(c,'another-manager','INFO_GOV_MGR',user=manager)
         set_route(c,'records_manager_only')
-        assert not queries.selector(c,'assignees',selected=manager,job_id=job['id'])['items']
+        assert queries.selector(c,'assignees',selected=manager,job_id=job['id'])['items'][0]['id']==manager
+        officer_user=person(c,'Only Officer');role(c,'another-officer','INFO_GOV_OFFICER',user=officer_user)
+        assert queries.selector(c,'assignees',selected=officer_user,job_id=job['id'])['items'][0]['id']==officer_user
+        assert not queries.selector(c,'assignees',selected=officer_user)['items']
         assert queries.selector(c,'assignees',selected=manager)['items'][0]['id']==manager
 
 

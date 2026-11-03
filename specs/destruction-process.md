@@ -4,13 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.16
-**Amendment approved:** 2 November 2026
+**Revision:** 1.17
+**Amendment approved:** 3 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.17 | 3 November 2026 | Persist confirmed proposal additions, updates and withdrawals immediately; retain comment Save; make all proposal reasons and routine comments optional, with clear required correction comments |
 | 1.16 | 2 November 2026 | Expose manual request email sending beside preview/download in Current Task, with recipient/latest attempt and shared sending state; retain the task until the authority's decision |
 | 1.15 | 2 November 2026 | Expose optional certificate email sending and its recipient/latest attempt in Current Task, sharing the existing send action and full Evidence and documents history |
 | 1.14 | 2 November 2026 | Adopt the approved physical preparation report grouped by current collection location, with concise aggregation rows, serial numbers, explicit unknown locations and unique totals |
@@ -124,9 +125,12 @@ is **Information Governance Officer** (`INFO_GOV_OFFICER`) and that supplies
 
 Both Records Officers and Records Managers may create destruction jobs with
 `disposition.jobs.manage`, regardless of the review route. Creation is separate
-from preparation, review and approval. The Records Officer prepares jobs under
-the Standard and Simplified routes, is assigned to a
-job, responds to rejected reviews, records the external authority's destruction
+from preparation, review and approval. Under Standard and Simplified, the
+assigned preparer may be a Records Officer or Records Manager. References to
+the assigned Officer's preparation, submission, correction and evidence duties
+also apply to a Manager assigned as preparer, without requiring an Officer
+profile. The saved route's review stages still apply. The assigned preparer
+responds to rejected reviews, records the external authority's destruction
 number, and uploads its approval letter.
 
 ### 2.2 File Administrator
@@ -254,10 +258,12 @@ unit. The following conditions apply:
 The job workspace shows each aggregation's owning unit separately from the
 job's owning unit so reviewers can see which units the combined batch covers.
 
-The Records Officer chooses the owning organizational unit when creating the
-job. The job becomes active immediately, as required by the common
-specification. It may be unassigned only while empty and must be assigned to one
-specific Records Officer before its first aggregation is added.
+The Records Officer or Records Manager chooses the owning organizational unit
+when creating the job. A specific eligible Preparer is mandatory in every
+creation flow, including creation from selected aggregations. The job becomes
+active immediately. Under Standard/Simplified, the creator defaults to herself
+when she is an eligible Officer or Manager; the Manager may instead assign an
+Officer. Records Manager Only still requires a Manager preparer.
 
 The job's owning organizational unit may be changed only when all three
 conditions are met:
@@ -307,9 +313,12 @@ start destruction. Retain links within the same unit or job after disposition
 under the common specification's retained-metadata and access rules.
 
 While the Records Officer is preparing and reviewing the job, its workflow
-stage is `officer_preparation`. The assigned Records Officer may add or remove
+stage is `officer_preparation`. The assigned preparer (Officer or Manager) may add or remove
 eligible aggregations and create the review proposals defined in Section 5.3
-until submitting the job to the applicable review route.
+until submitting the job to the applicable review route. An authorized Manager
+may also add initial eligible aggregations for the assigned Officer; the
+Officer retains the preparation task. This addition-only permission does not
+extend to correction work, proposal editing, or removing memberships.
 
 Removing an aggregation from the job and removing a relationship between
 aggregations are different actions. The assigned Records Officer removes an
@@ -345,8 +354,8 @@ aggregations and may propose any of the following actions:
 - create or change the governing root's local retention override.
 
 An individual review proposal may include a reason, but that reason is optional.
-Before submitting or resubmitting the job, the assigned Records Officer must
-provide nonblank **Review comments** for the entire job. This single field also
+When submitting or resubmitting the job, the assigned Records Officer may
+provide optional **Review comments** for the entire job. This single field also
 holds observations and recommendations; no separate overall-reason or decision-
 reason input is shown. It lets the officer explain the job without justifying
 every proposal separately. Submitted comments are shown to subsequent reviewers
@@ -430,9 +439,9 @@ override.
 
 A relationship-removal proposal also identifies the exact existing
 relationship to remove. When creating removal proposals, users may select
-multiple aggregation or record relationships for the same target. Continue queues
+multiple aggregation or record relationships for the same target. Add proposal immediately saves
 one distinct proposal per selected relationship, with the shared optional reason;
-Save submits the complete pending set atomically. A failed validation saves none
+the complete selected set is saved atomically. A failed validation saves none
 of that set. Revising an existing proposal remains a single-relationship operation.
 Selection is retained while paging within the same target; changing the target or
 proposal type resets it. Like the other review proposals, its reason is optional
@@ -468,8 +477,8 @@ its authorship. Different desired values remain distinct proposals, subject to
 the existing complete-set conflict checks at approval.
 
 The relationship-removal picker must mark and disable rows already proposed for
-removal in the current round, including changes queued in the current unsaved
-form. It must separately mark and disable inaccessible related resources; both
+removal in the current round. Refresh from saved proposals after each confirmed
+Add, Update or Withdraw; there is no local unsaved proposal queue. It must separately mark and disable inaccessible related resources; both
 explanations may apply. Individual and bulk selection must exclude unavailable
 rows. A row may link to the existing proposal's permitted details, with normal
 partial redaction. Revising that existing proposal excludes itself from the
@@ -524,11 +533,11 @@ An authorized administrator selects **Destruction review route** in the
 This is an organization-wide business setting, not an environment variable
 or a per-job choice made by the Records Officer.
 
-- **Standard** (default): Records Officer → File Administrator, when applicable
+- **Standard** (default): assigned Officer or Manager preparer → File Administrator, when applicable
   under Section 7.1 → Unit Manager → Records Manager. If no File Administrator
   role is configured on the owning unit or any ancestor, skip only that step.
   A configured but unusable File Administrator role still blocks submission.
-- **Simplified**: Records Officer → Records Manager. File Administrator and
+- **Simplified**: assigned Officer or Manager preparer → Records Manager. File Administrator and
   Unit Manager review are deliberately bypassed, regardless of their role
   configuration. Their tasks and approvals are not required for this route.
 - **Records Manager Only**: the assigned Records Manager prepares, reviews,
@@ -582,7 +591,7 @@ first successful **Approve and generate request** action; this is the equivalent
 of the first-submission boundary in the other routes.
 
 The preparation/correction screen provides **Save** and **Approve and generate
-request**. The latter requires nonblank Review comments and validates the exact
+request**. The latter accepts optional Review comments and validates the exact
 membership and complete active proposal set. It applies the same atomic approval,
 authorization, attribution, reason fallback, and direct/cascading removal rules
 as Section 10, then generates the request from remaining membership. There is no
@@ -814,7 +823,12 @@ Job details and task details share authorized data and components but have disti
 5. **Evidence and documents** — versioned Request for Destruction Forms,
    external approval and rejection letters, physical and digital certificates,
    proposal execution reports, physical preparation reports, and authorized
-   evidence metadata.
+   evidence metadata. A single **Version** column combines the evidence-version
+   number and currency, for example **Version 2 · Current** or **Version 1 ·
+   Earlier**, translated for the user. Do not show a separate Version status
+   column. Sorting uses the numeric evidence version, including the generated
+   preparation-report version, rather than the formatted display text. Template
+   revision remains separate.
 6. **Review and event history** — prior review rounds, proposals and their
    authors, withdrawals, rejections, reasons, membership changes, approvals,
    evidence events, execution results, and destruction progress.
@@ -846,20 +860,13 @@ Refresh and restored navigation preserve the selected task ID. Switching tabs
 preserves unsaved work; supporting lists refresh on entry. Server authorization
 and workflow transitions are unchanged.
 
-The task's Aggregations listing immediately reflects its locally queued proposal
-changes, including legal-hold proposals targeting a member or its descendants.
-The active-proposal count includes unsaved additions and excludes queued
-withdrawals; revisions do not add another proposal. A separate **Unsaved proposal
-changes** indicator (a compact draft icon with an accessible label and tooltip)
-distinguishes draft work from persisted proposals without increasing row height. Its
-aggregation-scoped disclosure includes those draft changes, selected values and
-reasons. Discarding a change reverses its presentation immediately. Tab switching
-and bounded membership refreshes preserve the draft overlay; a failed Save
-retains it, and a successful Save replaces it with the refreshed saved data.
-Drafts do not change actual holds, blockers, resource metadata or membership.
-The existing explicit Save and Records Manager approval/execution rules remain
-authoritative. Historical membership rows and restricted counts receive no
-draft overlay.
+The task's Aggregations listing reflects the current saved proposal counts after
+Add, Update or Withdraw succeeds. These actions persist immediately and refresh
+bounded proposal and membership pages while retaining the active tab, filters,
+pagination and unsaved Review comments. No local proposal overlay or unsaved
+proposal indicator is needed. A failed operation leaves the editor open with its
+input and specific error. Proposals do not change actual holds, blockers,
+resource metadata or membership before authorized approval/execution.
 
 The compact tracker in Job details uses native
 NiceGUI components, with checkmarks for completed stages, an explicit Current
@@ -972,11 +979,19 @@ labeled **Review comments**. It holds instructions, observations, recommendation
 and any required justification. Separate Review notes, Overall job reason and
 Decision reason editors are not shown.
 
-Comments are optional on Save and on routine review/approval. Nonblank comments
-are mandatory for submission/resubmission, return for correction, and Records
-Manager Only approval. Returning a job requires comments even if proposed-removal
-marks exist. Individual governance-proposal reasons remain optional and proposed-
-removal reasons remain mandatory as otherwise specified.
+Review comments are optional on Save, submission/resubmission, Complete review
+and all approval routes. Nonblank comments are required only for rejection or
+return for correction, to explain what needs attention. Every proposal reason,
+including a removal-from-job reason, is optional on Add, Update, Withdraw and
+all later workflow actions. Preserve any supplied reason for subsequent reviewers;
+agreement does not require another explanation. Existing scope/removal-routing
+rules remain unchanged: making a removal recommendation does not itself remove
+the membership or bypass a required correction stage.
+
+Label proposal reasons **Reason (optional)**. Label Review comments as optional
+unless returning for correction and explain that requirement next to the field;
+reject a blank correction comment with a localized validation message before
+sending the decision. Do not display a separate mandatory overall-reason editor.
 
 The same text is recorded with the submission or decision, attributed to the
 user, acting role, stage, review round and timestamp. Each participant can revise
@@ -1003,13 +1018,13 @@ rewritten.
 The current task panel displays the appropriate form:
 
 - **Prepare destruction job** — membership management and Records Officer
-  review proposals with optional individual reasons, and a mandatory Review comments before submission;
+  review proposals with optional individual reasons, and optional Review comments before submission;
 - **Review aggregations proposed for destruction** — File Administrator review,
   proposed removals, and review proposals;
 - **Review destruction proposal** — Unit Manager review, proposed removals,
   review proposals, approval, or rejection;
 - **Correct rejected destruction job** — all authorized reasons and proposals,
-  required removals, corrections, mandatory Review comments before
+  required removals, corrections, optional Review comments before
   resubmission, and starting a new review round;
 - **Approve destruction request** — Records Manager review, proposals,
   rejection, or **Approve and apply proposals**;
@@ -1031,58 +1046,42 @@ Officer as **Awaiting external archival authority approval**. Waiting does not
 make it overdue unless a future approved requirement introduces a follow-up
 date.
 
-### 6.6.1 Save work without submitting
+### 6.6.1 Immediate proposal persistence and Save work without submitting
 
-Every preparation, review, and correction task provides an explicit **Save changes**
-button for its authorized participant: Records Officer, File Administrator,
-Unit Manager, or Records Manager. This applies to all three routes, not just
-Records Manager Only. Work can be saved, left, and resumed over multiple days.
+Every preparation, review and correction task retains **Save changes** for its
+authorized participant's Review comments and other session work requiring Save.
+**Add proposal**, **Update proposal** and confirmed **Withdraw** persist immediately
+through the versioned review-work command, without saving unsaved Review comments.
+A relationship multi-selection is one atomic command with a proposal per exact
+link. No proposal is queued for a later Save; unconfirmed editor input is local
+and Cancel discards only that input. Withdraw remains available for saved active
+proposals under the existing task, role, claim and access rules.
 
-Use one shared sticky footer, visible across **Current task**, **Aggregations**
-and **Evidence and documents**, above the application's existing status footer.
-It contains **Save changes**, **Review changes**, a count of unsaved changes and
-the explanation that saving persists proposals and comments without submitting.
-Count each queued proposal creation, revision or withdrawal once, plus one if
-Review comments differs from its saved value. Disable Save and Review when
-there are no changes and show **All changes saved**. While saving, disable draft
-mutation and Save controls to prevent repeated or inconsistent writes.
+The shared sticky footer remains across Current task, Aggregations and Evidence
+and documents. Save/Review changes and the unsaved count concern unsaved comments,
+not already persisted proposals. Disable these controls when nothing remains to
+save and show All changes saved. The footer and editor explain both persistence
+boundaries. Successful operations preserve navigation context and unsaved comments;
+failed writes retain input and show the specific error. Prevent concurrent or
+repeated writes while busy and retain the same command identity on exact retries.
+Version conflicts never silently overwrite another participant's work. Abandoned
+views must not repaint a different task, identity or language after a response.
 
-**Review changes** opens the complete local pending work, including changed
-comments. Every unsaved proposal change offers **Discard draft** here, in the
-Current task draft list and in its aggregation's proposals dialog. Discarding
-removes only that queued change, reverses its count immediately and makes no
-server mutation; withdrawing a saved proposal remains a separate saved change.
-Dialogs that disclose pending work also offer **Save changes**, saving all
-pending task work under the same command and closing only after success.
-The proposal editor uses **Add draft proposal** for creation and **Update draft
-proposal** for revisions, distinguishing queuing from persistence.
+Immediate persistence and Save do not execute proposals, complete the task,
+release/reassign it or advance the workflow. Each persisted creation, revision
+and withdrawal retains its own history event, original proposer, actor, role,
+time and previous/new values; a batch does not collapse individual events. Saving
+confirmed intermediate revisions can produce more history than queuing revisions
+locally. Unsaved Review comments still require Save or a workflow action before
+leaving; Add/Update do not protect unconfirmed input or comments from a refresh.
 
-Successful Save retains the active tab, filters, pagination, selected context
-and scroll position, refreshes the affected data regions and shows brief success
-feedback. A failed Save retains work and displays the specific error in the
-shared footer and open pending-work dialog, even when Current task is hidden.
-Submission, approval and return-for-correction controls remain in Current task.
-Read-only, unclaimed and historical tasks do not gain Save authority or a working
-footer. All controls, counts and feedback support English/LTR and Arabic/RTL.
-
-Save persists proposals and their revisions or withdrawals, removal
-recommendations and the user's Review comments. It does not execute proposals, approve or submit the job,
-complete the task, create the next task, or advance the workflow. Empty or
-partially entered comments are permitted on Save; nonblank comments are checked
-on submission, return for correction or **Approve and generate request**. Individual
-governance reasons remain optional; proposed-removal marks retain their required
-reason and proposal payloads retain their validation rules.
-
-Saved work retains the original proposer and every change's actor, acting role,
-time, and prior/new values under existing history rules. Existing task ownership,
-claim, access, and optimistic-version checks apply. Reopening the task restores
-the persisted work; a failed or stale save must not appear successful. Saving
-does not release or reassign the task. Own-note editing restrictions still apply.
-Immediate membership removal is a separate protected action, not a side effect
-of Save. Records Officer submission/resubmission and final Records Manager
-approval validate the current complete saved work and may not silently omit
-changes. Intermediate File Administrator/Unit Manager completion follows the
-separate stage-completion and partial-visibility rules in Section 6.3.
+All proposal reasons and routine review comments are optional. Rejection/return
+for correction still requires explanatory comments. When execution needs an audit
+reason, use a supplied proposal reason, otherwise submitted comments, otherwise
+the system description of the approved operation. Mark the last fallback as
+approval-derived, never as user-authored submission comments. Full proposal,
+claim, scope, access, optimistic-version and final execution checks remain in force.
+English/LTR and Arabic/RTL labels, validation and feedback must agree.
 
 ### 6.7 Workflow overview
 
@@ -1228,7 +1227,7 @@ least one eligible Unit Manager can be resolved.
 
 The Unit Manager reviews every aggregation already marked **Proposed for
 removal** by the File Administrator. The Unit Manager may also mark additional
-aggregations and must provide a nonblank reason for each new mark.
+aggregations and may provide an optional reason for each new mark.
 
 The Unit Manager also sees every active proposal from the Records Officer and
 File Administrator, with its proposer, stage, time, and reason. The Unit Manager
@@ -1300,7 +1299,7 @@ Records Manager Only routing and all post-approval correction rules are unchange
 
 The Records Manager reviews the complete list. If the Records Manager believes
 an aggregation should not be destroyed, they mark it **Proposed for removal**
-and provide a nonblank reason. If any aggregation is marked, the Records
+and may provide an optional reason. If any aggregation is marked, the Records
 Manager selects **Reject**. The job returns to the assigned Records Officer for
 correction and must repeat the job's saved review route in a new round under
 Section 5.4. File Administrator resolution applies only in Standard.
@@ -1316,8 +1315,7 @@ correction and record the reason. Unresolved conflicts or invalid active
 proposals prevent approval.
 
 The final approval confirmation is compact and contains counts by proposal type
-for the complete active set, including queued additions, revisions and
-withdrawals that would be saved on confirmation. It must not count only the
+for the complete saved active set. It must not count only the
 visible page or selected row. It has no per-proposal list or expandable details;
 the user can cancel and inspect proposals in the task. The confirmation button
 is **Approve and apply changes**. Its explanation states that proposed resource
@@ -1337,15 +1335,17 @@ steps rather than promising a request. This explanation does not change which
 proposals are executable or the final authorization/atomicity rules.
 
 `POST /tasks/{task_id}/approval-summary` is a read-only, manager-task-authorized
-preview accepting the current task version, acting role and at most 100 queued
-review changes, with the current job version in If-Match. It returns existing
+preview accepting the current task version and acting role, with the current
+job version in If-Match. The WebUI sends an empty review-changes array because
+proposal operations are already persisted. The API retains compatibility with
+at most 100 hypothetical review changes for existing clients. It returns existing
 approval tokens/versions plus `proposal_count`, `proposal_counts`, advisory
 `next_step` (`request`, `empty`, or `conditional`) and `empty_return_stage`.
 Only aggregated counts and the next-step explanation are exposed; resource names,
 IDs and proposal values are not returned. The preview does not save review work,
-create command receipts/history or execute proposals. Cancel leaves queued work
-unchanged. On confirmation, save work if needed, refresh approval tokens only if
-that save changed versions, and retain all stale/version and full-set execution
+create command receipts/history or execute proposals. Cancel leaves saved
+proposals and unsaved comments unchanged. On confirmation, save comments if
+needed, refresh approval tokens only if that save changed versions, and retain all stale/version and full-set execution
 checks. A clean confirmation reuses its existing preview instead of fetching it
 again. The summary is local to that confirmation, never cached across tasks,
 users or languages, and abandoned views do not open or act on it.
@@ -1405,9 +1405,10 @@ Wathiq applies none of the proposals, does not record final approval, and
 reports which proposals require correction without revealing protected data.
 
 When an underlying operation requires a reason, use that proposal's individual
-reason if supplied; otherwise use the mandatory overall submission reason for
-the approved review round. Record the reason used and whether it came from
-the proposal or submission. Optional proposal reasons do not waive an
+reason if supplied; otherwise use nonblank submission comments for
+the approved review round, or the system description of the approved operation
+when no comment was supplied. Record the reason used and whether it came from
+the proposal, submission or approval operation. Optional proposal reasons do not waive an
 underlying operation's reason requirement.
 
 For every approved proposal executed, the resource-change audit events and
@@ -1672,8 +1673,8 @@ governed record, digital component, correction task, and event history must
 commit successfully together. A retry must return the same result without
 creating a duplicate evidence record or correction task.
 
-The Records Officer makes the necessary changes and submits the job with the
-mandatory Review comments. This starts a new review round following the
+The Records Officer makes the necessary changes and submits the job with
+optional Review comments. This starts a new review round following the
 job's saved Standard or Simplified route under Section 5.4. File Administrator
 routing is resolved again only in Standard. The authority's correction notes are visible to authorized participants
 throughout this new round.
@@ -1988,7 +1989,14 @@ makes the final certificate task ready without duplicate certificate records.
 
 After successful generation and storage, Wathiq creates the final certificate
 task for the Records Manager and leaves the job **active**, at Certificate
-generation. The saved evidence can be inspected, downloaded or sent by email.
+generation. The saved evidence can be inspected, downloaded or sent by email. The Current
+Task certificate section must show **Preview certificate**, **Download
+Certificate of Destruction (Digital)** and **Send by email** together, subject
+to each action's current authorization. Preview opens the exact saved governed
+record and digital component in Wathiq's standard document viewer, using
+`record.component.view`; download permission alone does not grant preview.
+Preview remains available to authorized users from the completed job workspace
+and does not regenerate the certificate, email it, or complete the task.
 **Complete this task** closes the final task and completes the job in the same
 transaction, then returns the user to My Tasks where that task is no longer
 listed. Neither downloading nor emailing is required, and neither completes
@@ -2001,9 +2009,9 @@ and append an audited correction. Only explicit completion of that last task
 then completes the job.
 External delivery and receipt are outside Wathiq.
 
-The **Current Task** tab shows **Send by email** beside the saved certificate's
-download/preview actions and above **Complete this task**, for a currently
-authorized Records Manager. Show the configured recipient and the latest
+The **Current Task** tab shows **Preview certificate**, download and
+**Send by email** beside the saved certificate and above **Complete this task**,
+for a currently authorized Records Manager. Show the configured recipient and the latest
 attempt's localized status, timestamp and actual recipient, or an explicit
 no-attempts message. Include this localized note:
 
@@ -2218,8 +2226,7 @@ managing role for the job's owning organizational unit. It permits only viewing
 the job content the user may already access, recording that stage's
 proposed-removal marks, creating, revising, or withdrawing proposals under
 Section 5.3, saving their own Review comments, and completing that stage's review
-decision. Governance-proposal reasons are optional; proposed-removal mark
-reasons remain mandatory. An inherited File Administrator role does not extend
+decision. Governance-proposal and proposed-removal mark reasons are optional. An inherited File Administrator role does not extend
 the user's existing access. It does not permit executing a proposal, job
 creation, membership changes,
 acceleration, termination, external-approval recording, or destruction
@@ -2279,7 +2286,7 @@ revisions are retained in event history. Comments do not require a proposal
 target or type. Existing review-note storage remains separate from proposal
 rows; submission and decision snapshots retain the same single entered text.
 
-Each Records Officer submission records its mandatory Review comments against
+Each Records Officer submission records any supplied Review comments against
 the job and review round, separately from individual proposal reasons.
 
 One row represents one proposed removal or governance change in one review
@@ -2296,7 +2303,7 @@ round. Logical fields include:
 - complete proposed current period, intermediate period, final disposition,
   and instructions for a local retention override;
 - proposer, acting role, workflow stage, review round, creation and update
-  timestamps, optional reason for Section 5.3 governance proposals, mandatory
+  timestamps, optional reason for all Section 5.3 proposals, optional
   reason for proposed-removal marks, and optimistic-concurrency version;
 - last revising user, acting role, stage, review round, and timestamp, where
   applicable; the original proposer is never replaced, and event history retains
@@ -2485,18 +2492,21 @@ termination and recovery. No Officer/Administrator/Unit Manager role or task is
 required. Verify actual actor/role history, all underlying authorization checks,
 route immutability, owning-unit locking, and both other routes unchanged.
 
-DEST-41: Verify Save for each of the four participant types in every applicable
-preparation/review/correction task and all three routes. Test save, navigation
-away, later login and restoration, partial overall reason, proposal/history
-preservation, own-note restrictions, concurrent edits, unauthorized saves and
-failure feedback. Assert no proposal execution, approval, next task, membership
-removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
+DEST-41: Verify immediate Add/Update/Withdraw persistence, all-or-none multi-link
+creation, comments-only Save, refresh/reopen durability, exact retry identities,
+stale/failed writes retaining editor input, busy guards and abandoned views.
+Verify optional reasons for all proposal types and optional submission/completion/
+approval comments on all routes, while rejecting blank correction comments.
+Retain individual proposal history events and original attribution; no operational
+resource effects, membership removal or stage advance merely on proposal Save.
+Verify server-paged count freshness and English/LTR and Arabic/RTL guidance.
+
 
 | ID | Requirement | Minimum verification |
 | --- | --- | --- |
 | DEST-01 | Six-month configurable reminders go only to active people with a currently effective information-governance role using `INFO_GOV_OFFICER` or `INFO_GOV_MGR` and supplying `disposition.jobs.manage`, when status-2 work exists, and do not duplicate per person and interval even when a person qualifies through both profiles | Controlled-clock notification, both-profile audience, dual-profile deduplication, retry, privacy, and configuration tests |
 | DEST-02 | Every destruction job has one owning unit and accepts roots owned by that unit or any descendant, preserving resource ownership, retention rules, ACLs, and common admission conditions; combined review is routed by the job's owning unit, whose managing role approves the whole batch; the owning unit may change only while the job is active, empty, and has never been sent to File Administrator or Unit Manager review | API, current-hierarchy admission, direct and multi-level descendant ownership, outside-subtree rejection, mixed-selection partial success, ownership/ACL/retention preservation, consolidated reviewer routing and access enforcement, per-aggregation owning-unit display, add-and-remove-before-submission, first-submission locking, skipped-File-Administrator routing, correction-round locking, completed/terminated-job rejection, event-history, concurrency, and rollback tests |
-| DEST-03 | File Administrator review shows all earlier proposals with their proposers and the overall submission reason, and records new proposed-removal marks with mandatory reasons or governance proposals with optional reasons without changing resources or membership | Authorization, org-unit routing, proposal-type, optional-proposal-reason, mandatory-removal-reason, UI, redaction, no-side-effect, and event-history tests |
+| DEST-03 | File Administrator review shows all earlier proposals with their proposers and the overall submission reason, and records new proposed-removal marks with optional reasons or governance proposals with optional reasons without changing resources or membership | Authorization, org-unit routing, proposal-type, optional-proposal-reason, optional-removal-reason, UI, redaction, no-side-effect, and event-history tests |
 | DEST-04 | Unit Manager review shows every proposal and its proposer, permits additional proposals, makes approval impossible while any item is marked for removal, and returns a rejected job to its assigned Records Officer | Workflow, routing, proposal-attribution, validation, no-side-effect, and history tests |
 | DEST-05 | The assigned Records Officer removes job membership immediately during an open preparation or correction task, with the common eligibility-status restoration and history; membership changes are forbidden while reviewers hold the job except eligible additions by the claimed Simplified Records Manager under Section 10; proposed-removal marks do not themselves remove units, and relationship removal remains a proposal until Records Manager approval; every resubmission follows the job's saved route without losing prior rounds | Immediate preparation/correction membership removal, status-transition, no destruction or governance mutation on membership removal, reviewer-stage membership rejection, proposed-removal no-side-effect, deferred relationship removal, both-route workflow-round, skipped-stage, routing-change, stale-version, and event-history tests |
 | DEST-31 | The organization-wide Destruction review route defaults to Standard or may be set to Simplified through Administration Settings; each new job stores an immutable route used throughout internal correction and external-rejection cycles; Simplified bypasses File Administrator and Unit Manager only, with all other safeguards unchanged | Default and allowed values, authorized settings change, new-job route capture, existing-job isolation, per-job override rejection, both-route initial and repeat review, Standard no-role skip and unusable-role block, Simplified absence of bypassed tasks/approvals, route and bypass history/workspace/form display, and unchanged authorization/blocker/evidence tests |
@@ -2510,7 +2520,7 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-11 | Digital destruction requires explicit confirmation and a final current-state recheck | UI enablement, authorization, blocker, approval, stale-version, and race tests |
 | DEST-12 | Asynchronous destruction is durable, idempotent, resumable, accurately reports progress, and never marks partial work complete | Worker interruption, duplicate-worker, retry, storage, status, and progress tests |
 | DEST-13 | Mixed material reaches status 10 only after physical and digital destruction, and termination after physical destruction follows status 13 | State-transition, partial-destruction, termination, and recovery tests |
-| DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before creating the final Records Manager certificate task; explicit completion of this task atomically completes the job; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, and download-history tests |
+| DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before creating the final Records Manager certificate task; explicit completion of this task atomically completes the job; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, preview/current component-view permission, and download-history tests |
 | DEST-46 | Request v2 uses configurable organization/Records Unit contacts and approving-Manager language policy, omits internal fields, shows whole-job record-originated year bounds and an root-aggregation-per-row section with subtree years/counts, classification and assigned physical/mixed location; issued documents and v1 defaults remain unchanged | Presentation/settings, language, inheritance, date timezone/empty scope, concurrent-change rejection, retained-default download and real multipage PDF/layout verification |
 | DEST-35 | Request forms show the configured authority name, default Sharjah Archives; an authorized Records Manager or the assigned Records Officer can repeatedly email the exact generated form to the configured authority address through SMTP, with truthful per-attempt status and permanent attributed history | Default/configured authority form rendering, recipient display and validation, task authorization, exact attachment/version, deliberate resend, same-submission retry deduplication, missing configuration, SMTP success/failure/unknown outcomes, no unsupported inbox-delivery claim, secret-safe errors, navigation/status persistence, settings-change history isolation, and no workflow advancement tests |
 | DEST-36 | An authorized Records Manager can repeatedly email the exact saved digital destruction certificate from Current Task and Evidence and documents, including after job completion, with recipient/latest-attempt summary and full history, shared retry/busy state, optional-send guidance and no evidence/outcome changes | Current authority, same exact saved attachment and SMTP configuration, cross-tab uncertain retry deduplication, deliberate resends, missing configuration, status/recipient freshness, lazy bounded history, visible pending polling/abandonment, localization/RTL, no automatic send or completion dependency, and secret-safe attributed audit |
@@ -2528,14 +2538,14 @@ removal, or stage advance on Save. Verify LTR/RTL labels and actual persistence.
 | DEST-42 | File Administrator and Unit Manager completion permits redacted related resources without executing or endorsing hidden proposal effects; current claim, role, root access, version and stage checks remain mandatory, and final Records Manager approval validates the complete active set with current access and execution authority | `test_intermediate_review_completion.py`: both intermediate stages, aggregation/record endpoints, English/Arabic redaction, rejected protected edits, no side effects, immutable attributed snapshots, root/assignment/claim/version failures, restricted manager final approval rejection, authorized final execution, occupied migration retry; existing review/approval suites cover routing, marked removals, conflicts and privilege checks |
 | DEST-43 | Every completed stage identifies the actual next task recipient or shared queue in the user's language; automatic work and final completion are distinguished, queued/failed work never falsely reports completion, and abandoned pages do not notify | Handoff HTTP tests for both review stages, person/queue, exact retry and English/Arabic; post-review integration through external, physical, digital workers and certificate download; English/Arabic shared-notice tests, existing phase-specific pending/failure/liveness tests, and live browser verification |
 | DEST-44 | Completing a task returns to My Tasks after the localized handoff confirmation, except Records Manager approval document verification, digital progress and final completion/certificate views; failures and draft saves stay put, committed approval with pending documents opens document recovery without reexecution, and job overviews retain their context | English/Arabic shared completion-routing and real ReviewForm action tests, all stage types, success/failure/committed-pending, notification-before-navigation, digital/final exceptions, abandonment and job-overview isolation; external/physical/digital/completion UI suites and live browser checks |
-| DEST-45 | Final approval confirmation shows complete active/pending counts by type, no expandable list, explicit apply button and no-destruction explanation, plus accurate or conditional next steps; Cancel is read-only and final validation remains atomic | Read-only API summary/queued-edit/stale/access/bounds tests, empty-route result versus actual execution, English/Arabic dialog count/cancel/next-step tests, clean token reuse and post-save refresh, client read-only POST cache tests and live browser checks |
-| DEST-29 | Records Officer preparation/correction and File Administrator, Unit Manager, and Records Manager review forms provide one Review comments field, optional on draft save and routine review, mandatory on submission/resubmission, rejection and Records Manager Only approval; comments are attributed and retained with submissions/decisions; legacy notes and reasons remain readable | All-stage form and downstream-visibility tests, own-note editing while task open, other-author edit rejection, successor attribution, saved-version history, correction-round retention, optional-note submission, mandatory-overall-reason enforcement, no-side-effect, access/redaction, and LTR/RTL live-browser tests |
+| DEST-45 | Final approval confirmation shows complete saved active counts by type, no expandable list, explicit apply button and no-destruction explanation, plus accurate or conditional next steps; Cancel is read-only and final validation remains atomic | Read-only API summary/legacy hypothetical-edit/stale/access/bounds tests, empty-route result versus actual execution, English/Arabic dialog count/cancel/next-step tests, clean token reuse and post-save refresh, client read-only POST cache tests and live browser checks |
+| DEST-29 | Records Officer preparation/correction and File Administrator, Unit Manager, and Records Manager review forms provide one Review comments field, optional on draft save and routine review, mandatory only on rejection/return for correction; comments are attributed and retained with submissions/decisions; legacy notes and reasons remain readable | All-stage form and downstream-visibility tests, own-note editing while task open, other-author edit rejection, successor attribution, saved-version history, correction-round retention, optional-note submission, optional-submission and approval comments, required-correction-comment enforcement, no-side-effect, access/redaction, and LTR/RTL live-browser tests |
 | DEST-19 | Final Records Manager approval validates and executes the complete proposal set using every underlying operation's current authorization; execution records the approving Records Manager as actor with actor_type = 'user' while preserving proposers and all proposal changes in history; any validation or execution failure leaves proposals, resources, membership, statuses, and approval unchanged | Vital, security, hold, relationship, retention-rule, stale-version, authorization, execution actor identity/type and acting-role attribution, preserved proposal and change-history linkage, atomic rollback, and protected-error tests |
 | DEST-20 | Proposal execution removes every directly or transitively proposal-blocked or non-matching unit before form generation, preserves applied proposals and correct post-removal statuses, and returns an empty resulting job to the Records Officer | Combined-proposal, cascading-link, fixed-point membership, status, empty-job, form-exclusion, and event-history tests |
 | DEST-21 | My tasks is server-paginated, shows direct and role-queue work with one Required action column, hides Priority pending its definition, keeps final-execution blocker reasons in job details, opens the correct authorized form, and does not expose protected job or proposal details | API pagination/filter/sort, authorization, redaction, form-routing, single-action-column, hidden-priority/saved-sort fallback and job-blocker details, loading/empty/error, and live-browser LTR/RTL tests |
 | DEST-22 | One eligible person atomically claims a shared role task; loss of eligibility returns it to the queue; release and reassignment preserve work and permanently identify every claimant and actor | Concurrent-claim, role/profile/access change, release, reassignment, stale-version, and event-history tests |
 | DEST-23 | The common workspace presents current job facts, workflow progress, paginated aggregations with distinct assigned classification, effective-rule source and local-override indicator, attributed proposals, task-specific actions, evidence, and history; asynchronous work remains visible after navigation and notifies only on completion, failure, or required action | Live-browser role-by-role workflow, server-state refresh, source/override distinction including unavailable/redacted rules, background-progress, notification, accessibility, LTR/RTL, and redaction tests |
-| DEST-24 | Destruction proposal tables enforce proposal-type payloads, target scope, optional governance-proposal reasons, mandatory proposed-removal reasons, proposer attribution, hold membership, withdrawal, execution, and immutable effects, including creation and removal of named aggregation relationships; each Records Officer submission requires nonblank Review comments retained by review round | Schema constraint, optional-proposal-reason, blank-overall-reason rejection, initial submission and resubmission reason history, subtype, target, multi-hold, relationship creation/removal within and outside the job, exact relationship identity, deferred removal, stale-relationship rejection, removal authorization, retention-rule, concurrency, and history tests |
+| DEST-24 | Destruction proposal tables enforce proposal-type payloads, target scope, optional governance-proposal reasons, optional proposed-removal reasons, proposer attribution, hold membership, withdrawal, execution, and immutable effects, including creation and removal of named aggregation relationships; optional submission comments are retained by review round | Schema constraint, optional-proposal-reason, blank routine comments accepted and blank correction comments rejected, initial submission and resubmission reason history, subtype, target, multi-hold, relationship creation/removal within and outside the job, exact relationship identity, deferred removal, stale-relationship rejection, removal authorization, retention-rule, concurrency, and history tests |
 | DEST-25 | External decisions retain separate historical rows per request/review round; physical confirmation retains one immutable row per job; both preserve required evidence, actor/time, never-reused applicable identifiers, and atomic governed-record creation | Repeated external rejection/approval history, immutable physical confirmation, uniqueness, termination, retry, evidence, authorization, direct-database, and rollback tests |
 | DEST-26 | Destruction runs, unit progress, and manifests support idempotent bounded work, one running execution per job, irreversible successful units, approved proof fields, and no retained content or prohibited derivatives | Worker-claim, duplicate-request, retry, interruption, manifest-minimization, privacy, and database tests |
 | DEST-27 | Reminder checkpoints prevent duplicates independently of message retention, and reminder interval and evidence destination use validated existing configuration rather than ungoverned job text | Controlled-clock, duplicate-worker, purge, configuration, foreign-key, and invalid-destination tests |
@@ -2579,9 +2589,9 @@ Disposition §10.1.0 governs automatic numbers (`DT-<year>-<sequence>` for
 destruction), reason-free creation, and the editable creator-assignee default.
 Records Manager Only changes preparation and subsequent workflow duties, not
 which governance profile may create an empty job. Under Standard/Simplified a
-Manager creating a destruction job is not automatically assigned unless also
-eligible as an Officer; under Records Manager Only the corresponding Officer
-must choose an eligible Manager or leave the empty job unassigned. This does
+Manager creating a destruction job defaults to herself and may prepare it
+without changing the route. Under Records Manager Only an Officer creating a
+job must select an eligible Manager before saving; no new job may be unassigned. This does
 not change review, approval, membership or execution authorization.
 
 ### 5.1.1 Suggested owner when creating from selected roots

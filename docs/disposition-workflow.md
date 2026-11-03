@@ -42,29 +42,27 @@ source, both periods in years and the disposition action. A nonzero **Review
 proposals** count opens that aggregation's existing proposals dialog. Zero is
 plain text. All disclosures retain current authorization and server pagination.
 
-In a task, the proposal count immediately includes unsaved additions and queued
-withdrawals. A compact draft icon labelled **Unsaved proposal changes** marks draft
-work without lengthening the row and opens its selected
-values and reasons alongside saved proposals. Revisions leave the count unchanged.
-Discarding a draft reverses the indicator; switching tabs preserves it, and Save
-reconciles it with saved data. A failed Save keeps the draft visible. A proposed
-legal hold does not become an actual hold or blocker until approval executes it.
+Proposals are saved immediately when **Add proposal**, **Update proposal** or
+**Withdraw** succeeds. Selecting several relationships saves their individual
+proposals atomically. Cancel only discards unconfirmed editor input. Saved
+proposals remain unapplied until authorized final approval; a proposed hold, for
+example, does not become a real hold yet. The member counts refresh from the
+server after each successful operation, without losing the current tab or comments.
 
-An editable task has one sticky footer across all three tabs: **Save changes**,
-**Review changes**, and its unsaved count. The count includes each queued proposal
-change and one for edited Review comments. Review changes shows the entire pending
-set. **Discard draft** removes an individual unsaved change from there, the task's
-draft list or the aggregation's proposals dialog. Saved proposals still use
-Withdraw. No changes disables Save and Review and displays All changes saved.
+**Save changes** and **Review changes** remain in the shared sticky footer for
+unsaved Review comments. Adding/updating/withdrawing a proposal does not save those
+comments. Failed proposal writes keep the editor open; failed comment saves keep
+the comments. Exact retries reuse the command ID, and stale versions require
+resolution rather than overwriting someone else's work. Confirmed proposal
+operations each retain their individual attributed history event.
 
-The editor's **Add draft proposal** / **Update draft proposal** buttons queue
-work locally. Save changes, including its equivalent in pending-work dialogs,
-persists all proposals and comments together. Saving keeps the selected tab,
-filter/page context and scroll position; failures retain drafts and show the
-specific error in the shared footer and open disclosure. Submission and decision
-buttons remain in Current task. The footer uses the native NiceGUI PageSticky
-above the application's existing status footer, with room reserved for its
-responsive height. It does not appear on read-only or unclaimed tasks.
+Every proposal reason, including removal-from-job, is explicitly **optional**.
+Review comments are optional on Save, Submit, Complete review and Approve. They
+are **required when rejecting or returning for correction**, and the field's
+label/helper explains this before the user acts. Subsequent reviewers retain
+prior reasons and do not need to repeat them. These changes do not alter task
+ownership, claim checks, visibility/redaction, removal/correction routing or the
+Records Manager's complete-set approval and current execution authority.
 
 Review proposals use six columns: **Target**, **Proposed change**, **Status**,
 **Proposed by**, **Reason**, and **Actions**. Proposed by combines the original
@@ -235,10 +233,14 @@ See [request email verification](verification/request-task-email.md).
 
 ## Emailing the digital destruction certificate
 
-In **Current Task**, the final certificate section offers **Send by email** next
-to download, shows the configured recipient and latest recorded attempt, and
-explains that sending is optional and remains possible after completion.
-**Complete this task** completes the final task and job without sending mail.
+In **Current Task**, the final certificate section offers **Preview certificate**,
+download and **Send by email** together, shows the configured recipient and
+latest recorded attempt, and explains that sending is optional and remains possible after completion.
+**Preview certificate** opens the exact saved certificate in the standard
+document viewer when the user currently has component-view permission. It does
+not download, regenerate, send, or complete anything, and is also available
+from the completed job workspace. **Complete this task** completes the final
+task and job without sending mail.
 The same send action and full **Email attempts** history remain in **Evidence
 and documents**. Both buttons share one pending retry identity; switching tabs
 after an uncertain response does not create a second submission. An acknowledged
@@ -275,3 +277,50 @@ physical-destruction task to save a fresh report using current facts. An
 administrator-uploaded template continues to take precedence over repository
 defaults. No migration, environment setting, privilege or new UI message key is
 required. See [template verification](verification/physical-preparation-template.md).
+
+
+### Required preparer and Manager preparation (3 November 2026)
+
+Every new disposition job requires a specific eligible **Preparer**, including
+when created from selected aggregations. The form defaults to the creator when
+eligible, validates before submission, and the API/database reject missing
+assignment. This prevents creating an unusable empty job followed by three
+failed additions such as DT-2026-3. Existing empty unassigned jobs remain intact
+and can be explicitly assigned before adding their aggregations.
+
+Records Managers and Officers may prepare Standard/Simplified destruction jobs;
+Manager preparation does not skip the route's internal reviews. Records Manager
+Only still requires a Manager. A Manager may add initial aggregations for an
+assigned Officer, with the Officer retaining their preparation task. This does
+not permit editing that Officer's proposals, completing their task, or
+removing their memberships. Existing protection, owner, current access and
+clearance checks apply to both the actor and preparer. Ordinary failures still
+use the existing per-item feedback; no special unassigned-job dialog is needed.
+
+Upgrade existing databases with `095_required_job_preparer.sql`; fresh databases
+use `schema.sql` and its matching baseline. Migration 095 preserves existing
+jobs, assignments, tasks and event history. Restart API/WebUI after deployment.
+New Arabic UI drafts remain unpublished until reviewed.
+
+
+### Document version display
+
+The **Evidence and documents** table combines the document's evidence-version
+number and currency into one **Version** column: **Version 2 · Current** or
+**Version 1 · Earlier**. There is no separate Version status column. The text
+is localized; sorting remains numeric and server-side. Preparation reports use
+their generated report version. Template revision remains a separate column,
+and earlier documents remain available under the existing access rules.
+
+## Proposal persistence and explanation upgrade
+
+Apply `database/migrations/096_immediate_proposals_optional_reasons.sql` to existing
+databases and deploy the matching API/WebUI. Fresh databases use `schema.sql`
+and the matching baseline. The migration changes validation/functions only; it
+does not rewrite saved proposals, comments, decisions or event history.
+
+Nine new English/Arabic message definitions describe immediate persistence and
+which explanations are optional. Local startup, or the explicit Arabic seeder
+with `--missing-only`, adds missing drafts while preserving existing translations;
+publish them only after translation review. Verification and requirement mapping:
+[Immediate proposals](verification/immediate-proposals.md).

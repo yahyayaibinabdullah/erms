@@ -62,7 +62,6 @@ async def test_explicit_save_persists_partial_reason_and_own_note_without_advanc
     notices=[];monkeypatch.setattr(ui,'notify',lambda message,**kw:notices.append((message,kw)))
     f,api,after=await form(host)
     f.comments.value='Saved personal observations'
-    f.queued({'action':'create','governing_root_id':10,'target_aggregation_id':10,'target_version':6,'proposal_type':'make_vital','proposed_values':{}})
     await f.perform('save')
     assert len(api.writes)==1 and api.writes[0][0]=='tasks/8/review-work'
     payload=api.writes[0][1]
@@ -96,11 +95,12 @@ async def test_submit_saves_visible_changes_first_and_uses_new_versions(host,mon
 
 
 @pytest.mark.asyncio
-async def test_blank_submission_warns_without_any_request(host,monkeypatch):
+async def test_blank_submission_is_optional(host,monkeypatch):
     notices=[];monkeypatch.setattr(ui,'notify',lambda *a,**k:notices.append(k))
     f,api,_=await form(host);f.comments.value='  '
     with host:await f.perform('submit')
-    assert api.writes==[] and notices[-1]['type']=='warning'
+    assert [w[0] for w in api.writes]==['tasks/8/review-work','tasks/8/submit-review']
+    assert api.writes[-1][1]['overall_reason']=='  '
 
 
 @pytest.mark.asyncio
@@ -112,19 +112,20 @@ async def test_queue_and_other_claimant_have_no_edit_or_decision_controls(host):
 
 
 @pytest.mark.asyncio
-async def test_proposal_dialog_creates_draft_until_save_and_hydrates_only_target(host,monkeypatch):
+async def test_proposal_dialog_saves_immediately_and_hydrates_only_target(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     f,api,_=await form(host)
     with host:
         await f.edit(root={'root_aggregation_id':10})
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_proposal'))
         callback=next(iter(button._event_listeners.values())).handler
         response=callback(None)
         if inspect.isawaitable(response):await response
         await asyncio.sleep(0)
-    assert not api.writes and len(f.pending)==1 and f.pending[0]['target_version']==6
-    assert f.pending[0]['proposal_type']=='make_vital'
-    assert api.reads[-1]==('tasks/8/proposal-targets/aggregations',{'root_id':10,'acting_role_id':7,'selected':10})
+    change=api.writes[0][1]['changes'][0]
+    assert len(api.writes)==1 and not hasattr(f,'pending') and change['target_version']==6
+    assert change['proposal_type']=='make_vital'
+    assert ('tasks/8/proposal-targets/aggregations',{'root_id':10,'acting_role_id':7,'selected':10}) in api.reads
 
 
 @pytest.mark.asyncio
@@ -284,12 +285,13 @@ async def test_revision_editors_preserve_identity_and_hydrate_selected_relations
         assert not kind_control.enabled
         targets=[e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('target')]
         assert all(not e.enabled for e in targets)
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('update_draft_proposal'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('update_proposal'))
         response=next(iter(button._event_listeners.values())).handler(None)
         if inspect.isawaitable(response):await response
         await asyncio.sleep(0)
-    assert not api.writes and f.pending[0]['action']=='revise'
-    assert f.pending[0]['proposal_id']==12 and f.pending[0]['proposed_values']==proposed
+    change=api.writes[0][1]['changes'][0]
+    assert len(api.writes)==1 and not hasattr(f,'pending') and change['action']=='revise'
+    assert change['proposal_id']==12 and change['proposed_values']==proposed
     if 'relationship_id' in proposed:
         with host:
             assert all(params['language_tag']==current_locale_context()[0] for _,params in link_reads)
@@ -415,7 +417,7 @@ async def test_workspace_tabs_lazy_refresh_and_preserve_unsaved_work(host,monkey
         navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
         assert navigation.value=='current_task'
         assert not any(p.endswith(('/memberships','/history','/documents','/templates')) for p,_ in api.reads)
-        notes=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_comments'))
+        notes=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_comments_optional'))
         notes.value='Unsaved observations'
         for section in ('members','current_task','members','current_task'):
             navigation.value=section
@@ -532,7 +534,7 @@ async def test_job_and_task_details_have_distinct_focus(host,monkeypatch,task_id
         assert 'templates' not in tabs
         assert ('history' in tabs)==(task_id is None)
         assert any(p.endswith('/review-work') for p,_ in api.reads)==(task_id is not None)
-        assert any(isinstance(e,ui.textarea) and e.label==text('review_comments') for e in host.descendants())==(task_id is not None)
+        assert any(isinstance(e,ui.textarea) and e.label==text('review_comments_optional') for e in host.descendants())==(task_id is not None)
         progress=[e for e in host.descendants() if isinstance(e,ui.expansion) and e._props.get('label')==text('workflow')]
         assert bool(progress)==(task_id is None)
         if progress:assert progress[0].value
@@ -566,16 +568,16 @@ async def test_multiple_relationship_removals_queue_and_save_as_one_batch(host,m
             await asyncio.sleep(.05)
         table=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.table) and e.selection=='multiple')
         table.selected=deepcopy(links)
-        reason=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.textarea) and e.label==text('reason'))
+        reason=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.textarea) and e.label==text('reason_optional'))
         reason.value='Remove both outside links'
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_proposal'))
         result=next(iter(button._event_listeners.values())).handler(None)
         if inspect.isawaitable(result):await result
         await asyncio.sleep(0)
-    assert len(f.pending)==2 and not api.writes
-    assert [x['proposed_values'] for x in f.pending]==[{'relationship_id':101},{'relationship_id':102}]
-    assert all(x['proposal_type']==kind and x['reason']=='Remove both outside links' for x in f.pending)
-    await f.perform('save')
+    assert not hasattr(f,'pending') and len(api.writes)==1
+    changes=api.writes[0][1]['changes']
+    assert [x['proposed_values'] for x in changes]==[{'relationship_id':101},{'relationship_id':102}]
+    assert all(x['proposal_type']==kind and x['reason']=='Remove both outside links' for x in changes)
     assert len(api.writes)==1 and len(api.writes[0][1]['changes'])==2
 
 
@@ -618,7 +620,7 @@ async def test_legacy_notes_and_reason_share_one_clean_editor_without_auto_write
     assert f.comments.value=='Previously saved reason\n\nEarlier notes'
     assert not f.has_changes() and not api.writes
     assert len([e for e in host.descendants() if isinstance(e,ui.textarea)])==1
-    assert f.comments.label==text('review_comments')
+    assert f.comments.label==text('review_comments_optional')
 
 
 @pytest.mark.asyncio
@@ -632,7 +634,7 @@ async def test_empty_comments_can_be_saved_as_a_draft(host,monkeypatch,route):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('action,route',[('submit','standard'),('submit','simplified'),('approve','records_manager_only'),('reject','standard')])
+@pytest.mark.parametrize('action,route',[('reject','standard'),('reject','simplified')])
 async def test_required_review_comments_stop_action_before_any_save(host,monkeypatch,action,route):
     monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     f,api,_=await form(host,actions=('save',action),route=route)
@@ -827,18 +829,18 @@ async def test_removal_picker_disables_saved_queued_and_restricted_rows_and_link
         if inspect.isawaitable(result):await result
         await asyncio.sleep(0)
         assert shown==[{'id':12,'partial':True,'redacted':True}]
-        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
+        button=next(e for e in reversed(list(host.descendants())) if isinstance(e,ui.button) and e.text==text('add_proposal'))
         accept=next(e.handler for e in button._event_listeners.values() if e.type=='click')
         table.selected=deepcopy(table.rows)
         result=accept(None)
         if inspect.isawaitable(result):await result
-        await asyncio.sleep(0);assert not f.pending
+        await asyncio.sleep(0);assert not hasattr(f,'pending')
         table.selected=[table.rows[0]]
         result=accept(None)
         if inspect.isawaitable(result):await result
         await asyncio.sleep(0)
-        assert len(f.pending)==1 and f.pending[0]['proposed_values']=={'relationship_id':101}
-    assert not api.writes
+        assert not hasattr(f,'pending') and api.writes[-1][1]['changes'][0]['proposed_values']=={'relationship_id':101}
+    assert len(api.writes)==1
     assert any(params.get('proposal_id')==12 and params['limit']==1 for _,params in reads)
     assert all(params['limit']==25 and params['offset']==0 for path,params in reads if '/removal-candidates/' in path)
 
@@ -978,9 +980,8 @@ async def test_approval_dialog_counts_complete_set_and_cancel_never_saves(host,m
     from nicegui.elements.dialog import Dialog
     monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
     f,api,after=await form(host,actions=('save','approve'))
-    f.pending=[dict(action='create',proposal_type='make_vital',governing_root_id=10,target_aggregation_id=10,target_version=6,proposed_values={})]
     async def summary(task_id,**params):
-        assert params['changes']==f.pending
+        assert params['changes']==[]
         return {'job_version':2,'task_version':3,'membership_token':'a','proposals_token':'b','proposal_count':1201,'proposal_counts':{'make_vital':1,'remove_aggregation_relationship':1200},'next_step':outcome,'empty_return_stage':'officer_correction'}
     api.disposition_approval_summary=summary
     async def cancel():
@@ -994,7 +995,7 @@ async def test_approval_dialog_counts_complete_set_and_cancel_never_saves(host,m
         return False
     monkeypatch.setattr(Dialog,'__await__',lambda self:cancel().__await__())
     with host:await f.perform('approve')
-    assert not api.writes and not after and len(f.pending)==1
+    assert not api.writes and not after
 
 
 @pytest.mark.asyncio
@@ -1035,3 +1036,19 @@ async def test_approval_opens_document_results_instead_of_inbox(host,monkeypatch
     with host:await f.perform('approve')
     assert len(events)==1 and events[0][0]=='documents'
     assert not after
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('action,route',[('submit','standard'),('submit','simplified'),('complete_review','standard'),('approve','standard'),('approve','records_manager_only')])
+async def test_routine_actions_accept_empty_comments_and_explain_correction_requirement(host,monkeypatch,action,route):
+    from nicegui.elements.dialog import Dialog
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    async def yes():return True
+    monkeypatch.setattr(Dialog,'__await__',lambda self:yes().__await__())
+    f,api,_=await form(host,actions=('save',action),route=route)
+    f.comments.value='';f.saved_comments='';f.work['own_notes']['review_notes']='';f.work['overall_reason']=''
+    with host:await f.perform(action)
+    expected={'submit':'submit-review','complete_review':'review-decision','approve':'approve-proposals'}[action]
+    assert [w[0] for w in api.writes]==['tasks/8/'+expected]
+    assert f.comments.label==text('review_comments_optional')
+    assert any(isinstance(e,ui.label) and e.text==text('review_comments_optional_hint') for e in f.host.descendants())

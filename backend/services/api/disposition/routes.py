@@ -24,7 +24,7 @@ class Command(BaseModel):
 class CreateJob(Command):
     job_type: Literal['destruction','permanent_transfer','selective_transfer','local_archives']
     owning_org_unit_id: StrictInt | None=Field(default=None,ge=1)
-    assigned_user_id: StrictInt | None=Field(default=None,ge=1)
+    assigned_user_id: StrictInt=Field(ge=1)
 
 
 class AssignJob(Command):
@@ -375,7 +375,7 @@ class SaveReview(Command):
 
 class SubmitReview(Command):
     task_version: StrictInt=Field(ge=1)
-    overall_reason: str
+    overall_reason: str=''
 
 
 class DecideReview(Command):
