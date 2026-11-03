@@ -62,6 +62,7 @@ DISPOSITION_SCOPED_OPERATIONS = {
     ('GET', '/api/v1/disposition/jobs/{job_id}/email-attempts'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/external-decisions'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/history'),
+    ('GET', '/api/v1/disposition/jobs/{job_id}/history/{event_id}/events'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/memberships'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/proposal-effects'),
     ('GET', '/api/v1/disposition/jobs/{job_id}/proposals'),

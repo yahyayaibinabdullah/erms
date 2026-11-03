@@ -425,3 +425,12 @@ These are observations, not new product requirements:
 
 Any decision to change these behaviors is a product or compatibility change and
 requires an approved specification update before implementation.
+
+### Staged digital-component preview (approved 3 November 2026)
+
+Before creating a record, its owner can preview supported, completed staged
+uploads using the existing component viewer. Preview leaves the creation package
+unchanged and never commits the record. Current draft ownership, expiry and
+`record.create` authority are rechecked for every content request. Saved-record
+preview/print/download permissions remain separate after commit. Detailed behavior
+and acceptance checks: digital-component-preview-navigation.md §4.

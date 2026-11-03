@@ -6054,6 +6054,20 @@
     "is_html": false
   },
   {
+    "message_key": "components.staged.preview_hint",
+    "context_group": "components.staged",
+    "default_text": "Previewing staged files does not save or create the record.",
+    "semantic_meaning": "Identifies private staged component preview and its separation from record creation.",
+    "common_locations": [
+      "Digital component viewer opened from record draft editor"
+    ],
+    "translator_guidance": "Use the existing Wathiq term for Record (وثيقة) and Preview. Preview leaves uploaded files staged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Previewing staged files does not save or create the record.",
+    "is_html": false
+  },
+  {
     "message_key": "dashboard.activity.created",
     "context_group": "dashboard",
     "default_text": "Created",

@@ -42,9 +42,52 @@ Deliver record-level digital-component preview improvements in three phases. Pha
 - Selecting Preview opens the enhanced viewer with the first previewable component by `component_order` selected.
 - Tooltip and accessible label: **Preview digital components**.
 
+### 4. Preview staged components before record creation
+
+**Approved amendment: 3 November 2026.** The record-creation editor also offers
+Preview on completed staged uploads in formats supported by the existing viewer.
+Use the same maximized viewer, native image/audio/video rendering, PDF controls,
+document conversion, ordering and component switching as saved records. Identify
+this as staged preview and explain that previewing does not save/create the record.
+Unsupported or incomplete uploads have no Preview action. Tooltip and accessible
+name reuse **Preview digital component**, including Arabic translation.
+
+Staged files remain in the private draft creation package. Every rendition GET
+or HEAD, including range requests, must recheck the current authenticated draft
+owner, unexpired draft and existing `record.create` authority. Match the component
+to that draft; do not resolve a staged ID as a saved digital component. A guessed
+component/draft combination, another owner's draft, expired/discarded/committed
+draft or deleted component cannot return bytes. Uploads must be complete before
+preview. Saved component permissions continue to apply after commit and are not
+inherited merely from owning a draft.
+
+This amendment adds Preview only: draft previews have no Print or Download action
+and do not use saved-record content/print routes. No record, permanent component,
+content set, record content-view event or disposition processing-copy entity is
+created by previewing a private staging package. Upload order, original bytes,
+checksums, metadata and draft expiry remain unchanged. Conversion reuses existing
+format/size/time limits and isolated temporary-directory cleanup, with no retained
+rendition cache. Original supported native files remain inline, non-cacheable,
+MIME-safe responses with existing HEAD/range semantics.
+
+Use the mounted editor's current component metadata when opening staged Preview;
+do not add a second metadata download. The switcher renders at most 50 entries
+per page and fetches bytes only for the selected component. Closing the viewer or
+leaving its source editor invalidates pending responses; late results must not
+reopen or repaint an abandoned view. Conversion, authorization and missing-file
+errors leave the viewer closable and allow another component to be selected.
+Closing Preview returns to the unchanged editor. Saving or cancelling record
+creation remains an explicit, separate action.
+
+Acceptance checks: PDF/native/converted preview and original-byte preservation;
+owner/expiry/revoked-authority/cross-draft/deleted/incomplete checks; unsupported
+format and conversion failures; HEAD/ranges and no-cache headers; no implicit
+record creation or promotion; LTR/RTL labels and component order/switching; no
+Print/Download; bounded rendering, abandonment and saved-viewer regressions.
+
 ### Phase 1 definitions and constraints
 
-- A **previewable digital component** is an available component that the existing preview service/viewer supports and that the current user is authorized to view. Components still processing, unavailable, or unsupported are excluded from launch eligibility and the switcher.
+- For saved records, a **previewable digital component** is an available component that the existing preview service/viewer supports and that the current user is authorized to view. Components still processing, unavailable, or unsupported are excluded from launch eligibility and the switcher.
 - The backend remains authoritative for record medium, component order, availability, and access. Hidden controls are not a substitute for API authorization.
 - Preview authorization is distinct from download and print authorization. The viewer must derive control visibility from the current component's effective capabilities, not from ownership or from the ability to preview it.
 - UI restrictions are not digital-rights management: because preview requires document content to reach the browser, the product cannot prevent screenshots or a technically capable user from capturing rendered content. It must nevertheless avoid exposing unauthorized download and print actions or endpoints.

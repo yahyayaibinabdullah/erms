@@ -60,11 +60,21 @@ The complete logical file always has an authoritative SHA-256 checksum and
 - `POST /api/v1/records/{record_id}/digital-components/upload`
 - `GET /api/v1/digital-components/{id}/content`
 - `GET /api/v1/digital-components/{id}/rendition`
+- `GET` / `HEAD /api/v1/record-drafts/{draft_id}/components/{component_id}/rendition`
 - `PUT /api/v1/digital-components/{id}/content` with `If-Match`
 - `DELETE /api/v1/digital-components/{id}/content` with `If-Match`
 
 Clients do not need to know whether content is segmented or, later, stored in
 S3. File bytes are never copied into `event_history`.
+
+Staged preview reads verified segments from `record_draft_component_blobs` under
+the owning open draft's authorization boundary. It reuses the saved viewer's
+format handling, conversion limits and temporary conversion cleanup, with
+private, no-store responses and byte-range support. It does not promote bytes
+to permanent content sets or create saved-record content-view events. Staged
+sources requiring conversion are materialized only within the configured
+rendition size limit; native previews remain bounded by the upload policy. No
+rendition cache is retained. See [record drafts](record-drafts.md).
 
 ## Cleanup
 

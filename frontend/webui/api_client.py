@@ -1324,6 +1324,9 @@ class ErmsApiClient:
     async def draft_components(self, draft_id: int) -> list[dict[str, Any]]:
         return await self.request("GET", f"/api/v1/record-drafts/{draft_id}/components")
 
+    async def view_draft_component(self, draft_id: int, component_id: int) -> bytes:
+        return await self.request("GET", f"/api/v1/record-drafts/{draft_id}/components/{component_id}/rendition")
+
     async def upload_draft_component(self, draft_id: int, component_order: int, name: str, content: bytes, mime_type: str) -> dict[str, Any]:
         return await self.request(
             "POST", f"/api/v1/record-drafts/{draft_id}/components",

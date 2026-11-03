@@ -831,9 +831,9 @@ def requires_document_conversion(component: dict[str, Any]) -> bool:
     )
 
 
-def component_is_previewable(component: dict[str, Any]) -> bool:
-    """Return whether the existing Phase 1 viewer supports this available component."""
-    if component.get("content_status", "pending") != "available":
+def component_is_previewable(component: dict[str, Any], *, staged: bool = False) -> bool:
+    """Supported saved content, or completed staged content only in a draft context."""
+    if component.get("content_status", "pending") not in ({"staged"} if staged else {"available"}):
         return False
     mime_type = (component.get("mime_type") or "").lower()
     return bool(
@@ -884,7 +884,7 @@ def render_component_cards(
     rows: list[dict[str, Any]], on_move, on_remove, on_history=None,
     on_view=None, on_download=None, on_reindex=None, *, readonly: bool = False,
     capabilities: dict[str, bool] | None = None,
-    focused_component_id: int | None = None,
+    focused_component_id: int | None = None, staged_preview: bool = False,
 ) -> None:
     for index, component in enumerate(rows):
         status = component.get("content_status", "pending")
@@ -914,10 +914,11 @@ def render_component_cards(
                     "outline color=primary"
                 ).classes("shrink-0")
             with ui.row().classes("component-card-actions w-full items-center justify-end gap-0 no-wrap"):
-                if on_view is not None:
+                if on_view is not None and (not staged_preview or component_is_previewable(component, staged=True)):
+                    preview_label = render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875") if staged_preview else render_message("webui.render_component_cards.tooltip.view_document_92d64052")
                     ui.button(icon="visibility", on_click=lambda _, item=component: on_view(item)).props(
-                        "flat round dense" + (" disable" if status != "available" or not capability_allowed(capabilities, "view_component") else "")
-                    ).tooltip(render_message("webui.render_component_cards.tooltip.view_document_92d64052") if capability_allowed(capabilities, "view_component") else render_message("webui.render_component_cards.tooltip.your_effective_roles_do_not_grant_componen_ac7b50e0"))
+                        "flat round dense" + (" disable" if status != ("staged" if staged_preview else "available") or not capability_allowed(capabilities, "view_component") else "")
+                    ).props(f'aria-label="{preview_label}"').tooltip(preview_label if capability_allowed(capabilities, "view_component") else render_message("webui.render_component_cards.tooltip.your_effective_roles_do_not_grant_componen_ac7b50e0"))
                 if on_download is not None:
                     ui.button(icon="download", on_click=lambda _, item=component: on_download(item)).props(
                         "flat round dense" + (" disable" if status != "available" or not capability_allowed(capabilities, "download_component") else "")
@@ -5331,32 +5332,50 @@ def index(q: str = "") -> None:
         dialog.open()
 
     async def preview_record_components(
-        record: dict[str, Any], initial_component_id: int | None = None,
+        record: dict[str, Any] | None, initial_component_id: int | None = None, *,
+        draft_id: int | None = None, staged_components: list[dict[str, Any]] | None = None,
+        source_active=None,
     ) -> None:
-        """Open the Phase 1 viewer for all previewable components of one record."""
+        """One viewer for saved records and private, uncommitted draft uploads."""
         # Async work and dynamic host clearing can delete the slot which originated
         # this callback (especially a q-table body slot). Keep a stable client
         # reference for the viewer's complete lifetime instead of resolving it
         # later through NiceGUI's implicit current-slot context.
         viewer_client = context.client
+        if source_active is not None and not source_active():return
+        preview_page = {"limit": 50, "offset": 0, "total": 0}
+        staged_rows = sorted(
+            (dict(item) for item in staged_components or [] if component_is_previewable(item, staged=True)),
+            key=lambda item: item.get("component_order", 0),
+        ) if draft_id is not None else []
+        supported = lambda item: component_is_previewable(item, staged=draft_id is not None)
         try:
-            capabilities = await api.resource_capabilities("records", record["id"])
-            preview_page = {"limit": 50, "offset": 0, "total": 0}
-            if initial_component_id is not None:
-                initial_component = await api.get("digital-components", initial_component_id)
-                preview_page["offset"] = (
-                    (int(initial_component["component_order"]) - 1) // preview_page["limit"]
-                ) * preview_page["limit"]
-            components = await api.component_page(
-                record["id"], limit=preview_page["limit"], offset=preview_page["offset"],
-            )
+            if draft_id is not None:
+                # Reuse the mounted editor's metadata; every rendition request
+                # independently checks current ownership, privilege and expiry.
+                capabilities = {"view_component": True, "print_component": False, "download_component": False}
+                record = {"id": f"draft-{draft_id}"}
+                initial_index = next((i for i,item in enumerate(staged_rows) if item["id"]==initial_component_id),0)
+                preview_page["offset"] = initial_index // preview_page["limit"] * preview_page["limit"]
+                components = {"items": staged_rows[preview_page["offset"]:preview_page["offset"]+preview_page["limit"]], "total": len(staged_rows)}
+            else:
+                capabilities = await api.resource_capabilities("records", record["id"])
+                if initial_component_id is not None:
+                    initial_component = await api.get("digital-components", initial_component_id)
+                    preview_page["offset"] = (
+                        (int(initial_component["component_order"]) - 1) // preview_page["limit"]
+                    ) * preview_page["limit"]
+                components = await api.component_page(
+                    record["id"], limit=preview_page["limit"], offset=preview_page["offset"],
+                )
         except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
+            if source_active is None or source_active():ui.notify(error_message(error), color="negative", close_button=True)
             return
+        if source_active is not None and not source_active():return
         preview_page["total"] = int(components["total"])
         components = components["items"]
         previewable = sorted(
-            (item for item in components if component_is_previewable(item)),
+            (item for item in components if supported(item)),
             key=lambda item: item.get("component_order", 0),
         )
         if not capabilities.get("view_component") or not previewable:
@@ -5367,7 +5386,7 @@ def index(q: str = "") -> None:
             previewable[0],
         )
         viewer_state: dict[str, Any] = {
-            "component": selected, "canvas_id": None, "loading_id": None, "request_id": 0,
+            "component": selected, "canvas_id": None, "loading_id": None, "request_id": 0, "closed": False,
         }
         dialog = ui.dialog().props("maximized transition-show=fade transition-hide=fade")
 
@@ -5402,6 +5421,8 @@ def index(q: str = "") -> None:
                 ui.notify(message, color="negative", close_button=True)
 
         def close_viewer() -> None:
+            viewer_state["closed"] = True
+            viewer_state["request_id"] += 1
             canvas_id = viewer_state.get("canvas_id")
             if canvas_id:
                 viewer_client.run_javascript(
@@ -5420,14 +5441,14 @@ def index(q: str = "") -> None:
                 int(preview_page["offset"]) + direction * int(preview_page["limit"]),
             )
             try:
-                result = await api.component_page(
+                result = {"items": staged_rows[target_offset:target_offset+preview_page["limit"]], "total": len(staged_rows)} if draft_id is not None else await api.component_page(
                     record["id"], limit=int(preview_page["limit"]), offset=target_offset,
                 )
             except ApiError as error:
                 ui.notify(error_message(error), color="negative", close_button=True)
                 return
             candidates = sorted(
-                (item for item in result["items"] if component_is_previewable(item)),
+                (item for item in result["items"] if supported(item)),
                 key=lambda item: item.get("component_order", 0),
             )
             if not candidates:
@@ -5448,7 +5469,7 @@ def index(q: str = "") -> None:
             with switcher_host:
                 with ui.row().classes("component-switcher-bar w-full items-center no-wrap gap-3"):
                     ui.label(
-                        render_message("webui.render_switcher.label.previewable_count_digital_component_value_6b9458a3", previewable_count=len(previewable), value='s' if len(previewable) != 1 else '')
+                        render_message("webui.render_switcher.label.previewable_count_digital_component_value_6b9458a3", previewable_count=len(previewable), value='s' if current_locale_context()[0].split('-')[0]=='en' and len(previewable) != 1 else '')
                     ).classes("component-switcher-summary")
                     ui.element("div").classes("component-switcher-divider")
                     with ui.row().classes("component-switcher-file items-center no-wrap gap-3"):
@@ -5496,6 +5517,7 @@ def index(q: str = "") -> None:
                     next_components.on("click", lambda: load_preview_page(1))
 
         async def select_component(component: dict[str, Any]) -> None:
+            if viewer_state["closed"] or (source_active is not None and not source_active()):return
             if viewer_state.get("loading_id") == component["id"]:
                 return
             viewer_state["request_id"] += 1
@@ -5505,6 +5527,7 @@ def index(q: str = "") -> None:
                 await viewer_client.run_javascript(
                     f"window.ermsPdfViewer?.close({json.dumps(old_canvas_id)}); true"
                 )
+            if viewer_state["closed"] or (source_active is not None and not source_active()):return
             viewer_state.update(component=component, canvas_id=None, loading_id=component["id"])
             render_switcher()
             toolbar_host.clear()
@@ -5526,9 +5549,9 @@ def index(q: str = "") -> None:
                         if converting else render_message("webui.select_component.label.loading_the_document_larger_files_may_take_0e9d50c1")
                     ).classes("text-sm text-slate-500")
             try:
-                preview = await api.view_component_pdf(component["id"])
+                preview = await api.view_draft_component(draft_id, component["id"]) if draft_id is not None else await api.view_component_pdf(component["id"])
             except ApiError as error:
-                if request_id != viewer_state["request_id"]:
+                if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
                     return
                 viewer_state["loading_id"] = None
                 render_switcher()
@@ -5542,7 +5565,7 @@ def index(q: str = "") -> None:
                         )
                 return
 
-            if request_id != viewer_state["request_id"]:
+            if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
                 return
             viewer_state["loading_id"] = None
             render_switcher()
@@ -5633,6 +5656,7 @@ def index(q: str = "") -> None:
                 await viewer_client.run_javascript(
                     "import('/static/pdfjs/erms-viewer.mjs').then(() => true)", timeout=15,
                 )
+                if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
                 await viewer_client.run_javascript(
                     f"window.ermsPdfViewer.open({json.dumps(canvas_id)}, {json.dumps(encoded)})",
                     timeout=30,
@@ -5641,9 +5665,12 @@ def index(q: str = "") -> None:
                 ui.notify(render_message("webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"), color="negative")
 
         with dialog, ui.card().classes("w-full h-full p-0 gap-0 bg-slate-100"):
+            if draft_id is not None:
+                ui.label(render_message("components.staged.preview_hint")).classes("w-full px-4 py-2 text-sm text-slate-600 bg-white")
             switcher_host = ui.column().classes("w-full gap-0 shrink-0")
             toolbar_host = ui.column().classes("w-full gap-0 shrink-0")
             content_host = ui.column().classes("w-full grow min-h-0 gap-0")
+        dialog.on_value_change(lambda event: close_viewer() if not event.value and not viewer_state["closed"] else None)
         dialog.open()
         await select_component(selected)
 
@@ -7952,7 +7979,14 @@ def index(q: str = "") -> None:
                 component_list.set_visibility(bool(rows))
                 with component_area:
                     if rows:
-                        render_component_cards(rows, move_draft_component, remove_draft_component, readonly=existing_capture_draft is not None)
+                        render_component_cards(
+                            rows, move_draft_component, remove_draft_component,
+                            on_view=lambda component: preview_record_components(
+                                None, component["id"], draft_id=draft["id"], staged_components=list(current_rows),
+                                source_active=lambda: dialog.value and not dialog._deleted and (capture_active is None or capture_active()),
+                            ),
+                            readonly=existing_capture_draft is not None, staged_preview=True,
+                        )
                 return True
             except ApiError as error:
                 if capture_active is not None and not capture_active():return

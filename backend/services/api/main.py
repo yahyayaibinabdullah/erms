@@ -1476,6 +1476,26 @@ def list_record_draft_components(draft_id: int, connection: Connection = Depends
     ).fetchall())
 
 
+@app.head("/api/v1/record-drafts/{draft_id}/components/{component_id}/rendition", include_in_schema=False)
+@app.get("/api/v1/record-drafts/{draft_id}/components/{component_id}/rendition", tags=["record drafts"])
+def view_record_draft_component(
+    draft_id: int, component_id: int, request: Request,
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    # Staging is the private record-creation package, not a saved record whose
+    # permissions could be inferred from ownership. Recheck the existing draft
+    # policy on every request, including HEAD and byte-range requests.
+    _open_draft(connection, draft_id)
+    component = connection.execute(
+        "SELECT * FROM record_draft_components WHERE id=%s AND draft_id=%s FOR SHARE",
+        (component_id, draft_id),
+    ).fetchone()
+    if component is None:raise HTTPException(404, detail="record draft component not found")
+    if component['content_status'] != 'available':
+        raise HTTPException(409, detail="draft component upload is not complete")
+    return _rendition_response(component, request, connection, draft=True)
+
+
 @app.post("/api/v1/record-drafts/{draft_id}/components", response_model=RecordDraftComponentRead, status_code=201, tags=["record drafts"])
 def upload_record_draft_component(
     draft_id: int,
@@ -2004,11 +2024,27 @@ from .processing_copies import protect_response
 def _component_rendition_response(
     component: dict, request: Request, connection: Connection, *, _temporary_root=None,
 ):
+    return _rendition_response(component, request, connection, _temporary_root=_temporary_root)
+
+
+def _rendition_response(
+    component: dict, request: Request, connection: Connection, *, draft=False, _temporary_root=None,
+):
+    """Shared safe PDF/native rendering; draft previews do not create record events."""
     storage = configured_storage()
     component_id = component["id"]
-    location = storage.location(connection, component_id)
-    if location is None:
-        raise HTTPException(status_code=404, detail="digital component content not found")
+    if draft:
+        size = component['size_in_bytes']
+        read_content = lambda: storage.read_draft(connection, component_id)
+    else:
+        location = storage.location(connection, component_id)
+        if location is None:
+            raise HTTPException(status_code=404, detail="digital component content not found")
+        size = location.size_in_bytes
+        read_content = lambda: storage.read(connection, component_id)
+
+    def viewed(facts):
+        if not draft:_append_content_event(connection, component_id, "CONTENT_VIEWED", facts)
     mime_type = component["mime_type"].lower()
     native_preview = (
         mime_type in {
@@ -2019,13 +2055,13 @@ def _component_rendition_response(
     )
     if native_preview or mime_type == "application/pdf":
         rendered_mime = mime_type if native_preview else "application/pdf"
-        _append_content_event(connection, component_id, "CONTENT_VIEWED", {
+        viewed({
             "rendition_mime_type": rendered_mime,
             "rendering_method": "browser-native" if native_preview else "original",
             "original_checksum": component["checksum_value"],
         })
         encoded_name = quote(component["file_name"], safe="")
-        start, end, response_status = _content_range(request.headers.get("range"), location.size_in_bytes)
+        start, end, response_status = _content_range(request.headers.get("range"), size)
         headers = {
             "Content-Disposition": f"inline; filename*=UTF-8''{encoded_name}",
             "Content-Length": str(end - start),
@@ -2036,7 +2072,7 @@ def _component_rendition_response(
             "Content-Security-Policy": "sandbox",
         }
         if response_status == 206:
-            headers["Content-Range"] = f"bytes {start}-{end - 1}/{location.size_in_bytes}"
+            headers["Content-Range"] = f"bytes {start}-{end - 1}/{size}"
         if request.method == "HEAD":
             return Response(status_code=response_status, media_type=rendered_mime, headers=headers)
         # The web viewer buffers renditions before passing them to PDF.js or a
@@ -2044,10 +2080,10 @@ def _component_rendition_response(
         # sent so an interrupted browser request cannot strand a server-side
         # cursor, poison its pooled connection, or terminate a fixed-length
         # response early.
-        content = storage.read(connection, component_id)
+        content = read_content()
         if content is None:
             raise HTTPException(status_code=404, detail="digital component content not found")
-        if len(content) != location.size_in_bytes:
+        if len(content) != size:
             raise HTTPException(status_code=500, detail="digital component content size mismatch")
         return Response(
             content=content[start:end], status_code=response_status,
@@ -2055,9 +2091,9 @@ def _component_rendition_response(
         )
     content_settings = settings_cache.for_connection(connection)
     maximum_source = content_settings["MAX_RENDITION_SIZE_BYTES"]
-    if location.size_in_bytes > maximum_source:
+    if size > maximum_source:
         raise HTTPException(status_code=413, detail="source document exceeds the configured rendition size limit")
-    content = storage.read(connection, component_id)
+    content = read_content()
     if content is None:
         raise HTTPException(status_code=404, detail="digital component content not found")
     try:
@@ -2066,7 +2102,7 @@ def _component_rendition_response(
         raise HTTPException(status_code=415, detail=str(error)) from error
     except ConversionUnavailable as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
-    _append_content_event(connection, component_id, "CONTENT_VIEWED", {
+    viewed({
         "rendition_mime_type": "application/pdf", "rendering_method": method,
         "original_checksum": component["checksum_value"],
     })

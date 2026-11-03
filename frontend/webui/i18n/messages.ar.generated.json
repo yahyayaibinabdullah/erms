@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "d770c10a193b6f94aa60962676b2ba37885b0e399cd56c67bf40565dcfc857c0",
+  "catalogue_sha256": "2b92f3237163c8b52488a298a0a9c78f5113efe30561479df7242a3aa401d2a2",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261102132930",
   "generated_at": "2026-11-02T13:29:30.297596+04:00",
@@ -5365,6 +5365,26 @@
         "source_status": "published",
         "date_reviewed": "2026-10-04T01:24:02.440458+00:00",
         "date_published": "2026-10-04T01:24:02.440458+00:00"
+      }
+    },
+    {
+      "message_key": "components.staged.preview_hint",
+      "translated_text": "لا تؤدي معاينة الملفات المؤقتة إلى حفظ الوثيقة أو إنشائها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Staged digital component preview"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "staged-preview-v1",
+        "batch_id": "staged-preview-20261103",
+        "generated_at": "2026-11-03T09:13:37.279319+00:00",
+        "catalogue_sha256": "2b92f3237163c8b52488a298a0a9c78f5113efe30561479df7242a3aa401d2a2",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
