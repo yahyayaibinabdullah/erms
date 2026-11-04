@@ -33,9 +33,16 @@ def test_generated_arabic_artifact_is_complete_contextual_and_placeholder_safe()
         )
         assert isinstance(candidate["quality_flags"], list)
         if candidate["quality_flags"]:
-            assert candidate.get("origin") == "generated"
-            assert candidate.get("status") == "draft"
-            assert not candidate.get("provenance")
+            provenance = candidate.get("provenance")
+            if provenance:
+                # Later canonical draft additions retain their generating
+                # provenance inline; they are not reviewed administrator exports.
+                assert provenance.get("kind") == "generated"
+                assert provenance.get("generator")
+                assert provenance.get("source_status") not in {"reviewed", "published"}
+            else:
+                assert candidate.get("origin") == "generated"
+                assert candidate.get("status") == "draft"
             assert all(isinstance(flag,str) and flag for flag in candidate["quality_flags"])
 
     by_key = {item["message_key"]: item["translated_text"] for item in candidates}

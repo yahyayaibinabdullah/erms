@@ -3191,6 +3191,22 @@
     "is_html": false
   },
   {
+    "message_key": "authentication.error.password_attempts_locked",
+    "context_group": "authentication.error",
+    "default_text": "Password attempts are temporarily locked. Try again in {seconds} seconds.",
+    "semantic_meaning": "Password change is blocked by the shared credential cooldown, including a limit reached by failed login or current-password attempts.",
+    "common_locations": [
+      "Password-change dialog error notification"
+    ],
+    "translator_guidance": "Explain the temporary cooldown; preserve the seconds placeholder and do not imply that new-password validation caused it.",
+    "grammatical_role": "two complete sentences",
+    "parameter_schema": {
+      "seconds": "integer"
+    },
+    "rendered_example": "Password attempts are temporarily locked. Try again in 120 seconds.",
+    "is_html": false
+  },
+  {
     "message_key": "authorization.acl.inherit_from_parent",
     "context_group": "authorization.acl",
     "default_text": "Inherit ACL from parent",
@@ -28891,15 +28907,15 @@
   {
     "message_key": "settings.field.auth_lockout_attempts.description",
     "context_group": "settings.field.auth_lockout_attempts",
-    "default_text": "Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
-    "semantic_meaning": "Administration Settings: Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "default_text": "Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
     "common_locations": [
       "Administration Settings API and page"
     ],
     "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
     "grammatical_role": "guidance",
     "parameter_schema": {},
-    "rendered_example": "Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "rendered_example": "Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
     "is_html": false
   },
   {

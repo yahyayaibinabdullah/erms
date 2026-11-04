@@ -232,6 +232,12 @@ passwords. It does not invalidate existing password hashes. Changes to session
 lifetimes apply when a session is next evaluated; they do not recreate or
 extend an already expired session.
 
+`AUTH_LOCKOUT_ATTEMPTS` and `AUTH_LOCKOUT_MINUTES` govern one shared credential
+counter and cooldown for incorrect login passwords and incorrect current
+passwords during password changes. New-password validation errors do not count.
+The next check after cooldown expiry starts a fresh allowance; successful login,
+password change, or administrative password recovery clears the counter/lock.
+
 ### 5.4 Dashboard, selector, and administration-page limits
 
 | Setting key | Type | Initial default | Validation |

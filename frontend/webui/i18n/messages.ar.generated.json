@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+  "catalogue_sha256": "f5f496fa72bb12e859d6b582e85635160480a12bf6c5e76433563da43e753246",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261102132930",
   "generated_at": "2026-11-02T13:29:30.297596+04:00",
@@ -3037,6 +3037,24 @@
         "source_status": "published",
         "date_reviewed": "2026-10-04T06:10:16.072601+00:00",
         "date_published": "2026-10-04T06:10:16.072601+00:00"
+      }
+    },
+    {
+      "message_key": "authentication.error.password_attempts_locked",
+      "translated_text": "محاولات كلمة المرور مقفلة مؤقتاً. حاول مرة أخرى بعد {seconds} ثانية.",
+      "quality_flags": [],
+      "origin": "generated",
+      "status": "draft",
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "model_version": "GPT-6",
+        "prompt_version": "password-attempt-cooldown-v1",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "catalogue_sha256": "f5f496fa72bb12e859d6b582e85635160480a12bf6c5e76433563da43e753246",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
+        "batch_id": "wathiq-ar-password-attempt-cooldown-20261104",
+        "generated_at": "2026-11-04T04:41:31.538234+00:00"
       }
     },
     {

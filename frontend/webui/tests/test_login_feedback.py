@@ -17,3 +17,19 @@ def test_rejected_login_uses_specific_neutral_feedback(detail, language):
         assert login_error_message(ApiError(503, 'unavailable')) == error_message(ApiError(503, 'unavailable'))
     finally:
         set_active_messages({})
+
+
+@pytest.mark.parametrize('language', ['en', 'ar'])
+def test_password_cooldown_renders_localized_duration(language):
+    key = 'authentication.error.password_attempts_locked'
+    arabic = 'محاولات كلمة المرور مقفلة مؤقتاً. حاول مرة أخرى بعد {seconds} ثانية.'
+    set_active_messages({key: arabic} if language == 'ar' else {})
+    try:
+        message = error_message(ApiError(429, {
+            'code': 'password_attempts_locked', 'message_key': key,
+            'parameters': {'seconds': 120},
+        }))
+        expected = arabic if language == 'ar' else 'Password attempts are temporarily locked. Try again in {seconds} seconds.'
+        assert message == expected.replace('{seconds}', '\u2068120\u2069')
+    finally:
+        set_active_messages({})

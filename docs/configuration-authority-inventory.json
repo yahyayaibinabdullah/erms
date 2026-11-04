@@ -141,7 +141,7 @@
       "consumers": [
         {
           "path": "backend/services/api/authentication.py",
-          "line": 33
+          "line": 34
         }
       ],
       "templates": [
@@ -167,7 +167,7 @@
         }
       ],
       "templates": [],
-      "purpose": "Failed login attempts before temporary credential lockout.",
+      "purpose": "Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count.",
       "runtime_status": "database_only_consumer_and_worker_cutover_verified",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
