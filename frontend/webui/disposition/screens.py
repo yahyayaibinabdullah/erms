@@ -579,6 +579,36 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 member_query=ui.input(text('search_aggregations'),value=member_saved.get('query','')).props(f'outlined dense maxlength=200 hint={text("search_aggregations_hint")!r}').classes('grow min-w-0')
                 default_state={'completed':'completed_history','terminated':'terminated_history'}.get(job['lifecycle_state'],'active')
                 member_state=ui.select({'':text('any'),**{k:text(k) for k in ('active','removed','completed_history','terminated_history')}},label=text('membership'),value=member_saved.get('state',default_state)).props('outlined dense').classes('w-56 shrink-0')
+            from .bulk import BulkSelection,bulk_dialog
+            bulk_mode='remove' if job['membership_editable'] else 'propose' if review and 'propose' in review.actions else None
+            member_selection=None
+            removal_retries={}
+            async def bulk_members(rows):
+                if bulk_mode=='propose':
+                    await review.bulk_proposals('propose',rows,lambda:section_active('members'))
+                    return
+                if review and review.dirty():ui.notify(text('unsaved_warning'),type='warning');return
+                expected=job['version']
+                async def execute(selected,reason,feedback):
+                    payload={'items':[{'membership_id':row['id'],'expected_version':row['version'],'root_version':row['root_version']} for row in selected],
+                             'acting_role_id':automatic_role(context['roles'])}
+                    signature=repr((payload,reason,expected))
+                    payload['command_id']=removal_retries.setdefault(signature,str(uuid4()))
+                    result=await api.disposition_command(f'jobs/{identity}/memberships/remove',payload,reason=reason,version=expected)
+                    if alive():
+                        member_selection.clear()
+                        ui.notify(text('bulk_removed',count=len(selected)),type='positive')
+                        await reload(result)
+                    return True
+                async def refresh_selection():
+                    member_selection.clear()
+                    if alive():await reload({})
+                await bulk_dialog(operation='remove',rows=rows,active=lambda:section_active('members'),execute=execute,
+                                  on_error=lambda error:failure(error,on_error),refresh=refresh_selection)
+            if bulk_mode:
+                member_selection=BulkSelection(eligible=lambda row:row.get('can_bulk_remove' if bulk_mode=='remove' else 'can_bulk_propose',False),
+                    label=lambda row:row['identity'],active=lambda:section_active('members'),
+                    actions=[('bulk_remove_selected' if bulk_mode=='remove' else 'bulk_propose_selected',bulk_members)])
             async def fetch_members(p):
                 result=await api.disposition_page(f'jobs/{identity}/memberships',limit=p.size,offset=(p.page-1)*p.size,query=member_query.value,state=member_state.value or None,sort=p.sort or 'id',descending=p.descending if p.sort else True)
                 for row in result['items']:
@@ -607,9 +637,12 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                     row['needs_claim']='claim' in workspace.get('actions',[]) and row['membership_state']=='active' and not row['redacted']
                     row['can_propose']=bool(review and 'propose' in review.actions and row['membership_state']=='active' and not row['redacted'])
                     row['can_remove']=job['membership_editable'] and row['membership_state']=='active' and not row['redacted']
+                    row['can_bulk_remove']=row['can_remove']
+                    row['can_bulk_propose']=row['can_propose'] and not row.get('removal_proposed')
                     row['proposals_label']=text('proposals')+' · '+str(row.get('proposal_count') or 0)
                 return result
             def remember_members(p,result):
+                if member_selection and 'items' in result:member_selection.loaded(p,result)
                 view.update(section=navigation.value,job_id=identity,task_id=task_id,
                   members={'page':p.page,'size':p.size,'sort':p.sort,'descending':p.descending,
                     'query':member_query.value,'state':member_state.value})
@@ -620,7 +653,8 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 columns.extend([column('status_label','status',True),column('added_label','added_at')])
                 if member_state.value in ('','removed'):columns.append(column('removed_label','removed_at'))
                 return columns+[column('actions')]
-            members=PageTable(columns=member_columns(),fetch=fetch_members,active=lambda:section_active('members'),on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),initial=member_saved,on_loaded=remember_members)
+            members=PageTable(columns=member_columns(),fetch=fetch_members,active=lambda:section_active('members'),on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),initial=member_saved,on_loaded=remember_members,selection='multiple' if member_selection else None)
+            if member_selection:member_selection.attach(members)
             members.table.add_slot('body-cell-rule_label','''<q-td :props="props"><q-btn v-if="props.row.can_view_rule" flat dense no-caps color="primary" class="underline" :label="props.row.rule_label" aria-label="'''+escape(text('retention_rule'))+'''" @click="$parent.$emit('retention-rule',props.row.id)"><q-tooltip>'''+escape(text('retention_rule'))+'''</q-tooltip></q-btn><span v-else>{{ props.row.rule_label }}</span></q-td>''')
             members.table.add_slot('body-cell-proposal_count','''<q-td :props="props"><div class="row no-wrap items-center"><q-btn v-if="!props.row.redacted && props.row.proposal_count > 0" flat dense no-caps color="primary" class="underline" :label="String(props.row.proposal_count)" :aria-label="props.row.proposals_label" @click="$parent.$emit('show-proposals',props.row.id)"/><span v-else>{{ props.row.proposal_count == null ? '—' : props.row.proposal_count }}</span></div></q-td>''')
             members.table.add_slot('body-cell-identity', '''<q-td :props="props" :class="props.row.last_viewed ? 'bg-blue-50' : ''">
@@ -667,10 +701,12 @@ async def job_screen(*, api, identity, container, active, on_error, bind_remote,
                 dialog.open()
             members.table.on('retention-rule',show_rule)
             async def filter_members():
+                if member_selection:member_selection.clear()
                 members.table.columns=member_columns()
                 if members.sort and members.sort not in {c['name'] for c in members.table.columns}:members.sort='';members.descending=True
                 await members.load(reset=True)
-            member_query.on('keydown.enter',lambda:members.load(reset=True));member_state.on_value_change(filter_members)
+            member_query.on('keydown.enter',filter_members);member_state.on_value_change(filter_members)
+            if member_selection:member_query.on_value_change(lambda:member_selection.clear())
             async def protection(event):
                 row=next((r for r in members.table.rows if r['id']==event.args),None)
                 if row and not row['redacted']:await blockers_dialog(api=api,root={**row,'id':row['root_aggregation_id']},active=alive,on_error=on_error,open_resource=open_resource)

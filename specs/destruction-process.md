@@ -4,13 +4,14 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.17
-**Amendment approved:** 3 November 2026
+**Revision:** 1.18
+**Amendment approved:** 4 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.18 | 4 November 2026 | Add explicit bounded selection and atomic bulk withdrawal, direct membership removal and proposed removal; preserve existing single-item actions, task gates, reasons and complete-set approval |
 | 1.17 | 3 November 2026 | Persist confirmed proposal additions, updates and withdrawals immediately; retain comment Save; make all proposal reasons and routine comments optional, with clear required correction comments |
 | 1.16 | 2 November 2026 | Expose manual request email sending beside preview/download in Current Task, with recipient/latest attempt and shared sending state; retain the task until the authority's decision |
 | 1.15 | 2 November 2026 | Expose optional certificate email sending and its recipient/latest attempt in Current Task, sharing the existing send action and full Evidence and documents history |
@@ -971,6 +972,54 @@ proposer and the last revising user and time separately and provide the
 revision history. Arrange available Details, edit and withdraw actions in a
 horizontal group with accessible names and tooltips. Proposed-removal rows and other proposal types use visible labels and
 icons or equivalent non-color cues.
+
+### 6.5.1 Bulk proposal and membership actions (approved 4 November 2026)
+
+The proposal table offers **Withdraw selected proposals** to participants who
+can already withdraw the selected active proposals in their own current open
+task. The Aggregations table offers **Remove selected from job** where direct
+membership removal is already permitted. During review, where direct removal is
+unavailable but proposals are allowed, it offers **Propose removal of selected
+aggregations**. The latter saves one `remove_from_job` proposal per governing
+root; it does not change membership. Exclude roots with an existing active
+removal proposal. Keep all existing individual actions.
+
+Use explicit row checkboxes, a selection count and Clear selection. The header
+checkbox selects eligible rows on the current server page only. Keep explicit
+row/version selections across pages/sorting within this mounted job; clear them
+when filters or review-round scope change, after successful actions, or when the
+view is disposed. Do not download all matches or silently select unseen rows.
+Allow at most 100 selected items in one action. Keep inaccessible, partially
+redacted, historical, executed, withdrawn and otherwise ineligible rows excluded
+under the existing operation-specific rules, with an accessible explanation.
+
+One confirmation states the count, action and consequences. Withdrawal and
+proposed-removal reasons remain optional. Direct removal uses one shared
+required reason, as existing individual membership removal does. Withdrawal
+preserves proposal history and applies no resource changes. Direct removal ends
+membership and uses the existing status-restoration/preserve-state rules; it
+never deletes content or silently executes/withdraws related proposals. Existing
+proposals remain in history with their existing out-of-membership treatment.
+Save remains available for review comments; bulk proposal mutations persist
+immediately without saving or discarding unsaved comments.
+
+Each confirmed action targets one job and is all-or-nothing. Recheck current
+actor authority, task/claim, stage, scope, visibility and selected versions on
+the authoritative mutation path. A stale or unavailable item prevents the whole
+batch; explain the cause and offer Refresh selection without overwriting edits.
+A transport failure has an uncertain outcome and must not claim nothing was
+saved. Retrying the same payload/reason uses the same command identity and
+returns its original outcome without duplicating mutations or audit events.
+Each item retains its own permanent event, original proposer and actor/role
+attribution. Link events with the existing shared command UUID; do not replace
+them with a summary event or rewrite historical events.
+
+Do not introduce per-selection final approval, execution, task completion,
+email sending or destruction. Final approval still applies the complete active
+proposal set. Existing multi-add retains its per-root results. No new privilege,
+job/task state or collection cache is introduced. Verify existing and bulk paths,
+rollback, retries, access/claim/stage/version rejection, bounded pagination,
+filter clearing, abandonment, comment preservation and LTR/RTL rendering.
 
 ### 6.6 Review comments and task-specific forms
 
@@ -2710,3 +2759,5 @@ governance users; no flag is added. Status-10 results open the retained metadata
 view. No non-governance caller may retrieve terminal-status rows/counts through
 search, including forged or saved filters. Existing erased titles/numbers are
 not reconstructed by the migration. Issued certificates remain unchanged.
+
+DEST-50: Bulk selection and all-or-nothing proposal/membership actions follow section 6.5.1; verify single-item regressions, per-item command-linked history, authorization, concurrency, exact retries, bounded selection and bilingual rendering.

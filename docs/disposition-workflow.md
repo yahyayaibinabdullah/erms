@@ -324,3 +324,29 @@ which explanations are optional. Local startup, or the explicit Arabic seeder
 with `--missing-only`, adds missing drafts while preserving existing translations;
 publish them only after translation review. Verification and requirement mapping:
 [Immediate proposals](verification/immediate-proposals.md).
+
+## Bulk proposal and aggregation actions
+
+Select eligible rows in Review proposals to **Withdraw selected proposals**. In
+Aggregations, select roots to **Remove selected from job** during an authorized
+preparation/correction task, or **Propose removal of selected aggregations**
+during review. Proposed removal saves a separate proposal per root and leaves
+membership unchanged until approval. Existing removal proposals cannot be
+added again. Individual row actions remain available.
+
+The header checkbox selects only the current page. Selections survive paging
+and sorting within the mounted job, but filters/round changes clear them. Up to
+100 rows may be selected. Confirm once; reasons are optional for proposals and
+required once for direct removal. Unsaved review comments stay in their editor.
+A stale/unavailable item prevents the whole batch; Refresh selection clears it
+and rereads current versions. After a connection error, retry the same action
+to recover its outcome safely. No partial bulk removals or withdrawals occur.
+
+Apply `097_bulk_disposition_audit_link.sql` to existing databases; it only adds
+the existing command UUID to new proposal audit events. Old events remain
+unchanged. Fresh databases use the matching canonical schema. Deploy/restart
+the API and WebUI together. No environment settings, privileges or workflow
+states change. New Arabic drafts require review before publication.
+
+Requirement mapping, test results and live rendering evidence:
+[Bulk disposition verification](verification/bulk-disposition.md).

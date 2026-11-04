@@ -34,6 +34,7 @@ DISPOSITION_MANAGEMENT_OPERATIONS = {
     ('POST', '/api/v1/disposition/jobs'),
     ('POST', '/api/v1/disposition/jobs/{job_id}/assignment'),
     ('POST', '/api/v1/disposition/jobs/{job_id}/memberships'),
+    ('POST', '/api/v1/disposition/jobs/{job_id}/memberships/remove'),
     ('POST', '/api/v1/disposition/jobs/{job_id}/owning-unit'),
     ('POST', '/api/v1/disposition/jobs/{job_id}/partial-recovery'),
     ('POST', '/api/v1/disposition/jobs/{job_id}/partial-recovery/{root_id}'),

@@ -12,12 +12,12 @@
       "revision": "1.1"
     },
     "specs/disposition.md": {
-      "sha256": "919ff22498060d32c5a085500e386e1fa07cc6a51da13973798707d0f8c00281",
+      "sha256": "72420d0e8b6419e76162bd36890ac03b62d5fdb18e0f4845c39275b523304ba8",
       "revision": "1.7"
     },
     "specs/destruction-process.md": {
-      "sha256": "a1c71f34affe19ff203f2981d89201a5b7900b66a932f7e8783dbfe107e13742",
-      "revision": "1.16"
+      "sha256": "af847a90a5cbef442095975c24a853d919ac00c536093d0569751f15a5bbd59c",
+      "revision": "1.18"
     }
   },
   "requirements": [
@@ -11960,9 +11960,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "1. Purpose",
-        "start_line": 25,
-        "end_line": 57,
-        "sha256": "7a5b4e087ebea21fb994169249c99ce313e0eadb99233e2c0aeca57de4099312"
+        "start_line": 35,
+        "end_line": 72,
+        "sha256": "39ca543c71574d8388565901dc17bae3ec6c46d62770bdb2b7b0d76da5982616"
       },
       "phases": [
         7,
@@ -12070,9 +12070,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "2. Relationship to existing Wathiq rules",
-        "start_line": 58,
-        "end_line": 81,
-        "sha256": "8e7e6797981f6ee0b435a5f824136f51743509b8acb104cf2a4c175ec4a61f9b"
+        "start_line": 73,
+        "end_line": 104,
+        "sha256": "8699828335021813047fefe1269fddfe2c5c35d365af79fc29eacda92410d680"
       },
       "phases": [
         7,
@@ -12311,8 +12311,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3. Terminology",
-        "start_line": 82,
-        "end_line": 83,
+        "start_line": 105,
+        "end_line": 106,
         "sha256": "ba10b15f99e791529ea672ad387fa2d0c47adce271914f93b35bb6f5b1965a99"
       },
       "phases": [
@@ -12387,8 +12387,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.1 Information-governance user (IGU)",
-        "start_line": 84,
-        "end_line": 91,
+        "start_line": 107,
+        "end_line": 114,
         "sha256": "1622e177b3d3c5d4eb1a59ea8b0c1dca65d212dcbc79efa024a1f73597b6fcfb"
       },
       "phases": [
@@ -12548,8 +12548,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.2 Disposition unit",
-        "start_line": 92,
-        "end_line": 96,
+        "start_line": 115,
+        "end_line": 119,
         "sha256": "76a16577542496b5e3618fc051ff427d6c9b9ef78397e5ed4083e615e74b13e2"
       },
       "phases": [
@@ -12789,9 +12789,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.3 Eligible aggregation",
-        "start_line": 97,
-        "end_line": 103,
-        "sha256": "feea2bb3d923c7f6b303b410c7ebbc46971a02175620ea7f510476243788f363"
+        "start_line": 120,
+        "end_line": 129,
+        "sha256": "46c202f95b024b5518963ec561f2a093cea0f87885e59eccd1b433a3cc8d7170"
       },
       "phases": [
         8,
@@ -12921,8 +12921,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.4 Due date",
-        "start_line": 104,
-        "end_line": 114,
+        "start_line": 130,
+        "end_line": 140,
         "sha256": "bd81cb17f006c79cd78d2a43f39333a0e36a23732fa363ca0acaecdbf68d4df6"
       },
       "phases": [
@@ -13053,8 +13053,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.5 Disposition job",
-        "start_line": 115,
-        "end_line": 121,
+        "start_line": 141,
+        "end_line": 147,
         "sha256": "183ba856aeca85c202a14f185571ad96fd12f198c0aa119abad8f2dd35a6a8a3"
       },
       "phases": [
@@ -13171,8 +13171,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.6 Active, completed, and terminated jobs",
-        "start_line": 122,
-        "end_line": 139,
+        "start_line": 148,
+        "end_line": 165,
         "sha256": "d0336a7d9f2a388920e4a508bc49d829f500df8a6c9b923826d6646ff74e8bc6"
       },
       "phases": [
@@ -13383,8 +13383,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "4. Disposition status catalogue",
-        "start_line": 140,
-        "end_line": 174,
+        "start_line": 166,
+        "end_line": 200,
         "sha256": "1309620308e93205221032e2583ae533581f8d705789cf5058c2f1298a5d9022"
       },
       "phases": [
@@ -13552,8 +13552,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5. Finite-state machine",
-        "start_line": 175,
-        "end_line": 176,
+        "start_line": 201,
+        "end_line": 202,
         "sha256": "a6ac6b886949c5cec9a2bc22f08aa921d0dea9ba5caa5e7cfa0be8c5ab1b7c35"
       },
       "phases": [
@@ -13628,9 +13628,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.1 Normal valid transitions",
-        "start_line": 177,
-        "end_line": 270,
-        "sha256": "b56d31bb558f5bd7121305406159e1a4c2e00d74253d155607730c0c01d2e02b"
+        "start_line": 203,
+        "end_line": 297,
+        "sha256": "49722894c61a47544cfe70888f64f02d090836b5675d178838ac8f4f1a8a4f96"
       },
       "phases": [
         7,
@@ -13868,9 +13868,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.2 Transition causes",
-        "start_line": 271,
-        "end_line": 284,
-        "sha256": "e6781695cc95b06ef29a0f2b0573b2ad5a079208369882065d74e0aae3672fe9"
+        "start_line": 298,
+        "end_line": 312,
+        "sha256": "98d37a16033fe2501d351f3acd4bd788b2d297d2e46f03308c81b04fbeb634de"
       },
       "phases": [
         7,
@@ -14109,8 +14109,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.3 Removal transitions",
-        "start_line": 285,
-        "end_line": 320,
+        "start_line": 313,
+        "end_line": 348,
         "sha256": "4f63136c334f1dc21f30a8e85470a24c084db65749ab0178bcb2d5d82d8c2ab8"
       },
       "phases": [
@@ -14289,9 +14289,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.4 Pending status requires active-job membership",
-        "start_line": 321,
-        "end_line": 344,
-        "sha256": "6a11dffe799a91fda873d6a0537b0d70dcbdd090177e154c091707317c461c86"
+        "start_line": 349,
+        "end_line": 373,
+        "sha256": "7b65391c4d69db2fa98522f6d4260e4ccc1084d29610cdaf6d45aaf20c750747"
       },
       "phases": [
         7,
@@ -14419,9 +14419,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "6. Status scope and propagation",
-        "start_line": 345,
-        "end_line": 370,
-        "sha256": "cabbb65b7382c6a51df93a75491934d3de0e5a6c61bbf5db7f8efd4b2032a5db"
+        "start_line": 374,
+        "end_line": 405,
+        "sha256": "42e678c15c88828518f07fab05fbf6d13bdfde5118529c598be72f70ed0204cf"
       },
       "phases": [
         7,
@@ -14587,9 +14587,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "6.1 Reopening an aggregation",
-        "start_line": 371,
-        "end_line": 394,
-        "sha256": "6251915511ec678790c0385c7af02060a7a0dd532fe42d08b367d8e609fded78"
+        "start_line": 406,
+        "end_line": 459,
+        "sha256": "c39b13fca3d9e696fd7c82bda2bf420f873710976e8cd81f521c38b21be65615"
       },
       "phases": [
         9,
@@ -14773,9 +14773,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "7. Automatic eligibility service",
-        "start_line": 395,
-        "end_line": 440,
-        "sha256": "6c18ac002e2dda750fbd291750d944f0b217a77d3bfe082136feef95582dc71e"
+        "start_line": 460,
+        "end_line": 506,
+        "sha256": "795186cd4fc83855484191587f2ed06760615ad14bbcc92fa18f7952c2e46654"
       },
       "phases": [
         8
@@ -14855,8 +14855,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "8. Eligibility listing",
-        "start_line": 441,
-        "end_line": 501,
+        "start_line": 507,
+        "end_line": 567,
         "sha256": "0f67d59cbe54f0a65246e8e8fca3a270c40cf1a7b8a7f8c9bf644a6274eff38e"
       },
       "phases": [
@@ -14938,9 +14938,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9. Common disposition blockers",
-        "start_line": 502,
-        "end_line": 552,
-        "sha256": "e92c326d729e5cd9da23ceae95937d016b3b861dc996f011e4a44298798526b9"
+        "start_line": 568,
+        "end_line": 618,
+        "sha256": "dc909f76cf932c7c08b0aeecab548f9a4e738c17790e597a3063d0e52c31fbdd"
       },
       "phases": [
         8,
@@ -15255,8 +15255,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9.1 Blocker arising after addition to a job",
-        "start_line": 553,
-        "end_line": 596,
+        "start_line": 619,
+        "end_line": 662,
         "sha256": "77764aa8e35d70ce52a57f1c1e78290888713b2bde11907af1f499f65711b00c"
       },
       "phases": [
@@ -15586,8 +15586,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9.2 A protective change at the same time as the final action",
-        "start_line": 597,
-        "end_line": 612,
+        "start_line": 663,
+        "end_line": 678,
         "sha256": "65e7f321344ab44741da1956ba0ebb8c1e2bdb1c10ec155b8e68f1436dfbd3e1"
       },
       "phases": [
@@ -15784,8 +15784,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9.3 Resolution of blockers",
-        "start_line": 613,
-        "end_line": 622,
+        "start_line": 679,
+        "end_line": 688,
         "sha256": "7f3d676f9bba3b2eb9c0d27c7c7d3dbbc21af220d7830be1cb67861ae3d20b90"
       },
       "phases": [
@@ -16032,8 +16032,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10. Disposition jobs",
-        "start_line": 623,
-        "end_line": 624,
+        "start_line": 689,
+        "end_line": 690,
         "sha256": "91ce0213a6820578aa3a1025ef2124a3ac77bb5588655fa67c888dab7e735324"
       },
       "phases": [
@@ -16150,9 +16150,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.1 Common job data",
-        "start_line": 625,
-        "end_line": 646,
-        "sha256": "0433ba2662985236ff6b85efbc28111ae5ec6778fdb2570b814517c211dc9c32"
+        "start_line": 691,
+        "end_line": 712,
+        "sha256": "797b3d30eeb9e5c12ab34bba9857b22778eda3cbd7ca0691fe6517c2a9b86cf1"
       },
       "phases": [
         7,
@@ -16268,9 +16268,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.1.1 Assignment to a specific IGU",
-        "start_line": 647,
-        "end_line": 667,
-        "sha256": "006d560430fac29770c089e7775320f033f5fb1c2c44a661aa569b9a87292305"
+        "start_line": 741,
+        "end_line": 776,
+        "sha256": "bdff22706e577033fd57cdd5f3b6e7e7ff8e870cd3ab7f31088d2c4d37bcabe5"
       },
       "phases": [
         7,
@@ -16503,9 +16503,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.2 Membership rules",
-        "start_line": 668,
-        "end_line": 718,
-        "sha256": "48280db82afdb1c0cee339b31ee52437d50c53892f42556706c5e11f19fc065f"
+        "start_line": 777,
+        "end_line": 865,
+        "sha256": "136c3a1f40eb4fd77b1cf3df918f059df2b941b88d10c3918dbd37253cffaaa8"
       },
       "phases": [
         7,
@@ -16737,8 +16737,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.3 Terminating a job",
-        "start_line": 719,
-        "end_line": 751,
+        "start_line": 866,
+        "end_line": 898,
         "sha256": "9247f2e69ef3abbd9c29e8f71c645f31ac5ed1e20866a51a23ed54e21d23735f"
       },
       "phases": [
@@ -16868,8 +16868,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.4 Resolving status 13",
-        "start_line": 752,
-        "end_line": 756,
+        "start_line": 899,
+        "end_line": 903,
         "sha256": "5fb2b984f1fd681a26cec7b64cd64f00ff2da6cc121d01ff7b2622f209492f5b"
       },
       "phases": [
@@ -16957,8 +16957,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.4.1 Individual resolution",
-        "start_line": 757,
-        "end_line": 776,
+        "start_line": 904,
+        "end_line": 923,
         "sha256": "4409e91e8db75e78633771b5a356ad619f59aff614b430febea65b4a139aff51"
       },
       "phases": [
@@ -17046,8 +17046,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.4.2 Bulk resolution for a terminated job",
-        "start_line": 777,
-        "end_line": 808,
+        "start_line": 924,
+        "end_line": 955,
         "sha256": "2ea0c9117777d3c93dc71c82cc4d4a84d86f462c3c6162adbc531a063bbee0ec"
       },
       "phases": [
@@ -17135,8 +17135,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.5 Work performed outside Wathiq",
-        "start_line": 809,
-        "end_line": 826,
+        "start_line": 956,
+        "end_line": 973,
         "sha256": "f2a939963019886dd3f3026bbb572b2a509a91cb46d4ebd3945f1d65a8510460"
       },
       "phases": [
@@ -17333,9 +17333,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "11. Exceptional acceleration",
-        "start_line": 827,
-        "end_line": 852,
-        "sha256": "61111c89b9158da768810ff656dbaffdd98842e173785924ca95328ccdf0746b"
+        "start_line": 974,
+        "end_line": 1066,
+        "sha256": "36d120de1b513d9814a00875428e564adb351f3c7e5aef068e453aaba5addb8d"
       },
       "phases": [
         9
@@ -17409,8 +17409,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "12. Local retention-rule override",
-        "start_line": 853,
-        "end_line": 909,
+        "start_line": 1096,
+        "end_line": 1152,
         "sha256": "a0864d4c12f49f7807473b169273649697e8e2084219340e29a3918c523f0936"
       },
       "phases": [
@@ -17568,9 +17568,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "12.1 Hierarchy changes",
-        "start_line": 910,
-        "end_line": 930,
-        "sha256": "13cd9c4db0252900dc045a3a04cfa54c46598b49e42e7d454228d6b18b0664d2"
+        "start_line": 1153,
+        "end_line": 1176,
+        "sha256": "4d3af1cbeaf17ef378c43fb76b82b69b73b89d84cfdb9ab469208e27f97156e8"
       },
       "phases": [
         9,
@@ -17728,8 +17728,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "13. Information recorded after the final action",
-        "start_line": 931,
-        "end_line": 980,
+        "start_line": 1177,
+        "end_line": 1226,
         "sha256": "674213757482655ce301cdd2dd9584295b0c8b2eeead17fa5d834662603ae12c"
       },
       "phases": [
@@ -18012,8 +18012,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14. Destruction outcome",
-        "start_line": 981,
-        "end_line": 997,
+        "start_line": 1227,
+        "end_line": 1243,
         "sha256": "ab9de539dafff56b41f5ba6edb1de3792847e13f6f5dd32135134c5c8dcf4562"
       },
       "phases": [
@@ -18172,8 +18172,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14.1 Meaning of destruction",
-        "start_line": 998,
-        "end_line": 1020,
+        "start_line": 1244,
+        "end_line": 1266,
         "sha256": "20a6f23912c29e137f90464f847006d058e3b19bf7fea1f1c9c2c0b572e84a60"
       },
       "phases": [
@@ -18375,9 +18375,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14.2 Metadata retained after destruction",
-        "start_line": 1021,
-        "end_line": 1098,
-        "sha256": "f1b00b1ff7f0ee4dc898954d02b339c505e95521084cdd369f2301f9f543fc19"
+        "start_line": 1267,
+        "end_line": 1361,
+        "sha256": "23d8d1158eb58dd6b157d73605cdfa7813b5f899ca1a0d532f67493182073af6"
       },
       "phases": [
         21,
@@ -18515,8 +18515,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14.3 Mixed-medium destruction sequence",
-        "start_line": 1099,
-        "end_line": 1133,
+        "start_line": 1362,
+        "end_line": 1396,
         "sha256": "0cc6789210448baa6a8cd91cb38640e8203f70f299434a0177e3c411e4de19eb"
       },
       "phases": [
@@ -18729,9 +18729,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "15. Authorization and separation of duties",
-        "start_line": 1134,
-        "end_line": 1210,
-        "sha256": "2ed1d3a81c60e1242690e5087eca8d2aae59fa82062371566c5923a987a66b54"
+        "start_line": 1397,
+        "end_line": 1478,
+        "sha256": "892b3401873ab5c6e112346f42199694c85d3b45795a9790c2b467ae1b8e3aac"
       },
       "phases": [
         2,
@@ -19347,9 +19347,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "16. Audit, reporting, and data integrity",
-        "start_line": 1211,
-        "end_line": 1322,
-        "sha256": "aa28c61fbaa460f4e2ac804108bec661b59ab7958436fbca04f758445b5e0b11"
+        "start_line": 1479,
+        "end_line": 1591,
+        "sha256": "8b8b874c389785b302f5816a4242e4757ecbb65a7f381571cb78a13ede73563a"
       },
       "phases": [
         7,
@@ -20138,8 +20138,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17. Shared workflow architecture and logical data model",
-        "start_line": 1323,
-        "end_line": 1324,
+        "start_line": 1592,
+        "end_line": 1593,
         "sha256": "fa50a39ec9f536a95bcbee56ade3802d464e2902d74ed7d32e9c79a1f2ddb5eb"
       },
       "phases": [
@@ -20214,8 +20214,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.1 Purpose-built workflow",
-        "start_line": 1325,
-        "end_line": 1345,
+        "start_line": 1594,
+        "end_line": 1614,
         "sha256": "021d933e56424700f42aa47b2f1cdf741e4545d98a48a45566d0ccda9a70f1a0"
       },
       "phases": [
@@ -20559,8 +20559,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.2 Existing resource tables",
-        "start_line": 1346,
-        "end_line": 1362,
+        "start_line": 1615,
+        "end_line": 1631,
         "sha256": "75a8f84de2d4817344f306032b5209f3d481685e243168f16952d222473bac8a"
       },
       "phases": [
@@ -20698,8 +20698,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.3 `disposition_jobs`",
-        "start_line": 1363,
-        "end_line": 1385,
+        "start_line": 1632,
+        "end_line": 1654,
         "sha256": "dedabe62439c5aa63ba86b0b058eb5c9dcd2bba3e29ae6f4e5d45eca7982074d"
       },
       "phases": [
@@ -20865,8 +20865,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.4 `disposition_job_memberships`",
-        "start_line": 1386,
-        "end_line": 1402,
+        "start_line": 1655,
+        "end_line": 1671,
         "sha256": "0282b872e30ebd50f403d851a0776375f1958a73a0c525d23c6a196e200e25aa"
       },
       "phases": [
@@ -20995,8 +20995,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.5 `disposition_tasks`",
-        "start_line": 1403,
-        "end_line": 1421,
+        "start_line": 1672,
+        "end_line": 1690,
         "sha256": "97c971f937279d95a2651c1267fb918bab11ad3cde7446ee5ca6f4aa8e04d52d"
       },
       "phases": [
@@ -21157,8 +21157,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.6 `disposition_review_rounds` and `disposition_review_decisions`",
-        "start_line": 1422,
-        "end_line": 1435,
+        "start_line": 1691,
+        "end_line": 1704,
         "sha256": "7efdcfd14bf6df71efa693ea0c4b15609cc208360b1effaf66b968273bf34886"
       },
       "phases": [
@@ -21360,8 +21360,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.7 `disposition_job_documents`",
-        "start_line": 1436,
-        "end_line": 1453,
+        "start_line": 1705,
+        "end_line": 1722,
         "sha256": "19dd374383506b5376dfb7123f6857d284f7523192cde6cdbcc6836b720e76de"
       },
       "phases": [
@@ -21484,8 +21484,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.8 Shared protected operations and integrity",
-        "start_line": 1454,
-        "end_line": 1471,
+        "start_line": 1723,
+        "end_line": 1740,
         "sha256": "e4d9d80c757693d78af5922a44bc83dd969d7eb4d6dfd083b5c8c931098af1c2"
       },
       "phases": [
@@ -21916,8 +21916,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.9 Canonical SQL ownership",
-        "start_line": 1472,
-        "end_line": 1486,
+        "start_line": 1741,
+        "end_line": 1755,
         "sha256": "99c9d3318171674b9ae1fca767a7c3230dced5567002da2ecc9b9b89a62a039b"
       },
       "phases": [
@@ -22004,9 +22004,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "18. Verification and traceability",
-        "start_line": 1487,
-        "end_line": 1540,
-        "sha256": "17c3517467f62b9583e0d4859b26c87d89add1e15be1680d5aa0b750dfddd23e"
+        "start_line": 1756,
+        "end_line": 1811,
+        "sha256": "fce45deb81fb36848c97ff65522a2c4695f168354d6ae70ec0e8bb94164d6c4b"
       },
       "phases": [
         23
@@ -31519,8 +31519,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "1. Purpose and authority",
-        "start_line": 81,
-        "end_line": 116,
+        "start_line": 83,
+        "end_line": 118,
         "sha256": "f8487121f104d2cb065c657db1cb236af0cc06f478b14c674e244e4c5f1ef553"
       },
       "phases": [
@@ -31682,8 +31682,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2. People and terms",
-        "start_line": 117,
-        "end_line": 118,
+        "start_line": 119,
+        "end_line": 120,
         "sha256": "9ee82fdd400d3bdaa0ed9a4f49b9f861e2c30ffe7eb88e4188c90b2cb0a77353"
       },
       "phases": [
@@ -31765,9 +31765,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.1 Records Officer",
-        "start_line": 119,
-        "end_line": 131,
-        "sha256": "4c2ce17410813fa0605fa86c0769904cea1336a771d5cef0d6f843dd4b21e462"
+        "start_line": 121,
+        "end_line": 136,
+        "sha256": "f760057be91c0ea2e2efa11053c64a9b28c17ce5a64d5b07f7f555b2707755c6"
       },
       "phases": [
         13
@@ -31848,8 +31848,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.2 File Administrator",
-        "start_line": 132,
-        "end_line": 153,
+        "start_line": 137,
+        "end_line": 158,
         "sha256": "4a37f1930f554a61a89c70bd16db8bd94b89fe89fe994efabe55ed8bf58e8197"
       },
       "phases": [
@@ -31931,8 +31931,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.3 Unit Manager",
-        "start_line": 154,
-        "end_line": 159,
+        "start_line": 159,
+        "end_line": 164,
         "sha256": "f81cf6339780d5260edf8438d4e43206e8065a45a12d9151abe07a3faf36a401"
       },
       "phases": [
@@ -32014,8 +32014,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.4 Records Manager",
-        "start_line": 160,
-        "end_line": 165,
+        "start_line": 165,
+        "end_line": 170,
         "sha256": "5713a892aac933eebc1e6bb57d1c77bda9ff61f88c48d9cc75a9e6b7ecf40a29"
       },
       "phases": [
@@ -32097,8 +32097,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.5 External archival authority",
-        "start_line": 166,
-        "end_line": 171,
+        "start_line": 171,
+        "end_line": 176,
         "sha256": "2141879dd4db8cb65bdd155dfc7ff5e4c8842f700705384c5e43b825a7f8a0e0"
       },
       "phases": [
@@ -32184,8 +32184,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.6 Lifecycle state and workflow stage",
-        "start_line": 172,
-        "end_line": 178,
+        "start_line": 177,
+        "end_line": 183,
         "sha256": "0738a6282d05193fdc26e3bf36e0a1c90c6029937749cfdb245d5bf95863bccf"
       },
       "phases": [
@@ -32309,8 +32309,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "3. Destruction-eligibility reminder",
-        "start_line": 179,
-        "end_line": 217,
+        "start_line": 184,
+        "end_line": 222,
         "sha256": "19c63eed5e7f384cd5097ef74096ef3f293a414670cd4cf2cc7ebd6320df2796"
       },
       "phases": [
@@ -32437,8 +32437,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "4. Eligible-destruction listing",
-        "start_line": 218,
-        "end_line": 223,
+        "start_line": 223,
+        "end_line": 228,
         "sha256": "e91a74a0b8b23d50e21472e4fb719fc2ac4057d1272b16a106c789a0020133bf"
       },
       "phases": [
@@ -32571,8 +32571,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5. Creating and filling a destruction job",
-        "start_line": 224,
-        "end_line": 225,
+        "start_line": 229,
+        "end_line": 230,
         "sha256": "0ef2d87ebe7a3fb8d3ca6103ad8552fe545678499fe1efd3a6d58e8d7daa92f4"
       },
       "phases": [
@@ -32694,9 +32694,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.1 Owning organizational unit",
-        "start_line": 226,
-        "end_line": 276,
-        "sha256": "49395b5fbb6ac190da76b881ca4e34eb7e684b088d95846ddca06062dd523064"
+        "start_line": 231,
+        "end_line": 283,
+        "sha256": "92a2c1db32d0f578edbad09246609c8d1289520213c285d658b765e385bce83e"
       },
       "phases": [
         9,
@@ -32856,9 +32856,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.2 Addition and initial stage",
-        "start_line": 277,
-        "end_line": 331,
-        "sha256": "e4f8c884dde5ecd548d1cbe2128f4642b47938b1e01cfe349212dab49f92e1f7"
+        "start_line": 284,
+        "end_line": 341,
+        "sha256": "3bfdc3f80154b5155cf9c9c7f48b922cd61d24500e6c9605c68ae0b76101ae28"
       },
       "phases": [
         9,
@@ -33055,9 +33055,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.3 Review proposals",
-        "start_line": 332,
-        "end_line": 518,
-        "sha256": "a8dd7ae4ff56966b369a7a715021f96bb724f747976f87b2671e99d04c80463a"
+        "start_line": 342,
+        "end_line": 528,
+        "sha256": "b422e7c742657657697afc91d3aea65adf346ed1921860b63fdd0e7f55444cc7"
       },
       "phases": [
         14,
@@ -33212,9 +33212,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.4 Organization-wide review route",
-        "start_line": 519,
-        "end_line": 559,
-        "sha256": "7096605069d178fc6053b2b380bf4eec3774eea15a7c4955937f17734566346e"
+        "start_line": 529,
+        "end_line": 569,
+        "sha256": "293face8e3cb9fd13796c866c14f5af3d3ce2a744570c647e5f95dcb99b785de"
       },
       "phases": [
         2,
@@ -33391,9 +33391,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.5 Records Manager Only route",
-        "start_line": 560,
-        "end_line": 601,
-        "sha256": "c15ec7c4bfadb68931f7bf88902692e73e43e0a814f993c23caf59953ef5e3e8"
+        "start_line": 570,
+        "end_line": 611,
+        "sha256": "cb748795bf073afde60e81f0e059d06ee60102b092c95a067a78cf13f3faa197"
       },
       "phases": [
         13,
@@ -33709,8 +33709,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6. Task inbox and destruction-job workspace",
-        "start_line": 602,
-        "end_line": 603,
+        "start_line": 612,
+        "end_line": 613,
         "sha256": "7eb19b0b69e05ef9224107b6092189834aa732bb40d242fd7bcaef8679821fc5"
       },
       "phases": [
@@ -33782,8 +33782,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.1 Disposition navigation",
-        "start_line": 604,
-        "end_line": 636,
+        "start_line": 614,
+        "end_line": 646,
         "sha256": "bef724e16d72691c5612a4625fe50bdfe0d64cc5c9d875771bed7964c8f9bddd"
       },
       "phases": [
@@ -33910,8 +33910,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.2 My tasks",
-        "start_line": 637,
-        "end_line": 678,
+        "start_line": 647,
+        "end_line": 688,
         "sha256": "f7ee15eb094ba765a555ad409f4262c9d2223eaaf9e8714f9076508e0dfcdadb"
       },
       "phases": [
@@ -33976,8 +33976,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.3 Direct assignments, role queues, and claiming",
-        "start_line": 679,
-        "end_line": 790,
+        "start_line": 689,
+        "end_line": 800,
         "sha256": "f2ae2b2d41af9757b3645699099fb5b67d91289b355c66d934fcfe6d217b8d06"
       },
       "phases": [
@@ -34098,9 +34098,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.4 Common destruction-job workspace",
-        "start_line": 791,
-        "end_line": 880,
-        "sha256": "cd6dd05ab6cbc17a53b2e2bc7dc21df37a7ac89a34e73fbe22a067128a4fbc41"
+        "start_line": 801,
+        "end_line": 888,
+        "sha256": "95e93184d5c636e02f8570af62fe9493d496c2caaa87b5dfa822d72174a55b23"
       },
       "phases": [
         16
@@ -34171,8 +34171,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.4.1 Evidence preview and corrective re-uploads",
-        "start_line": 881,
-        "end_line": 910,
+        "start_line": 889,
+        "end_line": 918,
         "sha256": "0b38e9008eb79a6de3cf2f48043b41866a3e6f0ccba6b325fdc0656631abca42"
       },
       "phases": [
@@ -34298,8 +34298,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.5 Review-proposal presentation",
-        "start_line": 911,
-        "end_line": 967,
+        "start_line": 919,
+        "end_line": 975,
         "sha256": "95e7454e1882e93d32ae290608b16e27cc3c4d1ace66d3ae2a3f38c39965c4de"
       },
       "phases": [
@@ -34416,9 +34416,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.6 Review comments and task-specific forms",
-        "start_line": 968,
-        "end_line": 1033,
-        "sha256": "09bdcad6fd6183bae7da38818505f970ac21d3c6c580b567d4242a2bc6c79f08"
+        "start_line": 1024,
+        "end_line": 1097,
+        "sha256": "89bcabb45ebe402afd8ad34fec64ee92da5b3456cd2a9f132c70170702f366c0"
       },
       "phases": [
         14,
@@ -34808,10 +34808,10 @@
       "summary": "6.6.1 Save work without submitting",
       "source": {
         "path": "specs/destruction-process.md",
-        "heading": "6.6.1 Save work without submitting",
-        "start_line": 1034,
-        "end_line": 1086,
-        "sha256": "a1fd925a123b44d2054c66864915e84c1296955f4274684aeca9f5538eb331b4"
+        "heading": "6.6.1 Immediate proposal persistence and Save work without submitting",
+        "start_line": 1098,
+        "end_line": 1134,
+        "sha256": "f2228035b040e9c9a966ecf4ae982ad67b9c6e68dc4c2f54d9d36bcd0864fff4"
       },
       "phases": [
         14,
@@ -34972,8 +34972,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.7 Workflow overview",
-        "start_line": 1087,
-        "end_line": 1154,
+        "start_line": 1135,
+        "end_line": 1202,
         "sha256": "b807b3f76ddd0a6ba33a0bb28fb27f5c1401f684ed06bf3228074d921c2d935a"
       },
       "phases": [
@@ -35114,8 +35114,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "7. File Administrator review",
-        "start_line": 1155,
-        "end_line": 1156,
+        "start_line": 1203,
+        "end_line": 1204,
         "sha256": "10c4bbd5de3999849ee26dbf0e6a87e0907f4f142f176e8e11633cd28a6b6073"
       },
       "phases": [
@@ -35197,8 +35197,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "7.1 Routing",
-        "start_line": 1157,
-        "end_line": 1201,
+        "start_line": 1205,
+        "end_line": 1249,
         "sha256": "37fe69f3b20a2640d2fc4adde2e75240227cf1ba70c3b8c703d6978676ab08c8"
       },
       "phases": [
@@ -35280,8 +35280,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "7.2 Review action",
-        "start_line": 1202,
-        "end_line": 1222,
+        "start_line": 1250,
+        "end_line": 1270,
         "sha256": "de49395ea88751d5f4dd260c97c335e7539856b26555ed9c1ae5dd74b9936baa"
       },
       "phases": [
@@ -35443,9 +35443,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "8. Unit Manager review and rejection",
-        "start_line": 1223,
-        "end_line": 1245,
-        "sha256": "a244d3f0dcf5bbf9103e18813ceb36d358a2504bebe828746cd3c1c14e08a09b"
+        "start_line": 1271,
+        "end_line": 1293,
+        "sha256": "45dd26cd645149204a009732141ffd51f27a0df0717da17d14b918a88578b724"
       },
       "phases": [
         13,
@@ -35606,8 +35606,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "9. Records Officer correction and resubmission",
-        "start_line": 1246,
-        "end_line": 1263,
+        "start_line": 1294,
+        "end_line": 1311,
         "sha256": "e5f600f607bb74853e0fe6eacad5839239037dddc004fc91b099221b9c7341c7"
       },
       "phases": [
@@ -35769,9 +35769,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "10. Records Manager review",
-        "start_line": 1264,
-        "end_line": 1376,
-        "sha256": "0973e3027e765d27ce5d537bd2146bfe5d6108955b1177407085eac6d5255052"
+        "start_line": 1312,
+        "end_line": 1425,
+        "sha256": "36d39a3836f27abfe6d4b05c8eb3dfb61f0c9fbdfd2fe77bfee2a4166b42075e"
       },
       "phases": [
         13,
@@ -35973,9 +35973,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "10.1 Executing approved proposals",
-        "start_line": 1377,
-        "end_line": 1505,
-        "sha256": "5865b53df46b321c3c5277819c0fec01ae0cbe516ef3a9664f02412894fcc1d4"
+        "start_line": 1426,
+        "end_line": 1555,
+        "sha256": "081f6b00a1abb9695d1b55e44fa3aaa53b7e3e9b72ad5d7664a4d17260d4159e"
       },
       "phases": [
         11,
@@ -36226,8 +36226,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11. Request for Destruction Form",
-        "start_line": 1506,
-        "end_line": 1507,
+        "start_line": 1556,
+        "end_line": 1557,
         "sha256": "61cef356c9e2c4420b652edc02bbf77382b1ca453fec7ad0b9e48df5d74f0316"
       },
       "phases": [
@@ -36374,8 +36374,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.1 Generation",
-        "start_line": 1508,
-        "end_line": 1525,
+        "start_line": 1558,
+        "end_line": 1575,
         "sha256": "6996ad9f7383d30028ef486c78ec68774bce956411fd712bd4891a4b2a80ce85"
       },
       "phases": [
@@ -36522,8 +36522,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.2 Request details and presentation",
-        "start_line": 1526,
-        "end_line": 1559,
+        "start_line": 1576,
+        "end_line": 1609,
         "sha256": "d78ba16e8a314922e705ce1acd135c527fac71e551aa838dccbac2f7ddd8ae75"
       },
       "phases": [
@@ -36670,8 +36670,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.3 Aggregation listing on following pages",
-        "start_line": 1560,
-        "end_line": 1575,
+        "start_line": 1610,
+        "end_line": 1625,
         "sha256": "d4277f64fc9e73159ee5eee56b734566c3a6581ba88fb070415192e0dcfae02f"
       },
       "phases": [
@@ -36818,8 +36818,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.4 Request delivery and email sending",
-        "start_line": 1576,
-        "end_line": 1655,
+        "start_line": 1626,
+        "end_line": 1705,
         "sha256": "9cd9feb1fbeca5e17494091777b850a52d797b4e11f282f7fb92cab7ef852245"
       },
       "phases": [
@@ -36965,8 +36965,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "12. External decision, corrections, and approval",
-        "start_line": 1656,
-        "end_line": 1657,
+        "start_line": 1706,
+        "end_line": 1707,
         "sha256": "6b20601f91f258083f9ff947a51dae5348a51b175db9098bd66e47a081c9dd82"
       },
       "phases": [
@@ -37052,9 +37052,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "12.1 Rejection with correction notes",
-        "start_line": 1658,
-        "end_line": 1692,
-        "sha256": "b6f46121c829cf5cd360fd18ee6e241d9fe1f386166da27cbdfa98e6e9990391"
+        "start_line": 1708,
+        "end_line": 1742,
+        "sha256": "d5fd5c715e8a9f0f89db7348ad5a35d10bb767b6d5ccf4c513efdfd8f2526a13"
       },
       "phases": [
         11,
@@ -37245,8 +37245,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "12.2 Approval letter and destruction number",
-        "start_line": 1693,
-        "end_line": 1714,
+        "start_line": 1743,
+        "end_line": 1764,
         "sha256": "e3f1bb9f40ac3aa2f6eb3ee6aea42efb007930a532ebba7cb05192f00abb2b72"
       },
       "phases": [
@@ -37387,8 +37387,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "13. Selecting physical or digital destruction",
-        "start_line": 1715,
-        "end_line": 1728,
+        "start_line": 1765,
+        "end_line": 1778,
         "sha256": "e48a0a00469090238d1a2a4ec0b43f4f825cba7359b49abc1123d6bafe135306"
       },
       "phases": [
@@ -37511,8 +37511,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "14. Physical destruction",
-        "start_line": 1729,
-        "end_line": 1730,
+        "start_line": 1779,
+        "end_line": 1780,
         "sha256": "d43bd4cd4204d278e450bc602da11ed50d085b1f45521b5830c59a51cf65fe3d"
       },
       "phases": [
@@ -37602,8 +37602,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "14.1 Physical-destruction preparation report",
-        "start_line": 1731,
-        "end_line": 1788,
+        "start_line": 1781,
+        "end_line": 1838,
         "sha256": "cbef80a973a8b1a413de632e866de88ea22a9c3a694f7750b3e2ac33066355ac"
       },
       "phases": [
@@ -37831,8 +37831,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "14.2 Checks and confirmation",
-        "start_line": 1789,
-        "end_line": 1835,
+        "start_line": 1839,
+        "end_line": 1885,
         "sha256": "7e658c58bbe4dee0fa21a4a54b30513f393fa84d4dc8937bd37df4ff16e3c964"
       },
       "phases": [
@@ -38032,8 +38032,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "15. Digital destruction",
-        "start_line": 1836,
-        "end_line": 1837,
+        "start_line": 1886,
+        "end_line": 1887,
         "sha256": "0dd29d3dfb4db82f2395cb84cae324ebb044c9a9cc306ca704d303d98d38b112"
       },
       "phases": [
@@ -38137,8 +38137,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "15.1 Final confirmation",
-        "start_line": 1838,
-        "end_line": 1853,
+        "start_line": 1888,
+        "end_line": 1903,
         "sha256": "a25dfa25ca54f679e5e9c1b1920fa2e9ccbf33d7e70af4b79da420d352f230ae"
       },
       "phases": [
@@ -38242,8 +38242,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "15.2 Asynchronous execution",
-        "start_line": 1854,
-        "end_line": 1909,
+        "start_line": 1904,
+        "end_line": 1959,
         "sha256": "e34868a2f8296e1496f7e65755a4120029fb0a0070d6e6083494597a02db2f57"
       },
       "phases": [
@@ -38492,9 +38492,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "16. Certificate of Destruction (Digital)",
-        "start_line": 1910,
-        "end_line": 2049,
-        "sha256": "7e703e96e2040c4ecefce53d07ba9b679a550ae91d4b023d38328898f72cff42"
+        "start_line": 1960,
+        "end_line": 2106,
+        "sha256": "d8b558dfa2b26d16c9cd9dad9e14fdc7b2a624c40ad774464ed0c78166cf2040"
       },
       "phases": [
         11,
@@ -38755,8 +38755,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17. Resolved policy and supporting requirements",
-        "start_line": 2050,
-        "end_line": 2051,
+        "start_line": 2107,
+        "end_line": 2108,
         "sha256": "aaac291612b101aa2d621a12d19f48795e567c57268163158ab6ffbb914e8418"
       },
       "phases": [
@@ -38838,8 +38838,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.1 Unit Manager role identification — resolved",
-        "start_line": 2052,
-        "end_line": 2068,
+        "start_line": 2109,
+        "end_line": 2125,
         "sha256": "131968f866eed84623284a7f533145a904342abf052bf2667107e5887b645621"
       },
       "phases": [
@@ -38921,8 +38921,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.2 Evidence and report destinations",
-        "start_line": 2069,
-        "end_line": 2132,
+        "start_line": 2126,
+        "end_line": 2189,
         "sha256": "e7b951cc5f15a4a69bdf259b147a7b18471357de659b3f04d79c4fb3e3432a55"
       },
       "phases": [
@@ -39070,8 +39070,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.3 Physical-only jobs — resolved",
-        "start_line": 2133,
-        "end_line": 2145,
+        "start_line": 2190,
+        "end_line": 2202,
         "sha256": "7c6d9fe1541e59820cfd9db9fefe3f425702921597cbb26c421c5ec9b9817c21"
       },
       "phases": [
@@ -39262,8 +39262,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.4 Controlled Word templates — resolved",
-        "start_line": 2146,
-        "end_line": 2210,
+        "start_line": 2203,
+        "end_line": 2267,
         "sha256": "1cd15a25e94da5d6fddaf997100e76bc9c9c2231c28ba5aed2e11fbd7f187b53"
       },
       "phases": [
@@ -39354,9 +39354,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.5 File Administrator and Unit Manager task authority",
-        "start_line": 2211,
-        "end_line": 2231,
-        "sha256": "c7e972aacb8918b040ff143bb39e5c6550f1023577b666a3c82335fc69e5f0e1"
+        "start_line": 2268,
+        "end_line": 2287,
+        "sha256": "75dc31007263ff320b0ddb9116ce61025c8ad28568b99d20147cbc29c13fad43"
       },
       "phases": [
         13,
@@ -39558,8 +39558,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18. Destruction-specific logical data model",
-        "start_line": 2232,
-        "end_line": 2233,
+        "start_line": 2288,
+        "end_line": 2289,
         "sha256": "5f566a843e85071ad51b57a6e8ed4a027dabfb6a6f99bb550aa6c5cf0ea98a26"
       },
       "phases": [
@@ -39683,8 +39683,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.1 Relationship to the common model",
-        "start_line": 2234,
-        "end_line": 2246,
+        "start_line": 2290,
+        "end_line": 2302,
         "sha256": "95ec43d14ebf13c61c263bfe5a4a7409cdde88ba27e020aba888157ae15dc8ef"
       },
       "phases": [
@@ -39759,8 +39759,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.2 Existing-table additions",
-        "start_line": 2247,
-        "end_line": 2272,
+        "start_line": 2303,
+        "end_line": 2328,
         "sha256": "3b4112ca7f4d40f3e29f65c05c371eff7ab063e943c89037d7edf28dbfbb5571"
       },
       "phases": [
@@ -39842,9 +39842,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.3 `disposition_review_proposals`",
-        "start_line": 2273,
-        "end_line": 2317,
-        "sha256": "bc14918be2c000c18abc08a9127f49a12dbbc5ee6f6fe46e087771c97146f2ef"
+        "start_line": 2329,
+        "end_line": 2373,
+        "sha256": "bc42ce3d1503e90bd3f51fb3467603ef96f8ab805ac07f9888e82eec69f90acb"
       },
       "phases": [
         14
@@ -39917,8 +39917,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.4 `disposition_proposal_holds`",
-        "start_line": 2318,
-        "end_line": 2325,
+        "start_line": 2374,
+        "end_line": 2381,
         "sha256": "53219ca53fb8045e43609bb513857408e475fb1a9b43daac317e252efa0bf88b"
       },
       "phases": [
@@ -40034,8 +40034,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.5 `disposition_proposal_effects`",
-        "start_line": 2326,
-        "end_line": 2336,
+        "start_line": 2382,
+        "end_line": 2392,
         "sha256": "f408580235ee375c6668fec8ec3fa3097c83042c16b8baa90ea72ce6647c85ab"
       },
       "phases": [
@@ -40115,8 +40115,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.6 `disposition_external_approvals`",
-        "start_line": 2337,
-        "end_line": 2362,
+        "start_line": 2393,
+        "end_line": 2418,
         "sha256": "5f57a4494583dd02ebe2508b9d31d64dcf5fa9a90aa1ce9072a9fce4d3f4d1aa"
       },
       "phases": [
@@ -40257,8 +40257,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.7 `disposition_physical_confirmations`",
-        "start_line": 2363,
-        "end_line": 2375,
+        "start_line": 2419,
+        "end_line": 2431,
         "sha256": "bddf86be10b4769c66295a8bc12f123bfd745c4d41d0f7a97710c345c48c33aa"
       },
       "phases": [
@@ -40401,8 +40401,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.8 `disposition_destruction_runs`",
-        "start_line": 2376,
-        "end_line": 2391,
+        "start_line": 2432,
+        "end_line": 2447,
         "sha256": "8ced6d62c3a3b388a60070ed0a59b73fd02a73ecd636ba52f5c0951c0c14a7cf"
       },
       "phases": [
@@ -40506,8 +40506,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.9 `disposition_destruction_run_units`",
-        "start_line": 2392,
-        "end_line": 2398,
+        "start_line": 2448,
+        "end_line": 2454,
         "sha256": "5ea90aff7a9c3c893ef3c4719811d2ea2a2867f41ab56c5e1ff79a0a45643108"
       },
       "phases": [
@@ -40611,8 +40611,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.10 `disposition_destruction_manifest_items`",
-        "start_line": 2399,
-        "end_line": 2411,
+        "start_line": 2455,
+        "end_line": 2467,
         "sha256": "ce8b1e5d073fc6f0e4ef9665ea43217b8f20ff30752f5c683ad088bc5d070908"
       },
       "phases": [
@@ -40719,8 +40719,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.11 Destruction reminder checkpoint",
-        "start_line": 2412,
-        "end_line": 2424,
+        "start_line": 2468,
+        "end_line": 2480,
         "sha256": "7bd32eaea6183e97956074831305ab585f6531734a92570107f8709f8d28d162"
       },
       "phases": [
@@ -40806,8 +40806,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.12 Evidence and report destination configuration",
-        "start_line": 2425,
-        "end_line": 2442,
+        "start_line": 2481,
+        "end_line": 2498,
         "sha256": "3dedab5862ddad88613abf12cdcd23992ebb22f5f7befe68c497f565aa296d18"
       },
       "phases": [
@@ -40955,8 +40955,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.13 Protected destruction operations",
-        "start_line": 2443,
-        "end_line": 2469,
+        "start_line": 2499,
+        "end_line": 2525,
         "sha256": "f2aed1d594520000b080451ee1b767626f248bc57cbe8dc581506b7ece43dad8"
       },
       "phases": [
@@ -41490,8 +41490,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.14 Canonical SQL ownership",
-        "start_line": 2470,
-        "end_line": 2478,
+        "start_line": 2526,
+        "end_line": 2534,
         "sha256": "2e60758a914868638ad8a26e0c9398ff60ae96c3b8c79bfd46cea0345be7a488"
       },
       "phases": [
@@ -41631,9 +41631,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "19. Verification and traceability",
-        "start_line": 2479,
-        "end_line": 2575,
-        "sha256": "1ceb471acfddc664c2825db4777726c06af69844477a0150feb3038415332b8f"
+        "start_line": 2535,
+        "end_line": 2634,
+        "sha256": "4e79a92cb215e7b373a9f94c9ad1531f81356368067ab120e471696996055b02"
       },
       "phases": [
         23
@@ -86268,6 +86268,299 @@
       "baseline_refs": [
         "holds"
       ]
+    },
+    {
+      "id": "DISP-S18.1",
+      "kind": "source_section_including_all_un-IDed_prose_tables_and_fields",
+      "summary": "18.1 Bulk membership removal amendment (4 November 2026)",
+      "source": {
+        "path": "specs/disposition.md",
+        "heading": "18.1 Bulk membership removal amendment (4 November 2026)",
+        "start_line": 2034,
+        "end_line": 2042,
+        "sha256": "0fe6bc3b3a32b60b66a75d96de324026222ee614b8c7c9a7452820f64ba680c6"
+      },
+      "phases": [
+        9,
+        14,
+        16
+      ],
+      "planned_locations": [
+        "backend/services/api/disposition/membership.py",
+        "backend/services/api/disposition/proposals.py",
+        "frontend/webui/disposition/bulk.py"
+      ],
+      "planned_checks": [
+        {
+          "name": "bulk-disposition-20261104",
+          "cases": "Atomic bulk actions, authorization, scope/version/claim rejection, linked per-item history, retries and preservation of individual actions; bounded selection/filter clearing/abandonment/comments and LTR/RTL UI.",
+          "phase_plans": [
+            "phase_09",
+            "phase_14",
+            "phase_16"
+          ],
+          "status": "planned"
+        }
+      ],
+      "status": "complete",
+      "implementation": [
+        {
+          "phase": 9,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 14,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 16,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 9,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        },
+        {
+          "phase": 14,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        },
+        {
+          "phase": 16,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEST-S6.5.1",
+      "kind": "source_section_including_all_un-IDed_prose_tables_and_fields",
+      "summary": "6.5.1 Bulk proposal and membership actions (approved 4 November 2026)",
+      "source": {
+        "path": "specs/destruction-process.md",
+        "heading": "6.5.1 Bulk proposal and membership actions (approved 4 November 2026)",
+        "start_line": 976,
+        "end_line": 1023,
+        "sha256": "f743d6aec81117e3bb8869e19b2e488146a8d855eb7c42c1deebc1549acf54cf"
+      },
+      "phases": [
+        9,
+        14,
+        16
+      ],
+      "planned_locations": [
+        "backend/services/api/disposition/membership.py",
+        "backend/services/api/disposition/proposals.py",
+        "frontend/webui/disposition/bulk.py"
+      ],
+      "planned_checks": [
+        {
+          "name": "bulk-disposition-20261104",
+          "cases": "Atomic bulk actions, authorization, scope/version/claim rejection, linked per-item history, retries and preservation of individual actions; bounded selection/filter clearing/abandonment/comments and LTR/RTL UI.",
+          "phase_plans": [
+            "phase_09",
+            "phase_14",
+            "phase_16"
+          ],
+          "status": "planned"
+        }
+      ],
+      "status": "complete",
+      "implementation": [
+        {
+          "phase": 9,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 14,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 16,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 9,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        },
+        {
+          "phase": 14,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        },
+        {
+          "phase": 16,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DEST-50",
+      "kind": "acceptance_requirement",
+      "summary": "Bulk disposition actions under destruction-process.md section 6.5.1",
+      "source": {
+        "path": "specs/destruction-process.md"
+      },
+      "phases": [
+        9,
+        14,
+        16
+      ],
+      "planned_locations": [
+        "backend/services/api/disposition/membership.py",
+        "backend/services/api/disposition/proposals.py",
+        "frontend/webui/disposition/bulk.py"
+      ],
+      "planned_checks": [
+        {
+          "name": "bulk-disposition-20261104",
+          "cases": "Requirement-to-implementation-to-test mapping in docs/verification/bulk-disposition.md.",
+          "phase_plans": [
+            "phase_09",
+            "phase_14",
+            "phase_16"
+          ],
+          "status": "planned"
+        }
+      ],
+      "status": "complete",
+      "implementation": [
+        {
+          "phase": 9,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 14,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 16,
+          "scope": "Bulk actions under approved section 6.5.1; existing authority/workflow/individual actions preserved.",
+          "locations": [
+            "backend/services/api/disposition/membership.py",
+            "backend/services/api/disposition/proposals.py",
+            "frontend/webui/disposition/bulk.py"
+          ],
+          "details": "docs/verification/bulk-disposition.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 9,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        },
+        {
+          "phase": 14,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        },
+        {
+          "phase": 16,
+          "result": "passed",
+          "run": "bulk-disposition-20261104",
+          "tests": [
+            "backend/services/api/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "tools/tests/test_canonical_schema.py"
+          ]
+        }
+      ]
     }
   ],
   "decisions": [
@@ -96503,6 +96796,11 @@
       "scope": "255 frontend checks and 33 API checks; shared cross-tab retry and busy state, latest summary freshness, authorization, no automatic email/completion dependency, retained history, English/Arabic and narrow UI.",
       "evidence": "docs/verification/certificate-task-email.md",
       "database_cleanup": "Canonical erms_messaging_test_acl_7f1bc92fa6e54b13a324a0662c0cb991 dropped after synthetic-transport tests"
+    },
+    "bulk-disposition-20261104": {
+      "result": "passed",
+      "details": "docs/verification/bulk-disposition.md",
+      "scope": "Approved bulk actions; API, canonical/upgrade and bilingual UI checks. Historical release-baseline drift is documented separately."
     }
   },
   "removed_setting": {

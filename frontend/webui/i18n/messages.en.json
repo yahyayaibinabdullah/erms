@@ -7531,6 +7531,360 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.bulk_all_or_none",
+    "context_group": "disposition.ui",
+    "default_text": "All selected items must still be eligible. Either every selected change is saved, or none is.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_all_or_none",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "All selected items must still be eligible. Either every selected change is saved, or none is.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_clear",
+    "context_group": "disposition.ui",
+    "default_text": "Clear selection",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_clear",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Clear selection",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Nothing was changed. Review the issue below, then refresh your selection if needed.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_failed",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Nothing was changed. Review the issue below, then refresh your selection if needed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_limit",
+    "context_group": "disposition.ui",
+    "default_text": "Select up to 100 items per action.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_limit",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Select up to 100 items per action.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Add removal proposals ({count})",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_confirm",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Add removal proposals (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_hint",
+    "context_group": "disposition.ui",
+    "default_text": "One removal proposal will be saved for each selected aggregation. They remain in the job until the Records Manager approves and applies the proposals.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_hint",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "One removal proposal will be saved for each selected aggregation. They remain in the job until the Records Manager approves and applies the proposals.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_selected",
+    "context_group": "disposition.ui",
+    "default_text": "Propose removal of selected aggregations",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_selected",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Propose removal of selected aggregations",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_title",
+    "context_group": "disposition.ui",
+    "default_text": "Propose removal of selected aggregations ({count})?",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_title",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Propose removal of selected aggregations (3)?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_reason_required",
+    "context_group": "disposition.ui",
+    "default_text": "Reason (required)",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_reason_required",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Reason (required)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_refresh_selection",
+    "context_group": "disposition.ui",
+    "default_text": "Refresh selection",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_refresh_selection",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Refresh selection",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Remove selected ({count})",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_confirm",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Remove selected (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_hint",
+    "context_group": "disposition.ui",
+    "default_text": "The aggregations and their contents will remain in Wathiq. Their job membership will end, and disposition statuses will be updated under the existing removal rules. Existing proposals and their history are retained.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_hint",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "The aggregations and their contents will remain in Wathiq. Their job membership will end, and disposition statuses will be updated under the existing removal rules. Existing proposals and their history are retained.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_selected",
+    "context_group": "disposition.ui",
+    "default_text": "Remove selected from job",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_selected",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Remove selected from job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_title",
+    "context_group": "disposition.ui",
+    "default_text": "Remove selected aggregations ({count}) from this job?",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_title",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Remove selected aggregations (3) from this job?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_removed",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregations removed from job: {count}. No records were deleted.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_removed",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Aggregations removed from job: 3. No records were deleted.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_saved",
+    "context_group": "disposition.ui",
+    "default_text": "Proposals saved: {count}.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_saved",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Proposals saved: 3.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_select_page",
+    "context_group": "disposition.ui",
+    "default_text": "Select eligible rows on this page",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_select_page",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Select eligible rows on this page",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_selected_count",
+    "context_group": "disposition.ui",
+    "default_text": "Selected: {count}",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_selected_count",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Selected: 3",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "Unavailable: check access, current state and task permissions.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_unavailable",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Unavailable: check access, current state and task permissions.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_uncertain",
+    "context_group": "disposition.ui",
+    "default_text": "The result could not be confirmed. Retry this same action to check its result safely.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_uncertain",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "The result could not be confirmed. Retry this same action to check its result safely.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw selected ({count})",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_confirm",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Withdraw selected (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_hint",
+    "context_group": "disposition.ui",
+    "default_text": "These proposals will no longer be included in approval. Their history will remain available. No aggregation or record will be changed.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_hint",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "These proposals will no longer be included in approval. Their history will remain available. No aggregation or record will be changed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_selected",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw selected proposals",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_selected",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Withdraw selected proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_title",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw selected proposals ({count})?",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_title",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Withdraw selected proposals (3)?",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.cancel",
     "context_group": "disposition.ui",
     "default_text": "Cancel",
@@ -8709,6 +9063,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Choose a higher security level that prevents disposition.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_bulk_selection_changed",
+    "context_group": "disposition.ui",
+    "default_text": "One or more selected items changed or are no longer available. Refresh the selection and review them again.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: disposition_bulk_selection_changed",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "One or more selected items changed or are no longer available. Refresh the selection and review them again.",
     "is_html": false
   },
   {

@@ -49,6 +49,17 @@ class RemoveMember(Command):
     root_version: StrictInt=Field(ge=1)
 
 
+class SelectedMembership(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    membership_id: StrictInt=Field(ge=1)
+    expected_version: StrictInt=Field(ge=1)
+    root_version: StrictInt=Field(ge=1)
+
+
+class RemoveMembers(Command):
+    items: list[SelectedMembership]=Field(min_length=1,max_length=100)
+
+
 class TerminateJob(Command):
     confirmed: StrictBool
 
@@ -104,6 +115,12 @@ def add_items(job_id: int,payload: AddItems,request: Request,version: int=Depend
 @router.post('/memberships/{membership_id}/remove')
 def remove_member(membership_id: int,payload: RemoveMember,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.remove_member,membership_id=membership_id,expected_version=version,root_version=payload.root_version)
+
+
+@router.post('/jobs/{job_id}/memberships/remove')
+def remove_members(job_id: int,payload: RemoveMembers,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
+    return _command(c,request,payload,membership.remove_many,job_id=job_id,expected_version=version,
+                    items=[item.model_dump() for item in payload.items])
 
 
 @router.post('/aggregations/{root_id}/accelerate')
@@ -371,6 +388,7 @@ class SaveReview(Command):
     review_notes: str | None=None
     note_version: StrictInt | None=Field(default=None,ge=0)
     overall_reason: str | None=None
+    bulk: StrictBool=False
 
 
 class SubmitReview(Command):
@@ -389,7 +407,7 @@ def save_review(task_id: int,payload: SaveReview,request: Request,version: int=D
     from . import proposals
     return _command(c,request,payload,proposals.save,audit_reason='Save destruction review work',task_id=task_id,expected_version=version,
       task_version=payload.task_version,changes=[v.model_dump() for v in payload.changes],review_notes=payload.review_notes,
-      note_version=payload.note_version,overall_reason=payload.overall_reason)
+      note_version=payload.note_version,overall_reason=payload.overall_reason,bulk=payload.bulk)
 
 
 @router.post('/tasks/{task_id}/submit-review')

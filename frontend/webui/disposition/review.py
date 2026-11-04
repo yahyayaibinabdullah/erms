@@ -37,7 +37,7 @@ class ReviewForm:
         self.preview=preview
         self.browse_resource=browse_resource
         self.job=workspace['job'];self.task=workspace['task'];self.actions=set(workspace['actions'])
-        self.pending_disclosures=[];self.proposal_pages=[]
+        self.pending_disclosures=[];self.proposal_pages=[];self.bulk_selections=[]
         self.retry={};self.busy=False;self.proposal_filter=None;self.proposal_round=None
         self.work=None;self.comments=None;self.saved_comments=''
         self.draft_controls=None;self.draft_buttons=[];self.footer_host=footer_host
@@ -189,7 +189,7 @@ class ReviewForm:
         self.render_pending()
         return result
 
-    async def save_proposals(self,changes,feedback):
+    async def save_proposals(self,changes,feedback,*,bulk=False):
         """Save one confirmed editor action atomically, without saving comments.
 
         Exact-payload retry identities survive transport errors. Version failures
@@ -202,17 +202,19 @@ class ReviewForm:
         committed=False
         try:
             result=await self.send(f"tasks/{self.task['id']}/review-work",
-                {'task_version':self.work['task_version'],'changes':changes},self.work['job_version'])
+                {'task_version':self.work['task_version'],'changes':changes,**({'bulk':True} if bulk else {})},self.work['job_version'])
             committed=True
             if not self.alive():return True
             self.work.update(job_version=result['job_version'],task_version=result['task_version'])
             self.job['version']=result['job_version'];self.task['version']=result['task_version']
-            ui.notify(text('proposal_saved'),type='positive')
+            for selection in self.bulk_selections:selection.clear()
+            ui.notify(text('bulk_saved',count=len(changes)) if bulk else text('proposal_saved'),type='positive')
             self.proposal_pages[:]=[(page,active) for page,active in self.proposal_pages if active()]
             await asyncio.gather(*(page.load() for page,active in self.proposal_pages))
             if self.alive():await self.after({'_saved_work':True,'job_version':result['job_version']})
             return True
         except ApiError as error:
+            if bulk and not committed:raise
             if self.alive():
                 feedback.text=failure(error,self.on_error)
                 self.error(error)
@@ -317,9 +319,17 @@ class ReviewForm:
 
     async def proposals_panel(self,root_id=None,host=None,active=None):
         from .proposal_presenter import proposed_change
+        from .bulk import BulkSelection
         with host or self.host:
             ui.separator();ui.label(text('proposals')).classes('text-lg font-semibold')
             round_label=ui.label('').classes('text-sm text-slate-600')
+            scope_active=active or self.task_active
+            selection=None
+            if 'propose' in self.actions:
+                selection=BulkSelection(eligible=lambda row:'propose' in self.actions and row.get('editable',False),label=lambda row:row['target_label'],
+                    active=scope_active,actions=[('bulk_withdraw_selected',lambda rows:self.bulk_proposals('withdraw',rows,scope_active))])
+                self.bulk_selections[:]=[value for value in self.bulk_selections if not value.bar._deleted]
+                self.bulk_selections.append(selection)
             async def fetch(p):
                 result=await self.api.disposition_page(f"jobs/{self.job['id']}/proposals",limit=p.size,offset=(p.page-1)*p.size,review_round=self.proposal_round,root_id=root_id)
                 for row in result['items']:
@@ -342,11 +352,13 @@ class ReviewForm:
                     row['editable']='propose' in self.actions and self.work is not None and row['review_round']==self.work['review_round'] and row['proposal_state']=='active' and row['in_current_membership']
                 return result
             def loaded(p,result):
+                if selection:selection.loaded(p,result)
                 rounds={r['review_round'] for r in result['items'] if r.get('review_round') is not None}
                 number=next(iter(rounds)) if len(rounds)==1 else self.proposal_round if not rounds else None
                 round_label.text=text('tracker_round',number=number) if number is not None else ''
                 round_label.set_visibility(number is not None)
-            page=PageTable(columns=[column('target_label','target'),column('change_label','proposed_change'),column('state_label','proposal_status'),column('proposer_label','proposed_by'),column('reason_label','proposal_reason'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),on_loaded=loaded)
+            page=PageTable(columns=[column('target_label','target'),column('change_label','proposed_change'),column('state_label','proposal_status'),column('proposer_label','proposed_by'),column('reason_label','proposal_reason'),column('actions')],fetch=fetch,active=scope_active,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),on_loaded=loaded,selection='multiple' if selection else None)
+            if selection:selection.attach(page)
             page.table.add_slot('body-cell-target_label','''<q-td :props="props"><bdi>{{ props.row.target_label }}</bdi><div v-if="props.row.target_notice" class="text-sm text-slate-600">{{ props.row.target_notice }}</div></q-td>''')
             page.table.add_slot('body-cell-proposer_label','''<q-td :props="props"><span dir="auto">{{ props.row.proposer_label }}</span><div v-if="props.row.proposer_role_name" dir="auto" class="text-sm text-slate-600">{{ props.row.proposer_role_name }}</div></q-td>''')
             for name in ('change_label','reason_label'):
@@ -360,6 +372,39 @@ class ReviewForm:
             self.proposal_pages[:]=[(prior,visible) for prior,visible in self.proposal_pages if visible()]
             self.proposal_pages.append((page,active or self.alive))
             await page.load()
+
+    async def refresh_bulk(self):
+        if not self.alive():return
+        for selection in self.bulk_selections:selection.clear()
+        # Keep unsaved comments in their editor while refreshing mutation versions.
+        try:work=await self.api.disposition_page(f"tasks/{self.task['id']}/review-work")
+        except ApiError as error:
+            if error.status_code in (403,404) and self.alive():
+                self.actions.discard('propose')
+                for selection in self.bulk_selections:selection.sync()
+            raise
+        if not self.alive():return
+        # Do not upgrade the comment editor's note version behind unsaved input.
+        # Concurrent comment edits must still conflict on their original version.
+        self.work.update({key:work[key] for key in ('job_version','task_version','task_state','review_round') if key in work})
+        self.job['version']=work['job_version'];self.task['version']=work['task_version']
+        if work.get('task_state') not in (None,'open','claimed'):self.actions.discard('propose')
+        await asyncio.gather(*(page.load() for page,active in self.proposal_pages if active()))
+        if self.alive():await self.after({'_saved_work':True,'job_version':work['job_version']})
+
+    async def bulk_proposals(self,operation,rows,active=None):
+        from .bulk import bulk_dialog
+        if self.busy or 'propose' not in self.actions or not self.work:return
+        active=active or self.alive
+        async def execute(selected,reason,feedback):
+            changes=([dict(action='withdraw',proposal_id=row['id'],expected_version=row['version'],reason=reason or None) for row in selected]
+                     if operation=='withdraw' else
+                     [dict(action='create',proposal_type='remove_from_job',governing_root_id=row['root_aggregation_id'],
+                           target_aggregation_id=row['root_aggregation_id'],target_version=row['root_version'],
+                           proposed_values={},reason=reason or None) for row in selected])
+            return await self.save_proposals(changes,feedback,bulk=True)
+        return await bulk_dialog(operation=operation,rows=rows,active=active,execute=execute,
+                                 on_error=lambda error:failure(error,self.on_error),refresh=self.refresh_bulk)
 
     async def notes_panel(self,host=None,active=None):
         with host or self.host:
@@ -599,7 +644,9 @@ class ReviewForm:
             page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="history" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('round',props.row.id)"><q-tooltip>'''+escape(text('proposals'))+'''</q-tooltip></q-btn><q-btn v-if="props.row.can_retry" flat dense icon="description" aria-label="'''+escape(text('retry_report'))+'''" @click="$parent.$emit('report',props.row.id)"><q-tooltip>'''+escape(text('retry_report'))+'''</q-tooltip></q-btn></q-td>''')
             async def show(event):
                 row=next((r for r in page.table.rows if r['id']==event.args and not r.get('redacted')),None)
-                if row:self.proposal_round=row['round_number'];await self.proposals.load(reset=True)
+                if row:
+                    for selection in self.bulk_selections:selection.clear()
+                    self.proposal_round=row['round_number'];await self.proposals.load(reset=True)
             async def report(event):
                 row=next((r for r in page.table.rows if r['id']==event.args and r.get('can_retry')),None)
                 if not row:return

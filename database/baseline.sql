@@ -48,5 +48,6 @@ INSERT INTO schema_migrations(version) VALUES
  ('093_restore_reopened_job_members'),
  ('094_simplified_review_additions'),
  ('095_required_job_preparer'),
- ('096_immediate_proposals_optional_reasons');
+ ('096_immediate_proposals_optional_reasons'),
+ ('097_bulk_disposition_audit_link');
 COMMIT;

@@ -2030,3 +2030,13 @@ resubmission, routine completion and approval comments are optional on every rou
 rejection/return for correction requires comments explaining the issue. Labels and
 helpers identify optional fields and required correction comments in both languages.
 The detailed contract is destruction-process.md §6.6–6.6.1 (DEST-18/24/29/41).
+
+### 18.1 Bulk membership removal amendment (4 November 2026)
+
+Explicit selection of up to 100 current memberships in one job may be removed
+in one atomic command, using the same actor/stage/access gates and whole-unit
+status transitions as individual removal. A failure rolls back every selected
+removal, status change and event. Retain individual events linked by the command
+UUID and exact-payload idempotent retries. Individual actions and multi-add's
+per-item results remain unchanged. Destruction proposal bulk controls follow
+`destruction-process.md` section 6.5.1.

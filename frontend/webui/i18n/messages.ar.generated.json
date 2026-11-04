@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "2b92f3237163c8b52488a298a0a9c78f5113efe30561479df7242a3aa401d2a2",
+  "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261102132930",
   "generated_at": "2026-11-02T13:29:30.297596+04:00",
@@ -6560,6 +6560,486 @@
       }
     },
     {
+      "message_key": "disposition.ui.bulk_all_or_none",
+      "translated_text": "يجب أن تظل جميع العناصر المحددة مستوفية للشروط. تُحفظ جميع التغييرات المحددة معًا أو لا يُحفظ أي منها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293702+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_clear",
+      "translated_text": "إلغاء التحديد",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293400+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_failed",
+      "translated_text": "لم يتم إجراء أي تغيير. راجع المشكلة أدناه، ثم حدّث التحديد عند الحاجة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293720+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_limit",
+      "translated_text": "يمكن تحديد ما يصل إلى 100 عنصر لكل إجراء.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293653+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_propose_confirm",
+      "translated_text": "إضافة مقترحات الإزالة ({count})",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293716+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_propose_hint",
+      "translated_text": "سيُحفظ مقترح إزالة لكل ملف محدد. وتبقى الملفات في العملية حتى يعتمد مدير الوثائق المقترحات ويطبقها.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293699+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_propose_selected",
+      "translated_text": "اقتراح إزالة الملفات المحددة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293675+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_propose_title",
+      "translated_text": "هل تريد اقتراح إزالة الملفات المحددة ({count})؟",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293688+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_reason_required",
+      "translated_text": "السبب (مطلوب)",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293705+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_refresh_selection",
+      "translated_text": "تحديث التحديد",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293726+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_remove_confirm",
+      "translated_text": "إزالة المحدد ({count})",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293713+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_remove_hint",
+      "translated_text": "ستبقى الملفات ومحتوياتها في وثق. وستنتهي عضويتها في العملية، وستُحدّث حالات التصرف وفق قواعد الإزالة المعمول بها. تُحفظ المقترحات الحالية وسجلها التاريخي.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293695+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_remove_selected",
+      "translated_text": "إزالة المحدد من العملية",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293665+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_remove_title",
+      "translated_text": "هل تريد إزالة الملفات المحددة ({count}) من هذه العملية؟",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293684+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_removed",
+      "translated_text": "الملفات التي أُزيلت من العملية: {count}. لم تُحذف أي وثائق.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293735+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_saved",
+      "translated_text": "تم حفظ المقترحات: {count}.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293729+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_select_page",
+      "translated_text": "تحديد الصفوف المتاحة في هذه الصفحة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293649+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_selected_count",
+      "translated_text": "المحدد: {count}",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293644+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_unavailable",
+      "translated_text": "غير متاح: تحقق من صلاحية الوصول والحالة الحالية وصلاحيات المهمة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293657+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_uncertain",
+      "translated_text": "تعذّر تأكيد النتيجة. أعد محاولة الإجراء نفسه للتحقق من نتيجته بأمان.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293723+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_withdraw_confirm",
+      "translated_text": "سحب المحدد ({count})",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293709+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_withdraw_hint",
+      "translated_text": "لن تُدرج هذه المقترحات ضمن الاعتماد. وسيظل تاريخها متاحًا. لن يتم تغيير أي ملف أو وثيقة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293690+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_withdraw_selected",
+      "translated_text": "سحب المقترحات المحددة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293661+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.bulk_withdraw_title",
+      "translated_text": "هل تريد سحب المقترحات المحددة ({count})؟",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293681+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
       "message_key": "disposition.ui.cancel",
       "translated_text": "إلغاء",
       "quality_flags": [],
@@ -7513,6 +7993,26 @@
         "source_status": "published",
         "date_reviewed": "2026-10-21T05:53:16.645915+00:00",
         "date_published": "2026-10-21T05:53:16.645915+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_bulk_selection_changed",
+      "translated_text": "تغيّر عنصر محدد أو أكثر، أو لم يعد متاحًا. حدّث التحديد وراجع العناصر مجددًا.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved bulk disposition actions"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "bulk-disposition-v1",
+        "batch_id": "bulk-disposition-20261104",
+        "generated_at": "2026-11-04T03:41:35.293738+00:00",
+        "catalogue_sha256": "328d813186c6d3a6b0b17e1dca9d8c2e4a86f12dd42d304d8bdbf0e92f9f09f3",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
