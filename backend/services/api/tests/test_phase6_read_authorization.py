@@ -134,7 +134,15 @@ def test_hidden_resources_are_non_disclosing_across_read_surfaces(client):
     assert search["items"][0]["parent_aggregation_state"] == "redacted"
     dashboard = client.get("/api/v1/dashboard/summary", params={"recent_limit": 7})
     assert dashboard.status_code == 200, dashboard.text
-    assert dashboard.json()["unclassified_root_count"] == 0
+    summary = dashboard.json()
+    assert summary["unclassified_root_count"] == 0
+    assert summary["overview_counts"]["aggregations"] == 2
+    assert summary["overview_counts"]["records"] == 0
+    assert sum(summary["overview_medium_counts"]["aggregations"].values()) == 2
+    assert sum(summary["overview_medium_counts"]["records"].values()) == 0
+    assert summary["overview_resource_attention_counts"]["records"] == {"vital": 0, "held": 0}
+    assert summary["overview_digital_component_metrics"] == {"component_count": 0, "storage_size_in_bytes": 0}
+    assert summary['favourites']=={'aggregations':[],'records':[]}
     assert client.get(f"/api/v1/browse/aggregations/{hidden['id']}/summary").status_code == 404
     assert client.get(f"/api/v1/aggregations/{hidden['id']}/capabilities").status_code == 404
 
@@ -173,3 +181,37 @@ def test_lower_clearance_role_does_not_veto_maximum_effective_clearance(client):
         ).fetchone()[0]
         connection.execute("INSERT INTO user_role_assignments(user_id,role_id) VALUES (%s,%s)", (user_id, low_role))
     assert client.get(f"/api/v1/aggregations/{resource['id']}").status_code == 200
+
+
+def test_dashboard_second_identity_without_roles_never_receives_first_identity_totals(client):
+    aggregation_response = client.post('/api/v1/aggregations',json={
+        'aggregation_number':'DASHBOARD-A','title':'PRIVATE DASHBOARD A','classification_id':1})
+    assert aggregation_response.status_code == 201, aggregation_response.text
+    aggregation = aggregation_response.json()
+    record_response = client.post('/api/v1/records',json={
+        'aggregation_id':aggregation['id'],'record_number':'DASHBOARD-A-R','title':'PRIVATE RECORD A'})
+    assert record_response.status_code == 201, record_response.text
+    assert client.put(f"/api/v1/favourites/aggregations/{aggregation['id']}").status_code == 204
+    first = client.get('/api/v1/dashboard/summary').json()
+    assert first['overview_counts']['aggregations'] == 1
+    assert first['overview_counts']['records'] == 1
+    assert first['favourites']['aggregations']
+    password = 'Dashboard-Test-Password-123!'
+    with psycopg.connect(os.environ['DATABASE_URL']) as connection:
+        connection.execute("SELECT set_config('app.event_source','seeding',true)")
+        user = connection.execute("INSERT INTO users(name,email) VALUES('Dashboard B','dashboard-b@test.invalid') RETURNING id").fetchone()[0]
+        connection.execute('INSERT INTO user_credentials(user_id,password_hash,must_change_password) VALUES(%s,%s,false)',
+                           (user,hash_password(password)))
+    _login(client,'dashboard-b@test.invalid',password)
+    for _ in range(2):
+        response = client.get('/api/v1/dashboard/summary')
+        assert response.status_code == 200, response.text
+        second = response.json()
+        assert second['overview_counts'] == {'aggregations':0,'records':0}
+        assert all(not any(counts.values()) for counts in second['overview_medium_counts'].values())
+        assert all(not any(counts.values()) for counts in second['overview_resource_attention_counts'].values())
+        assert second['overview_digital_component_metrics'] == {'component_count':0,'storage_size_in_bytes':0}
+        assert second['favourites'] == {'aggregations':[],'records':[]}
+        assert second['ownership_counts'] == second['recent_activity'] == []
+        assert second['overdue_review_count'] == second['upcoming_review_count'] == 0
+        assert 'PRIVATE DASHBOARD A' not in response.text and 'PRIVATE RECORD A' not in response.text

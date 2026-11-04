@@ -10977,6 +10977,8 @@ CREATE UNIQUE INDEX digital_component_one_active_content_set_idx ON public.digit
 
 CREATE INDEX digital_components_record_id_idx ON public.digital_components USING btree (record_id);
 
+CREATE INDEX digital_components_dashboard_storage_idx ON public.digital_components USING btree (record_id) INCLUDE (size_in_bytes);
+
 CREATE INDEX disposition_destruction_claim ON public.disposition_destruction_runs USING btree (id) WHERE (state = ANY (ARRAY['queued'::text, 'running'::text]));
 
 CREATE UNIQUE INDEX disposition_destruction_manifest_identity ON public.disposition_destruction_manifest_items USING btree (job_id, resource_kind, resource_id, COALESCE(source_content_set_id, (0)::bigint));
@@ -11040,6 +11042,10 @@ CREATE INDEX event_history_actor_name_trgm_idx ON public.event_history USING gin
 CREATE INDEX event_history_actor_timeline_idx ON public.event_history USING btree (actor_user_id, occurred_at DESC, id DESC) WHERE (actor_user_id IS NOT NULL);
 
 CREATE INDEX event_history_correlation_id_idx ON public.event_history USING btree (correlation_id) WHERE (correlation_id IS NOT NULL);
+
+CREATE INDEX event_history_dashboard_resource_latest_idx ON public.event_history USING btree (actor_user_id, entity_type, entity_id, operation, occurred_at DESC, id DESC) WHERE entity_type IN ('aggregation', 'record') AND operation IN ('CREATE', 'UPDATE');
+
+CREATE INDEX event_history_dashboard_content_views_idx ON public.event_history USING btree (actor_user_id, occurred_at DESC, id DESC) INCLUDE (entity_id, operation) WHERE entity_type='digital_component' AND operation='CONTENT_VIEWED';
 
 CREATE INDEX event_history_entity_timeline_idx ON public.event_history USING btree (entity_type, entity_id, occurred_at DESC, id DESC);
 

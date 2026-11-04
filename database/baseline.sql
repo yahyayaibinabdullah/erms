@@ -49,5 +49,8 @@ INSERT INTO schema_migrations(version) VALUES
  ('094_simplified_review_additions'),
  ('095_required_job_preparer'),
  ('096_immediate_proposals_optional_reasons'),
- ('097_bulk_disposition_audit_link');
+ ('097_bulk_disposition_audit_link'),
+ ('098_dashboard_resource_activity_index'),
+ ('099_dashboard_content_activity_index'),
+ ('100_dashboard_component_storage_index');
 COMMIT;

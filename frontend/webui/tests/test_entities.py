@@ -1731,7 +1731,7 @@ def test_organizational_ownership_is_presented_on_details_and_dashboard():
     assert '"Owning organizational unit"' in source
     assert "await api.dashboard_summary(" in source
     assert 'dashboard_load_state = {"running": False}' in source
-    assert 'if dashboard_load_state["running"]:' in source
+    assert 'if not dashboard_view_is_current() or dashboard_load_state["running"]:' in source
     assert 'ui.label("Holdings by organizational unit")' in source
     assert "Only units where you have an effective role; counts respect your access." in source
     assert '"dashboard-holdings-list"' in source

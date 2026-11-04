@@ -4718,11 +4718,33 @@ def index(q: str = "") -> None:
             "history.replaceState(null, '', '/'); true", timeout=5,
         )
 
+    def dashboard_session_key() -> tuple[Any, ...] | None:
+        principal = auth_state.get("principal")
+        if principal is None:
+            return None
+        localization = state.get("localization") or {}
+        return (
+            state.get("dashboard_session_revision", 0),
+            principal["user"]["id"],
+            localization.get("effective_language", "en"),
+            localization.get("working_timezone", "UTC"),
+            tuple(sorted(principal.get("global_privileges", []))),
+            tuple(sorted(role["id"] for role in principal.get("roles", []))),
+        )
+
+    def clear_dashboard_session() -> None:
+        """Discard private snapshots and invalidate all old dashboard callbacks."""
+        state.pop("dashboard_summary_cache", None)
+        state.pop("dashboard_summary_cache_key", None)
+        state.pop("dashboard_view_token", None)
+        state["dashboard_session_revision"] = state.get("dashboard_session_revision", 0) + 1
+
     def clear_signed_in_identity() -> None:
         """Remove account identity and overlays before presenting sign-in again."""
         stop_message_stream()
         message_unread_button.set_visibility(False)
         clear_global_search_session()
+        clear_dashboard_session()
         state.pop("classification_browser_preferences", None)
         state.pop("classification_workspace_token", None)
         api.cancel_pending_reads()
@@ -12358,6 +12380,7 @@ def index(q: str = "") -> None:
         # Close the overlay immediately; waiting for the API logout first leaves
         # the menu above the persistent login dialog during slower requests.
         user_menu.close()
+        clear_signed_in_identity()
         try:
             await api.logout()
         except ApiError:
@@ -12365,7 +12388,6 @@ def index(q: str = "") -> None:
         app.storage.user.pop("session_token", None)
         app.storage.user.pop("organization_browser_state", None)
         api.set_session_token(None)
-        clear_signed_in_identity()
         login_dialog.open()
 
     async def select_login_sessions(user_id: int | None = None) -> None:
@@ -12577,6 +12599,15 @@ def index(q: str = "") -> None:
         await load_sessions()
 
     async def select_dashboard() -> None:
+        dashboard_principal = auth_state.get("principal")
+        dashboard_key = dashboard_session_key()
+        if dashboard_key is None:
+            return
+        dashboard_view_token = object()
+        state["dashboard_view_token"] = dashboard_view_token
+        if state.get("dashboard_summary_cache_key") != dashboard_key:
+            state.pop("dashboard_summary_cache", None)
+            state.pop("dashboard_summary_cache_key", None)
         register_navigation("dashboard", render_message("navigation.item.dashboard"))
         show_authenticated_view()
         state.update(resource="dashboard", rows=[], searched=True, aggregation_detail=None)
@@ -12592,6 +12623,22 @@ def index(q: str = "") -> None:
             dashboard_content = ui.column().classes("w-full px-5 pb-5 pt-0 gap-4")
         dashboard_load_state = {"running": False}
         dashboard_refresh_controls: dict[str, Any] = {"button": None}
+
+        def dashboard_session_is_current() -> bool:
+            return (
+                auth_state.get("principal") is dashboard_principal
+                and dashboard_session_key() == dashboard_key
+                and state.get("dashboard_view_token") is dashboard_view_token
+                and not getattr(page_client, "_deleted", False)
+                and page_client.has_socket_connection
+            )
+
+        def dashboard_view_is_current() -> bool:
+            return (
+                dashboard_session_is_current()
+                and state.get("resource") == "dashboard"
+                and not dashboard_content.is_deleted
+            )
 
         def dashboard_medium_label(medium: str, count: int) -> str:
             if medium == "physical":
@@ -12616,13 +12663,19 @@ def index(q: str = "") -> None:
             return render_message("dashboard.resource.record")
 
         async def open_dashboard_resource(resource: str, item: dict[str, Any]) -> None:
+            if not dashboard_session_is_current():
+                return
             try:
                 entity = await api.get(resource, item["id"])
+                if not dashboard_session_is_current():
+                    return
                 if resource == "aggregations":
                     await open_aggregation(entity)
                 else:
                     await show_record_details(entity)
             except ApiError as error:
+                if not dashboard_session_is_current():
+                    return
                 ui.notify(error_message(error), color="negative", close_button=True)
 
         async def show_unclassified_roots() -> None:
@@ -12651,6 +12704,8 @@ def index(q: str = "") -> None:
                 ui.notify(error_message(error), color="negative", close_button=True)
 
         async def show_all_reviews(review_kind: str) -> None:
+            if not dashboard_view_is_current():
+                return
             register_navigation(
                 "dashboard", f"{review_kind.title()} reviews", dynamic_label=True,
             )
@@ -12670,7 +12725,7 @@ def index(q: str = "") -> None:
                     next_page = ui.button(icon="chevron_right").props("flat round dense")
 
             async def load_review_page() -> None:
-                if page["loading"]:
+                if not dashboard_session_is_current() or results_host.is_deleted or page["loading"]:
                     return
                 page["loading"] = True
                 previous_page.props(add="disable")
@@ -12682,6 +12737,8 @@ def index(q: str = "") -> None:
                     fetched = await api.dashboard_reviews(
                         review_kind, limit=page["limit"], offset=page["offset"],
                     )
+                    if not dashboard_session_is_current() or results_host.is_deleted:
+                        return
                     has_more = len(fetched) > page["limit"]
                     items = fetched[:page["limit"]]
                     results_host.clear()
@@ -12714,6 +12771,8 @@ def index(q: str = "") -> None:
                 except asyncio.CancelledError:
                     return
                 except ApiError as error:
+                    if not dashboard_session_is_current() or results_host.is_deleted:
+                        return
                     results_host.clear()
                     with results_host:
                         ui.label(error_message(error)).classes("text-negative")
@@ -12732,7 +12791,7 @@ def index(q: str = "") -> None:
             *, summary_override: dict[str, Any] | None = None,
             refresh_only: bool = False,
         ) -> None:
-            if dashboard_load_state["running"]:
+            if not dashboard_view_is_current() or dashboard_load_state["running"]:
                 return
             dashboard_load_state["running"] = True
             refresh_button = dashboard_refresh_controls.get("button")
@@ -12760,10 +12819,14 @@ def index(q: str = "") -> None:
 
                 if summary_override is None:
                     summary = await api.dashboard_summary(recent_limit=50)
+                    # Check ownership before any cache write or UI/config update.
+                    if not dashboard_view_is_current():
+                        return
                     state["dashboard_summary_cache"] = summary
+                    state["dashboard_summary_cache_key"] = dashboard_key
                 else:
                     summary = summary_override
-                if state.get("resource") != "dashboard" or getattr(dashboard_content,"_deleted",False):
+                if not dashboard_view_is_current():
                     return
                 accept_application_configuration(summary["application_configuration"])
                 recent_limit = dashboard_recent_item_limit(summary["application_configuration"])
@@ -12812,29 +12875,32 @@ def index(q: str = "") -> None:
                 recent_records = all_recent_records[:recent_limit]
                 favourite_limit = dashboard_favourite_item_limit(state["application_configuration"])
             except ApiError as error:
-                if getattr(page_client, "_deleted", False):
+                if not dashboard_view_is_current():
                     return
                 if error.status_code == 401:
                     set_connection_status(True)
                     return
-                dashboard_content.clear()
-                with dashboard_content:
-                    ui.label(error_message(error)).classes("text-negative p-5")
+                if refresh_only:
+                    # A failed refresh must not destroy this identity's last
+                    # authorized snapshot or the working Refresh control.
+                    with dashboard_content:
+                        ui.notify(error_message(error), color="negative", close_button=True)
+                else:
+                    dashboard_content.clear()
+                    with dashboard_content:
+                        ui.label(error_message(error)).classes("text-negative p-5")
                 set_connection_status(False)
                 return
             finally:
                 dashboard_load_state["running"] = False
                 if (
-                    refresh_button is not None
+                    dashboard_view_is_current()
+                    and refresh_button is not None
                     and not getattr(refresh_button, "_deleted", False)
                 ):
                     refresh_button.props(remove="loading disable")
 
-            if (
-                getattr(page_client, "_deleted", False)
-                or getattr(dashboard_content, "_deleted", False)
-                or state.get("resource") != "dashboard"
-            ):
+            if not dashboard_view_is_current():
                 return
             dashboard_content.clear()
             with dashboard_content:
@@ -13338,8 +13404,12 @@ def index(q: str = "") -> None:
                 async def remove_dashboard_favourite(
                     resource: str, item: dict[str, Any], *, dialog_refresh: Any | None = None,
                 ) -> None:
+                    if not dashboard_view_is_current():
+                        return
                     try:
                         await api.unfavourite(resource, item["id"])
+                        if not dashboard_view_is_current():
+                            return
                         favourites[resource] = [
                             entry for entry in favourites[resource]
                             if entry["id"] != item["id"]
@@ -13351,9 +13421,13 @@ def index(q: str = "") -> None:
                             dialog_refresh()
                         ui.notify(render_message("webui.remove_dashboard_favourite.notify.removed_from_favourites_6953809b"), color="positive")
                     except ApiError as error:
+                        if not dashboard_view_is_current():
+                            return
                         ui.notify(error_message(error), color="negative", close_button=True)
 
                 def show_all_favourites() -> None:
+                    if not dashboard_view_is_current():
+                        return
                     dialog = ui.dialog()
                     with dialog, ui.card().classes(
                         "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
@@ -13444,6 +13518,8 @@ def index(q: str = "") -> None:
                             ui.label(activity_label)
 
                 def show_all_recent_records() -> None:
+                    if not dashboard_view_is_current():
+                        return
                     dialog = ui.dialog()
                     with dialog, ui.card().classes(
                         "dashboard-personal-dialog w-[820px] max-w-full max-h-[85vh]"
@@ -13507,9 +13583,9 @@ def index(q: str = "") -> None:
                     int(item["storage_size_in_bytes"]) for item in ranked_storage_units
                 )
                 maximum_unit_storage = max(
-                    1,
-                    *(int(item["storage_size_in_bytes"]) for item in top_storage_units),
-                )
+                    (int(item["storage_size_in_bytes"]) for item in top_storage_units),
+                    default=1,
+                ) or 1
                 with ui.element("section").classes("dashboard-storage-chart").props(
                     "aria-label='" + render_message("webui.load_dashboard.accessible_name.top_five_organizational_units_by_authorize_cfc7c0c5") + "'"
                 ):
@@ -13589,7 +13665,10 @@ def index(q: str = "") -> None:
                 set_connection_status(True)
 
         cached_summary = state.get("dashboard_summary_cache")
-        if isinstance(cached_summary, dict) and cached_summary:
+        if (
+            state.get("dashboard_summary_cache_key") == dashboard_key
+            and isinstance(cached_summary, dict) and cached_summary
+        ):
             await load_dashboard(summary_override=cached_summary)
             background_tasks.create(load_dashboard(refresh_only=True))
         else:
@@ -21409,6 +21488,7 @@ def index(q: str = "") -> None:
                     user_agent=context.client.request.headers.get("user-agent"),
                 )
                 clear_global_search_session()
+                clear_dashboard_session()
                 await clear_translation_inspector_session()
                 app.storage.user["session_token"] = token
                 api.set_session_token(token)

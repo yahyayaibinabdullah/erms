@@ -1240,3 +1240,26 @@ def test_smtp_test_posts_only_recipient_and_honors_smtp_timeout_without_retry():
     assert calls[0].url.path=='/api/v1/application-settings/test-send'
     assert json.loads(calls[0].content)=={'recipient':'recipient@test.invalid'}
     assert calls[0].extensions['timeout']['read'] is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('status', [200,401])
+async def test_late_previous_session_response_cannot_publish_or_revoke_new_identity(status):
+    started, release = asyncio.Event(), asyncio.Event()
+    async def handle(request):
+        started.set()
+        await release.wait()
+        return httpx.Response(status,json={'detail':'old session','private':'A'})
+    client = ErmsApiClient('http://fixture',transport=httpx.MockTransport(handle))
+    unauthorized = []
+    client.set_unauthorized_handler(lambda:unauthorized.append(True))
+    client.set_session_token('A')
+    # Use POST to test even requests which cannot be cancelled as pending reads.
+    pending = asyncio.create_task(client.request('POST','/fixture'))
+    await started.wait()
+    client.set_session_token('B')
+    release.set()
+    with pytest.raises(asyncio.CancelledError):
+        await pending
+    assert unauthorized == []
+    await client.close()

@@ -44,11 +44,14 @@ class ErmsApiClient:
         self._inflight_reads: dict[str, asyncio.Task[Any]] = {}
         self._reference_cache: dict[str, dict[str, Any]] = {}
         self._session_token: str | None = None
+        self._session_revision = 0
         self._unauthorized_handler: Callable[[], Any] | None = None
 
     def set_session_token(self, token: str | None) -> None:
         """Keep authentication attached to this browser page's API client."""
         if token != self._session_token:
+            self._session_revision += 1
+            self.cancel_pending_reads()
             self.clear_reference_cache()
         self._session_token = token
 
@@ -69,6 +72,7 @@ class ErmsApiClient:
         await self._client.aclose()
 
     async def request(self, method: str, path: str, **kwargs: Any) -> Any:
+        session_revision = self._session_revision
         with_metadata = bool(kwargs.pop("_with_metadata", False))
         cancellable_read = bool(kwargs.pop("_cancellable_read", False))
         headers = dict(kwargs.pop("headers", {}))
@@ -101,7 +105,7 @@ class ErmsApiClient:
                 task = asyncio.create_task(
                     self._perform_request(
                         normalized_method, path, kwargs,
-                        with_metadata=with_metadata,
+                        with_metadata=with_metadata, session_revision=session_revision,
                     )
                 )
                 self._inflight_reads[request_key] = task
@@ -113,6 +117,7 @@ class ErmsApiClient:
             return copy.deepcopy(await task if cancellable_read else await asyncio.shield(task))
         return await self._perform_request(
             normalized_method, path, kwargs, with_metadata=with_metadata,
+            session_revision=session_revision,
         )
 
     def _finish_inflight_read(
@@ -125,7 +130,7 @@ class ErmsApiClient:
 
     async def _perform_request(
         self, method: str, path: str, kwargs: dict[str, Any], *,
-        with_metadata: bool = False,
+        with_metadata: bool = False, session_revision: int | None = None,
     ) -> Any:
         try:
             async with self._request_slots:
@@ -136,6 +141,10 @@ class ErmsApiClient:
             raise
         except httpx.HTTPError as error:
             raise ApiError(503, "Cannot connect to the ERMS API") from error
+        # A completed request from an old account must neither publish its
+        # payload nor let its 401 handler revoke the newly signed-in account.
+        if session_revision is not None and session_revision != self._session_revision:
+            raise asyncio.CancelledError
         if response.is_error:
             try:
                 detail = response.json().get("detail", response.text)
