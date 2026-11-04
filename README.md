@@ -41,3 +41,7 @@ allowing other features to start.
 For production, begin with the complete [service inventory and setup order](docs/deployment.md#production-service-inventory).
 See [deployment documentation](docs/deployment.md) for deployment requirements
 and [database instructions](database/README.md) for schema and migrations.
+
+The [dashboard guide](docs/dashboard.md#optimization-and-maintenance) documents
+dashboard query optimizations, user isolation, indexes, performance evidence and
+regression coverage.

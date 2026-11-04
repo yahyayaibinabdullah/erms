@@ -54,10 +54,9 @@ def _resource_metrics(connection: Connection, review_window_days: int, review_pr
     """Authorize each resource once for this request, then aggregate by owner.
 
     These CTEs live only for this SQL statement: no identity-dependent data is
-    cached across requests. Overview totals retain the search views' lifecycle
-    filter; ownership/storage retain their existing live-resource semantics.
-    Visibility is a set-based equivalent of the canonical predicates, checked by
-    differential tests. Active holds
+    cached across requests. Every resource scope excludes disposed statuses
+    10/11/12, including for governance users. Within that live scope, visibility
+    equals the canonical predicates, checked by differential tests. Active holds
     propagate down the hierarchy once instead of walking ancestry per row;
     their half-open validity window matches the canonical effective-hold functions.
     """
@@ -69,33 +68,29 @@ def _resource_metrics(connection: Connection, review_window_days: int, review_pr
                  FROM hold_aggregation_assignments assignment JOIN holds hold ON hold.id=assignment.hold_id
                 WHERE hold.valid_from<=statement_timestamp()
                   AND (hold.valid_to IS NULL OR statement_timestamp()<hold.valid_to)
+                  AND assignment.aggregation_id IN (SELECT id FROM required_aggregation_rows)
                UNION
-               SELECT child.id FROM aggregations child
+               SELECT child.id FROM required_aggregation_rows child
                  JOIN held_aggregations parent ON child.parent_aggregation_id=parent.aggregation_id
            ), directly_held_records AS MATERIALIZED (
                SELECT DISTINCT assignment.record_id
                  FROM hold_record_assignments assignment JOIN holds hold ON hold.id=assignment.hold_id
                 WHERE hold.valid_from<=statement_timestamp()
                   AND (hold.valid_to IS NULL OR statement_timestamp()<hold.valid_to)
+                  AND assignment.record_id IN (SELECT id FROM live_records)
            ), visible_aggregations AS MATERIALIZED (
                SELECT resource.id,resource.owning_org_unit_id,resource.medium,
                       resource.is_vital,resource.date_closed,resource.date_of_next_review,
                       resource.title,resource.aggregation_number,
                       resource.parent_aggregation_id,resource.classification_id,
-                      (resource.disposition_status NOT IN (10,11,12) OR authority.manages_disposition) AS overview_visible,
-                      CASE WHEN resource.disposition_status NOT IN (10,11,12) OR authority.manages_disposition
-                           THEN resource.id IN (SELECT aggregation_id FROM held_aggregations)
-                           ELSE false END AS on_effective_hold
-                 FROM authorized_aggregations resource CROSS JOIN authority
+                      resource.id IN (SELECT aggregation_id FROM held_aggregations) AS on_effective_hold
+                 FROM authorized_aggregations resource
            ), visible_records AS MATERIALIZED (
                SELECT resource.id,resource.owning_org_unit_id,resource.medium,
                       resource.is_vital,resource.date_of_next_review,resource.title,resource.record_number,
-                      (resource.disposition_status NOT IN (10,11,12) OR authority.manages_disposition) AS overview_visible,
-                      CASE WHEN resource.disposition_status NOT IN (10,11,12) OR authority.manages_disposition
-                           THEN (resource.aggregation_id IN (SELECT aggregation_id FROM held_aggregations)
-                                 OR resource.id IN (SELECT record_id FROM directly_held_records))
-                           ELSE false END AS on_effective_hold
-                 FROM authorized_records resource CROSS JOIN authority
+                      (resource.aggregation_id IN (SELECT aggregation_id FROM held_aggregations)
+                       OR resource.id IN (SELECT record_id FROM directly_held_records)) AS on_effective_hold
+                 FROM authorized_records resource
            ), component_metrics AS (
                SELECT component.record_id,count(*) AS component_count,
                       coalesce(sum(component.size_in_bytes),0) AS storage_size_in_bytes
@@ -104,26 +99,26 @@ def _resource_metrics(connection: Connection, review_window_days: int, review_pr
                 GROUP BY component.record_id
            ), aggregation_metrics AS (
                SELECT owning_org_unit_id AS org_unit_id,
-                      count(*) FILTER (WHERE overview_visible) AS total,
-                      count(*) FILTER (WHERE overview_visible AND medium='physical') AS physical,
-                      count(*) FILTER (WHERE overview_visible AND medium='digital') AS digital,
-                      count(*) FILTER (WHERE overview_visible AND medium='mixed') AS mixed,
-                      count(*) FILTER (WHERE overview_visible AND is_vital) AS vital,
-                      count(*) FILTER (WHERE overview_visible AND on_effective_hold) AS held,
-                      count(*) FILTER (WHERE overview_visible AND date_closed IS NULL) AS open,
-                      count(*) FILTER (WHERE overview_visible AND date_closed IS NOT NULL) AS closed,
+                      count(*) AS total,
+                      count(*) FILTER (WHERE medium='physical') AS physical,
+                      count(*) FILTER (WHERE medium='digital') AS digital,
+                      count(*) FILTER (WHERE medium='mixed') AS mixed,
+                      count(*) FILTER (WHERE is_vital) AS vital,
+                      count(*) FILTER (WHERE on_effective_hold) AS held,
+                      count(*) FILTER (WHERE date_closed IS NULL) AS open,
+                      count(*) FILTER (WHERE date_closed IS NOT NULL) AS closed,
                       count(*) AS owned_total,
                       count(*) FILTER (WHERE date_closed IS NULL) AS owned_open,
                       count(*) FILTER (WHERE date_closed IS NOT NULL) AS owned_closed
                  FROM visible_aggregations GROUP BY owning_org_unit_id
            ), record_metrics AS (
                SELECT record.owning_org_unit_id AS org_unit_id,
-                      count(*) FILTER (WHERE record.overview_visible) AS total,
-                      count(*) FILTER (WHERE record.overview_visible AND record.medium='physical') AS physical,
-                      count(*) FILTER (WHERE record.overview_visible AND record.medium='digital') AS digital,
-                      count(*) FILTER (WHERE record.overview_visible AND record.medium='mixed') AS mixed,
-                      count(*) FILTER (WHERE record.overview_visible AND record.is_vital) AS vital,
-                      count(*) FILTER (WHERE record.overview_visible AND record.on_effective_hold) AS held,
+                      count(*) AS total,
+                      count(*) FILTER (WHERE record.medium='physical') AS physical,
+                      count(*) FILTER (WHERE record.medium='digital') AS digital,
+                      count(*) FILTER (WHERE record.medium='mixed') AS mixed,
+                      count(*) FILTER (WHERE record.is_vital) AS vital,
+                      count(*) FILTER (WHERE record.on_effective_hold) AS held,
                       count(*) AS owned_total,
                       count(*) FILTER (WHERE record.medium='physical') AS owned_physical,
                       count(*) FILTER (WHERE record.medium='digital') AS owned_digital,

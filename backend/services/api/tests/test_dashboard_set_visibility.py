@@ -1,4 +1,4 @@
-"""Differential checks: batched dashboard ACLs must equal canonical predicates."""
+"""Dashboard ACLs equal canonical predicates within the nonterminal scope."""
 import os
 
 import psycopg
@@ -12,7 +12,7 @@ def assert_equivalent(connection, identity):
     connection.execute("SELECT set_config('app.user_id',%s,true)",(str(identity) if identity else '',))
     for table,kind in (('aggregations','aggregation'),('records','record')):
         expected=connection.execute(
-            f'SELECT id FROM {table} WHERE current_user_can_view_{kind}(id) ORDER BY id').fetchall()
+            f'SELECT id FROM {table} WHERE disposition_status NOT IN (10,11,12) AND current_user_can_view_{kind}(id) ORDER BY id').fetchall()
         actual=connection.execute(
             f'WITH RECURSIVE {VISIBILITY_CTES} SELECT id FROM authorized_{table} ORDER BY id').fetchall()
         assert actual==expected,(identity,table,actual,expected)

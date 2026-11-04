@@ -52,5 +52,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('097_bulk_disposition_audit_link'),
  ('098_dashboard_resource_activity_index'),
  ('099_dashboard_content_activity_index'),
- ('100_dashboard_component_storage_index');
+ ('100_dashboard_component_storage_index'),
+ ('101_dashboard_live_resource_indexes'),
+ ('102_dashboard_nonterminal_resource_indexes');
 COMMIT;

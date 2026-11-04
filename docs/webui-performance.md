@@ -497,17 +497,28 @@ restore the Refresh control; fresh-load failures show an error without another
 identity's data.
 
 The summary authorizes record/aggregation sets with request-local materialized
-CTEs equivalent to the canonical view predicates. Effective roles, global
+CTEs equivalent to the canonical view predicates within the dashboard live
+scope. Effective roles, global
 privileges, maximum clearance, governance clearance, organizational activity,
 contextual managers/file administrators and ACL sources are calculated as sets.
 Inherited aggregation ACL sources propagate down the hierarchy once, respecting
 custom child defaults and inheritance breaks. Direct/inherited record ACLs join
 those sets without calling a permission function per record. These visible sets
 feed counts, medium/vital/held totals, ownership, storage, true root counts,
-review counts/previews, favourites, relationship redaction and recent activity. This is SQL statement reuse, not a cross-request cache. Preserve
-the deliberate distinction between overview lifecycle filtering and live
-ownership/storage semantics. Overview authorization must be explicit: the
+review counts/previews, favourites, relationship redaction and recent activity.
+This is SQL statement reuse, not a cross-request cache. All dashboard resource
+outputs exclude disposed statuses 10, 11 and 12, including for governance users.
+Status 13 remains in scope subject to normal authorization. Overview
+authorization must be explicit: the
 search views' names alone do not confer visibility.
+
+Materialize nonterminal resources (`disposition_status NOT IN (10,11,12)`)
+before computing ACL targets and hold propagation. Historical metadata is retained,
+so filtering only the final authorized output permits historical data to enlarge
+the working graph. Include only nonterminal aggregations/records and the
+ancestors/containers they actually need. Preserve a required ancestor even if
+it has terminal status: pruning must remain equivalent to canonical inherited
+ACL and hold rules. Do not add unrelated disposed branches to that graph.
 
 Active hold assignments propagate down the hierarchy once with a distinct
 recursive set. Direct record holds are calculated once. This must remain
@@ -537,8 +548,21 @@ are in the standalone canonical schema; existing installations apply migrations
 `098_dashboard_resource_activity_index.sql`,
 `099_dashboard_content_activity_index.sql` and
 `100_dashboard_component_storage_index.sql` separately.
+Migration `101_dashboard_live_resource_indexes.sql` adds the narrow partial
+indexes `aggregations_dashboard_live_idx` and `records_dashboard_live_idx` on
+ID. Its original status-10-only predicate is replaced by
+`102_dashboard_nonterminal_resource_indexes.sql` with
+`disposition_status NOT IN (10,11,12)`, matching the live-resource queries.
+The final definitions are also in the canonical schema. They allow history-heavy
+tables to read the nonterminal subset without
+filtering the entire metadata heap. The planner can still choose a cheaper
+sequential scan when most rows are live. Avoid covering these indexes with
+large titles or other unbounded metadata. Exact counts still process the
+authorized live subset; personal audit-history work is a separate cost.
 No setting or translation catalogue changes are needed. Restart the API/WebUI
 after deploying the code; local stack startup does not apply migrations.
 
+The dashboard-specific design, index inventory, maintenance rules and regression
+map are in the [dashboard guide](dashboard.md#optimization-and-maintenance).
 Regression matrix, query plans, benchmark scope and cleanup evidence are in
 [dashboard isolation and performance verification](verification/dashboard-isolation-performance.md).

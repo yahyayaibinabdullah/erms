@@ -10913,6 +10913,8 @@ CREATE INDEX aggregations_parent_number_browse_idx ON public.aggregations USING 
 
 CREATE INDEX aggregations_review_due_idx ON public.aggregations USING btree (date_of_next_review, id) WHERE (date_of_next_review IS NOT NULL);
 
+CREATE INDEX aggregations_dashboard_live_idx ON public.aggregations USING btree (id) WHERE disposition_status NOT IN (10,11,12);
+
 CREATE INDEX aggregations_security_level_id_idx ON public.aggregations USING btree (security_level_id);
 
 CREATE INDEX aggregations_vital_idx ON public.aggregations USING btree (is_vital, id);
@@ -11216,6 +11218,8 @@ CREATE INDEX records_owner_aggregation_number_browse_idx ON public.records USING
 CREATE INDEX records_owner_review_due_idx ON public.records USING btree (owning_org_unit_id, date_of_next_review, id) WHERE (date_of_next_review IS NOT NULL);
 
 CREATE INDEX records_review_due_idx ON public.records USING btree (date_of_next_review, id) WHERE (date_of_next_review IS NOT NULL);
+
+CREATE INDEX records_dashboard_live_idx ON public.records USING btree (id) WHERE disposition_status NOT IN (10,11,12);
 
 CREATE INDEX records_security_level_id_idx ON public.records USING btree (security_level_id);
 

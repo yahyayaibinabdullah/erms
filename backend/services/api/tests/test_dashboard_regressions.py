@@ -10,8 +10,8 @@ from backend.services.api.tests.test_legal_holds_api import _create_hold
 
 
 @pytest.mark.parametrize('governance',[False,True])
-@pytest.mark.parametrize('status',[11,12])
-def test_batched_dashboard_keeps_overview_and_ownership_lifecycle_rules(client,aggregation,record,governance,status):
+@pytest.mark.parametrize('status',[10,11,12,13])
+def test_dashboard_live_counts_exclude_all_disposed_statuses_for_every_role(client,aggregation,record,governance,status):
     with psycopg.connect(os.environ['DATABASE_URL']) as c:
         assert c.execute('SELECT current_database()').fetchone()[0].startswith('erms_messaging_test_acl_')
         # Synthetic terminal fixtures, not a transfer-workflow test. Restore
@@ -24,10 +24,11 @@ def test_batched_dashboard_keeps_overview_and_ownership_lifecycle_rules(client,a
     response=client.get('/api/v1/dashboard/summary')
     assert response.status_code==200,response.text
     body=response.json()
-    assert body['overview_counts']['aggregations']==int(governance)
-    assert body['overview_counts']['records']==int(governance)
-    assert body['ownership_counts'][0]['aggregation_count']==1
-    assert body['ownership_counts'][0]['record_count']==1
+    expected=int(status==13)
+    assert body['overview_counts']['aggregations']==expected
+    assert body['overview_counts']['records']==expected
+    assert body['ownership_counts'][0]['aggregation_count']==expected
+    assert body['ownership_counts'][0]['record_count']==expected
 
 
 @pytest.mark.parametrize('direct',[False,True])
@@ -124,6 +125,8 @@ def test_batched_hold_propagation_matches_canonical_windows_and_ignores_acl_inhe
     ('098_dashboard_resource_activity_index','event_history_dashboard_resource_latest_idx'),
     ('099_dashboard_content_activity_index','event_history_dashboard_content_views_idx'),
     ('100_dashboard_component_storage_index','digital_components_dashboard_storage_idx'),
+    ('102_dashboard_nonterminal_resource_indexes','aggregations_dashboard_live_idx'),
+    ('102_dashboard_nonterminal_resource_indexes','records_dashboard_live_idx'),
 ])
 def test_dashboard_activity_index_is_canonical_and_upgrade_is_idempotent(client,version,index):
     from pathlib import Path
@@ -138,6 +141,26 @@ def test_dashboard_activity_index_is_canonical_and_upgrade_is_idempotent(client,
         upgraded=c.execute('SELECT indexdef FROM pg_indexes WHERE indexname=%s',(index,)).fetchone()[0]
         assert upgraded==original
         assert c.execute('SELECT count(*) FROM schema_migrations WHERE version=%s',(version,)).fetchone()[0]==1
+
+
+def test_dashboard_live_indexes_upgrade_from_deployed_status_10_only_predicate(client):
+    from pathlib import Path
+    from psycopg import sql
+    root=Path(__file__).parents[4]
+    indexes=('aggregations_dashboard_live_idx','records_dashboard_live_idx')
+    with psycopg.connect(os.environ['DATABASE_URL'],autocommit=True) as c:
+        assert c.execute('SELECT current_database()').fetchone()[0].startswith('erms_messaging_test_acl_')
+        expected={index:c.execute('SELECT pg_get_indexdef(%s::regclass)',(index,)).fetchone()[0] for index in indexes}
+        for index in indexes:c.execute(sql.SQL('DROP INDEX {}').format(sql.Identifier(index)))
+        c.execute((root/'database/migrations/101_dashboard_live_resource_indexes.sql').read_text(),prepare=False)
+        for index in indexes:
+            legacy=c.execute('SELECT pg_get_indexdef(%s::regclass)',(index,)).fetchone()[0]
+            assert legacy!=expected[index]
+        for _ in range(2):
+            c.execute((root/'database/migrations/102_dashboard_nonterminal_resource_indexes.sql').read_text(),prepare=False)
+        for index in indexes:
+            assert c.execute('SELECT pg_get_indexdef(%s::regclass)',(index,)).fetchone()[0]==expected[index]
+        assert c.execute("SELECT count(*) FROM schema_migrations WHERE version='102_dashboard_nonterminal_resource_indexes'").fetchone()[0]==1
 
 
 def test_overlapping_direct_and_inherited_holds_count_each_visible_resource_once(client,aggregation,record):

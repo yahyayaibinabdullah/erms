@@ -4,13 +4,14 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.17
-**Amendment approved:** 29 October 2026
+**Revision:** 1.18
+**Amendment approved:** 4 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.18 | 4 November 2026 | Define dashboard live scope to exclude all disposed outcomes (10, 11, 12) for every user and section; preserve status 13 as action required and apply the same predicate to supporting indexes |
 | 1.17 | 29 October 2026 | Compact job/task aggregation rows, disclose complete effective retention rules on demand, default to current membership and open proposals from nonzero counts |
 | 1.16 | 29 October 2026 | Summarize one recorded disposition action once in job history, retain paginated underlying events, distinguish affected changes, and disclose previous review comments in review tasks |
 | 1.15 | 29 October 2026 | Allow eligible additions by the claimed Records Manager during Simplified destruction review, preserving admission and original-round integrity |
@@ -183,6 +184,22 @@ following controlled values:
 | 11 | `permanently_transferred` | Permanently transferred |
 | 12 | `retained_local_archives` | Retained as local archives |
 | 13 | `partially_disposed_action_required` | Partially disposed — action required |
+
+For dashboard reporting, statuses **10, 11 and 12** are completed disposition
+outcomes and are outside the **live** resource scope. Every dashboard
+resource count and its supporting rows must exclude those statuses, including
+overview, organizational holdings, medium/vital/hold totals, component/storage
+metrics, review counts/previews/pages, favourites and recent activity. The rule
+applies to every caller, including information-governance users; retained-resource
+search authority does not add disposed material to dashboard live counts.
+Supporting partial indexes must use the same nonterminal predicate.
+
+Status **13** is not terminal: material remains and recovery/action is required.
+It remains eligible for the dashboard live scope, subject to the existing
+resource authorization and ownership/review rules. This reporting rule does not
+change controlled retained-resource search, disposition/audit access or the
+status transition catalogue. Implementation and regression evidence are linked
+from the [dashboard guide](../docs/dashboard.md#optimization-and-maintenance).
 
 Every disposition job also stores a `disposition_status` from this same
 catalogue. While an aggregation belongs to an active job, the job, aggregation,
