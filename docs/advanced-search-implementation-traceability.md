@@ -164,3 +164,160 @@ to values, operators, group logic, added/removed conditions, full-text queries,
 and sorting, followed by normal paging with unchanged criteria. No database or
 translation artifacts changed for this fix. Live browser verification remains
 pending.
+
+### Unsaved-change confirmation correction (4 November 2026)
+
+Approved clarification to §§5.3–5.4 and AS-05: target changes prompt only for
+unsaved edits; untouched defaults and loaded saved searches do not prompt.
+The target callback checks baseline dirty state and ignores programmatic,
+superseded, and abandoned-view events. Result page size is excluded from dirty
+signatures, including normalization of baselines persisted by older processes.
+Loading a saved definition clears previous execution results, counts, record
+capabilities, expansion, anchor and status, so navigation cannot relabel stale
+results with the new target.
+
+Verification: 63 focused automated checks pass in
+`test_advanced_search_unsaved_changes.py`, `test_advanced_search_builder.py`,
+`test_saved_search_errors.py`, `test_saved_search_localization.py`, and
+`test_full_text_search_phase4_ui.py`. These tests do not access a database.
+The new callback tests cover clean defaults/saved searches, dirty confirm/cancel,
+loading and delayed events, abandoned views, page-size changes, reverted edits,
+legacy valid/incomplete baselines, clean navigation, and stale-result clearing.
+
+Live in-app browser verification used separately created disposable PostgreSQL
+databases, canonical schema initialization plus separate reference/fixture seeds,
+isolated API/UI ports 18030/18083, and temporary UI storage. No persistent ERMS
+database was tested or modified. The final fixture contained saved searches for
+both targets, nine aggregations and 35 records. English and Arabic catalogues
+were available; effective Arabic body/main direction was confirmed as RTL.
+
+| Scenario | Observed result |
+| --- | --- |
+| Untouched default Records → Aggregations, English and Arabic | Target and blank builder change with no dialog |
+| Open unchanged saved search for another target and leave for Dashboard | Completes without a warning; repeated return preserves criteria |
+| Switch target on unchanged saved search | No warning; builder resets and stored definition remains available |
+| Edit criteria then switch target | Exactly one target confirmation; Cancel restores target and keeps edited criteria |
+| Edit criteria then leave | Discard confirmation; Keep editing retains workspace |
+| Revert criteria to baseline, English and Arabic | Navigation completes without warning |
+| Select another saved search while dirty | Opening picker is silent; selecting replacement prompts; cancellation retains picker/edits; acceptance loads clean baseline |
+| Execute saved query and use actual next page, English and Arabic | 1–25 then 26–35 of 35; no false dirty warning on navigation |
+| Change page size | No false dirty warning; saved criteria remain clean |
+| Save criteria update, navigate and reopen | Updated value is loaded, and no warning on leaving |
+| Load another target after execution, navigate away and return | Zero stale result cards; old results are not relabelled |
+| Change maximum results or sort direction | Edits are protected; accepted target change produces no second dialog; reverting sort permits navigation |
+| Leave during search, then return | Dashboard remains usable; return has an enabled Search control and no false warning |
+
+Screenshots are retained locally in gitignored `.runtime/search-verification/`:
+`english-default-switch.jpg`, `arabic-default-switch.jpg`,
+`arabic-edited-confirmation.jpg`, and `arabic-clean-saved-switch.jpg`.
+No user-visible text or translation artifacts were changed.
+
+Separate existing issues observed, outside this correction: the Arabic discard
+message interpolates English action text (for example `leave this page`); and a
+saved definition created directly through the API with a bare condition root
+cannot be rendered by the group-only builder. Live workflow checks used grouped
+roots produced by the WebUI; the API-only fixture was corrected to that shape.
+These findings are not claimed fixed by this change.
+
+Both disposable databases were dropped successfully after their runs:
+`erms_messaging_test_acl_c9876a9062544d8eb83a7a3b1dd05f62` and
+`erms_messaging_test_acl_89bb576ddd814181a117133f5f245227`.
+The fixture-owned API/UI processes were stopped by their launcher. The initial
+sandboxed database connection was denied before creation; the authorized retry
+created the disposable database successfully. No cleanup failures occurred.
+
+### Follow-up: choosing the initial target is setup
+
+The user reported the missing sequence: new Advanced Search → choose
+Aggregations → open a saved search. The first correction allowed the target
+switch but still compared later actions against the original Records baseline.
+The follow-up establishes a clean baseline after a target switch when the
+workspace was already clean and no saved search was open. Repeated target
+switches therefore remain clean. Actual subsequent criteria edits still warn;
+changing an opened saved search's target remains a saved-definition edit.
+The specification §5.4 now explicitly states this exception.
+
+The regression test
+`test_target_only_setup_then_open_saved_search_is_clean_but_later_edits_warn`
+executes the actual target, signature, dirty-state and discard-guard callbacks
+in sequence. It covers three target switches, subsequent saved-search opening
+and page leaving, then an actual criterion edit. The clean-saved-target test
+also asserts that an opened saved search's baseline is not overwritten.
+
+Follow-up verification: all 64 focused checks passed. In a fresh isolated
+in-app browser fixture, English and Arabic/RTL both passed the exact sequence:
+Advanced Search (Records) → Aggregations → open picker → select saved search.
+No discard confirmation appeared, and the saved criteria loaded. English also
+passed choosing the target then leaving for Dashboard. Arabic confirmed that
+an actual subsequent criterion edit still prompts on saved-search selection.
+Evidence: `.runtime/search-verification/english-target-then-saved.jpg` and
+`.runtime/search-verification/arabic-target-then-saved.jpg`.
+The fixture launcher stopped its API/UI and successfully dropped disposable
+`erms_messaging_test_acl_0f48ecb9acab4328b2d2ac8592c0fd25`.
+
+### Follow-up: protect the loaded saved definition on target changes
+
+The latest user clarification supersedes the earlier allowance for switching
+an unchanged loaded saved search without confirmation. The active contract in
+§§5.3–5.4 and AS-05 now distinguishes two cases: target-only setup for an
+untouched new search stays silent; changing the target while any saved search
+is open requires confirmation before its loaded criteria are reset. Ordinary
+navigation away from an unchanged saved search remains silent.
+
+`change_target` checks both dirty state and the presence of an open saved
+search. Acceptance preserves the original saved baseline and context, making
+the new definition dirty without updating the stored saved search. Cancellation
+restores the target and preserves criteria, results, context and baseline.
+The new behavioral regression test exercises both target directions and both
+Cancel/Confirm outcomes with the actual target/signature/dirty callbacks.
+All 68 focused automated checks pass. Earlier observations in this document
+that allowed silent target changes for loaded saved searches are historical
+and superseded by this clarification.
+
+Live follow-up verification passed in English and Arabic/RTL: open unchanged
+Aggregation saved search → choose Records → one target confirmation. Cancel
+preserves `Phase 4` criteria and Aggregations target; leaving after Cancel
+reaches Dashboard without warning. Confirm clears the builder while keeping
+the saved context; attempting to leave then prompts for unsaved changes.
+English reopening restored the original stored `Phase 4` definition. The
+untouched new-search target-switch → picker → saved-selection flow was also
+rechecked and remained silent. Screenshots:
+`.runtime/search-verification/english-saved-target-protected.jpg` and
+`.runtime/search-verification/arabic-saved-target-protected.jpg`.
+The fixture-owned API/UI stopped successfully and disposable database
+`erms_messaging_test_acl_ea4ecae13a6f4465aa8a21ac8365385e` was dropped.
+
+### Follow-up: confirmed target changes detach the saved search
+
+The user's screenshot clarified that confirming a target reset must start a
+new search, not leave the previous saved search attached. This supersedes the
+previous follow-up's preservation of saved context after confirmation.
+`change_target` now sets the selected resource and invokes the existing
+`reset_search(clear_metadata=True)` callback. The standard defaults, blank
+criteria and clean baseline are established; saved association, name,
+category, description, audience and recipient IDs are cleared. The existing
+saved-action renderer therefore displays the unsaved-search context and hides
+the prior details and saved-only actions. Stored saved definitions are never
+updated by this action. Reset also clears execution expansion/capability/anchor
+state, results and freshness status. Cancel remains non-destructive.
+
+The specification §§5.3–5.4 reflects this clarified behavior. Callback tests
+now execute the actual shared reset implementation and cover both target
+directions and confirmation outcomes, metadata/audience/control clearing,
+standard defaults, a clean new baseline and later edits becoming dirty.
+All 68 focused automated checks pass.
+
+Live panel verification passed in English and Arabic/RTL: load Aggregations
+saved search → choose Records → Cancel preserves the criteria and saved panel;
+Confirm displays the new unsaved-search context, Save search, and no old name,
+Update saved search, Edit metadata, Save as or Delete controls. Leaving and
+returning preserves the detached context without a false dirty warning.
+English Save search opened blank name/category/description and a private
+audience; saving created a third, separate Records search. Reopening the
+original still restored Aggregations and its original `Phase 4` criteria.
+Arabic also passed reopening the original unchanged.
+Evidence: `.runtime/search-verification/english-confirmed-new-search.jpg` and
+`.runtime/search-verification/arabic-confirmed-new-search.jpg`.
+Fixture API/UI shutdown succeeded, and disposable database
+`erms_messaging_test_acl_aa146f72194447d880b9a4ae7ecddf9b` was dropped.
+No user-visible wording or maintained translation artifacts changed.

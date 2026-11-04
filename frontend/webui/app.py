@@ -18306,12 +18306,14 @@ def index(q: str = "") -> None:
         def current_saved_signature() -> str:
             try:
                 value = current_saved_payload()
+                # Page size is execution state, not an edit to saved criteria.
+                value["definition"]["request"].pop("limit", None)
             except (TypeError, ValueError):
                 value = {
                     "name": workspace.get("search_name"), "category": workspace.get("search_category"),
                     "description": workspace.get("search_description"), "root": workspace["root"],
                     "resource": workspace["resource"], "sort": workspace["sort_field"],
-                    "direction": workspace["sort_direction"], "limit": workspace["limit"],
+                    "direction": workspace["sort_direction"],
                     "maximum": max_results.value, "audience_mode": workspace["audience_mode"],
                     "role_ids": workspace["role_ids"], "org_unit_ids": workspace["org_unit_ids"],
                 }
@@ -18319,7 +18321,17 @@ def index(q: str = "") -> None:
 
         def is_dirty() -> bool:
             baseline = workspace.get("baseline")
-            return baseline is not None and current_saved_signature() != baseline
+            if baseline is None:
+                return False
+            # Workspaces persisted before page-size exclusion carry the old
+            # signature. Normalize that baseline without discarding real edits.
+            value = json.loads(baseline)
+            if "definition" in value:
+                value["definition"]["request"].pop("limit", None)
+            else:
+                value.pop("limit", None)
+            baseline = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+            return current_saved_signature() != baseline
 
         async def confirm_discard_changes(action: str) -> bool:
             if not is_dirty():
@@ -18400,7 +18412,14 @@ def index(q: str = "") -> None:
             workspace["sort_direction"] = (visible_sort or {"direction": "asc"})["direction"]
             workspace["limit"] = int(request.get("limit", 25))
             workspace["max_results"] = int(definition.get("max_results", 1000))
-            workspace["offset"] = 0
+            # A newly loaded definition has no execution results. Do not let
+            # navigation restore cards belonging to the previous target/query.
+            workspace.update(
+                offset=0, total=0, searched=False, last_result=None,
+                expanded_results=[], record_component_details={}, record_capabilities={},
+            )
+            workspace.pop("return_anchor", None)
+            status_label.text = ""
             workspace["audience_mode"] = saved.get("audience_mode", "private")
             workspace["role_ids"] = list(saved.get("role_ids") or [])
             workspace["org_unit_ids"] = list(saved.get("org_unit_ids") or [])
@@ -19329,25 +19348,29 @@ def index(q: str = "") -> None:
             return bool(await dialog)
 
         async def change_target(event: Any) -> None:
-            if workspace.get("loading"):
+            if workspace.get("loading") or not search_view_is_current():
                 return
             requested = event.value
-            if requested == workspace["resource"]:
+            # NiceGUI may deliver programmatic value-change events after loading
+            # has finished. Ignore superseded events and already-applied values.
+            if requested != target.value or requested == workspace["resource"]:
                 return
-            if advanced_search_leaf_count(workspace["root"]) > 0:
+            was_dirty = is_dirty()
+            if was_dirty or workspace.get("saved") is not None:
                 confirmed = await confirm_target_reset()
                 if not confirmed:
                     target.value = workspace["resource"]
                     target.update()
                     return
-            workspace.update(resource=requested, root={"type": "group", "operator": "and", "children": [new_condition()]}, offset=0, searched=False, last_result=None)
-            results_host.clear()
-            pagination.set_visibility(False)
-            render_builder()
-            refresh_sort_options()
+            # A target change starts a new search; the loaded saved search is
+            # left intact and must no longer supply metadata or update actions.
+            workspace["resource"] = requested
+            reset_search(clear_metadata=True)
 
         def reset_search(*, clear_metadata: bool = False) -> None:
             workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=25, max_results=1000, offset=0, total=0, searched=False, last_result=None)
+            workspace.update(expanded_results=[], record_component_details={}, record_capabilities={})
+            workspace.pop("return_anchor", None)
             if clear_metadata:
                 workspace.update(
                     saved=None, audience_mode="private", role_ids=[], org_unit_ids=[],
