@@ -2209,6 +2209,56 @@ CREATE FUNCTION disposition_private.person_role(p_user bigint, p_role bigint) RE
  AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP))
 $$;
 
+CREATE FUNCTION disposition_private.owner_review_setup(p_owner bigint)
+RETURNS TABLE(has_file_administrator boolean,has_managing_role boolean,
+              has_file_administrator_assignment boolean,has_managing_role_assignment boolean)
+LANGUAGE sql STABLE AS $$
+ WITH RECURSIVE chain AS (
+  SELECT id,parent_org_unit_id,file_administrator_role_id,0 depth,ARRAY[id] path
+  FROM public.org_units WHERE id=p_owner
+  UNION ALL
+  SELECT o.id,o.parent_org_unit_id,o.file_administrator_role_id,c.depth+1,c.path||o.id
+  FROM chain c JOIN public.org_units o ON o.id=c.parent_org_unit_id WHERE NOT o.id=ANY(c.path)
+ ), designated AS (
+  SELECT (SELECT file_administrator_role_id FROM chain WHERE file_administrator_role_id IS NOT NULL ORDER BY depth LIMIT 1) fa,
+         (SELECT managing_role_id FROM public.org_units WHERE id=p_owner) manager
+ ) SELECT fa IS NOT NULL,manager IS NOT NULL,
+   EXISTS(SELECT 1 FROM public.user_role_assignments a WHERE a.role_id=fa AND disposition_private.person_role(a.user_id,fa)),
+   EXISTS(SELECT 1 FROM public.user_role_assignments a WHERE a.role_id=manager AND disposition_private.person_role(a.user_id,manager))
+ FROM designated
+$$;
+
+CREATE FUNCTION disposition_private.require_standard_owner_roles() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE setup record;
+BEGIN
+ -- disposition_guard sets the saved route first. Existing jobs retain their lifecycle.
+ IF NEW.job_type='destruction' AND NEW.review_route='standard' AND NEW.owning_org_unit_id IS NOT NULL THEN
+  SELECT * INTO setup FROM disposition_private.owner_review_setup(NEW.owning_org_unit_id);
+  IF NOT setup.has_file_administrator OR NOT setup.has_managing_role
+     OR NOT setup.has_file_administrator_assignment OR NOT setup.has_managing_role_assignment THEN
+   IF NOT (setup.has_file_administrator AND setup.has_file_administrator_assignment) AND NOT (setup.has_managing_role AND setup.has_managing_role_assignment) THEN RAISE EXCEPTION 'disposition_reviewers_required';
+   ELSIF NOT (setup.has_file_administrator AND setup.has_file_administrator_assignment) THEN RAISE EXCEPTION 'disposition_file_administrator_required';
+   ELSE RAISE EXCEPTION 'disposition_unit_manager_required'; END IF;
+  END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+
+CREATE FUNCTION disposition_private.job_review_setup(p_job bigint)
+RETURNS TABLE(file_administrator_missing boolean,unit_manager_missing boolean)
+LANGUAGE sql STABLE AS $$
+ SELECT j.lifecycle_state='active' AND j.job_type='destruction' AND j.review_route='standard'
+   AND ((j.workflow_stage IN ('officer_preparation','officer_correction','manager_preparation','manager_correction')
+         AND s.has_file_administrator AND NOT s.has_file_administrator_assignment)
+        OR (j.workflow_stage='file_administrator_review' AND NOT (s.has_file_administrator AND s.has_file_administrator_assignment))),
+   j.lifecycle_state='active' AND j.job_type='destruction' AND j.review_route='standard'
+   AND j.workflow_stage IN ('officer_preparation','officer_correction','manager_preparation','manager_correction','file_administrator_review','unit_manager_review')
+   AND NOT (s.has_managing_role AND s.has_managing_role_assignment)
+ FROM public.disposition_jobs j CROSS JOIN LATERAL disposition_private.owner_review_setup(j.owning_org_unit_id) s
+ WHERE j.id=p_job
+$$;
+
 CREATE FUNCTION disposition_private.physical_active(p_job bigint) RETURNS boolean
     LANGUAGE sql STABLE
     AS $$
@@ -2813,7 +2863,12 @@ END $$;
 CREATE FUNCTION disposition_private.require_progress(p_job bigint) RETURNS void
     LANGUAGE plpgsql
     AS $$
+DECLARE setup record;
 BEGIN
+ SELECT * INTO setup FROM disposition_private.job_review_setup(p_job);
+ IF setup.file_administrator_missing AND setup.unit_manager_missing THEN RAISE EXCEPTION 'disposition_reviewers_required';
+ ELSIF setup.file_administrator_missing THEN RAISE EXCEPTION 'disposition_file_administrator_required';
+ ELSIF setup.unit_manager_missing THEN RAISE EXCEPTION 'disposition_unit_manager_required'; END IF;
  IF EXISTS(SELECT 1 FROM disposition_job_memberships WHERE job_id=p_job AND membership_state='active' AND removal_required) THEN
  RAISE EXCEPTION 'disposition_removal_required'; END IF;
 END $$;
@@ -11535,6 +11590,10 @@ CREATE TRIGGER disposition_guard BEFORE INSERT OR DELETE OR UPDATE ON public.dis
 
 CREATE TRIGGER disposition_guard BEFORE INSERT OR DELETE OR UPDATE ON public.disposition_jobs FOR EACH ROW EXECUTE FUNCTION disposition_private.guard_workflow();
 
+CREATE TRIGGER disposition_standard_owner_roles BEFORE INSERT ON public.disposition_jobs
+ FOR EACH ROW EXECUTE FUNCTION disposition_private.require_standard_owner_roles();
+
+
 CREATE TRIGGER disposition_guard BEFORE INSERT OR DELETE OR UPDATE ON public.disposition_review_decisions FOR EACH ROW EXECUTE FUNCTION disposition_private.guard_workflow();
 
 CREATE TRIGGER disposition_guard BEFORE INSERT OR DELETE OR UPDATE ON public.disposition_review_rounds FOR EACH ROW EXECUTE FUNCTION disposition_private.guard_workflow();
@@ -13139,6 +13198,11 @@ REVOKE ALL ON FUNCTION disposition_private.unit_has_digital(p_root bigint) FROM 
 REVOKE ALL ON FUNCTION disposition_private.unit_ids(p_root bigint) FROM PUBLIC;
 
 REVOKE ALL ON FUNCTION disposition_private.validate_active_proposals(p_job bigint, p_round integer) FROM PUBLIC;
+
+REVOKE ALL ON FUNCTION disposition_private.owner_review_setup(bigint) FROM PUBLIC;
+REVOKE ALL ON FUNCTION disposition_private.require_standard_owner_roles() FROM PUBLIC;
+
+REVOKE ALL ON FUNCTION disposition_private.job_review_setup(bigint) FROM PUBLIC;
 
 COMMIT;
 

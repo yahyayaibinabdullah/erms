@@ -109,7 +109,7 @@ def test_explicit_unusable_file_admin_blocks_without_fallback(client,failure):
             c.execute("UPDATE roles SET profile_id=(SELECT id FROM profiles WHERE code='READ_ONLY') WHERE id=%s",(fa,))
             c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,fa))
         before=job_version(c,job['id'])
-        with pytest.raises(psycopg.Error,match='disposition_reviewer_unavailable'):
+        with pytest.raises(psycopg.Error,match='disposition_reviewer_unavailable' if failure=='hidden' else 'disposition_file_administrator_required'):
             submit(c,job['id'])
         assert job_version(c,job['id'])==before
         assert not c.execute('SELECT 1 FROM disposition_review_rounds').fetchone()
@@ -370,7 +370,9 @@ def test_current_task_index_and_real_inbox_pagination_on_representative_history(
               SELECT j.id,'preparation','officer_preparation','cancelled',1 FROM disposition_jobs j CROSS JOIN generate_series(1,4)
               WHERE j.job_number LIKE 'TASK-PAGE-%'""")
             return {}
-        execute_command(c,**kwargs(operation='job_create',payload={},apply=populate))
+        from backend.services.api.tests.test_disposition_foundation import configured_creation_roles
+        with configured_creation_roles(c):
+            execute_command(c,**kwargs(operation='job_create',payload={},apply=populate))
         c.execute('ANALYZE disposition_tasks')
         plan=c.execute("EXPLAIN (FORMAT JSON) SELECT id FROM disposition_tasks WHERE job_id=100 AND workflow_stage='officer_preparation' AND task_state IN ('open','claimed') ORDER BY id").fetchone()['QUERY PLAN']
         assert 'disposition_tasks_current_stage' in json.dumps(plan)
@@ -396,7 +398,7 @@ def test_unit_manager_requires_own_units_usable_designated_role_before_entering_
         elif failure=='inactive':c.execute('UPDATE roles SET date_deactivated=CURRENT_TIMESTAMP WHERE id=%s',(um,))
         else:c.execute('DELETE FROM user_role_assignments WHERE role_id=%s',(um,))
         before=job_version(c,job['id'])
-        with pytest.raises(psycopg.Error,match='disposition_reviewer_unavailable'):
+        with pytest.raises(psycopg.Error,match='disposition_reviewer_unavailable' if after_file_admin else 'disposition_unit_manager_required'):
             if after_file_admin:
                 execute_command(c,**{**kwargs(),'acting_role_id':fa},operation='review_decide',payload={'task_id':t['id']},
                   apply=lambda x:workflow.route_review(x,job_id=job['id'],stage='unit_manager_review'))

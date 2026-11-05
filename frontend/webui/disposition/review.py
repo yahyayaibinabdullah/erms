@@ -15,7 +15,7 @@ from ..relationship_select import relationship_select
 from ..resource_relationships import PageTable, language
 from .acting_role import automatic_role
 from .handoff import notify_completion,task_finished
-from .messages import text,KEYS
+from .messages import REVIEW_SETUP_ERRORS, text,KEYS
 from .screens import column,failure
 
 PROPOSAL_TYPES=('remove_from_job','make_vital','blocking_security','add_to_holds','create_aggregation_relationship','remove_aggregation_relationship','remove_record_relationship','local_retention_override')
@@ -37,6 +37,8 @@ class ReviewForm:
         self.preview=preview
         self.browse_resource=browse_resource
         self.job=workspace['job'];self.task=workspace['task'];self.actions=set(workspace['actions'])
+        self.review_blocked=any((self.job.get('review_setup') or {}).values())
+        self.progress_buttons=[]
         self.pending_disclosures=[];self.proposal_pages=[];self.bulk_selections=[]
         self.retry={};self.busy=False;self.proposal_filter=None;self.proposal_round=None
         self.work=None;self.comments=None;self.saved_comments=''
@@ -164,6 +166,8 @@ class ReviewForm:
                         if action in self.actions:
                             label='approve_generate_request' if action=='approve' and self.job['review_route']=='records_manager_only' else action
                             self.buttons.append(ui.button(text(label),icon={'save':'save','submit':'send','complete_review':'done','reject':'assignment_return','approve':'verified'}[action],on_click=lambda _,a=action:self.perform(a)).tooltip(text(label)).props('no-caps'+(' outline' if action=='reject' else '')))
+                            if action in ('submit','complete_review','approve'):
+                                self.progress_buttons.append(self.buttons[-1]);self.buttons[-1].set_enabled(not self.review_blocked)
             self.history_sections()
             await self.proposals_panel(host=self.proposal_host if 'save' in self.actions else None)
         if 'save' in self.actions and self.alive():
@@ -226,6 +230,7 @@ class ReviewForm:
 
     async def perform(self,action):
         if not self.alive() or self.busy or action not in self.actions:return
+        if self.review_blocked and action in ('submit','complete_review','approve'):return
         required=action=='reject'
         if required and not str(self.comments.value or '').strip():
             self.feedback.text=text('review_comments_required')
@@ -286,6 +291,8 @@ class ReviewForm:
                 if self.on_approved:await self.on_approved(error.detail)
                 else:await task_finished(self,error.detail)
             else:
+                if isinstance(error.detail,dict) and error.detail.get('code') in REVIEW_SETUP_ERRORS:
+                    self.job['review_setup']=dict(REVIEW_SETUP_ERRORS[error.detail['code']]);self.review_blocked=True
                 self.error(error)
                 if saved:
                     ui.notify(text('decision_failed_saved'),type='warning')
@@ -295,6 +302,7 @@ class ReviewForm:
             self.busy=False
             if self.alive():
                 for control in controls:control.enable()
+                for button in self.progress_buttons:button.set_enabled(not self.review_blocked)
                 if self.draft_controls:self.draft_controls.update()
 
     def remote(self,kind,label,*,target=False,root=None,multiple=False,selected=None,active=None,direction=None):

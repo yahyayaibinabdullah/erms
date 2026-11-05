@@ -176,6 +176,45 @@ async def test_task_filters_restore_expanded_choice(host):
     assert next(e for e in host.descendants() if isinstance(e,ui.expansion)).value is True
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize('outcome',['updated','failed','abandoned'])
+async def test_inbox_refresh_is_visible_with_collapsed_filters_and_fetches_current_assignments(host,monkeypatch,outcome):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    calls=[];remembered=[];active=[True];response=asyncio.get_running_loop().create_future()
+    old=dict(id=8,job_id=5,job_number='DT-5',job_type='destruction',owner='Unit',task_type='preparation',
+        workflow_stage='officer_preparation',task_state='open',date_created='2026-11-05T03:00:00Z',age_seconds=0,root_count=1)
+    async def request(path,**params):
+        calls.append((path,params))
+        return {'items':[dict(old)],'total':100} if len(calls)==1 else await response
+    async def opened(*args):pass
+    saved=dict(page=2,size=10,sort='job_number',descending=True,query='DT-',state='open',stage='officer_preparation',
+        task_type='preparation',indicator='blocked',min_priority=0,min_roots=1,has_claimant='no')
+    with host:
+        await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:active[0],on_error=lambda error:'Refresh failed',open_task=opened,format_timestamp=str,saved=saved,remember=remembered.append)
+        disclosure=next(e for e in host.descendants() if isinstance(e,ui.expansion))
+        buttons=[e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('refresh')]
+        assert len(buttons)==1 and disclosure.value is False
+        assert buttons[0] not in list(disclosure.descendants())
+        table=next(e for e in host.descendants() if isinstance(e,ui.table))
+        handler=next(e.handler for e in buttons[0]._event_listeners.values() if e.type=='click')
+        handler(None);await asyncio.sleep(.01)
+        assert len(calls)==2 and calls[1][0]=='tasks'
+        assert calls[1][1]=={**calls[0][1],'offset':0}
+        assert table.rows[0]['id']==8  # Keep existing rows visible during the request.
+        if outcome=='failed':response.set_exception(ApiError(503,{'code':'unavailable'}))
+        else:
+            if outcome=='abandoned':active[0]=False
+            response.set_result({'items':[dict(old,id=9,job_number='DT-NEW')],'total':1})
+        await asyncio.sleep(.01)
+        if outcome=='updated':
+            assert table.rows[0]['id']==9 and table.pagination['page']==1
+            assert remembered[-1]=={**saved,'page':1}
+        elif outcome=='abandoned':assert table.rows[0]['id']==8 and len(remembered)==1
+        else:
+            assert table.rows==[] and any(isinstance(e,ui.label) and e.text=='Refresh failed' for e in host.descendants())
+        assert disclosure.value is False
+
+
 @pytest.mark.parametrize('route,skipped',[('standard',0),('simplified',2),('records_manager_only',3)])
 def test_native_workflow_tracker_saved_route(host,route,skipped):
     from frontend.webui.disposition.process import process_stages
@@ -480,9 +519,10 @@ async def test_member_rule_origin_is_separate_from_local_override_and_unknown_is
     assert len(requests)==1 and requests[0]['limit']==25 and requests[0]['offset']==0
 
 
-@pytest.mark.parametrize('lifecycle,state',[('active','active'),('completed','completed_history'),('terminated','terminated_history')])
+@pytest.mark.parametrize('lifecycle',['active','completed','terminated'])
+@pytest.mark.parametrize('old_state',[None,'removed',''])
 @pytest.mark.asyncio
-async def test_member_listing_defaults_to_current_job_members_and_retains_explicit_history(host,monkeypatch,lifecycle,state):
+async def test_member_listing_automatically_shows_retained_roots_without_membership_controls(host,monkeypatch,lifecycle,old_state):
     from frontend.webui.disposition.screens import job_screen
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
     workspace=view(actions=())
@@ -491,20 +531,17 @@ async def test_member_listing_defaults_to_current_job_members_and_retains_explic
         async def disposition_page(self,path,**params):
             self.reads.append((path,params))
             return workspace if path.endswith('/workspace') else {'items':[],'total':0}
-    api=MembersApi()
+    api=MembersApi();remembered=[]
     async def noop(*args):pass
+    saved={'section':'members','members':{'state':old_state,'sort':'membership_label'}}
     with host:
-        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=noop,open_eligibility=noop,open_resource=noop,format_timestamp=str,event_label=str,saved={'section':'members'})
+        await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=noop,open_eligibility=noop,open_resource=noop,format_timestamp=str,event_label=str,saved=saved,remember=remembered.append)
         table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(c['name']=='rule_label' for c in e.columns))
-        selector=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('membership'))
-        assert selector.value==state
-        assert api.reads[-1][1]['state']==state
+        assert not any(isinstance(e,ui.select) and e.label==text('membership') for e in host.descendants())
+        assert api.reads[-1][1]['state']=='retained'
+        assert api.reads[-1][1]['sort']=='id'
         assert not {'membership_label','removed_label'} & {c['name'] for c in table.columns}
-        for selection,expected in [('',{'membership_label','removed_label'}),('removed',{'removed_label'}),(state,set())]:
-            selector.value=selection
-            await asyncio.sleep(0)
-            assert {c['name'] for c in table.columns} & {'membership_label','removed_label'}==expected
-            assert api.reads[-1][1]['state']==(selection or None)
+        assert 'state' not in remembered[-1]['members']
 
 
 @pytest.mark.parametrize('task_id',[None,8])
@@ -601,7 +638,7 @@ async def test_task_return_restores_members_page_and_marks_opened_row(host,monke
         await job_screen(api=api,identity=5,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=open_resource,open_eligibility=open_resource,open_resource=open_resource,format_timestamp=str,event_label=str,task_id=8,saved=saved,remember=remembered.append)
         assert next(e for e in host.descendants() if isinstance(e,ui.tabs)).value=='members'
         request=next(params for path,params in api.reads if path.endswith('/memberships'))
-        assert request==dict(limit=25,offset=50,query='Review',state='active',sort='identity',descending=False)
+        assert request==dict(limit=25,offset=50,query='Review',state='retained',sort='identity',descending=False)
         table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(r.get('last_viewed') for r in e.rows))
         assert [r['id'] for r in table.rows if r['last_viewed']]==[52]
         assert all(r['needs_claim']==unclaimed and r['can_propose']!=unclaimed for r in table.rows)

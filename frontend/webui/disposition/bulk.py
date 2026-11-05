@@ -12,8 +12,9 @@ from .messages import text
 
 
 class BulkSelection:
-    def __init__(self, *, eligible, label, active, actions):
+    def __init__(self, *, eligible, label, active, actions, on_change=lambda:None):
         self.eligible, self.label, self.active = eligible, label, active
+        self.on_change = on_change
         self.rows = {}
         self.page = None
         with ui.row().classes('w-full items-center gap-3 flex-wrap bg-blue-50 rounded-lg p-3') as self.bar:
@@ -60,6 +61,7 @@ class BulkSelection:
           :disable="{'false' if eligible else 'true'}" aria-label="{escape(text('bulk_select_page'))}"
           @update:model-value="$parent.$emit('bulk-select-page',$event)"><q-tooltip>{escape(text('bulk_select_page'))}</q-tooltip></q-checkbox>''')
         self.page.table.update()
+        self.on_change()
 
     def changed(self, event):
         if not self.active():

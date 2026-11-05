@@ -14,7 +14,7 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
         def disclosure_changed(event):
             if alive():
                 remember_filters(bool(event.value))
-        with ui.expansion(text('filters'), icon='filter_list', value=bool(filters_expanded),
+        with ui.expansion(text('filters'), icon='filter_alt', value=bool(filters_expanded),
                           on_value_change=disclosure_changed).classes('w-full'):
             with ui.grid().classes('w-full grid-cols-1 md:grid-cols-2 xl:grid-cols-3 items-end gap-3'):
                 search=ui.input(text('search'),value=saved.get('query','')).props('outlined dense maxlength=200').classes('w-full')
@@ -25,7 +25,8 @@ async def tasks_screen(*,api,container,active,on_error,open_task,format_timestam
                 priority=ui.number(text('min_priority'),value=saved.get('min_priority'),step=1,precision=0).props('outlined dense').classes('w-full')
                 roots=ui.number(text('min_roots'),value=saved.get('min_roots'),min=0,step=1,precision=0).props('outlined dense').classes('w-full')
                 claimant=ui.select({'':text('any'),'yes':text('yes'),'no':text('no')},label=text('has_claimant'),value=saved.get('has_claimant','')).props('outlined dense').classes('w-full')
-                ui.button(text('refresh'),icon='refresh',on_click=lambda:page.load(reset=True)).tooltip(text('refresh')).props('outline no-caps')
+        with ui.row().classes('w-full justify-between gap-3'):
+            ui.button(text('refresh'),icon='refresh',on_click=lambda:page.load(reset=True)).tooltip(text('refresh')).props('outline no-caps')
         async def fetch(p):
             view=dict(page=p.page,size=p.size,sort=p.sort,descending=p.descending,query=search.value,state=state.value,stage=stage.value,task_type=kind.value,indicator=indicator.value,min_priority=priority.value,min_roots=roots.value,has_claimant=claimant.value)
             result=await api.disposition_page('tasks',limit=p.size,offset=(p.page-1)*p.size,sort={'action_label':'task_type','stage_label':'workflow_stage','received_label':'received','state_label':'state','type_label':'job_type','age_days':'age','digital_label':'digital_state'}.get(p.sort,p.sort) or 'received',descending=p.descending,query=search.value,state=state.value or None,stage=stage.value or None,task_type=kind.value or None,indicator=indicator.value or None,min_priority=int(priority.value) if priority.value is not None else None,min_roots=int(roots.value) if roots.value is not None else None,has_claimant={'yes':True,'no':False}.get(claimant.value))

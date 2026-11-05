@@ -4,13 +4,16 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.18
-**Amendment approved:** 4 November 2026
+**Revision:** 1.21
+**Amendment approved:** 5 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.21 | 5 November 2026 | Show simple current reviewer warnings on load/Refresh and gate remaining reviews; preserve the existing no-designation File Administrator skip and all task authorization |
+| 1.20 | 5 November 2026 | Scope selected additions to their disposition type and nearest common owning unit; require configured, currently staffed Standard review roles before new destruction-job creation |
+| 1.19 | 4 November 2026 | Select additions inside the job with destruction/owning-subtree admission filters; preserve relationship warnings, partial-add results and all command gates |
 | 1.18 | 4 November 2026 | Add explicit bounded selection and atomic bulk withdrawal, direct membership removal and proposed removal; preserve existing single-item actions, task gates, reasons and complete-set approval |
 | 1.17 | 3 November 2026 | Persist confirmed proposal additions, updates and withdrawals immediately; retain comment Save; make all proposal reasons and routine comments optional, with clear required correction comments |
 | 1.16 | 2 November 2026 | Expose manual request email sending beside preview/download in Current Task, with recipient/latest attempt and shared sending state; retain the task until the authority's decision |
@@ -282,6 +285,18 @@ change and the previous and new owning units are recorded in the job's event
 history. On submission, reviewer routing uses the job's current owning unit.
 
 ### 5.2 Addition and initial stage
+
+Job and Current task **Add aggregations** use the common specification's
+job-scoped selection dialog. Show the destruction job number and owning-unit
+subtree explicitly. Automatically restrict candidates to closed status-2 roots
+in that subtree, with no active job or admission protection blockers, visible
+under both the current actor's and assigned Preparer's access/clearance. Current
+preparer eligibility and stage/task/claim addition rights remain mandatory.
+Optional search/date filters only narrow this server-paged scope. Relationships
+remain admissible and receive the common final-disposition warning. Addition
+persists immediately; it does not submit the preparation/review or apply proposals.
+Successful additions refresh the job's Aggregations tab. Mixed selections retain
+the common per-item outcome and failure-details behavior.
 
 Adding an aggregation follows the common specification and changes the whole
 disposition unit from status 2 to status 6, **Pending destruction**. Common
@@ -671,6 +686,14 @@ contracts retain their existing behavior.
 The inbox supports server-side filtering and sorting by these fields where
 applicable. It has deliberate loading, empty, and error states and remains
 usable in LTR and RTL. Color is never the only indication of task state.
+
+Show a **Refresh** button below the collapsible filters and above the table,
+aligned to the starting edge (left in English, right in Arabic), matching the
+Eligibility and Jobs pages. It remains visible when the filters are closed.
+Refresh retrieves a fresh
+server page using the current filters, sorting and page size, returning to the
+first page. It does not reload the entire application or expand the filters.
+Ignore responses after the user leaves the page.
 
 Opening a task displays the destruction-job workspace at the correct task form.
 The server derives the available task and form actions from the current user,
@@ -1211,6 +1234,11 @@ Wathiq checks the owning
 organizational unit and then each ancestor in order. The first unit with a
 configured `file_administrator_role_id` supplies the effective File
 Administrator role.
+
+New Standard jobs require a configured, currently staffed effective role at
+creation under §5.1.1. The no-role skip below applies to existing jobs if
+configuration is subsequently removed; it is not a way to create an unconfigured
+new Standard job.
 
 If no unit in that chain has configured the role, Wathiq skips File
 Administrator review and sends the job directly to Unit Manager review. Wathiq
@@ -2598,7 +2626,7 @@ Verify server-paged count freshness and English/LTR and Arabic/RTL guidance.
 | DEST-25 | External decisions retain separate historical rows per request/review round; physical confirmation retains one immutable row per job; both preserve required evidence, actor/time, never-reused applicable identifiers, and atomic governed-record creation | Repeated external rejection/approval history, immutable physical confirmation, uniqueness, termination, retry, evidence, authorization, direct-database, and rollback tests |
 | DEST-26 | Destruction runs, unit progress, and manifests support idempotent bounded work, one running execution per job, irreversible successful units, approved proof fields, and no retained content or prohibited derivatives | Worker-claim, duplicate-request, retry, interruption, manifest-minimization, privacy, and database tests |
 | DEST-27 | Reminder checkpoints prevent duplicates independently of message retention, and reminder interval and evidence destination use validated existing configuration rather than ungoverned job text | Controlled-clock, duplicate-worker, purge, configuration, foreign-key, and invalid-destination tests |
-| DEST-28 | Wathiq uses the nearest configured `org_units.file_administrator_role_id` from the owning unit and its ancestors without changing job ownership; no configured role means the stage is visibly skipped, while a configured but unusable role blocks routing; role inheritance never grants access to the job's records | Same-unit foreign-key validation, direct-role precedence, multi-level nearest-ancestor inheritance, no-role skip, skipped-stage timeline and history, invalid/inactive/empty/unauthorized-role blocking, no fallback past an unusable configured role, hierarchy changes, resubmission, queue routing, existing-access enforcement, acting-role and source-unit history, authorization, and event-history tests |
+| DEST-28 | New Standard destruction jobs require a nearest effective File Administrator role and the owning unit's own managing role, each currently assigned to an active person; creation is disabled and rejected otherwise. For existing jobs, Wathiq uses the nearest configured `org_units.file_administrator_role_id` from the owning unit and its ancestors without changing job ownership; no configured role means the stage is visibly skipped, while a configured but unusable role blocks routing; role inheritance never grants access to the job's records | Creation-readiness UI/database/upgrade tests for missing roles, absent/future/expired assignments, inactive person/role/branch, inherited role, no fallback past empty nearer role, atomic rollback, stale previews and other-route exclusions; same-unit foreign-key validation, direct-role precedence, multi-level nearest-ancestor inheritance, existing-job no-role skip, load/Refresh remaining-review warnings and repair freshness, authorized Save/correction preservation, no reopening of finished reviews, existing-task no-auto-reroute, skipped-stage timeline and history, invalid/inactive/empty/unauthorized-role blocking, no fallback past an unusable configured role, hierarchy changes, resubmission, queue routing, existing-access enforcement, acting-role and source-unit history, authorization, and event-history tests |
 
 Additional verification for DEST-33 must explicitly show that the digital
 certificate uses Uploaded evidence classification, while generated reports
@@ -2650,8 +2678,8 @@ suggests the selected roots' common owning unit. If their owners differ, it
 suggests the nearest common ancestor in the current organizational hierarchy.
 The server computes this from the current ownership of accessible selected
 roots; the suggestion grants no additional resource access or admission rights.
-The owner remains editable. A common-ancestor suggestion explains that the
-suggested unit determines review routing. If no common ancestor exists, the
+The owner remains editable. Same-unit and common-ancestor suggestions explain
+that the suggested unit determines review routing. If no common ancestor exists, the
 field remains blank and the form explains that the selection needs separate
 jobs. Creation from the Jobs page has no selected roots and no inferred owner.
 
@@ -2663,9 +2691,103 @@ not reopen it. Suggested unit names follow the viewer's language with the usual
 fallback. Cancellation preserves the original selection and chooser search.
 
 Routine root additions require no reason, as defined in Disposition §10.2.
-The chooser disables jobs whose owning-unit subtree does not contain every
-selected root and displays the mismatch explanation before confirmation.
+The eligibility chooser filters jobs before pagination to the selected
+disposition type and, for destruction, the exact nearest common owning unit.
+Higher-parent jobs are not listed. Units on different branches may share a job
+when they have a common organizational ancestor; disconnected units must be
+split. The selection warning and chooser guidance follow Disposition §10.2.
 The server still revalidates admission on saving; this preview grants no rights.
+
+For a new Standard destruction job, the selected owning unit must have both:
+
+- an effective File Administrator role, resolved from the nearest configured
+  designation on that unit or its ancestors; and
+- a managing role designated on the owning unit itself. A parent's managing
+  role does not satisfy this requirement.
+
+Each designated role must also have at least one **current effective assignment
+to an active person**. Future and expired assignments do not count. Suspended
+or deactivated people, service accounts, inactive roles and roles whose owning
+unit or ancestor is inactive do not count. Resolve the nearest configured File
+Administrator role first: an empty or inactive nearer role must not fall back to
+an earlier ancestor's staffed role. A role may have multiple current assignees;
+this is not a requirement for a single assignee or automatic task assignment.
+
+Disable **Save** until both role definitions and both current assignments are
+verified. Use the simple messages below for missing role designations and for
+designated roles without a current effective person assignment. Do not require
+users to understand the technical distinction. Identify the needed reviewer(s)
+and direct the user to the System Administrator.
+Apply this to creation from selected aggregations and standalone creation alike.
+Recheck after owning-unit or job-type changes; while checking, or if checking
+fails, keep Save disabled for Standard destruction. Ignore obsolete and abandoned
+responses. Use bounded owner reads; never fetch complete role/user directories.
+
+The server/database must enforce the same creation gate using current facts,
+so stale previews, alternate clients and direct command inserts cannot bypass it.
+If creation is rejected because the preview became stale, refresh the selected
+owner’s role facts and update the inline warnings and disabled Save state.
+A rejected creation must leave no job, task, allocated job number or command
+receipt. This gate does not grant access or clearance to the selected material.
+Submission and later routing still recheck current access, clearance and reviewer
+eligibility. The new creation gate does not apply to Simplified or Records
+Manager Only routes or to other disposition job types. Migration 103 installs
+the creation gate; migration 104 installs the remaining-review checks and simple
+errors below. Both are present directly in the canonical schema for new databases.
+Neither migration rewrites existing jobs, tasks, proposals or history.
+
+**Existing jobs: remaining reviews and the retained skip exception.**
+
+Read current reviewer setup when loading a Disposition Jobs page or job/task
+workspace, and on its existing **Refresh** action. No polling, scheduled monitor,
+new job state, notification campaign or automatic reassignment is required.
+Use one bounded batch for the displayed jobs, not complete role/user directories.
+These reads are advisory snapshots; Submit and Complete review recheck current
+facts atomically, so a configuration change after page load cannot bypass them.
+Check only the Standard reviews that remain in this job's saved route:
+
+| Situation | Warning / progression rule |
+| --- | --- |
+| Creating any new Standard destruction job | Both required reviewers must be configured and currently staffed before Save. There is no creation-time File Administrator skip, even if the job is initially empty. |
+| Existing job in preparation or correction; no File Administrator designation exists on its owning unit or any ancestor | **Preserve the existing skip.** Do not show a missing File Administrator warning or block for that absence. Submission routes directly to Unit Manager review and retains the existing skipped-stage event/timeline. Unit Manager must still be available. |
+| Existing job in preparation/correction; a nearest File Administrator role is designated but has no current effective person assignment or is inactive | Warn that a File Administrator needs to be assigned and block submission. Do not skip or fall back past that configured role to a staffed higher ancestor. |
+| Existing job is already at File Administrator review; its effective designation or current staffing is lost | Warn and block progression. Reading/refreshing must not silently cancel, complete or reroute the existing task. Restore its authorized reviewer setup through the existing administration/reassignment mechanisms; existing task-eligibility and claim checks still apply. The no-designation skip applies when routing into review, not as an automatic repair of an already-created task. |
+| Unit Manager review remains ahead, including during preparation/correction and File Administrator review | Require the job owning unit's directly designated managing role with a current effective person assignment. Warn/block if missing; no Unit Manager skip or inherited managing-role substitute exists. |
+| File Administrator review has completed or was skipped; job is at Unit Manager review | Check only the remaining Unit Manager requirement. Later loss of File Administrator setup does not block or reopen a finished/skipped review. |
+| Job has reached Records Manager review or any later stage | Do not block or warn because a prior File Administrator/Unit Manager setup was removed. Final Records Manager access, clearance, approval and application checks still apply independently. |
+| Completed/terminated job, another disposition type, Simplified or Records Manager Only route | No Standard reviewer-setup warning or new progression block. Retain their existing rules. |
+| Return/reject for correction or authorized Save | Do not block these actions merely because a remaining reviewer is missing. Retain required correction comments, current task authority, claim, access, clearance and version checks. Correction rechecks remaining reviews on resubmission. |
+
+A designation removed from the owning unit can still resolve to an ancestor's
+File Administrator designation: normal nearest-designation resolution applies.
+Only absence across that entire chain triggers the skip. An inactive/empty
+configured role is not an absent designation. Availability here checks current
+effective assignments to active person accounts; it does not confer access or
+clearance or replace routing's existing content-eligibility checks. Changing
+configuration never retroactively changes the saved route or past decisions.
+
+**Simple messages and their context.** Use the localized owning unit name:
+
+| Needed reviewer(s) | Message for both missing designation and missing current assignee |
+| --- | --- |
+| File Administrator only, when required by the cases above | “A File Administrator needs to be assigned for {unit}. Contact the System Administrator for help.” |
+| Unit Manager only | “A Unit Manager needs to be assigned for {unit}. Contact the System Administrator for help.” |
+| Both | “A File Administrator and a Unit Manager need to be assigned for {unit}. Contact the System Administrator for help.” |
+
+At creation append: “This Standard destruction job cannot be saved until this
+is resolved.” On an affected existing job/task append: “This review cannot
+continue until this is resolved. You can still save your work.” Save remains
+subject to the user's existing authorization; these warnings grant no rights.
+In particular, File Administrator review still offers Complete review only; it
+does not gain a Reject/Return action. Losing one's own task role or resource
+authority can still prevent Save under the existing authorization rules.
+Disable only the affected forward action, never an otherwise authorized Save
+or return for correction. In Disposition Jobs show a compact **Review setup
+needs attention** indication beside the job number. Place the detailed warning
+above the job/task tabs so it is visible regardless of the selected tab.
+After the System Administrator resolves the issue, **Refresh** obtains current
+facts, removes the warning and enables the affected action without a repair
+command or extra job state. Preserve unsaved-work navigation guards.
 
 Review-proposal relationship fields use standard searchable selectors. Security
 Level and Relationship Type offer bounded initial choices and filtering; Legal
@@ -2714,7 +2836,7 @@ their stage-specific focus.
 ### Task aggregation review navigation
 
 Opening an aggregation from the task Aggregations tab records the tab, server
-page, page size, query, membership filter, sorting and opened membership identity
+page, page size, query, sorting and opened membership identity
 in that navigation entry. Back restores this state, fetches current authorized
 rows, and scrolls to and visibly marks the last-viewed aggregation if still on
 the page. Detail navigation through its children, records or relationships must

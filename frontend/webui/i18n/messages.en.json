@@ -8152,6 +8152,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.chooser_scope_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Only jobs matching the selected disposition type are shown. Destruction jobs must have the same owning unit as the selection’s nearest common unit. You can also create a new job.",
+    "semantic_meaning": "Explain selection-based job scope and the suggested owning organization unit.",
+    "common_locations": [
+      "Disposition eligibility job chooser",
+      "New disposition job from selected aggregations"
+    ],
+    "translator_guidance": "Use ملف for aggregation and عملية for job; explain exact owning-unit matching calmly. Preserve nearest common ancestor meaning.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Only jobs matching the selected disposition type are shown. Destruction jobs must have the same owning unit as the selection’s nearest common unit. You can also create a new job.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.claim",
     "context_group": "disposition.ui",
     "default_text": "Claim task",
@@ -9756,6 +9771,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_file_administrator_required",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A File Administrator needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_generated_correction_forbidden",
     "context_group": "disposition.ui",
     "default_text": "Generated documents cannot be replaced through an evidence correction.",
@@ -10358,6 +10389,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_reviewers_required",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator and a Unit Manager need to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A File Administrator and a Unit Manager need to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_root_not_closed",
     "context_group": "disposition.ui",
     "default_text": "The aggregation must be closed before admission.",
@@ -10443,6 +10490,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "This item changed. Refresh before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_standard_owner_roles_required",
+    "context_group": "disposition.ui",
+    "default_text": "A Standard destruction job requires an effective File Administrator role and the owning unit’s managing role, each with a current assignment to an active person. Check the owning unit’s roles and assignments, then try again.",
+    "semantic_meaning": "Standard destruction job creation readiness: role configuration and current effective person assignments.",
+    "common_locations": [
+      "Create disposition job dialog"
+    ],
+    "translator_guidance": "Use established Wathiq role and job terminology. Current means effective now, not future or expired.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A Standard destruction job requires an effective File Administrator role and the owning unit’s managing role, each with a current assignment to an active person. Check the owning unit’s roles and assignments, then try again.",
     "is_html": false
   },
   {
@@ -10653,6 +10714,22 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "This template revision is unavailable.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_unit_manager_required",
+    "context_group": "disposition.ui",
+    "default_text": "A Unit Manager needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A Unit Manager needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
     "is_html": false
   },
   {
@@ -13615,6 +13692,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.owner_same_unit",
+    "context_group": "disposition.ui",
+    "default_text": "Prefilled from the selected aggregations’ owning unit. This unit determines review routing.",
+    "semantic_meaning": "Explain selection-based job scope and the suggested owning organization unit.",
+    "common_locations": [
+      "Disposition eligibility job chooser",
+      "New disposition job from selected aggregations"
+    ],
+    "translator_guidance": "Use ملف for aggregation and عملية for job; explain exact owning-unit matching calmly. Preserve nearest common ancestor meaning.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Prefilled from the selected aggregations’ owning unit. This unit determines review routing.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.partial_add",
     "context_group": "disposition.ui",
     "default_text": "Some aggregations were not added. Review the individual results.",
@@ -13870,6 +13962,183 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Current checks passed. Physical work must follow the checked scope.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_add",
+    "context_group": "disposition.ui",
+    "default_text": "Add selected ({count})",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_add",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Add selected (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_changed",
+    "context_group": "disposition.ui",
+    "default_text": "The job or your permissions changed. Refresh the selection and try again.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_changed",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "The job or your permissions changed. Refresh the selection and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_empty",
+    "context_group": "disposition.ui",
+    "default_text": "No aggregations currently meet this job’s eligibility, ownership and access requirements within these filters.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_empty",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "No aggregations currently meet this job’s eligibility, ownership and access requirements within these filters.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Only closed aggregations that meet this job’s eligibility, ownership and access requirements and have no admission blockers are shown. Adding them saves membership immediately.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_hint",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Only closed aggregations that meet this job’s eligibility, ownership and access requirements and have no admission blockers are shown. Adding them saves membership immediately.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_owner_scope",
+    "context_group": "disposition.ui",
+    "default_text": "{type} · {owner} and its descendant units",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_owner_scope",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "type": "text",
+      "owner": "text"
+    },
+    "rendered_example": "Destruction · Records Unit and its descendant units",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_relationship_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Relationships do not prevent addition. Links outside the job must be resolved before final disposition.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_relationship_hint",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Relationships do not prevent addition. Links outside the job must be resolved before final disposition.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_relationship_warning",
+    "context_group": "disposition.ui",
+    "default_text": "Relationships need review before final disposition",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_relationship_warning",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationships need review before final disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_relationships",
+    "context_group": "disposition.ui",
+    "default_text": "Relationships",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_relationships",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationships",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_retry",
+    "context_group": "disposition.ui",
+    "default_text": "Retry addition",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_retry",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Retry addition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_search",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregation number or title",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_search",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Aggregation number or title",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_title",
+    "context_group": "disposition.ui",
+    "default_text": "Add aggregations to {job}",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_title",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "job": "text"
+    },
+    "rendered_example": "Add aggregations to DT-2026-4",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_type_scope",
+    "context_group": "disposition.ui",
+    "default_text": "{type} · Compatible aggregations only",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_type_scope",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "type": "text"
+    },
+    "rendered_example": "Destruction · Compatible aggregations only",
     "is_html": false
   },
   {
@@ -15283,6 +15552,60 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.review_assign_both",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator and a Unit Manager need to be assigned for {unit}. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "unit": "text"
+    },
+    "rendered_example": "A File Administrator and a Unit Manager need to be assigned for Records Unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_assign_file_administrator",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator needs to be assigned for {unit}. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "unit": "text"
+    },
+    "rendered_example": "A File Administrator needs to be assigned for Records Unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_assign_unit_manager",
+    "context_group": "disposition.ui",
+    "default_text": "A Unit Manager needs to be assigned for {unit}. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "unit": "text"
+    },
+    "rendered_example": "A Unit Manager needs to be assigned for Records Unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.review_changes",
     "context_group": "disposition.ui",
     "default_text": "Review changes",
@@ -15478,6 +15801,70 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Saved review route?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_attention",
+    "context_group": "disposition.ui",
+    "default_text": "Review setup needs attention",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Review setup needs attention",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "This review cannot continue until this is resolved. You can still save your work.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "This review cannot continue until this is resolved. You can still save your work.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_checking",
+    "context_group": "disposition.ui",
+    "default_text": "Checking reviewer availability…",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Checking reviewer availability…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_create_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "This Standard destruction job cannot be saved until this is resolved.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "This Standard destruction job cannot be saved until this is resolved.",
     "is_html": false
   },
   {
@@ -15794,22 +16181,6 @@
     "is_html": false
   },
   {
-    "message_key": "disposition.ui.select_hint",
-    "context_group": "disposition.ui",
-    "default_text": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
-    "semantic_meaning": "Disposition eligibility and common job interface: Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
-    "common_locations": [
-      "Disposition eligibility",
-      "Disposition jobs",
-      "Resource disposition metadata"
-    ],
-    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
-    "is_html": false
-  },
-  {
     "message_key": "disposition.ui.select_job",
     "context_group": "disposition.ui",
     "default_text": "Choose a disposition job",
@@ -15823,6 +16194,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Choose a disposition job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.selection_mixed_branches",
+    "context_group": "disposition.ui",
+    "default_text": "Selected aggregations have no common organizational ancestor. Add them to separate jobs.",
+    "semantic_meaning": "Inline warning disabling Add selected aggregations to job when the current selection is incompatible.",
+    "common_locations": [
+      "Disposition eligibility selection toolbar"
+    ],
+    "translator_guidance": "Explain the current selection problem calmly; aggregation is ملف and disposition job is عملية. No modal or technical hierarchy terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Selected aggregations have no common organizational ancestor. Add them to separate jobs.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.selection_mixed_types",
+    "context_group": "disposition.ui",
+    "default_text": "Selected aggregations have different disposition types. Add each type to a separate job.",
+    "semantic_meaning": "Inline warning disabling Add selected aggregations to job when the current selection is incompatible.",
+    "common_locations": [
+      "Disposition eligibility selection toolbar"
+    ],
+    "translator_guidance": "Explain the current selection problem calmly; aggregation is ملف and disposition job is عملية. No modal or technical hierarchy terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Selected aggregations have different disposition types. Add each type to a separate job.",
     "is_html": false
   },
   {

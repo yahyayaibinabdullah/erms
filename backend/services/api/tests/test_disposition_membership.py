@@ -16,7 +16,7 @@ import pytest
 
 from backend.services.api.disposition import membership as service
 from backend.services.api.disposition.eligibility import evaluate_root,worker_actor
-from backend.services.api.tests.test_disposition_foundation import actor as foundation_actor,command,ensure_officer,version
+from backend.services.api.tests.test_disposition_foundation import actor as foundation_actor,command,ensure_officer,version,configured_creation_roles
 from backend.services.api.tests.test_disposition_eligibility import unit,make_hold,statuses,wait_for_waiter
 
 ROOT=Path(__file__).resolve().parents[4]
@@ -39,7 +39,8 @@ def kwargs(**values):
 
 def setup(c,kind='destruction',assigned=1,owner=1):
     actor(c);ensure_officer(c)
-    return service.create_job(c,**kwargs(job_number=str(uuid4()),job_type=kind,owning_org_unit_id=owner if kind=='destruction' else None,assigned_user_id=assigned))
+    with configured_creation_roles(c,owner,kind):
+        return service.create_job(c,**kwargs(job_number=str(uuid4()),job_type=kind,owning_org_unit_id=owner if kind=='destruction' else None,assigned_user_id=assigned))
 
 
 def ready(c,action='destruction',*,closed='2020-01-01T00:00:00Z'):
@@ -98,7 +99,8 @@ def test_new_unassigned_job_is_rejected_then_assigned_creation_enables_admission
 def test_creation_allows_empty_reason_but_updates_require_it(client,reason):
     with db() as c:
         actor(c);ensure_officer(c)
-        job=service.create_job(c,**{**kwargs(job_type='destruction',owning_org_unit_id=1,assigned_user_id=1),'reason':reason})
+        with configured_creation_roles(c):
+            job=service.create_job(c,**{**kwargs(job_type='destruction',owning_org_unit_id=1,assigned_user_id=1),'reason':reason})
         with c.transaction(force_rollback=True):
             with pytest.raises(psycopg.Error,match='disposition_reason_required'):
                 service.assign_job(c,**{**kwargs(job_id=job['id'],expected_version=job['version'],assigned_user_id=1),'reason':reason})
@@ -365,7 +367,9 @@ def test_current_policy_change_waits_then_admission_rechecks_new_blocking_state(
 
 
 def test_api_command_contract_retries_versions_reason_confirmation_and_no_raw_crud(client):
-    with db() as c:actor(c);ensure_officer(c);root,*_=ready(c)
+    with db() as c:
+        actor(c);ensure_officer(c);root,*_=ready(c)
+        c.execute('UPDATE org_units SET file_administrator_role_id=1,managing_role_id=1 WHERE id=1')
     data={'command_id':str(uuid4()),'acting_role_id':1,'job_type':'destruction','owning_org_unit_id':1,'assigned_user_id':1}
     headers={'X-Change-Reason':'API membership acceptance'}
     created=client.post('/api/v1/disposition/jobs',json=data,headers=headers);assert created.status_code==201,created.text

@@ -27,6 +27,8 @@ def main():
             raise ValueError("A baseline schema requires an explicit upgrade migration")
         while targets and targets[0].startswith("--migration="):
             migration_paths.append(ROOT / targets.pop(0).split("=", 1)[1])
+    seed_reference_data = bool(targets and targets[0]=='--seed-required-reference-data')
+    if seed_reference_data:targets.pop(0)
     if targets and targets[0]=='--defer-migrations-to-test':
         targets.pop(0);defer_migrations=True
     schema_source = (
@@ -48,6 +50,11 @@ def main():
         with psycopg.connect(test_url) as connection:
             if baseline_ref:
                 connection.execute(schema_source, prepare=False)
+                # Consolidated schemas keep initialization data separate. Opt in
+                # when testing upgrades from such a schema, not older embedded seeds.
+                if seed_reference_data:
+                    connection.commit()
+                    connection.execute((ROOT / 'database/seeds/000_required_reference_data.sql').read_text(), prepare=False)
             else:
                 initialize(connection)
             for migration_path in ([] if defer_migrations else migration_paths):

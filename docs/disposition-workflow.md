@@ -24,17 +24,121 @@ migration, workflow transition or audit-data rewrite is involved.
 The job workspace uses a compact stage tracker. This full branching diagram is
 a documentation reference; actual routing follows the job’s saved review route.
 
+**My tasks** has an always-visible **Refresh** button below its collapsible
+filters and above the table, aligned left in English and right in Arabic to
+match Eligibility and Jobs. It retrieves assignments using the current
+filters, sorting and page size, returning to the first page without expanding
+the filters or reloading the application.
+
+The standalone **Disposition Eligibility** page opens as a browsing view without
+selection instructions. The job's **Add aggregations** dialog retains its
+job-specific selection guidance.
+Selecting aggregations on the eligibility page enables Add only when they share
+a disposition type and their owning units share an organizational ancestor.
+An inline warning explains mixed types or disconnected organizational branches;
+correcting the selection clears it. This happens before choosing or creating a
+job. Records Unit and Audit Office can share a job owned by their nearest common
+ancestor, such as the GM's Office.
+The destination chooser shows the matching disposition type and, for destruction,
+only jobs owned by that exact nearest common unit. Higher-parent jobs are not
+shown. New-job creation prefills the disposition type and nearest common owning
+unit and explains the suggestion. The existing job-scoped picker continues to
+enforce its saved job's scope; a Records Unit job cannot admit Audit Office
+material merely because a broader job could contain both.
+For a new **Standard destruction** job, Save is disabled until the owning unit
+has an effective File Administrator role and its own managing role, each with a
+current assignment to an active person. The nearest configured File Administrator
+role may be inherited; a parent's managing role does not count. A nearer empty
+File Administrator role cannot fall back to a staffed ancestor role. Multiple
+assignees are allowed. Future/expired assignments, inactive people, service
+accounts and inactive roles or organizational branches do not count.
+
+Inline warnings identify the needed File Administrator, Unit Manager or both,
+and direct the user to the System Administrator. They use the same simple
+wording whether a designation is missing or has no current assignee. Changing the owner rechecks readiness;
+Save remains disabled while that check is pending or fails. The database also
+checks on creation, including when the form's preview became stale. A stale
+readiness rejection refreshes the role facts and disables Save if a role or
+assignment is now missing. A failed
+creation leaves no partial job/task or reserved job number. The gate covers
+standalone creation as well as creation from a selection. Other review routes/types retain their rules. Existing-job exceptions are
+documented below. Access, clearance and reviewer
+eligibility are still checked again at submission and routing.
+
+Existing installations must apply migration
+`103_standard_destruction_owner_roles.sql` before deploying the updated UI/API.
+New databases get the same functions and trigger directly from `schema.sql`.
+The migration does not rewrite or invalidate existing jobs.
+
+### Reviewer setup after a job has been created
+
+The Jobs list marks affected Standard destruction jobs **Review setup needs
+attention**. Open the job/task for the needed reviewer(s) and a direction to
+contact the System Administrator. Checks run on page load and the existing
+**Refresh** button. There is no background monitor or new job state. Forward
+review actions are disabled when the remaining reviewer setup is unavailable;
+authorized Save and return for correction remain available.
+
+These exceptions are deliberate and must be preserved:
+
+- **New job:** both required roles must be designated and currently staffed
+  before Save, including an empty Standard destruction job.
+- **Existing job before File Administrator routing:** if no File Administrator
+  is designated anywhere on the owning unit's ancestor chain, the original skip
+  to Unit Manager review remains. This absence alone must not show a warning.
+  An ancestor designation still counts normally. A configured but inactive or
+  unstaffed nearest role blocks; it is never treated as absent or bypassed.
+- **An existing File Administrator task:** losing its setup does not cancel or
+  reroute it automatically. The System Administrator must restore appropriate
+  setup; existing reassignment and task-eligibility rules remain authoritative.
+- **Unit Manager:** the job owner's own designated and staffed managing role is
+  always needed while that review remains; no inheritance/skip is introduced.
+- **Reviews already finished or skipped:** losing their setup does not reopen
+  them. At Unit Manager review, only Unit Manager setup is checked; from Records
+  Manager review onward, neither earlier setup produces these warnings.
+- **Terminal jobs and other routes/types:** no new reviewer-setup warning.
+  Current task authority, claims, resource access and clearance always remain.
+  File Administrators do not gain a Reject action; Save also remains subject to
+  their own current task authorization.
+
+For either technical cause, use these simple messages with the unit name:
+“A File Administrator needs to be assigned for {unit}. Contact the System
+Administrator for help.” / “A Unit Manager needs to be assigned for {unit}.
+Contact the System Administrator for help.” When both are missing, combine the
+reviewer names in one sentence. At creation explain that the Standard job cannot
+be saved until resolved. On an existing job explain that the review cannot
+continue and that authorized work can still be saved. After the administrator's
+fix, Refresh clears the warning and enables progression; the command independently
+checks live facts, so stale pages cannot bypass the rules.
+
+Deploy migration `104_remaining_review_readiness.sql` after 103, together with
+the matching API/WebUI. It changes private validation/read functions only;
+no job/task/history data or route is rewritten, and the routing function is
+unchanged. Fresh databases use standalone `schema.sql` and separately register
+the matching baseline. No environment setting or new worker is required.
+English and Arabic messages are included; new Arabic drafts need review before
+publication. See [reviewer setup verification](verification/review-setup.md).
+The full normative exception table is in Destruction Process §5.1.1.
+
 In a job or task workspace, the Aggregations tab's **Search aggregations**
 field searches only memberships of that job. Press Enter to match aggregation
 number or title, owning organization unit name, or classification code or title.
 Matching is case-insensitive and accepts partial text. It does not search the
 job number or the other table columns. The field displays this scope as a hint
-in English and Arabic; the separate Membership filter remains available.
+in English and Arabic.
 
-The tab defaults to **Active** memberships for active jobs, **Completed history**
-for completed jobs, and **Terminated history** for terminated jobs. Choose another
-Membership filter to inspect past episodes. The Membership column appears only
-for **Any**; Removed at appears only for **Removed** or **Any**.
+The tab automatically shows the aggregations retained in the job, including
+units already processed while the job awaits completion. Completed and terminated
+jobs retain their aggregation lists. Removed aggregations are excluded, including
+earlier removal episodes of a subsequently re-added aggregation. There is no
+Membership dropdown or Show removed option; removal decisions remain in History.
+**Add aggregations** appears beside this tab's heading, in both job and task
+workspaces, when the current user and stage permit additions.
+
+Individual and bulk removal keep the workspace on **Aggregations**, preserving
+the search, sorting and page size. The current page is retained
+when valid; an emptied last page moves to the preceding valid page. Refreshing
+after a bulk-removal conflict preserves the same view.
 
 The effective retention-rule source is a short clickable label, such as
 **Classification · 1431** or **Local override**. Open it to see the full defining
@@ -205,8 +309,8 @@ claimed task may use **Add aggregations** in its Aggregations tab or Job details
 The usual eligibility, whole-unit, ownership, protection, access, assigned-Officer
 and one-active-job checks apply. Addition uses the current task role, preserves
 saved work and the review round, and does not execute proposals or grant immediate
-removal rights. Save pending edits before navigating away. Returning refreshes the
-job; final approval covers all current members and proposals. Original submitted
+removal rights. Save pending review comments before opening the selection dialog.
+Adding aggregations refreshes the job; final approval covers all current members and proposals. Original submitted
 units must still be unchanged. The original submission snapshot is retained.
 Standard review still requires correction/resubmission for additional units;
 Records Manager Only preparation/correction remains unchanged.
@@ -216,6 +320,41 @@ then restart API/WebUI. A new database uses the canonical schema and baseline.
 No configuration or privilege change is required. Catalogue synchronization
 adds the Add aggregations message and one unpublished Arabic draft for review. See the
 [verification and requirement mapping](verification/simplified-review-and-correction.md).
+
+## Adding aggregations from a job
+
+**Add aggregations** in Job details or Current task opens a selection dialog
+inside the job. Its heading identifies the job; a destruction job also shows
+its owning unit and descendant-unit scope. It lists only compatible, closed
+aggregations without admission blockers or another active job, accessible to
+both you and the assigned Preparer. For destruction, ownership must fall within
+that subtree. Search by number/title and due-date filters narrow the results.
+The general Disposition eligibility page remains available separately.
+
+The centered dialog fits its contents, up to 1,100px wide and 75% of desktop
+screen height. Its heading and buttons stay visible while the body scrolls.
+Phones use nearly the full available screen, with margins.
+
+Relationships do not prevent addition. The warning identifies candidates whose
+links may need resolving before final disposition without exposing related
+resources. Adding candidates does not waive later approval or destruction checks.
+
+Select up to 100 aggregations and click **Add selected (N)**. They are saved
+immediately; another Save is unnecessary. Full success returns to the job's
+updated Aggregations tab, showing the first page of active members without an
+old search hiding the additions. If some additions fail, valid additions remain saved
+and the dialog displays the result summary and **View failures** details, with
+refreshed candidates and cleared selection. Close the dialog to return to the
+updated job. Refresh/filter changes clear selection; paging preserves selected
+versions. A connection problem offers a safe retry of the same addition; a
+definitive conflict requires refreshing and selecting again.
+
+Existing guards for unsaved review comments remain. Opening/cancelling the
+picker does not save comments or submit the task. No database migration, new
+privilege, application setting or environment change is needed. Deploy/restart
+API and WebUI together; the existing eligibility read accepts optional `job_id`
+and bounded `query`, and the existing membership command is unchanged. See
+[verification and requirement mapping](verification/job-scoped-selection.md).
 
 ## Emailing the destruction request
 

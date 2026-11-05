@@ -1,7 +1,7 @@
 """Phase 22 acceptance; the runner creates and always drops the test database."""
 from uuid import uuid4
 import pytest
-from backend.services.api.disposition import completion, destruction, documents
+from backend.services.api.disposition import completion, destruction, documents, queries
 from backend.services.api.disposition.destruction_worker import run_pass
 from backend.services.api.tests.test_disposition_destruction import prepared, request, guarded_fixture
 from backend.services.api.tests.test_disposition_membership import actor, job_version, db
@@ -36,6 +36,9 @@ def test_saved_certificate_waits_for_explicit_final_task_completion(client, monk
         assert certificate['provenance']['snapshot']['source']['proof']
         assert task(c,job['id'])['task_type']=='certificate_download'
         assert not completion.view(c,jobrow)['completed']
+        # A finished unit stays visible while the final task is still open.
+        retained=queries.members(c,job['id'],state='retained',limit=25,offset=0)
+        assert retained['total']==1 and retained['items'][0]['membership_state']=='completed_history'
     assert not completion.process_one(db)
     response=client.get(f"/api/v1/disposition/jobs/{job['id']}/documents/{certificate['id']}/content")
     assert response.status_code==200,response.text[:300]
@@ -46,6 +49,8 @@ def test_saved_certificate_waits_for_explicit_final_task_completion(client, monk
         result=completion.complete_task(c,**args)
         assert completion.complete_task(c,**args)==result
         assert result['lifecycle_state']=='completed'
+        retained=queries.members(c,job['id'],state='retained',limit=25,offset=0)
+        assert retained['total']==1 and retained['items'][0]['root_aggregation_id']==root
         assert c.execute("SELECT task_state FROM disposition_tasks WHERE id=%s",(t['id'],)).fetchone()['task_state']=='completed'
         assert c.execute("SELECT count(*) n FROM event_history WHERE operation='DESTRUCTION_JOB_COMPLETED'").fetchone()['n']==1
 

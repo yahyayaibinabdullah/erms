@@ -1,7 +1,20 @@
 """Contextual disposition text; no catalogue parsing on rendering paths."""
+from html import unescape
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'picker_title': 'disposition.ui.picker_title',
+ 'picker_owner_scope': 'disposition.ui.picker_owner_scope',
+ 'picker_type_scope': 'disposition.ui.picker_type_scope',
+ 'picker_hint': 'disposition.ui.picker_hint',
+ 'picker_relationship_hint': 'disposition.ui.picker_relationship_hint',
+ 'picker_relationship_warning': 'disposition.ui.picker_relationship_warning',
+ 'picker_relationships': 'disposition.ui.picker_relationships',
+ 'picker_search': 'disposition.ui.picker_search',
+ 'picker_empty': 'disposition.ui.picker_empty',
+ 'picker_add': 'disposition.ui.picker_add',
+ 'picker_retry': 'disposition.ui.picker_retry',
+ 'picker_changed': 'disposition.ui.picker_changed',
  'bulk_clear': 'disposition.ui.bulk_clear',
  'bulk_selected_count': 'disposition.ui.bulk_selected_count',
  'bulk_select_page': 'disposition.ui.bulk_select_page',
@@ -89,6 +102,19 @@ DISPOSITION_MESSAGE_KEYS = {
  'history_held': 'disposition.ui.history_held',
  'browse': 'disposition.ui.browse',
  'owner_common_ancestor': 'disposition.ui.owner_common_ancestor',
+ 'review_assign_file_administrator': 'disposition.ui.review_assign_file_administrator',
+ 'review_assign_unit_manager': 'disposition.ui.review_assign_unit_manager',
+ 'review_assign_both': 'disposition.ui.review_assign_both',
+ 'review_setup_create_blocked': 'disposition.ui.review_setup_create_blocked',
+ 'review_setup_blocked': 'disposition.ui.review_setup_blocked',
+ 'review_setup_checking': 'disposition.ui.review_setup_checking',
+ 'review_setup_attention': 'disposition.ui.review_setup_attention',
+ 'disposition_reviewers_required': 'disposition.ui.disposition_reviewers_required',
+ 'disposition_file_administrator_required': 'disposition.ui.disposition_file_administrator_required',
+ 'disposition_unit_manager_required': 'disposition.ui.disposition_unit_manager_required',
+ 'owner_same_unit': 'disposition.ui.owner_same_unit',
+ 'disposition_standard_owner_roles_required': 'disposition.ui.disposition_standard_owner_roles_required',
+ 'chooser_scope_hint': 'disposition.ui.chooser_scope_hint',
  'owner_no_common_ancestor': 'disposition.ui.owner_no_common_ancestor',
 
  'in_active_job': 'disposition.ui.in_active_job',
@@ -578,9 +604,10 @@ DISPOSITION_MESSAGE_KEYS = {
  'section': 'disposition.ui.section',
  'security': 'disposition.ui.security',
  'security_level_id': 'disposition.ui.security_level_id',
- 'select_hint': 'disposition.ui.select_hint',
  'select_job': 'disposition.ui.select_job',
  'selective_transfer': 'disposition.ui.selective_transfer',
+ 'selection_mixed_types': 'disposition.ui.selection_mixed_types',
+ 'selection_mixed_branches': 'disposition.ui.selection_mixed_branches',
  'selector_hint': 'disposition.ui.selector_hint',
  'send_email': 'disposition.ui.send_email',
  'simplified': 'disposition.ui.simplified',
@@ -730,3 +757,22 @@ def action_required_label(key, job_type=None):
     if key == 'blocked':
         return text('destruction_blocked' if job_type == 'destruction' else 'disposition_blocked')
     return text(key)
+
+
+def review_setup_message(setup, unit):
+    """Literal label text for undefined or unstaffed roles; never HTML markup."""
+    fa=bool(setup.get('file_administrator_missing'))
+    manager=bool(setup.get('unit_manager_missing'))
+    key='review_assign_both' if fa and manager else 'review_assign_file_administrator' if fa else 'review_assign_unit_manager' if manager else None
+    # Catalogue interpolation escapes values for HTML. These messages go only to
+    # NiceGUI label.text, which renders literal text safely; decode that one layer
+    # here so punctuation is not displayed as entities. Keep the shared renderer's
+    # escaping and bidi isolation intact for its other, potentially HTML, sinks.
+    return unescape(text(key,unit=unit or text('owner'))) if key else ''
+
+
+REVIEW_SETUP_ERRORS={
+    'disposition_file_administrator_required':{'file_administrator_missing':True,'unit_manager_missing':False},
+    'disposition_unit_manager_required':{'file_administrator_missing':False,'unit_manager_missing':True},
+    'disposition_reviewers_required':{'file_administrator_missing':True,'unit_manager_missing':True},
+}

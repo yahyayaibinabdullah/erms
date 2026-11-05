@@ -201,7 +201,7 @@ async def test_command_reason_warning_and_mixed_result_never_claim_total_success
 
 
 @pytest.mark.asyncio
-async def test_removed_reopened_episode_does_not_still_request_removal(host,monkeypatch):
+async def test_removed_episodes_are_not_requested_by_aggregation_tab(host,monkeypatch):
     from nicegui import core
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
     from frontend.webui.disposition.screens import job_screen
@@ -210,7 +210,9 @@ async def test_removed_reopened_episode_does_not_still_request_removal(host,monk
         if path=='jobs/1/workspace':return {'job': {'id':1,'job_number':'JOB','job_type':'destruction','review_route':'standard','current_review_round':0,'lifecycle_state':'active','disposition_status':6,'workflow_stage':'officer_preparation','owner':'Owner','assignee':'Officer','assigned_user_id':1,'owning_org_unit_id':1,'version':2,'membership_editable':True,'owner_editable':True},'task':None,'actions':[],'roles':[],'management_roles':[]}
         if path.endswith('/documents'):return {'items':[],'total':0,'correction_roles':[]}
         if path.endswith('/artifact-destination'):return {'ready':False,'changed':False,'destination':None,'previous_destination':None,'warning':'disposition_destination_unset','token':'x'*64}
-        if path.endswith('/memberships'):return {'items':[{'id':7,'root_aggregation_id':1,'root_version':2,'version':2,'aggregation_number':'ROOT','title':'Root','disposition_status':1,'membership_state':'removed','redacted':False,'added_at':'2026-01-01T00:00:00Z','removed_at':'2026-01-02T00:00:00Z','removal_required_reason':'reopened'}],'total':1}
+        if path.endswith('/memberships'):
+            assert params['state']=='retained'
+            return {'items':[],'total':0}
         return {'items':[],'total':0}
     with host:
         await job_screen(api=SimpleNamespace(disposition_page=request),identity=1,container=host,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,open_job=lambda identity:None,open_eligibility=lambda identity:None,open_resource=lambda *a:None,format_timestamp=str,event_label=str)
@@ -218,8 +220,7 @@ async def test_removed_reopened_episode_does_not_still_request_removal(host,monk
     assert navigation.value=='workspace_details'
     navigation.value='members'
     await asyncio.sleep(.02)
-    row=next(r for e in host.descendants() if isinstance(e,ui.table) for r in e.rows if r.get('root_aggregation_id')==1)
-    assert row['membership_label']=='Removed' and row['notice']=='' and not row['can_remove']
+    assert not any(r for e in host.descendants() if isinstance(e,ui.table) for r in e.rows)
 
 
 @pytest.mark.parametrize('language',['en','ar'])
@@ -386,6 +387,7 @@ async def test_chooser_creates_job_and_resumes_selection_only_while_open(host,mo
         await callbacks[0]['after']({'id':44})
         assert chosen==[42]
         assert len(calls)==2 and calls[0][0]=='jobs' and calls[0][1]['limit']==25
+        assert calls[0][1]['matching_scope'] is True
 
 
 @pytest.mark.asyncio
@@ -395,13 +397,13 @@ async def test_suggested_owner_prefills_editable_control_and_explains_scope(host
     from frontend.webui.disposition.screens import create_dialog
     from frontend.webui.disposition.messages import text
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    async def request(path,**params):return {'items':[{'id':params['selected'],'review_role_setup':{'has_file_administrator':True,'has_managing_role':True}}]}
     with host:
-        await create_dialog(api=None,context={'roles':[{'id':1,'name':'IG'}]},bind_remote=lambda *a,**k:None,
+        await create_dialog(api=SimpleNamespace(disposition_page=request),context={'roles':[{'id':1,'name':'IG'}]},bind_remote=lambda *a,**k:None,
             active=lambda:True,on_error=str,after=lambda *a:None,owner_suggestion={'owner':owner,'basis':basis})
         control=next(e for e in host.descendants() if isinstance(e,ui.select) and e.label==text('owner'))
         assert control.value==(owner['id'] if owner else None) and control.enabled
-        if basis!='same_unit':
-            assert any(isinstance(e,ui.label) and e.text==text('owner_'+basis) for e in host.descendants())
+        assert any(isinstance(e,ui.label) and e.text==text('owner_'+basis) for e in host.descendants())
         control.set_options({10:'Different unit'},value=10)
         assert control.value==10
 

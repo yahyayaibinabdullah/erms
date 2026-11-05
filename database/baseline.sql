@@ -54,5 +54,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('099_dashboard_content_activity_index'),
  ('100_dashboard_component_storage_index'),
  ('101_dashboard_live_resource_indexes'),
- ('102_dashboard_nonterminal_resource_indexes');
+ ('102_dashboard_nonterminal_resource_indexes'),
+ ('103_standard_destruction_owner_roles'),
+ ('104_remaining_review_readiness');
 COMMIT;

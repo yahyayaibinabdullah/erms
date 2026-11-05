@@ -155,19 +155,20 @@ def read_eligibility(request: Request,limit: int=Query(25,ge=1,le=100),offset: i
                      status: int | None=Query(None,ge=1,le=13),vital: bool | None=None,
                      security: bool | None=None,held: bool | None=None,due_from: AwareDatetime | None=None,
                      due_to: AwareDatetime | None=None,group_owner: bool=False,active_job: Literal['true','false','all']='false',
+                     job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),
                      c: Connection=Depends(get_connection,scope='function')):
     return queries.eligibility(c,limit=limit,offset=offset,sort=sort,descending=descending,owner=owner,status=status,
-      vital=vital,security=security,held=held,due_from=due_from,due_to=due_to,group_owner=group_owner,active_job=None if active_job=='all' else active_job=='true',language_tag=preferred_language(c,request))
+      vital=vital,security=security,held=held,due_from=due_from,due_to=due_to,group_owner=group_owner,active_job=None if active_job=='all' else active_job=='true',language_tag=preferred_language(c,request),job_id=job_id,query=query)
 
 
 @router.get('/jobs')
 def read_jobs(request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),
               lifecycle: Literal['active','completed','terminated'] | None=None,sort: str='id',descending: bool=True,
               job_type: Literal['destruction','permanent_transfer','selective_transfer','local_archives'] | None=None,
-              root_ids: list[int] | None=Query(None,max_length=100),owner: str=Query('',max_length=200),assignee: str=Query('',max_length=200),unassigned: bool=False,
+              root_ids: list[int] | None=Query(None,max_length=100),matching_scope: bool=False,owner: str=Query('',max_length=200),assignee: str=Query('',max_length=200),unassigned: bool=False,
               c: Connection=Depends(get_connection,scope='function')):
     return queries.jobs(c,limit=limit,offset=offset,query=query,lifecycle=lifecycle,sort=sort,descending=descending,
-                        job_type=job_type,owner=owner,assignee=assignee,unassigned=unassigned,root_ids=root_ids,language_tag=preferred_language(c,request))
+                        job_type=job_type,owner=owner,assignee=assignee,unassigned=unassigned,root_ids=root_ids,matching_scope=matching_scope,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}')
@@ -176,7 +177,7 @@ def read_job(job_id: int,request: Request,c: Connection=Depends(get_connection,s
 
 
 @router.get('/jobs/{job_id}/memberships')
-def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
+def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['retained','active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
     return queries.members(c,job_id,limit=limit,offset=offset,query=query,sort=sort,descending=descending,state=state,language_tag=preferred_language(c,request))
 
 

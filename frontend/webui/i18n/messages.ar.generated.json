@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "f5f496fa72bb12e859d6b582e85635160480a12bf6c5e76433563da43e753246",
+  "catalogue_sha256": "c498e81927dcb01d93abba7b18d72049b51837199f1069965baa6807ee255b39",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261102132930",
   "generated_at": "2026-11-02T13:29:30.297596+04:00",
@@ -7250,6 +7250,18 @@
       }
     },
     {
+      "message_key": "disposition.ui.chooser_scope_hint",
+      "translated_text": "تُعرض فقط العمليات المطابقة لنوع التصرف المحدد. ويجب أن تكون الوحدة المالكة لعملية الإتلاف هي أقرب وحدة تنظيمية مشتركة للملفات المحددة. يمكنك أيضًا إنشاء عملية جديدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T08:29:02+04:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.claim",
       "translated_text": "استلام المهمة",
       "quality_flags": [],
@@ -8574,6 +8586,18 @@
       }
     },
     {
+      "message_key": "disposition.ui.disposition_file_administrator_required",
+      "translated_text": "يجب تعيين مسؤول ملفات للوحدة التنظيمية المالكة. تواصل مع مسؤول النظام للمساعدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845485+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.disposition_generated_correction_forbidden",
       "translated_text": "لا يمكن استبدال المستندات المُنشأة من خلال تصحيح الأدلة.",
       "quality_flags": [],
@@ -9078,6 +9102,18 @@
       }
     },
     {
+      "message_key": "disposition.ui.disposition_reviewers_required",
+      "translated_text": "يجب تعيين مسؤول ملفات ومدير للوحدة التنظيمية المالكة. تواصل مع مسؤول النظام للمساعدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845490+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.disposition_root_not_closed",
       "translated_text": "يجب إغلاق الملف قبل الإضافة.",
       "quality_flags": [],
@@ -9147,6 +9183,18 @@
         "source_status": "published",
         "date_reviewed": "2026-10-21T05:53:16.645915+00:00",
         "date_published": "2026-10-21T05:53:16.645915+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_standard_owner_roles_required",
+      "translated_text": "تتطلب عملية الإتلاف ذات مسار المراجعة القياسي دورًا فعليًا لمسؤول الملفات ودور مدير للوحدة المالكة، مع إسناد سارٍ لكل منهما إلى مستخدم نشط. تحقق من أدوار الوحدة المالكة وإسناداتها، ثم أعد المحاولة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T08:46:40.572579+04:00"
       }
     },
     {
@@ -9327,6 +9375,18 @@
         "source_status": "published",
         "date_reviewed": "2026-10-21T05:53:16.645915+00:00",
         "date_published": "2026-10-21T05:53:16.645915+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.disposition_unit_manager_required",
+      "translated_text": "يجب تعيين مدير للوحدة التنظيمية المالكة. تواصل مع مسؤول النظام للمساعدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845487+00:00"
       }
     },
     {
@@ -11786,6 +11846,18 @@
       }
     },
     {
+      "message_key": "disposition.ui.owner_same_unit",
+      "translated_text": "عُبئت هذه القيمة من الوحدة التنظيمية المالكة للملفات المحددة. وتحدد هذه الوحدة مسار المراجعة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T08:29:02+04:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.partial_add",
       "translated_text": "لم تُضف بعض الملفات. راجع النتائج الفردية.",
       "quality_flags": [],
@@ -11999,6 +12071,246 @@
         "source_status": "published",
         "date_reviewed": "2026-10-21T05:53:16.645915+00:00",
         "date_published": "2026-10-21T05:53:16.645915+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_add",
+      "translated_text": "إضافة المحدد ({count})",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251850+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_changed",
+      "translated_text": "تغيّرت العملية أو صلاحياتك. حدّث التحديد وحاول مجددًا.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251856+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_empty",
+      "translated_text": "لا توجد حاليًا ملفات تستوفي شروط الأهلية والملكية والوصول لهذه العملية ضمن عوامل التصفية المحددة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251846+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_hint",
+      "translated_text": "تظهر فقط الملفات المغلقة التي تستوفي شروط الأهلية والملكية والوصول لهذه العملية ولا توجد موانع لإضافتها. تُحفظ عضويتها فور الإضافة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251826+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_owner_scope",
+      "translated_text": "{type} · {owner} والوحدات التابعة لها",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251818+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_relationship_hint",
+      "translated_text": "لا تمنع العلاقات إضافة الملفات. يجب معالجة العلاقات خارج العملية قبل التصرف النهائي.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251830+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_relationship_warning",
+      "translated_text": "تتطلب العلاقات مراجعة قبل التصرف النهائي",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251833+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_relationships",
+      "translated_text": "العلاقات",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251835+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_retry",
+      "translated_text": "إعادة محاولة الإضافة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251854+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_search",
+      "translated_text": "رقم الملف أو عنوانه",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251842+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_title",
+      "translated_text": "إضافة ملفات إلى العملية {job}",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251724+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
+      }
+    },
+    {
+      "message_key": "disposition.ui.picker_type_scope",
+      "translated_text": "{type} · الملفات المستوفية لشروط الإضافة فقط",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "OpenAI Codex",
+        "purpose": "Approved job-scoped aggregation picker"
+      },
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "model": "GPT-6",
+        "prompt_version": "job-selection-v1",
+        "batch_id": "job-selection-20261104",
+        "generated_at": "2026-11-04T11:51:44.251822+00:00",
+        "catalogue_sha256": "bfc61e0bbe21936f30c0c9df2f9a9d874bd6263d1a3f8e89cf9cbbce793081be",
+        "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
+        "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6"
       }
     },
     {
@@ -13190,6 +13502,42 @@
       }
     },
     {
+      "message_key": "disposition.ui.review_assign_both",
+      "translated_text": "يجب تعيين مسؤول ملفات ومدير للوحدة {unit}. تواصل مع مسؤول النظام للمساعدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845474+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_assign_file_administrator",
+      "translated_text": "يجب تعيين مسؤول ملفات للوحدة {unit}. تواصل مع مسؤول النظام للمساعدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845130+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_assign_unit_manager",
+      "translated_text": "يجب تعيين مدير للوحدة {unit}. تواصل مع مسؤول النظام للمساعدة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845470+00:00"
+      }
+    },
+    {
       "message_key": "disposition.ui.review_changes",
       "translated_text": "مراجعة التغييرات",
       "quality_flags": [],
@@ -13371,6 +13719,54 @@
         "source_status": "published",
         "date_reviewed": "2026-10-21T05:53:16.645915+00:00",
         "date_published": "2026-10-21T05:53:16.645915+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_setup_attention",
+      "translated_text": "يلزم استكمال إعداد المراجعة",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845483+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_setup_blocked",
+      "translated_text": "لا يمكن متابعة هذه المراجعة حتى تُحل هذه المشكلة. لا يزال بإمكانك حفظ عملك.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845478+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_setup_checking",
+      "translated_text": "جارٍ التحقق من توفر المراجعين…",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845480+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.review_setup_create_blocked",
+      "translated_text": "لا يمكن حفظ عملية الإتلاف ذات المسار القياسي حتى تُحل هذه المشكلة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T07:19:48.845476+00:00"
       }
     },
     {
@@ -13626,18 +14022,6 @@
       }
     },
     {
-      "message_key": "disposition.ui.select_hint",
-      "translated_text": "حدد الملفات المغلقة المتاحة وغير المحظورة. يُعاد فحص كل ملف عند إضافته.",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "imported",
-        "source_status": "published",
-        "date_reviewed": "2026-10-29T05:37:19.675892+00:00",
-        "date_published": "2026-10-29T05:37:19.675892+00:00"
-      }
-    },
-    {
       "message_key": "disposition.ui.select_job",
       "translated_text": "اختيار عملية تصرف",
       "quality_flags": [],
@@ -13647,6 +14031,30 @@
         "source_status": "published",
         "date_reviewed": "2026-10-28T09:27:40.489864+00:00",
         "date_published": "2026-10-28T09:27:40.489864+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.selection_mixed_branches",
+      "translated_text": "لا توجد وحدة تنظيمية مشتركة أعلى للملفات المحددة. أضفها إلى عمليات منفصلة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T08:26:23+04:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.selection_mixed_types",
+      "translated_text": "للملفات المحددة أنواع تصرف مختلفة. أضف ملفات كل نوع إلى عملية منفصلة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "source_origin": "generated",
+        "source_status": "draft",
+        "generator": "OpenAI Codex",
+        "generated_at": "2026-11-05T08:26:23+04:00"
       }
     },
     {
@@ -48911,6 +49319,20 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
         "date_published": "2026-09-26T16:20:14.562571+00:00"
+      }
+    }
+  ],
+  "deprecated_items": [
+    {
+      "message_key": "disposition.ui.select_hint",
+      "translated_text": "حدد الملفات المغلقة المتاحة وغير المحظورة. يُعاد فحص كل ملف عند إضافته.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "admin_catalogue_export",
+        "source_origin": "imported",
+        "source_status": "published",
+        "date_reviewed": "2026-10-29T05:37:19.675892+00:00",
+        "date_published": "2026-10-29T05:37:19.675892+00:00"
       }
     }
   ]

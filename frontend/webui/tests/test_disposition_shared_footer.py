@@ -123,7 +123,7 @@ async def test_footer_is_shared_across_tabs_and_save_preserves_member_filters_pa
         member_reads=[params for path,params in api.reads if path.endswith('/memberships')]
         if initial_section=='members':
             assert len(member_reads)==2
-            assert all(p['limit']==10 and p['offset']==10 and p['query']=='AGG' and p['state']=='active' for p in member_reads)
+            assert all(p['limit']==10 and p['offset']==10 and p['query']=='AGG' and p['state']=='retained' for p in member_reads)
         else:assert not member_reads
         assert saved[-1]['section']==initial_section
         before=len(api.reads);mounted[0]=False

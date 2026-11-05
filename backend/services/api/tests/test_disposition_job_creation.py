@@ -3,11 +3,12 @@ from concurrent.futures import ThreadPoolExecutor
 from uuid import uuid4
 import pytest
 from backend.services.api.disposition import membership as service
-from backend.services.api.tests.test_disposition_membership import db,actor,kwargs,ensure_officer
+from backend.services.api.tests.test_disposition_membership import db,actor,kwargs,ensure_officer,configured_creation_roles
 
 
 def create(c,kind='destruction',**extra):
-    return service.create_job(c,**{**kwargs(job_type=kind,owning_org_unit_id=1 if kind=='destruction' else None), 'reason':'','assigned_user_id':1,**extra})
+    with configured_creation_roles(c,extra.get('owning_org_unit_id',1),kind):
+        return service.create_job(c,**{**kwargs(job_type=kind,owning_org_unit_id=1 if kind=='destruction' else None), 'reason':'','assigned_user_id':1,**extra})
 
 
 def test_automatic_numbers_retry_existing_numbers_and_rollback(client):
@@ -48,7 +49,10 @@ def test_both_profiles_create_all_types_with_required_eligible_preparer(client,r
 
 
 def test_http_creation_without_reason_and_manual_number_rejected(client):
-    with db() as c:actor(c);ensure_officer(c)
+    with db() as c:
+        actor(c);ensure_officer(c)
+        from backend.services.api.tests.test_disposition_owner_readiness import configure
+        configure(c)
     payload={'command_id':str(uuid4()),'acting_role_id':1,'job_type':'destruction','owning_org_unit_id':1,'assigned_user_id':1}
     response=client.post('/api/v1/disposition/jobs',json=payload)
     assert response.status_code==201,response.text
