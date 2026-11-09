@@ -99,6 +99,7 @@ def present(c, user, rows, *, detail=False):
     headers = {}
     task_links = {}
     eligibility_links = {}
+    job_links = {}
     # One bounded projection query for the complete visible mailbox page.
     metadata = c.execute(
         """SELECT e.id,e.sender_user_id,u.translations AS sender_translations,
@@ -107,6 +108,10 @@ def present(c, user, rows, *, detail=False):
                JOIN disposition_tasks t ON t.id=src.entity_id AND src.entity_type='disposition_task'
                WHERE src.id::text=e.source_event_id AND disposition_private.task_eligible(%s,t.id) LIMIT 1)
             END AS disposition_task,
+            CASE WHEN e.system_producer_code IN ('disposition.operation_outcome','disposition.destruction_outcome','disposition.completion_outcome') AND NOT e.is_test THEN
+              (SELECT src.entity_id FROM event_history src WHERE src.id::text=e.source_event_id AND src.entity_type='disposition_job'
+               AND disposition_private.governance_person(%s,'INFO_GOV_MGR') AND disposition_private.can_review_content(%s,src.entity_id) LIMIT 1)
+            END AS disposition_job,
             (e.system_producer_code='disposition.eligibility_reminder' AND NOT e.is_test
               AND (disposition_private.governance_person(%s,'INFO_GOV_OFFICER') OR disposition_private.governance_person(%s,'INFO_GOV_MGR'))) AS disposition_eligibility,
             l.id AS level_id,l.code,l.name,l.translations,l.level_number,
@@ -128,7 +133,7 @@ def present(c, user, rows, *, detail=False):
             FROM message_envelopes e
             JOIN security_levels l ON l.id=e.security_level_id
             LEFT JOIN users u ON u.id=e.sender_user_id
-            WHERE e.id=ANY(%s::uuid[])""", (user, user, user, user, ids)
+            WHERE e.id=ANY(%s::uuid[])""", (user, user, user, user, user, user, ids)
     ).fetchall() if ids else []
     language = metadata[0]['language'] if metadata else 'en'
     levels = {r['level_id']: r for r in metadata}
@@ -137,6 +142,7 @@ def present(c, user, rows, *, detail=False):
     everyone_labels = localized_labels(c, "messaging.field.everyone") if any(h["selector_kind"] == "everyone" for r in metadata for h in r["selectors"]) else {}
     for row in metadata:
         task_links[row['id']]=row.get('disposition_task')
+        job_links[row['id']]=row.get('disposition_job')
         eligibility_links[row['id']]=row.get('disposition_eligibility')
         for header in row['selectors']:
             translations = header.pop("translations")
@@ -252,6 +258,7 @@ def present(c, user, rows, *, detail=False):
             item["action_status"] = None
         if detail and eligibility_links.get(r['id']):item['disposition_eligibility']=True
         if detail and task_links.get(r['id']):item['disposition_task']=task_links[r['id']]
+        if detail and job_links.get(r['id']):item['disposition_job']=job_links[r['id']]
         if detail:
             if r["sender_user_id"] == user:
                 item["recipient_count"] = c.execute(

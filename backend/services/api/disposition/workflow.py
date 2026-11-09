@@ -77,21 +77,35 @@ def action_indicator_sql():
 
 
 def tasks(c, *, limit, offset, sort='received', descending=False, state=None, job_id=None, query='', stage=None, task_type=None, indicator=None, min_priority=None, min_roots=None, has_claimant=None):
-    """Current destination/claimant with no inaccessible resource identifiers.
+    """Personal inbox with no inaccessible resource identifiers.
 
     Phase 16 consumes this server-paginated projection for its task inbox. A
     background pass returns lost claims to queues; current eligibility is also
     checked here so a stale assignment never provides task or content access.
+    Queue eligibility remains broader than inbox ownership for authorized job
+    inspection and reassignment; apply this personal filter before counting or
+    paging, rather than narrowing task_eligible for all callers.
     """
     root_count="(SELECT count(*) FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state IN ('active','completed_history'))"
     indicators=action_indicator_sql()
-    orders = {'digital_state':"(SELECT state FROM disposition_destruction_runs WHERE job_id=j.id ORDER BY run_number DESC LIMIT 1)",'job_type':'j.job_type','age':'t.date_created','id': 't.id', 'received': 't.date_created', 'priority': 't.priority',
+    # Select the latest attempt before ignoring a successful approval. Otherwise
+    # an older failure would keep sorting a recovered job as failed forever.
+    approval_state="nullif((SELECT state FROM disposition_private.operation_work WHERE job_id=j.id AND released_at IS NULL ORDER BY requested_at DESC,id DESC LIMIT 1),'succeeded')"
+    orders = {'digital_state':"coalesce("+approval_state+",(SELECT state FROM disposition_destruction_runs WHERE job_id=j.id ORDER BY run_number DESC LIMIT 1))",'job_type':'j.job_type','age':'t.date_created','id': 't.id', 'received': 't.date_created', 'priority': 't.priority',
               'task_type': 't.task_type', 'job_number': 'j.job_number',
               'owner': 'o.name', 'workflow_stage': 't.workflow_stage', 'state': 't.task_state', 'direct_assignee':'direct.name', 'role_queue':'queue.name', 'claimant':'claimant.name', 'root_count':"(SELECT count(*) FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state IN ('active','completed_history'))"}
     if sort not in orders:
         raise HTTPException(422, detail='invalid sort')
     if sort=='age':descending=not descending
-    clauses = ["t.task_state IN ('open','claimed')", "disposition_private.task_eligible(current_user_id(),t.id)"]
+    clauses = ["t.task_state IN ('open','claimed')", "disposition_private.task_eligible(current_user_id(),t.id)", """(
+      t.destination_user_id=current_user_id()
+      OR (t.task_state='claimed' AND t.claimed_by_user_id=current_user_id())
+      OR (t.task_state='open' AND t.destination_role_id IS NOT NULL
+          AND t.claimed_by_user_id IS NULL AND NOT EXISTS (
+            SELECT 1 FROM disposition_tasks other
+            WHERE other.job_id=t.job_id AND other.workflow_stage=t.workflow_stage
+              AND other.task_state='claimed'))
+    )"""]
     params = []
     if query.strip():
         clauses.append('(j.job_number ILIKE %s OR o.name ILIKE %s OR direct.name ILIKE %s OR queue.name ILIKE %s OR claimant.name ILIKE %s)')
@@ -124,4 +138,8 @@ def tasks(c, *, limit, offset, sort='received', descending=False, state=None, jo
       EXISTS(SELECT 1 FROM disposition_job_memberships m WHERE m.job_id=j.id AND m.membership_state='active' AND m.removal_required) AS removal_required,
       ARRAY(SELECT DISTINCT r.id FROM roles r JOIN user_role_assignments a ON a.role_id=r.id AND a.user_id=current_user_id() WHERE disposition_private.task_eligible(current_user_id(),t.id,r.id) ORDER BY r.id) AS acting_role_ids
       '''+source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+',t.id LIMIT %s OFFSET %s', [*params, limit, offset]).fetchall()
+    if rows:
+        operation_rows=c.execute('SELECT DISTINCT ON (job_id) job_id,state,phase,result IS NOT NULL AS approval_committed FROM disposition_private.operation_work WHERE job_id=ANY(%s) AND released_at IS NULL ORDER BY job_id,requested_at DESC,id DESC',([r['job_id'] for r in rows],)).fetchall()
+        by_job={r['job_id']:r for r in operation_rows}
+        for row in rows:row['operation_progress']=by_job.get(row['job_id'])
     return {'items': rows, 'total': total}

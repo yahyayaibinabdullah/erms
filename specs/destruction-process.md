@@ -4,13 +4,18 @@
 **Approved:** 12 October 2026
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.21
-**Amendment approved:** 5 November 2026
+**Revision:** 1.26
+**Amendment approved:** 9 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.26 | 9 November 2026 | Make final certificate completion a Records Manager queue task initially claimed by the destruction Manager, with authorized handover/release and claimant-only completion |
+| 1.25 | 9 November 2026 | Show digital progress only after an execution request, remove duplicate My Tasks controls from progress cards and use stage-specific digital claim guidance |
+| 1.24 | 9 November 2026 | Make My Tasks personal: own direct assignments, own claims and available unclaimed queues only; retain job-based task management and use a plain Unclaimed state label |
+| 1.23 | 9 November 2026 | Make approval/application and required documents durable background work; retain the task until ready, allow navigation, provide prominent progress and document-only recovery, and reuse shared disposition operation tracking |
+| 1.22 | 9 November 2026 | Display the shared withdrawal comment on every withdrawn proposal, retain original reasons in Details, and show persistent indeterminate approval/application progress until its result is ready |
 | 1.21 | 5 November 2026 | Show simple current reviewer warnings on load/Refresh and gate remaining reviews; preserve the existing no-designation File Administrator skip and all task authorization |
 | 1.20 | 5 November 2026 | Scope selected additions to their disposition type and nearest common owning unit; require configured, currently staffed Standard review roles before new destruction-job creation |
 | 1.19 | 4 November 2026 | Select additions inside the job with destruction/owning-subtree admission filters; preserve relationship warnings, partial-add results and all command gates |
@@ -630,8 +635,9 @@ model and verification requirements below.
 
 The **Disposition** area provides:
 
-- **My tasks**, containing work assigned directly to the current user and
-  unclaimed work available through one of their currently effective roles;
+- **My tasks**, containing work assigned directly to the current user, claimed
+  by the current user, or unclaimed and available through one of their currently
+  effective roles;
 - **Eligible aggregations**, using the listing defined by the common
   specification;
 - **Jobs**, containing active, completed, and terminated jobs the user is
@@ -673,6 +679,20 @@ It does not download all tasks or jobs to the browser. Each row shows at least:
 - date received and age;
 - number of governing root aggregations.
 
+My Tasks is personal for every role. It includes only currently authorized
+direct assignments to the signed-in person, that person's claimed work, and
+open role-queue work they can currently claim. A task assigned to or claimed by
+someone else is excluded, even when the viewer is a Records Manager or Records
+Officer eligible to manage it. Apply this predicate before server counts,
+filters, sorting and pagination. Refresh or returning to the inbox reads current
+assignment facts; no browser-side filtering of another person's tasks is used.
+
+Keep the existing **Task state** column. Display **Unclaimed** for available open
+role-queue tasks, using dark amber, semibold text to distinguish them. Retain the
+existing labels and normal text treatment for directly assigned or claimed tasks.
+The wording remains the primary distinction; do not introduce a new column,
+badges, or a new workflow state.
+
 The first **Required action** column identifies the task's next action. Do not
 show a second **Action required** indicator column. Final-execution blockers
 belong in job details with their safe reasons and permitted relationship
@@ -686,6 +706,12 @@ contracts retain their existing behavior.
 The inbox supports server-side filtering and sorting by these fields where
 applicable. It has deliberate loading, empty, and error states and remains
 usable in LTR and RTL. Color is never the only indication of task state.
+
+The **Progress** column and its server-side sort use the latest unreleased
+background attempt. After approval succeeds, an older failed attempt must not
+continue to determine the job's order; use current digital-destruction progress
+when applicable, otherwise no pending approval progress. Keep display and sort
+derived from the same current attempt.
 
 Show a **Refresh** button below the collapsible filters and above the table,
 aligned to the starting edge (left in English, right in Arabic), matching the
@@ -747,7 +773,10 @@ changing review data or completing the task. Claiming requires no change reason
 in the UI or API; the audit trail records the actor, task, time and resulting
 claimant. Release and reassignment still require a reason. The Claim dialog
 explains responsibility, exclusive editing/completion, and that claiming neither
-approves proposals nor advances the job. For an unclaimed task, accessible
+approves proposals nor advances the job. Digital execution instead uses the
+stage-specific claim guidance and dialog in Section 15.2; final certificate
+completion uses the queue and guidance defined in Section 16. For an unclaimed
+review task, accessible
 aggregation names remain visible and proposal-addition controls are disabled
 with “Claim this task before adding review proposals.” Claiming and resource
 visibility are independent: if proposal details reference inaccessible related
@@ -805,8 +834,20 @@ relationship IDs remain absent. Protections and relationships use bounded
 server pagination; empty, loading and failed reads are explicit. This read
 permission does not grant eligibility evaluation, assignment or mutation rights.
 Claiming is atomic: simultaneous claims result in one
-claimant. Other eligible users can see who claimed the task but cannot complete
-or edit it concurrently.
+claimant. After manual claiming, automatic assignment or reassignment, the task
+appears in only that person's My Tasks, subject to their current eligibility.
+When a stage has parallel queue rows, open sibling rows must also be excluded
+while any task for the same job and stage is claimed: those rows are not
+available to claim. Releasing the task makes eligible unclaimed queue work
+visible again. Completed and cancelled tasks are excluded.
+
+Personal-inbox filtering does not narrow authorized job inspection or existing
+task-management authority. A Records Manager or Records Officer may use
+**Disposition Jobs → Job details → Current task → Reassign task** to manage
+another person's role-queue task when authorized under the existing rules.
+Direct preparer reassignment continues to use the job's existing assignment
+control. No user gains completion/edit rights merely through job visibility;
+all existing role, scope, access, clearance and in-progress operation gates remain.
 
 An authorized action may release or reassign a claimed task. Wathiq records the
 previous claimant, new claimant or queue, actor, time, and required reason. If
@@ -1025,6 +1066,13 @@ never deletes content or silently executes/withdraws related proposals. Existing
 proposals remain in history with their existing out-of-membership treatment.
 Save remains available for review comments; bulk proposal mutations persist
 immediately without saving or discarding unsaved comments.
+
+A supplied bulk-withdrawal comment belongs to every selected proposal and is
+saved as each proposal's withdrawal reason. Show that comment on each readable
+withdrawn row, explicitly identified as **Withdrawal comment**. Details retain
+the original proposal reason and the withdrawal comment separately. A missing
+original reason must not hide a supplied withdrawal comment. Preserve existing
+redaction for inaccessible proposal text and retain per-proposal history.
 
 Each confirmed action targets one job and is all-or-nothing. Recheck current
 actor authority, task/claim, stage, scope, visibility and selected versions on
@@ -1395,8 +1443,90 @@ The final approval confirmation is compact and contains counts by proposal type
 for the complete saved active set. It must not count only the
 visible page or selected row. It has no per-proposal list or expandable details;
 the user can cancel and inspect proposals in the task. The confirmation button
-is **Approve and apply changes**. Its explanation states that proposed resource
-changes are applied now and **no records are destroyed at this step**.
+is **Approve and apply changes**. Its explanation states that approved resource
+changes will be applied by this operation and **no records are destroyed at this step**.
+
+After confirmation, briefly wait for durable server acceptance, then show a
+prominent nonmodal progress card: **Approval is being processed** and
+**Processing continues if you leave this page. You can continue working on other
+jobs.** Use the existing application navigation; do not duplicate a My Tasks
+button inside the progress card. Do not keep a blocking dialog open through
+application or document generation. Cancelling confirmation enqueues nothing.
+Acceptance does not mean approval has completed. Return HTTP 202 with an operation
+identity; obtain current state through an authorized status read. Exact request
+retries recover the same durable operation, including after a lost response.
+
+The purpose-built API contract is:
+
+- `POST /tasks/{task_id}/approve-proposals`: existing complete-set payload and
+  If-Match, HTTP 202 with `operation_id`, `job_id`, `task_id`, `operation`, `state`,
+  `phase`, `approval_committed`, and safe `last_error_code`.
+- `GET /jobs/{job_id}/operation-progress`: current authorized status, or null
+  when no unreleased operation exists. A succeeded status includes the available
+  document IDs and resulting stage/task when applicable; never expose confirmed
+  proposal payloads or inaccessible resource identities through this projection.
+- `POST /jobs/{job_id}/retry-approval-documents`: command UUID and current acting
+  Manager role, HTTP 202; current task ownership is required for a new retry.
+  Exact retry returns the same acceptance and does not start an additional attempt.
+
+The WebUI retains the document-retry command identity after a transport error,
+including when the server accepted the request but its response was lost. Do not
+create a new identity merely because the button is clicked again in that view.
+After rereading a definitive failed outcome, a new explicit retry may use a new
+identity. Neither case reapplies proposals or duplicates saved documents.
+
+These are explicit workflow endpoints, not a public generic operation executor.
+
+The server worker applies the complete proposal set in one transaction, with all
+current Manager/role/claim, root/endpoint access, clearance, versions and
+underlying-operation authority rechecked at execution time. Retain approving-user
+and acting-role attribution. All proposal effects, approval and the application
+checkpoint commit together or none do. Capture the exact confirmed tokens;
+changed facts require attention and renewed approval, never silently approving a
+new set. Browser closure and API/worker restarts do not discard accepted work.
+Only one pending operation may own the job. Conflicting job/task/proposal and
+membership edits are rejected while it runs; reads and navigation remain usable.
+Shared resources can still require normal database locking and revalidation.
+
+Show **Approving and applying changes…**, then **Preparing and saving documents…**.
+Application progress is indeterminate because it is atomic. Do not report
+per-proposal commits or a percentage that the server cannot substantiate. Keep
+the original approval task open throughout application and required document
+preparation, visible as processing in My Tasks. Generate/save the execution
+report, and the destruction request when membership survives, before completing
+that task and atomically routing the next task. For an empty job, save the report
+before routing its existing correction/preparation outcome. Merely accepting or
+applying proposals must not expose the next task early.
+
+A failed application records a safe error and leaves the original task open for
+correction and a fresh approval. A document failure after committed application
+retains the task and approved effects, disables proposal reapproval/editing, and
+offers **Retry document preparation**. Retry only unfinished documents and final
+routing; never apply effects again. An eligible reassigned Manager may recover
+documents through the existing task/claim rules while the approving identity and
+original request remain preserved. Interrupted processing resumes from durable
+checkpoints under a single-worker mutex. Documents use their existing per-round
+identities to avoid duplicate records after interruption.
+
+An applied proposal set is a finalized historical approval, not a lock on every
+external governance fact. For example, a separately authorized new legal hold or
+change to an inherited retention rule can still invalidate eligibility. Preserve
+the existing current-facts check before issuing/activating a destruction request.
+If it fails after application, retain the applied effects and report; the existing
+return-for-review action starts another review round without undoing or replaying
+executed proposals. This is an exceptional recovery path, not an extra review
+between successful approval and document preparation.
+
+Display server state on return and poll only a mounted progress view; a failed
+status read must not be described as operation failure. My Tasks refreshes
+visible pending work using bounded pages. On completion/failure, use the
+existing governed system-notification mechanism, with current recipient access,
+source-event deduplication and a job link reauthorized when opened. An optional
+notification producer remains subject to its administrator configuration;
+notification failure must not undo business work and remains recoverable.
+Opening ready results retains the existing document-verification exception.
+Sending the request remains manual in the external-approval task; processing
+must not send email or destroy records automatically.
 
 When the remaining membership is certain to survive (including jobs containing
 only relationship removals or no proposals), explain that the system generates
@@ -1949,6 +2079,33 @@ progress without claiming completion early. Retrying does not recreate or
 redestroy already completed work. A failure preserves the exact progress and
 requires an explicit authorized retry after the cause is addressed.
 
+Before digital execution has been requested, do not show its progress card or
+progress Refresh action. Claiming and the existing explicit confirmation/start
+controls retain their current authorization. An unclaimed digital task says
+**Claim this task before starting digital destruction.** It must not instruct the
+user to add review proposals at this execution stage. The Claim task dialog
+also explains digital execution responsibility, explicitly stating that claiming
+does not start destruction or advance the job.
+
+After execution has been requested, display digital destruction in a prominent
+card near the top of Current Task, with actual completed/total aggregation counts, a determinate progress bar and
+**Processing continues if you leave this page. You can continue working on other
+jobs.** Keep this card available for queued/running work and its saved failed or
+succeeded outcome while this stage remains current. Do not put a My Tasks button
+in digital or approval progress cards; users navigate through the existing
+application navigation. Keep the initial authorization request short; it queues
+durable work and does not wait for content deletion. No full-duration blocking dialog is allowed.
+Only conflicting actions for that job are disabled. A failed progress read does
+not imply destruction stopped. Keep genuine queued/running/failed counts and
+explicit authorized retry for unfinished units; completed units are never erased
+again.
+
+Task release/reassignment and Preparer-change controls remain unavailable while
+digital work is queued or running: the worker rechecks the requesting Manager's
+task ownership and job authorization. After a failure, restore the existing
+authorized recovery controls. Deliberate termination and its partial-disposition
+recovery rules remain available under their existing authority checks.
+
 The Records Manager may leave the progress view without interrupting the
 worker. **My tasks** continues to show the current progress and whether action
 is required. Wathiq sends a task notification when destruction completes,
@@ -2065,8 +2222,49 @@ destinations still apply. Successful recovery saves the required evidence and
 makes the final certificate task ready without duplicate certificate records.
 
 After successful generation and storage, Wathiq creates the final certificate
-task for the Records Manager and leaves the job **active**, at Certificate
-generation. The saved evidence can be inspected, downloaded or sent by email. The Current
+task in the Records Manager role queue used by the Manager who handled the
+digital destruction request. It is initially **claimed by that Manager**, with
+no direct-user destination, and leaves the job **active**, at Certificate
+generation. This stage uses the existing claim/release/reassignment lifecycle:
+
+- The current claimant may complete the task or hand it over under the existing
+  queue rules. Authorized Records Managers and Records Officers may manage it
+  from job details using their existing task-management authority.
+- Reassign to another currently eligible Manager in the same queue, or use the
+  existing authorized queue-change action to another eligible Records Manager
+  role. File Administrator and Unit Manager roles are not valid destinations.
+- Release returns it to that Records Manager queue as **Unclaimed**, with no
+  immediate automatic reassignment. An eligible Manager must claim it before
+  completing the job. Claiming is atomic; the existing reason requirement for
+  release/reassignment remains, while claiming requires no reason.
+- Eligibility always checks active person/role, currently effective membership,
+  Manager profile/privilege and current access/clearance. The Manager must be
+  able to see the saved certificate record and list its components. Losing
+  eligibility removes it from My Tasks and the existing worker releases the claim.
+- Only the currently authorized claimant receives **Complete this task**;
+  the server rejects completion by another user or from an unclaimed queue.
+  My Tasks retains its personal ownership rules for every role.
+
+The unclaimed task says **Claim this task before completing the destruction
+job.** Its Claim dialog explains final-completion responsibility and that
+claiming neither completes the task/job nor changes the saved certificate.
+Reassignment, release and claiming do not generate another certificate, repeat
+destruction, modify permanent proof or change the recorded destruction executor.
+The final task separately records who completed it. Existing historical events
+and all certificate preview/download/email permissions are preserved.
+
+On upgrade, convert only unfinished directly assigned final certificate tasks
+in active jobs at this stage, retaining their task IDs and original creation
+time. Keep the prior assignee as claimant when currently eligible; otherwise
+leave the selected Records Manager queue unclaimed. Prefer that person's
+eligible Manager role, then an active Manager queue (preferring the recorded
+destruction role), with any defined Manager role as a last fallback. Record an
+additive migration audit event. Completed or
+cancelled tasks and all issued certificate/proof/history rows remain untouched.
+The migration requires a defined Records Manager queue when such a task exists;
+it must fail atomically rather than invent a role. Reapplying it is a no-op for
+already converted tasks.
+The saved evidence can be inspected, downloaded or sent by email. The Current
 Task certificate section must show **Preview certificate**, **Download
 Certificate of Destruction (Digital)** and **Send by email** together, subject
 to each action's current authorization. Preview opens the exact saved governed
@@ -2597,7 +2795,7 @@ Verify server-paged count freshness and English/LTR and Arabic/RTL guidance.
 | DEST-11 | Digital destruction requires explicit confirmation and a final current-state recheck | UI enablement, authorization, blocker, approval, stale-version, and race tests |
 | DEST-12 | Asynchronous destruction is durable, idempotent, resumable, accurately reports progress, and never marks partial work complete | Worker interruption, duplicate-worker, retry, storage, status, and progress tests |
 | DEST-13 | Mixed material reaches status 10 only after physical and digital destruction, and termination after physical destruction follows status 13 | State-transition, partial-destruction, termination, and recovery tests |
-| DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before creating the final Records Manager certificate task; explicit completion of this task atomically completes the job; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, preview/current component-view permission, and download-history tests |
+| DEST-14 | Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before creating the final Records Manager certificate queue task initially claimed by the destruction Manager; authorized handover/release and claimant-only completion preserve certificate/proof and atomically complete the job; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate | Digital-content and physical-only routing, physical confirmation/evidence completion, all-descendant final status/metadata, no digital run/certificate/task for physical-only jobs, separate job-evidence exclusion, generation, evidence-destination selection, report-destination exclusion, governed-record, idempotency, rollback, task, preview/current component-view permission, and download-history tests |
 | DEST-46 | Request v2 uses configurable organization/Records Unit contacts and approving-Manager language policy, omits internal fields, shows whole-job record-originated year bounds and an root-aggregation-per-row section with subtree years/counts, classification and assigned physical/mixed location; issued documents and v1 defaults remain unchanged | Presentation/settings, language, inheritance, date timezone/empty scope, concurrent-change rejection, retained-default download and real multipage PDF/layout verification |
 | DEST-35 | Request forms show the configured authority name, default Sharjah Archives; an authorized Records Manager or the assigned Records Officer can repeatedly email the exact generated form to the configured authority address through SMTP, with truthful per-attempt status and permanent attributed history | Default/configured authority form rendering, recipient display and validation, task authorization, exact attachment/version, deliberate resend, same-submission retry deduplication, missing configuration, SMTP success/failure/unknown outcomes, no unsupported inbox-delivery claim, secret-safe errors, navigation/status persistence, settings-change history isolation, and no workflow advancement tests |
 | DEST-36 | An authorized Records Manager can repeatedly email the exact saved digital destruction certificate from Current Task and Evidence and documents, including after job completion, with recipient/latest-attempt summary and full history, shared retry/busy state, optional-send guidance and no evidence/outcome changes | Current authority, same exact saved attachment and SMTP configuration, cross-tab uncertain retry deduplication, deliberate resends, missing configuration, status/recipient freshness, lazy bounded history, visible pending polling/abandonment, localization/RTL, no automatic send or completion dependency, and secret-safe attributed audit |
@@ -2619,7 +2817,7 @@ Verify server-paged count freshness and English/LTR and Arabic/RTL guidance.
 | DEST-29 | Records Officer preparation/correction and File Administrator, Unit Manager, and Records Manager review forms provide one Review comments field, optional on draft save and routine review, mandatory only on rejection/return for correction; comments are attributed and retained with submissions/decisions; legacy notes and reasons remain readable | All-stage form and downstream-visibility tests, own-note editing while task open, other-author edit rejection, successor attribution, saved-version history, correction-round retention, optional-note submission, optional-submission and approval comments, required-correction-comment enforcement, no-side-effect, access/redaction, and LTR/RTL live-browser tests |
 | DEST-19 | Final Records Manager approval validates and executes the complete proposal set using every underlying operation's current authorization; execution records the approving Records Manager as actor with actor_type = 'user' while preserving proposers and all proposal changes in history; any validation or execution failure leaves proposals, resources, membership, statuses, and approval unchanged | Vital, security, hold, relationship, retention-rule, stale-version, authorization, execution actor identity/type and acting-role attribution, preserved proposal and change-history linkage, atomic rollback, and protected-error tests |
 | DEST-20 | Proposal execution removes every directly or transitively proposal-blocked or non-matching unit before form generation, preserves applied proposals and correct post-removal statuses, and returns an empty resulting job to the Records Officer | Combined-proposal, cascading-link, fixed-point membership, status, empty-job, form-exclusion, and event-history tests |
-| DEST-21 | My tasks is server-paginated, shows direct and role-queue work with one Required action column, hides Priority pending its definition, keeps final-execution blocker reasons in job details, opens the correct authorized form, and does not expose protected job or proposal details | API pagination/filter/sort, authorization, redaction, form-routing, single-action-column, hidden-priority/saved-sort fallback and job-blocker details, loading/empty/error, and live-browser LTR/RTL tests |
+| DEST-21 | My tasks is server-paginated, shows only own direct assignments, own claims and actually available unclaimed queue work for every role, labels available queues Unclaimed in the existing Task state column, retains authorized job-based reassignment, uses one Required action column, hides Priority pending its definition, keeps final-execution blocker reasons in job details, opens the correct authorized form, and does not expose protected job or proposal details | API personal ownership before counts/pages/filter/sort, manual/automatic claims, reassignment/release, parallel-queue suppression, retained job management, current access/clearance, redaction, form-routing, single-action-column, hidden-priority/saved-sort fallback and job-blocker details, loading/empty/error, and live-browser LTR/RTL tests |
 | DEST-22 | One eligible person atomically claims a shared role task; loss of eligibility returns it to the queue; release and reassignment preserve work and permanently identify every claimant and actor | Concurrent-claim, role/profile/access change, release, reassignment, stale-version, and event-history tests |
 | DEST-23 | The common workspace presents current job facts, workflow progress, paginated aggregations with distinct assigned classification, effective-rule source and local-override indicator, attributed proposals, task-specific actions, evidence, and history; asynchronous work remains visible after navigation and notifies only on completion, failure, or required action | Live-browser role-by-role workflow, server-state refresh, source/override distinction including unavailable/redacted rules, background-progress, notification, accessibility, LTR/RTL, and redaction tests |
 | DEST-24 | Destruction proposal tables enforce proposal-type payloads, target scope, optional governance-proposal reasons, optional proposed-removal reasons, proposer attribution, hold membership, withdrawal, execution, and immutable effects, including creation and removal of named aggregation relationships; optional submission comments are retained by review round | Schema constraint, optional-proposal-reason, blank routine comments accepted and blank correction comments rejected, initial submission and resubmission reason history, subtype, target, multi-hold, relationship creation/removal within and outside the job, exact relationship identity, deferred removal, stale-relationship rejection, removal authorization, retention-rule, concurrency, and history tests |

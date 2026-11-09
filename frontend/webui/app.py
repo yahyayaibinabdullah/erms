@@ -918,7 +918,7 @@ def render_component_cards(
                     preview_label = render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875") if staged_preview else render_message("webui.render_component_cards.tooltip.view_document_92d64052")
                     ui.button(icon="visibility", on_click=lambda _, item=component: on_view(item)).props(
                         "flat round dense" + (" disable" if status != ("staged" if staged_preview else "available") or not capability_allowed(capabilities, "view_component") else "")
-                    ).props(f'aria-label="{preview_label}"').tooltip(preview_label if capability_allowed(capabilities, "view_component") else render_message("webui.render_component_cards.tooltip.your_effective_roles_do_not_grant_componen_ac7b50e0"))
+                    ).props(f'aria-label={preview_label!r}').tooltip(preview_label if capability_allowed(capabilities, "view_component") else render_message("webui.render_component_cards.tooltip.your_effective_roles_do_not_grant_componen_ac7b50e0"))
                 if on_download is not None:
                     ui.button(icon="download", on_click=lambda _, item=component: on_download(item)).props(
                         "flat round dense" + (" disable" if status != "available" or not capability_allowed(capabilities, "download_component") else "")
@@ -3666,7 +3666,7 @@ def index(q: str = "") -> None:
             "wathiq-network-canvas wathiq-header-network"
         ).props("aria-hidden=true")
         header_network.set_visibility(False)
-        with ui.row().classes("erms-brand items-center no-wrap").props("aria-label='" + render_message("webui.index.accessible_name.wathiq_faa0862c") + "'") as brand_row:
+        with ui.row().classes("erms-brand items-center no-wrap").props('aria-label=' + repr(render_message("webui.index.accessible_name.wathiq_faa0862c"))) as brand_row:
             brand_mark = ui.image("/static/brand/wathiq-mark.svg?v=2").classes("erms-brand-mark").props(
                 "fit=contain alt='" + render_message("webui.index.accessible_name.wathiq_faa0862c") + "'"
             )
@@ -3675,11 +3675,11 @@ def index(q: str = "") -> None:
             global_search_input = ui.input(
                 placeholder=render_message("webui.index.input.search_records_files_and_aggregations_8808d362"),
             ).props(
-                "outlined dense clearable aria-label='" + render_message("webui.index.accessible_name.search_records_files_and_aggregations_f4df7ac8") + "'"
+                'outlined dense clearable aria-label=' + repr(render_message("webui.index.accessible_name.search_records_files_and_aggregations_f4df7ac8"))
             ).classes("erms-global-search")
             global_search_input.value = q.strip()
             global_search_submit = ui.button(icon="search").props(
-                "flat round color=blue-grey-8 aria-label='" + render_message("webui.index.accessible_name.submit_global_search_d3d1329e") + "'"
+                'flat round color=blue-grey-8 aria-label=' + repr(render_message("webui.index.accessible_name.submit_global_search_d3d1329e"))
             ).tooltip(render_message("webui.index.tooltip.search_93d9b9f9"))
         global_search_wrap.set_visibility(False)
         ui.space()
@@ -3768,7 +3768,7 @@ def index(q: str = "") -> None:
         label: str, icon: str, *, navigation_key: str, extra_classes: str = "",
     ) -> Any:
         button = ui.button(label, icon=icon).props(
-            f'flat align=left no-caps aria-label="{label}"'
+            f'flat align=left no-caps aria-label={label!r}'
         ).classes(f"erms-nav-link w-full justify-start px-4 {extra_classes}")
         with button:
             ui.tooltip(label)
@@ -3782,7 +3782,7 @@ def index(q: str = "") -> None:
         drawer_toggle_button = ui.button(
             icon="chevron_right" if initial_direction == "rtl" else "chevron_left"
         ).props(
-            "flat dense aria-label='" + render_message("webui.index.accessible_name.collapse_navigation_b4de6b59") + "'"
+            'flat dense aria-label=' + repr(render_message("webui.index.accessible_name.collapse_navigation_b4de6b59"))
         ).classes("erms-drawer-toggle")
         with drawer_toggle_button:
             drawer_toggle_tooltip = ui.tooltip(render_message("webui.index.tooltip.collapse_navigation_abf7124d"))
@@ -3976,7 +3976,7 @@ def index(q: str = "") -> None:
 
     with ui.column().classes("erms-content w-full p-5 gap-4"):
         breadcrumb_host = ui.element("nav").props(
-            "aria-label='" + render_message("webui.index.accessible_name.navigation_history_21482f31") + "'"
+            'aria-label=' + repr(render_message("webui.index.accessible_name.navigation_history_21482f31"))
         ).classes("w-full min-h-7")
         # NiceGUI's native row follows document direction. Remove the redundant
         # Quasar row class to avoid the legacy global RTL row-reversal rule.
@@ -4171,7 +4171,7 @@ def index(q: str = "") -> None:
                         ui.notify(render_message("webui.toggle_diagnostics.notify.diagnostics_will_apply_to_the_next_explici_286f12ab"), color="primary")
                         render_global_search_results()
                     secondary_actions = ui.button(icon="more_vert").props(
-                        "flat round aria-label='" + render_message("webui.render_global_search_results.accessible_name.search_result_actions_10f81af1") + "'"
+                        'flat round aria-label=' + repr(render_message("webui.render_global_search_results.accessible_name.search_result_actions_10f81af1"))
                     ).tooltip(render_message("webui.render_global_search_results.tooltip.search_result_actions_2fe233c8"))
                     with secondary_actions, ui.menu():
                         diagnostics_toggle = ui.switch(
@@ -4191,7 +4191,7 @@ def index(q: str = "") -> None:
                     )).props("dense no-caps")
                     button.props("unelevated color=primary" if selected == key else "flat color=blue-grey")
             if state.get("global_search_loading"):
-                with ui.row().classes("w-full justify-center items-center py-12 gap-3").props("role=status aria-label='" + render_message("webui.render_global_search_results.accessible_name.loading_search_results_eff54ce6") + "'"):
+                with ui.row().classes("w-full justify-center items-center py-12 gap-3").props('role=status aria-label=' + repr(render_message("webui.render_global_search_results.accessible_name.loading_search_results_eff54ce6"))):
                     ui.spinner("dots", size="32px", color="primary")
                     ui.label(render_message("webui.render_global_search_results.label.searching_records_files_and_aggregations_5756053f")).classes("text-slate-500")
                 return
@@ -4257,14 +4257,14 @@ def index(q: str = "") -> None:
             if visible:
                 with ui.row().classes("w-full items-center justify-center gap-2 pt-1"):
                     first_button = ui.button(icon="first_page", on_click=lambda: change_global_search_page(1)).props(
-                        "flat round aria-label='" + render_message("webui.render_global_search_results.accessible_name.first_page_69926c59") + "'"
+                        'flat round aria-label=' + repr(render_message("webui.render_global_search_results.accessible_name.first_page_69926c59"))
                     ).tooltip(render_message("webui.render_global_search_results.tooltip.first_page_45ffdb30"))
                     previous_button = ui.button(icon="chevron_left", on_click=lambda: change_global_search_page(page_number - 1)).props(
-                        "flat round aria-label='" + render_message("webui.render_global_search_results.accessible_name.previous_page_571d7f79") + "'"
+                        'flat round aria-label=' + repr(render_message("webui.render_global_search_results.accessible_name.previous_page_571d7f79"))
                     ).tooltip(render_message("webui.render_global_search_results.tooltip.previous_page_6b7e38b3"))
                     ui.label(render_message("webui.render_global_search_results.label.page_page_number_9319ded9", page_number=page_number)).classes("text-sm text-slate-600 min-w-20 text-center")
                     next_button = ui.button(icon="chevron_right", on_click=lambda: change_global_search_page(page_number + 1)).props(
-                        "flat round aria-label='" + render_message("webui.render_global_search_results.accessible_name.next_page_c45c7218") + "'"
+                        'flat round aria-label=' + repr(render_message("webui.render_global_search_results.accessible_name.next_page_c45c7218"))
                     ).tooltip(render_message("webui.render_global_search_results.tooltip.next_page_62ca3105"))
                     first_button.set_enabled(page_number > 1)
                     previous_button.set_enabled(page_number > 1)
@@ -4812,8 +4812,7 @@ def index(q: str = "") -> None:
         label = render_message("webui.apply_favourite_button.text.remove_from_favourites_596874e5") if selected else render_message("webui.apply_favourite_button.text.add_to_favourites_46913fe5")
         button.props(remove="icon color aria-label")
         button.props(
-            f"icon={'favorite' if selected else 'favorite_border'} "
-            f"color={'red' if selected else 'primary'} aria-label='{label}'"
+            f"icon={('favorite' if selected else 'favorite_border')} color={('red' if selected else 'primary')} aria-label={label!r}"
         )
         tooltip.text = label
         button.update()
@@ -4860,8 +4859,7 @@ def index(q: str = "") -> None:
         button = ui.button(
             icon="favorite" if selected else "favorite_border",
         ).props(
-            f"flat round dense color={'red' if selected else 'primary'} "
-            f"aria-label='{'Remove from favourites' if selected else 'Add to favourites'}'"
+            f"flat round dense color={('red' if selected else 'primary')} aria-label={('Remove from favourites' if selected else 'Add to favourites')!r}"
         )
         with button:
             tooltip = ui.tooltip(
@@ -4948,7 +4946,7 @@ def index(q: str = "") -> None:
                     expand_button = None
                     if component_rows:
                         expand_button = ui.button(icon=tree_expander_icon(False)).props(
-                            "flat round dense color=primary aria-label='" + render_message("webui.render_compact_resource_result.accessible_name.show_digital_components_08467816") + "'"
+                            'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.show_digital_components_08467816"))
                         )
                         ui.badge(str(len(component_rows)), color="warning").props(
                             "outline"
@@ -4961,7 +4959,7 @@ def index(q: str = "") -> None:
                         ui.button(
                             icon="visibility", on_click=lambda _, selected=item: preview_record_components(selected),
                         ).props(
-                            "flat round dense color=primary aria-label='" + render_message("webui.render_compact_resource_result.accessible_name.preview_digital_components_72d3f864") + "'"
+                            'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_components_72d3f864"))
                         ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_components_81745e00"))
                     if on_open is not None:
                         ui.button(
@@ -4989,13 +4987,13 @@ def index(q: str = "") -> None:
                                     on_click=lambda _, selected=item, component_id=int(component["id"]):
                                         preview_record_components(selected, component_id),
                                 ).props(
-                                    "flat round dense color=primary aria-label='" + render_message("webui.render_compact_resource_result.accessible_name.preview_digital_component_f8b12cac") + "'"
+                                    'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_component_f8b12cac"))
                                 ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875"))
 
                 expanded = {"value": initially_expanded}
                 if initially_expanded:
                     expand_button.props(remove="icon aria-label")
-                    expand_button.props("icon=expand_more aria-label='" + render_message("webui.render_compact_resource_result.accessible_name.hide_digital_components_53390064") + "'")
+                    expand_button.props('icon=expand_more aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.hide_digital_components_53390064")))
                     expand_button.update()
 
                 def toggle_components() -> None:
@@ -5323,7 +5321,7 @@ def index(q: str = "") -> None:
                                 icon="open_in_new",
                                 on_click=lambda _, item=event: navigate_to_event_entity(item),
                             ).props("flat round dense color=primary").props(
-                                f'aria-label="{render_message_plain("webui.render_event_timeline.tooltip.open_current_entity_208e2a65")}"'
+                                f"aria-label={render_message_plain('webui.render_event_timeline.tooltip.open_current_entity_208e2a65')!r}"
                             ).tooltip(render_message("webui.render_event_timeline.tooltip.open_current_entity_208e2a65"))
                         ui.button(
                             icon="chevron_right",
@@ -5526,10 +5524,10 @@ def index(q: str = "") -> None:
                                 button.disable()
                             button.tooltip(item.get("file_name") or render_message("webui.render_switcher.tooltip.unnamed_file_1e7c23b2"))
                     previous_components = ui.button(icon="chevron_left").props(
-                        "flat round dense aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275") + "'"
+                        'flat round dense aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275"))
                     )
                     next_components = ui.button(icon="chevron_right").props(
-                        "flat round dense aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc") + "'"
+                        'flat round dense aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc"))
                     )
                     if preview_page["offset"] <= 0:
                         previous_components.disable()
@@ -5561,7 +5559,7 @@ def index(q: str = "") -> None:
                 ):
                     ui.space()
                     ui.button(icon="close", on_click=close_viewer).props(
-                        "flat round dense aria-label='" + render_message("webui.select_component.accessible_name.close_viewer_7a596c99") + "'"
+                        'flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.close_viewer_7a596c99"))
                     ).tooltip(render_message("webui.select_component.tooltip.close_viewer_4ef26fde"))
             with content_host:
                 with ui.column().classes("w-full h-full items-center justify-center gap-3"):
@@ -5605,25 +5603,25 @@ def index(q: str = "") -> None:
                         viewer_state["canvas_id"] = canvas_id
                         ui.button(icon="chevron_left", on_click=lambda: viewer_client.run_javascript(
                             f"window.ermsPdfViewer.previous({json.dumps(canvas_id)})"
-                        )).props("flat round dense aria-label='" + render_message("webui.select_component.accessible_name.previous_page_9be2e903") + "'").tooltip(render_message("webui.select_component.tooltip.previous_page_4dc31a67"))
+                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.previous_page_9be2e903"))).tooltip(render_message("webui.select_component.tooltip.previous_page_4dc31a67"))
                         ui.label(render_message("webui.select_component.label.loading_db611d00")).props(f'id={canvas_id}-status').classes(
                             "text-sm text-slate-500 min-w-32 text-center"
                         )
                         ui.button(icon="chevron_right", on_click=lambda: viewer_client.run_javascript(
                             f"window.ermsPdfViewer.next({json.dumps(canvas_id)})"
-                        )).props("flat round dense aria-label='" + render_message("webui.select_component.accessible_name.next_page_7783d4cb") + "'").tooltip(render_message("webui.select_component.tooltip.next_page_9877cd5a"))
+                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.next_page_7783d4cb"))).tooltip(render_message("webui.select_component.tooltip.next_page_9877cd5a"))
                         ui.button(icon="zoom_out", on_click=lambda: viewer_client.run_javascript(
                             f"window.ermsPdfViewer.zoomOut({json.dumps(canvas_id)})"
-                        )).props("flat round dense aria-label='" + render_message("webui.select_component.accessible_name.zoom_out_23d40a31") + "'").tooltip(render_message("webui.select_component.tooltip.zoom_out_011b8edf"))
+                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_out_23d40a31"))).tooltip(render_message("webui.select_component.tooltip.zoom_out_011b8edf"))
                         ui.button(icon="zoom_in", on_click=lambda: viewer_client.run_javascript(
                             f"window.ermsPdfViewer.zoomIn({json.dumps(canvas_id)})"
-                        )).props("flat round dense aria-label='" + render_message("webui.select_component.accessible_name.zoom_in_1db29908") + "'").tooltip(render_message("webui.select_component.tooltip.zoom_in_5062398d"))
+                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_in_1db29908"))).tooltip(render_message("webui.select_component.tooltip.zoom_in_5062398d"))
                     if (
                         capabilities.get("print_component")
                         and preview_kind not in {"audio", "video"}
                     ):
                         print_button = ui.button(icon="print").props(
-                            "flat round dense aria-label='" + render_message("webui.select_component.accessible_name.print_document_ce8c78a3") + "'"
+                            'flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.print_document_ce8c78a3"))
                         )
                         print_button.on(
                             "click",
@@ -5640,9 +5638,9 @@ def index(q: str = "") -> None:
                     if capabilities.get("download_component"):
                         ui.button(
                             icon="download", on_click=lambda: download_component(component),
-                        ).props("flat round dense aria-label='" + render_message("webui.select_component.accessible_name.download_original_45d7f998") + "'").tooltip(render_message("webui.select_component.tooltip.download_original_24db5a23"))
+                        ).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.download_original_45d7f998"))).tooltip(render_message("webui.select_component.tooltip.download_original_24db5a23"))
                     ui.button(icon="close", on_click=close_viewer).props(
-                        "flat round dense aria-label='" + render_message("webui.select_component.accessible_name.close_viewer_7a596c99") + "'"
+                        'flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.close_viewer_7a596c99"))
                     ).tooltip(render_message("webui.select_component.tooltip.close_viewer_4ef26fde"))
 
             if preview_kind:
@@ -5793,11 +5791,11 @@ def index(q: str = "") -> None:
                     last = int(component_page["offset"]) + len(current_rows)
                     with ui.row().classes("w-full items-center justify-center gap-2 pt-3"):
                         previous = ui.button(icon="chevron_left").props(
-                            "flat round aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275") + "'"
+                            'flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275"))
                         )
                         ui.badge(f"{first}–{last} / {total}", color="blue-grey").props("outline")
                         next_button = ui.button(icon="chevron_right").props(
-                            "flat round aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc") + "'"
+                            'flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc"))
                         )
                         if component_page["offset"] <= 0:
                             previous.disable()
@@ -6381,7 +6379,7 @@ def index(q: str = "") -> None:
                                                             selection_mode="role", target_control=control,
                                                         ),
                                                     ).props(
-                                                        "flat round dense aria-label='" + render_message("webui.render_principals.accessible_name.browse_roles_dac5f03b") + "'"
+                                                        'flat round dense aria-label=' + repr(render_message("webui.render_principals.accessible_name.browse_roles_dac5f03b"))
                                                     ).tooltip(render_message("webui.render_principals.tooltip.browse_organization_structure_for_a_role_ce297699"))
                                                     editor_controls.append(browse_role_button)
                                                 remove_button = ui.button(
@@ -6525,7 +6523,7 @@ def index(q: str = "") -> None:
                 with ui.column().classes("gap-0 grow"):
                     ui.label(render_message("webui.show_access_explanation.label.access_explanation_054e47dd")).classes("text-xl font-semibold")
                     ui.label(render_message("webui.show_access_explanation.label.shows_which_policy_gates_and_roles_contrib_b13484e9")).classes("text-xs text-slate-500")
-                ui.button(icon="close", on_click=dialog.close).props("flat round dense aria-label='" + render_message("webui.show_access_explanation.accessible_name.close_access_explanation_347ccd8f") + "'")
+                ui.button(icon="close", on_click=dialog.close).props('flat round dense aria-label=' + repr(render_message("webui.show_access_explanation.accessible_name.close_access_explanation_347ccd8f")))
             with ui.row().classes("w-full items-end gap-3 px-5 pt-4"):
                 operation = ui.select(operations, value=OPERATIONS[resource_type][0], label=render_message("webui.show_access_explanation.select.operation_709c7c46")).props("outlined").classes("grow")
                 user = None
@@ -7368,7 +7366,7 @@ def index(q: str = "") -> None:
                                 icon="visibility",
                                 on_click=lambda: preview_record_components(record),
                             ).props(
-                                "flat round dense color=primary aria-label='" + render_message("webui.select_record_details.accessible_name.preview_digital_components_d68f8cab") + "'"
+                                'flat round dense color=primary aria-label=' + repr(render_message("webui.select_record_details.accessible_name.preview_digital_components_d68f8cab"))
                             ).tooltip(render_message("webui.select_record_details.tooltip.preview_digital_components_b4905386"))
                         ui.button(
                             render_message("webui.select_record_details.button.back_f6cea7ff"),
@@ -9351,6 +9349,8 @@ def index(q: str = "") -> None:
                         )
                         if on_saved is not None:
                             await on_saved(saved)
+                        elif not spec.search_first and state["resource"] == spec.key:
+                            await load_rows(repeat_search=True)
                         return
                     payload = form_payload(spec, controls, creating=creating)
                     if creating and spec.key == "aggregations":
@@ -9439,17 +9439,10 @@ def index(q: str = "") -> None:
                         else:
                             state["searched"] = False
                             render_table(spec)
-                    else:
-                        if creating:
-                            state["rows"] = [*state["rows"], saved]
-                        else:
-                            state["rows"] = [
-                                saved if item["id"] == saved["id"] else item
-                                for item in state["rows"]
-                            ]
-                        state["rows"].sort(key=lambda item: item["id"])
-                        state["rows"] = await decorate_for_spec(spec, state["rows"])
-                        render_table(spec)
+                    elif state["resource"] == spec.key:
+                        # Reload the bounded page using its localized sort and
+                        # filters, rather than appending and reordering by ID.
+                        await load_rows(repeat_search=True)
                 except ValueError as error:
                     ui.notify(validation_error_message(error), color="warning")
                 except ApiError as error:
@@ -9598,7 +9591,7 @@ def index(q: str = "") -> None:
                                     membership_valid_from.set_value(None),
                                     membership_valid_until.set_value(None),
                                 ),
-                            ).props("flat round dense color=grey-7 aria-label='" + render_message("webui.load_held_itemships.accessible_name.clear_filters_2f8c06a6") + "'").tooltip(
+                            ).props('flat round dense color=grey-7 aria-label=' + repr(render_message("webui.load_held_itemships.accessible_name.clear_filters_2f8c06a6"))).tooltip(
                                 render_message("webui.load_held_itemships.tooltip.clear_filters_6414665b")
                             )
                         filter_panel.set_visibility(False)
@@ -9752,7 +9745,7 @@ def index(q: str = "") -> None:
                         selection_mode="role" if for_user else "user",
                         target_control=selection_holder["control"],
                     ),
-                ).props("outline no-caps color=primary aria-label='" + render_message("webui.show_memberships.accessible_name.browse_organization_structure_0d480876") + "'").tooltip(
+                ).props('outline no-caps color=primary aria-label=' + repr(render_message("webui.show_memberships.accessible_name.browse_organization_structure_0d480876"))).tooltip(
                     render_message("webui.show_memberships.tooltip.browse_and_select_a_counterpart_label_908694f6", counterpart_label=localized_counterpart_label)
                 )
                 assign_button = ui.button(render_message("webui.show_memberships.button.assign_e003b2ce"), on_click=assign, icon="person_add").props("unelevated")
@@ -10816,7 +10809,7 @@ def index(q: str = "") -> None:
                         "text-xs text-slate-500 truncate w-full"
                     )
                 remove_button = ui.button(icon="favorite", color="red").props(
-                    "flat round dense aria-label='" + render_message("webui.render_entry.accessible_name.remove_from_favourites_5fa138ab") + "'"
+                    'flat round dense aria-label=' + repr(render_message("webui.render_entry.accessible_name.remove_from_favourites_5fa138ab"))
                 )
                 remove_button.tooltip(render_message("webui.render_entry.tooltip.remove_from_favourites_84f9ea27"))
                 remove_button.on(
@@ -10942,7 +10935,7 @@ def index(q: str = "") -> None:
                         render_message("webui.render_favourite_item.label.title_value_e1a0d09d", title=localized_singular, value=item.get(number_field) or '—')
                     ).classes("text-xs text-slate-500 truncate w-full")
                 remove_button = ui.button(icon="favorite", color="red").props(
-                    "flat round dense aria-label='" + render_message("webui.render_favourite_item.accessible_name.remove_from_favourites_89be972a") + "'"
+                    'flat round dense aria-label=' + repr(render_message("webui.render_favourite_item.accessible_name.remove_from_favourites_89be972a"))
                 )
                 remove_button.tooltip(render_message("webui.render_favourite_item.tooltip.remove_from_favourites_96304e80"))
                 remove_button.on(
@@ -11312,11 +11305,11 @@ def index(q: str = "") -> None:
         host = ui.column().classes("compact-result-list w-[calc(100%-2.5rem)] mx-5 gap-0")
         pager = ui.row().classes("w-full items-center justify-center gap-2 px-5 pb-5")
         with pager:
-            first = ui.button(icon="first_page").props("flat round aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.first_page_99404add") + "'").tooltip(render_message("webui.render_entity_compact_results.tooltip.first_page_36860f7f"))
-            previous = ui.button(icon="chevron_left").props("flat round aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275") + "'").tooltip(render_message("webui.render_entity_compact_results.tooltip.previous_page_e175a9ce"))
+            first = ui.button(icon="first_page").props('flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.first_page_99404add"))).tooltip(render_message("webui.render_entity_compact_results.tooltip.first_page_36860f7f"))
+            previous = ui.button(icon="chevron_left").props('flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275"))).tooltip(render_message("webui.render_entity_compact_results.tooltip.previous_page_e175a9ce"))
             page_label = ui.label().classes("text-sm text-slate-600 min-w-20 text-center")
-            next_button = ui.button(icon="chevron_right").props("flat round aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc") + "'").tooltip(render_message("webui.render_entity_compact_results.tooltip.next_page_e62c6c59"))
-            last = ui.button(icon="last_page").props("flat round aria-label='" + render_message("webui.render_entity_compact_results.accessible_name.last_page_9a6fde18") + "'").tooltip(render_message("webui.render_entity_compact_results.tooltip.last_page_00e9ef30"))
+            next_button = ui.button(icon="chevron_right").props('flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc"))).tooltip(render_message("webui.render_entity_compact_results.tooltip.next_page_e62c6c59"))
+            last = ui.button(icon="last_page").props('flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.last_page_9a6fde18"))).tooltip(render_message("webui.render_entity_compact_results.tooltip.last_page_00e9ef30"))
 
         async def open_result(item: dict[str, Any]) -> None:
             result_state["return_anchor"] = f"compact-result-{resource}-{int(item['id'])}"
@@ -12210,7 +12203,7 @@ def index(q: str = "") -> None:
     def refresh_inspectable_chrome() -> None:
         """Re-render persistent header text after Inspector metadata is enabled."""
         accessible_name = render_message("webui.index.accessible_name.wathiq_faa0862c")
-        brand_row.props("aria-label='" + accessible_name + "'")
+        brand_row.props('aria-label=' + repr(accessible_name))
         brand_mark.props("fit=contain alt='" + accessible_name + "'")
         brand_name.text = render_message("webui.index.label.wathiq_d1dfb800")
         brand_name.update()
@@ -13020,7 +13013,7 @@ def index(q: str = "") -> None:
                     attention_counts["records"]["held"],
                 )
                 with ui.element("section").classes("dashboard-attention-chart").props(
-                    "aria-label='" + render_message("webui.load_dashboard.accessible_name.attention_signals_for_visible_aggregations_c8c49e94") + "'"
+                    'aria-label=' + repr(render_message("webui.load_dashboard.accessible_name.attention_signals_for_visible_aggregations_c8c49e94"))
                 ):
                     with ui.row().classes("classification-detail-identity w-full items-start gap-3"):
                         with ui.column().classes("gap-0"):
@@ -13075,7 +13068,7 @@ def index(q: str = "") -> None:
                         1, *(int(item["record_count"]) for item in ownership_counts)
                     )
                     with ui.element("section").classes("dashboard-holdings-chart").props(
-                        "aria-label='" + render_message("webui.load_dashboard.accessible_name.records_by_organizational_unit_and_medium_a855d0ad") + "'"
+                        'aria-label=' + repr(render_message("webui.load_dashboard.accessible_name.records_by_organizational_unit_and_medium_a855d0ad"))
                     ):
                         with ui.row().classes("w-full items-start gap-3"):
                             with ui.column().classes("gap-0"):
@@ -13229,7 +13222,7 @@ def index(q: str = "") -> None:
                 )
                 with ui.element("div").classes("dashboard-review-layout"):
                     with ui.card().classes("dashboard-review-summary").props(
-                        "aria-label='" + render_message("webui.load_dashboard.accessible_name.review_urgency_summary_2750f795") + "'"
+                        'aria-label=' + repr(render_message("webui.load_dashboard.accessible_name.review_urgency_summary_2750f795"))
                     ):
                         ui.label(render_message("webui.load_dashboard.label.review_urgency_561cf02e")).classes(
                             "text-sm font-semibold text-slate-700"
@@ -13393,7 +13386,7 @@ def index(q: str = "") -> None:
                             )
                         remove_button = ui.button(
                             icon="favorite", color="red",
-                        ).props("flat round dense aria-label='" + render_message("webui.render_favourite_entry.accessible_name.remove_from_favourites_40670952") + "'")
+                        ).props('flat round dense aria-label=' + repr(render_message("webui.render_favourite_entry.accessible_name.remove_from_favourites_40670952")))
                         remove_button.tooltip(render_message("webui.render_favourite_entry.tooltip.remove_from_favourites_dc2403f2"))
                         remove_button.on(
                             "click",
@@ -13587,7 +13580,7 @@ def index(q: str = "") -> None:
                     default=1,
                 ) or 1
                 with ui.element("section").classes("dashboard-storage-chart").props(
-                    "aria-label='" + render_message("webui.load_dashboard.accessible_name.top_five_organizational_units_by_authorize_cfc7c0c5") + "'"
+                    'aria-label=' + repr(render_message("webui.load_dashboard.accessible_name.top_five_organizational_units_by_authorize_cfc7c0c5"))
                 ):
                     with ui.row().classes("w-full items-start gap-3"):
                         with ui.column().classes("gap-0 min-w-0"):
@@ -16285,7 +16278,7 @@ def index(q: str = "") -> None:
                                                 ).props("outline")
                                         if person.get("account_type") == "person":
                                             remove_button = ui.button(icon="person_remove").props(
-                                                "flat round dense color=negative aria-label='" + render_message("webui.render_assignment_cards.accessible_name.remove_role_assignment_4511524e") + "'"
+                                                'flat round dense color=negative aria-label=' + repr(render_message("webui.render_assignment_cards.accessible_name.remove_role_assignment_4511524e"))
                                             ).tooltip(render_message("webui.render_assignment_cards.tooltip.remove_role_assignment_5541cf2e"))
                                             remove_button.on(
                                                 "click.stop",
@@ -18279,10 +18272,10 @@ def index(q: str = "") -> None:
                 with ui.card().classes("advanced-search-criteria-panel w-full p-4 shadow-none border border-slate-200"):
                     with ui.row().classes("advanced-search-target-row w-full items-end gap-4 flex-wrap"):
                         target = ui.select(targets, value=workspace["resource"], label=render_message("webui.select_advanced_search.select.search_for_410f853e")).props(
-                            "outlined dense options-dense aria-label='" + render_message("webui.select_advanced_search.accessible_name.search_target_27bbcc33") + "'"
+                            'outlined dense options-dense aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.search_target_27bbcc33"))
                         ).classes("w-56")
                         max_results = ui.number(render_message("advanced_search.field.maximum_results"), value=workspace["max_results"], min=1, max=5000, step=1).props(
-                            "outlined dense aria-label='" + render_message("webui.select_advanced_search.accessible_name.maximum_results_4993c5ac") + "'"
+                            'outlined dense aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.maximum_results_4993c5ac"))
                         ).classes("w-48")
                         ui.label(render_message("webui.select_advanced_search.label.system_maximum_5_000_77d23fb5")).classes("text-xs text-slate-500 pb-2")
                     ui.label(render_message("webui.select_advanced_search.label.criteria_ef9a8718")).classes("text-lg font-semibold mt-3")
@@ -18291,7 +18284,7 @@ def index(q: str = "") -> None:
                         render_message("webui.select_advanced_search.label.file_details_narrow_the_record_results_in_a8ddca60")
                     ).classes("text-sm text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2")
                     validation_summary = ui.column().classes("w-full rounded-lg border border-red-200 bg-red-50 p-3 gap-1").props(
-                        "role=alert tabindex=-1 aria-label='" + render_message("webui.select_advanced_search.accessible_name.search_validation_summary_9c5c4e57") + "'"
+                        'role=alert tabindex=-1 aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.search_validation_summary_9c5c4e57"))
                     )
                     builder_host = ui.column().classes("w-full gap-3")
                     with ui.row().classes("advanced-search-sort-row w-full items-end gap-3 flex-wrap mt-2"):
@@ -18327,11 +18320,11 @@ def index(q: str = "") -> None:
                 freshness_host = ui.column().classes("w-full")
                 results_host = ui.column().classes("w-full gap-3").props("aria-live=polite")
                 with ui.row().classes("w-full items-center justify-center gap-2") as pagination:
-                    first_page = ui.button(icon="first_page").props("flat round aria-label='" + render_message("webui.select_advanced_search.accessible_name.first_page_8dfd5626") + "'")
-                    previous_page = ui.button(icon="chevron_left").props("flat round aria-label='" + render_message("webui.select_advanced_search.accessible_name.previous_page_5a18f6b0") + "'")
+                    first_page = ui.button(icon="first_page").props('flat round aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.first_page_8dfd5626")))
+                    previous_page = ui.button(icon="chevron_left").props('flat round aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.previous_page_5a18f6b0")))
                     range_label = ui.label().classes("text-sm text-slate-600 min-w-36 text-center")
-                    next_page = ui.button(icon="chevron_right").props("flat round aria-label='" + render_message("webui.select_advanced_search.accessible_name.next_page_d75b42e2") + "'")
-                    last_page = ui.button(icon="last_page").props("flat round aria-label='" + render_message("webui.select_advanced_search.accessible_name.last_page_d53f2dec") + "'")
+                    next_page = ui.button(icon="chevron_right").props('flat round aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.next_page_d75b42e2")))
+                    last_page = ui.button(icon="last_page").props('flat round aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.last_page_d53f2dec")))
                 pagination.set_visibility(False)
 
         def new_condition() -> dict[str, Any]:
@@ -18947,7 +18940,7 @@ def index(q: str = "") -> None:
                             on_click=show_schemes if parent_item is None else lambda: show_level(
                                 scheme, path[-1] if path else None, path[:-1],
                             ),
-                        ).props("flat round dense aria-label='" + render_message("webui.show_level.accessible_name.back_1d2eb652") + "'")
+                        ).props('flat round dense aria-label=' + repr(render_message("webui.show_level.accessible_name.back_1d2eb652")))
                         ui.label(scheme["title"]).classes("font-semibold")
                         if parent_item:
                             ui.badge(parent_item["code"], color="primary").props("outline")
@@ -19148,18 +19141,18 @@ def index(q: str = "") -> None:
                         ))
                     kind.on_value_change(lambda event: (node.clear(), node.update(new_condition() if event.value == "structured" else {"type": "condition", "kind": "full_text", "query": "", "sources": ["metadata", "components"] if workspace["resource"] == "records" else ["metadata"]}), render_builder()))
                     with ui.row().classes("advanced-search-condition-actions items-center gap-0 self-end"):
-                        ui.button(icon="block", on_click=lambda: negate_node(parent, index, node)).props("flat round dense aria-label='" + render_message("webui.render_condition.accessible_name.negate_condition_0ee5684b") + "'").tooltip(render_message("webui.render_condition.tooltip.negate_9cd858a3"))
-                        ui.button(icon="content_copy", on_click=lambda: duplicate_node(parent, index, node)).props("flat round dense aria-label='" + render_message("webui.render_condition.accessible_name.duplicate_condition_2282d530") + "'").tooltip(render_message("webui.render_condition.tooltip.duplicate_93f8b940"))
-                        ui.button(icon="delete", color="negative", on_click=lambda: remove_node(parent, index)).props("flat round dense aria-label='" + render_message("webui.render_condition.accessible_name.remove_condition_6b0c8a12") + "'").tooltip(render_message("webui.render_condition.tooltip.remove_47af9389"))
+                        ui.button(icon="block", on_click=lambda: negate_node(parent, index, node)).props('flat round dense aria-label=' + repr(render_message("webui.render_condition.accessible_name.negate_condition_0ee5684b"))).tooltip(render_message("webui.render_condition.tooltip.negate_9cd858a3"))
+                        ui.button(icon="content_copy", on_click=lambda: duplicate_node(parent, index, node)).props('flat round dense aria-label=' + repr(render_message("webui.render_condition.accessible_name.duplicate_condition_2282d530"))).tooltip(render_message("webui.render_condition.tooltip.duplicate_93f8b940"))
+                        ui.button(icon="delete", color="negative", on_click=lambda: remove_node(parent, index)).props('flat round dense aria-label=' + repr(render_message("webui.render_condition.accessible_name.remove_condition_6b0c8a12"))).tooltip(render_message("webui.render_condition.tooltip.remove_47af9389"))
 
         def render_group(node: dict[str, Any], parent: list[dict[str, Any]] | None = None, index: int = 0, depth: int = 1) -> None:
             labels = {"and": render_message("webui.render_group.text.all_c40a1b2b"), "or": render_message("webui.render_group.text.any_54504cd1"), "not": render_message("webui.render_group.text.not_2b98a4ad")}
             with ui.card().classes("advanced-search-group w-full p-2 shadow-none border-l-4 border-blue-300 bg-slate-50").props(
-                "role=group aria-label='" + render_message(
+                'role=group aria-label=' + repr(render_message(
                     "advanced_search.group.accessible_name",
                     operator=labels.get(node.get("operator", "and"), render_message("advanced_search.group.boolean")),
                     depth=depth,
-                ) + "'"
+                ))
             ):
                 with ui.row().classes("advanced-search-group-toolbar w-full items-center gap-2"):
                     group_operator = ui.select(labels, value=node.get("operator", "and"), label=render_message("webui.render_group.select.match_c4607f29")).props("outlined dense options-dense").classes("w-32")
@@ -19168,9 +19161,9 @@ def index(q: str = "") -> None:
                     add_condition = ui.button(render_message("webui.render_group.button.condition_d5d2516f"), icon="add").props("flat dense no-caps")
                     add_group = ui.button(render_message("webui.render_group.button.group_3a670cc7"), icon="account_tree").props("flat dense no-caps")
                     if parent is not None:
-                        ui.button(icon="block", on_click=lambda: negate_node(parent, index, node)).props("flat round dense aria-label='" + render_message("webui.render_group.accessible_name.negate_group_bed5f9ae") + "'").tooltip(render_message("webui.render_group.tooltip.negate_12f5d3d7"))
-                        ui.button(icon="content_copy", on_click=lambda: duplicate_node(parent, index, node)).props("flat round dense aria-label='" + render_message("webui.render_group.accessible_name.duplicate_group_6c8dc686") + "'").tooltip(render_message("webui.render_group.tooltip.duplicate_fdc06841"))
-                        ui.button(icon="delete", color="negative", on_click=lambda: remove_node(parent, index)).props("flat round dense aria-label='" + render_message("webui.render_group.accessible_name.remove_group_2edf8a7e") + "'").tooltip(render_message("webui.render_group.tooltip.remove_58552cd7"))
+                        ui.button(icon="block", on_click=lambda: negate_node(parent, index, node)).props('flat round dense aria-label=' + repr(render_message("webui.render_group.accessible_name.negate_group_bed5f9ae"))).tooltip(render_message("webui.render_group.tooltip.negate_12f5d3d7"))
+                        ui.button(icon="content_copy", on_click=lambda: duplicate_node(parent, index, node)).props('flat round dense aria-label=' + repr(render_message("webui.render_group.accessible_name.duplicate_group_6c8dc686"))).tooltip(render_message("webui.render_group.tooltip.duplicate_fdc06841"))
+                        ui.button(icon="delete", color="negative", on_click=lambda: remove_node(parent, index)).props('flat round dense aria-label=' + repr(render_message("webui.render_group.accessible_name.remove_group_2edf8a7e"))).tooltip(render_message("webui.render_group.tooltip.remove_58552cd7"))
                 children_host = ui.column().classes("w-full gap-1 pl-2")
                 children = node.setdefault("children", [])
                 with children_host:
@@ -19745,6 +19738,7 @@ def index(q: str = "") -> None:
             bind_relationship=bind_remote_relationship_select,
             open_resource=open_message_resource, format_timestamp=format_timestamp,
             open_disposition_eligibility=lambda:guarded_page_navigation(lambda:select_disposition("disposition-eligibility")),
+            open_disposition_job=lambda job_id:guarded_page_navigation(lambda:select_disposition("disposition-job",job_id)),
             open_disposition_task=lambda job_id,task_id:guarded_page_navigation(lambda:select_disposition("disposition-job",job_id,task_id=task_id)),
             inspect_resource=inspect_message_resource,
             on_read=refresh_message_unread,
@@ -20454,7 +20448,7 @@ def index(q: str = "") -> None:
                     with ui.row().classes("w-full items-center justify-between no-wrap"):
                         ui.label(render_message("webui.show_add_held_item.label.add_resources_to_hold_59f543cf")).classes("text-xl font-semibold")
                         ui.button(icon="close", on_click=dialog.close).props(
-                            "flat round dense aria-label='" + render_message("webui.show_add_held_item.button.cancel_93656897") + "'"
+                            'flat round dense aria-label=' + repr(render_message("webui.show_add_held_item.button.cancel_93656897"))
                         ).tooltip(render_message("webui.show_add_held_item.button.cancel_93656897"))
                     ui.label(render_message("webui.show_add_held_item.label.search_the_resources_you_can_view_select_a_a096d995")).classes("text-sm text-slate-600")
                     with ui.row().classes("w-full items-end gap-3"):
@@ -20602,16 +20596,16 @@ def index(q: str = "") -> None:
                         ui.label(render_message("webui.select_translation_administration.label.supported_languages_0a3fd31a")).classes("text-lg font-semibold")
                     with ui.row().classes("translation-card-actions items-center gap-1"):
                         bulk_publish_all = ui.button(icon="done_all").props(
-                            "flat round dense aria-label='" + render_message("localization.bulk.action.review_publish_all") + "'"
+                            'flat round dense aria-label=' + repr(render_message("localization.bulk.action.review_publish_all"))
                         ).tooltip(render_message("localization.bulk.action.review_publish_all"))
                         import_artifact = ui.button(icon="upload_file").props(
-                            "flat round dense aria-label='" + render_message("localization.artifact.import.action") + "'"
+                            'flat round dense aria-label=' + repr(render_message("localization.artifact.import.action"))
                         ).tooltip(render_message("localization.artifact.import.action"))
                         export_artifact = ui.button(icon="download").props(
-                            "flat round dense aria-label='" + render_message("localization.artifact.export.action") + "'"
+                            'flat round dense aria-label=' + repr(render_message("localization.artifact.export.action"))
                         ).tooltip(render_message("localization.artifact.export.action"))
                         add_language = ui.button(icon="add").props(
-                            "flat round dense aria-label='" + render_message("webui.select_translation_administration.accessible_name.add_supported_language_e7682117") + "'"
+                            'flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.add_supported_language_e7682117"))
                         ).tooltip(render_message("webui.select_translation_administration.tooltip.add_supported_language_59cab869"))
                 with ui.row().classes("w-full gap-2 flex-wrap"):
                     for language in languages:
@@ -20643,8 +20637,8 @@ def index(q: str = "") -> None:
                         ui.label(render_message("localization.generation.review.title")).classes("font-semibold")
                     with ui.row().classes("translation-card-actions items-center gap-1"):
                         generation_bulk_publish = ui.button(icon="done_all").props(
-                            "flat round dense color=primary aria-label='" +
-                            render_message("localization.bulk.action.review_publish_all") + "'"
+                            'flat round dense color=primary aria-label=' +
+                            repr(render_message("localization.bulk.action.review_publish_all"))
                         ).tooltip(render_message("localization.bulk.action.review_publish_all"))
                         generation_status_icon = ui.icon("hourglass_empty", color="grey", size="18px")
                         with generation_status_icon:
@@ -20691,13 +20685,13 @@ def index(q: str = "") -> None:
                     ).props("outlined dense options-dense").classes("w-40")
                     origin_filter = ui.select({"all":render_message("localization.filter.origin.all"),"source_copy":render_message("localization.filter.origin.source_copy"),"manual":render_message("localization.filter.origin.manual"),"generated":render_message("localization.filter.origin.generated"),"imported":render_message("localization.filter.origin.imported")},value="all",label=render_message("webui.select_translation_administration.select.origin_8d7c0b5f")).props("outlined dense options-dense").classes("w-40")
                     attention_filter = ui.checkbox(render_message("webui.select_translation_administration.checkbox.needs_attention_752fcdc8"), value=False).props("dense")
-                    clear_filters = ui.button(icon="filter_alt_off").props("flat round dense aria-label='" + render_message("webui.select_translation_administration.accessible_name.clear_all_filters_ab8e4797") + "'").tooltip(render_message("webui.select_translation_administration.tooltip.clear_all_filters_c724f659"))
+                    clear_filters = ui.button(icon="filter_alt_off").props('flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.clear_all_filters_ab8e4797"))).tooltip(render_message("webui.select_translation_administration.tooltip.clear_all_filters_c724f659"))
                 result_summary = ui.label().classes("text-xs text-slate-500")
             results = ui.column().classes("w-full gap-2")
             with ui.row().classes("w-full items-center justify-between"):
-                previous_page = ui.button(icon="chevron_left").props("flat round dense aria-label='" + render_message("webui.select_translation_administration.accessible_name.previous_page_ceba2a82") + "'").tooltip(render_message("webui.select_translation_administration.tooltip.previous_page_626c5552"))
+                previous_page = ui.button(icon="chevron_left").props('flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.previous_page_ceba2a82"))).tooltip(render_message("webui.select_translation_administration.tooltip.previous_page_626c5552"))
                 page_status = ui.label().classes("text-xs text-slate-500")
-                next_page = ui.button(icon="chevron_right").props("flat round dense aria-label='" + render_message("webui.select_translation_administration.accessible_name.next_page_6ae11376") + "'").tooltip(render_message("webui.select_translation_administration.tooltip.next_page_4579f1d3"))
+                next_page = ui.button(icon="chevron_right").props('flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.next_page_6ae11376"))).tooltip(render_message("webui.select_translation_administration.tooltip.next_page_4579f1d3"))
 
         async def language_dialog() -> None:
             dialog = ui.dialog().props("persistent")
@@ -20753,9 +20747,9 @@ def index(q: str = "") -> None:
                 reviewed = ui.checkbox(render_message("webui.edit_translation.checkbox.reviewed_by_me_a4519872"),value=bool(item.get("date_reviewed")))
                 reason = ui.input(render_message("webui.edit_translation.input.change_reason_75cafd6a")).props("outlined dense").classes("w-full")
                 with ui.row().classes("w-full justify-end gap-2"):
-                    cancel = ui.button(icon="close").props("flat round aria-label='" + render_message("webui.edit_translation.accessible_name.close_translation_editor_da93bee8") + "'").tooltip(render_message("webui.edit_translation.tooltip.close_e743eb2f"))
-                    save = ui.button(icon="save").props("flat round color=primary aria-label='" + render_message("webui.edit_translation.accessible_name.save_translation_draft_99ac0e72") + "'").tooltip(render_message("webui.edit_translation.tooltip.save_draft_fe503c91"))
-                    publish = ui.button(icon="publish").props("unelevated round color=primary aria-label='" + render_message("webui.edit_translation.accessible_name.publish_translation_c7947bff") + "'").tooltip(render_message("webui.edit_translation.tooltip.publish_387dcb6f"))
+                    cancel = ui.button(icon="close").props('flat round aria-label=' + repr(render_message("webui.edit_translation.accessible_name.close_translation_editor_da93bee8"))).tooltip(render_message("webui.edit_translation.tooltip.close_e743eb2f"))
+                    save = ui.button(icon="save").props('flat round color=primary aria-label=' + repr(render_message("webui.edit_translation.accessible_name.save_translation_draft_99ac0e72"))).tooltip(render_message("webui.edit_translation.tooltip.save_draft_fe503c91"))
+                    publish = ui.button(icon="publish").props('unelevated round color=primary aria-label=' + repr(render_message("webui.edit_translation.accessible_name.publish_translation_c7947bff"))).tooltip(render_message("webui.edit_translation.tooltip.publish_387dcb6f"))
                 cancel.on("click",dialog.close)
                 def validate_entry() -> bool:
                     blank=not (translation.value or "").strip(); missing_reason=not (reason.value or "").strip()
@@ -20816,8 +20810,8 @@ def index(q: str = "") -> None:
                 reason=ui.input(render_message("localization.bulk.field.change_reason")).props("outlined dense").classes("w-full")
                 inline_error=ui.label().classes("text-sm text-negative")
                 with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(icon="close",on_click=dialog.close).props("flat round aria-label='" + render_message("webui.bulk_review_publish_dialog.accessible_name.cancel_9a278e83") + "'").tooltip(render_message("localization.bulk.action.cancel"))
-                    confirm=ui.button(icon="publish").props("unelevated round color=primary aria-label='" + render_message("webui.bulk_review_publish_dialog.accessible_name.review_and_publish_selected_translations_4a6ed1b8") + "'").tooltip(render_message("localization.bulk.action.confirm"))
+                    ui.button(icon="close",on_click=dialog.close).props('flat round aria-label=' + repr(render_message("webui.bulk_review_publish_dialog.accessible_name.cancel_9a278e83"))).tooltip(render_message("localization.bulk.action.cancel"))
+                    confirm=ui.button(icon="publish").props('unelevated round color=primary aria-label=' + repr(render_message("webui.bulk_review_publish_dialog.accessible_name.review_and_publish_selected_translations_4a6ed1b8"))).tooltip(render_message("localization.bulk.action.confirm"))
                 def validate_bulk() -> bool:
                     valid=bool(preview["items"]) and not invalid and bool((reason.value or "").strip())
                     inline_error.text="" if valid or not preview["items"] else render_message("localization.bulk.validation.reason_required") if not (reason.value or "").strip() else ""
@@ -20895,8 +20889,8 @@ def index(q: str = "") -> None:
                             icon="edit",
                             on_click=lambda _, key=message_key: focus_export_problem(key),
                         ).props(
-                            "flat round dense aria-label='" +
-                            render_message("webui.load_messages.accessible_name.edit_translation_c3be8114") + "'"
+                            'flat round dense aria-label=' +
+                            repr(render_message("webui.load_messages.accessible_name.edit_translation_c3be8114"))
                         ).tooltip(
                             render_message("webui.load_messages.tooltip.edit_translation_7e06ffab")
                         )
@@ -20969,12 +20963,12 @@ def index(q: str = "") -> None:
                     bulk_review = ui.button(
                         icon="done_all", on_click=open_bulk_review_from_export,
                     ).props(
-                        "flat round aria-label='" +
-                        render_message("localization.bulk.action.review_publish_all") + "'"
+                        'flat round aria-label=' +
+                        repr(render_message("localization.bulk.action.review_publish_all"))
                     ).tooltip(render_message("localization.bulk.action.review_publish_all"))
                     ui.button(icon="close", on_click=dialog.close).props("flat round").tooltip(render_message("common.action.cancel"))
                     download = ui.button(icon="download").props(
-                        "unelevated round color=primary aria-label='" + render_message("localization.artifact.export.download") + "'"
+                        'unelevated round color=primary aria-label=' + repr(render_message("localization.artifact.export.download"))
                     ).tooltip(render_message("localization.artifact.export.download"))
                 include_drafts.on_value_change(refresh_export_preview)
                 download.on("click", download_export)
@@ -21069,7 +21063,7 @@ def index(q: str = "") -> None:
                 with ui.row().classes("w-full justify-end gap-2"):
                     ui.button(icon="close", on_click=dialog.close).props("flat round").tooltip(render_message("common.action.cancel"))
                     confirm = ui.button(icon="upload_file").props(
-                        "unelevated round color=primary aria-label='" + render_message("localization.artifact.import.confirm") + "'"
+                        'unelevated round color=primary aria-label=' + repr(render_message("localization.artifact.import.confirm"))
                     ).tooltip(render_message("localization.artifact.import.confirm"))
 
                 async def submit_import() -> None:
@@ -21194,18 +21188,18 @@ def index(q: str = "") -> None:
                     ).classes("w-full border border-slate-200 rounded-lg"):
                         with ui.row().classes("w-full justify-end px-2 pt-1"):
                             ui.button(icon="done_all",on_click=lambda _,scope=group:bulk_review_publish_dialog(scope,language_tag=administration_language["value"])).props(
-                                "flat round dense aria-label='" + render_message("webui.load_messages.accessible_name.review_and_publish_generated_drafts_in_thi_b0d0e30d") + "'"
+                                'flat round dense aria-label=' + repr(render_message("webui.load_messages.accessible_name.review_and_publish_generated_drafts_in_thi_b0d0e30d"))
                             ).tooltip(render_message("localization.bulk.action.review_publish_context"))
                         for item in items:
                             card_classes="w-full shadow-none border p-3 gap-1 " + ("border-amber-300 bg-amber-50" if item["validity"]!="valid" else "border-slate-200")
                             with ui.card().classes(card_classes):
                                 with ui.row().classes("w-full items-start gap-2 no-wrap"):
-                                    if item["validity"]!="valid": ui.icon("warning_amber",color="amber-9",size="18px").props(f"aria-label='{item['validity'].replace('_',' ')}'").tooltip(item["validity"].replace("_"," ").title())
+                                    if item["validity"]!="valid": ui.icon("warning_amber",color="amber-9",size="18px").props(f"aria-label={item['validity'].replace('_', ' ')!r}").tooltip(item["validity"].replace("_"," ").title())
                                     with ui.column().classes("gap-0 grow min-w-0"):
                                         ui.label(item["message_key"]).classes("font-mono text-xs font-semibold break-all")
                                         ui.label(item.get("translated_text") or render_message("localization.administration.no_translation")).classes("text-sm")
                                         ui.label(item["semantic_meaning"]).classes("text-xs text-slate-500 line-clamp-2")
-                                    ui.button(icon="edit",on_click=lambda _,entry=item:edit_translation(entry)).props("flat round dense aria-label='" + render_message("webui.load_messages.accessible_name.edit_translation_c3be8114") + "'").tooltip(render_message("webui.load_messages.tooltip.edit_translation_7e06ffab"))
+                                    ui.button(icon="edit",on_click=lambda _,entry=item:edit_translation(entry)).props('flat round dense aria-label=' + repr(render_message("webui.load_messages.accessible_name.edit_translation_c3be8114"))).tooltip(render_message("webui.load_messages.tooltip.edit_translation_7e06ffab"))
             start=page["offset"]+1 if page["total"] else 0;end=min(page["offset"]+len(grouped),page["total"])
             result_summary.text=render_message("localization.administration.result_count",count=page["key_total"]);page_status.text=render_message("localization.administration.page_range",start=start,end=end,total=page["total"])
             previous_page.set_enabled(page["offset"]>0);next_page.set_enabled(page["offset"]+page["limit"]<page["total"])
@@ -21363,14 +21357,14 @@ def index(q: str = "") -> None:
                 ui.button(
                     icon="close", on_click=dialog.close,
                 ).props(
-                    f"flat round aria-label='{render_message('preferences.action.cancel')}'"
+                    f"flat round aria-label={render_message('preferences.action.cancel')!r}"
                 ).tooltip(
                     render_message("common.action.cancel")
                 )
                 ui.button(
                     icon="save", on_click=save_preferences,
                 ).props(
-                    f"unelevated round aria-label='{render_message('preferences.action.save')}'"
+                    f"unelevated round aria-label={render_message('preferences.action.save')!r}"
                 ).tooltip(
                     render_message("common.action.save")
                 )
@@ -21433,7 +21427,7 @@ def index(q: str = "") -> None:
         ui.element("canvas").classes(
             "wathiq-network-canvas wathiq-login-network"
         ).props(
-            "aria-label='" + render_message("webui.index.accessible_name.slowly_moving_connected_node_background_acc8bb9e") + "'"
+            'aria-label=' + repr(render_message("webui.index.accessible_name.slowly_moving_connected_node_background_acc8bb9e"))
         )
         with ui.card().classes("wathiq-login-card").props(f"dir={initial_direction} lang={initial_language}"):
             with ui.row().classes("w-full items-stretch no-wrap gap-0"):

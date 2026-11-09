@@ -71,6 +71,25 @@ def test_release_gate_missing_confirmation_and_exact_retry(client):
         assert c.execute('SELECT count(*) n FROM disposition_physical_confirmations').fetchone()['n']==1
         with pytest.raises(psycopg.Error,match='physical_immutable|protected_operation_required'),c.transaction():c.execute("UPDATE disposition_physical_confirmations SET certificate_reference='wrong'")
 
+
+def test_physical_task_reassignment_leaves_managers_inbox_but_keeps_job_management(client):
+    from backend.services.api.disposition import workflow,workspace
+    from backend.services.api.tests.test_disposition_workflow import person,act
+    with db() as c:
+        job,root,mgr,_=approved(c)
+        claim(c,job)
+        other=person(c,'Replacement physical operator')
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,mgr))
+        current=task(c,job['id'])
+        assert current['task_type']=='physical_destruction'
+        assert workflow.tasks(c,limit=25,offset=0,job_id=job['id'])['total']==1
+        act(c,current,'reassign',mgr,other)
+        assert workflow.tasks(c,limit=25,offset=0,job_id=job['id'])=={'items':[],'total':0}
+        assert 'reassign' in workspace.read(c,job['id'])['actions']
+        actor(c,other)
+        page=workflow.tasks(c,limit=25,offset=0,job_id=job['id'])
+        assert page['total']==1 and page['items'][0]['claimed_by_user_id']==other
+
 @pytest.mark.parametrize('mode,stage',[('digital','digital_destruction'),('physical','physical_destruction'),('mixed','physical_destruction'),('physical_descendant','physical_destruction'),('physical_record','physical_destruction')])
 def test_routing_uses_every_item_not_just_roots(client,monkeypatch,mode,stage):
     from backend.services.api.tests.test_disposition_approval import manager,reach_manager,approve

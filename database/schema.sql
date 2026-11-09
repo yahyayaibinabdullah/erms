@@ -24,6 +24,21 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
+CREATE FUNCTION disposition_private.operation_pending(p_job bigint) RETURNS boolean LANGUAGE plpgsql STABLE AS $$
+BEGIN RETURN EXISTS(SELECT 1 FROM disposition_private.operation_work WHERE job_id=p_job AND released_at IS NULL AND
+ (state IN ('queued','running') OR state='failed' AND result IS NOT NULL)); END $$;
+
+CREATE FUNCTION disposition_private.check_operation_write(p_job bigint) RETURNS void LANGUAGE plpgsql AS $$
+DECLARE w disposition_private.operation_work%ROWTYPE;key uuid;acting bigint;
+BEGIN
+ SELECT * INTO w FROM disposition_private.operation_work WHERE job_id=p_job AND released_at IS NULL AND
+ (state IN ('queued','running') OR state='failed' AND result IS NOT NULL);
+ IF NOT FOUND OR disposition_private.hook_applying() OR disposition_private.context_operation()='document_save' OR w.state='failed' AND disposition_private.context_operation() IN ('task_claim','task_release','task_reassign') THEN RETURN; END IF;
+ SELECT r.command_id,r.acting_role_id INTO key,acting FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
+ IF key=w.execution_id AND current_user_id()=w.requested_by_user_id AND acting=w.acting_role_id OR key=w.completion_id AND current_user_id()=coalesce(w.run_as_user_id,w.requested_by_user_id) AND acting=coalesce(w.run_as_role_id,w.acting_role_id) THEN RETURN; END IF;
+ RAISE EXCEPTION 'disposition_operation_in_progress';
+END $$;
+
 CREATE FUNCTION disposition_private.accelerate(p_root bigint, p_version bigint) RETURNS jsonb
     LANGUAGE plpgsql
     AS $$
@@ -96,6 +111,7 @@ BEGIN
  PERFORM disposition_private.require_command();
  IF disposition_private.context_operation()<>'review_decide' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
  SELECT acting_role_id,command_id INTO acting,key FROM disposition_private.command_context c JOIN disposition_private.command_receipts r USING(command_id) WHERE c.transaction_id=txid_current();
+ PERFORM disposition_private.check_operation_write(p_job);
  PERFORM disposition_private.lock_request_facts(p_job);
  SELECT * INTO j FROM disposition_jobs WHERE id=p_job;
  SELECT * INTO r FROM disposition_review_rounds WHERE id=p_round AND job_id=p_job;
@@ -451,11 +467,14 @@ BEGIN
  'reviewed_membership',before_members,'reviewed_proposals',before_proposals,'post_membership',disposition_private.membership_snapshot(j.id),'results',results,'removed_units',removed,'overall_reason',total_reason,
  'job_snapshot',to_jsonb(j)||jsonb_build_object('owner_name',(SELECT name FROM org_units WHERE id=j.owning_org_unit_id),'assignee_name',(SELECT name FROM users WHERE id=j.assigned_user_id)),
  'post_rules',(SELECT COALESCE(jsonb_agg(jsonb_build_object('root_id',member_row.root_aggregation_id,'rule',e.rule_snapshot)),'[]') FROM disposition_job_memberships member_row CROSS JOIN LATERAL disposition_private.eligibility(member_row.root_aggregation_id) e WHERE member_row.job_id=j.id AND member_row.membership_state='active'));
+ -- A durable background request retains its current task until documents and routing succeed.
+ IF NOT EXISTS(SELECT 1 FROM disposition_private.operation_work WHERE execution_id=key AND state='running') THEN
  UPDATE disposition_tasks SET task_state=CASE WHEN id=t.id THEN 'completed' ELSE 'cancelled' END WHERE job_id=j.id AND task_state IN ('open','claimed');
  IF NOT EXISTS(SELECT 1 FROM disposition_job_memberships WHERE job_id=j.id AND membership_state='active') THEN
   IF j.review_route='records_manager_only' THEN
    INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,review_round,destination_user_id) VALUES(j.id,CASE WHEN j.workflow_stage='manager_preparation' THEN 'preparation' ELSE 'correction' END,j.workflow_stage,rr.round_number,j.assigned_user_id);
   ELSE PERFORM disposition_private.route_correction(j.id); END IF;
+ END IF;
  END IF;
  UPDATE disposition_jobs SET date_updated=CURRENT_TIMESTAMP WHERE id=j.id;
  execution:=execution||jsonb_build_object('approved_job_version',(SELECT version FROM disposition_jobs WHERE id=j.id),'request_facts',disposition_private.request_facts(j.id));
@@ -1412,7 +1431,8 @@ BEGIN
   UPDATE disposition_tasks SET task_state='completed' WHERE id=download_id;
   UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=p_job AND task_type='digital_destruction' AND task_state IN ('open','claimed');
   UPDATE disposition_jobs SET workflow_stage='certificate_generation' WHERE id=p_job;
-  INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,review_round,destination_user_id) VALUES(p_job,'certificate_download','certificate_generation',j.current_review_round,current_user_id()) RETURNING id INTO download_id;
+  INSERT INTO disposition_tasks(job_id,task_type,workflow_stage,review_round,destination_role_id,task_state,claimed_by_user_id,claimed_at)
+  VALUES(p_job,'certificate_download','certificate_generation',j.current_review_round,acting,'claimed',current_user_id(),CURRENT_TIMESTAMP) RETURNING id INTO download_id;
   UPDATE disposition_private.completion_work SET state='succeeded',finished_at=clock_timestamp(),last_error_code=NULL,document_id=p_document WHERE job_id=p_job;
   PERFORM append_domain_event('disposition_job',p_job,'DIGITAL_CERTIFICATE_SAVED',jsonb_build_object('certificate_document_id',p_document,'task_id',download_id));
   DELETE FROM disposition_private.completion_context WHERE transaction_id=txid_current();
@@ -1642,6 +1662,7 @@ CREATE FUNCTION disposition_private.guard_proposal() RETURNS trigger
     AS $$
 DECLARE t disposition_tasks%ROWTYPE; acting bigint; old_proposal disposition_review_proposals%ROWTYPE; facts jsonb; op text;
 BEGIN
+ IF TG_OP<>'DELETE' THEN PERFORM disposition_private.check_operation_write(NEW.job_id); END IF;
  PERFORM disposition_private.require_command();op:=disposition_private.context_operation();
  IF TG_OP='UPDATE' AND op='review_decide' AND disposition_private.approval_active(NEW.job_id) THEN
   IF OLD.proposal_state<>'active' OR OLD.review_round<>(SELECT current_review_round FROM disposition_jobs WHERE id=OLD.job_id)
@@ -1815,6 +1836,7 @@ CREATE FUNCTION disposition_private.guard_review_note() RETURNS trigger
     AS $$
 DECLARE t disposition_tasks%ROWTYPE; acting bigint;
 BEGIN
+ IF TG_OP<>'DELETE' THEN PERFORM disposition_private.check_operation_write(NEW.job_id); END IF;
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'disposition_history_immutable'; END IF;
  IF disposition_private.context_operation() IS DISTINCT FROM 'review_save' THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
  t:=disposition_private.review_actor(NEW.job_id);
@@ -1876,6 +1898,7 @@ BEGIN
  ELSE false END) THEN RAISE EXCEPTION 'disposition_command_scope_invalid'; END IF;
  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'disposition_history_immutable'; END IF;
  following:=to_jsonb(NEW);
+ PERFORM disposition_private.check_operation_write(CASE WHEN TG_TABLE_NAME='disposition_jobs' THEN NEW.id ELSE (following->>'job_id')::bigint END);
  IF TG_OP='UPDATE' THEN
   prior:=to_jsonb(OLD);
   IF TG_TABLE_NAME='disposition_review_decisions'
@@ -2000,7 +2023,17 @@ BEGIN
    ((op IN ('job_assign','job_terminate','review_submit','review_decide') OR op='final_complete' AND disposition_private.completion_active(job.id)) AND NEW.task_state='cancelled')) THEN RAISE EXCEPTION 'disposition_invalid_task_transition'; END IF;
   IF NEW.task_state='claimed' THEN
    IF NEW.destination_role_id IS NULL THEN RAISE EXCEPTION 'disposition_role_queue_required'; END IF;
-   IF NOT disposition_private.task_eligible(NEW.claimed_by_user_id,NEW.id,NEW.destination_role_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
+   -- A newly inserted claimed certificate task is not visible to task_eligible
+   -- yet. Validate its supplied queue/person under the protected completion context.
+   IF TG_OP='INSERT' AND NEW.task_type='certificate_download' AND op='final_complete' AND disposition_private.completion_active(job.id) THEN
+    IF NEW.claimed_by_user_id IS DISTINCT FROM uid
+     OR NOT disposition_private.person_role(uid,NEW.destination_role_id)
+     OR NOT disposition_private.review_role(job.id,'records_manager_review',NEW.destination_role_id)
+     OR NEW.destination_role_id IS DISTINCT FROM (SELECT acting_role_id FROM disposition_private.command_receipts WHERE command_id=(SELECT command_id FROM disposition_private.command_context WHERE transaction_id=txid_current()))
+     OR NOT disposition_private.can_review_content(uid,job.id)
+     OR NOT EXISTS(SELECT 1 FROM disposition_job_documents d WHERE d.job_id=job.id AND d.document_type='digital_destruction_certificate' AND d.document_state='available' AND current_user_can_view_record(d.record_id) AND current_user_can_list_record_components(d.record_id))
+    THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
+   ELSIF NOT disposition_private.task_eligible(NEW.claimed_by_user_id,NEW.id,NEW.destination_role_id) THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
    IF op<>'task_reassign' AND NEW.claimed_by_user_id<>uid THEN RAISE EXCEPTION USING ERRCODE='42501',MESSAGE='disposition_task_ineligible'; END IF;
    -- Saving work must preserve the original claim, including across transactions.
    IF op IN ('task_claim','task_reassign') THEN NEW.claimed_at:=CURRENT_TIMESTAMP; END IF;
@@ -3379,7 +3412,12 @@ CREATE FUNCTION disposition_private.task_eligible(p_user bigint, p_task bigint, 
  SELECT COALESCE(EXISTS(SELECT 1 FROM disposition_tasks t JOIN disposition_jobs j ON j.id=t.job_id
  WHERE t.id=p_task AND (j.lifecycle_state='active' OR j.lifecycle_state='completed' AND t.task_type='certificate_download')
  AND disposition_private.can_review_content(p_user,j.id) AND
- CASE WHEN t.task_type='certificate_download' THEN t.destination_user_id=p_user AND EXISTS(SELECT 1 FROM roles r WHERE disposition_private.person_role(p_user,r.id) AND disposition_private.review_role(j.id,'records_manager_review',r.id) AND (p_role IS NULL OR r.id=p_role)) WHEN t.destination_user_id IS NOT NULL THEN t.destination_user_id=p_user AND j.assigned_user_id=p_user
+ (t.task_type<>'certificate_download' OR EXISTS(
+  SELECT 1 FROM disposition_job_documents d JOIN records certificate ON certificate.id=d.record_id
+  WHERE d.job_id=j.id AND d.document_type='digital_destruction_certificate' AND d.document_state='available'
+   AND user_can_view_record(p_user,d.record_id)
+   AND (user_has_record_permission(p_user,d.record_id,'record.component.list') OR user_has_governance_clearance(p_user,certificate.security_level_id)))) AND
+ CASE WHEN t.task_type='certificate_download' AND t.destination_user_id IS NOT NULL THEN t.destination_user_id=p_user AND EXISTS(SELECT 1 FROM roles r WHERE disposition_private.person_role(p_user,r.id) AND disposition_private.review_role(j.id,'records_manager_review',r.id) AND (p_role IS NULL OR r.id=p_role)) WHEN t.destination_user_id IS NOT NULL THEN t.destination_user_id=p_user AND j.assigned_user_id=p_user
  AND disposition_private.preparer_eligible(p_user,j.review_route)
  AND (p_role IS NULL OR EXISTS(SELECT 1 FROM roles r JOIN profiles p ON p.id=r.profile_id
  JOIN profile_privileges pp ON pp.profile_id=p.id JOIN privileges v ON v.id=pp.privilege_id
@@ -7340,6 +7378,37 @@ CREATE TABLE disposition_private.completion_context (
     command_id uuid NOT NULL,
     job_id bigint NOT NULL
 );
+
+CREATE TABLE disposition_private.operation_work (
+    id uuid PRIMARY KEY,
+    job_id bigint NOT NULL,
+    task_id bigint NOT NULL,
+    operation text NOT NULL CHECK (operation ~ '^[a-z][a-z_]+$'),
+    requested_by_user_id bigint,
+    acting_role_id bigint,
+    run_as_user_id bigint,
+    run_as_role_id bigint,
+    execution_id uuid NOT NULL UNIQUE,
+    completion_id uuid NOT NULL UNIQUE,
+    payload jsonb NOT NULL,
+    state text NOT NULL CHECK (state IN ('queued','running','failed','succeeded')),
+    phase text NOT NULL,
+    result jsonb,
+    outcome jsonb,
+    notification_pending boolean NOT NULL DEFAULT true,
+    released_at timestamptz,
+    last_error_code text,
+    requested_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+    started_at timestamptz,
+    finished_at timestamptz,
+    attempt_count integer NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX disposition_operation_one_pending_job ON disposition_private.operation_work(job_id)
+ WHERE released_at IS NULL AND (state IN ('queued','running') OR state='failed' AND result IS NOT NULL);
+CREATE INDEX disposition_operation_pending ON disposition_private.operation_work(requested_at,id) WHERE state IN ('queued','running');
+CREATE INDEX disposition_operation_latest_job ON disposition_private.operation_work(job_id,requested_at DESC,id DESC);
+CREATE INDEX disposition_operation_pending_notification ON disposition_private.operation_work(requested_at,id) WHERE notification_pending AND state IN ('succeeded','failed');
+REVOKE ALL ON TABLE disposition_private.operation_work FROM PUBLIC;
 
 CREATE TABLE disposition_private.completion_work (
     job_id bigint NOT NULL,
@@ -13204,6 +13273,16 @@ REVOKE ALL ON FUNCTION disposition_private.require_standard_owner_roles() FROM P
 
 REVOKE ALL ON FUNCTION disposition_private.job_review_setup(bigint) FROM PUBLIC;
 
+
+REVOKE ALL ON FUNCTION disposition_private.operation_pending(bigint) FROM PUBLIC;
+REVOKE ALL ON FUNCTION disposition_private.check_operation_write(bigint) FROM PUBLIC;
+
+ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_job_id_fkey FOREIGN KEY (job_id) REFERENCES disposition_jobs(id);
+ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_task_id_fkey FOREIGN KEY (task_id) REFERENCES disposition_tasks(id);
+ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_requested_by_user_id_fkey FOREIGN KEY (requested_by_user_id) REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_acting_role_id_fkey FOREIGN KEY (acting_role_id) REFERENCES roles(id) ON DELETE SET NULL;
+ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_run_as_user_id_fkey FOREIGN KEY (run_as_user_id) REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE disposition_private.operation_work ADD CONSTRAINT operation_work_run_as_role_id_fkey FOREIGN KEY (run_as_role_id) REFERENCES roles(id) ON DELETE SET NULL;
 COMMIT;
 
 REVOKE ALL ON FUNCTION disposition_private.preparer_eligible(bigint,text) FROM PUBLIC;

@@ -30,9 +30,35 @@ match Eligibility and Jobs. It retrieves assignments using the current
 filters, sorting and page size, returning to the first page without expanding
 the filters or reloading the application.
 
+The inbox is personal for all roles: it shows your direct assignments, your
+claims and available unclaimed queue work. Work assigned to or claimed by
+someone else is excluded, including parallel queue rows that cannot be claimed
+while the same job/stage has a claimant. **Unclaimed** appears as plain text in
+the existing Task state column, highlighted in dark amber and semibold; other
+states keep their normal text. There are no new badges or columns. Releasing
+work makes the queue available again. Current role, access and clearance checks
+still apply before counts and pages are returned.
+
+Authorized Records Managers and Records Officers manage another person's queue
+task through **Disposition Jobs → Job details → Current task → Reassign task**.
+Direct preparation assignments use the existing job assignment control. This
+management route remains available independently of My Tasks, with the same
+authorization and background-operation gates. See
+[personal inbox verification](verification/personal-task-inbox.md).
+
 The standalone **Disposition Eligibility** page opens as a browsing view without
 selection instructions. The job's **Add aggregations** dialog retains its
 job-specific selection guidance.
+**Select this page** selects available rows on the displayed eligibility page.
+Selections remain checked as you page, sort or change page size; the selected
+count covers all pages. **Clear selection** clears every page. The header
+checkbox affects only the displayed page. Locked and inaccessible rows are
+excluded. The existing limit is 100 aggregations per addition; selecting a
+whole page that would exceed it shows the limit without partially selecting
+that page. Refresh, applying filters, adding the selection or leaving the page
+clears it. Cross-page owning-unit checks run only for the explicitly selected
+aggregations; Add waits for the check and still rechecks every item on admission.
+
 Selecting aggregations on the eligibility page enables Add only when they share
 a disposition type and their owning units share an organizational ancestor.
 An inline warning explains mixed types or disconnected organizational branches;
@@ -477,6 +503,9 @@ The header checkbox selects only the current page. Selections survive paging
 and sorting within the mounted job, but filters/round changes clear them. Up to
 100 rows may be selected. Confirm once; reasons are optional for proposals and
 required once for direct removal. Unsaved review comments stay in their editor.
+A supplied withdrawal comment is saved for every selected proposal. Each
+readable withdrawn row shows **Withdrawal comment**; Details show it separately
+from the original proposal reason. Existing redaction still applies.
 A stale/unavailable item prevents the whole batch; Refresh selection clears it
 and rereads current versions. After a connection error, retry the same action
 to recover its outcome safely. No partial bulk removals or withdrawals occur.
@@ -489,3 +518,96 @@ states change. New Arabic drafts require review before publication.
 
 Requirement mapping, test results and live rendering evidence:
 [Bulk disposition verification](verification/bulk-disposition.md).
+
+## Background approval and destruction progress
+
+After confirming **Approve and apply changes**, the server accepts durable work
+and returns promptly. A prominent card shows **Approval is being processed**,
+then **Approving and applying changes…** and **Preparing and saving documents…**.
+Use the existing navigation to work elsewhere; progress cards do not repeat a
+My Tasks button. The application no longer keeps a
+blocking approval dialog open while applying proposals or rendering documents.
+
+The approval task remains in My Tasks until its application, required documents
+and next-task routing succeed. Application remains atomic with current authority
+and confirmed-version checks. An application failure needs review and a fresh
+approval. A document failure retains the applied changes and offers **Retry
+document preparation**, which cannot replay proposal effects. An interrupted
+worker resumes its saved checkpoint; generated documents retain their identities.
+If the acceptance response for **Retry document preparation** is lost, repeating
+the action recovers the same accepted request. After a refreshed failure, the
+Manager can start a new deliberate retry. Saved proposal effects and documents
+are not duplicated in either case.
+If a later legal hold or inherited retention-rule change invalidates eligibility,
+the existing return-for-review action starts a new review round. Applied proposals
+remain recorded and are not executed again. This exception does not add another
+review to the normal approval-to-documents flow.
+The next task opens only after the required documents are saved. The empty-job
+case saves its report before returning to the existing correction/preparation
+stage. Sending a destruction request remains a separate manual action.
+
+Digital destruction already runs in its own durable worker. Its progress now
+appears near the top of Current Task only after execution has been requested,
+in a card with actual aggregation counts,
+a progress bar and a clear statement that processing continues after leaving.
+My Tasks shows current progress and refreshes a visible page containing pending
+work. Progress sorting uses the latest attempt: an older failure cannot override
+a later successful approval. Failures retain successful units; authorized retry
+processes unfinished units only. A lost progress read does not mean execution has
+failed. Before execution is requested, that card and its Refresh action are
+hidden; the unclaimed task says **Claim this task before starting digital
+destruction.** Existing claiming and explicit confirmation remain required.
+Task release/reassignment and Preparer-change controls are unavailable during
+queued/running digital work, so those changes cannot accidentally interrupt the
+worker. Existing authorized recovery controls return after a failure; deliberate
+termination keeps its existing partial-disposition recovery rules.
+
+Apply migration `105_background_disposition_operations.sql` before deploying the
+matching API/WebUI and restarting the existing disposition worker. Fresh installs
+use canonical `schema.sql`, current required reference data and `baseline.sql`.
+No new service, environment variable or privilege is required. The existing worker
+now runs bounded registered disposition operations as well as destruction and
+certificate work. Seed the idempotent
+`database/seeds/disposition-notification-producers.sql` reference catalogue and
+configure/activate `disposition.operation_outcome` through the existing
+Notification Administration workflow for out-of-page notifications. Its context
+is `job_id` and `operation_id`; only the initiating, currently authorized Manager
+receives it. Existing destruction/completion producers are retained. Notification
+links recheck current job access when read/opened. Notification failures cannot
+undo applied work.
+
+Future long operations for permanent/selective transfer or local archives must
+reuse the shared durable-operation pattern under Disposition §17.10, with their
+own approved handlers, authorization and atomicity rules. This change implements
+no additional disposition workflow. Verification and deployment evidence:
+[Background disposition operations](verification/background-disposition.md).
+
+
+## Final certificate task handover
+
+After the certificate is saved, **Complete destruction job** is a Records Manager
+queue task initially claimed by the Manager who handled the digital destruction
+request. **Reassign task** and **Release task** use the existing governed task
+commands. Same-queue handover selects a currently eligible Manager; authorized
+management can also select another eligible Manager queue using the existing
+queue-change option. Release leaves the task unclaimed, even when only one
+person currently belongs to the queue. A claimant must choose **Complete this
+task** to complete the job; downloading and emailing remain optional.
+
+Current membership, Manager authority, certificate access and clearance are
+rechecked for candidates, claiming and completion. Other users cannot complete
+someone else's claimed task. My Tasks continues to show only personal work and
+available unclaimed queues. Information Governance managers can still manage
+another person's task from **Jobs → Job details → Current task**. Saved certificate
+bytes, destruction proof, original executor and earlier history are preserved;
+the final task records its own completion actor.
+
+Existing databases must apply **106_final_certificate_task_queue.sql**. It
+converts only unfinished direct final tasks for active jobs, keeps an eligible
+prior assignee as claimant, and appends a migration audit event. Completed and
+cancelled tasks are untouched. If no Records Manager role exists for a pending
+legacy task, restore its queue configuration before rerunning the atomic
+migration. Fresh databases obtain the same behavior from the canonical schema
+and register version 106 through the separate baseline. No environment setting
+or notification activation is added. See
+[final certificate queue verification](verification/final-certificate-queue.md).

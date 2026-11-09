@@ -12,7 +12,7 @@ from backend.services.api.tests.test_disposition_communications import smtp,comm
 
 def test_current_task_email_projection_filtered_history_and_postcompletion_resend(client,monkeypatch):
     job,_,mgr=ready(monkeypatch)
-    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
     with db() as c:
         actor(c);smtp(c)
         cert=c.execute("SELECT id FROM disposition_job_documents WHERE job_id=%s AND document_type='digital_destruction_certificate'",(job['id'],)).fetchone()['id']

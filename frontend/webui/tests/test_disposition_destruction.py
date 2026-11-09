@@ -13,7 +13,8 @@ from frontend.webui.api_client import ApiError
 def form(host,*,progress=None,alive=lambda:True,authorized=True):
     api=Api();saved=[]
     async def after(value):saved.append(value)
-    f=SimpleNamespace(api=api,view={'destruction':{'progress':progress}},job={'id':7,'version':5,'workflow_stage':'digital_destruction'},task={'id':9,'version':3},actions={'destroy_digital'} if authorized and not progress else set(),retry={},busy=False,host=host,alive=alive,after=after)
+    async def inbox(value):raise AssertionError('Navigation belongs in the application shell')
+    f=SimpleNamespace(api=api,view={'destruction':{'progress':progress}},job={'id':7,'version':5,'workflow_stage':'digital_destruction'},task={'id':9,'version':3},actions={'destroy_digital'} if authorized and not progress else set(),retry={},busy=False,host=host,alive=alive,after=after,on_submitted=inbox)
     with host:
         f.acting_role_id=2
         f.error=lambda error:ui.notify(str(error),type='negative')
@@ -27,6 +28,7 @@ async def test_confirmation_is_unchecked_and_button_disabled_until_explicit_choi
     f,saved=form(host)
     check=next(e for e in host.descendants() if isinstance(e,ui.checkbox));button=next(e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('destroy_digital'))
     assert not check.value and button._props['disable']
+    assert not next(e for e in host.descendants() if isinstance(e,ui.card)).visible
     with host:
         await click(button);assert not f.api.writes
         check.value=True;assert not button._props['disable']
@@ -62,10 +64,40 @@ async def test_progress_is_server_fresh_and_abandoned_response_does_not_reload(h
     assert reads==['jobs/7/destruction-progress'] and not saved and not callbacks[0].active
 
 
-def test_closed_release_shows_progress_without_execution_control(host):
+def test_unrequested_unclaimed_work_has_no_visible_progress_or_execution_control(host):
     f,_=form(host,authorized=False)
+    assert not next(e for e in host.descendants() if isinstance(e,ui.card)).visible
     assert not any(isinstance(e,ui.checkbox) for e in host.descendants())
     assert not f.api.writes
+
+
+@pytest.mark.parametrize('state',['queued','running','failed','succeeded'])
+def test_requested_execution_shows_progress_without_inbox_navigation(host,state):
+    progress=dict(state=state,overall_completed_units=1,overall_total_units=3,queued_units=1,running_units=1,failed_units=0,last_error_code=None)
+    form(host,progress=progress,authorized=False)
+    assert next(e for e in host.descendants() if isinstance(e,ui.card)).visible
+    assert any(isinstance(e,ui.button) and e.text==text('refresh') for e in host.descendants())
+    assert not any(isinstance(e,ui.button) and e.text==text('my_tasks') for e in host.descendants())
+
+
+@pytest.mark.asyncio
+async def test_digital_claim_guidance_describes_destruction_instead_of_proposals(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    from frontend.webui.disposition.review import ReviewForm
+    from frontend.webui.tests.test_disposition_tasks import view
+    workspace=view(actions=('claim','reassign'))
+    workspace['job']['workflow_stage']='digital_destruction'
+    workspace['task'].update(task_type='digital_destruction',destination_user_id=None,destination_role_id=7)
+    with host:
+        f=ReviewForm(api=Api(),workspace=workspace,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=None,format_timestamp=str,open_resource=None)
+    labels=[e.text for e in f.host.descendants() if isinstance(e,ui.label)]
+    assert text('claim_before_digital_destruction') in labels
+    assert text('claim_before_proposals') not in labels
+    with host:await f.queue_action('claim')
+    dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+    labels=[e.text for e in dialog.descendants() if isinstance(e,ui.label)]
+    assert text('claim_digital_explanation') in labels
+    assert text('claim_explanation') not in labels
 
 
 @pytest.mark.asyncio

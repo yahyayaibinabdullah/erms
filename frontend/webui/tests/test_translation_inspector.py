@@ -92,7 +92,7 @@ def test_inspector_panel_supports_copy_and_filtered_administration_navigation():
 def test_inspector_refreshes_persistent_brand_chrome_after_being_enabled():
     assert "def refresh_inspectable_chrome()" in APP_SOURCE
     assert 'brand_name.text = render_message("webui.index.label.wathiq_d1dfb800")' in APP_SOURCE
-    assert 'brand_row.props("aria-label=\'" + accessible_name + "\'")' in APP_SOURCE
+    assert "brand_row.props('aria-label=' + repr(accessible_name))" in APP_SOURCE
     assert "if enabled:\n            refresh_inspectable_chrome()" in APP_SOURCE
 
 

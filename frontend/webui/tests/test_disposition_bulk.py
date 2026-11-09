@@ -98,12 +98,13 @@ async def test_bulk_withdraw_uses_one_request_preserves_comments_and_retries_ide
         selection=f.proposals.table.bulk_selection;selection.select_page(SimpleNamespace(args=True))
         assert len(selection.rows)==2
         dialog=await f.bulk_proposals('withdraw',selection.selected())
+        reason=next(e for e in dialog.descendants() if isinstance(e,ui.textarea));reason.value='One comment for both proposals'
         button=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text!=text('cancel'))
         api.error=ApiError(503,'Temporary connection failure');await click(button)
         api.error=None;await click(button)
         assert len(api.writes)==2 and api.writes[0][1]['command_id']==api.writes[1][1]['command_id']
         payload=api.writes[-1][1];assert len(payload['changes'])==2 and 'review_notes' not in payload
-        assert all(item['action']=='withdraw' and item['reason'] is None for item in payload['changes'])
+        assert all(item['action']=='withdraw' and item['reason']=='One comment for both proposals' for item in payload['changes'])
         assert f.comments.value=='My unsaved comments' and f.has_changes() and not selection.rows
 
 

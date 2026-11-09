@@ -12,12 +12,12 @@
       "revision": "1.1"
     },
     "specs/disposition.md": {
-      "sha256": "47cb90bd0fbad656ed203b8cac4b8fbb96c8dc3d8dcc5441952a7a8b2d310eb9",
-      "revision": "1.23"
+      "sha256": "2dc10ffee1603e26077ab727213c5cbe89efb97cf5253d51981ba073fae3b92c",
+      "revision": "1.25"
     },
     "specs/destruction-process.md": {
-      "sha256": "e53d36a708a427b8fdd94f045d53136de03c6ca586e8a36e72a21984f5e88194",
-      "revision": "1.21"
+      "sha256": "648d809403e28f8fedc2c619c6caa032b71c5c81760af221db325f80dde541ad",
+      "revision": "1.23"
     }
   },
   "requirements": [
@@ -11960,8 +11960,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "1. Purpose",
-        "start_line": 41,
-        "end_line": 78,
+        "start_line": 45,
+        "end_line": 82,
         "sha256": "39ca543c71574d8388565901dc17bae3ec6c46d62770bdb2b7b0d76da5982616"
       },
       "phases": [
@@ -12070,8 +12070,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "2. Relationship to existing Wathiq rules",
-        "start_line": 79,
-        "end_line": 110,
+        "start_line": 83,
+        "end_line": 114,
         "sha256": "8699828335021813047fefe1269fddfe2c5c35d365af79fc29eacda92410d680"
       },
       "phases": [
@@ -12311,8 +12311,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3. Terminology",
-        "start_line": 111,
-        "end_line": 112,
+        "start_line": 115,
+        "end_line": 116,
         "sha256": "ba10b15f99e791529ea672ad387fa2d0c47adce271914f93b35bb6f5b1965a99"
       },
       "phases": [
@@ -12387,8 +12387,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.1 Information-governance user (IGU)",
-        "start_line": 113,
-        "end_line": 120,
+        "start_line": 117,
+        "end_line": 124,
         "sha256": "1622e177b3d3c5d4eb1a59ea8b0c1dca65d212dcbc79efa024a1f73597b6fcfb"
       },
       "phases": [
@@ -12548,8 +12548,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.2 Disposition unit",
-        "start_line": 121,
-        "end_line": 125,
+        "start_line": 125,
+        "end_line": 129,
         "sha256": "76a16577542496b5e3618fc051ff427d6c9b9ef78397e5ed4083e615e74b13e2"
       },
       "phases": [
@@ -12789,8 +12789,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.3 Eligible aggregation",
-        "start_line": 126,
-        "end_line": 135,
+        "start_line": 130,
+        "end_line": 139,
         "sha256": "46c202f95b024b5518963ec561f2a093cea0f87885e59eccd1b433a3cc8d7170"
       },
       "phases": [
@@ -12921,8 +12921,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.4 Due date",
-        "start_line": 136,
-        "end_line": 146,
+        "start_line": 140,
+        "end_line": 150,
         "sha256": "bd81cb17f006c79cd78d2a43f39333a0e36a23732fa363ca0acaecdbf68d4df6"
       },
       "phases": [
@@ -13053,8 +13053,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.5 Disposition job",
-        "start_line": 147,
-        "end_line": 153,
+        "start_line": 151,
+        "end_line": 157,
         "sha256": "183ba856aeca85c202a14f185571ad96fd12f198c0aa119abad8f2dd35a6a8a3"
       },
       "phases": [
@@ -13171,8 +13171,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "3.6 Active, completed, and terminated jobs",
-        "start_line": 154,
-        "end_line": 171,
+        "start_line": 158,
+        "end_line": 175,
         "sha256": "d0336a7d9f2a388920e4a508bc49d829f500df8a6c9b923826d6646ff74e8bc6"
       },
       "phases": [
@@ -13383,8 +13383,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "4. Disposition status catalogue",
-        "start_line": 172,
-        "end_line": 222,
+        "start_line": 176,
+        "end_line": 226,
         "sha256": "b7d2af30f877046787fe250aa456172b737b20fc78dd33cb8e98bba68cc59efe"
       },
       "phases": [
@@ -13552,8 +13552,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5. Finite-state machine",
-        "start_line": 223,
-        "end_line": 224,
+        "start_line": 227,
+        "end_line": 228,
         "sha256": "a6ac6b886949c5cec9a2bc22f08aa921d0dea9ba5caa5e7cfa0be8c5ab1b7c35"
       },
       "phases": [
@@ -13628,8 +13628,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.1 Normal valid transitions",
-        "start_line": 225,
-        "end_line": 319,
+        "start_line": 229,
+        "end_line": 323,
         "sha256": "49722894c61a47544cfe70888f64f02d090836b5675d178838ac8f4f1a8a4f96"
       },
       "phases": [
@@ -13868,8 +13868,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.2 Transition causes",
-        "start_line": 320,
-        "end_line": 334,
+        "start_line": 324,
+        "end_line": 338,
         "sha256": "98d37a16033fe2501d351f3acd4bd788b2d297d2e46f03308c81b04fbeb634de"
       },
       "phases": [
@@ -14109,8 +14109,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.3 Removal transitions",
-        "start_line": 335,
-        "end_line": 370,
+        "start_line": 339,
+        "end_line": 374,
         "sha256": "4f63136c334f1dc21f30a8e85470a24c084db65749ab0178bcb2d5d82d8c2ab8"
       },
       "phases": [
@@ -14289,8 +14289,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "5.4 Pending status requires active-job membership",
-        "start_line": 371,
-        "end_line": 395,
+        "start_line": 375,
+        "end_line": 399,
         "sha256": "7b65391c4d69db2fa98522f6d4260e4ccc1084d29610cdaf6d45aaf20c750747"
       },
       "phases": [
@@ -14419,8 +14419,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "6. Status scope and propagation",
-        "start_line": 396,
-        "end_line": 427,
+        "start_line": 400,
+        "end_line": 431,
         "sha256": "42e678c15c88828518f07fab05fbf6d13bdfde5118529c598be72f70ed0204cf"
       },
       "phases": [
@@ -14587,8 +14587,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "6.1 Reopening an aggregation",
-        "start_line": 428,
-        "end_line": 481,
+        "start_line": 432,
+        "end_line": 485,
         "sha256": "c39b13fca3d9e696fd7c82bda2bf420f873710976e8cd81f521c38b21be65615"
       },
       "phases": [
@@ -14773,8 +14773,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "7. Automatic eligibility service",
-        "start_line": 482,
-        "end_line": 528,
+        "start_line": 486,
+        "end_line": 532,
         "sha256": "795186cd4fc83855484191587f2ed06760615ad14bbcc92fa18f7952c2e46654"
       },
       "phases": [
@@ -14855,8 +14855,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "8. Eligibility listing",
-        "start_line": 529,
-        "end_line": 589,
+        "start_line": 533,
+        "end_line": 593,
         "sha256": "0f67d59cbe54f0a65246e8e8fca3a270c40cf1a7b8a7f8c9bf644a6274eff38e"
       },
       "phases": [
@@ -14938,8 +14938,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9. Common disposition blockers",
-        "start_line": 590,
-        "end_line": 640,
+        "start_line": 594,
+        "end_line": 644,
         "sha256": "dc909f76cf932c7c08b0aeecab548f9a4e738c17790e597a3063d0e52c31fbdd"
       },
       "phases": [
@@ -15255,8 +15255,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9.1 Blocker arising after addition to a job",
-        "start_line": 641,
-        "end_line": 684,
+        "start_line": 645,
+        "end_line": 688,
         "sha256": "77764aa8e35d70ce52a57f1c1e78290888713b2bde11907af1f499f65711b00c"
       },
       "phases": [
@@ -15586,8 +15586,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9.2 A protective change at the same time as the final action",
-        "start_line": 685,
-        "end_line": 700,
+        "start_line": 689,
+        "end_line": 704,
         "sha256": "65e7f321344ab44741da1956ba0ebb8c1e2bdb1c10ec155b8e68f1436dfbd3e1"
       },
       "phases": [
@@ -15784,8 +15784,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "9.3 Resolution of blockers",
-        "start_line": 701,
-        "end_line": 710,
+        "start_line": 705,
+        "end_line": 714,
         "sha256": "7f3d676f9bba3b2eb9c0d27c7c7d3dbbc21af220d7830be1cb67861ae3d20b90"
       },
       "phases": [
@@ -16032,8 +16032,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10. Disposition jobs",
-        "start_line": 711,
-        "end_line": 712,
+        "start_line": 715,
+        "end_line": 716,
         "sha256": "91ce0213a6820578aa3a1025ef2124a3ac77bb5588655fa67c888dab7e735324"
       },
       "phases": [
@@ -16150,8 +16150,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.1 Common job data",
-        "start_line": 713,
-        "end_line": 734,
+        "start_line": 717,
+        "end_line": 738,
         "sha256": "797b3d30eeb9e5c12ab34bba9857b22778eda3cbd7ca0691fe6517c2a9b86cf1"
       },
       "phases": [
@@ -16268,8 +16268,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.1.1 Assignment to a specific IGU",
-        "start_line": 763,
-        "end_line": 798,
+        "start_line": 767,
+        "end_line": 802,
         "sha256": "bdff22706e577033fd57cdd5f3b6e7e7ff8e870cd3ab7f31088d2c4d37bcabe5"
       },
       "phases": [
@@ -16503,9 +16503,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.2 Membership rules",
-        "start_line": 799,
-        "end_line": 924,
-        "sha256": "93760020b279d043becb28293ed4993febdec11b49c55aacaba7f37e8d57e3a1"
+        "start_line": 803,
+        "end_line": 949,
+        "sha256": "7338bb97cfde125d3c6bd1b40fcd7e8cf52f65f6c491d8a49603ea2b08c3fd70"
       },
       "phases": [
         7,
@@ -16790,8 +16790,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.3 Terminating a job",
-        "start_line": 925,
-        "end_line": 957,
+        "start_line": 950,
+        "end_line": 982,
         "sha256": "9247f2e69ef3abbd9c29e8f71c645f31ac5ed1e20866a51a23ed54e21d23735f"
       },
       "phases": [
@@ -16921,8 +16921,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.4 Resolving status 13",
-        "start_line": 958,
-        "end_line": 962,
+        "start_line": 983,
+        "end_line": 987,
         "sha256": "5fb2b984f1fd681a26cec7b64cd64f00ff2da6cc121d01ff7b2622f209492f5b"
       },
       "phases": [
@@ -17010,8 +17010,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.4.1 Individual resolution",
-        "start_line": 963,
-        "end_line": 982,
+        "start_line": 988,
+        "end_line": 1007,
         "sha256": "4409e91e8db75e78633771b5a356ad619f59aff614b430febea65b4a139aff51"
       },
       "phases": [
@@ -17099,8 +17099,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.4.2 Bulk resolution for a terminated job",
-        "start_line": 983,
-        "end_line": 1014,
+        "start_line": 1008,
+        "end_line": 1039,
         "sha256": "2ea0c9117777d3c93dc71c82cc4d4a84d86f462c3c6162adbc531a063bbee0ec"
       },
       "phases": [
@@ -17188,8 +17188,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "10.5 Work performed outside Wathiq",
-        "start_line": 1015,
-        "end_line": 1032,
+        "start_line": 1040,
+        "end_line": 1057,
         "sha256": "f2a939963019886dd3f3026bbb572b2a509a91cb46d4ebd3945f1d65a8510460"
       },
       "phases": [
@@ -17386,8 +17386,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "11. Exceptional acceleration",
-        "start_line": 1033,
-        "end_line": 1125,
+        "start_line": 1058,
+        "end_line": 1150,
         "sha256": "36d120de1b513d9814a00875428e564adb351f3c7e5aef068e453aaba5addb8d"
       },
       "phases": [
@@ -17462,8 +17462,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "12. Local retention-rule override",
-        "start_line": 1155,
-        "end_line": 1211,
+        "start_line": 1180,
+        "end_line": 1236,
         "sha256": "a0864d4c12f49f7807473b169273649697e8e2084219340e29a3918c523f0936"
       },
       "phases": [
@@ -17621,8 +17621,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "12.1 Hierarchy changes",
-        "start_line": 1212,
-        "end_line": 1235,
+        "start_line": 1237,
+        "end_line": 1260,
         "sha256": "4d3af1cbeaf17ef378c43fb76b82b69b73b89d84cfdb9ab469208e27f97156e8"
       },
       "phases": [
@@ -17781,8 +17781,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "13. Information recorded after the final action",
-        "start_line": 1236,
-        "end_line": 1285,
+        "start_line": 1261,
+        "end_line": 1310,
         "sha256": "674213757482655ce301cdd2dd9584295b0c8b2eeead17fa5d834662603ae12c"
       },
       "phases": [
@@ -18065,8 +18065,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14. Destruction outcome",
-        "start_line": 1286,
-        "end_line": 1302,
+        "start_line": 1311,
+        "end_line": 1327,
         "sha256": "ab9de539dafff56b41f5ba6edb1de3792847e13f6f5dd32135134c5c8dcf4562"
       },
       "phases": [
@@ -18225,8 +18225,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14.1 Meaning of destruction",
-        "start_line": 1303,
-        "end_line": 1325,
+        "start_line": 1328,
+        "end_line": 1350,
         "sha256": "20a6f23912c29e137f90464f847006d058e3b19bf7fea1f1c9c2c0b572e84a60"
       },
       "phases": [
@@ -18428,8 +18428,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14.2 Metadata retained after destruction",
-        "start_line": 1326,
-        "end_line": 1420,
+        "start_line": 1351,
+        "end_line": 1445,
         "sha256": "23d8d1158eb58dd6b157d73605cdfa7813b5f899ca1a0d532f67493182073af6"
       },
       "phases": [
@@ -18568,8 +18568,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "14.3 Mixed-medium destruction sequence",
-        "start_line": 1421,
-        "end_line": 1455,
+        "start_line": 1446,
+        "end_line": 1480,
         "sha256": "0cc6789210448baa6a8cd91cb38640e8203f70f299434a0177e3c411e4de19eb"
       },
       "phases": [
@@ -18782,8 +18782,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "15. Authorization and separation of duties",
-        "start_line": 1456,
-        "end_line": 1537,
+        "start_line": 1481,
+        "end_line": 1562,
         "sha256": "892b3401873ab5c6e112346f42199694c85d3b45795a9790c2b467ae1b8e3aac"
       },
       "phases": [
@@ -19400,8 +19400,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "16. Audit, reporting, and data integrity",
-        "start_line": 1538,
-        "end_line": 1650,
+        "start_line": 1563,
+        "end_line": 1675,
         "sha256": "8b8b874c389785b302f5816a4242e4757ecbb65a7f381571cb78a13ede73563a"
       },
       "phases": [
@@ -20191,8 +20191,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17. Shared workflow architecture and logical data model",
-        "start_line": 1651,
-        "end_line": 1652,
+        "start_line": 1676,
+        "end_line": 1677,
         "sha256": "fa50a39ec9f536a95bcbee56ade3802d464e2902d74ed7d32e9c79a1f2ddb5eb"
       },
       "phases": [
@@ -20267,8 +20267,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.1 Purpose-built workflow",
-        "start_line": 1653,
-        "end_line": 1673,
+        "start_line": 1678,
+        "end_line": 1698,
         "sha256": "021d933e56424700f42aa47b2f1cdf741e4545d98a48a45566d0ccda9a70f1a0"
       },
       "phases": [
@@ -20612,8 +20612,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.2 Existing resource tables",
-        "start_line": 1674,
-        "end_line": 1690,
+        "start_line": 1699,
+        "end_line": 1715,
         "sha256": "75a8f84de2d4817344f306032b5209f3d481685e243168f16952d222473bac8a"
       },
       "phases": [
@@ -20751,8 +20751,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.3 `disposition_jobs`",
-        "start_line": 1691,
-        "end_line": 1713,
+        "start_line": 1716,
+        "end_line": 1738,
         "sha256": "dedabe62439c5aa63ba86b0b058eb5c9dcd2bba3e29ae6f4e5d45eca7982074d"
       },
       "phases": [
@@ -20918,8 +20918,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.4 `disposition_job_memberships`",
-        "start_line": 1714,
-        "end_line": 1730,
+        "start_line": 1739,
+        "end_line": 1755,
         "sha256": "0282b872e30ebd50f403d851a0776375f1958a73a0c525d23c6a196e200e25aa"
       },
       "phases": [
@@ -21048,9 +21048,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.5 `disposition_tasks`",
-        "start_line": 1731,
-        "end_line": 1749,
-        "sha256": "97c971f937279d95a2651c1267fb918bab11ad3cde7446ee5ca6f4aa8e04d52d"
+        "start_line": 1756,
+        "end_line": 1787,
+        "sha256": "f2dbc0bd4891ea255a10ab1d3c0c3d99630eca10dcf418c57c05c802528d17de"
       },
       "phases": [
         7,
@@ -21120,6 +21120,27 @@
             "frontend/webui/app.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-colour-20261109",
+          "scope": "Highlight only the existing Unclaimed state text in dark amber and semibold using native NiceGUI column style; retain ordinary state labels and all ownership rules.",
+          "locations": [
+            "frontend/webui/disposition/tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "verification": [
@@ -21193,6 +21214,27 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-colour-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "baseline_refs": [
@@ -21210,8 +21252,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.6 `disposition_review_rounds` and `disposition_review_decisions`",
-        "start_line": 1750,
-        "end_line": 1763,
+        "start_line": 1788,
+        "end_line": 1801,
         "sha256": "7efdcfd14bf6df71efa693ea0c4b15609cc208360b1effaf66b968273bf34886"
       },
       "phases": [
@@ -21413,8 +21455,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.7 `disposition_job_documents`",
-        "start_line": 1764,
-        "end_line": 1781,
+        "start_line": 1802,
+        "end_line": 1819,
         "sha256": "19dd374383506b5376dfb7123f6857d284f7523192cde6cdbcc6836b720e76de"
       },
       "phases": [
@@ -21537,8 +21579,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.8 Shared protected operations and integrity",
-        "start_line": 1782,
-        "end_line": 1799,
+        "start_line": 1820,
+        "end_line": 1837,
         "sha256": "e4d9d80c757693d78af5922a44bc83dd969d7eb4d6dfd083b5c8c931098af1c2"
       },
       "phases": [
@@ -21969,8 +22011,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "17.9 Canonical SQL ownership",
-        "start_line": 1800,
-        "end_line": 1814,
+        "start_line": 1838,
+        "end_line": 1852,
         "sha256": "99c9d3318171674b9ae1fca767a7c3230dced5567002da2ecc9b9b89a62a039b"
       },
       "phases": [
@@ -22057,9 +22099,9 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "18. Verification and traceability",
-        "start_line": 1815,
-        "end_line": 1870,
-        "sha256": "fce45deb81fb36848c97ff65522a2c4695f168354d6ae70ec0e8bb94164d6c4b"
+        "start_line": 1902,
+        "end_line": 1957,
+        "sha256": "a7c4c2a8e8f67929c6fd767462506c900b13ae74b7158c971dbb7bb5081dd137"
       },
       "phases": [
         23
@@ -22140,7 +22182,7 @@
       "summary": "Controlled statuses and allowed transitions",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1823
+        "start_line": 1910
       },
       "phases": [
         7,
@@ -22350,7 +22392,7 @@
       "summary": "The root and every descendant change status together, and descendant metadata shows the status of the root disposition unit",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1824
+        "start_line": 1911
       },
       "phases": [
         7,
@@ -22560,7 +22602,7 @@
       "summary": "Due-date mapping and the strict eligibility boundary use the UTC calculated-disposition value and current timestamp returned by the database; user timezone affects display only",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1825
+        "start_line": 1912
       },
       "phases": [
         8,
@@ -22685,7 +22727,7 @@
       "summary": "Open roots remain status 1",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1826
+        "start_line": 1913
       },
       "phases": [
         8,
@@ -22810,7 +22852,7 @@
       "summary": "Local rule takes precedence",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1827
+        "start_line": 1914
       },
       "phases": [
         8,
@@ -22935,7 +22977,7 @@
       "summary": "The eligibility service works in limited batches, is safe to repeat, and handles simultaneous changes",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1828
+        "start_line": 1915
       },
       "phases": [
         8,
@@ -23060,7 +23102,7 @@
       "summary": "The server provides the list one page at a time, with correct filters, sorting, and redacted representations of inaccessible blocking descendants",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1829
+        "start_line": 1916
       },
       "phases": [
         9,
@@ -23185,7 +23227,7 @@
       "summary": "Vital descendants block addition to a job and the final action, with a visible reason even when the descendant is redacted",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1830
+        "start_line": 1917
       },
       "phases": [
         8,
@@ -23299,7 +23341,7 @@
       "summary": "A security level can block addition to a job and the final action, with a visible reason but protected security details redacted",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1831
+        "start_line": 1918
       },
       "phases": [
         8,
@@ -23413,7 +23455,7 @@
       "summary": "Direct and inherited legal holds block addition to a job and the final action, with a visible reason but protected hold details redacted",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1832
+        "start_line": 1919
       },
       "phases": [
         8,
@@ -23527,7 +23569,7 @@
       "summary": "An aggregation can be in only one active job of the correct type, must leave that active job before joining another, may remain a member of terminated jobs, and can never join another job after completion",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1833
+        "start_line": 1920
       },
       "phases": [
         9,
@@ -23758,7 +23800,7 @@
       "summary": "Assignment grants responsibility, not access",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1834
+        "start_line": 1921
       },
       "phases": [
         9,
@@ -23991,7 +24033,7 @@
       "summary": "Acceleration follows the effective disposition action, requires a reason, and is rejected without a status change when any vital, security, or legal-hold blocker applies to the root or a descendant",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1835
+        "start_line": 1922
       },
       "phases": [
         9,
@@ -24220,7 +24262,7 @@
       "summary": "Final fields and identifiers are complete and consistent",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1836
+        "start_line": 1923
       },
       "phases": [
         19,
@@ -24489,7 +24531,7 @@
       "summary": "Mixed destruction confirms physical before digital",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1837
+        "start_line": 1924
       },
       "phases": [
         19,
@@ -24803,7 +24845,7 @@
       "summary": "Destroyed content and prohibited derivatives are removed; the approved permanent disposition record remains auditable, read-only, excluded from ordinary resource views, and protected by both privilege and existing access rules",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1838
+        "start_line": 1925
       },
       "phases": [
         19,
@@ -25120,7 +25162,7 @@
       "summary": "Direct SQL/background paths cannot bypass protections",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1839
+        "start_line": 1926
       },
       "phases": [
         7,
@@ -25328,7 +25370,7 @@
       "summary": "A blocker arising after addition preserves job membership, pending status, work, evidence, approvals, and history while preventing the final action",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1840
+        "start_line": 1927
       },
       "phases": [
         8,
@@ -25698,7 +25740,7 @@
       "summary": "A protective change cannot be missed during the final action, and removing a blocker does not automatically continue the action",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1841
+        "start_line": 1928
       },
       "phases": [
         8,
@@ -26068,7 +26110,7 @@
       "summary": "A blocker arising between mixed-medium physical and digital destruction stops digital destruction and preserves the partial outcome",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1842
+        "start_line": 1929
       },
       "phases": [
         19,
@@ -26382,7 +26424,7 @@
       "summary": "An authorized IGU may terminate an active job at any stage before completion; every aggregation remains in the terminated job, unaffected units return to the matching eligible state, and all history is preserved",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1843
+        "start_line": 1930
       },
       "phases": [
         9,
@@ -26613,7 +26655,7 @@
       "summary": "Terminating a destruction job after physical destruction but before digital destruction sets the affected mixed unit to status 13 and preserves its digital material; an authorized IGU may then select status 2, 3, 4, or 5 with a required reason, after which the unit may enter a matching new job",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1844
+        "start_line": 1931
       },
       "phases": [
         20
@@ -26700,7 +26742,7 @@
       "summary": "An authorized IGU may resolve every status-13 aggregation in one terminated job through one all-or-nothing bulk action using one selected eligible status and one shared reason",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1845
+        "start_line": 1932
       },
       "phases": [
         20
@@ -26787,7 +26829,7 @@
       "summary": "Reopening an eligible or pending aggregation clears its closure date, resets the complete unit to status 1, blocks any active job until explicit removal, and keeps the unit at status 1 after removal",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1846
+        "start_line": 1933
       },
       "phases": [
         9,
@@ -27028,7 +27070,7 @@
       "summary": "Status 6, 7, 8, or 9 is possible only with membership in one active job of the matching type, and job addition and full-unit status change succeed or fail together",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1847
+        "start_line": 1934
       },
       "phases": [
         7,
@@ -27251,7 +27293,7 @@
       "summary": "A newly created active job may be unassigned only while it is empty; its assignee is one specific authorized IGU, and the actual authenticated IGU who performs the final action is recorded separately with execution-time identity and action details",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1848
+        "start_line": 1935
       },
       "phases": [
         9,
@@ -27487,7 +27529,7 @@
       "summary": "A multi-selection request adds every valid aggregation, leaves each failed aggregation unchanged, preserves successful additions when another selection fails, and reports each result without exposing protected information",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1849
+        "start_line": 1936
       },
       "phases": [
         9,
@@ -27612,7 +27654,7 @@
       "summary": "A redacted root disposition unit cannot be selected or added to a job through the UI, API, import, background, or direct-membership path, while redacted descendants remain visible only as blocker explanations",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1850
+        "start_line": 1937
       },
       "phases": [
         9,
@@ -27738,7 +27780,7 @@
       "summary": "An effective retention-rule change recalculates the due date, action, and complete-unit status; an active-job member keeps status 6, 7, 8, or 9 when its action still matches, while a not-yet-due or non-matching member is marked for explicit removal and blocks job progress",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1851
+        "start_line": 1938
       },
       "phases": [
         9,
@@ -27979,7 +28021,7 @@
       "summary": "Completing a destruction job warns the IGU that backups and copies held outside Wathiq must also be destroyed and that ensuring their destruction is outside Wathiq's responsibility",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1852
+        "start_line": 1939
       },
       "phases": [
         19,
@@ -28235,7 +28277,7 @@
       "summary": "Every disposition-job duty in Section 15 requires `disposition.jobs.manage`; removing relationship links also requires `relationships.link`; these privileges do not grant resource access or bypass blockers; retention-rule administration remains controlled by its existing privilege",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1853
+        "start_line": 1940
       },
       "phases": [
         2,
@@ -28743,7 +28785,7 @@
       "summary": "A hierarchy change that preserves the effective retention rule preserves disposition status and job membership; a hierarchy change that alters the rule applies the complete recalculation and active-job handling in Section 12",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1854
+        "start_line": 1941
       },
       "phases": [
         9,
@@ -28984,7 +29026,7 @@
       "summary": "Destruction and transfer numbers are unique externally supplied values, accept letters, numbers, and special characters, contain at most 20 characters, and are never generated or allocated by Wathiq",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1855
+        "start_line": 1942
       },
       "phases": [
         7,
@@ -29177,7 +29219,7 @@
       "summary": "A job is active upon creation, completed only when its final action completes, and terminated only when an authorized IGU terminates it before completion",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1856
+        "start_line": 1943
       },
       "phases": [
         9,
@@ -29415,7 +29457,7 @@
       "summary": "Supporting destruction evidence remains protected as governed records outside the destroyed units, with permanent identifiers, provenance and event history; a separate evidence-expiry/deletion workflow is deferred pending an approved policy",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1857
+        "start_line": 1944
       },
       "phases": [
         19,
@@ -29670,7 +29712,7 @@
       "summary": "Aggregation and record relationships allow job admission and acceleration but outside-job links block final disposition until authorized removal, regardless of eligibility; links within one unit or the same job do not block or require removal; removal from either endpoint clears the link blocker for both units",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1858
+        "start_line": 1945
       },
       "phases": [
         8,
@@ -30037,7 +30079,7 @@
       "summary": "Shared jobs enforce controlled type, lifecycle, action-specific stage, assignment, status, completion, termination, and optimistic-concurrency fields without a generic workflow engine",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1859
+        "start_line": 1946
       },
       "phases": [
         7,
@@ -30260,7 +30302,7 @@
       "summary": "Membership episodes preserve every addition and removal and permit no more than one active job per governing root",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1860
+        "start_line": 1947
       },
       "phases": [
         7,
@@ -30483,7 +30525,7 @@
       "summary": "Shared tasks support exactly one user or role-queue destination, atomic claiming, release, reassignment, eligibility loss, completion, and immutable history",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1861
+        "start_line": 1948
       },
       "phases": [
         7,
@@ -30588,6 +30630,18 @@
             "frontend/webui/app.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "verification": [
@@ -30704,6 +30758,18 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "baseline_refs": [
@@ -30725,7 +30791,7 @@
       "summary": "Review rounds and decisions preserve ordered rounds, membership/version snapshots, stage decisions, actors, acting roles, invalidation, and history",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1862
+        "start_line": 1949
       },
       "phases": [
         7,
@@ -30965,7 +31031,7 @@
       "summary": "Shared document links connect job evidence to governed records and components with controlled state, provenance, checksums, and action-defined transaction boundaries",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1863
+        "start_line": 1950
       },
       "phases": [
         7,
@@ -31366,7 +31432,7 @@
       "summary": "Common protected operations cannot be bypassed through general CRUD or direct SQL, and canonical schema and migration produce equivalent logical structures and constraints",
       "source": {
         "path": "specs/disposition.md",
-        "start_line": 1864
+        "start_line": 1951
       },
       "phases": [
         7,
@@ -31594,8 +31660,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "1. Purpose and authority",
-        "start_line": 86,
-        "end_line": 121,
+        "start_line": 91,
+        "end_line": 126,
         "sha256": "f8487121f104d2cb065c657db1cb236af0cc06f478b14c674e244e4c5f1ef553"
       },
       "phases": [
@@ -31757,8 +31823,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2. People and terms",
-        "start_line": 122,
-        "end_line": 123,
+        "start_line": 127,
+        "end_line": 128,
         "sha256": "9ee82fdd400d3bdaa0ed9a4f49b9f861e2c30ffe7eb88e4188c90b2cb0a77353"
       },
       "phases": [
@@ -31840,8 +31906,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.1 Records Officer",
-        "start_line": 124,
-        "end_line": 139,
+        "start_line": 129,
+        "end_line": 144,
         "sha256": "f760057be91c0ea2e2efa11053c64a9b28c17ce5a64d5b07f7f555b2707755c6"
       },
       "phases": [
@@ -31923,8 +31989,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.2 File Administrator",
-        "start_line": 140,
-        "end_line": 161,
+        "start_line": 145,
+        "end_line": 166,
         "sha256": "4a37f1930f554a61a89c70bd16db8bd94b89fe89fe994efabe55ed8bf58e8197"
       },
       "phases": [
@@ -32006,8 +32072,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.3 Unit Manager",
-        "start_line": 162,
-        "end_line": 167,
+        "start_line": 167,
+        "end_line": 172,
         "sha256": "f81cf6339780d5260edf8438d4e43206e8065a45a12d9151abe07a3faf36a401"
       },
       "phases": [
@@ -32089,8 +32155,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.4 Records Manager",
-        "start_line": 168,
-        "end_line": 173,
+        "start_line": 173,
+        "end_line": 178,
         "sha256": "5713a892aac933eebc1e6bb57d1c77bda9ff61f88c48d9cc75a9e6b7ecf40a29"
       },
       "phases": [
@@ -32172,8 +32238,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.5 External archival authority",
-        "start_line": 174,
-        "end_line": 179,
+        "start_line": 179,
+        "end_line": 184,
         "sha256": "2141879dd4db8cb65bdd155dfc7ff5e4c8842f700705384c5e43b825a7f8a0e0"
       },
       "phases": [
@@ -32259,8 +32325,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "2.6 Lifecycle state and workflow stage",
-        "start_line": 180,
-        "end_line": 186,
+        "start_line": 185,
+        "end_line": 191,
         "sha256": "0738a6282d05193fdc26e3bf36e0a1c90c6029937749cfdb245d5bf95863bccf"
       },
       "phases": [
@@ -32384,8 +32450,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "3. Destruction-eligibility reminder",
-        "start_line": 187,
-        "end_line": 225,
+        "start_line": 192,
+        "end_line": 230,
         "sha256": "19c63eed5e7f384cd5097ef74096ef3f293a414670cd4cf2cc7ebd6320df2796"
       },
       "phases": [
@@ -32512,8 +32578,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "4. Eligible-destruction listing",
-        "start_line": 226,
-        "end_line": 231,
+        "start_line": 231,
+        "end_line": 236,
         "sha256": "e91a74a0b8b23d50e21472e4fb719fc2ac4057d1272b16a106c789a0020133bf"
       },
       "phases": [
@@ -32646,8 +32712,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5. Creating and filling a destruction job",
-        "start_line": 232,
-        "end_line": 233,
+        "start_line": 237,
+        "end_line": 238,
         "sha256": "0ef2d87ebe7a3fb8d3ca6103ad8552fe545678499fe1efd3a6d58e8d7daa92f4"
       },
       "phases": [
@@ -32769,8 +32835,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.1 Owning organizational unit",
-        "start_line": 234,
-        "end_line": 286,
+        "start_line": 239,
+        "end_line": 291,
         "sha256": "92a2c1db32d0f578edbad09246609c8d1289520213c285d658b765e385bce83e"
       },
       "phases": [
@@ -32931,8 +32997,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.2 Addition and initial stage",
-        "start_line": 287,
-        "end_line": 356,
+        "start_line": 292,
+        "end_line": 361,
         "sha256": "507c6a4f059e73d1cc6c1a0cb9357deabd8f896371a2735d878faa4a1bd53766"
       },
       "phases": [
@@ -33156,8 +33222,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.3 Review proposals",
-        "start_line": 357,
-        "end_line": 543,
+        "start_line": 362,
+        "end_line": 548,
         "sha256": "b422e7c742657657697afc91d3aea65adf346ed1921860b63fdd0e7f55444cc7"
       },
       "phases": [
@@ -33313,8 +33379,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.4 Organization-wide review route",
-        "start_line": 544,
-        "end_line": 584,
+        "start_line": 549,
+        "end_line": 589,
         "sha256": "293face8e3cb9fd13796c866c14f5af3d3ce2a744570c647e5f95dcb99b785de"
       },
       "phases": [
@@ -33492,8 +33558,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.5 Records Manager Only route",
-        "start_line": 585,
-        "end_line": 626,
+        "start_line": 590,
+        "end_line": 631,
         "sha256": "cb748795bf073afde60e81f0e059d06ee60102b092c95a067a78cf13f3faa197"
       },
       "phases": [
@@ -33810,8 +33876,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6. Task inbox and destruction-job workspace",
-        "start_line": 627,
-        "end_line": 628,
+        "start_line": 632,
+        "end_line": 633,
         "sha256": "7eb19b0b69e05ef9224107b6092189834aa732bb40d242fd7bcaef8679821fc5"
       },
       "phases": [
@@ -33883,9 +33949,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.1 Disposition navigation",
-        "start_line": 629,
-        "end_line": 661,
-        "sha256": "bef724e16d72691c5612a4625fe50bdfe0d64cc5c9d875771bed7964c8f9bddd"
+        "start_line": 634,
+        "end_line": 667,
+        "sha256": "d58910d1838a90a029df1ffefc45177f049fc7167e6ebd8c9c9b654338a90481"
       },
       "phases": [
         16,
@@ -33943,6 +34009,18 @@
             "backend/services/api/deploy/erms-disposition-communications.service"
           ],
           "details": "docs/disposition-phase-18.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "verification": [
@@ -33996,6 +34074,18 @@
             "phase18-cleanup-20261019"
           ],
           "scope": "Phase 18 durable exact-version request/certificate SMTP attempts, current captured recipient/transport with encrypted credentials, truthful accepted/failed/unknown outcomes and no automatic uncertain replay; current Officer/Manager authorization, permanent audit/history and purpose-built native controls; bounded calendar-month eligibility reminders through existing notifications with per-person purge-independent checkpoints. Genuine certificate completion integration remains Phase 22; final destruction remains later phases."
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "baseline_refs": [
@@ -34011,9 +34101,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.2 My tasks",
-        "start_line": 662,
-        "end_line": 711,
-        "sha256": "088cb2b0e3f85ba5acbb6a2974a2393e904ede13c1ab51831b58760c9fc3b592"
+        "start_line": 668,
+        "end_line": 737,
+        "sha256": "e2b13ae3200c905a72fbac72af8bbc2d6a0130bd80683bdd1136fbed54d9e496"
       },
       "phases": [
         16
@@ -34049,6 +34139,39 @@
             "frontend/webui/disposition/tasks.py"
           ],
           "details": "docs/verification/tasks-refresh.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/background.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-colour-20261109",
+          "scope": "Highlight only the existing Unclaimed state text in dark amber and semibold using native NiceGUI column style; retain ordinary state labels and all ownership rules.",
+          "locations": [
+            "frontend/webui/disposition/tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "verification": [
@@ -34079,6 +34202,41 @@
           "tests": [
             "frontend/webui/tests/test_disposition_tasks.py::test_inbox_refresh_is_visible_with_collapsed_filters_and_fetches_current_assignments"
           ]
+        },
+        {
+          "phase": 16,
+          "run": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-colour-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
         }
       ],
       "baseline_refs": [
@@ -34093,9 +34251,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.3 Direct assignments, role queues, and claiming",
-        "start_line": 712,
-        "end_line": 823,
-        "sha256": "f2ae2b2d41af9757b3645699099fb5b67d91289b355c66d934fcfe6d217b8d06"
+        "start_line": 738,
+        "end_line": 864,
+        "sha256": "1bedcbaad6c9ec96ff8b5ae6afaca194343f5438807d3cd089ba0744c43c94ce"
       },
       "phases": [
         13,
@@ -34150,6 +34308,43 @@
             "frontend/webui/app.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "digital-task-guidance-20261109",
+          "scope": "Hide digital progress and its Refresh before an execution request; remove redundant My Tasks controls from digital/approval progress cards; use digital-stage inline and claim-dialog guidance while retaining separate explicit execution confirmation and durable polling.",
+          "locations": [
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/messages.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "locations": [
+            "database/schema.sql",
+            "database/migrations/106_final_certificate_task_queue.sql",
+            "database/baseline.sql",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/review.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "verification": [
@@ -34198,6 +34393,42 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "run": "digital-task-guidance-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
+        },
+        {
+          "phase": 16,
+          "run": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_final_queue.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "frontend/webui/tests/test_disposition_completion.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "baseline_refs": [
@@ -34215,8 +34446,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.4 Common destruction-job workspace",
-        "start_line": 824,
-        "end_line": 911,
+        "start_line": 865,
+        "end_line": 952,
         "sha256": "95e93184d5c636e02f8570af62fe9493d496c2caaa87b5dfa822d72174a55b23"
       },
       "phases": [
@@ -34288,8 +34519,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.4.1 Evidence preview and corrective re-uploads",
-        "start_line": 912,
-        "end_line": 941,
+        "start_line": 953,
+        "end_line": 982,
         "sha256": "0b38e9008eb79a6de3cf2f48043b41866a3e6f0ccba6b325fdc0656631abca42"
       },
       "phases": [
@@ -34415,8 +34646,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.5 Review-proposal presentation",
-        "start_line": 942,
-        "end_line": 998,
+        "start_line": 983,
+        "end_line": 1039,
         "sha256": "95e7454e1882e93d32ae290608b16e27cc3c4d1ace66d3ae2a3f38c39965c4de"
       },
       "phases": [
@@ -34533,8 +34764,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.6 Review comments and task-specific forms",
-        "start_line": 1047,
-        "end_line": 1120,
+        "start_line": 1095,
+        "end_line": 1168,
         "sha256": "89bcabb45ebe402afd8ad34fec64ee92da5b3456cd2a9f132c70170702f366c0"
       },
       "phases": [
@@ -34926,8 +35157,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.6.1 Immediate proposal persistence and Save work without submitting",
-        "start_line": 1121,
-        "end_line": 1157,
+        "start_line": 1169,
+        "end_line": 1205,
         "sha256": "f2228035b040e9c9a966ecf4ae982ad67b9c6e68dc4c2f54d9d36bcd0864fff4"
       },
       "phases": [
@@ -35089,8 +35320,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.7 Workflow overview",
-        "start_line": 1158,
-        "end_line": 1225,
+        "start_line": 1206,
+        "end_line": 1273,
         "sha256": "b807b3f76ddd0a6ba33a0bb28fb27f5c1401f684ed06bf3228074d921c2d935a"
       },
       "phases": [
@@ -35231,8 +35462,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "7. File Administrator review",
-        "start_line": 1226,
-        "end_line": 1227,
+        "start_line": 1274,
+        "end_line": 1275,
         "sha256": "10c4bbd5de3999849ee26dbf0e6a87e0907f4f142f176e8e11633cd28a6b6073"
       },
       "phases": [
@@ -35314,8 +35545,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "7.1 Routing",
-        "start_line": 1228,
-        "end_line": 1277,
+        "start_line": 1276,
+        "end_line": 1325,
         "sha256": "5808247a97f5316a138079a23d7563755caeebdc58305039399e3da99e363719"
       },
       "phases": [
@@ -35397,8 +35628,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "7.2 Review action",
-        "start_line": 1278,
-        "end_line": 1298,
+        "start_line": 1326,
+        "end_line": 1346,
         "sha256": "de49395ea88751d5f4dd260c97c335e7539856b26555ed9c1ae5dd74b9936baa"
       },
       "phases": [
@@ -35560,8 +35791,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "8. Unit Manager review and rejection",
-        "start_line": 1299,
-        "end_line": 1321,
+        "start_line": 1347,
+        "end_line": 1369,
         "sha256": "45dd26cd645149204a009732141ffd51f27a0df0717da17d14b918a88578b724"
       },
       "phases": [
@@ -35723,8 +35954,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "9. Records Officer correction and resubmission",
-        "start_line": 1322,
-        "end_line": 1339,
+        "start_line": 1370,
+        "end_line": 1387,
         "sha256": "e5f600f607bb74853e0fe6eacad5839239037dddc004fc91b099221b9c7341c7"
       },
       "phases": [
@@ -35886,9 +36117,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "10. Records Manager review",
-        "start_line": 1340,
-        "end_line": 1453,
-        "sha256": "36d39a3836f27abfe6d4b05c8eb3dfb61f0c9fbdfd2fe77bfee2a4166b42075e"
+        "start_line": 1388,
+        "end_line": 1583,
+        "sha256": "177ea9ce3699de31d9b17e4667910da794d271364662d8d665c9e4f5f23e56c3"
       },
       "phases": [
         13,
@@ -35978,6 +36209,55 @@
             "frontend/webui/app.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 presentation correction only: shared withdrawal comment displayed for every readable withdrawn proposal; original reason retained separately; persistent indeterminate complete-set approval progress and existing committed-result recovery. No new authority, workflow, database schema, worker, cache or API contract.",
+          "locations": [
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/proposal_details.py"
+          ],
+          "details": "docs/verification/review-feedback.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "locations": [
+            "backend/services/api/disposition/operations.py",
+            "backend/services/api/disposition/destruction_worker.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/messaging/reading.py",
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/tasks.py",
+            "database/migrations/105_background_disposition_operations.sql",
+            "database/schema.sql"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/background.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "digital-task-guidance-20261109",
+          "scope": "Hide digital progress and its Refresh before an execution request; remove redundant My Tasks controls from digital/approval progress cards; use digital-stage inline and claim-dialog guidance while retaining separate explicit execution confirmation and durable polling.",
+          "locations": [
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/messages.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
         }
       ],
       "verification": [
@@ -36069,6 +36349,61 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 presentation correction only: shared withdrawal comment displayed for every readable withdrawn proposal; original reason retained separately; persistent indeterminate complete-set approval progress and existing committed-result recovery. No new authority, workflow, database schema, worker, cache or API contract.",
+          "result": "passed",
+          "run": "review-feedback-20261109",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_proposal_presentation.py",
+            "frontend/webui/tests/test_disposition_proposal_details.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_tasks.py",
+            "backend/services/api/tests/test_disposition_bulk.py"
+          ],
+          "details": "docs/verification/review-feedback.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "result": "passed",
+          "run": "background-disposition-20261109",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_approval.py",
+            "backend/services/api/tests/test_disposition_external.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "run": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "run": "digital-task-guidance-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
         }
       ],
       "baseline_refs": [
@@ -36090,8 +36425,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "10.1 Executing approved proposals",
-        "start_line": 1454,
-        "end_line": 1583,
+        "start_line": 1584,
+        "end_line": 1713,
         "sha256": "081f6b00a1abb9695d1b55e44fa3aaa53b7e3e9b72ad5d7664a4d17260d4159e"
       },
       "phases": [
@@ -36343,8 +36678,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11. Request for Destruction Form",
-        "start_line": 1584,
-        "end_line": 1585,
+        "start_line": 1714,
+        "end_line": 1715,
         "sha256": "61cef356c9e2c4420b652edc02bbf77382b1ca453fec7ad0b9e48df5d74f0316"
       },
       "phases": [
@@ -36491,8 +36826,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.1 Generation",
-        "start_line": 1586,
-        "end_line": 1603,
+        "start_line": 1716,
+        "end_line": 1733,
         "sha256": "6996ad9f7383d30028ef486c78ec68774bce956411fd712bd4891a4b2a80ce85"
       },
       "phases": [
@@ -36639,8 +36974,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.2 Request details and presentation",
-        "start_line": 1604,
-        "end_line": 1637,
+        "start_line": 1734,
+        "end_line": 1767,
         "sha256": "d78ba16e8a314922e705ce1acd135c527fac71e551aa838dccbac2f7ddd8ae75"
       },
       "phases": [
@@ -36787,8 +37122,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.3 Aggregation listing on following pages",
-        "start_line": 1638,
-        "end_line": 1653,
+        "start_line": 1768,
+        "end_line": 1783,
         "sha256": "d4277f64fc9e73159ee5eee56b734566c3a6581ba88fb070415192e0dcfae02f"
       },
       "phases": [
@@ -36935,8 +37270,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "11.4 Request delivery and email sending",
-        "start_line": 1654,
-        "end_line": 1733,
+        "start_line": 1784,
+        "end_line": 1863,
         "sha256": "9cd9feb1fbeca5e17494091777b850a52d797b4e11f282f7fb92cab7ef852245"
       },
       "phases": [
@@ -37082,8 +37417,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "12. External decision, corrections, and approval",
-        "start_line": 1734,
-        "end_line": 1735,
+        "start_line": 1864,
+        "end_line": 1865,
         "sha256": "6b20601f91f258083f9ff947a51dae5348a51b175db9098bd66e47a081c9dd82"
       },
       "phases": [
@@ -37169,8 +37504,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "12.1 Rejection with correction notes",
-        "start_line": 1736,
-        "end_line": 1770,
+        "start_line": 1866,
+        "end_line": 1900,
         "sha256": "d5fd5c715e8a9f0f89db7348ad5a35d10bb767b6d5ccf4c513efdfd8f2526a13"
       },
       "phases": [
@@ -37362,8 +37697,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "12.2 Approval letter and destruction number",
-        "start_line": 1771,
-        "end_line": 1792,
+        "start_line": 1901,
+        "end_line": 1922,
         "sha256": "e3f1bb9f40ac3aa2f6eb3ee6aea42efb007930a532ebba7cb05192f00abb2b72"
       },
       "phases": [
@@ -37504,8 +37839,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "13. Selecting physical or digital destruction",
-        "start_line": 1793,
-        "end_line": 1806,
+        "start_line": 1923,
+        "end_line": 1936,
         "sha256": "e48a0a00469090238d1a2a4ec0b43f4f825cba7359b49abc1123d6bafe135306"
       },
       "phases": [
@@ -37628,8 +37963,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "14. Physical destruction",
-        "start_line": 1807,
-        "end_line": 1808,
+        "start_line": 1937,
+        "end_line": 1938,
         "sha256": "d43bd4cd4204d278e450bc602da11ed50d085b1f45521b5830c59a51cf65fe3d"
       },
       "phases": [
@@ -37719,8 +38054,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "14.1 Physical-destruction preparation report",
-        "start_line": 1809,
-        "end_line": 1866,
+        "start_line": 1939,
+        "end_line": 1996,
         "sha256": "cbef80a973a8b1a413de632e866de88ea22a9c3a694f7750b3e2ac33066355ac"
       },
       "phases": [
@@ -37948,8 +38283,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "14.2 Checks and confirmation",
-        "start_line": 1867,
-        "end_line": 1913,
+        "start_line": 1997,
+        "end_line": 2043,
         "sha256": "7e658c58bbe4dee0fa21a4a54b30513f393fa84d4dc8937bd37df4ff16e3c964"
       },
       "phases": [
@@ -38149,8 +38484,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "15. Digital destruction",
-        "start_line": 1914,
-        "end_line": 1915,
+        "start_line": 2044,
+        "end_line": 2045,
         "sha256": "0dd29d3dfb4db82f2395cb84cae324ebb044c9a9cc306ca704d303d98d38b112"
       },
       "phases": [
@@ -38254,8 +38589,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "15.1 Final confirmation",
-        "start_line": 1916,
-        "end_line": 1931,
+        "start_line": 2046,
+        "end_line": 2061,
         "sha256": "a25dfa25ca54f679e5e9c1b1920fa2e9ccbf33d7e70af4b79da420d352f230ae"
       },
       "phases": [
@@ -38359,9 +38694,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "15.2 Asynchronous execution",
-        "start_line": 1932,
-        "end_line": 1987,
-        "sha256": "e34868a2f8296e1496f7e65755a4120029fb0a0070d6e6083494597a02db2f57"
+        "start_line": 2062,
+        "end_line": 2144,
+        "sha256": "904fbec18c70331d567bf87247af948fc8defa8be30bdec90098cd6be1866c31"
       },
       "phases": [
         20,
@@ -38438,6 +38773,46 @@
             "docs/disposition-release-gate-removal.md"
           ],
           "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
+        },
+        {
+          "phase": 22,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "locations": [
+            "backend/services/api/disposition/operations.py",
+            "backend/services/api/disposition/destruction_worker.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/messaging/reading.py",
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/tasks.py",
+            "database/migrations/105_background_disposition_operations.sql",
+            "database/schema.sql"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 22,
+          "amendment": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/background.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 22,
+          "amendment": "digital-task-guidance-20261109",
+          "scope": "Hide digital progress and its Refresh before an execution request; remove redundant My Tasks controls from digital/approval progress cards; use digital-stage inline and claim-dialog guidance while retaining separate explicit execution confirmation and durable polling.",
+          "locations": [
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/messages.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
         }
       ],
       "verification": [
@@ -38586,6 +38961,46 @@
             "tools/rehearse_disposition_rollout.py"
           ],
           "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
+        },
+        {
+          "phase": 22,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "result": "passed",
+          "run": "background-disposition-20261109",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_approval.py",
+            "backend/services/api/tests/test_disposition_external.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 22,
+          "run": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 22,
+          "run": "digital-task-guidance-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
         }
       ],
       "baseline_refs": [
@@ -38609,9 +39024,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "16. Certificate of Destruction (Digital)",
-        "start_line": 1988,
-        "end_line": 2134,
-        "sha256": "d8b558dfa2b26d16c9cd9dad9e14fdc7b2a624c40ad774464ed0c78166cf2040"
+        "start_line": 2145,
+        "end_line": 2332,
+        "sha256": "009039b6e0d2cafdcb7e6e7d0fc5ed1509689315a3884102dd5dab24d66f2934"
       },
       "phases": [
         11,
@@ -38714,6 +39129,19 @@
             "backend/services/api/disposition/routes.py"
           ],
           "details": "docs/verification/certificate-task-email.md"
+        },
+        {
+          "phase": 22,
+          "amendment": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "locations": [
+            "database/schema.sql",
+            "database/migrations/106_final_certificate_task_queue.sql",
+            "database/baseline.sql",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/review.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "verification": [
@@ -38858,6 +39286,19 @@
             "backend/services/api/tests/test_disposition_communications.py"
           ],
           "scope": "255 English/Arabic component checks, 33 API checks on a newly created/dropped disposable database with synthetic transport; live LTR/RTL and narrow rendering verified."
+        },
+        {
+          "phase": 22,
+          "run": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_final_queue.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "frontend/webui/tests/test_disposition_completion.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "baseline_refs": [
@@ -38872,8 +39313,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17. Resolved policy and supporting requirements",
-        "start_line": 2135,
-        "end_line": 2136,
+        "start_line": 2333,
+        "end_line": 2334,
         "sha256": "aaac291612b101aa2d621a12d19f48795e567c57268163158ab6ffbb914e8418"
       },
       "phases": [
@@ -38955,8 +39396,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.1 Unit Manager role identification — resolved",
-        "start_line": 2137,
-        "end_line": 2153,
+        "start_line": 2335,
+        "end_line": 2351,
         "sha256": "131968f866eed84623284a7f533145a904342abf052bf2667107e5887b645621"
       },
       "phases": [
@@ -39038,8 +39479,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.2 Evidence and report destinations",
-        "start_line": 2154,
-        "end_line": 2217,
+        "start_line": 2352,
+        "end_line": 2415,
         "sha256": "e7b951cc5f15a4a69bdf259b147a7b18471357de659b3f04d79c4fb3e3432a55"
       },
       "phases": [
@@ -39187,8 +39628,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.3 Physical-only jobs — resolved",
-        "start_line": 2218,
-        "end_line": 2230,
+        "start_line": 2416,
+        "end_line": 2428,
         "sha256": "7c6d9fe1541e59820cfd9db9fefe3f425702921597cbb26c421c5ec9b9817c21"
       },
       "phases": [
@@ -39379,8 +39820,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.4 Controlled Word templates — resolved",
-        "start_line": 2231,
-        "end_line": 2295,
+        "start_line": 2429,
+        "end_line": 2493,
         "sha256": "1cd15a25e94da5d6fddaf997100e76bc9c9c2231c28ba5aed2e11fbd7f187b53"
       },
       "phases": [
@@ -39471,8 +39912,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "17.5 File Administrator and Unit Manager task authority",
-        "start_line": 2296,
-        "end_line": 2315,
+        "start_line": 2494,
+        "end_line": 2513,
         "sha256": "75dc31007263ff320b0ddb9116ce61025c8ad28568b99d20147cbc29c13fad43"
       },
       "phases": [
@@ -39675,8 +40116,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18. Destruction-specific logical data model",
-        "start_line": 2316,
-        "end_line": 2317,
+        "start_line": 2514,
+        "end_line": 2515,
         "sha256": "5f566a843e85071ad51b57a6e8ed4a027dabfb6a6f99bb550aa6c5cf0ea98a26"
       },
       "phases": [
@@ -39800,8 +40241,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.1 Relationship to the common model",
-        "start_line": 2318,
-        "end_line": 2330,
+        "start_line": 2516,
+        "end_line": 2528,
         "sha256": "95ec43d14ebf13c61c263bfe5a4a7409cdde88ba27e020aba888157ae15dc8ef"
       },
       "phases": [
@@ -39876,8 +40317,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.2 Existing-table additions",
-        "start_line": 2331,
-        "end_line": 2356,
+        "start_line": 2529,
+        "end_line": 2554,
         "sha256": "3b4112ca7f4d40f3e29f65c05c371eff7ab063e943c89037d7edf28dbfbb5571"
       },
       "phases": [
@@ -39959,8 +40400,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.3 `disposition_review_proposals`",
-        "start_line": 2357,
-        "end_line": 2401,
+        "start_line": 2555,
+        "end_line": 2599,
         "sha256": "bc42ce3d1503e90bd3f51fb3467603ef96f8ab805ac07f9888e82eec69f90acb"
       },
       "phases": [
@@ -40034,8 +40475,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.4 `disposition_proposal_holds`",
-        "start_line": 2402,
-        "end_line": 2409,
+        "start_line": 2600,
+        "end_line": 2607,
         "sha256": "53219ca53fb8045e43609bb513857408e475fb1a9b43daac317e252efa0bf88b"
       },
       "phases": [
@@ -40151,8 +40592,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.5 `disposition_proposal_effects`",
-        "start_line": 2410,
-        "end_line": 2420,
+        "start_line": 2608,
+        "end_line": 2618,
         "sha256": "f408580235ee375c6668fec8ec3fa3097c83042c16b8baa90ea72ce6647c85ab"
       },
       "phases": [
@@ -40232,8 +40673,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.6 `disposition_external_approvals`",
-        "start_line": 2421,
-        "end_line": 2446,
+        "start_line": 2619,
+        "end_line": 2644,
         "sha256": "5f57a4494583dd02ebe2508b9d31d64dcf5fa9a90aa1ce9072a9fce4d3f4d1aa"
       },
       "phases": [
@@ -40374,8 +40815,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.7 `disposition_physical_confirmations`",
-        "start_line": 2447,
-        "end_line": 2459,
+        "start_line": 2645,
+        "end_line": 2657,
         "sha256": "bddf86be10b4769c66295a8bc12f123bfd745c4d41d0f7a97710c345c48c33aa"
       },
       "phases": [
@@ -40518,8 +40959,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.8 `disposition_destruction_runs`",
-        "start_line": 2460,
-        "end_line": 2475,
+        "start_line": 2658,
+        "end_line": 2673,
         "sha256": "8ced6d62c3a3b388a60070ed0a59b73fd02a73ecd636ba52f5c0951c0c14a7cf"
       },
       "phases": [
@@ -40623,8 +41064,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.9 `disposition_destruction_run_units`",
-        "start_line": 2476,
-        "end_line": 2482,
+        "start_line": 2674,
+        "end_line": 2680,
         "sha256": "5ea90aff7a9c3c893ef3c4719811d2ea2a2867f41ab56c5e1ff79a0a45643108"
       },
       "phases": [
@@ -40728,8 +41169,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.10 `disposition_destruction_manifest_items`",
-        "start_line": 2483,
-        "end_line": 2495,
+        "start_line": 2681,
+        "end_line": 2693,
         "sha256": "ce8b1e5d073fc6f0e4ef9665ea43217b8f20ff30752f5c683ad088bc5d070908"
       },
       "phases": [
@@ -40836,8 +41277,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.11 Destruction reminder checkpoint",
-        "start_line": 2496,
-        "end_line": 2508,
+        "start_line": 2694,
+        "end_line": 2706,
         "sha256": "7bd32eaea6183e97956074831305ab585f6531734a92570107f8709f8d28d162"
       },
       "phases": [
@@ -40923,8 +41364,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.12 Evidence and report destination configuration",
-        "start_line": 2509,
-        "end_line": 2526,
+        "start_line": 2707,
+        "end_line": 2724,
         "sha256": "3dedab5862ddad88613abf12cdcd23992ebb22f5f7befe68c497f565aa296d18"
       },
       "phases": [
@@ -41072,8 +41513,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.13 Protected destruction operations",
-        "start_line": 2527,
-        "end_line": 2553,
+        "start_line": 2725,
+        "end_line": 2751,
         "sha256": "f2aed1d594520000b080451ee1b767626f248bc57cbe8dc581506b7ece43dad8"
       },
       "phases": [
@@ -41607,8 +42048,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "18.14 Canonical SQL ownership",
-        "start_line": 2554,
-        "end_line": 2562,
+        "start_line": 2752,
+        "end_line": 2760,
         "sha256": "2e60758a914868638ad8a26e0c9398ff60ae96c3b8c79bfd46cea0345be7a488"
       },
       "phases": [
@@ -41748,9 +42189,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "19. Verification and traceability",
-        "start_line": 2563,
-        "end_line": 2662,
-        "sha256": "daabe69079e81c96cd013d925fb3a453ae1fbfa7f547e9f5a030c052295d8b06"
+        "start_line": 2761,
+        "end_line": 2860,
+        "sha256": "62607796178e66e535dcbc9f2c3b13e2caa9558bd2f18b08926ad383e61a1f79"
       },
       "phases": [
         23
@@ -41809,7 +42250,7 @@
       "summary": "Verify Records Manager Only across creation, assignment, eligibility,\nimmediate preparation membership removal, combined approval, empty results,\nexternal request sending and decisions, correction rounds, evidence, destruction,\ntermination and recovery. No Officer/Administrator/Unit Manager role or task is\nrequired. Verify actual actor/role history, all underlying authorization checks,\nroute immutability, owning-unit locking, and both other routes unchanged.",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2565
+        "start_line": 2763
       },
       "phases": [
         2,
@@ -42256,7 +42697,7 @@
       "summary": "Verify Save for each of the four participant types in every applicable\npreparation/review/correction task and all three routes. Test save, navigation\naway, later login and restoration, partial overall reason, proposal/history\npreservation, own-note restrictions, concurrent edits, unauthorized saves and\nfailure feedback. Assert no proposal execution, approval, next task, membership\nremoval, or stage advance on Save. Verify LTR/RTL labels and actual persistence.",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2572
+        "start_line": 2770
       },
       "phases": [
         14,
@@ -42451,7 +42892,7 @@
       "summary": "Six-month configurable reminders go only to active people with a currently effective information-governance role using `INFO_GOV_OFFICER` or `INFO_GOV_MGR` and supplying `disposition.jobs.manage`, when status-2 work exists, and do not duplicate per person and interval even when a person qualifies through both profiles",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2584
+        "start_line": 2782
       },
       "phases": [
         18
@@ -42536,7 +42977,7 @@
       "summary": "Every destruction job has one owning unit and accepts roots owned by that unit or any descendant, preserving resource ownership, retention rules, ACLs, and common admission conditions; combined review is routed by the job's owning unit, whose managing role approves the whole batch; the owning unit may change only while the job is active, empty, and has never been sent to File Administrator or Unit Manager review",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2585
+        "start_line": 2783
       },
       "phases": [
         13,
@@ -42656,7 +43097,7 @@
       "summary": "File Administrator review shows all earlier proposals with their proposers and the overall submission reason, and records new proposed-removal marks with mandatory reasons or governance proposals with optional reasons without changing resources or membership",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2586
+        "start_line": 2784
       },
       "phases": [
         14,
@@ -42770,7 +43211,7 @@
       "summary": "Unit Manager review shows every proposal and its proposer, permits additional proposals, makes approval impossible while any item is marked for removal, and returns a rejected job to its assigned Records Officer",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2587
+        "start_line": 2785
       },
       "phases": [
         14,
@@ -42884,7 +43325,7 @@
       "summary": "The assigned Records Officer removes job membership immediately during an open preparation or correction task, with the common eligibility-status restoration and history; membership changes are forbidden while reviewers hold the job; proposed-removal marks do not themselves remove units, and relationship removal remains a proposal until Records Manager approval; every resubmission follows the job's saved route without losing prior rounds",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2588
+        "start_line": 2786
       },
       "phases": [
         14,
@@ -42998,7 +43439,7 @@
       "summary": "The organization-wide Destruction review route defaults to Standard or may be set to Simplified through Administration Settings; each new job stores an immutable route used throughout internal correction and external-rejection cycles; Simplified bypasses File Administrator and Unit Manager only, with all other safeguards unchanged",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2589
+        "start_line": 2787
       },
       "phases": [
         2,
@@ -43209,7 +43650,7 @@
       "summary": "Earlier uploaded evidence is previewable in subsequent tasks subject to access rules; only the assigned Records Officer or an authorized Records Manager may correct uploads, preserving all evidence versions, governed-record links, and attributed job history without changing decisions or confirmations",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2590
+        "start_line": 2788
       },
       "phases": [
         3,
@@ -43520,7 +43961,7 @@
       "summary": "Records Manager rejection repeats the applicable review loop; approval snapshots the exact reviewed membership, versions, and complete active proposal set",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2591
+        "start_line": 2789
       },
       "phases": [
         15,
@@ -43638,7 +44079,7 @@
       "summary": "The external request uses only post-proposal remaining membership, groups roots by terminal classification and effective rule, shows counts, and clearly separates local-override rule sources",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2592
+        "start_line": 2790
       },
       "phases": [
         17
@@ -43723,7 +44164,7 @@
       "summary": "External approval requires a unique never-reused destruction number and approval letter, and saving the letter creates exactly one linked governed record",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2593
+        "start_line": 2791
       },
       "phases": [
         17
@@ -43808,7 +44249,7 @@
       "summary": "External rejection requires correction notes and a rejection-letter upload saved as a linked governed record in the latest open aggregation under the configured evidence classification; it returns the active job to its assigned Records Officer; resubmission starts a new applicable internal review cycle and new Records Manager approval generates a new request, preserving earlier requests, decisions, evidence, notes, and applied proposal history",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2594
+        "start_line": 2792
       },
       "phases": [
         17
@@ -43893,7 +44334,7 @@
       "summary": "Any physical or mixed item requires physical destruction before digital destruction; a fully digital job skips physical destruction",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2595
+        "start_line": 2793
       },
       "phases": [
         19
@@ -43982,7 +44423,7 @@
       "summary": "Physical confirmation requires the checkbox, certificate, and unique reference, and creates exactly one linked governed record",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2596
+        "start_line": 2794
       },
       "phases": [
         19
@@ -44071,7 +44512,7 @@
       "summary": "Digital destruction requires explicit confirmation and a final current-state recheck",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2597
+        "start_line": 2795
       },
       "phases": [
         21
@@ -44174,7 +44615,7 @@
       "summary": "Asynchronous destruction is durable, idempotent, resumable, accurately reports progress, and never marks partial work complete",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2598
+        "start_line": 2796
       },
       "phases": [
         21
@@ -44277,7 +44718,7 @@
       "summary": "Mixed material reaches status 10 only after physical and digital destruction, and termination after physical destruction follows status 13",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2599
+        "start_line": 2797
       },
       "phases": [
         20,
@@ -44435,7 +44876,7 @@
       "summary": "Jobs requiring digital destruction generate and store exactly one linked digital certificate as evidence in the latest open root aggregation under Uploaded evidence classification before completion and create a Records Manager download task; physical-only jobs skip digital destruction and its certificate/tasks and complete using the uploaded physical certificate",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2600
+        "start_line": 2798
       },
       "phases": [
         11,
@@ -44513,6 +44954,19 @@
             "docs/disposition-release-gate-removal.md"
           ],
           "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
+        },
+        {
+          "phase": 22,
+          "amendment": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "locations": [
+            "database/schema.sql",
+            "database/migrations/106_final_certificate_task_queue.sql",
+            "database/baseline.sql",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/review.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "verification": [
@@ -44631,6 +45085,19 @@
             "tools/rehearse_disposition_rollout.py"
           ],
           "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
+        },
+        {
+          "phase": 22,
+          "run": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_final_queue.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "frontend/webui/tests/test_disposition_completion.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "baseline_refs": [
@@ -44651,7 +45118,7 @@
       "summary": "Request forms show the configured authority name, default Sharjah Archives; the assigned Records Officer can repeatedly email the exact generated form to the configured authority address through SMTP, with truthful per-attempt status and permanent attributed history",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2602
+        "start_line": 2800
       },
       "phases": [
         18,
@@ -44790,7 +45257,7 @@
       "summary": "An authorized Records Manager can repeatedly email the exact saved digital destruction certificate from Current Task and Evidence and documents, including after job completion, with recipient/latest-attempt summary and full history, shared retry/busy state, optional-send guidance and no evidence/outcome changes",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2603
+        "start_line": 2801
       },
       "phases": [
         18,
@@ -44932,7 +45399,7 @@
       "summary": "Physical destruction generates a previewable/downloadable collection preparation report listing all physical/mixed aggregations, grouped by effective current location, with serials, concise identity/classification/medium, differing assigned locations, explicit unknown locations and unique totals; save it as a linked governed record under Generated reports classification",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2604
+        "start_line": 2802
       },
       "phases": [
         19
@@ -45045,7 +45512,7 @@
       "summary": "Request and digital certificate use bilingual Arabic-first Changa RTL Word templates stored at the documented repository paths; Records Officers and Records Managers can download and re-upload valid revisions, preserving all versions and artifact provenance, without signatures",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2605
+        "start_line": 2803
       },
       "phases": [
         12,
@@ -45225,7 +45692,7 @@
       "summary": "Destination selection uses the most recently opened still-open root under the configured classification; absence of a suitable root blocks the relevant task and produces warnings on that task and Governance Custody until resolved",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2606
+        "start_line": 2804
       },
       "phases": [
         3,
@@ -45510,7 +45977,7 @@
       "summary": "Each successful proposal execution produces a governed proposal execution report record under Generated reports classification in the latest open root aggregation, linked to the job, review round, and every execution result without overwriting earlier reports",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2607
+        "start_line": 2805
       },
       "phases": [
         15,
@@ -45631,7 +46098,7 @@
       "summary": "Uploaded evidence and generated destruction-job reports are saved as records in the latest open root aggregation under their respective administrator-selected classifications; both classifications belong to the configured scheme and are stored as validated IDs without hardcoded numbers",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2608
+        "start_line": 2806
       },
       "phases": [
         3,
@@ -45916,7 +46383,7 @@
       "summary": "Generated evidence records are outside the destroyed disposition units and survive their destruction",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2611
+        "start_line": 2809
       },
       "phases": [
         11,
@@ -46107,7 +46574,7 @@
       "summary": "Every workflow action and generated artifact is permanently traceable to actor, time, job, review round, membership, reason, and evidence",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2612
+        "start_line": 2810
       },
       "phases": [
         7,
@@ -47130,7 +47597,7 @@
       "summary": "Relationships permit job admission but outside-job aggregation and record links block physical and digital destruction until authorized removal; review-stage removal is only a proposal with an optional individual reason, and execution checks disposition.jobs.manage, relationships.link, and endpoint view access against the approving Records Manager; links within one unit or the same job do not block or require removal; executed removal from either endpoint clears the relationship blocker for both units",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2613
+        "start_line": 2811
       },
       "phases": [
         8,
@@ -47403,7 +47870,7 @@
       "summary": "All four participants may revise or withdraw one another's active proposals in the current review round only during their own open task, preserving the original proposer and every change; proposals make no resource change before final approval, which applies every current active proposal and cannot ignore conflicts or invalid proposals",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2614
+        "start_line": 2812
       },
       "phases": [
         14,
@@ -47519,7 +47986,7 @@
       "summary": "Records Officer preparation/correction and File Administrator, Unit Manager, and Records Manager review forms support an optional job-level Review notes field for instructions, observations, and recommendations; saved notes are attributed, visible to authorized subsequent reviewers, and retained across rounds without replacing mandatory reasons or review decisions",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2619
+        "start_line": 2817
       },
       "phases": [
         14,
@@ -47635,7 +48102,7 @@
       "summary": "Final Records Manager approval validates and executes the complete proposal set using every underlying operation's current authorization; execution records the approving Records Manager as actor with actor_type = 'user' while preserving proposers and all proposal changes in history; any validation or execution failure leaves proposals, resources, membership, statuses, and approval unchanged",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2620
+        "start_line": 2818
       },
       "phases": [
         15,
@@ -47689,6 +48156,22 @@
             "frontend/webui/app.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "locations": [
+            "backend/services/api/disposition/operations.py",
+            "backend/services/api/disposition/destruction_worker.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/messaging/reading.py",
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/tasks.py",
+            "database/migrations/105_background_disposition_operations.sql",
+            "database/schema.sql"
+          ],
+          "details": "docs/verification/background-disposition.md"
         }
       ],
       "verification": [
@@ -47737,6 +48220,21 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "details": "docs/disposition-phase-16.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "result": "passed",
+          "run": "background-disposition-20261109",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_approval.py",
+            "backend/services/api/tests/test_disposition_external.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
         }
       ],
       "baseline_refs": [
@@ -47757,7 +48255,7 @@
       "summary": "Proposal execution removes every directly or transitively proposal-blocked or non-matching unit before form generation, preserves applied proposals and correct post-removal statuses, and returns an empty resulting job to the Records Officer",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2621
+        "start_line": 2819
       },
       "phases": [
         15,
@@ -47878,7 +48376,7 @@
       "summary": "My tasks is server-paginated, shows direct and role-queue work with deliberate states, opens the correct authorized form, and does not expose protected job or proposal details",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2622
+        "start_line": 2820
       },
       "phases": [
         13,
@@ -47965,6 +48463,40 @@
             "frontend/webui/disposition/tasks.py"
           ],
           "details": "docs/verification/tasks-refresh.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-colour-20261109",
+          "scope": "Highlight only the existing Unclaimed state text in dark amber and semibold using native NiceGUI column style; retain ordinary state labels and all ownership rules.",
+          "locations": [
+            "frontend/webui/disposition/tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "locations": [
+            "database/schema.sql",
+            "database/migrations/106_final_certificate_task_queue.sql",
+            "database/baseline.sql",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/review.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "verification": [
@@ -48042,6 +48574,40 @@
           "tests": [
             "frontend/webui/tests/test_disposition_tasks.py::test_inbox_refresh_is_visible_with_collapsed_filters_and_fetches_current_assignments"
           ]
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-colour-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "run": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_final_queue.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "frontend/webui/tests/test_disposition_completion.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "baseline_refs": [
@@ -48080,7 +48646,7 @@
       "summary": "One eligible person atomically claims a shared role task; loss of eligibility returns it to the queue; release and reassignment preserve work and permanently identify every claimant and actor",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2623
+        "start_line": 2821
       },
       "phases": [
         13,
@@ -48147,6 +48713,31 @@
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/tasks.py",
+            "frontend/webui/disposition/screens.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "locations": [
+            "database/schema.sql",
+            "database/migrations/106_final_certificate_task_queue.sql",
+            "database/baseline.sql",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/review.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "verification": [
@@ -48211,6 +48802,31 @@
             "frontend/webui/tests/test_disposition_tasks.py"
           ],
           "scope": "Phase 22 completion regression reconciled during Phase 23: current certificate/task/job completion and protected evidence/provenance, together with the named source-specific authorization/storage/recovery/UI regressions. Separate evidence expiry is excluded by the approved clarification."
+        },
+        {
+          "phase": 16,
+          "run": "personal-task-inbox-20261109",
+          "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "backend/services/api/tests/test_disposition_physical.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/personal-task-inbox.md"
+        },
+        {
+          "phase": 16,
+          "run": "final-certificate-queue-20261109",
+          "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_final_queue.py",
+            "backend/services/api/tests/test_disposition_completion.py",
+            "backend/services/api/tests/test_disposition_workflow.py",
+            "frontend/webui/tests/test_disposition_completion.py"
+          ],
+          "details": "docs/verification/final-certificate-queue.md"
         }
       ],
       "baseline_refs": [
@@ -48229,7 +48845,7 @@
       "summary": "The common workspace presents current job facts, workflow progress, paginated aggregations, attributed proposals, task-specific actions, evidence, and history; asynchronous work remains visible after navigation and notifies only on completion, failure, or required action",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2624
+        "start_line": 2822
       },
       "phases": [
         13,
@@ -48308,6 +48924,34 @@
             "docs/disposition-release-gate-removal.md"
           ],
           "scope": "User-approved removal of temporary implementation release gating only; existing approved authorization, task/approval, confirmation, evidence, blockers and workflow invariants retained."
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "locations": [
+            "backend/services/api/disposition/operations.py",
+            "backend/services/api/disposition/destruction_worker.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/messaging/reading.py",
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/tasks.py",
+            "database/migrations/105_background_disposition_operations.sql",
+            "database/schema.sql"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "digital-task-guidance-20261109",
+          "scope": "Hide digital progress and its Refresh before an execution request; remove redundant My Tasks controls from digital/approval progress cards; use digital-stage inline and claim-dialog guidance while retaining separate explicit execution confirmation and durable polling.",
+          "locations": [
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/messages.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
         }
       ],
       "verification": [
@@ -48377,6 +49021,32 @@
             "tools/rehearse_disposition_rollout.py"
           ],
           "scope": "Existing source-contract checks still pass with no test-only gate override; gate functions and all callers absent after canonical install and upgrades. Current translation artifacts preserve retired candidates and every remaining item exactly."
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "result": "passed",
+          "run": "background-disposition-20261109",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_approval.py",
+            "backend/services/api/tests/test_disposition_external.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "run": "digital-task-guidance-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
         }
       ],
       "baseline_refs": [
@@ -48415,7 +49085,7 @@
       "summary": "Destruction proposal tables enforce proposal-type payloads, target scope, optional governance-proposal reasons, mandatory proposed-removal reasons, proposer attribution, hold membership, withdrawal, execution, and immutable effects, including creation and removal of named aggregation relationships; each Records Officer submission requires a nonblank overall job reason retained by review round",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2625
+        "start_line": 2823
       },
       "phases": [
         14,
@@ -48529,7 +49199,7 @@
       "summary": "External decisions retain separate historical rows per request/review round; physical confirmation retains one immutable row per job; both preserve required evidence, actor/time, never-reused applicable identifiers, and atomic governed-record creation",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2626
+        "start_line": 2824
       },
       "phases": [
         17,
@@ -48674,7 +49344,7 @@
       "summary": "Destruction runs, unit progress, and manifests support idempotent bounded work, one running execution per job, irreversible successful units, approved proof fields, and no retained content or prohibited derivatives",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2627
+        "start_line": 2825
       },
       "phases": [
         21
@@ -48777,7 +49447,7 @@
       "summary": "Reminder checkpoints prevent duplicates independently of message retention, and reminder interval and evidence destination use validated existing configuration rather than ungoverned job text",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2628
+        "start_line": 2826
       },
       "phases": [
         18
@@ -48862,7 +49532,7 @@
       "summary": "Wathiq uses the nearest configured `org_units.file_administrator_role_id` from the owning unit and its ancestors without changing job ownership; no configured role means the stage is visibly skipped, while a configured but unusable role blocks routing; role inheritance never grants access to the job's records",
       "source": {
         "path": "specs/destruction-process.md",
-        "start_line": 2629
+        "start_line": 2827
       },
       "phases": [
         13,
@@ -79036,8 +79706,8 @@
         "path": "docs/webui-performance.md",
         "heading": "6. Page API orchestration",
         "start_line": 148,
-        "end_line": 262,
-        "sha256": "2642b96d5931b88ea665afcfcbbdd1021c756dfd98f2bebf22b3904134203e80"
+        "end_line": 273,
+        "sha256": "873b0b62de5f6082ae3057df0e895f5cb7898b854c8d530b230757f29dcd4411"
       },
       "phases": [
         3,
@@ -79241,6 +79911,22 @@
           ],
           "scope": "Integrated acceptance of this source-specific contract against the current fresh/upgrade system. Existing named tests below were rerun in the complete API/WebUI/tool/indexer acceptance; full workflow matrix, populated parity and live browser evidence supplement them. Phase 24 deployment remains excluded.",
           "details": "docs/disposition-phase-23.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "locations": [
+            "backend/services/api/disposition/operations.py",
+            "backend/services/api/disposition/destruction_worker.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/messaging/reading.py",
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/tasks.py",
+            "database/migrations/105_background_disposition_operations.sql",
+            "database/schema.sql"
+          ],
+          "details": "docs/verification/background-disposition.md"
         }
       ],
       "verification": [
@@ -79571,6 +80257,21 @@
             "frontend/webui/tests/test_navigation_drawer.py"
           ],
           "scope": "Native outside navigation toggle, anonymous/desktop visibility, live 390px and 1280px English/Arabic geometry, keyboard and accessible state; see navigation-checks.json."
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "result": "passed",
+          "run": "background-disposition-20261109",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_approval.py",
+            "backend/services/api/tests/test_disposition_external.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
         }
       ],
       "baseline_refs": [
@@ -79591,8 +80292,8 @@
       "source": {
         "path": "docs/webui-performance.md",
         "heading": "7. Rendering rules",
-        "start_line": 263,
-        "end_line": 283,
+        "start_line": 274,
+        "end_line": 294,
         "sha256": "9b9ff4f21fdec09aaac585ac0b53d823c99c69091335c04247fb2840f56cb3de"
       },
       "phases": [
@@ -80147,8 +80848,8 @@
       "source": {
         "path": "docs/webui-performance.md",
         "heading": "8. API and database rules",
-        "start_line": 284,
-        "end_line": 298,
+        "start_line": 295,
+        "end_line": 309,
         "sha256": "76212706ea44e207a32ab74e1206567901dbf23b72ce360e5b69bdff30d6aa6c"
       },
       "phases": [
@@ -80703,8 +81404,8 @@
       "source": {
         "path": "docs/webui-performance.md",
         "heading": "9. Cache safety and invalidation",
-        "start_line": 299,
-        "end_line": 316,
+        "start_line": 310,
+        "end_line": 327,
         "sha256": "fa8eb857f357fe1d327a01c9b9727de4e75b02a39a23716afcfde9e703fbda00"
       },
       "phases": [
@@ -81259,8 +81960,8 @@
       "source": {
         "path": "docs/webui-performance.md",
         "heading": "10. Verification requirements",
-        "start_line": 317,
-        "end_line": 336,
+        "start_line": 328,
+        "end_line": 347,
         "sha256": "2e69d424f7eea443611e066af4c1e1ac448461802823eb7da382f9e5bc49a3ff"
       },
       "phases": [
@@ -86461,8 +87162,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "18.1 Bulk membership removal amendment (4 November 2026)",
-        "start_line": 2105,
-        "end_line": 2120,
+        "start_line": 2192,
+        "end_line": 2207,
         "sha256": "4a0fd8c0332e5f46c3662a896f81fd8c1a51ba01f2b93b07eed1b1e02f6ee600"
       },
       "phases": [
@@ -86598,9 +87299,9 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "6.5.1 Bulk proposal and membership actions (approved 4 November 2026)",
-        "start_line": 999,
-        "end_line": 1046,
-        "sha256": "f743d6aec81117e3bb8869e19b2e488146a8d855eb7c42c1deebc1549acf54cf"
+        "start_line": 1040,
+        "end_line": 1094,
+        "sha256": "d6d8e301021d385c587512d9c3ea854b54e80d5261c5555354b4ebf1f8e95a22"
       },
       "phases": [
         9,
@@ -86655,6 +87356,15 @@
             "frontend/webui/disposition/bulk.py"
           ],
           "details": "docs/verification/bulk-disposition.md"
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 presentation correction only: shared withdrawal comment displayed for every readable withdrawn proposal; original reason retained separately; persistent indeterminate complete-set approval progress and existing committed-result recovery. No new authority, workflow, database schema, worker, cache or API contract.",
+          "locations": [
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/proposal_details.py"
+          ],
+          "details": "docs/verification/review-feedback.md"
         }
       ],
       "verification": [
@@ -86687,6 +87397,21 @@
             "frontend/webui/tests/test_disposition_bulk.py",
             "tools/tests/test_canonical_schema.py"
           ]
+        },
+        {
+          "phase": 16,
+          "scope": "9 November 2026 presentation correction only: shared withdrawal comment displayed for every readable withdrawn proposal; original reason retained separately; persistent indeterminate complete-set approval progress and existing committed-result recovery. No new authority, workflow, database schema, worker, cache or API contract.",
+          "result": "passed",
+          "run": "review-feedback-20261109",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_proposal_presentation.py",
+            "frontend/webui/tests/test_disposition_proposal_details.py",
+            "frontend/webui/tests/test_disposition_bulk.py",
+            "frontend/webui/tests/test_disposition_tasks.py",
+            "backend/services/api/tests/test_disposition_bulk.py"
+          ],
+          "details": "docs/verification/review-feedback.md"
         }
       ]
     },
@@ -86695,7 +87420,8 @@
       "kind": "acceptance_requirement",
       "summary": "Bulk disposition actions under destruction-process.md section 6.5.1",
       "source": {
-        "path": "specs/destruction-process.md"
+        "path": "specs/destruction-process.md",
+        "start_line": 3083
       },
       "phases": [
         9,
@@ -86792,8 +87518,8 @@
       "source": {
         "path": "specs/disposition.md",
         "heading": "18.2 Job-scoped aggregation selection (4 November 2026)",
-        "start_line": 2121,
-        "end_line": 2176,
+        "start_line": 2208,
+        "end_line": 2263,
         "sha256": "45a445b0e8ec6b3ed2e39db8e2207a7f86dd9e237aec0f732be8bfe74e3db9ae"
       },
       "phases": [
@@ -86939,7 +87665,8 @@
       "kind": "acceptance_requirement",
       "summary": "Job-scoped dialog, fixed admission subset, current authority and persistence, bounded selection and bilingual rendering",
       "source": {
-        "path": "specs/disposition.md"
+        "path": "specs/disposition.md",
+        "start_line": 2261
       },
       "phases": [
         9,
@@ -87046,8 +87773,8 @@
       "source": {
         "path": "specs/destruction-process.md",
         "heading": "5.1.1 Suggested owner when creating from selected roots",
-        "start_line": 2674,
-        "end_line": 2797,
+        "start_line": 2872,
+        "end_line": 2995,
         "sha256": "c669acd52e62229e584d61d46e7970bd000ee653a7eb12ed69c83152d1ab6fb3"
       },
       "phases": [
@@ -87125,6 +87852,126 @@
         }
       ],
       "baseline_refs": []
+    },
+    {
+      "id": "DISP-S17.10",
+      "kind": "source_section_including_all_un-IDed_prose_tables_and_fields",
+      "summary": "17.10 Long-running disposition operations",
+      "source": {
+        "path": "specs/disposition.md",
+        "heading": "17.10 Long-running disposition operations",
+        "start_line": 1853,
+        "end_line": 1901,
+        "sha256": "aafc619145e0f400a5df1e4189b416d8164c0b524ffbe3cb737779ffe1755f26"
+      },
+      "phases": [
+        16
+      ],
+      "planned_locations": [
+        "backend/services/api/disposition/operations.py",
+        "frontend/webui/disposition/background.py",
+        "database/migrations/105_background_disposition_operations.sql"
+      ],
+      "planned_checks": [
+        {
+          "name": "background-disposition::shared-contract",
+          "cases": "Durable acceptance, atomic/per-unit checkpoints as appropriate, current authority, duplicate/restart recovery, deferred task completion, nonmodal navigation and bilingual progress. Future disposition workflows remain unimplemented.",
+          "phase_plans": [
+            "phase_16"
+          ],
+          "status": "passed"
+        }
+      ],
+      "status": "complete",
+      "implementation": [
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "locations": [
+            "backend/services/api/disposition/operations.py",
+            "backend/services/api/disposition/destruction_worker.py",
+            "backend/services/api/disposition/routes.py",
+            "backend/services/api/messaging/reading.py",
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/tasks.py",
+            "database/migrations/105_background_disposition_operations.sql",
+            "database/schema.sql"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "locations": [
+            "backend/services/api/disposition/workflow.py",
+            "backend/services/api/disposition/queries.py",
+            "backend/services/api/disposition/workspace.py",
+            "frontend/webui/disposition/background.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "amendment": "digital-task-guidance-20261109",
+          "scope": "Hide digital progress and its Refresh before an execution request; remove redundant My Tasks controls from digital/approval progress cards; use digital-stage inline and claim-dialog guidance while retaining separate explicit execution confirmation and durable polling.",
+          "locations": [
+            "frontend/webui/disposition/background.py",
+            "frontend/webui/disposition/destruction.py",
+            "frontend/webui/disposition/review.py",
+            "frontend/webui/disposition/messages.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
+        }
+      ],
+      "verification": [
+        {
+          "phase": 16,
+          "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+          "result": "passed",
+          "run": "background-disposition-20261109",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_approval.py",
+            "backend/services/api/tests/test_disposition_external.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "run": "background-final-review-20261109",
+          "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+          "result": "passed",
+          "tests": [
+            "backend/services/api/tests/test_disposition_operations.py",
+            "backend/services/api/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/background-disposition.md"
+        },
+        {
+          "phase": 16,
+          "run": "digital-task-guidance-20261109",
+          "result": "passed",
+          "tests": [
+            "frontend/webui/tests/test_disposition_approval_progress.py",
+            "frontend/webui/tests/test_disposition_destruction.py",
+            "frontend/webui/tests/test_disposition_tasks.py"
+          ],
+          "details": "docs/verification/digital-task-guidance.md"
+        }
+      ],
+      "baseline_refs": [
+        "authorization",
+        "audit",
+        "notifications"
+      ]
     }
   ],
   "decisions": [
@@ -97399,6 +98246,105 @@
       "result": "passed",
       "evidence": "docs/verification/eligibility-browsing.md",
       "summary": "63 existing UI checks passed; English/Arabic live browser verification with in-memory sample data. Retired one unused hint key, preserving all 4028 other Arabic entries/provenance. No database test or persistent job mutation."
+    },
+    "review-feedback-20261109": {
+      "result": "passed",
+      "scope": "Withdrawal comment persistence/projection and per-row display; bilingual busy progress, duplicate prevention, success/failure/committed recovery, cancelled confirmation and abandonment. Actual tables/modals rendered with application styling in English/LTR and Arabic/RTL.",
+      "ui_cases_passed": 297,
+      "database_cases_passed": 15,
+      "database": "erms_messaging_test_acl_c12afce68f654021bb651cec6889ce19",
+      "creation": "succeeded",
+      "cleanup": "succeeded; dropped after run",
+      "targets": [
+        "backend/services/api/tests/test_disposition_bulk.py",
+        "frontend/webui/tests/test_disposition_approval_progress.py",
+        "frontend/webui/tests/test_disposition_proposal_presentation.py",
+        "frontend/webui/tests/test_disposition_proposal_details.py",
+        "frontend/webui/tests/test_disposition_bulk.py",
+        "frontend/webui/tests/test_disposition_tasks.py"
+      ],
+      "details": "docs/verification/review-feedback.md"
+    },
+    "background-disposition-20261109": {
+      "result": "passed",
+      "scope": "9 November 2026 approved background-operation amendment only: reusable durable lifecycle with destruction approval handler; retain atomic application, defer original task completion through required documents, safe document-only retry, current authority, governed notifications/links, mounted prominent approval and digital progress. No future disposition workflow implemented.",
+      "background_api_fresh": 17,
+      "background_api_upgrade": 17,
+      "approval_external_regression": 87,
+      "relevant_ui": 318,
+      "artifact_checks": 86,
+      "canonical_upgrade_schema_equal": true,
+      "disposable_databases_cleanup": "succeeded",
+      "details": "docs/verification/background-disposition.md"
+    },
+    "background-final-review-20261109": {
+      "result": "passed",
+      "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+      "server_regressions": 46,
+      "ui_regressions": 275,
+      "prior_defects_reproduced": 3,
+      "database": "erms_messaging_test_acl_cb75f3da77e9450cbf414c43d164574d",
+      "disposable_database_creation": "succeeded",
+      "disposable_database_cleanup": "succeeded",
+      "details": "docs/verification/background-disposition.md"
+    },
+    "personal-task-inbox-20261109": {
+      "result": "passed",
+      "scope": "Personal inbox for every role: own direct assignments/claims and available unclaimed queues only; suppress unclaimable parallel rows before counts/pages, retain current eligibility and authorized job-based reassignment, and show plain Unclaimed in the existing Task state column.",
+      "server_regressions": 66,
+      "additional_authorization_cases": 6,
+      "ui_regressions": 247,
+      "locale_artifact_regressions": 46,
+      "databases": [
+        "erms_messaging_test_acl_8a2923e536ed4214a5e6ee1681bab49a",
+        "erms_messaging_test_acl_364aa255b19b471db86acb311ea6f859"
+      ],
+      "disposable_database_creation": "succeeded",
+      "disposable_database_cleanup": "succeeded",
+      "details": "docs/verification/personal-task-inbox.md"
+    },
+    "personal-task-inbox-colour-20261109": {
+      "result": "passed",
+      "ui_regressions": 247,
+      "browser_languages": [
+        "en",
+        "ar"
+      ],
+      "unclaimed_computed_colour": "rgb(120, 53, 15)",
+      "unclaimed_computed_weight": 600,
+      "other_states_unchanged": true,
+      "database_backed_tests": "not required; presentation-only change",
+      "translation_changes": 0,
+      "details": "docs/verification/personal-task-inbox.md"
+    },
+    "digital-task-guidance-20261109": {
+      "result": "passed",
+      "scope": "Hide digital progress and its Refresh before an execution request; remove redundant My Tasks controls from digital/approval progress cards; use digital-stage inline and claim-dialog guidance while retaining separate explicit execution confirmation and durable polling.",
+      "ui_locale_regressions": 333,
+      "browser_languages": [
+        "en",
+        "ar"
+      ],
+      "browser_flow": [
+        "unclaimed",
+        "claim dialog",
+        "claimed ready",
+        "confirmed requested"
+      ],
+      "database_backed_tests": "not required; presentation-only change",
+      "details": "docs/verification/digital-task-guidance.md"
+    },
+    "final-certificate-queue-20261109": {
+      "result": "passed",
+      "scope": "Final saved-certificate task initially claimed by the destruction Manager, with existing governed reassignment/release, current certificate access and Manager eligibility, claimant-only completion, safe legacy conversion and unchanged saved evidence/executor/history.",
+      "server_regressions": 65,
+      "upgrade_regressions": 9,
+      "ui_regressions": 319,
+      "artifact_tooling_regressions": 99,
+      "canonical_upgrade_schema_parity": "identical",
+      "disposable_database_creation": "succeeded",
+      "disposable_database_cleanup": "succeeded",
+      "details": "docs/verification/final-certificate-queue.md"
     }
   },
   "removed_setting": {
@@ -100645,11 +101591,148 @@
     "demo_migration_applied": true,
     "routing_function_unchanged": true,
     "punctuation_fix": {
-      "scope": "Decode catalogue HTML escapes only at the reviewer warning literal-label boundary; shared HTML escaping, bidi isolates, translations and reviewer rules unchanged.",
-      "implementation": "frontend/webui/disposition/messages.py::review_setup_message",
-      "verification": "docs/verification/review-setup.md",
+      "scope": "Shared catalogue rendering supplies literal, bidi-isolated text to NiceGUI; HTML/template boundaries explicitly escape output. The original warning-only decode workaround is removed.",
+      "implementation": "frontend/webui/i18n_catalogue.py::_interpolate_text; frontend/webui/disposition/messages.py::review_setup_message",
+      "verification": "docs/verification/shared-rendering.md",
       "new_cases": 32,
-      "focused_ui_cases_passed": 184
+      "focused_ui_cases_passed": 184,
+      "shared_rendering_focused_ui_cases_passed": 146
     }
+  },
+  "eligibility_page_selection_amendment": {
+    "approved": "2026-11-05",
+    "specification": "specs/disposition.md revision 1.24 section 10.2",
+    "scope": "Select this page; retain explicit selection across server pages/sorts/page sizes; total selected count; Clear selection covers all pages; existing 100-item bound and admission checks retained.",
+    "implementation": "frontend/webui/disposition/screens.py::eligibility_screen",
+    "tests": [
+      "frontend/webui/tests/test_disposition_eligibility_paging.py",
+      "frontend/webui/tests/test_disposition_eligibility_selection.py",
+      "frontend/webui/tests/test_disposition_screens.py",
+      "frontend/webui/tests/test_disposition_addition_feedback.py",
+      "frontend/webui/tests/test_disposition_simplified_additions.py"
+    ],
+    "relevant_ui_tests_passed": 215,
+    "browser_languages": [
+      "en-LTR",
+      "ar-RTL"
+    ],
+    "verification": "docs/verification/eligibility-page-selection.md",
+    "database_migration": null,
+    "translation_keys_added": 3,
+    "existing_translation_entries_preserved": 4043,
+    "new_demo_arabic_drafts_unpublished": 3
+  },
+  "review_feedback_amendment": {
+    "approved": "2026-11-09",
+    "specification": "specs/destruction-process.md revision 1.22 sections 6.5.1 and 10",
+    "verification": "docs/verification/review-feedback.md",
+    "requirement_ids": [
+      "DEST-S6.5.1",
+      "DEST-S10"
+    ],
+    "database_migration": null,
+    "data_repair": null,
+    "translation_keys_added": [
+      "disposition.ui.withdrawal_comment",
+      "disposition.ui.approval_processing",
+      "disposition.ui.approval_processing_hint"
+    ],
+    "active_catalogue_keys": 4049,
+    "existing_arabic_entries_preserved": 4046,
+    "demo_new_arabic_drafts_unpublished": 3,
+    "progress_design_superseded_by": "background_operations_amendment; withdrawal-comment correction retained"
+  },
+  "background_operations_amendment": {
+    "approved": "2026-11-09",
+    "specifications": {
+      "specs/disposition.md": "1.25 section 17.10",
+      "specs/destruction-process.md": "1.23 sections 6.2, 10 and 15.2"
+    },
+    "requirement_ids": [
+      "DISP-S17.10",
+      "DEST-S10",
+      "DEST-S15.2",
+      "DEST-19",
+      "DEST-23",
+      "REF-performance-6",
+      "DEST-S6.2"
+    ],
+    "verification": "docs/verification/background-disposition.md",
+    "migration": "105_background_disposition_operations",
+    "demo_migration_applied": true,
+    "demo_business_history_counts_unchanged": true,
+    "new_arabic_drafts": 17,
+    "active_keys": 4066,
+    "prior_arabic_entries_preserved": 4049,
+    "existing_demo_arabic_rows_preserved": 4110,
+    "notification_activation": "Required through existing administration; demo producer registered but unconfigured.",
+    "global_baseline_boundary": "Scoped locators/evidence reconciled; unrelated pre-existing reference/configuration drift remains explicitly unverified.",
+    "final_review": {
+      "run": "background-final-review-20261109",
+      "scope": "Final review corrections: latest-attempt progress sorting after recovered approval; digital release/reassignment and Preparer-change controls withheld only during queued/running work, restored after failure while termination remains unchanged; mounted document-retry identity retained after lost acceptance response.",
+      "new_translation_keys": 0,
+      "additional_migration": null,
+      "details": "docs/verification/background-disposition.md"
+    }
+  },
+  "personal_task_inbox_amendment": {
+    "run": "personal-task-inbox-20261109",
+    "requirement_ids": [
+      "DEST-S6.1",
+      "DEST-S6.2",
+      "DEST-S6.3",
+      "DEST-21",
+      "DEST-22",
+      "DISP-S17.5",
+      "DISP-39"
+    ],
+    "specifications": {
+      "specs/destruction-process.md": "1.24 sections 6.1–6.3, DEST-21",
+      "specs/disposition.md": "1.26 section 17.5, DISP-39"
+    },
+    "translation_keys": [
+      "disposition.ui.unclaimed"
+    ],
+    "additional_migration": null,
+    "details": "docs/verification/personal-task-inbox.md"
+  },
+  "digital_task_guidance_amendment": {
+    "run": "digital-task-guidance-20261109",
+    "requirement_ids": [
+      "DEST-S6.3",
+      "DEST-S10",
+      "DEST-S15.2",
+      "DEST-23",
+      "DISP-S17.10"
+    ],
+    "specifications": {
+      "specs/destruction-process.md": "1.25 sections 6.3, 10 and 15.2",
+      "specs/disposition.md": "1.27 section 17.10"
+    },
+    "translation_keys": [
+      "disposition.ui.claim_before_digital_destruction",
+      "disposition.ui.claim_digital_explanation"
+    ],
+    "additional_migration": null,
+    "details": "docs/verification/digital-task-guidance.md"
+  },
+  "final_certificate_queue_amendment": {
+    "run": "final-certificate-queue-20261109",
+    "requirement_ids": [
+      "DEST-S6.3",
+      "DEST-S16",
+      "DEST-14",
+      "DEST-21",
+      "DEST-22"
+    ],
+    "specifications": {
+      "specs/destruction-process.md": "1.26 sections 6.3/16, DEST-14/21/22"
+    },
+    "translation_keys": [
+      "disposition.ui.claim_before_certificate_completion",
+      "disposition.ui.claim_certificate_explanation"
+    ],
+    "additional_migration": "106_final_certificate_task_queue",
+    "details": "docs/verification/final-certificate-queue.md"
   }
 }

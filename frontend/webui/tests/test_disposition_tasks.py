@@ -130,21 +130,37 @@ async def test_proposal_dialog_saves_immediately_and_hydrates_only_target(host,m
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('saved_sort',['','priority'])
-async def test_inbox_requests_real_offsets_and_keeps_server_claimant(host,saved_sort):
+async def test_inbox_requests_real_offsets_and_keeps_own_server_claimant(host,saved_sort):
     calls=[];opened=[]
     async def request(path,**params):
-        calls.append((path,params));return {'items':[dict(id=8,job_id=5,job_number='DEST-5',job_type='destruction',owner='Unit',task_type='preparation',workflow_stage='officer_preparation',task_state='claimed',claimant='Another reviewer',date_created='2026-10-19T00:00:00Z',age_seconds=172800,priority=0,root_count=1000,removal_required=True)],'total':100}
+        calls.append((path,params));return {'items':[dict(id=8,job_id=5,job_number='DEST-5',job_type='destruction',owner='Unit',task_type='preparation',workflow_stage='officer_preparation',task_state='claimed',claimant='Current reviewer',date_created='2026-10-19T00:00:00Z',age_seconds=172800,priority=0,root_count=1000,removal_required=True)],'total':100}
     async def open_task(*args):opened.append(args)
     with host:
         await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,open_task=open_task,format_timestamp=str,saved={'page':2,'size':10,'sort':saved_sort,'descending':bool(saved_sort)})
     table=next(e for e in host.descendants() if isinstance(e,ui.table))
-    assert table.rows[0]['claimant']=='Another reviewer' and table.rows[0]['age_days']==2
+    assert table.rows[0]['claimant']=='Current reviewer' and table.rows[0]['age_days']==2
     assert calls[0][1]['limit']==10 and calls[0][1]['offset']==10
     assert calls[0][1]['sort']=='received' and calls[0][1]['descending'] is False
     assert not any(c['name']=='priority' for c in table.columns)
     assert 'erms-page-table' in table.classes
     assert all(c['headerStyle']=='vertical-align: top' for c in table.columns)
     assert all(c['align']==('right' if text('my_tasks')=='مهامي' else 'left') for c in table.columns)
+
+
+@pytest.mark.asyncio
+async def test_inbox_distinguishes_unclaimed_with_plain_existing_state_cell(host):
+    base=dict(job_id=5,job_number='DEST-5',job_type='destruction',owner='Unit',task_type='preparation',workflow_stage='officer_preparation',date_created='2026-11-09T00:00:00Z',age_seconds=0)
+    async def request(path,**params):
+        return {'items':[{**base,'id':1,'task_state':'open','destination_role_id':7},
+                         {**base,'id':2,'task_state':'claimed','destination_role_id':7},
+                         {**base,'id':3,'task_state':'open','destination_user_id':1}],'total':3}
+    async def opened(*args):pass
+    with host:
+        await tasks_screen(api=SimpleNamespace(disposition_page=request),container=host,active=lambda:True,on_error=str,open_task=opened,format_timestamp=str)
+    table=next(e for e in host.descendants() if isinstance(e,ui.table))
+    assert [r['state_label'] for r in table.rows]==[text('unclaimed'),text('claimed'),text('open')]
+    assert next(c for c in table.columns if c['name']=='state_label')['label']==text('task_state')
+    assert not any(isinstance(e,ui.badge) for e in host.descendants())
 
 
 @pytest.mark.asyncio

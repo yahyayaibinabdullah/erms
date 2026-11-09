@@ -233,6 +233,8 @@ def job(c, identity, language_tag='en'):
     row['membership_add_role_id']=adder['role_id'] if adder else None
     row['membership_addable']=row['membership_editable'] or adder is not None
     row['review_setup']=job_review_setup(c,[identity])[identity]
+    if c.execute("SELECT disposition_private.operation_pending(%s) OR EXISTS(SELECT 1 FROM disposition_destruction_runs WHERE job_id=%s AND state IN ('queued','running')) busy",(identity,identity)).fetchone()['busy']:
+        for key in ('assignment_editable','owner_editable','membership_editable','membership_addable'):row[key]=False
     return row
 
 

@@ -163,6 +163,7 @@ async def messaging_workspace(
     browse_recipients=None,
     inspect_resource=None,
     open_disposition_task=None,
+    open_disposition_job=None,
     open_disposition_eligibility=None,
 ):
     view = {
@@ -942,6 +943,9 @@ async def messaging_workspace(
                     await receipts()
 
     def render_body(message):
+        if message.get('disposition_job') and open_disposition_job:
+            from .disposition.messages import text as disposition_text
+            ui.button(disposition_text('job_details'),icon='open_in_new',on_click=lambda:open_disposition_job(message['disposition_job'])).props('outline no-caps')
         if message.get("disposition_eligibility") and open_disposition_eligibility:
             from .disposition.messages import text as disposition_text
             ui.button(disposition_text("eligibility"),icon="event_available",on_click=open_disposition_eligibility).props("outline no-caps")

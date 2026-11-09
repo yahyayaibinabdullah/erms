@@ -142,10 +142,10 @@ def addition_feedback(*, container, active, result, labels, job_number):
                 paging={'offset':0}
                 with ui.row().classes('w-full justify-end items-center gap-2'):
                     previous=ui.button(icon='chevron_right' if current_locale_context()[0]=='ar' else 'chevron_left',on_click=lambda:render(-1)).props('flat round dense')
-                    previous.props('aria-label="'+relationship_text('previous')+'"').tooltip(relationship_text('previous'))
+                    previous.props('aria-label='+repr(relationship_text('previous'))+'').tooltip(relationship_text('previous'))
                     count=ui.label('').classes('text-sm').props('role=status aria-live=polite')
                     next_button=ui.button(icon='chevron_left' if current_locale_context()[0]=='ar' else 'chevron_right',on_click=lambda:render(1)).props('flat round dense')
-                    next_button.props('aria-label="'+relationship_text('next')+'"').tooltip(relationship_text('next'))
+                    next_button.props('aria-label='+repr(relationship_text('next'))+'').tooltip(relationship_text('next'))
                     ui.button(text('close'),on_click=dialog.close).props('flat no-caps')
 
                 def render(delta=0):
@@ -328,6 +328,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
     saved=saved or {};filters=saved.get('filters',{})
     with container, ui.card().classes('detail-surface messaging-workspace w-full p-5 gap-4') as host:
         def alive():return active() and not host._deleted
+        selection_state={'revision':0,'scope':None,'checking':None,'criteria':None}
         context_task=asyncio.create_task(api.disposition_page('context'))
         context={}
         def disclosure_changed(event):
@@ -347,13 +348,22 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                 grouped=ui.checkbox(text('group_owner'),value=filters.get('group_owner',False))
                 descending=ui.checkbox(text('descending'),value=saved.get('descending',False))
             async def apply_filters():
+                clear_selection()
                 page.sort='';page.descending=descending.value
                 await page.load(reset=True)
             ui.button(text('filters'),icon='filter_alt',on_click=apply_filters).tooltip(text('filters')).props('outline no-caps')
         with ui.row().classes('w-full justify-between gap-3'):
-            ui.button(text('refresh'),icon='refresh',on_click=lambda:page.load()).tooltip(text('refresh')).props('outline no-caps')
+            async def refresh():
+                clear_selection()
+                await page.load()
+            ui.button(text('refresh'),icon='refresh',on_click=refresh).tooltip(text('refresh')).props('outline no-caps')
             add_button=ui.button(text('add'),icon='playlist_add',on_click=lambda:add_selected()).tooltip(text('add')).props('no-caps')
             add_button.disable()
+        with ui.row().classes('w-full items-center gap-3 flex-wrap bg-blue-50 rounded-lg p-3'):
+            selection_count=ui.label('').classes('grow').props('role=status')
+            select_page_button=ui.button(text('eligibility_select_page'),on_click=lambda:select_visible(True)).props('outline no-caps')
+            clear_button=ui.button(text('bulk_clear'),on_click=lambda:clear_selection()).props('flat no-caps')
+        ui.label(text('eligibility_selection_hint')).classes('text-xs text-slate-500')
         selection_warning=ui.label('').classes('text-sm text-amber-900').props('role=status aria-live=polite')
         selection_warning.set_visibility(False)
         results=ui.column().classes('w-full gap-2').props('aria-live=polite')
@@ -362,6 +372,9 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
             current={'status':status.value,'due_from':due_from.value,'due_to':due_to.value,'due_from_fold':from_fold.value,'due_to_fold':to_fold.value,'group_owner':grouped.value,
                      'sort':sort.value,**{key:control.value for key,control in boolean.items()},
                      'owner_selected':{'id':owner.value,'name':owner.options.get(owner.value)} if owner.value else None}
+            criteria={key:value for key,value in current.items() if key not in ('sort','group_owner')}
+            if selection_state['criteria'] is not None and criteria!=selection_state['criteria']:clear_selection()
+            selection_state['criteria']=criteria
             result=await api.disposition_page('eligibility',limit=p.size,offset=(p.page-1)*p.size,sort={'identity':'id','due_label':'due','owner_label':'owner','state_label':'status'}.get(p.sort,p.sort) or sort.value,
                 descending=p.descending,owner=owner.value,status=status.value or None,group_owner=grouped.value,
                 due_from=date_filter(due_from.value,from_fold.value),
@@ -399,7 +412,17 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
             result['_view']={'page':p.page,'size':p.size,'sort':p.sort,'descending':p.descending,'filters':current}
             return result
         def loaded(p,result):
-            p.table.selected=[];selection_changed();remember(result['_view'])
+            # Keep explicit selections across server pages and sorts. Do not
+            # silently replace a selected row's version with a newer snapshot.
+            unavailable={r['id'] for r in result['items'] if not r.get('selectable') or r.get('redacted')}
+            p.table.selected=[r for r in p.table.selected if r['id'] not in unavailable]
+            # Compatibility facts cover only the owners on this bounded page.
+            # Keep that boundary with the selected snapshot so a missing owner
+            # from a different page is not mistaken for an unrelated branch.
+            owners=list({r['owning_org_unit_id'] for r in result['items'] if r.get('selectable') and not r.get('redacted')})
+            for row in result['items']:
+                if not row.get('redacted'):row['_checked_owner_ids']=owners
+            selection_changed(visible=result['items']);remember(result['_view'])
         def eligibility_column(*args, **kwargs):
             return {**column(*args, **kwargs), 'headerStyle': 'vertical-align: top'}
         page=PageTable(columns=[eligibility_column('identity','aggregation',True),eligibility_column('state_label','status',True),eligibility_column('due_label','normal_due',True),eligibility_column('owner_label','owner',True),eligibility_column('protection_label','blockers'),eligibility_column('job_label','active_job'),eligibility_column('actions')],fetch=fetch,active=alive,on_error=on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),selection='multiple',on_loaded=loaded,initial=saved)
@@ -429,18 +452,78 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
         </q-td></q-tr>''')
         def selected_aggregations():
             return [r for r in page.table.selected if r.get('selectable') and not r.get('redacted')]
-        def selection_changed():
+        def clear_selection():
+            selection_state['revision']+=1
+            selection_state.update(scope=None,checking=None)
+            page.table.selected=[]
+            selection_changed()
+
+        async def check_selection(signature,revision):
+            try:
+                result=await api.disposition_page('suggested-owner',root_ids=[identity for identity,version in signature])
+                outcome=bool(result.get('owner'));error=None
+            except ApiError as exc:
+                outcome=False;error=exc
+            if not alive() or revision!=selection_state['revision'] or signature!=selection_state['checking']:return
+            # Background checks may resume without a NiceGUI page slot or
+            # populated locale ContextVar. Resolve text in the owning client.
+            with host:
+                selection_state.update(scope=(signature,outcome,failure(error,on_error) if error else None),checking=None)
+                selection_changed()
+
+        def selection_changed(*,visible=None):
             if not alive():return False
             rows=selected_aggregations()
+            if len(rows)>100:
+                rows=rows[:100];page.table.selected=rows
+                ui.notify(text('bulk_limit'),type='warning')
+            visible=page.table.rows if visible is None else visible
+            selection_count.text=text('bulk_selected_count',count=len(rows))
+            clear_button.set_enabled(bool(rows))
+            available={r['id'] for r in visible if r.get('selectable') and not r.get('redacted')}
+            checked=available & {r['id'] for r in rows}
+            select_page_button.set_enabled(bool(available-checked))
+            value='true' if available and checked==available else 'null' if checked else 'false'
+            page.table.add_slot('header-selection',f'''<q-checkbox :model-value="{value}"
+              :disable="{'false' if available else 'true'}" aria-label="{escape(text('bulk_select_page'))}"
+              @update:model-value="$parent.$emit('select-visible',$event)"><q-tooltip>{escape(text('bulk_select_page'))}</q-tooltip></q-checkbox>''')
+            page.table.update()
             owners={r.get('owning_org_unit_id') for r in rows}
             mixed_types=len({r.get('disposition_status') for r in rows})>1
-            mixed_branches=any(not owners.issubset(r.get('compatible_owning_org_unit_ids',[r.get('owning_org_unit_id')])) for r in rows)
+            mixed_branches=any((owners & set(r.get('_checked_owner_ids',owners)))-set(r.get('compatible_owning_org_unit_ids',[r.get('owning_org_unit_id')])) for r in rows)
+            unknown=any(not owners.issubset(r.get('_checked_owner_ids',owners)) for r in rows)
+            signature=tuple(sorted((r['id'],r['version']) for r in rows))
+            cached=selection_state['scope'];checking=False;error=None
+            if unknown and not mixed_branches:
+                if cached and cached[0]==signature:
+                    mixed_branches=not cached[1];error=cached[2]
+                else:
+                    checking=True
+                    if selection_state['checking']!=signature:
+                        selection_state['revision']+=1;selection_state['checking']=signature
+                        asyncio.create_task(check_selection(signature,selection_state['revision']))
+            elif selection_state['checking'] is not None:
+                selection_state['revision']+=1;selection_state['checking']=None
             warnings=[text(key) for key,invalid in [('selection_mixed_types',mixed_types),('selection_mixed_branches',mixed_branches)] if invalid]
+            if error:warnings=[error]
+            if checking:warnings.append(text('eligibility_selection_checking'))
             selection_warning.text=' '.join(warnings)
             selection_warning.set_visibility(bool(warnings))
             valid=bool(rows) and not warnings
             add_button.set_enabled(valid)
             return valid
+        def select_visible(event):
+            if not alive():return
+            selected=event if isinstance(event,bool) else event.args
+            rows={r['id']:r for r in selected_aggregations()}
+            additions={r['id'] for r in page.table.rows if r.get('selectable') and not r.get('redacted')}-rows.keys()
+            if selected and len(rows)+len(additions)>100:
+                ui.notify(text('bulk_limit'),type='warning');return
+            for row in page.table.rows:
+                if selected and row.get('selectable') and not row.get('redacted'):rows.setdefault(row['id'],row)
+                elif not selected:rows.pop(row['id'],None)
+            page.table.selected=list(rows.values());selection_changed()
+        page.table.on('select-visible',select_visible)
         page.table.on('selection',selection_changed)
         page.table.on('open-root',lambda event:open_resource('aggregation',event.args))
         page.table.on('open-job',lambda event:open_job(event.args))
@@ -459,6 +542,7 @@ async def eligibility_screen(*, api, container, active, on_error, bind_remote, o
                 add_context={'roles':[{'id':current['membership_add_role_id']}]} if current.get('membership_add_role_id') else context
                 async def added(result):
                     addition_feedback(container=results,active=alive,result=result,labels=labels,job_number=current['job_number'])
+                    clear_selection()
                     await page.load()
                 def build(dialog_active):
                     ui.label(current['job_number']).props('dir=auto')

@@ -125,14 +125,13 @@ the owner selector correctly showed `General Manager's Office`. The shared
 catalogue renderer HTML-escapes interpolated values; passing that string to a
 NiceGUI label's literal text property displayed the entity verbatim.
 
-`review_setup_message` now decodes that single escaping layer at this specific
-plain-label boundary, covering both creation and existing job/task warnings.
-Its output is for literal labels only, never raw HTML. The shared renderer's
-escaping and bidirectional isolates are unchanged. Tests verify all three warning
-variants with apostrophes, quotes, ampersands, mixed Arabic/English, literal
-entity-like source text and markup-like names. Entity-like source text is not
-recursively decoded; markup-like values remain label text. The actual create
-form also checks the selector/warning match and that Save remains disabled.
+The initial correction decoded one escaping layer in `review_setup_message`.
+The later cross-screen correction supersedes that workaround: the shared
+renderer now returns literal text for NiceGUI text properties and the warning
+uses it directly. HTML/template boundaries explicitly escape messages; quoted
+NiceGUI properties use Python quoting. See
+[shared text rendering verification](shared-rendering.md) for the broader audit,
+role-ordering regression and English/Arabic browser evidence.
 
 **184 focused UI checks passed**, including 32 new punctuation cases in both
 languages. Live browser checks reproduced the original failure before the fix,

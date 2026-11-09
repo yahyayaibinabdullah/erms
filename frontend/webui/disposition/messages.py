@@ -1,8 +1,8 @@
 """Contextual disposition text; no catalogue parsing on rendering paths."""
-from html import unescape
 from ..i18n_catalogue import render_message_plain
 
 DISPOSITION_MESSAGE_KEYS = {
+ 'unclaimed': 'disposition.ui.unclaimed',
  'picker_title': 'disposition.ui.picker_title',
  'picker_owner_scope': 'disposition.ui.picker_owner_scope',
  'picker_type_scope': 'disposition.ui.picker_type_scope',
@@ -15,6 +15,9 @@ DISPOSITION_MESSAGE_KEYS = {
  'picker_add': 'disposition.ui.picker_add',
  'picker_retry': 'disposition.ui.picker_retry',
  'picker_changed': 'disposition.ui.picker_changed',
+ 'eligibility_select_page': 'disposition.ui.eligibility_select_page',
+ 'eligibility_selection_hint': 'disposition.ui.eligibility_selection_hint',
+ 'eligibility_selection_checking': 'disposition.ui.eligibility_selection_checking',
  'bulk_clear': 'disposition.ui.bulk_clear',
  'bulk_selected_count': 'disposition.ui.bulk_selected_count',
  'bulk_select_page': 'disposition.ui.bulk_select_page',
@@ -57,6 +60,7 @@ DISPOSITION_MESSAGE_KEYS = {
  'relationship_to': 'disposition.ui.relationship_to',
  'proposed_change': 'disposition.ui.proposed_change',
  'proposed_by': 'disposition.ui.proposed_by',
+ 'withdrawal_comment': 'disposition.ui.withdrawal_comment',
  'proposal_reason': 'disposition.ui.proposal_reason',
  'proposal_status': 'disposition.ui.proposal_status',
  'proposed_at': 'disposition.ui.proposed_at',
@@ -74,6 +78,21 @@ DISPOSITION_MESSAGE_KEYS = {
  'history_affected_item': 'disposition.ui.history_affected_item',
  'add_aggregations': 'disposition.ui.add_aggregations',
  'approval_results_guidance': 'disposition.ui.approval_results_guidance',
+ 'background_hint': 'disposition.ui.background_hint',
+ 'background_progress': 'disposition.ui.background_progress',
+ 'approval_accepting': 'disposition.ui.approval_accepting',
+ 'approval_queued': 'disposition.ui.approval_queued',
+ 'approval_documents': 'disposition.ui.approval_documents',
+ 'approval_ready': 'disposition.ui.approval_ready',
+ 'approval_failed': 'disposition.ui.approval_failed',
+ 'approval_documents_failed': 'disposition.ui.approval_documents_failed',
+ 'approval_retry_documents': 'disposition.ui.approval_retry_documents',
+ 'approval_attention': 'disposition.ui.approval_attention',
+ 'progress_unavailable': 'disposition.ui.progress_unavailable',
+ 'disposition_operation_in_progress': 'disposition.ui.disposition_operation_in_progress',
+ 'disposition_operation_failed': 'disposition.ui.disposition_operation_failed',
+ 'approval_processing': 'disposition.ui.approval_processing',
+ 'approval_processing_hint': 'disposition.ui.approval_processing_hint',
  'approval_title': 'disposition.ui.approval_title',
  'approval_summary': 'disposition.ui.approval_summary',
  'approval_type_count': 'disposition.ui.approval_type_count',
@@ -281,8 +300,12 @@ DISPOSITION_MESSAGE_KEYS = {
  'certificate_generation': 'disposition.ui.certificate_generation',
  'change_owner': 'disposition.ui.change_owner',
  'claim': 'disposition.ui.claim',
+ 'claim_before_digital_destruction': 'disposition.ui.claim_before_digital_destruction',
  'claim_before_proposals': 'disposition.ui.claim_before_proposals',
  'claim_explanation': 'disposition.ui.claim_explanation',
+ 'claim_digital_explanation': 'disposition.ui.claim_digital_explanation',
+ 'claim_before_certificate_completion': 'disposition.ui.claim_before_certificate_completion',
+ 'claim_certificate_explanation': 'disposition.ui.claim_certificate_explanation',
  'restricted_proposal_details': 'disposition.ui.restricted_proposal_details',
  'claimant': 'disposition.ui.claimant',
  'claimed': 'disposition.ui.claimed',
@@ -764,11 +787,7 @@ def review_setup_message(setup, unit):
     fa=bool(setup.get('file_administrator_missing'))
     manager=bool(setup.get('unit_manager_missing'))
     key='review_assign_both' if fa and manager else 'review_assign_file_administrator' if fa else 'review_assign_unit_manager' if manager else None
-    # Catalogue interpolation escapes values for HTML. These messages go only to
-    # NiceGUI label.text, which renders literal text safely; decode that one layer
-    # here so punctuation is not displayed as entities. Keep the shared renderer's
-    # escaping and bidi isolation intact for its other, potentially HTML, sinks.
-    return unescape(text(key,unit=unit or text('owner'))) if key else ''
+    return text(key,unit=unit or text('owner')) if key else ''
 
 
 REVIEW_SETUP_ERRORS={

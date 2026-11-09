@@ -12,6 +12,7 @@ from ..messaging.notifications import emit_system_notification
 ASSIGNED = 'disposition.task_assigned'
 DESTRUCTION_OUTCOME='disposition.destruction_outcome'
 COMPLETION_OUTCOME='disposition.completion_outcome'
+OPERATION_OUTCOME='disposition.operation_outcome'
 
 
 def audience(c, context):
@@ -34,6 +35,14 @@ def completion_audience(c,context):
       AND disposition_private.can_review_content(u.id,%s) ORDER BY u.id LIMIT %s''',(context['job_id'],context['job_id'],LIMITS['MAX_SELECTORS_PER_SEND']+1)).fetchall()]
 
 
+
+def operation_audience(c,context):
+    return [Selector(selector_kind='user',target_id=row['requested_by_user_id']) for row in c.execute("""SELECT DISTINCT w.requested_by_user_id FROM disposition_private.operation_work w
+      WHERE w.id=%s::uuid AND disposition_private.person_role(w.requested_by_user_id,w.acting_role_id)
+      AND disposition_private.review_role(w.job_id,'records_manager_review',w.acting_role_id)
+      AND disposition_private.can_review_content(w.requested_by_user_id,w.job_id)""",(context['operation_id'],)).fetchall()]
+
+
 def definitions():
     from .reminders import definition
     return (SystemNotificationDefinition(
@@ -42,7 +51,7 @@ def definitions():
         placeholders={'task_id':Placeholder(type='integer')},
         audience_resolvers={'current_eligible_task_recipients':audience},
         sample_context={'task_id':1},
-    ),SystemNotificationDefinition(producer_code=DESTRUCTION_OUTCOME,feature_code='disposition',event_type='destruction_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'run_id':Placeholder(type='integer')},audience_resolvers={'current_eligible_managers':destruction_audience},sample_context={'run_id':1}),SystemNotificationDefinition(producer_code=COMPLETION_OUTCOME,feature_code='disposition',event_type='completion_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'job_id':Placeholder(type='integer')},audience_resolvers={'current_eligible_managers':completion_audience},sample_context={'job_id':1}),definition())
+    ),SystemNotificationDefinition(producer_code=DESTRUCTION_OUTCOME,feature_code='disposition',event_type='destruction_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'run_id':Placeholder(type='integer')},audience_resolvers={'current_eligible_managers':destruction_audience},sample_context={'run_id':1}),SystemNotificationDefinition(producer_code=COMPLETION_OUTCOME,feature_code='disposition',event_type='completion_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'job_id':Placeholder(type='integer')},audience_resolvers={'current_eligible_managers':completion_audience},sample_context={'job_id':1}),SystemNotificationDefinition(producer_code=OPERATION_OUTCOME,feature_code='disposition',event_type='operation_outcome',contract_version=1,required_for_business_commit=False,allow_static_audience=False,placeholders={'job_id':Placeholder(type='integer'),'operation_id':Placeholder(type='text')},audience_resolvers={'requesting_managers':operation_audience},sample_context={'job_id':1,'operation_id':'00000000-0000-0000-0000-000000000001'}),definition())
 
 
 def publish_command_tasks(c, command_id=None):
@@ -83,3 +92,14 @@ def publish_completion_outcomes(c,job_id=None):
     rows=c.execute("""SELECT id,entity_id,actor_user_id FROM event_history WHERE entity_type='disposition_job' AND operation IN ('DESTRUCTION_JOB_COMPLETED','DIGITAL_CERTIFICATE_FAILED')
       AND ((%s::bigint IS NOT NULL AND entity_id=%s) OR (%s::bigint IS NULL AND transaction_id=txid_current())) ORDER BY id""",(job_id,job_id,job_id)).fetchall()
     for row in rows:emit_system_notification(transaction=c,producer_code=COMPLETION_OUTCOME,source_event_id=str(row['id']),context={'job_id':row['entity_id']},triggered_by_user_id=row['actor_user_id'])
+
+
+def publish_operation_outcomes(c,operation_id):
+    if not c.execute('SELECT 1 FROM system_notification_producers WHERE producer_code=%s AND active_configuration_version_id IS NOT NULL',(OPERATION_OUTCOME,)).fetchone():return False
+    if not operation_audience(c,{'operation_id':str(operation_id)}):return True
+    rows=c.execute("""SELECT e.id,w.job_id,w.requested_by_user_id FROM event_history e
+      JOIN disposition_private.operation_work w ON e.metadata->>'operation_id'=w.id::text
+      WHERE w.id=%s AND e.operation IN ('DISPOSITION_OPERATION_READY','DISPOSITION_OPERATION_FAILED')
+      ORDER BY e.id""",(operation_id,)).fetchall()
+    for row in rows:emit_system_notification(transaction=c,producer_code=OPERATION_OUTCOME,source_event_id=str(row['id']),context={'job_id':row['job_id'],'operation_id':str(operation_id)},triggered_by_user_id=row['requested_by_user_id'])
+    return True

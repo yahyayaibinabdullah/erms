@@ -55,6 +55,7 @@ class ReviewForm:
         with self.host:
             ui.label(text('current_task')).classes('text-lg font-semibold')
             self.feedback=ui.label('').props('role=alert').classes('text-negative')
+            self.status_host=ui.column().classes('w-full gap-3')
             if not self.task:
                 ui.label(text('no_current_task')).props('role=status');return
             form_key={'certificate_generation':'certificate_final_task','physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
@@ -65,11 +66,19 @@ class ReviewForm:
                 from .completion import status_message
                 hint=status_message(workspace)
             if self.task['task_type']=='certificate_download':hint='certificate_finish_hint'
-            ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
+            operation=workspace.get('operation') or {}
+            processing=operation.get('state') in ('queued','running') or operation.get('state')=='failed' and operation.get('approval_committed')
+            digital_pending=((workspace.get('destruction') or {}).get('progress') or {}).get('state') in ('queued','running')
+            # The progress card provides the applicable guidance. Do not tell
+            # an already working reviewer to claim or confirm the task again.
+            if not processing and not digital_pending:
+                ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
             self.acting_role_id=automatic_role(self.roles)
-            if 'claim' in self.actions:ui.label(text('claim_before_proposals')).classes('text-sm text-amber-900').props('role=status')
+            if 'claim' in self.actions:
+                claim_hint={'digital_destruction':'claim_before_digital_destruction','certificate_download':'claim_before_certificate_completion'}.get(self.task['task_type'],'claim_before_proposals')
+                ui.label(text(claim_hint)).classes('text-sm text-amber-900').props('role=status')
             if 'claim' in self.actions:ui.button(text('claim'),icon='assignment_ind',on_click=lambda:self.queue_action('claim')).tooltip(text('claim')).props('no-caps')
             if 'reassign' in self.actions:ui.button(text('reassign'),icon='person_add',on_click=self.reassign).tooltip(text('reassign')).props('outline no-caps')
             if 'release' in self.actions:ui.button(text('release'),icon='undo',on_click=lambda:self.queue_action('release')).tooltip(text('release')).props('outline no-caps')
@@ -106,9 +115,12 @@ class ReviewForm:
     async def queue_action(self,action):
         from .screens import command_dialog
         if self.dirty():ui.notify(text('unsaved_warning'),type='warning');return
-        await command_dialog(api=self.api,context={'roles':self.view['roles'] if action=='claim' else list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after,reason_required=action!='claim',confirm='claim_explanation' if action=='claim' else None)
+        explanation={'digital_destruction':'claim_digital_explanation','certificate_download':'claim_certificate_explanation'}.get(self.task['task_type'],'claim_explanation') if action=='claim' else None
+        await command_dialog(api=self.api,context={'roles':self.view['roles'] if action=='claim' else list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after,reason_required=action!='claim',confirm=explanation)
 
     async def load(self):
+        from .background import controls as background_controls
+        background_controls(self)
         from .external import request_controls,task_form
         if self.job['workflow_stage']=='external_approval_pending' or any((self.view.get('external') or {}).get(k) for k in ('can_generate','can_renew')):request_controls(self,host=self.documents_host)
         from .physical import controls as physical_controls,task_form as physical_task_form
@@ -258,6 +270,7 @@ class ReviewForm:
                         ui.button(text('cancel'),on_click=lambda:dialog.submit(False)).props('flat no-caps')
                         ui.button(text('approve_apply'),on_click=lambda:dialog.submit(True)).props('no-caps')
                 if not await dialog or not self.alive():return
+                self.feedback.text=text('approval_accepting')
             saved=await self.persist() is not None
             if not self.alive():return
             payload={'task_version':self.work['task_version']}
@@ -276,6 +289,10 @@ class ReviewForm:
                 payload.update(membership_token=preview['membership_token'],proposals_token=preview['proposals_token'],overall_reason=self.comments.value if self.needs_submission_comments() else None);endpoint='approve-proposals'
             result=await self.send(f"tasks/{self.task['id']}/{endpoint}",payload,self.work['job_version'])
             if not self.alive():return
+            if action=='approve' and result.get('operation_id'):
+                ui.notify(text('approval_queued'),type='info')
+                await self.after(result)
+                return
             pending=result.get('request_status')=='pending' or result.get('report_status')=='pending'
             if action in ('submit','complete_review','reject'):
                 notify_completion(result,'submitted' if action=='submit' else 'review_completed')
@@ -345,7 +362,11 @@ class ReviewForm:
                     row['details_available']=not row['redacted'] or bool(row.get('partial'))
                     row['change_label']=proposed_change(row)
                     row['proposer_label']=row.get('proposer_name') or '—'
-                    row['reason_label']=text('restricted_text') if row['redacted'] and row.get('partial') else '—' if row['redacted'] else row.get('reason') or '—'
+                    if row['redacted']:
+                        row['reason_label']=text('restricted_text') if row.get('partial') else '—'
+                    elif row['proposal_state']=='withdrawn':
+                        row['reason_label']=text('withdrawal_comment')+' · '+row['withdrawal_reason'] if row.get('withdrawal_reason') else '—'
+                    else:row['reason_label']=row.get('reason') or '—'
                     if row['redacted']:
                         target=row.get('target_summary')
                         row.update(target_label=target['number']+' · '+target['title'] if target else text('restricted_resource'),target_notice=text('restricted_proposal_details') if target else '',type_label='—',state_label='—',editable=False)

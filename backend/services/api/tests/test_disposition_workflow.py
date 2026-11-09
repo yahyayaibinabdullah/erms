@@ -5,7 +5,7 @@ from uuid import uuid4
 import psycopg
 import pytest
 
-from backend.services.api.disposition import membership, workflow
+from backend.services.api.disposition import membership, workflow, workspace
 from backend.services.api.disposition.commands import execute_command
 from backend.services.api.disposition.eligibility import worker_actor
 from backend.services.api.tests.test_disposition_membership import db, actor, setup, ready, admit, job_version, kwargs, remove
@@ -240,6 +240,7 @@ def test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round(c
             c.execute("SELECT set_config('app.security_level_change_authorized','authorized',true)")
             c.execute('UPDATE aggregations SET security_level_id=%s WHERE id=%s',(high,root))
         actor(c,other)
+        assert workflow.tasks(c,limit=25,offset=0,job_id=job['id'])=={'items':[],'total':0}
         with pytest.raises(psycopg.Error,match='disposition_task_ineligible'):
             execute_command(c,**{**kwargs(),'acting_role_id':mgr},operation='task_complete',payload={'task_id':t['id']},apply=lambda x:(x.execute("UPDATE disposition_tasks SET task_state='completed' WHERE id=%s",(t['id'],)),{})[1])
         worker_actor(c);assert workflow.reconcile_claims(c)['released']==[t['id']]
@@ -351,10 +352,70 @@ def test_shared_claims_across_separate_manager_roles_still_have_one_claimant(cli
         submit(c,job['id'])
         rows=c.execute("SELECT * FROM disposition_tasks WHERE job_id=%s AND task_state='open' ORDER BY id",(job['id'],)).fetchall()
         assert len(rows)==2
-        act(c,rows[0],'claim',rows[0]['destination_role_id'])
+        claimed=act(c,rows[0],'claim',rows[0]['destination_role_id'])
+        assert [r['id'] for r in workflow.tasks(c,limit=25,offset=0)['items']]==[claimed['id']]
         actor(c,other)
+        # An open sibling queue is unavailable while this stage has a claimant.
+        assert workflow.tasks(c,limit=25,offset=0)=={'items':[],'total':0}
         with pytest.raises(psycopg.Error,match='disposition_task_already_claimed'):
             act(c,rows[1],'claim',rows[1]['destination_role_id'])
+        actor(c)
+        act(c,claimed,'release',mgr)
+        actor(c,other)
+        assert [r['id'] for r in workflow.tasks(c,limit=25,offset=0)['items']]==[rows[1]['id']]
+
+
+@pytest.mark.parametrize('stage',['file_administrator_review','unit_manager_review','records_manager_review'])
+def test_personal_inbox_moves_claimed_work_without_removing_job_management(client,stage):
+    with db() as c:
+        job,root,um,fa,mgr=seeded(c,'simplified' if stage=='records_manager_review' else 'standard',fa=stage=='file_administrator_review')
+        queue={'file_administrator_review':fa,'unit_manager_review':um,'records_manager_review':mgr}[stage]
+        other=person(c)
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(other,queue))
+        submit(c,job['id']);t=task(c,job['id'])
+        assert t['workflow_stage']==stage and t['task_state']=='open'
+        for user in (1,other):
+            actor(c,user)
+            assert workflow.tasks(c,limit=1,offset=0,job_id=job['id'])['total']==1
+        actor(c)
+        claimed=act(c,t,'claim',queue)
+        actor(c,other)
+        assert workflow.tasks(c,limit=1,offset=0,job_id=job['id'])=={'items':[],'total':0}
+        actor(c)
+        reassigned=act(c,claimed,'reassign',mgr,other)
+        for filters in ({},{'state':'claimed'},{'has_claimant':True},{'query':job['job_number']}):
+            assert workflow.tasks(c,limit=1,offset=0,job_id=job['id'],**filters)=={'items':[],'total':0}
+        # Jobs → details → Current task still offers authorized reassignment.
+        detail=workspace.read(c,job['id'])
+        assert detail['task']['id']==t['id'] and detail['task']['claimed_by_user_id']==other
+        assert 'reassign' in detail['actions'] and 'propose' not in detail['actions']
+        officer=person(c,'Managing officer')
+        role(c,'managing-officer','INFO_GOV_OFFICER',user=officer)
+        actor(c,officer)
+        assert workflow.tasks(c,limit=1,offset=0,job_id=job['id'])['total']==0
+        assert 'reassign' in workspace.read(c,job['id'])['actions']
+        actor(c,other)
+        assert [r['id'] for r in workflow.tasks(c,limit=1,offset=0,job_id=job['id'])['items']]==[t['id']]
+        act(c,reassigned,'release',queue)
+        for user in (1,other):
+            actor(c,user)
+            assert workflow.tasks(c,limit=1,offset=0,job_id=job['id'])['total']==1
+
+
+def test_personal_inbox_direct_assignments_and_server_totals(client):
+    with db() as c:
+        other=person(c)
+        role(c,'other-officer','INFO_GOV_OFFICER',user=other)
+        own=setup(c)
+        theirs=setup(c,assigned=other)
+        actor(c)
+        page=workflow.tasks(c,limit=1,offset=0)
+        assert page['total']==1 and page['items'][0]['job_id']==own['id']
+        assert workflow.tasks(c,limit=1,offset=1)['items']==[]
+        assert workflow.tasks(c,limit=1,offset=0,job_id=theirs['id'])['total']==0
+        actor(c,other)
+        page=workflow.tasks(c,limit=1,offset=0)
+        assert page['total']==1 and page['items'][0]['job_id']==theirs['id']
 
 
 def test_current_task_index_and_real_inbox_pagination_on_representative_history(client):

@@ -190,6 +190,7 @@ async def show(review,row):
                 else:
                     comparison(row)
                     field('proposal_reason',row.get('reason'))
+                    if row['proposal_state']=='withdrawn':field('withdrawal_comment',row.get('withdrawal_reason'))
                     if row.get('executed_at') or row['proposal_state'] in ('executed','failed'):
                         ui.label(text('execution_result')).classes('font-semibold')
                         field('proposal_state',text(row['proposal_state']))

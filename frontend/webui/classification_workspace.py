@@ -372,7 +372,7 @@ async def classification_workspace(
             with ui.row().classes("w-full items-center no-wrap gap-2 py-1").style(f"padding-inline-start:{depth * 20}px"):
                 with ui.row().classes("w-8 shrink-0 justify-center"):
                     if not item["is_terminal"]:
-                        ui.button(icon=tree_expander_icon(item["id"] in workspace["expanded"]), on_click=lambda _, s=scheme, n=item: toggle_branch(s, n)).props(f'flat round dense aria-label="{render_message("classification_browser.toggle_branch")}" aria-expanded={str(item["id"] in workspace["expanded"]).lower()}').tooltip(render_message("classification_browser.toggle_branch"))
+                        ui.button(icon=tree_expander_icon(item["id"] in workspace["expanded"]), on_click=lambda _, s=scheme, n=item: toggle_branch(s, n)).props(f"flat round dense aria-label={render_message('classification_browser.toggle_branch')!r} aria-expanded={str(item['id'] in workspace['expanded']).lower()}").tooltip(render_message("classification_browser.toggle_branch"))
                 with ui.column().classes("grow min-w-0 gap-0"):
                     node_link(item, lambda _, n=item: focus_classification(n), inactive=inactive, icon="label" if item["is_terminal"] else "schema")
                 if inactive:
@@ -472,7 +472,7 @@ async def classification_workspace(
                 for scheme in workspace["schemes"]:
                     label, color = scheme_lifecycle(scheme)
                     with ui.row().classes("w-full items-center no-wrap gap-2 rounded-lg p-2 " + ("bg-slate-100" if scheme.get("date_deactivated") else "bg-blue-50")):
-                        ui.button(icon=tree_expander_icon(scheme["id"] in workspace["expanded_schemes"]), on_click=lambda _, s=scheme: toggle_scheme(s)).props(f'flat round dense aria-label="{render_message("classification_browser.toggle_scheme")}" aria-expanded={str(scheme["id"] in workspace["expanded_schemes"]).lower()}').tooltip(render_message("classification_browser.toggle_scheme"))
+                        ui.button(icon=tree_expander_icon(scheme["id"] in workspace["expanded_schemes"]), on_click=lambda _, s=scheme: toggle_scheme(s)).props(f"flat round dense aria-label={render_message('classification_browser.toggle_scheme')!r} aria-expanded={str(scheme['id'] in workspace['expanded_schemes']).lower()}").tooltip(render_message("classification_browser.toggle_scheme"))
                         with ui.column().classes("grow min-w-0 gap-0"):
                             node_link(scheme, lambda _, s=scheme: select_scheme(s), inactive=bool(scheme.get("date_deactivated")), icon="account_tree")
                             description = (scheme.get("localized") or {}).get("description") or scheme.get("description")

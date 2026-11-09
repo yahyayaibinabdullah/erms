@@ -147,6 +147,17 @@ invalidation policy.
 
 ## 6. Page API orchestration
 
+Long disposition operations must use the durable server-owned contract in
+`specs/disposition.md` §17.10. A browser callback obtains acceptance, then releases
+its busy state; it must not await application, bulk execution or PDF generation
+through a long HTTP request or modal. Navigation and disconnect never cancel
+accepted work. Poll only mounted views, stop/ignore abandoned responses, keep
+reads bounded and treat failed status reads separately from failed work. Reopen
+from fresh authorized server state. Approval has indeterminate phase progress;
+digital destruction uses real committed-unit counts. Do not invent percentages.
+No new progress cache is introduced; identities and languages retain their
+existing page-session isolation.
+
 Independent requests should run concurrently with `asyncio.gather`, within the
 bounded request concurrency enforced by `ErmsApiClient`. Current examples are:
 

@@ -243,14 +243,19 @@ def test_actual_http_commits_approval_even_when_report_fails_then_retry_stores_o
     original=documents.engine.render
     monkeypatch.setattr(documents.engine,'render',lambda *a,**k: (_ for _ in ()).throw(RuntimeError('Synthetic report failure')))
     path=f"/api/v1/disposition/tasks/{t['id']}/approve-proposals"
-    result=client.post(path,json=payload,headers=headers);assert result.status_code==200,result.text
-    out=result.json();assert out['report_status']=='pending'
-    with db() as c:assert c.execute('SELECT is_vital FROM aggregations WHERE id=%s',(root,)).fetchone()['is_vital']
+    result=client.post(path,json=payload,headers=headers);assert result.status_code==202,result.text
+    assert result.json()['state']=='queued'
+    from backend.services.api.disposition import operations
+    assert operations.process_one(db)
+    with db() as c:
+        actor(c);out=operations.progress(c,job['id']);assert out['state']=='failed' and out['approval_committed']
+        assert c.execute('SELECT is_vital FROM aggregations WHERE id=%s',(root,)).fetchone()['is_vital']
+        assert task(c,job['id'])['id']==t['id']
     monkeypatch.setattr(documents.engine,'render',original)
-    retry_path=f"/api/v1/disposition/jobs/{job['id']}/review-rounds/{out['round_id']}/execution-report"
-    retry=client.post(retry_path,json=dict(command_id=str(uuid4()),acting_role_id=mgr),headers=headers)
-    assert retry.status_code==200 and retry.json()['report_status']=='available',retry.text
-    again=client.post(path,json=payload,headers=headers);assert again.status_code==200 and again.json()['report_document_id']==retry.json()['report_document_id'],again.text
+    retry=client.post(f"/api/v1/disposition/jobs/{job['id']}/retry-approval-documents",json=dict(command_id=str(uuid4()),acting_role_id=mgr),headers=headers)
+    assert retry.status_code==202,retry.text
+    assert operations.process_one(db)
+    again=client.post(path,json=payload,headers=headers);assert again.status_code==202 and again.json()['state']=='succeeded',again.text
     with db() as c:
         assert c.execute("SELECT count(*) n FROM disposition_job_documents WHERE document_type='proposal_execution_report'").fetchone()['n']==1
         assert c.execute('SELECT count(*) n FROM disposition_proposal_effects').fetchone()['n']==3

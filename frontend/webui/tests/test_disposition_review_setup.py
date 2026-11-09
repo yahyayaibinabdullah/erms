@@ -80,17 +80,14 @@ async def test_jobs_warning_uses_existing_page_and_clears_on_refresh(host,monkey
     '<img src=x onerror="alert(1)">',
 ])
 @pytest.mark.parametrize('fa,manager',[(True,False),(False,True),(True,True)])
-def test_reviewer_warning_preserves_literal_unit_text_without_changing_shared_html_escaping(host,unit,fa,manager):
-    from html import escape
+def test_reviewer_warning_uses_shared_literal_text_rendering(host,unit,fa,manager):
     from frontend.webui.i18n_catalogue import ISOLATE_START,ISOLATE_END
     with host:
         flags={'file_administrator_missing':fa,'unit_manager_missing':manager}
         key='review_assign_both' if fa and manager else 'review_assign_file_administrator' if fa else 'review_assign_unit_manager'
         warning=review_setup_message(flags,unit)
         assert ISOLATE_START+unit+ISOLATE_END in warning
-        # Other sinks still receive escaped parameters; entity-like source text
-        # is decoded only once, never recursively interpreted as markup.
-        assert ISOLATE_START+escape(unit,quote=True)+ISOLATE_END in text(key,unit=unit)
+        assert warning == text(key,unit=unit)
         label=ui.label(warning)
         assert label.tag=='div' and label.text==warning and not list(label.descendants())
 

@@ -4,13 +4,17 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.23
-**Amendment approved:** 5 November 2026
+**Revision:** 1.27
+**Amendment approved:** 9 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.27 | 9 November 2026 | Use existing application navigation instead of duplicate My Tasks buttons in progress cards; show digital progress only after an execution request |
+| 1.26 | 9 November 2026 | Define a personal My Tasks inbox for all disposition types while preserving authorized job-based reassignment and current eligibility checks |
+| 1.25 | 9 November 2026 | Require durable nonblocking background execution for long operations across all disposition types; share operation tracking without adding future workflows |
+| 1.24 | 5 November 2026 | Select available rows on the current eligibility page, retain explicit selections across pages/sorts, and clear the full cross-page selection |
 | 1.23 | 5 November 2026 | Define simple remaining-review setup warnings, progression gates and the retained existing-job File Administrator skip exceptions |
 | 1.22 | 5 November 2026 | Validate compatible eligibility selections early; filter destination jobs by exact common owning unit/type and require currently staffed Standard destruction review roles at creation |
 | 1.21 | 5 November 2026 | Remove Membership controls from job/task Aggregations; automatically list retained aggregations and place Add aggregations beside that list |
@@ -823,9 +827,30 @@ non-modal inline warning beside the selection actions explaining each problem;
 clear it and re-enable Add when the selection becomes compatible. An empty
 selection leaves Add disabled without a warning. These checks precede both
 existing-job selection and new-job creation, and also guard the Add callback.
-Refresh, filtering and pagination clear selection and its warnings. Determine
-branch compatibility server-side for owners visible on the bounded current
-page; do not download an organization hierarchy or expose unseen owner IDs.
+Provide **Select this page**, a total selected count, and **Clear selection**
+beside the eligibility table. Select this page selects only currently available,
+accessible rows on the displayed server page; locked, redacted and otherwise
+unavailable rows remain unselected. The header checkbox selects or deselects
+only the displayed page. Preserve explicit row/version selections across server
+pagination, sorting and page-size changes. Clear selection removes every
+selection across all pages. Refresh, changed filters, successful membership
+addition and leaving the mounted page clear selection and its warnings; no
+selection is saved in navigation state or shared with another identity/language.
+Keep the existing 100-aggregation addition limit. If selecting a whole page
+would exceed it, leave the existing selection unchanged and explain the limit;
+do not silently select part of that page. Individual row selection cannot
+exceed the same limit. Rereading a selected row never silently updates its
+selected version. Admission still checks current access, clearance, eligibility
+and versions for every selected aggregation.
+
+Determine branch compatibility server-side for owners visible on the bounded
+current page. When selections span pages whose owning-unit relationship is not
+already known, use the existing bounded suggested-owner read for the explicit
+selection. Disable Add and show a short checking state until it returns. Ignore
+late responses after selection changes, clearing or navigation. Show the
+existing incompatibility warning if no common owner exists, or a safe error if
+the selection can no longer be checked. Do not download an organization
+hierarchy, unseen result pages or expose unseen owner IDs.
 This early UI check does not replace authoritative admission checks or alter
 the independently job-scoped Add aggregations dialog.
 
@@ -1747,6 +1772,19 @@ completion. Releasing, reassigning, losing eligibility, completing, or
 cancelling a task preserves its event history. Action-specific specifications
 define their task types, forms, routing, and completion rules.
 
+For every disposition type, **My Tasks** contains only the current person's
+authorized direct assignments, their own claims, and unclaimed role-queue work
+they can actually claim. Other people's assignments and claims are excluded
+for all viewers, including Information Governance roles. Open parallel queue
+rows for an already claimed job/stage are unavailable and excluded too. Apply
+the personal predicate on the server before counts and pagination, retaining
+current effective role, access and clearance checks. Release makes available
+queue work visible again. **Unclaimed** is a plain display label in the existing
+Task state column, highlighted in dark amber and semibold while other states
+retain normal text. Its wording conveys the meaning independently of colour.
+It is not a new state. Authorized job details retain the existing
+task-inspection and reassignment controls independently of inbox inclusion.
+
 ### 17.6 `disposition_review_rounds` and `disposition_review_decisions`
 
 Workflows that require repeated review use these shared tables.
@@ -1812,6 +1850,55 @@ Action-specific tables remain in their extension specification until another
 approved workflow proves that their semantics are genuinely shared; expected
 future reuse alone is not enough to move them into this common model.
 
+### 17.10 Long-running disposition operations
+
+Long bulk operations must not require the user to keep an HTTP request or page
+open for their complete duration. This rule applies to destruction and to future
+permanent/selective transfer and local-archives implementations. Future workflow
+requirements still need their own approval; shared infrastructure does not
+implement or authorize those processes.
+
+Use a short, idempotent acceptance command that durably records operation
+identity, job/task, confirmed payload/versions, requesting user/role, server
+checkpoints, state, error and outcome. A background worker owns execution. Reuse
+`disposition_private.operation_work`, registered purpose-built handlers, bounded
+worker passes and per-operation single-worker locks where applicable. Do not
+create a generic public mutation endpoint, configurable workflow engine,
+browser-owned background task or a separate queue/service for each disposition
+type. Existing durable destruction runs retain their per-unit checkpoints.
+
+State is queued, running, failed or succeeded; an operation-specific phase may
+explain current work. Preserve each workflow's atomicity boundary. Approval
+applies its complete proposal set atomically; digital destruction persists each
+successful irreversible unit. Record acceptance before acknowledging it,
+revalidate current authority and resource facts when execution begins/resumes,
+and preserve actor/role attribution. Checkpoints and exact command/document
+identities must survive crashes and prevent duplicate application or destruction.
+The client retains a submitted command identity across transport-uncertain retries;
+it does not silently submit new work after a lost acceptance response. A fresh
+explicit attempt follows a reread of the definitive outcome. Progress display
+and sorting use the latest attempt rather than an earlier failed attempt.
+
+Permit navigation, read-only inspection and work on other jobs. Only conflicting
+actions on the processing job are unavailable. Retain the owning task until its
+required processing/evidence and routing commit successfully; never equate
+acceptance with completion. Provide prominent nonmodal progress, truthful counts
+only where supported, a My Tasks status, safe failure/retry and recovery from
+lost status reads. Returning rereads server state. Polling is bounded, confined
+to mounted views, language/identity scoped and abandoned on navigation. Completion
+and actionable failure use governed, deduplicated notifications with currently
+authorized links, respecting existing administrator notification configuration.
+Shared database/resource locks still enforce integrity during transactions.
+
+Apply this contract when implementing a new long operation, and add tests for
+fast acceptance, lost responses, browser abandonment, duplicate requests/workers,
+restart, current authorization/version changes, partial/atomic rollback as
+appropriate, safe retry, deferred task completion and LTR/RTL presentation.
+
+Progress cards use the application’s existing navigation rather than adding a
+My Tasks button. Digital execution progress is shown only after execution has
+been requested; confirmation and claiming remain separate authorized actions.
+
 ## 18. Verification and traceability
 
 Implementation is not complete until every approved requirement is linked to
@@ -1858,7 +1945,7 @@ are required at a minimum:
 | DISP-36 | Aggregation and record relationships allow job admission and acceleration but outside-job links block final disposition until authorized removal, regardless of eligibility; links within one unit or the same job do not block or require removal; removal from either endpoint clears the link blocker for both units | Admission, acceleration, descendant, both-direction, all-type, same-job, authorization, redaction, audit, removal-refresh, concurrency, and live-browser Officer/Manager review tests |
 | DISP-37 | Shared jobs enforce controlled type, lifecycle, action-specific stage, assignment, status, completion, termination, and optimistic-concurrency fields without a generic workflow engine | Schema, constraint, transition, API, and stale-version tests |
 | DISP-38 | Membership episodes preserve every addition and removal and permit no more than one active job per governing root | Partial-uniqueness, repeated-membership, termination, completion, concurrency, and history tests |
-| DISP-39 | Shared tasks support exactly one user or role-queue destination, atomic claiming, release, reassignment, eligibility loss, completion, and immutable history | Constraint, simultaneous-claim, authorization-change, reassignment, API, and event-history tests |
+| DISP-39 | Shared tasks support exactly one user or role-queue destination, atomic claiming, release, reassignment, eligibility loss, completion, and immutable history; My Tasks is personal, excluding other people’s work and unavailable parallel queues while retaining authorized job management | Constraint, simultaneous-claim, authorization-change, reassignment, API, and event-history tests |
 | DISP-40 | Review rounds and decisions preserve ordered rounds, membership/version snapshots, stage decisions, actors, acting roles, invalidation, and history | Snapshot, repeat-round, stale-membership, invalidation, authorization, and history tests |
 | DISP-41 | Shared document links connect job evidence to governed records and components with controlled state, provenance, checksums, and action-defined transaction boundaries | Upload, generation, governed-record, failure, retry, authorization, and rollback tests |
 | DISP-42 | Common protected operations cannot be bypassed through general CRUD or direct SQL, and canonical schema and migration produce equivalent logical structures and constraints | API negative, direct-database, schema-from-empty, migration, catalogue-parity, and rollback tests |

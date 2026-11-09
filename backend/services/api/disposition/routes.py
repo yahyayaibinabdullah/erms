@@ -543,16 +543,24 @@ def approval_summary(task_id:int,payload:ApprovalSummary,version:int=Depends(exp
         raise HTTPException(403 if error.sqlstate=='42501' else 409,detail={'code':safe}) from None
 
 
-@router.post('/tasks/{task_id}/approve-proposals')
+@router.post('/tasks/{task_id}/approve-proposals',status_code=202)
 def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
-    from . import approval
-    result=_command(c,request,payload,approval.approve,audit_reason=(payload.overall_reason or '').strip() or 'Approve the complete reviewed proposal set',
+    from . import operations
+    return _command(c,request,payload,operations.request_approval,audit_reason=(payload.overall_reason or '').strip() or 'Approve the complete reviewed proposal set',
         task_id=task_id,expected_version=version,task_version=payload.task_version,membership_token=payload.membership_token,
         proposals_token=payload.proposals_token,overall_reason=payload.overall_reason)
-    c.commit()
-    report=_execution_report_after_commit(result['job_id'],result['round_id'],payload.acting_role_id)
-    generated=_request_after_commit(result['job_id'],result['round_id'],payload.acting_role_id) if result['remaining_units'] else {'request_status':'not_required'}
-    return _handoff(c,request,{**result,**report,**generated})
+
+
+@router.get('/jobs/{job_id}/operation-progress')
+def read_operation_progress(job_id:int,c:Connection=Depends(get_connection,scope='function')):
+    from . import operations
+    return operations.progress(c,job_id)
+
+
+@router.post('/jobs/{job_id}/retry-approval-documents',status_code=202)
+def retry_approval_documents(job_id:int,payload:Command,request:Request,c:Connection=Depends(get_connection,scope='function')):
+    from . import operations
+    return _command(c,request,payload,operations.retry_documents,audit_reason='Retry saved approval documents',job_id=job_id)
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/execution-report')

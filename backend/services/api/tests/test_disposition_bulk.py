@@ -78,23 +78,31 @@ def test_bulk_removal_forbidden_during_review_and_reason_required(client):
             membership.remove_many(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),items=items))
 
 
-def test_bulk_proposal_creation_withdrawal_history_and_rollback(client):
+@pytest.mark.parametrize('comment',[None,'One comment for both proposals','تعليق سحب المقترحين'])
+def test_bulk_proposal_creation_withdrawal_history_and_rollback(client,comment):
     with db() as c:
         job,roots=fixture(c);t=task(c,job['id'])
         args=dict(task_id=t['id'],expected_version=job_version(c,job['id']),task_version=t['version'],acting_role_id=officer(c),command_id=uuid4(),
-                  changes=[create(c,root,'remove_from_job') for root in roots],bulk=True)
+                  changes=[create(c,root,'remove_from_job',reason='Original proposal reason' if index==0 else None) for index,root in enumerate(roots)],bulk=True)
         added=proposals.save(c,**args)
         assert len(added['changes'])==2 and proposals.save(c,**args)==added
         assert c.execute("SELECT count(*) n FROM disposition_job_memberships WHERE membership_state='active' AND job_id=%s",(job['id'],)).fetchone()['n']==2
-        selected=[dict(action='withdraw',proposal_id=row['id'],expected_version=row['version'],reason=None) for row in added['changes']]
+        selected=[dict(action='withdraw',proposal_id=row['id'],expected_version=row['version'],reason=comment) for row in added['changes']]
         selected[1]['expected_version']+=1
         with pytest.raises(HTTPException) as error:save(c,job,changes=selected,bulk=True)
         assert error.value.detail['code']=='disposition_bulk_selection_changed'
         assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE proposal_state='active' AND job_id=%s",(job['id'],)).fetchone()['n']==2
         selected[1]['expected_version']-=1
         t=task(c,job['id']);key=uuid4()
-        result=proposals.save(c,task_id=t['id'],expected_version=job_version(c,job['id']),task_version=t['version'],acting_role_id=officer(c),command_id=key,changes=selected,bulk=True)
+        withdrawal=dict(task_id=t['id'],expected_version=job_version(c,job['id']),task_version=t['version'],acting_role_id=officer(c),command_id=key,changes=selected,bulk=True)
+        result=proposals.save(c,**withdrawal)
         assert all(row['proposal_state']=='withdrawn' for row in result['changes'])
+        stored=c.execute('SELECT reason,withdrawal_reason FROM disposition_review_proposals WHERE job_id=%s ORDER BY id',(job['id'],)).fetchall()
+        assert [row['reason'] for row in stored]==['Original proposal reason',None]
+        assert all(row['withdrawal_reason']==comment for row in stored)
+        projected=proposals.page(c,job['id'],limit=25,offset=0,state='withdrawn')['items']
+        assert len(projected)==2 and all(row['withdrawal_reason']==comment for row in projected)
+        assert proposals.save(c,**withdrawal)==result
         events=c.execute("SELECT count(*) n FROM event_history WHERE entity_type='disposition_review_proposal' AND metadata->>'command_id'=%s",(str(key),)).fetchone()['n']
         assert events==2
 

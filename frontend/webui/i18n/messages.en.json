@@ -1752,6 +1752,20 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_documents_retry_requested",
+    "context_group": "audit.event",
+    "default_text": "Document preparation retry requested",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Document preparation retry requested",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_eligibility_evaluated",
     "context_group": "audit.event",
     "default_text": "Disposition Eligibility Evaluated",
@@ -1919,6 +1933,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Removed from Disposition Job",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_operation_failed",
+    "context_group": "audit.event",
+    "default_text": "Background processing needs attention",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing needs attention",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_operation_ready",
+    "context_group": "audit.event",
+    "default_text": "Background processing completed",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing completed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_operation_requested",
+    "context_group": "audit.event",
+    "default_text": "Background processing requested",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing requested",
     "is_html": false
   },
   {
@@ -7093,6 +7149,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_accepting",
+    "context_group": "disposition.ui",
+    "default_text": "Submitting approval for background processing…",
+    "semantic_meaning": "Brief status while obtaining durable server acceptance; it does not claim approval is complete.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Submitting approval for background processing…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_attention",
+    "context_group": "disposition.ui",
+    "default_text": "Review approval issue",
+    "semantic_meaning": "Task inbox action when background approval or document preparation requires attention.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Review approval issue",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approval_changed",
     "context_group": "disposition.ui",
     "default_text": "Approved job facts have changed. A new complete review round is required before this request can be approved or used.",
@@ -7118,6 +7202,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Approve the complete saved proposal set and apply its resource changes?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_documents",
+    "context_group": "disposition.ui",
+    "default_text": "Preparing and saving documents…",
+    "semantic_meaning": "Approval application has committed; required documents are being generated and stored.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Preparing and saving documents…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_documents_failed",
+    "context_group": "disposition.ui",
+    "default_text": "The approved changes were applied, but the documents are not ready. Resolve the reported issue, then retry document preparation.",
+    "semantic_meaning": "Application succeeded; recover document preparation and routing without replaying effects.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "The approved changes were applied, but the documents are not ready. Resolve the reported issue, then retry document preparation.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Approval could not be applied. Review the reported issue, then approve again.",
+    "semantic_meaning": "Atomic application failed; no proposal effects committed. A new approval must revalidate current facts.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approval could not be applied. Review the reported issue, then approve again.",
     "is_html": false
   },
   {
@@ -7207,6 +7333,62 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_processing",
+    "context_group": "disposition.ui",
+    "default_text": "Approving and applying changes…",
+    "semantic_meaning": "Indeterminate progress during the complete-set approval request, including applying proposals and preparing required documents.",
+    "common_locations": [
+      "Disposition task → Approve and apply changes → progress dialog"
+    ],
+    "translator_guidance": "Use the established اعتماد for approval and سحب for proposal withdrawal. Progress is indeterminate; do not imply that approval or document generation has already finished.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approving and applying changes…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_processing_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Please keep this page open until processing finishes.",
+    "semantic_meaning": "Ask the user to keep the page open while the approval result is pending. Normal page interactions are blocked until a result is available.",
+    "common_locations": [
+      "Disposition task → Approve and apply changes → progress dialog"
+    ],
+    "translator_guidance": "Use the established اعتماد for approval and سحب for proposal withdrawal. Progress is indeterminate; do not imply that approval or document generation has already finished.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Please keep this page open until processing finishes.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_queued",
+    "context_group": "disposition.ui",
+    "default_text": "Approval is being processed",
+    "semantic_meaning": "Accepted background approval, still pending completion.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approval is being processed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_ready",
+    "context_group": "disposition.ui",
+    "default_text": "Approved changes and documents are ready for review.",
+    "semantic_meaning": "Successful completion of application and required documents, before any digital destruction.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approved changes and documents are ready for review.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approval_results_guidance",
     "context_group": "disposition.ui",
     "default_text": "Check the proposal execution report and any generated destruction request before sending to the external archives authority. The assigned Records Officer can also send or resend the saved request. No email is sent automatically.",
@@ -7218,6 +7400,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Check the proposal execution report and any generated destruction request before sending to the external archives authority. The assigned Records Officer can also send or resend the saved request. No email is sent automatically.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_retry_documents",
+    "context_group": "disposition.ui",
+    "default_text": "Retry document preparation",
+    "semantic_meaning": "Queue only unfinished documents and final routing for an already committed approval.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Retry document preparation",
     "is_html": false
   },
   {
@@ -7410,6 +7606,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Awaiting external archival authority approval",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.background_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Processing continues if you leave this page. You can continue working on other jobs.",
+    "semantic_meaning": "Explain durable background disposition work and safe navigation.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Processing continues if you leave this page. You can continue working on other jobs.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.background_progress",
+    "context_group": "disposition.ui",
+    "default_text": "Progress",
+    "semantic_meaning": "Shared task inbox progress heading for approval and destruction.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Progress",
     "is_html": false
   },
   {
@@ -8181,6 +8405,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.claim_before_certificate_completion",
+    "context_group": "disposition.ui",
+    "default_text": "Claim this task before completing the destruction job.",
+    "semantic_meaning": "Tell an eligible Records Manager to claim the final certificate task before completing the destruction job.",
+    "common_locations": [
+      "Current task → Complete destruction job → Claim task"
+    ],
+    "translator_guidance": "Use مهمة for task and عملية الإتلاف for destruction job. A separate Complete this task action is required; claiming does not regenerate or alter the certificate.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claim this task before completing the destruction job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_before_digital_destruction",
+    "context_group": "disposition.ui",
+    "default_text": "Claim this task before starting digital destruction.",
+    "semantic_meaning": "Tell an eligible reviewer to claim an unclaimed digital destruction task before starting execution. This stage does not add review proposals.",
+    "common_locations": [
+      "Current task → Digital destruction → unclaimed task guidance"
+    ],
+    "translator_guidance": "Use the established claim/receipt wording and الإتلاف الرقمي for digital destruction. This instruction concerns starting destruction, not adding review proposals.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claim this task before starting digital destruction.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.claim_before_proposals",
     "context_group": "disposition.ui",
     "default_text": "Claim this task before adding review proposals.",
@@ -8194,6 +8446,34 @@
     "grammatical_role": "instruction",
     "parameter_schema": {},
     "rendered_example": "Claim this task before adding review proposals.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_certificate_explanation",
+    "context_group": "disposition.ui",
+    "default_text": "Claiming assigns this task to you so you can complete the destruction job. Claiming does not complete the task or job, and does not change the saved certificate.",
+    "semantic_meaning": "Explain responsibility for the final certificate task without suggesting that claiming completes the job or changes saved evidence.",
+    "common_locations": [
+      "Current task → Complete destruction job → Claim task"
+    ],
+    "translator_guidance": "Use مهمة for task and عملية الإتلاف for destruction job. A separate Complete this task action is required; claiming does not regenerate or alter the certificate.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claiming assigns this task to you so you can complete the destruction job. Claiming does not complete the task or job, and does not change the saved certificate.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_digital_explanation",
+    "context_group": "disposition.ui",
+    "default_text": "Claiming assigns this task to you so you can confirm and start digital destruction. It does not start destruction or advance the job.",
+    "semantic_meaning": "Explain the responsibility and limits of claiming a digital destruction task. A separate explicit confirmation and start action still authorizes execution.",
+    "common_locations": [
+      "Current task → Digital destruction → Claim task dialog"
+    ],
+    "translator_guidance": "Keep claiming separate from execution. Reuse established task, claim and digital destruction terminology; use عملية for the disposition job.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claiming assigns this task to you so you can confirm and start digital destruction. It does not start destruction or advance the job.",
     "is_html": false
   },
   {
@@ -9892,6 +10172,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_operation_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Background processing needs attention. Review the job and retry the appropriate action.",
+    "semantic_meaning": "Safe generic worker error; never expose renderer, storage or SQL exception text.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing needs attention. Review the job and retry the appropriate action.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_operation_in_progress",
+    "context_group": "disposition.ui",
+    "default_text": "This job is being processed. Wait for its result before changing it.",
+    "semantic_meaning": "Conflicting changes to a job with durable background work are blocked.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "This job is being processed. Wait for its result before changing it.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_owning_unit_mismatch",
     "context_group": "disposition.ui",
     "default_text": "The aggregation is outside this destruction job’s owning unit.",
@@ -11001,6 +11309,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition eligibility",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility_select_page",
+    "context_group": "disposition.ui",
+    "default_text": "Select this page",
+    "semantic_meaning": "Select all available rows on the current server page while retaining selections made on other pages.",
+    "common_locations": [
+      "Disposition Eligibility → selection toolbar"
+    ],
+    "translator_guidance": "Use ملف/ملفات for aggregation. Select this page never selects unseen rows; Clear selection covers all pages. Preserve the 100-item limit.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Select this page",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility_selection_checking",
+    "context_group": "disposition.ui",
+    "default_text": "Checking selected aggregations…",
+    "semantic_meaning": "Temporary inline state while checking the common owning unit of an explicitly selected cross-page set.",
+    "common_locations": [
+      "Disposition Eligibility → selection toolbar"
+    ],
+    "translator_guidance": "Use ملف/ملفات for aggregation. Select this page never selects unseen rows; Clear selection covers all pages. Preserve the 100-item limit.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Checking selected aggregations…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility_selection_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Select up to 100 aggregations across pages. Clear selection deselects them all.",
+    "semantic_meaning": "Explain the retained cross-page selection and the existing 100-aggregation addition limit. Clear selection removes the complete mounted-page selection.",
+    "common_locations": [
+      "Disposition Eligibility → selection toolbar"
+    ],
+    "translator_guidance": "Use ملف/ملفات for aggregation. Select this page never selects unseen rows; Clear selection covers all pages. Preserve the 100-item limit.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Select up to 100 aggregations across pages. Clear selection deselects them all.",
     "is_html": false
   },
   {
@@ -14299,6 +14649,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.progress_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "Progress could not be refreshed. Processing may still be running; refresh to check again.",
+    "semantic_meaning": "Status-read connection failure does not prove that background work failed.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Progress could not be refreshed. Processing may still be running; refresh to check again.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.proposal_context",
     "context_group": "disposition.ui",
     "default_text": "Context when proposed",
@@ -17188,6 +17552,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.unclaimed",
+    "context_group": "disposition.ui",
+    "default_text": "Unclaimed",
+    "semantic_meaning": "Open role-queue work currently available for the signed-in user to claim in their personal My Tasks inbox.",
+    "common_locations": [
+      "My Tasks → Task state column"
+    ],
+    "translator_guidance": "Describe a task that nobody has claimed yet. Keep the existing column title and task states; this is a display label, not a new workflow state.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Unclaimed",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.unit_manager_review",
     "context_group": "disposition.ui",
     "default_text": "Organization Unit Manager review",
@@ -17361,6 +17739,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Withdraw proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.withdrawal_comment",
+    "context_group": "disposition.ui",
+    "default_text": "Withdrawal comment",
+    "semantic_meaning": "Identifies the optional comment saved when withdrawing a proposal, distinct from its original proposal reason.",
+    "common_locations": [
+      "Disposition task → Review proposals → Details"
+    ],
+    "translator_guidance": "Use the established اعتماد for approval and سحب for proposal withdrawal. Progress is indeterminate; do not imply that approval or document generation has already finished.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Withdrawal comment",
     "is_html": false
   },
   {

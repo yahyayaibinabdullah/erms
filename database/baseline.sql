@@ -56,5 +56,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('101_dashboard_live_resource_indexes'),
  ('102_dashboard_nonterminal_resource_indexes'),
  ('103_standard_destruction_owner_roles'),
- ('104_remaining_review_readiness');
+ ('104_remaining_review_readiness'),
+ ('105_background_disposition_operations'),
+ ('106_final_certificate_task_queue');
 COMMIT;

@@ -67,3 +67,47 @@ async def test_six_columns_round_caption_and_clear_revision_details(host,monkeyp
             assert text('revised_at') in labels and row['last_revised_at'] in labels
         else:assert text('last_editor') in labels and text('not_revised') in labels
     assert not api.writes
+
+
+@pytest.mark.asyncio
+async def test_withdrawal_comment_shown_for_every_row_separate_from_original_reason(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    rows=[proposal(),proposal()]
+    for index,row in enumerate(rows):
+        row.update(id=index+1,proposal_state='withdrawn',withdrawal_reason='One comment for both proposals',reason='Original proposal reason' if index==0 else None)
+    class ProposalApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/proposals'):return {'items':deepcopy(rows),'total':len(rows)}
+            return await super().disposition_page(path,**params)
+    f,api,_=await form(host,ProposalApi())
+    assert [r['reason_label'] for r in f.proposals.table.rows]==[text('withdrawal_comment')+' · One comment for both proposals']*2
+    with host:
+        for index,row in enumerate(f.proposals.table.rows):
+            await f.details(row)
+            dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+            labels=[e.text for e in dialog.descendants() if isinstance(e,ui.label)]
+            assert text('withdrawal_comment') in labels and 'One comment for both proposals' in labels
+            assert text('proposal_reason') in labels
+            assert ('Original proposal reason' in labels)==(index==0)
+            dialog.close()
+    assert not api.writes
+
+
+@pytest.mark.asyncio
+async def test_withdrawal_comment_redaction_and_empty_comment(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    rows=[]
+    for identity,redacted,partial in [(1,False,False),(2,True,True),(3,True,False)]:
+        row=proposal();row.update(id=identity,proposal_state='withdrawn',withdrawal_reason='Secret withdrawal comment' if redacted else None,redacted=redacted,partial=partial)
+        if partial:row['target_summary']={'number':'AGG-10','title':'Visible target'}
+        rows.append(row)
+    class ProposalApi(Api):
+        async def disposition_page(self,path,**params):
+            if path.endswith('/proposals'):return {'items':deepcopy(rows),'total':len(rows)}
+            return await super().disposition_page(path,**params)
+    f,_,_=await form(host,ProposalApi())
+    assert [r['reason_label'] for r in f.proposals.table.rows]==['—',text('restricted_text'),'—']
+    with host:
+        await f.details(f.proposals.table.rows[1])
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        assert 'Secret withdrawal comment' not in [e.text for e in dialog.descendants() if isinstance(e,ui.label)]

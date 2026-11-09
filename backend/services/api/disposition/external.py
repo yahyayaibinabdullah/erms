@@ -36,7 +36,7 @@ def summaries(c,job,round_id,language='bilingual'):
     return result
 
 
-def generate_request(c,*,job_id,round_id,acting_role_id,settings,preview=None,connection_factory=None):
+def generate_request(c,*,job_id,round_id,acting_role_id,settings,preview=None,connection_factory=None,activate=True):
     job=require_manager(c,job_id,acting_role_id);rr=round_row(c,job_id,round_id)
     # Per-round generation mutex, not a workflow/resource lock during rendering.
     c.execute('SELECT pg_advisory_xact_lock(7360,hashtext(%s))',(f'{job_id}:{round_id}',))
@@ -66,6 +66,7 @@ def generate_request(c,*,job_id,round_id,acting_role_id,settings,preview=None,co
         result=documents.generate(c,job_id=job_id,expected_version=job['version'],kind='destruction_request',snapshot=snapshot,
           command_id=key,acting_role_id=acting_role_id,reason='Store the approved Request for Destruction Form',preview=destination,settings=settings,
           connection_factory=connection_factory,review_round=rr['round_number'],approval_round_id=round_id,before_save=verify_years)
+        if not activate:return {'request_status':'available','request_document_id':result['id'],'job_id':job_id,'round_id':round_id}
         return execute_command(c,command_id=uuid5(key,'activate'),operation='review_decide',payload={'job_id':job_id,'round_id':round_id,'request_document_id':result['id']},acting_role_id=acting_role_id,
           reason='Generate the approved request and assign the external decision task',
           apply=lambda x:x.execute('SELECT disposition_private.activate_request(%s,%s,%s,%s) result',(job_id,round_id,result['id'],job['version'])).fetchone()['result'])
@@ -113,8 +114,11 @@ def decide(c,*,task_id,expected_version,task_version,request_document_id,decisio
 
 
 def renew(c,*,job_id,round_id,expected_version,acting_role_id,command_id,reason=None):
+    def apply(x):
+        x.execute("UPDATE disposition_private.operation_work SET released_at=clock_timestamp() WHERE job_id=%s AND state='failed' AND result IS NOT NULL AND released_at IS NULL",(job_id,))
+        return x.execute('SELECT disposition_private.renew_external_review(%s,%s,%s) result',(job_id,round_id,expected_version)).fetchone()['result']
     return execute_command(c,command_id=command_id,operation='review_decide',payload={'job_id':job_id,'round_id':round_id,'expected_version':expected_version,'decision':'rejected','invalidation':True},acting_role_id=acting_role_id,
-      reason='Approved job facts changed; renew the complete saved review route',apply=lambda x:x.execute('SELECT disposition_private.renew_external_review(%s,%s,%s) result',(job_id,round_id,expected_version)).fetchone()['result'])
+      reason='Approved job facts changed; renew the complete saved review route',apply=apply)
 
 
 def view(c,job):
