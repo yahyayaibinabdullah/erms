@@ -243,14 +243,19 @@ def test_actual_http_commits_approval_even_when_report_fails_then_retry_stores_o
     original=documents.engine.render
     monkeypatch.setattr(documents.engine,'render',lambda *a,**k: (_ for _ in ()).throw(RuntimeError('Synthetic report failure')))
     path=f"/api/v1/disposition/tasks/{t['id']}/approve-proposals"
-    result=client.post(path,json=payload,headers=headers);assert result.status_code==200,result.text
-    out=result.json();assert out['report_status']=='pending'
-    with db() as c:assert c.execute('SELECT is_vital FROM aggregations WHERE id=%s',(root,)).fetchone()['is_vital']
+    result=client.post(path,json=payload,headers=headers);assert result.status_code==202,result.text
+    assert result.json()['state']=='queued'
+    from backend.services.api.disposition import operations
+    assert operations.process_one(db)
+    with db() as c:
+        actor(c);out=operations.progress(c,job['id']);assert out['state']=='failed' and out['approval_committed']
+        assert c.execute('SELECT is_vital FROM aggregations WHERE id=%s',(root,)).fetchone()['is_vital']
+        assert task(c,job['id'])['id']==t['id']
     monkeypatch.setattr(documents.engine,'render',original)
-    retry_path=f"/api/v1/disposition/jobs/{job['id']}/review-rounds/{out['round_id']}/execution-report"
-    retry=client.post(retry_path,json=dict(command_id=str(uuid4()),acting_role_id=mgr),headers=headers)
-    assert retry.status_code==200 and retry.json()['report_status']=='available',retry.text
-    again=client.post(path,json=payload,headers=headers);assert again.status_code==200 and again.json()['report_document_id']==retry.json()['report_document_id'],again.text
+    retry=client.post(f"/api/v1/disposition/jobs/{job['id']}/retry-approval-documents",json=dict(command_id=str(uuid4()),acting_role_id=mgr),headers=headers)
+    assert retry.status_code==202,retry.text
+    assert operations.process_one(db)
+    again=client.post(path,json=payload,headers=headers);assert again.status_code==202 and again.json()['state']=='succeeded',again.text
     with db() as c:
         assert c.execute("SELECT count(*) n FROM disposition_job_documents WHERE document_type='proposal_execution_report'").fetchone()['n']==1
         assert c.execute('SELECT count(*) n FROM disposition_proposal_effects').fetchone()['n']==3
@@ -415,8 +420,6 @@ def test_symmetric_links_cannot_create_duplicate_or_create_remove_conflicts(clie
 
 
 @pytest.mark.parametrize('route,reason,marked,code',[
- ('records_manager_only',None,False,'disposition_submission_reason_required'),
- ('records_manager_only',' \n\t',False,'disposition_submission_reason_required'),
  ('records_manager_only','Complete preparation',True,'disposition_marked_removals_require_correction'),
  ('simplified',None,True,'disposition_marked_removals_require_rejection')])
 def test_combined_reason_and_removal_marks_block_approval_without_advancing(client,route,reason,marked,code):
@@ -516,3 +519,23 @@ def test_report_with_no_executed_proposals_has_no_affected_roots(client):
         assert snapshot['fields']['execution.count']==0
         assert snapshot['proposals']==[] and snapshot['aggregations']==[]
         assert len(document_snapshots.request_aggregation_rows(c,job['id'],'Asia/Dubai'))==1
+
+
+@pytest.mark.parametrize('route',['standard','simplified','records_manager_only'])
+@pytest.mark.parametrize('blank',['',' \n\t'])
+def test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback(client,route,blank):
+    with db() as c:
+        job,root,mgr=manager(c,route)
+        acting=mgr if route=='records_manager_only' else officer(c)
+        pid=save(c,job,acting=acting,changes=[create(c,root)])['changes'][0]['id']
+        if route!='records_manager_only':
+            submit(c,job,blank)
+            if route=='standard':claim(c,job);decide(c,job)
+            claim(c,job)
+        result=approve(c,job,mgr,overall_reason=blank if route=='records_manager_only' else None)
+        proposal=c.execute('SELECT * FROM disposition_review_proposals WHERE id=%s',(pid,)).fetchone()
+        assert proposal['proposal_state']=='executed'
+        assert proposal['execution_message']['reason_source']=='approval'
+        assert proposal['execution_message']['reason_used']=='Apply approved disposition proposals'
+        rr=c.execute('SELECT submission_reason FROM disposition_review_rounds WHERE id=%s',(result['round_id'],)).fetchone()
+        assert rr['submission_reason']==blank

@@ -9,11 +9,40 @@ from frontend.webui.disposition.completion import controls
 from frontend.webui.disposition.messages import text
 
 
-def build(host,value,alive=lambda:True):
+@pytest.mark.asyncio
+@pytest.mark.parametrize('ownership',['mine','unclaimed','someone_else'])
+async def test_final_task_queue_controls_and_stage_specific_claim_guidance(host,monkeypatch,ownership):
+    from frontend.webui.disposition.review import ReviewForm
+    from frontend.webui.tests.test_disposition_tasks import view
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    actions=('reassign','release','complete_certificate') if ownership=='mine' else ('claim','reassign') if ownership=='unclaimed' else ('reassign','release')
+    value=view(actions=actions)
+    value['job'].update(workflow_stage='certificate_generation',lifecycle_state='active')
+    value['task'].update(task_type='certificate_download',workflow_stage='certificate_generation',destination_user_id=None,destination_role_id=7,role_queue='Manager queue',task_state='open' if ownership=='unclaimed' else 'claimed',claimant=None if ownership=='unclaimed' else 'Reviewer')
+    value['completion']={'completed':False,'progress':{'state':'succeeded'},'certificate':{'id':9,'can_download':False,'file_name':'saved.pdf'}}
+    async def after(*args):pass
+    with host:
+        form=ReviewForm(api=Api(),workspace=value,active=lambda:True,on_error=str,bind_remote=lambda *a,**k:None,after=after,format_timestamp=str,open_resource=None)
+        await form.load()
+    buttons=[e.text for e in host.descendants() if isinstance(e,ui.button)]
+    assert text('reassign') in buttons
+    assert (text('release') in buttons)==(ownership!='unclaimed')
+    assert (text('complete_this_task') in buttons)==(ownership=='mine')
+    assert not any(path.endswith('/review-work') for path,_ in form.api.reads)
+    if ownership=='unclaimed':
+        assert any(isinstance(e,ui.label) and e.text==text('claim_before_certificate_completion') for e in host.descendants())
+        with host:await form.queue_action('claim')
+        dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+        labels=[e.text for e in dialog.descendants() if isinstance(e,ui.label)]
+        assert text('claim_certificate_explanation') in labels
+        assert text('claim_explanation') not in labels
+
+
+def build(host,value,alive=lambda:True,preview=None):
     api=Api();saved=[]
     async def after(result):saved.append(result)
     with host:
-        form=SimpleNamespace(api=api,view={'completion':value},host=host,alive=alive,job={'id':7,'version':4},task={'id':8,'version':3},actions={'retry_certificate'},retry={},busy=False,after=after,error=lambda e:None)
+        form=SimpleNamespace(api=api,view={'completion':value},host=host,alive=alive,job={'id':7,'version':4},task={'id':8,'version':3},actions={'retry_certificate'},retry={},busy=False,after=after,error=lambda e:None,preview=preview)
         form.acting_role_id=2
         controls(form)
     return form,saved
@@ -108,3 +137,31 @@ async def test_explicit_complete_returns_to_inbox_without_download(host,monkeypa
     assert api.writes[0][1]['task_version']==3
     assert api.writes[0][2]['reason']==''
     assert not api.reads
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('completed',[False,True])
+async def test_saved_certificate_preview_opens_exact_component_without_completing_task(host,monkeypatch,completed):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
+    monkeypatch.setattr(ui,'timer',lambda *a,**k:SimpleNamespace(deactivate=lambda:None))
+    opened=[];state={'alive':True}
+    async def preview(record,component):opened.append((record,component))
+    value={'completed':completed,'progress':{'state':'succeeded'},'certificate':{'id':9,'record_id':41,'digital_component_id':42,'can_preview':True,'can_download':True,'file_name':'saved-certificate.pdf'}}
+    with host:
+        form=SimpleNamespace(api=Api(),view={'completion':value},host=host,alive=lambda:state['alive'],job={'id':7,'version':4},task={'id':8,'version':3},actions=set(),retry={},busy=False,preview=preview,after=None,error=lambda e:None)
+        controls(form)
+        buttons=[e for e in host.descendants() if isinstance(e,ui.button)]
+        button=next(e for e in buttons if e.text==text('preview_digital_certificate'))
+        assert buttons.index(button)<next(i for i,b in enumerate(buttons) if b.text==text('download_digital_certificate'))
+        await click(button)
+        form.busy=True;await click(button)
+        form.busy=False;state['alive']=False;await click(button)
+    assert opened==[({'id':41,'title':'saved-certificate.pdf'},42)]
+    assert not form.api.reads and not form.api.writes
+
+
+@pytest.mark.parametrize('allowed,viewer',[(False,True),(True,False),(False,False)])
+def test_saved_certificate_preview_requires_current_permission_and_viewer(host,monkeypatch,allowed,viewer):
+    monkeypatch.setattr(ui,'timer',lambda *a,**k:SimpleNamespace(deactivate=lambda:None))
+    form,_=build(host,{'completed':False,'progress':{'state':'succeeded'},'certificate':{'id':9,'can_preview':allowed,'can_download':True,'file_name':'saved.pdf'}},preview=(lambda *a:None) if viewer else None)
+    assert not any(isinstance(e,ui.button) and e.text==text('preview_digital_certificate') for e in host.descendants())

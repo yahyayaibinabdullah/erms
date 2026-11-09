@@ -46,6 +46,55 @@ temporary account lock. Relevant settings are:
 - `AUTH_LOCKOUT_ATTEMPTS` (default `5`)
 - `AUTH_LOCKOUT_MINUTES` (default `15`)
 
+Login and password-change current-password checks share one credential counter
+and cooldown across sessions and API workers. Only incorrect submitted login or
+current passwords increase it. New-password validation errors, including length
+errors, leave it unchanged; confirmation mismatches are rejected in the UI.
+Cooldown expiry resets the counter on the next password check, giving a fresh
+allowance. Successful login, successful password change, and temporary-password
+recovery also clear it. Requests blocked during cooldown neither increase the
+counter nor extend the deadline.
+
+Login preserves its generic 401 response during lockout. Password changes return
+429 on reaching the limit and while locked, with `Retry-After` seconds and
+localized cooldown feedback. Incorrect current passwords below the limit return
+400; a correct current password followed by an invalid new password returns 422.
+Failed checks and their safe `AUTHENTICATION_FAILED` audit events commit
+atomically; `authentication_context` distinguishes login from password change.
+The credential row is locked while checking and updating attempts.
+
+This update reuses the existing database-backed settings and credential fields;
+no schema migration or environment changes are required. Deploy the updated API
+and WebUI catalogue together, restart the services, and review/publish new or
+source-changed Arabic translations through Translation Administration.
+
+Catalogue handoff: added `authentication.error.password_attempts_locked` in
+English and as an unpublished generated Arabic draft, and changed the English
+definition of `settings.field.auth_lockout_attempts.description`. The Arabic
+artifact was merged by key without promoting a new administrator export or
+changing any existing translation/provenance. Source synchronization marks the
+changed description for review while preserving its curated wording. Review
+that description and the new cooldown draft before publishing them.
+
+Retry-policy verification is in
+`backend/services/api/tests/test_password_attempt_limits.py`:
+
+| Requirement | Verification |
+| --- | --- |
+| Shared configurable limit, active-lock rejection, fixed deadline | `test_threshold_locks_both_password_checks_without_extending_deadline`, `test_switching_endpoints_does_not_bypass_shared_limit` |
+| Fresh allowance at exact expiry; reset survives a validation error | `test_expired_cooldown_starts_a_full_new_allowance`, `test_expired_lock_reset_persists_despite_new_password_validation_error` |
+| Successful checks and recovery reset failures | `test_success_clears_counter_and_expired_lock`, `test_temporary_password_recovery_clears_counter_and_lock` |
+| Only incorrect passwords count; invalid new passwords and malformed requests do not | `test_new_password_validation_does_not_increment_or_clear_existing_failures`, `test_bad_current_password_still_counts_when_new_password_is_invalid`, `test_request_validation_errors_do_not_count` |
+| Sessions and concurrent requests cannot bypass the limit; forced changes obey it | `test_password_change_failures_are_shared_across_sessions_and_concurrent_requests`, `test_forced_temporary_password_change_obeys_retry_limit` |
+| Failure state and secret-free audit commit or roll back together | `test_failure_audit_does_not_leak_passwords_and_commits_atomically` |
+
+`frontend/webui/tests/test_login_feedback.py` verifies English and Arabic cooldown
+messages, including the duration parameter. Run API verification with
+`backend/services/api/.venv/bin/python tools/run_disposable_acl_tests.py backend/services/api/tests/test_password_attempt_limits.py backend/services/api/tests/test_authentication.py backend/services/api/tests/test_application_settings_phase5_authentication.py`.
+The runner creates a uniquely named database, initializes the canonical schema
+with separate reference data/baseline, scopes fixtures to that database, and
+drops it in `finally` after either success or failure.
+
 Administrators issue a random temporary password from the Users page. It is
 shown once, expires after 24 hours, revokes existing sessions, and forces a
 password change before the user can access normal application functions.

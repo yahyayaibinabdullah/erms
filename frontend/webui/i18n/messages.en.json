@@ -1752,6 +1752,20 @@
     "is_html": false
   },
   {
+    "message_key": "audit.event.disposition_documents_retry_requested",
+    "context_group": "audit.event",
+    "default_text": "Document preparation retry requested",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Document preparation retry requested",
+    "is_html": false
+  },
+  {
     "message_key": "audit.event.disposition_eligibility_evaluated",
     "context_group": "audit.event",
     "default_text": "Disposition Eligibility Evaluated",
@@ -1919,6 +1933,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Removed from Disposition Job",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_operation_failed",
+    "context_group": "audit.event",
+    "default_text": "Background processing needs attention",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing needs attention",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_operation_ready",
+    "context_group": "audit.event",
+    "default_text": "Background processing completed",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing completed",
+    "is_html": false
+  },
+  {
+    "message_key": "audit.event.disposition_operation_requested",
+    "context_group": "audit.event",
+    "default_text": "Background processing requested",
+    "semantic_meaning": "Human-readable operation label in permanent event history.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing requested",
     "is_html": false
   },
   {
@@ -3188,6 +3244,22 @@
     "grammatical_role": "complete sentence",
     "parameter_schema": {},
     "rendered_example": "Your sign-in credentials weren’t accepted. Check your login name and password and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "authentication.error.password_attempts_locked",
+    "context_group": "authentication.error",
+    "default_text": "Password attempts are temporarily locked. Try again in {seconds} seconds.",
+    "semantic_meaning": "Password change is blocked by the shared credential cooldown, including a limit reached by failed login or current-password attempts.",
+    "common_locations": [
+      "Password-change dialog error notification"
+    ],
+    "translator_guidance": "Explain the temporary cooldown; preserve the seconds placeholder and do not imply that new-password validation caused it.",
+    "grammatical_role": "two complete sentences",
+    "parameter_schema": {
+      "seconds": "integer"
+    },
+    "rendered_example": "Password attempts are temporarily locked. Try again in 120 seconds.",
     "is_html": false
   },
   {
@@ -6054,6 +6126,20 @@
     "is_html": false
   },
   {
+    "message_key": "components.staged.preview_hint",
+    "context_group": "components.staged",
+    "default_text": "Previewing staged files does not save or create the record.",
+    "semantic_meaning": "Identifies private staged component preview and its separation from record creation.",
+    "common_locations": [
+      "Digital component viewer opened from record draft editor"
+    ],
+    "translator_guidance": "Use the existing Wathiq term for Record (وثيقة) and Preview. Preview leaves uploaded files staged.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Previewing staged files does not save or create the record.",
+    "is_html": false
+  },
+  {
     "message_key": "dashboard.activity.created",
     "context_group": "dashboard",
     "default_text": "Created",
@@ -6814,6 +6900,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.add_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "Add proposal",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: add_proposal",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Add proposal",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.add_to_holds",
     "context_group": "disposition.ui",
     "default_text": "Add aggregation to holds",
@@ -7049,6 +7149,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_accepting",
+    "context_group": "disposition.ui",
+    "default_text": "Submitting approval for background processing…",
+    "semantic_meaning": "Brief status while obtaining durable server acceptance; it does not claim approval is complete.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Submitting approval for background processing…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_attention",
+    "context_group": "disposition.ui",
+    "default_text": "Review approval issue",
+    "semantic_meaning": "Task inbox action when background approval or document preparation requires attention.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Review approval issue",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approval_changed",
     "context_group": "disposition.ui",
     "default_text": "Approved job facts have changed. A new complete review round is required before this request can be approved or used.",
@@ -7074,6 +7202,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Approve the complete saved proposal set and apply its resource changes?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_documents",
+    "context_group": "disposition.ui",
+    "default_text": "Preparing and saving documents…",
+    "semantic_meaning": "Approval application has committed; required documents are being generated and stored.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Preparing and saving documents…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_documents_failed",
+    "context_group": "disposition.ui",
+    "default_text": "The approved changes were applied, but the documents are not ready. Resolve the reported issue, then retry document preparation.",
+    "semantic_meaning": "Application succeeded; recover document preparation and routing without replaying effects.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "The approved changes were applied, but the documents are not ready. Resolve the reported issue, then retry document preparation.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Approval could not be applied. Review the reported issue, then approve again.",
+    "semantic_meaning": "Atomic application failed; no proposal effects committed. A new approval must revalidate current facts.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approval could not be applied. Review the reported issue, then approve again.",
     "is_html": false
   },
   {
@@ -7163,6 +7333,62 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.approval_processing",
+    "context_group": "disposition.ui",
+    "default_text": "Approving and applying changes…",
+    "semantic_meaning": "Indeterminate progress during the complete-set approval request, including applying proposals and preparing required documents.",
+    "common_locations": [
+      "Disposition task → Approve and apply changes → progress dialog"
+    ],
+    "translator_guidance": "Use the established اعتماد for approval and سحب for proposal withdrawal. Progress is indeterminate; do not imply that approval or document generation has already finished.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approving and applying changes…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_processing_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Please keep this page open until processing finishes.",
+    "semantic_meaning": "Ask the user to keep the page open while the approval result is pending. Normal page interactions are blocked until a result is available.",
+    "common_locations": [
+      "Disposition task → Approve and apply changes → progress dialog"
+    ],
+    "translator_guidance": "Use the established اعتماد for approval and سحب for proposal withdrawal. Progress is indeterminate; do not imply that approval or document generation has already finished.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Please keep this page open until processing finishes.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_queued",
+    "context_group": "disposition.ui",
+    "default_text": "Approval is being processed",
+    "semantic_meaning": "Accepted background approval, still pending completion.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approval is being processed",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_ready",
+    "context_group": "disposition.ui",
+    "default_text": "Approved changes and documents are ready for review.",
+    "semantic_meaning": "Successful completion of application and required documents, before any digital destruction.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Approved changes and documents are ready for review.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.approval_results_guidance",
     "context_group": "disposition.ui",
     "default_text": "Check the proposal execution report and any generated destruction request before sending to the external archives authority. The assigned Records Officer can also send or resend the saved request. No email is sent automatically.",
@@ -7174,6 +7400,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Check the proposal execution report and any generated destruction request before sending to the external archives authority. The assigned Records Officer can also send or resend the saved request. No email is sent automatically.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.approval_retry_documents",
+    "context_group": "disposition.ui",
+    "default_text": "Retry document preparation",
+    "semantic_meaning": "Queue only unfinished documents and final routing for an already committed approval.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Retry document preparation",
     "is_html": false
   },
   {
@@ -7369,6 +7609,34 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.background_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Processing continues if you leave this page. You can continue working on other jobs.",
+    "semantic_meaning": "Explain durable background disposition work and safe navigation.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Processing continues if you leave this page. You can continue working on other jobs.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.background_progress",
+    "context_group": "disposition.ui",
+    "default_text": "Progress",
+    "semantic_meaning": "Shared task inbox progress heading for approval and destruction.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Progress",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.before_values",
     "context_group": "disposition.ui",
     "default_text": "Previous values",
@@ -7500,6 +7768,360 @@
     "grammatical_role": "action",
     "parameter_schema": {},
     "rendered_example": "Browse",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_all_or_none",
+    "context_group": "disposition.ui",
+    "default_text": "All selected items must still be eligible. Either every selected change is saved, or none is.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_all_or_none",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "All selected items must still be eligible. Either every selected change is saved, or none is.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_clear",
+    "context_group": "disposition.ui",
+    "default_text": "Clear selection",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_clear",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Clear selection",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Nothing was changed. Review the issue below, then refresh your selection if needed.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_failed",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Nothing was changed. Review the issue below, then refresh your selection if needed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_limit",
+    "context_group": "disposition.ui",
+    "default_text": "Select up to 100 items per action.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_limit",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Select up to 100 items per action.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Add removal proposals ({count})",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_confirm",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Add removal proposals (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_hint",
+    "context_group": "disposition.ui",
+    "default_text": "One removal proposal will be saved for each selected aggregation. They remain in the job until the Records Manager approves and applies the proposals.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_hint",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "One removal proposal will be saved for each selected aggregation. They remain in the job until the Records Manager approves and applies the proposals.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_selected",
+    "context_group": "disposition.ui",
+    "default_text": "Propose removal of selected aggregations",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_selected",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Propose removal of selected aggregations",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_propose_title",
+    "context_group": "disposition.ui",
+    "default_text": "Propose removal of selected aggregations ({count})?",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_propose_title",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Propose removal of selected aggregations (3)?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_reason_required",
+    "context_group": "disposition.ui",
+    "default_text": "Reason (required)",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_reason_required",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Reason (required)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_refresh_selection",
+    "context_group": "disposition.ui",
+    "default_text": "Refresh selection",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_refresh_selection",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Refresh selection",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Remove selected ({count})",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_confirm",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Remove selected (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_hint",
+    "context_group": "disposition.ui",
+    "default_text": "The aggregations and their contents will remain in Wathiq. Their job membership will end, and disposition statuses will be updated under the existing removal rules. Existing proposals and their history are retained.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_hint",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "The aggregations and their contents will remain in Wathiq. Their job membership will end, and disposition statuses will be updated under the existing removal rules. Existing proposals and their history are retained.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_selected",
+    "context_group": "disposition.ui",
+    "default_text": "Remove selected from job",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_selected",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Remove selected from job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_remove_title",
+    "context_group": "disposition.ui",
+    "default_text": "Remove selected aggregations ({count}) from this job?",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_remove_title",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Remove selected aggregations (3) from this job?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_removed",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregations removed from job: {count}. No records were deleted.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_removed",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Aggregations removed from job: 3. No records were deleted.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_saved",
+    "context_group": "disposition.ui",
+    "default_text": "Proposals saved: {count}.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_saved",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Proposals saved: 3.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_select_page",
+    "context_group": "disposition.ui",
+    "default_text": "Select eligible rows on this page",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_select_page",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Select eligible rows on this page",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_selected_count",
+    "context_group": "disposition.ui",
+    "default_text": "Selected: {count}",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_selected_count",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Selected: 3",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "Unavailable: check access, current state and task permissions.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_unavailable",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "Unavailable: check access, current state and task permissions.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_uncertain",
+    "context_group": "disposition.ui",
+    "default_text": "The result could not be confirmed. Retry this same action to check its result safely.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_uncertain",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "The result could not be confirmed. Retry this same action to check its result safely.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_confirm",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw selected ({count})",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_confirm",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Withdraw selected (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_hint",
+    "context_group": "disposition.ui",
+    "default_text": "These proposals will no longer be included in approval. Their history will remain available. No aggregation or record will be changed.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_hint",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "These proposals will no longer be included in approval. Their history will remain available. No aggregation or record will be changed.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_selected",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw selected proposals",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_selected",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Withdraw selected proposals",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.bulk_withdraw_title",
+    "context_group": "disposition.ui",
+    "default_text": "Withdraw selected proposals ({count})?",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: bulk_withdraw_title",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Withdraw selected proposals (3)?",
     "is_html": false
   },
   {
@@ -7754,6 +8376,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.chooser_scope_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Only jobs matching the selected disposition type are shown. Destruction jobs must have the same owning unit as the selection’s nearest common unit. You can also create a new job.",
+    "semantic_meaning": "Explain selection-based job scope and the suggested owning organization unit.",
+    "common_locations": [
+      "Disposition eligibility job chooser",
+      "New disposition job from selected aggregations"
+    ],
+    "translator_guidance": "Use ملف for aggregation and عملية for job; explain exact owning-unit matching calmly. Preserve nearest common ancestor meaning.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Only jobs matching the selected disposition type are shown. Destruction jobs must have the same owning unit as the selection’s nearest common unit. You can also create a new job.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.claim",
     "context_group": "disposition.ui",
     "default_text": "Claim task",
@@ -7765,6 +8402,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Claim task",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_before_certificate_completion",
+    "context_group": "disposition.ui",
+    "default_text": "Claim this task before completing the destruction job.",
+    "semantic_meaning": "Tell an eligible Records Manager to claim the final certificate task before completing the destruction job.",
+    "common_locations": [
+      "Current task → Complete destruction job → Claim task"
+    ],
+    "translator_guidance": "Use مهمة for task and عملية الإتلاف for destruction job. A separate Complete this task action is required; claiming does not regenerate or alter the certificate.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claim this task before completing the destruction job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_before_digital_destruction",
+    "context_group": "disposition.ui",
+    "default_text": "Claim this task before starting digital destruction.",
+    "semantic_meaning": "Tell an eligible reviewer to claim an unclaimed digital destruction task before starting execution. This stage does not add review proposals.",
+    "common_locations": [
+      "Current task → Digital destruction → unclaimed task guidance"
+    ],
+    "translator_guidance": "Use the established claim/receipt wording and الإتلاف الرقمي for digital destruction. This instruction concerns starting destruction, not adding review proposals.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claim this task before starting digital destruction.",
     "is_html": false
   },
   {
@@ -7781,6 +8446,34 @@
     "grammatical_role": "instruction",
     "parameter_schema": {},
     "rendered_example": "Claim this task before adding review proposals.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_certificate_explanation",
+    "context_group": "disposition.ui",
+    "default_text": "Claiming assigns this task to you so you can complete the destruction job. Claiming does not complete the task or job, and does not change the saved certificate.",
+    "semantic_meaning": "Explain responsibility for the final certificate task without suggesting that claiming completes the job or changes saved evidence.",
+    "common_locations": [
+      "Current task → Complete destruction job → Claim task"
+    ],
+    "translator_guidance": "Use مهمة for task and عملية الإتلاف for destruction job. A separate Complete this task action is required; claiming does not regenerate or alter the certificate.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claiming assigns this task to you so you can complete the destruction job. Claiming does not complete the task or job, and does not change the saved certificate.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.claim_digital_explanation",
+    "context_group": "disposition.ui",
+    "default_text": "Claiming assigns this task to you so you can confirm and start digital destruction. It does not start destruction or advance the job.",
+    "semantic_meaning": "Explain the responsibility and limits of claiming a digital destruction task. A separate explicit confirmation and start action still authorizes execution.",
+    "common_locations": [
+      "Current task → Digital destruction → Claim task dialog"
+    ],
+    "translator_guidance": "Keep claiming separate from execution. Reuse established task, claim and digital destruction terminology; use عملية for the disposition job.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Claiming assigns this task to you so you can confirm and start digital destruction. It does not start destruction or advance the job.",
     "is_html": false
   },
   {
@@ -7871,6 +8564,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Close this aggregation before adding it to a job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.comments_save_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Save retains your review comments for later. Proposals are saved when added, updated or withdrawn.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: comments_save_hint",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Save retains your review comments for later. Proposals are saved when added, updated or withdrawn.",
     "is_html": false
   },
   {
@@ -8670,6 +9377,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_bulk_selection_changed",
+    "context_group": "disposition.ui",
+    "default_text": "One or more selected items changed or are no longer available. Refresh the selection and review them again.",
+    "semantic_meaning": "Bulk disposition selection, confirmation or atomic-operation feedback: disposition_bulk_selection_changed",
+    "common_locations": [
+      "Disposition job Current task and Aggregations tables"
+    ],
+    "translator_guidance": "Preserve approved Wathiq terminology; Job is عملية, Task is مهمة, Aggregation is ملف and Record is وثيقة. Reasons stay optional except direct membership removal.",
+    "grammatical_role": "text",
+    "parameter_schema": {},
+    "rendered_example": "One or more selected items changed or are no longer available. Refresh the selection and review them again.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_certificate_claim_lost",
     "context_group": "disposition.ui",
     "default_text": "Certificate processing ownership changed. Refresh the job.",
@@ -9330,6 +10051,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_file_administrator_required",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A File Administrator needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_generated_correction_forbidden",
     "context_group": "disposition.ui",
     "default_text": "Generated documents cannot be replaced through an evidence correction.",
@@ -9432,6 +10169,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Membership cannot change at this workflow stage.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_operation_failed",
+    "context_group": "disposition.ui",
+    "default_text": "Background processing needs attention. Review the job and retry the appropriate action.",
+    "semantic_meaning": "Safe generic worker error; never expose renderer, storage or SQL exception text.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Background processing needs attention. Review the job and retry the appropriate action.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_operation_in_progress",
+    "context_group": "disposition.ui",
+    "default_text": "This job is being processed. Wait for its result before changing it.",
+    "semantic_meaning": "Conflicting changes to a job with durable background work are blocked.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "This job is being processed. Wait for its result before changing it.",
     "is_html": false
   },
   {
@@ -9932,6 +10697,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_reviewers_required",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator and a Unit Manager need to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A File Administrator and a Unit Manager need to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.disposition_root_not_closed",
     "context_group": "disposition.ui",
     "default_text": "The aggregation must be closed before admission.",
@@ -10017,6 +10798,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "This item changed. Refresh before trying again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.disposition_standard_owner_roles_required",
+    "context_group": "disposition.ui",
+    "default_text": "A Standard destruction job requires an effective File Administrator role and the owning unit’s managing role, each with a current assignment to an active person. Check the owning unit’s roles and assignments, then try again.",
+    "semantic_meaning": "Standard destruction job creation readiness: role configuration and current effective person assignments.",
+    "common_locations": [
+      "Create disposition job dialog"
+    ],
+    "translator_guidance": "Use established Wathiq role and job terminology. Current means effective now, not future or expired.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A Standard destruction job requires an effective File Administrator role and the owning unit’s managing role, each with a current assignment to an active person. Check the owning unit’s roles and assignments, then try again.",
     "is_html": false
   },
   {
@@ -10230,6 +11025,22 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.disposition_unit_manager_required",
+    "context_group": "disposition.ui",
+    "default_text": "A Unit Manager needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "A Unit Manager needs to be assigned for the owning organization unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.document",
     "context_group": "disposition.ui",
     "default_text": "Document",
@@ -10257,6 +11068,38 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Document type",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.document_version_current",
+    "context_group": "disposition.ui",
+    "default_text": "Version {version} · Current",
+    "semantic_meaning": "Document evidence version number and whether it is current or earlier, combined in one sortable Version column.",
+    "common_locations": [
+      "Disposition Evidence and documents table"
+    ],
+    "translator_guidance": "Preserve {version}. Current/earlier describe this saved document, not the template revision or job workflow.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "version": "integer"
+    },
+    "rendered_example": "Version 2 · Current",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.document_version_earlier",
+    "context_group": "disposition.ui",
+    "default_text": "Version {version} · Earlier",
+    "semantic_meaning": "Document evidence version number and whether it is current or earlier, combined in one sortable Version column.",
+    "common_locations": [
+      "Disposition Evidence and documents table"
+    ],
+    "translator_guidance": "Preserve {version}. Current/earlier describe this saved document, not the template revision or job workflow.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "version": "integer"
+    },
+    "rendered_example": "Version 1 · Earlier",
     "is_html": false
   },
   {
@@ -10466,6 +11309,48 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Disposition eligibility",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility_select_page",
+    "context_group": "disposition.ui",
+    "default_text": "Select this page",
+    "semantic_meaning": "Select all available rows on the current server page while retaining selections made on other pages.",
+    "common_locations": [
+      "Disposition Eligibility → selection toolbar"
+    ],
+    "translator_guidance": "Use ملف/ملفات for aggregation. Select this page never selects unseen rows; Clear selection covers all pages. Preserve the 100-item limit.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Select this page",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility_selection_checking",
+    "context_group": "disposition.ui",
+    "default_text": "Checking selected aggregations…",
+    "semantic_meaning": "Temporary inline state while checking the common owning unit of an explicitly selected cross-page set.",
+    "common_locations": [
+      "Disposition Eligibility → selection toolbar"
+    ],
+    "translator_guidance": "Use ملف/ملفات for aggregation. Select this page never selects unseen rows; Clear selection covers all pages. Preserve the 100-item limit.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Checking selected aggregations…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.eligibility_selection_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Select up to 100 aggregations across pages. Clear selection deselects them all.",
+    "semantic_meaning": "Explain the retained cross-page selection and the existing 100-aggregation addition limit. Clear selection removes the complete mounted-page selection.",
+    "common_locations": [
+      "Disposition Eligibility → selection toolbar"
+    ],
+    "translator_guidance": "Use ملف/ملفات for aggregation. Select this page never selects unseen rows; Clear selection covers all pages. Preserve the 100-item limit.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Select up to 100 aggregations across pages. Clear selection deselects them all.",
     "is_html": false
   },
   {
@@ -12268,6 +13153,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.immediate_proposals_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Add and Update save proposals immediately. Proposed changes are applied only after approval.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: immediate_proposals_hint",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Add and Update save proposals immediately. Proposed changes are applied only after approval.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.in_active_job",
     "context_group": "disposition.ui",
     "default_text": "In an active job",
@@ -13143,6 +14042,21 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.owner_same_unit",
+    "context_group": "disposition.ui",
+    "default_text": "Prefilled from the selected aggregations’ owning unit. This unit determines review routing.",
+    "semantic_meaning": "Explain selection-based job scope and the suggested owning organization unit.",
+    "common_locations": [
+      "Disposition eligibility job chooser",
+      "New disposition job from selected aggregations"
+    ],
+    "translator_guidance": "Use ملف for aggregation and عملية for job; explain exact owning-unit matching calmly. Preserve nearest common ancestor meaning.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Prefilled from the selected aggregations’ owning unit. This unit determines review routing.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.partial_add",
     "context_group": "disposition.ui",
     "default_text": "Some aggregations were not added. Review the individual results.",
@@ -13401,6 +14315,183 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.picker_add",
+    "context_group": "disposition.ui",
+    "default_text": "Add selected ({count})",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_add",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "action label",
+    "parameter_schema": {
+      "count": "integer"
+    },
+    "rendered_example": "Add selected (3)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_changed",
+    "context_group": "disposition.ui",
+    "default_text": "The job or your permissions changed. Refresh the selection and try again.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_changed",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "The job or your permissions changed. Refresh the selection and try again.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_empty",
+    "context_group": "disposition.ui",
+    "default_text": "No aggregations currently meet this job’s eligibility, ownership and access requirements within these filters.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_empty",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "No aggregations currently meet this job’s eligibility, ownership and access requirements within these filters.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Only closed aggregations that meet this job’s eligibility, ownership and access requirements and have no admission blockers are shown. Adding them saves membership immediately.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_hint",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Only closed aggregations that meet this job’s eligibility, ownership and access requirements and have no admission blockers are shown. Adding them saves membership immediately.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_owner_scope",
+    "context_group": "disposition.ui",
+    "default_text": "{type} · {owner} and its descendant units",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_owner_scope",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "type": "text",
+      "owner": "text"
+    },
+    "rendered_example": "Destruction · Records Unit and its descendant units",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_relationship_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Relationships do not prevent addition. Links outside the job must be resolved before final disposition.",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_relationship_hint",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Relationships do not prevent addition. Links outside the job must be resolved before final disposition.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_relationship_warning",
+    "context_group": "disposition.ui",
+    "default_text": "Relationships need review before final disposition",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_relationship_warning",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationships need review before final disposition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_relationships",
+    "context_group": "disposition.ui",
+    "default_text": "Relationships",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_relationships",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Relationships",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_retry",
+    "context_group": "disposition.ui",
+    "default_text": "Retry addition",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_retry",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "action label",
+    "parameter_schema": {},
+    "rendered_example": "Retry addition",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_search",
+    "context_group": "disposition.ui",
+    "default_text": "Aggregation number or title",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_search",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Aggregation number or title",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_title",
+    "context_group": "disposition.ui",
+    "default_text": "Add aggregations to {job}",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_title",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "job": "text"
+    },
+    "rendered_example": "Add aggregations to DT-2026-4",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.picker_type_scope",
+    "context_group": "disposition.ui",
+    "default_text": "{type} · Compatible aggregations only",
+    "semantic_meaning": "Job-scoped aggregation selection: picker_type_scope",
+    "common_locations": [
+      "Add aggregations dialog in disposition jobs and Current task"
+    ],
+    "translator_guidance": "Use established Wathiq terminology: aggregation is ملف, job is عملية, task is مهمة. Preserve placeholders; relationship warnings concern final disposition, not admission.",
+    "grammatical_role": "label",
+    "parameter_schema": {
+      "type": "text"
+    },
+    "rendered_example": "Destruction · Compatible aggregations only",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.preparation",
     "context_group": "disposition.ui",
     "default_text": "Prepare destruction job",
@@ -13415,6 +14506,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.preparation_ready_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Review membership and proposals, then submit when ready.",
+    "semantic_meaning": "Preparation guidance without implying mandatory submission comments.",
+    "common_locations": [
+      "Disposition preparation task"
+    ],
+    "translator_guidance": "Membership is membership of a disposition job. Comments are optional.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Review membership and proposals, then submit when ready.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.prepare_hint",
     "context_group": "disposition.ui",
     "default_text": "Review membership and proposals, then enter review comments before submitting.",
@@ -13426,6 +14531,63 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Review membership and proposals, then enter review comments before submitting.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparer",
+    "context_group": "disposition.ui",
+    "default_text": "Preparer",
+    "semantic_meaning": "Required individual responsible for preparing a disposition job.",
+    "common_locations": [
+      "Disposition job creation dialog, including creation from selected aggregations"
+    ],
+    "translator_guidance": "Use established disposition Job terminology; preparer is the assigned person, not the creator.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Preparer",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparer_guidance",
+    "context_group": "disposition.ui",
+    "default_text": "Required. This person is responsible for preparing the job.",
+    "semantic_meaning": "Required individual responsible for preparing a disposition job.",
+    "common_locations": [
+      "Disposition job creation dialog, including creation from selected aggregations"
+    ],
+    "translator_guidance": "Use established disposition Job terminology; preparer is the assigned person, not the creator.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Required. This person is responsible for preparing the job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preparer_required",
+    "context_group": "disposition.ui",
+    "default_text": "Select a preparer before creating the job.",
+    "semantic_meaning": "Required individual responsible for preparing a disposition job.",
+    "common_locations": [
+      "Disposition job creation dialog, including creation from selected aggregations"
+    ],
+    "translator_guidance": "Use established disposition Job terminology; preparer is the assigned person, not the creator.",
+    "grammatical_role": "validation message",
+    "parameter_schema": {},
+    "rendered_example": "Select a preparer before creating the job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.preview_digital_certificate",
+    "context_group": "disposition.ui",
+    "default_text": "Preview certificate",
+    "semantic_meaning": "Open the saved digital destruction certificate in the standard document viewer.",
+    "common_locations": [
+      "Current Task: final digital certificate section",
+      "Completed destruction job workspace"
+    ],
+    "translator_guidance": "Viewing the saved digital certificate does not regenerate, download, email, or complete the task. Use approved digital destruction terminology.",
+    "grammatical_role": "action",
+    "parameter_schema": {},
+    "rendered_example": "Preview certificate",
     "is_html": false
   },
   {
@@ -13484,6 +14646,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Previous destination",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.progress_unavailable",
+    "context_group": "disposition.ui",
+    "default_text": "Progress could not be refreshed. Processing may still be running; refresh to check again.",
+    "semantic_meaning": "Status-read connection failure does not prove that background work failed.",
+    "common_locations": [
+      "Disposition task → background progress; My Tasks; job history"
+    ],
+    "translator_guidance": "Use existing Wathiq terminology: عملية for disposition job, مهمة for task, اعتماد for approval. Distinguish accepted work from completed approval and distinguish failed application from document-only recovery.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Progress could not be refreshed. Processing may still be running; refresh to check again.",
     "is_html": false
   },
   {
@@ -13571,6 +14747,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Reason",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.proposal_saved",
+    "context_group": "disposition.ui",
+    "default_text": "Proposal changes saved.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: proposal_saved",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Proposal changes saved.",
     "is_html": false
   },
   {
@@ -13751,6 +14941,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Change reason",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.reason_optional",
+    "context_group": "disposition.ui",
+    "default_text": "Reason (optional)",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: reason_optional",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Reason (optional)",
     "is_html": false
   },
   {
@@ -14447,6 +15651,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.required_fields",
+    "context_group": "disposition.ui",
+    "default_text": "Complete all required fields. Changes have not been saved.",
+    "semantic_meaning": "Validation for disposition commands which do not require a change reason.",
+    "common_locations": [
+      "Disposition creation and reason-free command dialogs"
+    ],
+    "translator_guidance": "Do not ask for a change reason; this operation does not require one.",
+    "grammatical_role": "validation message",
+    "parameter_schema": {},
+    "rendered_example": "Complete all required fields. Changes have not been saved.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.restricted",
     "context_group": "disposition.ui",
     "default_text": "Restricted resource — insufficient access to add",
@@ -14698,6 +15916,60 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.review_assign_both",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator and a Unit Manager need to be assigned for {unit}. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "unit": "text"
+    },
+    "rendered_example": "A File Administrator and a Unit Manager need to be assigned for Records Unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_assign_file_administrator",
+    "context_group": "disposition.ui",
+    "default_text": "A File Administrator needs to be assigned for {unit}. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "unit": "text"
+    },
+    "rendered_example": "A File Administrator needs to be assigned for Records Unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_assign_unit_manager",
+    "context_group": "disposition.ui",
+    "default_text": "A Unit Manager needs to be assigned for {unit}. Contact the System Administrator for help.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "unit": "text"
+    },
+    "rendered_example": "A Unit Manager needs to be assigned for Records Unit. Contact the System Administrator for help.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.review_changes",
     "context_group": "disposition.ui",
     "default_text": "Review changes",
@@ -14737,6 +16009,34 @@
     "grammatical_role": "message",
     "parameter_schema": {},
     "rendered_example": "Optional for draft saves and routine reviews. Required to submit, return for correction, or approve a Records Manager Only job.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments_optional",
+    "context_group": "disposition.ui",
+    "default_text": "Review comments (optional unless returning for correction)",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: review_comments_optional",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Review comments (optional unless returning for correction)",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_comments_optional_hint",
+    "context_group": "disposition.ui",
+    "default_text": "Comments are optional for Save, Submit, Complete review and Approve. When returning for correction, explain what needs attention.",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: review_comments_optional_hint",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Comments are optional for Save, Submit, Complete review and Approve. When returning for correction, explain what needs attention.",
     "is_html": false
   },
   {
@@ -14865,6 +16165,70 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Saved review route?",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_attention",
+    "context_group": "disposition.ui",
+    "default_text": "Review setup needs attention",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Review setup needs attention",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "This review cannot continue until this is resolved. You can still save your work.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "This review cannot continue until this is resolved. You can still save your work.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_checking",
+    "context_group": "disposition.ui",
+    "default_text": "Checking reviewer availability…",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Checking reviewer availability…",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.review_setup_create_blocked",
+    "context_group": "disposition.ui",
+    "default_text": "This Standard destruction job cannot be saved until this is resolved.",
+    "semantic_meaning": "Current Standard destruction review readiness guidance; missing designation and missing current person assignment share the same simple message.",
+    "common_locations": [
+      "Create destruction job",
+      "Disposition jobs",
+      "Job and current task"
+    ],
+    "translator_guidance": "Use established Wathiq role terminology. Direct users to the System Administrator without technical configuration details. Preserve {unit} when present.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "This Standard destruction job cannot be saved until this is resolved.",
     "is_html": false
   },
   {
@@ -15181,22 +16545,6 @@
     "is_html": false
   },
   {
-    "message_key": "disposition.ui.select_hint",
-    "context_group": "disposition.ui",
-    "default_text": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
-    "semantic_meaning": "Disposition eligibility and common job interface: Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
-    "common_locations": [
-      "Disposition eligibility",
-      "Disposition jobs",
-      "Resource disposition metadata"
-    ],
-    "translator_guidance": "Use approved records-management terminology; preserve the distinction between admission blockers and final-action blockers.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Select accessible, unblocked closed aggregations. Each selected aggregation is checked again when added.",
-    "is_html": false
-  },
-  {
     "message_key": "disposition.ui.select_job",
     "context_group": "disposition.ui",
     "default_text": "Choose a disposition job",
@@ -15210,6 +16558,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Choose a disposition job",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.selection_mixed_branches",
+    "context_group": "disposition.ui",
+    "default_text": "Selected aggregations have no common organizational ancestor. Add them to separate jobs.",
+    "semantic_meaning": "Inline warning disabling Add selected aggregations to job when the current selection is incompatible.",
+    "common_locations": [
+      "Disposition eligibility selection toolbar"
+    ],
+    "translator_guidance": "Explain the current selection problem calmly; aggregation is ملف and disposition job is عملية. No modal or technical hierarchy terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Selected aggregations have no common organizational ancestor. Add them to separate jobs.",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.selection_mixed_types",
+    "context_group": "disposition.ui",
+    "default_text": "Selected aggregations have different disposition types. Add each type to a separate job.",
+    "semantic_meaning": "Inline warning disabling Add selected aggregations to job when the current selection is incompatible.",
+    "common_locations": [
+      "Disposition eligibility selection toolbar"
+    ],
+    "translator_guidance": "Explain the current selection problem calmly; aggregation is ملف and disposition job is عملية. No modal or technical hierarchy terminology.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Selected aggregations have different disposition types. Add each type to a separate job.",
     "is_html": false
   },
   {
@@ -16176,6 +17552,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.unclaimed",
+    "context_group": "disposition.ui",
+    "default_text": "Unclaimed",
+    "semantic_meaning": "Open role-queue work currently available for the signed-in user to claim in their personal My Tasks inbox.",
+    "common_locations": [
+      "My Tasks → Task state column"
+    ],
+    "translator_guidance": "Describe a task that nobody has claimed yet. Keep the existing column title and task states; this is a display label, not a new workflow state.",
+    "grammatical_role": "status",
+    "parameter_schema": {},
+    "rendered_example": "Unclaimed",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.unit_manager_review",
     "context_group": "disposition.ui",
     "default_text": "Organization Unit Manager review",
@@ -16264,6 +17654,20 @@
     "grammatical_role": "action"
   },
   {
+    "message_key": "disposition.ui.update_proposal",
+    "context_group": "disposition.ui",
+    "default_text": "Update proposal",
+    "semantic_meaning": "Immediate proposal persistence and optional review explanations: update_proposal",
+    "common_locations": [
+      "Disposition review task and proposal editor"
+    ],
+    "translator_guidance": "Reasons are optional for every proposal type. Comments are required only for returning a review for correction. Preserve approved terminology.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Update proposal",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.upload_template",
     "context_group": "disposition.ui",
     "default_text": "Upload template revision",
@@ -16335,6 +17739,20 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Withdraw proposal",
+    "is_html": false
+  },
+  {
+    "message_key": "disposition.ui.withdrawal_comment",
+    "context_group": "disposition.ui",
+    "default_text": "Withdrawal comment",
+    "semantic_meaning": "Identifies the optional comment saved when withdrawing a proposal, distinct from its original proposal reason.",
+    "common_locations": [
+      "Disposition task → Review proposals → Details"
+    ],
+    "translator_guidance": "Use the established اعتماد for approval and سحب for proposal withdrawal. Progress is indeterminate; do not imply that approval or document generation has already finished.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Withdrawal comment",
     "is_html": false
   },
   {
@@ -28280,15 +29698,15 @@
   {
     "message_key": "settings.field.auth_lockout_attempts.description",
     "context_group": "settings.field.auth_lockout_attempts",
-    "default_text": "Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
-    "semantic_meaning": "Administration Settings: Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. Consumer cutover is delivered in its migration phase; then changes propagate within 30 seconds without restart.",
+    "default_text": "Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "semantic_meaning": "Administration Settings: Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
     "common_locations": [
       "Administration Settings API and page"
     ],
     "translator_guidance": "Use the approved Wathiq terminology. Preserve units, boundaries, dependencies and effective timing; never add credential values.",
     "grammatical_role": "guidance",
     "parameter_schema": {},
-    "rendered_example": "Failed login attempts before temporary credential lockout. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
+    "rendered_example": "Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count. Type: whole number. Minimum: 1. Initial default: 5. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
     "is_html": false
   },
   {

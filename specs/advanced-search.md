@@ -393,16 +393,39 @@ inline and in a focusable validation summary. Search and save are disabled
 until the client-side tree is structurally complete; server validation remains
 authoritative.
 
-Changing the target after adding criteria requires confirmation because the
-field allowlist changes. On confirmation, the definition is reset rather than
-silently translating or dropping conditions.
+Changing the target requires confirmation when a saved search is open, even
+if its loaded criteria have not been edited, because resetting those criteria
+changes the loaded saved definition. Confirmation is also required when an
+unsaved search contains edits relative to its clean baseline. Choosing the
+target for an untouched new search does not require confirmation. On confirmed
+target change, the builder is reset rather than translating conditions across
+field allowlists. Confirmation starts a new, clean unsaved search using the
+selected target and the standard New search defaults. The loaded saved-search
+association, name, category, description and audience selections are cleared;
+the side panel shows the unsaved-search context with Save search, rather than
+the former saved details or Update/Edit metadata/Save as/Delete actions. The
+stored saved search is unchanged. Subsequent criteria edits belong only to the
+new search. Cancelling preserves the target, loaded criteria, results, and saved-search context.
+Leaving an unchanged saved search or loading another search does not prompt.
+Programmatic selector updates during loading/restoration must not request
+confirmation.
 
 The page shall support keyboard operation, visible focus, descriptive labels,
 logical tab order, screen-reader group descriptions, and Arabic/RTL layout.
 
 ### 5.4 Unsaved changes
 
-Editing the builder, sort, target, or maximum results marks the page dirty.
+Editing the builder, sort, target, or maximum results marks the page dirty,
+except choosing a target for an otherwise unchanged unsaved search. That target
+switch establishes a fresh clean baseline: switching again, opening a saved
+search, starting a new search, or leaving must not prompt unless other edits
+have been made. Changing the target while a saved search is open requires
+confirmation and starts a new search as specified in §5.3; it does not edit the
+stored saved definition.
+Dirty state is determined by comparison with the baseline, so reverting edits
+clears it. Running a search, browsing results, and changing result page or page
+size do not create unsaved edits. Loading a saved search establishes a clean
+baseline after its controls have been populated.
 Within the save workflow, changing a saved search's name, category,
 description, or audience also forms part of the pending saved-search update.
 Opening another saved search, starting a new search, changing target, or leaving
@@ -924,7 +947,7 @@ data volumes.
 | AS-02 | The builder represents nested `and`, `or`, and `not` groups and emits the existing controlled JSON grammar without SQL/raw `tsquery` inputs | builder unit and API contract tests |
 | AS-03 | A full-text leaf combines with structured leaves at any permitted nesting position for records and aggregations | grammar/database integration tests |
 | AS-04 | Field, operator, value, source, depth, leaf-count, and sort constraints are enforced by both client guidance and authoritative server validation | boundary and injection tests |
-| AS-05 | Changing target cannot silently retain, translate, or discard incompatible criteria | UI interaction tests |
+| AS-05 | Changing target confirms before resetting an open saved search or unsaved edits; untouched new-search target selection is silent; stored saved searches change only on explicit update | UI interaction tests |
 | AS-06 | Results are card-based, sorted deterministically, and pageable with total/range controls | UI/API pagination tests and live-browser evidence |
 | AS-07 | Record result cards show only components attributed as matches by the executed criteria, preserve each matched component's safe highlighted snippet, and offer governed preview on those rows without enumerating unmatched components | multi-user ACL/clearance, attribution, preview-wiring, and snippet tests |
 | AS-08 | A saved search stores its target, criteria, sort and creator-selected `max_results`, but no page offset, cursor, debug flag, result, count, score, or snippet | schema/API tests |

@@ -14,11 +14,16 @@ def controls(form):
     value=form.view.get('destruction')
     if not value or form.job['workflow_stage']!='digital_destruction':return
     state={'progress':value.get('progress'),'reading':False}
+    from .background import panel
+    elements=panel(form,'execution_progress')
+    summary,error=elements['summary'],elements['error']
     with form.host:
-        ui.label(text('execution_progress')).classes('text-lg font-semibold')
-        summary=ui.label('').props('role=status')
-        error=ui.label('').props('role=alert').classes('text-negative')
         def render(progress):
+            elements['card'].set_visibility(bool(progress))
+            pending=bool(progress and progress['state'] in ('queued','running'))
+            elements['spinner'].set_visibility(pending);elements['hint'].set_visibility(pending);elements['bar'].set_visibility(bool(progress))
+            if progress:
+                total=progress['overall_total_units'];elements['bar'].value=progress['overall_completed_units']/total if total else 0
             if not progress:summary.text=text('execution_not_requested');error.text='';return
             summary.text=text('execution_counts',state=text('execution_'+progress['state']),completed=progress['overall_completed_units'],total=progress['overall_total_units'],queued=progress['queued_units'],running=progress['running_units'],failed=progress['failed_units'])
             error.text=text(progress['last_error_code']) if progress.get('last_error_code') in KEYS else text('execution_action_required') if progress['state']=='failed' else ''
@@ -46,18 +51,20 @@ def controls(form):
             try:
                 latest=await form.api.disposition_page(f"jobs/{form.job['id']}/destruction-progress")
                 if not form.alive():timer.deactivate();return
-                state['progress']=latest;render(latest)
+                state['progress']=latest
+                with form.host:render(latest)
                 if not latest or latest['state'] in ('succeeded','failed'):
                     timer.deactivate()
                     if latest and latest['state']=='succeeded':
                         from .completion import status_message
                         notify_completion(latest,status_message(form.view))
                     await form.after(latest or {})
-            except ApiError as problem:
-                timer.deactivate()
-                if form.alive():form.error(problem)
+            except ApiError:
+                if form.alive():
+                    with form.host:error.text=text('progress_unavailable')
             finally:state['reading']=False
         timer=ui.timer(2,poll,active=bool(state['progress'] and state['progress']['state'] in ('queued','running')))
+        with elements['actions']:ui.button(text('refresh'),icon='refresh',on_click=poll).props('outline no-caps')
 
 
 # QDialog caps direct cards at 560px, overriding NiceGUI width classes.

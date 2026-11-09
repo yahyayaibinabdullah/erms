@@ -18,7 +18,7 @@ class DraftControls:
                             self.icon=ui.icon('check_circle_outline').classes('text-primary text-xl')
                             with ui.column().classes('gap-0'):
                                 self.status=ui.label('').props('role=status')
-                                ui.label(text('shared_save_hint')).classes('text-xs text-slate-600')
+                                ui.label(text('comments_save_hint')).classes('text-xs text-slate-600')
                         with ui.row().classes('items-center gap-2 flex-wrap'):
                             self.review=ui.button(text('review_changes'),icon='fact_check',on_click=self.show_review).props('flat no-caps')
                             self.save=ui.button(text('save_changes'),icon='save',on_click=lambda:form.perform('save')).props('no-caps')
@@ -27,7 +27,7 @@ class DraftControls:
 
     def count(self):
         f=self.form
-        return len(f.pending)+int(f.comments is not None and str(f.comments.value or '')!=f.saved_comments)
+        return int(f.comments is not None and str(f.comments.value or '')!=f.saved_comments)
 
     def update(self):
         if not self.form.alive() or self.sticky._deleted:return
@@ -70,7 +70,7 @@ class DraftControls:
                 ui.label(f.job.get('job_number') or '').props('dir=auto').classes('text-slate-600')
             body=ui.column().classes('w-full p-5 pt-0 gap-3 overflow-y-auto min-h-0')
             with ui.column().classes('w-full p-5 pt-3 gap-2 shrink-0'):
-                ui.label(text('shared_save_hint')).classes('text-xs text-slate-600')
+                ui.label(text('comments_save_hint')).classes('text-xs text-slate-600')
                 self.dialog_actions(dialog)
         dialog.open()
         f.register_draft_disclosure(dialog,body,None)

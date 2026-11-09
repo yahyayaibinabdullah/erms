@@ -360,7 +360,7 @@ async def settings_page(*, api, container, bind_relationship, active, on_error,
                             # append slot for an identity/language-scoped label.
                             with control.add_slot('append'):
                                 clear_selection = ui.button(icon='cancel').props('flat round dense')
-                                clear_selection.props(f'aria-label="{render_message_plain("settings.action.clear_selection")}"')
+                                clear_selection.props(f"aria-label={render_message_plain('settings.action.clear_selection')!r}")
                                 clear_selection.tooltip(render_message('settings.action.clear_selection'))
                                 clear_selection.on('click.stop', lambda _, c=control: c.set_value(None))
                                 clear_selection.set_visibility(control.value is not None)

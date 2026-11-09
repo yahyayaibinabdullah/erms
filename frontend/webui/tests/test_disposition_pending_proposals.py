@@ -12,7 +12,7 @@ from frontend.webui.disposition.messages import text
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('target_id',[10,11])
-async def test_legal_hold_draft_updates_member_before_save_and_survives_tab_entry(host,monkeypatch,target_id):
+async def test_added_proposal_is_persisted_and_counts_refresh_without_saving_comments(host,monkeypatch,target_id):
     from frontend.webui.disposition import review
     from frontend.webui.disposition.screens import job_screen
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
@@ -44,6 +44,7 @@ async def test_legal_hold_draft_updates_member_before_save_and_survives_tab_entr
         await job_screen(api=api,identity=5,container=host,active=lambda:mounted[0],on_error=str,bind_remote=lambda *a,**k:None,open_job=noop,open_eligibility=noop,open_resource=noop,format_timestamp=str,event_label=str,task_id=8,saved={'section':'members'})
         f=forms[0]
         table=next(e for e in host.descendants() if isinstance(e,ui.table) and any(c['name']=='proposal_count' for c in e.columns))
+        f.comments.value='Unsaved observations'
         await f.edit(root=table.rows[0])
         dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
         kind=next(e for e in dialog.descendants() if isinstance(e,ui.select) and e.label==text('proposal_type'))
@@ -53,77 +54,66 @@ async def test_legal_hold_draft_updates_member_before_save_and_survives_tab_entr
             target.set_options({11:'AGG-11 · Descendant aggregation'},value=11);await asyncio.sleep(.02)
         holds=next(e for e in dialog.descendants() if isinstance(e,ui.select) and e.label==text('hold_ids'))
         holds.set_options({3:'LH-3 · Litigation hold'},value=[3])
-        reason=next(e for e in dialog.descendants() if isinstance(e,ui.textarea) and e.label==text('reason'))
+        reason=next(e for e in dialog.descendants() if isinstance(e,ui.textarea) and e.label==text('reason_optional'))
         reason.value='Preserve for litigation'
-        button=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('add_draft_proposal'))
+        button=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('add_proposal'))
         response=next(iter(button._event_listeners.values())).handler(None)
         if inspect.isawaitable(response):await response
         await asyncio.sleep(.02)
-        assert len(f.pending)==1
-        assert f.pending[0]['target_aggregation_id']==target_id
-        assert table.rows[0]['proposal_count']==1 and table.rows[1]['proposal_count']==0
-        assert table.rows[0]['pending_proposals_label']==text('pending_changes')+' · 1'
-        assert not table.rows[0]['held'] and not table.rows[0]['blocked'] and not api.writes
-        # No extra reads just to show the pending count; the server still has zero.
-        assert sum(path.endswith('/memberships') for path,_ in api.reads)==1
-        show=next(e.handler for e in table._event_listeners.values() if e.type in ('show-proposals','showProposals'))
-        await show(SimpleNamespace(args=1))
-        disclosure=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
-        labels=[e.text for e in disclosure.descendants() if isinstance(e,ui.label)]
-        assert text('pending_changes') in labels and text('add_to_holds') in labels
-        assert text('hold_ids')+' · LH-3 · Litigation hold' in labels
-        assert text('reason')+' · Preserve for litigation' in labels
-        disclosure.close();await asyncio.sleep(0)
-        assert not f.pending_disclosures
+        assert len(api.writes)==1 and not dialog.value
+        change=api.writes[0][1]['changes'][0]
+        assert change['target_aggregation_id']==target_id and change['proposal_type']=='add_to_holds'
+        assert 'review_notes' not in api.writes[0][1] and 'overall_reason' not in api.writes[0][1]
+        assert f.comments.value=='Unsaved observations' and f.has_changes()
+        assert table.rows[0]['proposal_count']==1 and not table.rows[0]['held']
+        assert table.rows[1]['proposal_count']==0
+        member_reads=[params for path,params in api.reads if path.endswith('/memberships')]
+        assert len(member_reads)==2 and all(p['limit']==25 for p in member_reads)
         navigation=next(e for e in host.descendants() if isinstance(e,ui.tabs))
+        assert navigation.value=='members'
         navigation.value='current_task';await asyncio.sleep(.02)
         navigation.value='members';await asyncio.sleep(.02)
-        assert table.rows[0]['saved_proposal_count']==0 and table.rows[0]['proposal_count']==1
-        # Repeated overlays never add the same draft twice.
-        f.render_pending();f.render_pending()
-        assert table.rows[0]['proposal_count']==1
-        draft=f.pending[0]
-        f.discard_pending(draft)
-        assert table.rows[0]['proposal_count']==0 and not table.rows[0]['pending_proposals_label']
-        f.queued(draft,{'hold_ids':'LH-3 · Litigation hold'})
-        api.error=ApiError(409,{'code':'disposition_stale_task'})
+        assert table.rows[0]['proposal_count']==1 and f.comments.value=='Unsaved observations'
         await f.perform('save')
-        assert table.rows[0]['proposal_count']==1 and table.rows[0]['pending_proposals_label']
-        api.error=None
-        await f.perform('save')
-        assert table.rows[0]['saved_proposal_count']==table.rows[0]['proposal_count']==1
-        assert not table.rows[0]['pending_proposals_label'] and not table.rows[0]['held']
-        assert not f.pending and not f.pending_roots and not f.pending_meta
-        assert len(api.writes)==2
-        assert api.writes[-1][1]['changes']==[draft]
-        # Disposed workspaces cannot be repainted by a local draft notification.
-        mounted[0]=False
-        f.queued(dict(draft,governing_root_id=20))
-        assert table.rows[1]['proposal_count']==0
+        assert len(api.writes)==2 and api.writes[-1][1]['changes']==[]
+        assert api.writes[-1][1]['review_notes']=='Unsaved observations'
 
 
 @pytest.mark.asyncio
-async def test_revisions_withdrawals_and_redacted_or_historical_members(host,monkeypatch):
-    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
-    f,api,_=await form(host)
-    rows=[dict(id=1,root_aggregation_id=10,proposal_count=2,membership_state='active'),
-          dict(id=2,root_aggregation_id=20,proposal_count=1,membership_state='active'),
-          dict(id=3,root_aggregation_id=10,proposal_count=None,redacted=True,membership_state='active'),
-          dict(id=4,root_aggregation_id=10,proposal_count=2,membership_state='removed')]
+async def test_add_failure_retains_input_and_exact_retry_then_saves_without_comment(host,monkeypatch):
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    f,api,_=await form(host);f.comments.value='Do not save this yet'
     with host:
-        f.queued(dict(action='revise',proposal_id=9,proposed_values={'hold_ids':[3]}),root_id=10)
-        f.decorate_member_proposals(rows)
-        assert rows[0]['proposal_count']==2 and rows[0]['pending_proposals_label']
-        f.queued(dict(action='withdraw',proposal_id=9),root_id=10)
-        f.decorate_member_proposals(rows)
-        assert len(f.pending)==len(f.pending_roots)==len(f.pending_meta)==1
-        assert rows[0]['proposal_count']==1 and rows[1]['proposal_count']==1
-        assert rows[2]['proposal_count'] is None and not rows[2]['pending_proposals_label']
-        assert rows[3]['proposal_count']==2 and not rows[3]['pending_proposals_label']
-        await f.show_proposals(dict(identity='AGG-10',root_aggregation_id=10))
+        await f.edit(root={'root_aggregation_id':10})
         dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
-        assert any(isinstance(e,ui.label) and e.text==text('withdraw') for e in dialog.descendants())
-        f.discard_pending(f.pending[0]);f.decorate_member_proposals(rows)
-        assert rows[0]['proposal_count']==2 and not rows[0]['pending_proposals_label']
-        assert not any(isinstance(e,ui.label) and e.text==text('pending_changes') for e in dialog.descendants())
-    assert not api.writes
+        kind=next(e for e in dialog.descendants() if isinstance(e,ui.select) and e.label==text('proposal_type'))
+        kind.value='remove_from_job';await asyncio.sleep(.02)
+        button=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('add_proposal'))
+        accept=next(iter(button._event_listeners.values())).handler
+        api.error=ApiError(409,{'code':'disposition_stale_task'})
+        from frontend.webui.tests.test_disposition_shared_footer import click
+        await click(button);await click(button)
+        assert dialog.value and f.comments.value=='Do not save this yet'
+        assert api.writes[0][1]['command_id']==api.writes[1][1]['command_id']
+        assert f.feedback.text
+        api.error=None;await click(button)
+        assert not dialog.value and api.writes[-1][1]['changes'][0]['reason'] is None
+        assert f.has_changes() and f.work['own_notes']['version']==4
+        assert 'review_notes' not in api.writes[-1][1]
+
+
+@pytest.mark.asyncio
+async def test_abandoned_proposal_save_does_not_repaint_or_refresh_another_view(host,monkeypatch):
+    monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+    f,api,after=await form(host);entered=asyncio.Event();finish=asyncio.Event()
+    original=api.disposition_command
+    async def slow(*args,**kwargs):
+        entered.set();await finish.wait();return await original(*args,**kwargs)
+    api.disposition_command=slow
+    mounted=[True];f.active=lambda:mounted[0]
+    with host:
+        feedback=ui.label('')
+        task=asyncio.create_task(f.save_proposals([dict(action='withdraw',proposal_id=1,expected_version=1)],feedback))
+        await entered.wait();mounted[0]=False;reads=len(api.reads);finish.set()
+        assert await task
+    assert len(api.reads)==reads and not after and f.work['job_version']==2

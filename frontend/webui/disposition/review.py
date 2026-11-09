@@ -1,6 +1,6 @@
-"""Destruction review forms with explicit atomic Save and optimistic versions.
+"""Destruction reviews with immediate proposal persistence and explicit comment Save.
 
-Draft changes belong only to this mounted task. Mutations retain an exact-payload
+Unconfirmed editor input and unsaved comments belong only to this mounted task. Mutations retain an exact-payload
 retry UUID. No operational, reference or cross-identity result cache is added.
 """
 import asyncio
@@ -15,7 +15,7 @@ from ..relationship_select import relationship_select
 from ..resource_relationships import PageTable, language
 from .acting_role import automatic_role
 from .handoff import notify_completion,task_finished
-from .messages import text,KEYS
+from .messages import REVIEW_SETUP_ERRORS, text,KEYS
 from .screens import column,failure
 
 PROPOSAL_TYPES=('remove_from_job','make_vital','blocking_security','add_to_holds','create_aggregation_relationship','remove_aggregation_relationship','remove_record_relationship','local_retention_override')
@@ -27,7 +27,7 @@ def workflow_panel(job, **context):
 
 
 class ReviewForm:
-    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,documents_active=None,history_active=None,on_submitted=None,on_approved=None,on_pending_changed=None,footer_host=None,task_active=None):
+    def __init__(self,*,api,workspace,active,on_error,bind_remote,after,format_timestamp,open_resource,preview=None,browse_resource=None,history_host=None,documents_host=None,documents_active=None,history_active=None,on_submitted=None,on_approved=None,footer_host=None,task_active=None):
         # Historical callback name: all completed task stages now use this inbox return.
         self.on_submitted=on_submitted
         self.on_approved=on_approved
@@ -37,8 +37,9 @@ class ReviewForm:
         self.preview=preview
         self.browse_resource=browse_resource
         self.job=workspace['job'];self.task=workspace['task'];self.actions=set(workspace['actions'])
-        self.pending=[];self.pending_meta={};self.pending_roots={};self.pending_disclosures=[]
-        self.on_pending_changed=on_pending_changed
+        self.review_blocked=any((self.job.get('review_setup') or {}).values())
+        self.progress_buttons=[]
+        self.pending_disclosures=[];self.proposal_pages=[];self.bulk_selections=[]
         self.retry={};self.busy=False;self.proposal_filter=None;self.proposal_round=None
         self.work=None;self.comments=None;self.saved_comments=''
         self.draft_controls=None;self.draft_buttons=[];self.footer_host=footer_host
@@ -54,21 +55,30 @@ class ReviewForm:
         with self.host:
             ui.label(text('current_task')).classes('text-lg font-semibold')
             self.feedback=ui.label('').props('role=alert').classes('text-negative')
+            self.status_host=ui.column().classes('w-full gap-3')
             if not self.task:
                 ui.label(text('no_current_task')).props('role=status');return
             form_key={'certificate_generation':'certificate_final_task','physical_destruction':'physical_destruction','digital_destruction':'digital_destruction','external_approval_pending':'external_form','file_administrator_review':'form_file_review','unit_manager_review':'form_unit_review','records_manager_review':'form_manager_review','officer_correction':'correction','manager_correction':'correction','manager_preparation':'form_manager_review'}.get(self.job['workflow_stage'],'preparation')
             ui.label(text(form_key)).classes('font-semibold')
-            hint='disposition_physical_required' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'prepare_hint' if 'submit' in self.actions else 'review_hint'
+            hint='disposition_physical_required' if self.task['task_type'] in ('physical_destruction','digital_destruction') else 'external_hint' if self.task['task_type']=='external_approval' else 'correction_hint' if 'correction' in self.job['workflow_stage'] else 'manager_hint' if 'approve' in self.actions else 'preparation_ready_hint' if 'submit' in self.actions else 'review_hint'
             if self.task['task_type']=='digital_destruction':hint='disposition_digital_confirmation_required'
             if self.task['task_type']=='digital_destruction' and ((workspace.get('destruction') or {}).get('progress') or {}).get('state')=='succeeded':
                 from .completion import status_message
                 hint=status_message(workspace)
             if self.task['task_type']=='certificate_download':hint='certificate_finish_hint'
-            ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
+            operation=workspace.get('operation') or {}
+            processing=operation.get('state') in ('queued','running') or operation.get('state')=='failed' and operation.get('approval_committed')
+            digital_pending=((workspace.get('destruction') or {}).get('progress') or {}).get('state') in ('queued','running')
+            # The progress card provides the applicable guidance. Do not tell
+            # an already working reviewer to claim or confirm the task again.
+            if not processing and not digital_pending:
+                ui.label(text(hint) if self.roles else text('no_current_task')).classes('text-sm text-slate-600').props('role=status')
             for key in ('direct_assignee','role_queue','claimant'):
                 ui.label(text(key)+' · '+(self.task.get(key) or '—')).props('dir=auto')
             self.acting_role_id=automatic_role(self.roles)
-            if 'claim' in self.actions:ui.label(text('claim_before_proposals')).classes('text-sm text-amber-900').props('role=status')
+            if 'claim' in self.actions:
+                claim_hint={'digital_destruction':'claim_before_digital_destruction','certificate_download':'claim_before_certificate_completion'}.get(self.task['task_type'],'claim_before_proposals')
+                ui.label(text(claim_hint)).classes('text-sm text-amber-900').props('role=status')
             if 'claim' in self.actions:ui.button(text('claim'),icon='assignment_ind',on_click=lambda:self.queue_action('claim')).tooltip(text('claim')).props('no-caps')
             if 'reassign' in self.actions:ui.button(text('reassign'),icon='person_add',on_click=self.reassign).tooltip(text('reassign')).props('outline no-caps')
             if 'release' in self.actions:ui.button(text('release'),icon='undo',on_click=lambda:self.queue_action('release')).tooltip(text('release')).props('outline no-caps')
@@ -83,7 +93,7 @@ class ReviewForm:
         return 'submit' in self.actions or self.job['review_route']=='records_manager_only'
 
     def has_changes(self):
-        return bool(self.pending) or self.comments is not None and str(self.comments.value or '')!=self.saved_comments
+        return self.comments is not None and str(self.comments.value or '')!=self.saved_comments
 
     def comments_need_sync(self):
         if self.comments is None or self.work is None:return False
@@ -105,9 +115,12 @@ class ReviewForm:
     async def queue_action(self,action):
         from .screens import command_dialog
         if self.dirty():ui.notify(text('unsaved_warning'),type='warning');return
-        await command_dialog(api=self.api,context={'roles':self.view['roles'] if action=='claim' else list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after,reason_required=action!='claim',confirm='claim_explanation' if action=='claim' else None)
+        explanation={'digital_destruction':'claim_digital_explanation','certificate_download':'claim_certificate_explanation'}.get(self.task['task_type'],'claim_explanation') if action=='claim' else None
+        await command_dialog(api=self.api,context={'roles':self.view['roles'] if action=='claim' else list({r['id']:r for r in self.view['roles']+self.view.get('task_management_roles',[])}.values())},active=self.alive,on_error=self.on_error,title=action,build=lambda active:lambda:{},path=f"tasks/{self.task['id']}/{action}",version=self.task['version'],after=self.after,reason_required=action!='claim',confirm=explanation)
 
     async def load(self):
+        from .background import controls as background_controls
+        background_controls(self)
         from .external import request_controls,task_form
         if self.job['workflow_stage']=='external_approval_pending' or any((self.view.get('external') or {}).get(k) for k in ('can_generate','can_renew')):request_controls(self,host=self.documents_host)
         from .physical import controls as physical_controls,task_form as physical_task_form
@@ -155,18 +168,18 @@ class ReviewForm:
                 for value in (legacy_reason,legacy_notes):
                     if value.strip() and not any(value.strip()==part.strip() for part in parts):parts.append(value)
                 self.saved_comments='\n\n'.join(parts)
-                self.comments=ui.textarea(text('review_comments'),value=self.saved_comments).props('outlined autogrow').classes('w-full')
+                self.comments=ui.textarea(text('review_comments_optional'),value=self.saved_comments).props('outlined autogrow').classes('w-full')
                 self.comments.on_value_change(self.comments_changed)
-                ui.label(text('review_comments_hint')).classes('text-sm text-slate-600')
-                ui.label(text('save_hint')).classes('text-sm text-slate-600')
-                self.pending_label=ui.label('').props('role=status')
-                self.pending_host=ui.column().classes('w-full gap-2')
+                ui.label(text('review_comments_optional_hint')).classes('text-sm text-slate-600')
+                ui.label(text('immediate_proposals_hint')).classes('text-sm text-slate-600')
                 self.buttons=[]
                 with ui.row().classes('w-full gap-2 flex-wrap'):
                     for action in ('submit','complete_review','reject','approve'):
                         if action in self.actions:
                             label='approve_generate_request' if action=='approve' and self.job['review_route']=='records_manager_only' else action
                             self.buttons.append(ui.button(text(label),icon={'save':'save','submit':'send','complete_review':'done','reject':'assignment_return','approve':'verified'}[action],on_click=lambda _,a=action:self.perform(a)).tooltip(text(label)).props('no-caps'+(' outline' if action=='reject' else '')))
+                            if action in ('submit','complete_review','approve'):
+                                self.progress_buttons.append(self.buttons[-1]);self.buttons[-1].set_enabled(not self.review_blocked)
             self.history_sections()
             await self.proposals_panel(host=self.proposal_host if 'save' in self.actions else None)
         if 'save' in self.actions and self.alive():
@@ -181,7 +194,7 @@ class ReviewForm:
 
     async def persist(self):
         if not self.has_changes() and not self.comments_need_sync():return
-        payload={'task_version':self.work['task_version'],'changes':self.pending,'review_notes':self.comments.value or '',
+        payload={'task_version':self.work['task_version'],'changes':[],'review_notes':self.comments.value or '',
                  'note_version':(self.work.get('own_notes') or {}).get('version',0)}
         if self.needs_submission_comments():payload['overall_reason']=self.comments.value or ''
         result=await self.send(f"tasks/{self.task['id']}/review-work",payload,self.work['job_version'])
@@ -189,12 +202,48 @@ class ReviewForm:
         self.work.update(job_version=result['job_version'],task_version=result['task_version'],overall_reason=self.comments.value if self.needs_submission_comments() else self.work.get('overall_reason'),own_notes={'version':result['note_version'],'review_notes':self.comments.value or ''})
         self.job['version']=result['job_version'];self.task['version']=result['task_version']
         self.saved_comments=str(self.comments.value or '')
-        self.pending.clear();self.pending_meta.clear();self.pending_roots.clear();self.render_pending()
+        self.render_pending()
         return result
+
+    async def save_proposals(self,changes,feedback,*,bulk=False):
+        """Save one confirmed editor action atomically, without saving comments.
+
+        Exact-payload retry identities survive transport errors. Version failures
+        leave the editor open; they never silently overwrite another reviewer's work.
+        No resource changes or workflow transitions happen here.
+        """
+        if not self.alive() or self.busy:return False
+        self.busy=True;feedback.text='';self.feedback.text=''
+        if self.draft_controls:self.draft_controls.update()
+        committed=False
+        try:
+            result=await self.send(f"tasks/{self.task['id']}/review-work",
+                {'task_version':self.work['task_version'],'changes':changes,**({'bulk':True} if bulk else {})},self.work['job_version'])
+            committed=True
+            if not self.alive():return True
+            self.work.update(job_version=result['job_version'],task_version=result['task_version'])
+            self.job['version']=result['job_version'];self.task['version']=result['task_version']
+            for selection in self.bulk_selections:selection.clear()
+            ui.notify(text('bulk_saved',count=len(changes)) if bulk else text('proposal_saved'),type='positive')
+            self.proposal_pages[:]=[(page,active) for page,active in self.proposal_pages if active()]
+            await asyncio.gather(*(page.load() for page,active in self.proposal_pages))
+            if self.alive():await self.after({'_saved_work':True,'job_version':result['job_version']})
+            return True
+        except ApiError as error:
+            if bulk and not committed:raise
+            if self.alive():
+                feedback.text=failure(error,self.on_error)
+                self.error(error)
+            # Once committed, never leave an Add button offering to repeat it.
+            return committed
+        finally:
+            self.busy=False
+            if self.alive() and self.draft_controls:self.draft_controls.update()
 
     async def perform(self,action):
         if not self.alive() or self.busy or action not in self.actions:return
-        required=action in ('submit','reject') or action=='approve' and self.job['review_route']=='records_manager_only'
+        if self.review_blocked and action in ('submit','complete_review','approve'):return
+        required=action=='reject'
         if required and not str(self.comments.value or '').strip():
             self.feedback.text=text('review_comments_required')
             ui.notify(self.feedback.text,type='warning');self.comments.run_method('focus');return
@@ -206,7 +255,7 @@ class ReviewForm:
         try:
             confirmation=None
             if action=='approve':
-                confirmation=await self.api.disposition_approval_summary(self.task['id'],acting_role_id=self.acting_role_id,task_version=self.work['task_version'],changes=self.pending,version=self.work['job_version'])
+                confirmation=await self.api.disposition_approval_summary(self.task['id'],acting_role_id=self.acting_role_id,task_version=self.work['task_version'],changes=[],version=self.work['job_version'])
                 if not self.alive():return
                 if confirmation['job_version']!=self.work['job_version'] or confirmation['task_version']!=self.work['task_version']:
                     raise ApiError(409,{'code':'disposition_stale_version'})
@@ -221,6 +270,7 @@ class ReviewForm:
                         ui.button(text('cancel'),on_click=lambda:dialog.submit(False)).props('flat no-caps')
                         ui.button(text('approve_apply'),on_click=lambda:dialog.submit(True)).props('no-caps')
                 if not await dialog or not self.alive():return
+                self.feedback.text=text('approval_accepting')
             saved=await self.persist() is not None
             if not self.alive():return
             payload={'task_version':self.work['task_version']}
@@ -239,6 +289,10 @@ class ReviewForm:
                 payload.update(membership_token=preview['membership_token'],proposals_token=preview['proposals_token'],overall_reason=self.comments.value if self.needs_submission_comments() else None);endpoint='approve-proposals'
             result=await self.send(f"tasks/{self.task['id']}/{endpoint}",payload,self.work['job_version'])
             if not self.alive():return
+            if action=='approve' and result.get('operation_id'):
+                ui.notify(text('approval_queued'),type='info')
+                await self.after(result)
+                return
             pending=result.get('request_status')=='pending' or result.get('report_status')=='pending'
             if action in ('submit','complete_review','reject'):
                 notify_completion(result,'submitted' if action=='submit' else 'review_completed')
@@ -254,6 +308,8 @@ class ReviewForm:
                 if self.on_approved:await self.on_approved(error.detail)
                 else:await task_finished(self,error.detail)
             else:
+                if isinstance(error.detail,dict) and error.detail.get('code') in REVIEW_SETUP_ERRORS:
+                    self.job['review_setup']=dict(REVIEW_SETUP_ERRORS[error.detail['code']]);self.review_blocked=True
                 self.error(error)
                 if saved:
                     ui.notify(text('decision_failed_saved'),type='warning')
@@ -263,6 +319,7 @@ class ReviewForm:
             self.busy=False
             if self.alive():
                 for control in controls:control.enable()
+                for button in self.progress_buttons:button.set_enabled(not self.review_blocked)
                 if self.draft_controls:self.draft_controls.update()
 
     def remote(self,kind,label,*,target=False,root=None,multiple=False,selected=None,active=None,direction=None):
@@ -287,9 +344,17 @@ class ReviewForm:
 
     async def proposals_panel(self,root_id=None,host=None,active=None):
         from .proposal_presenter import proposed_change
+        from .bulk import BulkSelection
         with host or self.host:
             ui.separator();ui.label(text('proposals')).classes('text-lg font-semibold')
             round_label=ui.label('').classes('text-sm text-slate-600')
+            scope_active=active or self.task_active
+            selection=None
+            if 'propose' in self.actions:
+                selection=BulkSelection(eligible=lambda row:'propose' in self.actions and row.get('editable',False),label=lambda row:row['target_label'],
+                    active=scope_active,actions=[('bulk_withdraw_selected',lambda rows:self.bulk_proposals('withdraw',rows,scope_active))])
+                self.bulk_selections[:]=[value for value in self.bulk_selections if not value.bar._deleted]
+                self.bulk_selections.append(selection)
             async def fetch(p):
                 result=await self.api.disposition_page(f"jobs/{self.job['id']}/proposals",limit=p.size,offset=(p.page-1)*p.size,review_round=self.proposal_round,root_id=root_id)
                 for row in result['items']:
@@ -297,7 +362,11 @@ class ReviewForm:
                     row['details_available']=not row['redacted'] or bool(row.get('partial'))
                     row['change_label']=proposed_change(row)
                     row['proposer_label']=row.get('proposer_name') or '—'
-                    row['reason_label']=text('restricted_text') if row['redacted'] and row.get('partial') else '—' if row['redacted'] else row.get('reason') or '—'
+                    if row['redacted']:
+                        row['reason_label']=text('restricted_text') if row.get('partial') else '—'
+                    elif row['proposal_state']=='withdrawn':
+                        row['reason_label']=text('withdrawal_comment')+' · '+row['withdrawal_reason'] if row.get('withdrawal_reason') else '—'
+                    else:row['reason_label']=row.get('reason') or '—'
                     if row['redacted']:
                         target=row.get('target_summary')
                         row.update(target_label=target['number']+' · '+target['title'] if target else text('restricted_resource'),target_notice=text('restricted_proposal_details') if target else '',type_label='—',state_label='—',editable=False)
@@ -312,11 +381,13 @@ class ReviewForm:
                     row['editable']='propose' in self.actions and self.work is not None and row['review_round']==self.work['review_round'] and row['proposal_state']=='active' and row['in_current_membership']
                 return result
             def loaded(p,result):
+                if selection:selection.loaded(p,result)
                 rounds={r['review_round'] for r in result['items'] if r.get('review_round') is not None}
                 number=next(iter(rounds)) if len(rounds)==1 else self.proposal_round if not rounds else None
                 round_label.text=text('tracker_round',number=number) if number is not None else ''
                 round_label.set_visibility(number is not None)
-            page=PageTable(columns=[column('target_label','target'),column('change_label','proposed_change'),column('state_label','proposal_status'),column('proposer_label','proposed_by'),column('reason_label','proposal_reason'),column('actions')],fetch=fetch,active=active or self.alive,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),on_loaded=loaded)
+            page=PageTable(columns=[column('target_label','target'),column('change_label','proposed_change'),column('state_label','proposal_status'),column('proposer_label','proposed_by'),column('reason_label','proposal_reason'),column('actions')],fetch=fetch,active=scope_active,on_error=self.on_error,empty='empty',wrap_cells=True,empty_text=lambda:text('empty'),loading_text=lambda:text('loading'),on_loaded=loaded,selection='multiple' if selection else None)
+            if selection:selection.attach(page)
             page.table.add_slot('body-cell-target_label','''<q-td :props="props"><bdi>{{ props.row.target_label }}</bdi><div v-if="props.row.target_notice" class="text-sm text-slate-600">{{ props.row.target_notice }}</div></q-td>''')
             page.table.add_slot('body-cell-proposer_label','''<q-td :props="props"><span dir="auto">{{ props.row.proposer_label }}</span><div v-if="props.row.proposer_role_name" dir="auto" class="text-sm text-slate-600">{{ props.row.proposer_role_name }}</div></q-td>''')
             for name in ('change_label','reason_label'):
@@ -327,7 +398,42 @@ class ReviewForm:
             page.table.on('revise',lambda event:self.edit(existing=row(event)))
             page.table.on('withdraw',lambda event:self.withdraw(row(event)))
             if root_id is None:self.proposals=page
+            self.proposal_pages[:]=[(prior,visible) for prior,visible in self.proposal_pages if visible()]
+            self.proposal_pages.append((page,active or self.alive))
             await page.load()
+
+    async def refresh_bulk(self):
+        if not self.alive():return
+        for selection in self.bulk_selections:selection.clear()
+        # Keep unsaved comments in their editor while refreshing mutation versions.
+        try:work=await self.api.disposition_page(f"tasks/{self.task['id']}/review-work")
+        except ApiError as error:
+            if error.status_code in (403,404) and self.alive():
+                self.actions.discard('propose')
+                for selection in self.bulk_selections:selection.sync()
+            raise
+        if not self.alive():return
+        # Do not upgrade the comment editor's note version behind unsaved input.
+        # Concurrent comment edits must still conflict on their original version.
+        self.work.update({key:work[key] for key in ('job_version','task_version','task_state','review_round') if key in work})
+        self.job['version']=work['job_version'];self.task['version']=work['task_version']
+        if work.get('task_state') not in (None,'open','claimed'):self.actions.discard('propose')
+        await asyncio.gather(*(page.load() for page,active in self.proposal_pages if active()))
+        if self.alive():await self.after({'_saved_work':True,'job_version':work['job_version']})
+
+    async def bulk_proposals(self,operation,rows,active=None):
+        from .bulk import bulk_dialog
+        if self.busy or 'propose' not in self.actions or not self.work:return
+        active=active or self.alive
+        async def execute(selected,reason,feedback):
+            changes=([dict(action='withdraw',proposal_id=row['id'],expected_version=row['version'],reason=reason or None) for row in selected]
+                     if operation=='withdraw' else
+                     [dict(action='create',proposal_type='remove_from_job',governing_root_id=row['root_aggregation_id'],
+                           target_aggregation_id=row['root_aggregation_id'],target_version=row['root_version'],
+                           proposed_values={},reason=reason or None) for row in selected])
+            return await self.save_proposals(changes,feedback,bulk=True)
+        return await bulk_dialog(operation=operation,rows=rows,active=active,execute=execute,
+                                 on_error=lambda error:failure(error,self.on_error),refresh=self.refresh_bulk)
 
     async def notes_panel(self,host=None,active=None):
         with host or self.host:
@@ -344,65 +450,21 @@ class ReviewForm:
             self.notes=page
             return page
 
-    def queued(self,change,summary=None,*,root_id=None):
-        if self.busy:return
-        if change.get('proposal_id'):
-            for prior in list(self.pending):
-                if prior.get('proposal_id')==change['proposal_id']:self.discard_pending(prior,render=False)
-        self.pending.append(change);self.pending_meta[id(change)]=summary or {}
-        self.pending_roots[id(change)]=root_id if root_id is not None else change.get('governing_root_id')
-        self.render_pending()
-        ui.notify(text('draft_added_save_changes'),type='info')
-
-    def pending_for(self,root_id):
-        return [change for change in self.pending if self.pending_roots.get(id(change))==root_id]
-
-    def discard_pending(self,change,*,render=True):
-        if self.busy:return
-        self.pending.remove(change);self.pending_meta.pop(id(change),None);self.pending_roots.pop(id(change),None)
-        if render:self.render_pending()
-
-    def decorate_member_proposals(self,rows):
-        """Overlay mounted task drafts onto the current server page only."""
-        for row in rows:
-            changes=self.pending_for(row.get('root_aggregation_id')) if not row.get('redacted') and row.get('membership_state')=='active' else []
-            saved=row.get('saved_proposal_count',row.get('proposal_count'))
-            row['saved_proposal_count']=saved
-            row['proposal_count']=max(0,(saved or 0)+sum(1 if c['action']=='create' else -1 if c['action']=='withdraw' else 0 for c in changes)) if saved is not None else None
-            row['pending_proposals_label']=text('pending_changes')+' · '+str(len(changes)) if changes else ''
-            row['proposals_label']=text('proposals')+' · '+str(row.get('proposal_count') or 0)
-
     def render_pending(self):
-        self.pending_label.text=text('pending_changes')+' · '+str(len(self.pending)) if self.pending else ''
-        self.render_pending_cards(self.pending_host,self.pending,cancellable=True)
+        # Save concerns unsaved comments only; proposals are already persisted.
         for host,root_id,active in list(self.pending_disclosures):
             if active():self.render_draft_disclosure(host,root_id)
             else:self.pending_disclosures.remove((host,root_id,active))
-        if self.on_pending_changed:self.on_pending_changed()
         if self.draft_controls:self.draft_controls.update()
 
-    def render_pending_cards(self,host,changes,*,cancellable,heading=False):
-        host.clear()
-        with host:
-            if changes and heading:ui.label(text('pending_changes')).classes('font-semibold')
-            for change in changes:
-                with ui.card().classes('w-full gap-2 p-3'):
-                    ui.label(text(change.get('proposal_type') or ('withdraw' if change['action']=='withdraw' else 'revise')))
-                    for key,value in self.pending_meta.get(id(change),{}).items():ui.label(text(key)+' · '+str(value or '—')).props('dir=auto')
-                    if change.get('reason'):ui.label(text('reason')+' · '+change['reason']).props('dir=auto')
-                    if cancellable:
-                        button=ui.button(text('discard_draft'),icon='delete_outline',on_click=lambda _,item=change:self.discard_pending(item)).tooltip(text('discard_draft')).props('flat dense no-caps color=negative')
-                        button.set_enabled(not self.busy);self.draft_buttons.append(button)
-
     def render_draft_disclosure(self,host,root_id):
-        changes=self.pending if root_id is None else self.pending_for(root_id)
-        self.render_pending_cards(host,changes,cancellable=True,heading=True)
+        host.clear()
         with host:
             comments_changed=root_id is None and self.comments is not None and str(self.comments.value or '')!=self.saved_comments
             if comments_changed:
                 ui.label(text('review_comments')).classes('font-semibold')
                 ui.label(str(self.comments.value or '') or '—').props('dir=auto').classes('whitespace-pre-wrap')
-            if root_id is None and not changes and not comments_changed:ui.label(text('no_unsaved_changes')).props('role=status')
+            elif root_id is None:ui.label(text('no_unsaved_changes')).props('role=status')
 
     def register_draft_disclosure(self,dialog,host,root_id):
         active=lambda:self.alive() and dialog.value and not dialog._deleted
@@ -416,10 +478,10 @@ class ReviewForm:
     async def withdraw(self,row):
         if self.busy or not row or not row.get('editable'):return
         with ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[600px] max-w-full gap-4'):
-            ui.label(text('withdraw'));reason=ui.textarea(text('reason')).props('outlined autogrow').classes('w-full')
-            def accept():
-                summary={'target':row.get('target_label') or str(row['target_aggregation_id']),'proposal_type':text(row['proposal_type'])}
-                self.queued(dict(action='withdraw',proposal_id=row['id'],expected_version=row['version'],reason=reason.value or None),summary,root_id=row['governing_root_id']);dialog.close()
+            ui.label(text('withdraw'));reason=ui.textarea(text('reason_optional')).props('outlined autogrow').classes('w-full')
+            feedback=ui.label('').props('role=alert').classes('text-negative')
+            async def accept():
+                if await self.save_proposals([dict(action='withdraw',proposal_id=row['id'],expected_version=row['version'],reason=reason.value or None)],feedback):dialog.close()
             ui.button(text('withdraw'),on_click=accept).props('no-caps');ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
         dialog.open()
 
@@ -429,9 +491,6 @@ class ReviewForm:
 
     async def edit(self,root=None,existing=None):
         if self.busy or 'propose' not in self.actions or existing and not existing.get('editable'):return
-        if existing:
-            pending=next((c for c in self.pending if c.get('proposal_id')==existing['id']),None)
-            if pending and pending['action']=='revise':existing={**existing,**{k:pending[k] for k in ('proposed_values','reason')}}
         root_id=existing['governing_root_id'] if existing else root['root_aggregation_id']
         with ui.dialog() as dialog,ui.card().classes('messaging-workspace w-[800px] max-w-full gap-4'):
             def alive():return self.alive() and dialog.value and not dialog._deleted
@@ -521,10 +580,9 @@ class ReviewForm:
                         async def fetch(p):
                             if not target:return {'items':[],'total':0}
                             result=await read_links(limit=p.size,offset=(p.page-1)*p.size)
-                            queued_ids={c['proposed_values']['relationship_id'] for c in self.pending if c.get('action')=='create' and c.get('proposal_type')==typ}
                             for row in result['items']:
                                 related=row['related'];row['target_label']=text('restricted_resource') if related['redacted'] else related['number']+' · '+related['title']
-                                row['already_proposed']=row.get('already_proposed',False) or row['id'] in queued_ids
+                                row['already_proposed']=row.get('already_proposed',False)
                                 row['selectable']=not related['redacted'] and not row['already_proposed']
                                 row['selection_label']=' · '.join(text(key) for key,flag in [('removal_already_proposed',row['already_proposed']),('removal_access_required',related['redacted'])] if flag)
                             return result
@@ -566,12 +624,12 @@ class ReviewForm:
                         actions={'destruction':'destruction','transfer_to_external_archive':'permanent_transfer','selective_preservation':'selective_transfer','retain_as_local_archives':'local_archives'}
                         values['final_disposition']=ui.select({k:text(v) for k,v in actions.items()},label=text('final_disposition'),value=initial.get('final_disposition','destruction')).props('outlined dense').classes('w-full')
                         values['instructions']=ui.textarea(text('instructions'),value=initial.get('instructions') or '').props('outlined autogrow').classes('w-full')
-                    values['reason']=ui.textarea(text('reason'),value=existing.get('reason') or '' if existing else '').props('outlined autogrow').classes('w-full')
+                    ui.label(text('immediate_proposals_hint')).classes('text-sm text-slate-600')
+                    values['reason']=ui.textarea(text('reason_optional'),value=existing.get('reason') or '' if existing else '').props('outlined autogrow').classes('w-full')
             async def accept():
-                if not alive():return
+                if not alive() or self.busy:return
                 if not target:feedback.text=text('required');ui.notify(feedback.text,type='warning');return
                 typ=kind.value;proposed={};reason=values['reason'].value or None
-                if typ=='remove_from_job' and not str(reason or '').strip():feedback.text=text('required');ui.notify(feedback.text,type='warning');return
                 if typ=='blocking_security':proposed={'security_level_id':values['security'].value}
                 elif typ=='add_to_holds':proposed={'hold_ids':values['holds'].value}
                 elif typ=='create_aggregation_relationship':proposed={'direction':values['direction'].value,'related_aggregation_id':values['related'].value,'relationship_type_id':values['type'].value}
@@ -587,27 +645,14 @@ class ReviewForm:
                 change=dict(action='revise' if existing else 'create',target_version=target['version'],proposed_values=proposed,reason=reason)
                 if existing:change.update(proposal_id=existing['id'],expected_version=existing['version'])
                 else:change.update(governing_root_id=root_id,target_aggregation_id=target['aggregation_id'],target_record_id=target['id'] if typ=='remove_record_relationship' else None,proposal_type=typ)
-                summary={'target':target['code']+' · '+target['name']}
-                if existing:summary['proposal_type']=text(typ)
-                if typ=='blocking_security':summary['security_level_id']=values['security'].options.get(values['security'].value)
-                elif typ=='add_to_holds':summary['hold_ids']=' · '.join(values['holds'].options.get(i,str(i)) for i in values['holds'].value)
-                elif typ=='create_aggregation_relationship':summary.update(direction=text(values['direction'].value),related_aggregation_id=values['related'].options.get(values['related'].value),relationship_type_id=values['type'].options.get(values['type'].value))
-                elif typ=='local_retention_override':
-                    summary.update({k:v for k,v in proposed.items() if k!='final_disposition'})
-                    labels={'destruction':'destruction','transfer_to_external_archive':'permanent_transfer','selective_preservation':'selective_transfer','retain_as_local_archives':'local_archives'}
-                    summary['final_disposition']=text(labels[proposed['final_disposition']])
+                changes=[change]
                 if typ in ('remove_aggregation_relationship','remove_record_relationship'):
-                    # One retained proposal per exact link; Save submits the whole
-                    # pending set through the existing atomic review-work command.
-                    for row in {row['id']:row for row in selected}.values():
-                        item={**change,'proposed_values':{'relationship_id':row['id']}}
-                        details={**summary,'relationship_id':row['label']+' · '+row['related']['number']+' · '+row['related']['title']}
-                        self.queued(item,details,root_id=root_id)
-                else:self.queued(change,summary,root_id=root_id)
-                dialog.close()
+                    # One proposal per exact link, all selected links saved atomically.
+                    changes=[{**change,'proposed_values':{'relationship_id':row['id']}} for row in {row['id']:row for row in selected}.values()]
+                if await self.save_proposals(changes,feedback):dialog.close()
             with ui.row().classes('w-full gap-2 justify-end'):
                 ui.button(text('cancel'),on_click=dialog.close).props('flat no-caps')
-                ui.button(text('update_draft_proposal' if existing else 'add_draft_proposal'),on_click=accept).props('no-caps')
+                ui.button(text('update_proposal' if existing else 'add_proposal'),on_click=accept).props('no-caps')
             kind.on_value_change(build)
         dialog.open()
         try:await build()
@@ -628,7 +673,9 @@ class ReviewForm:
             page.table.add_slot('body-cell-actions','''<q-td :props="props"><q-btn v-if="!props.row.redacted" flat dense icon="history" aria-label="'''+escape(text('proposals'))+'''" @click="$parent.$emit('round',props.row.id)"><q-tooltip>'''+escape(text('proposals'))+'''</q-tooltip></q-btn><q-btn v-if="props.row.can_retry" flat dense icon="description" aria-label="'''+escape(text('retry_report'))+'''" @click="$parent.$emit('report',props.row.id)"><q-tooltip>'''+escape(text('retry_report'))+'''</q-tooltip></q-btn></q-td>''')
             async def show(event):
                 row=next((r for r in page.table.rows if r['id']==event.args and not r.get('redacted')),None)
-                if row:self.proposal_round=row['round_number'];await self.proposals.load(reset=True)
+                if row:
+                    for selection in self.bulk_selections:selection.clear()
+                    self.proposal_round=row['round_number'];await self.proposals.load(reset=True)
             async def report(event):
                 row=next((r for r in page.table.rows if r['id']==event.args and r.get('can_retry')),None)
                 if not row:return
@@ -682,7 +729,7 @@ class ReviewForm:
                 host=ui.column().classes('w-full gap-3')
             with ui.column().classes('w-full p-5 pt-3 gap-2 shrink-0'):
                 if self.draft_controls:
-                    ui.label(text('shared_save_hint')).classes('text-xs text-slate-600')
+                    ui.label(text('comments_save_hint')).classes('text-xs text-slate-600')
                     self.draft_controls.dialog_actions(dialog)
                 else:ui.button(text('close'),on_click=dialog.close).props('flat no-caps')
         dialog.open()

@@ -24,6 +24,14 @@ def referenced_keys() -> set[str]:
                 continue
             tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
             for node in ast.walk(tree):
+                if isinstance(node, ast.Dict):
+                    # Structured API errors select their translated feedback
+                    # through message_key rather than a direct render call.
+                    keys.update(
+                        value.value for key, value in zip(node.keys, node.values)
+                        if isinstance(key, ast.Constant) and key.value == "message_key"
+                        and isinstance(value, ast.Constant) and isinstance(value.value, str) and value.value
+                    )
                 if (
                     isinstance(node, (ast.Assign, ast.AnnAssign))
                     and any(

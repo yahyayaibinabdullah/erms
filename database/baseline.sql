@@ -46,5 +46,17 @@ INSERT INTO schema_migrations(version) VALUES
  ('091_explicit_certificate_task_completion'),
  ('092_compatible_aggregation_medium_changes'),
  ('093_restore_reopened_job_members'),
- ('094_simplified_review_additions');
+ ('094_simplified_review_additions'),
+ ('095_required_job_preparer'),
+ ('096_immediate_proposals_optional_reasons'),
+ ('097_bulk_disposition_audit_link'),
+ ('098_dashboard_resource_activity_index'),
+ ('099_dashboard_content_activity_index'),
+ ('100_dashboard_component_storage_index'),
+ ('101_dashboard_live_resource_indexes'),
+ ('102_dashboard_nonterminal_resource_indexes'),
+ ('103_standard_destruction_owner_roles'),
+ ('104_remaining_review_readiness'),
+ ('105_background_disposition_operations'),
+ ('106_final_certificate_task_queue');
 COMMIT;

@@ -211,8 +211,13 @@ def test_http_approval_generates_request_and_received_rejection_is_atomic_and_re
     headers={'If-Match':str(p['job_version']),'X-CSRF-Token':client.cookies.get('erms_csrf')}
     payload=dict(command_id=str(uuid4()),acting_role_id=mgr,task_version=p['task_version'],membership_token=p['membership_token'],proposals_token=p['proposals_token'])
     response=client.post(f"/api/v1/disposition/tasks/{t['id']}/approve-proposals",json=payload,headers=headers)
-    assert response.status_code==200,response.text
-    assert response.json()['request_status']=='available' and response.json()['report_status']=='available'
+    assert response.status_code==202,response.text
+    assert response.json()['state']=='queued'
+    from backend.services.api.disposition import operations
+    assert operations.process_one(db)
+    with db() as c:
+        actor(c);out=operations.progress(c,job['id'])
+        assert out['request_status']=='available' and out['report_status']=='available'
     with db() as c:
         actor(c);t=task(c,job['id']);v=job_version(c,job['id']);role=officer(c);token=artifacts.destination_token(artifacts.destination(c,job['id'],'external_rejection_letter'))
     fields=dict(command_id=str(uuid4()),acting_role_id=str(role),task_version=str(t['version']),request_document_id=str(t['request_document_id']),decision='rejected',correction_notes='Authority requires a corrected schedule',destination_token=token)

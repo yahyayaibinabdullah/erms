@@ -50,6 +50,12 @@ def controls(form):
                 ui.label(text('email_recipient')).classes('text-sm font-semibold')
                 ui.label(email_value['recipient'] or text('not_configured')).props('dir=auto').classes('break-words')
             actions=ui.row().classes('detail-action-row w-full gap-2')
+            preview_document=getattr(form,'preview',None)
+            if certificate.get('can_preview') and preview_document:
+                async def preview():
+                    if not form.alive() or form.busy:return
+                    await preview_document({'id':certificate['record_id'],'title':certificate['file_name']},certificate['digital_component_id'])
+                with actions:ui.button(text('preview_digital_certificate'),icon='visibility',on_click=preview).tooltip(text('preview_digital_certificate')).props('outline no-caps')
             if certificate['can_download']:
                 async def download():
                     if not form.alive() or form.busy:return

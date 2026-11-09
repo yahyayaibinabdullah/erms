@@ -128,6 +128,18 @@ def test_lifecycle_columns_follow_the_migration_004_final_order(table, before, a
     assert current.index(before) < current.index(after)
 
 
+def latest_private_function(name):
+    """Later approved amendments supersede 093/094; compare their final DDL."""
+    prefix='CREATE FUNCTION disposition_private.'+name+'('
+    found=None
+    for path in sorted((ROOT/'database/migrations').glob('*.sql')):
+        for statement in statements(path.read_text()):
+            if statement.startswith((prefix,prefix.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION'))):
+                found=statement
+    assert found is not None,name
+    return found
+
+
 @pytest.mark.parametrize('name', [
     'accelerate', 'allowed_transition', 'guard_resource', 'guard_workflow',
     'assert_unit',
@@ -135,15 +147,13 @@ def test_lifecycle_columns_follow_the_migration_004_final_order(table, before, a
 def test_in_job_acceleration_functions_match_the_upgrade(name):
     prefix='CREATE FUNCTION disposition_private.'+name+'('
     canonical=next(s for s in statements((ROOT/'database/schema.sql').read_text()) if s.startswith(prefix))
-    migration=next(s for s in statements((ROOT/'database/migrations/093_restore_reopened_job_members.sql').read_text())
-                   if s.startswith(prefix.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION')))
+    migration=latest_private_function(name)
     assert function_body(canonical)==function_body(migration)
 
 
-@pytest.mark.parametrize('name',['can_add_review_members','require_membership_stage','approve_proposals'])
+@pytest.mark.parametrize('name',['can_add_review_members','require_membership_stage','approve_proposals','audit_review_work'])
 def test_simplified_review_addition_functions_match_the_upgrade(name):
     prefix='CREATE FUNCTION disposition_private.'+name+'('
     canonical=next(s for s in statements((ROOT/'database/schema.sql').read_text()) if s.startswith(prefix))
-    migration=next(s for s in statements((ROOT/'database/migrations/094_simplified_review_additions.sql').read_text())
-                   if s.startswith(prefix.replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION')))
+    migration=latest_private_function(name)
     assert function_body(canonical)==function_body(migration)

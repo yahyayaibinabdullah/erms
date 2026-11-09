@@ -113,16 +113,16 @@ def test_http_save_feedback_restore_pagination_reasons_and_no_implicit_transitio
     assert client.get(path+'/review-work').json()['own_notes']['review_notes']=='Restored after navigation'
     assert client.post(path+'/review-work',headers=headers,json={**payload,'command_id':str(uuid4())}).status_code==409
     restored=client.get(path+'/review-work').json();headers['If-Match']=str(restored['job_version'])
-    blank=client.post(path+'/submit-review',headers=headers,json=dict(command_id=str(uuid4()),acting_role_id=payload['acting_role_id'],task_version=restored['task_version'],overall_reason=''));assert blank.status_code==422,blank.text
+    blank=client.post(path+'/submit-review',headers=headers,json=dict(command_id=str(uuid4()),acting_role_id=payload['acting_role_id'],task_version=restored['task_version'],overall_reason=''));assert blank.status_code==200,blank.text
     base=f"/api/v1/disposition/jobs/{job['id']}"
     assert client.get(base+'/proposals',params={'limit':1}).json()['total']==1
     assert client.get(base+'/proposals',params={'limit':101}).status_code==422
     assert client.get(base+'/review-notes').json()['total']==1
-    assert client.get(base+'/review-rounds').json()['total']==0
+    assert client.get(base+'/review-rounds').json()['total']==1
     assert client.get(base+'/review-decisions').json()['total']==0
-    assert client.get(path+'/review-candidates/aggregations',params={'acting_role_id':payload['acting_role_id'],'query':'a'}).json()['items']==[]
+    assert client.get(path+'/review-candidates/aggregations',params={'acting_role_id':payload['acting_role_id'],'query':'a'}).status_code==403
     with db() as c:
-        actor(c);assert not c.execute('SELECT 1 FROM disposition_review_rounds').fetchone();assert task(c,job['id'])['id']==t['id']
+        actor(c);assert c.execute('SELECT submission_reason FROM disposition_review_rounds').fetchone()['submission_reason']=='';assert task(c,job['id'])['id']!=t['id']
 
 
 def officer_id():
@@ -165,10 +165,11 @@ def test_rejection_remains_possible_after_member_reopens_and_old_approval_is_inv
 
 
 @pytest.mark.parametrize('blank',['','   ','\n\t'])
-def test_every_whitespace_only_removal_reason_is_rejected(client,blank):
+def test_every_whitespace_only_removal_reason_is_optional(client,blank):
     with db() as c:
         job,root,*_=seeded(c)
-        with pytest.raises(psycopg.Error,match='disposition_removal_reason_required'):save(c,job,changes=[create(c,root,'remove_from_job',reason=blank)])
+        save(c,job,changes=[create(c,root,'remove_from_job',reason=blank)])
+        assert c.execute('SELECT reason FROM disposition_review_proposals').fetchone()['reason']==blank
 
 
 def test_deleted_holds_and_inactive_relationship_types_are_not_silently_omitted(client):

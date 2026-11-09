@@ -7,7 +7,6 @@ import re
 from collections import Counter
 from contextvars import ContextVar
 from functools import lru_cache
-from html import escape
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +16,7 @@ from nicegui import context
 MANIFEST_PATH = Path(__file__).with_name("i18n") / "messages.en.json"
 KEY_PATTERN = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 PLACEHOLDER_PATTERN = re.compile(r"(?<!\{)\{([a-z][a-z0-9_]*)\}(?!\})")
+TEXT_TOKEN_PATTERN = re.compile(r"\{\{|\}\}|\{([a-z][a-z0-9_]*)\}")
 ALLOWED_TYPES = {"text", "integer", "decimal", "date", "datetime", "duration", "identifier", "url"}
 ISOLATE_START = "\u2068"
 ISOLATE_END = "\u2069"
@@ -90,11 +90,24 @@ def render_english(catalogue_key: str, **parameters: object) -> str:
     schema = definition["parameter_schema"]
     if set(parameters) != set(schema):
         raise ValueError("message parameters must exactly match the declared schema")
-    rendered = definition["default_text"]
-    for name, value in parameters.items():
-        safe_value = escape(str(value), quote=True)
-        rendered = rendered.replace("{" + name + "}", ISOLATE_START + safe_value + ISOLATE_END)
-    return rendered.replace("{{", "{").replace("}}", "}")
+    return _interpolate_text(definition["default_text"], parameters)
+
+
+def _interpolate_text(template: str, parameters: dict[str, object]) -> str:
+    """Return literal text for NiceGUI text properties, never HTML markup.
+
+    NiceGUI/Vue escape text at the DOM boundary. Encoding it here would display
+    entities verbatim (or encode nested messages twice). HTML/template callers
+    must explicitly html.escape the complete result. Interpolate in one pass so
+    a name containing braces cannot become another placeholder or message syntax.
+    """
+    def replace(match: re.Match[str]) -> str:
+        token = match.group(0)
+        if token in {"{{", "}}"}:
+            return token[0]
+        return ISOLATE_START + str(parameters[match.group(1)]) + ISOLATE_END
+
+    return TEXT_TOKEN_PATTERN.sub(replace, template)
 
 
 def set_active_messages(
@@ -192,18 +205,15 @@ def _render_message_text(catalogue_key: str, parameters: dict[str, object]) -> t
         message_key = "shared.errors.unexpected"
         parameters = {}
     rendered = _messages_for_context().get(message_key, definition["default_text"])
-    for name, value in parameters.items():
-        rendered = rendered.replace(
-            "{" + name + "}", ISOLATE_START + escape(str(value), quote=True) + ISOLATE_END,
-        )
-    rendered = rendered.replace("{{", "{").replace("}}", "}")
-    return message_key, rendered
+    return message_key, _interpolate_text(rendered, parameters)
 
 
 def render_message_plain(catalogue_key: str, **parameters: object) -> str:
+    """Literal UI text without inspector metadata; escape explicitly for HTML."""
     return _render_message_text(catalogue_key, parameters)[1]
 
 
 def render_message(catalogue_key: str, **parameters: object) -> str:
+    """Literal UI text with optional inspector metadata; not an HTML fragment."""
     effective_key, rendered = _render_message_text(catalogue_key, parameters)
     return _diagnostic_marker(effective_key, rendered)

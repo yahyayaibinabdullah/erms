@@ -24,7 +24,7 @@ class Command(BaseModel):
 class CreateJob(Command):
     job_type: Literal['destruction','permanent_transfer','selective_transfer','local_archives']
     owning_org_unit_id: StrictInt | None=Field(default=None,ge=1)
-    assigned_user_id: StrictInt | None=Field(default=None,ge=1)
+    assigned_user_id: StrictInt=Field(ge=1)
 
 
 class AssignJob(Command):
@@ -47,6 +47,17 @@ class AddItems(Command):
 
 class RemoveMember(Command):
     root_version: StrictInt=Field(ge=1)
+
+
+class SelectedMembership(BaseModel):
+    model_config=ConfigDict(extra='forbid')
+    membership_id: StrictInt=Field(ge=1)
+    expected_version: StrictInt=Field(ge=1)
+    root_version: StrictInt=Field(ge=1)
+
+
+class RemoveMembers(Command):
+    items: list[SelectedMembership]=Field(min_length=1,max_length=100)
 
 
 class TerminateJob(Command):
@@ -106,6 +117,12 @@ def remove_member(membership_id: int,payload: RemoveMember,request: Request,vers
     return _command(c,request,payload,membership.remove_member,membership_id=membership_id,expected_version=version,root_version=payload.root_version)
 
 
+@router.post('/jobs/{job_id}/memberships/remove')
+def remove_members(job_id: int,payload: RemoveMembers,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
+    return _command(c,request,payload,membership.remove_many,job_id=job_id,expected_version=version,
+                    items=[item.model_dump() for item in payload.items])
+
+
 @router.post('/aggregations/{root_id}/accelerate')
 def accelerate(root_id: int,payload: Command,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_connection,scope='function')):
     return _command(c,request,payload,membership.accelerate,root_id=root_id,expected_version=version)
@@ -138,19 +155,20 @@ def read_eligibility(request: Request,limit: int=Query(25,ge=1,le=100),offset: i
                      status: int | None=Query(None,ge=1,le=13),vital: bool | None=None,
                      security: bool | None=None,held: bool | None=None,due_from: AwareDatetime | None=None,
                      due_to: AwareDatetime | None=None,group_owner: bool=False,active_job: Literal['true','false','all']='false',
+                     job_id: int | None=Query(None,ge=1),query: str=Query('',max_length=200),
                      c: Connection=Depends(get_connection,scope='function')):
     return queries.eligibility(c,limit=limit,offset=offset,sort=sort,descending=descending,owner=owner,status=status,
-      vital=vital,security=security,held=held,due_from=due_from,due_to=due_to,group_owner=group_owner,active_job=None if active_job=='all' else active_job=='true',language_tag=preferred_language(c,request))
+      vital=vital,security=security,held=held,due_from=due_from,due_to=due_to,group_owner=group_owner,active_job=None if active_job=='all' else active_job=='true',language_tag=preferred_language(c,request),job_id=job_id,query=query)
 
 
 @router.get('/jobs')
 def read_jobs(request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),
               lifecycle: Literal['active','completed','terminated'] | None=None,sort: str='id',descending: bool=True,
               job_type: Literal['destruction','permanent_transfer','selective_transfer','local_archives'] | None=None,
-              root_ids: list[int] | None=Query(None,max_length=100),owner: str=Query('',max_length=200),assignee: str=Query('',max_length=200),unassigned: bool=False,
+              root_ids: list[int] | None=Query(None,max_length=100),matching_scope: bool=False,owner: str=Query('',max_length=200),assignee: str=Query('',max_length=200),unassigned: bool=False,
               c: Connection=Depends(get_connection,scope='function')):
     return queries.jobs(c,limit=limit,offset=offset,query=query,lifecycle=lifecycle,sort=sort,descending=descending,
-                        job_type=job_type,owner=owner,assignee=assignee,unassigned=unassigned,root_ids=root_ids,language_tag=preferred_language(c,request))
+                        job_type=job_type,owner=owner,assignee=assignee,unassigned=unassigned,root_ids=root_ids,matching_scope=matching_scope,language_tag=preferred_language(c,request))
 
 
 @router.get('/jobs/{job_id}')
@@ -159,7 +177,7 @@ def read_job(job_id: int,request: Request,c: Connection=Depends(get_connection,s
 
 
 @router.get('/jobs/{job_id}/memberships')
-def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
+def read_members(job_id: int,request: Request,limit: int=Query(25,ge=1,le=100),offset: int=Query(0,ge=0),query: str=Query('',max_length=200),sort: str='id',descending: bool=True,state: Literal['retained','active','removed','completed_history','terminated_history'] | None=None,c: Connection=Depends(get_connection,scope='function')):
     return queries.members(c,job_id,limit=limit,offset=offset,query=query,sort=sort,descending=descending,state=state,language_tag=preferred_language(c,request))
 
 
@@ -371,11 +389,12 @@ class SaveReview(Command):
     review_notes: str | None=None
     note_version: StrictInt | None=Field(default=None,ge=0)
     overall_reason: str | None=None
+    bulk: StrictBool=False
 
 
 class SubmitReview(Command):
     task_version: StrictInt=Field(ge=1)
-    overall_reason: str
+    overall_reason: str=''
 
 
 class DecideReview(Command):
@@ -389,7 +408,7 @@ def save_review(task_id: int,payload: SaveReview,request: Request,version: int=D
     from . import proposals
     return _command(c,request,payload,proposals.save,audit_reason='Save destruction review work',task_id=task_id,expected_version=version,
       task_version=payload.task_version,changes=[v.model_dump() for v in payload.changes],review_notes=payload.review_notes,
-      note_version=payload.note_version,overall_reason=payload.overall_reason)
+      note_version=payload.note_version,overall_reason=payload.overall_reason,bulk=payload.bulk)
 
 
 @router.post('/tasks/{task_id}/submit-review')
@@ -524,16 +543,24 @@ def approval_summary(task_id:int,payload:ApprovalSummary,version:int=Depends(exp
         raise HTTPException(403 if error.sqlstate=='42501' else 409,detail={'code':safe}) from None
 
 
-@router.post('/tasks/{task_id}/approve-proposals')
+@router.post('/tasks/{task_id}/approve-proposals',status_code=202)
 def approve_proposal_set(task_id: int,payload: ApproveProposals,request: Request,version: int=Depends(expected_version),c: Connection=Depends(get_consistent_connection,scope='function')):
-    from . import approval
-    result=_command(c,request,payload,approval.approve,audit_reason=(payload.overall_reason or '').strip() or 'Approve the complete reviewed proposal set',
+    from . import operations
+    return _command(c,request,payload,operations.request_approval,audit_reason=(payload.overall_reason or '').strip() or 'Approve the complete reviewed proposal set',
         task_id=task_id,expected_version=version,task_version=payload.task_version,membership_token=payload.membership_token,
         proposals_token=payload.proposals_token,overall_reason=payload.overall_reason)
-    c.commit()
-    report=_execution_report_after_commit(result['job_id'],result['round_id'],payload.acting_role_id)
-    generated=_request_after_commit(result['job_id'],result['round_id'],payload.acting_role_id) if result['remaining_units'] else {'request_status':'not_required'}
-    return _handoff(c,request,{**result,**report,**generated})
+
+
+@router.get('/jobs/{job_id}/operation-progress')
+def read_operation_progress(job_id:int,c:Connection=Depends(get_connection,scope='function')):
+    from . import operations
+    return operations.progress(c,job_id)
+
+
+@router.post('/jobs/{job_id}/retry-approval-documents',status_code=202)
+def retry_approval_documents(job_id:int,payload:Command,request:Request,c:Connection=Depends(get_connection,scope='function')):
+    from . import operations
+    return _command(c,request,payload,operations.retry_documents,audit_reason='Retry saved approval documents',job_id=job_id)
 
 
 @router.post('/jobs/{job_id}/review-rounds/{round_id}/execution-report')

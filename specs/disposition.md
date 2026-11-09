@@ -4,13 +4,23 @@
 **Approval reaffirmed:** 12 October 2026 for revision 1.5
 **Prepared:** 7 October 2026
 **Project:** ERMS / Wathiq
-**Revision:** 1.17
-**Amendment approved:** 29 October 2026
+**Revision:** 1.27
+**Amendment approved:** 9 November 2026
 
 ## Revision history
 
 | Revision | Date | Summary |
 | --- | --- | --- |
+| 1.27 | 9 November 2026 | Use existing application navigation instead of duplicate My Tasks buttons in progress cards; show digital progress only after an execution request |
+| 1.26 | 9 November 2026 | Define a personal My Tasks inbox for all disposition types while preserving authorized job-based reassignment and current eligibility checks |
+| 1.25 | 9 November 2026 | Require durable nonblocking background execution for long operations across all disposition types; share operation tracking without adding future workflows |
+| 1.24 | 5 November 2026 | Select available rows on the current eligibility page, retain explicit selections across pages/sorts, and clear the full cross-page selection |
+| 1.23 | 5 November 2026 | Define simple remaining-review setup warnings, progression gates and the retained existing-job File Administrator skip exceptions |
+| 1.22 | 5 November 2026 | Validate compatible eligibility selections early; filter destination jobs by exact common owning unit/type and require currently staffed Standard destruction review roles at creation |
+| 1.21 | 5 November 2026 | Remove Membership controls from job/task Aggregations; automatically list retained aggregations and place Add aggregations beside that list |
+| 1.20 | 5 November 2026 | Cap the job-scoped picker at 1,100px and 75% desktop viewport height; fit sparse results, keep heading/actions visible and retain phone viewport sizing |
+| 1.19 | 4 November 2026 | Keep Add aggregations inside a job-scoped dialog with fixed admission criteria, bounded filtering, immediate persistence and current-state revalidation |
+| 1.18 | 4 November 2026 | Define dashboard live scope to exclude all disposed outcomes (10, 11, 12) for every user and section; preserve status 13 as action required and apply the same predicate to supporting indexes |
 | 1.17 | 29 October 2026 | Compact job/task aggregation rows, disclose complete effective retention rules on demand, default to current membership and open proposals from nonzero counts |
 | 1.16 | 29 October 2026 | Summarize one recorded disposition action once in job history, retain paginated underlying events, distinguish affected changes, and disclose previous review comments in review tasks |
 | 1.15 | 29 October 2026 | Allow eligible additions by the claimed Records Manager during Simplified destruction review, preserving admission and original-round integrity |
@@ -183,6 +193,22 @@ following controlled values:
 | 11 | `permanently_transferred` | Permanently transferred |
 | 12 | `retained_local_archives` | Retained as local archives |
 | 13 | `partially_disposed_action_required` | Partially disposed — action required |
+
+For dashboard reporting, statuses **10, 11 and 12** are completed disposition
+outcomes and are outside the **live** resource scope. Every dashboard
+resource count and its supporting rows must exclude those statuses, including
+overview, organizational holdings, medium/vital/hold totals, component/storage
+metrics, review counts/previews/pages, favourites and recent activity. The rule
+applies to every caller, including information-governance users; retained-resource
+search authority does not add disposed material to dashboard live counts.
+Supporting partial indexes must use the same nonterminal predicate.
+
+Status **13** is not terminal: material remains and recovery/action is required.
+It remains eligible for the dashboard live scope, subject to the existing
+resource authorization and ownership/review rules. This reporting rule does not
+change controlled retained-resource search, disposition/audit access or the
+status transition catalogue. Implementation and regression evidence are linked
+from the [dashboard guide](../docs/dashboard.md#optimization-and-maintenance).
 
 Every disposition job also stores a `disposition_status` from this same
 catalogue. While an aggregation belongs to an active job, the job, aggregation,
@@ -603,7 +629,7 @@ execution: authorized task participants may propose it without execution
 privileges, and individual proposal reasons are optional. The approving Records
 Manager executes approved removals with all underlying privileges and endpoint
 access checked at execution. Use the proposal reason when supplied, otherwise
-the mandatory overall submission reason. Relationship privileges do not bypass access to a redacted
+optional submission comments or the system description of the approved operation. Relationship privileges do not bypass access to a redacted
 endpoint.
 
 Adding or removing a relationship does not itself require repeating review
@@ -730,8 +756,9 @@ the public creation API always requests allocation.
 
 The form defaults Assigned person to its creator only when that person is an
 eligible assignee for the selected job type and saved review route. The user
-may choose another eligible person. Otherwise the field starts empty; an empty
-job may remain unassigned under §10.1.1. Changing type reapplies this default.
+may choose another eligible person. Otherwise the field starts empty and the creator must select an eligible
+preparer before saving. Preparer is mandatory both for standalone creation and
+creation from selected aggregations. Changing type reapplies this default.
 Creating a job does not require a change reason. Creator, time, type, number,
 assignment and normal audit history are still recorded. Routine additions of
 roots also require no reason (§10.2); other changes and exceptional actions
@@ -739,10 +766,25 @@ retain their existing reason requirements.
 
 ### 10.1.1 Assignment to a specific IGU
 
-A newly created active job may be unassigned only while it is empty. Before the
-first aggregation is added, the job must be assigned to one specific user who
-is authorized to work on that disposition job. A role cannot be the assignment
-target.
+Every new job must be assigned to one specific eligible preparer at creation.
+Both the creation form and API reject a missing preparer, and the database
+rejects an unassigned insert. A role cannot be the assignment target. Existing
+empty unassigned jobs are preserved on upgrade and must be assigned before
+adding aggregations.
+
+For Standard and Simplified destruction jobs, a Records Manager may prepare
+the job herself or assign preparation to an eligible Records Officer. Both
+profiles are eligible preparers; the selected review route remains unchanged.
+Records Manager Only continues to require a Records Manager preparer. An
+Officer remains ineligible to prepare that route.
+
+During initial preparation, an authorized Records Manager may add eligible
+aggregations to a job assigned to an Officer, including the aggregations
+selected before creation. This does not reassign or complete the Officer's
+preparation task, authorize the Manager to edit that task's draft work, or
+permit membership removal on the Officer's behalf. Current actor and assigned
+preparer access, clearance, membership, owner-scope and blocker checks remain
+mandatory. Correction and later review stages retain their existing rules.
 
 The `disposition.jobs.manage` privilege and existing access rules determine who
 may work on disposition jobs. Assignment identifies the individual responsible
@@ -775,13 +817,54 @@ role, time, job, roots, outcomes and command identity remain audited. Exact
 retries remain idempotent. Removal, reassignment, submission and exceptional
 actions retain their existing reason requirements.
 
-The destination chooser keeps incompatible jobs visible but disables their
-selection and explains the incompatibility. Every selected root must match the
-job's disposition type; for destruction, all selected owners must be within the
-job owner's subtree. Mixed compatible/incompatible selections cannot choose
-that job: split the selection or choose a suitable broader-scope job. Current
+On the standalone Disposition Eligibility page, update selection validity as
+soon as a checkbox changes. Disable **Add selected aggregations to job** if the
+selection mixes eligible disposition types or its owning units have no common
+organizational ancestor. Different branches sharing an ancestor are compatible:
+for example, Records Unit and Audit Office can share a new job owned by their
+nearest common ancestor, the GM's Office. Show a concise,
+non-modal inline warning beside the selection actions explaining each problem;
+clear it and re-enable Add when the selection becomes compatible. An empty
+selection leaves Add disabled without a warning. These checks precede both
+existing-job selection and new-job creation, and also guard the Add callback.
+Provide **Select this page**, a total selected count, and **Clear selection**
+beside the eligibility table. Select this page selects only currently available,
+accessible rows on the displayed server page; locked, redacted and otherwise
+unavailable rows remain unselected. The header checkbox selects or deselects
+only the displayed page. Preserve explicit row/version selections across server
+pagination, sorting and page-size changes. Clear selection removes every
+selection across all pages. Refresh, changed filters, successful membership
+addition and leaving the mounted page clear selection and its warnings; no
+selection is saved in navigation state or shared with another identity/language.
+Keep the existing 100-aggregation addition limit. If selecting a whole page
+would exceed it, leave the existing selection unchanged and explain the limit;
+do not silently select part of that page. Individual row selection cannot
+exceed the same limit. Rereading a selected row never silently updates its
+selected version. Admission still checks current access, clearance, eligibility
+and versions for every selected aggregation.
+
+Determine branch compatibility server-side for owners visible on the bounded
+current page. When selections span pages whose owning-unit relationship is not
+already known, use the existing bounded suggested-owner read for the explicit
+selection. Disable Add and show a short checking state until it returns. Ignore
+late responses after selection changes, clearing or navigation. Show the
+existing incompatibility warning if no common owner exists, or a safe error if
+the selection can no longer be checked. Do not download an organization
+hierarchy, unseen result pages or expose unseen owner IDs.
+This early UI check does not replace authoritative admission checks or alter
+the independently job-scoped Add aggregations dialog.
+
+From an eligibility selection, the destination chooser lists only jobs matching
+the selected disposition type. Destruction jobs must be owned by the selection's
+nearest common owning unit, exactly; do not show jobs owned by a higher ancestor
+or a narrower or unrelated unit. Apply this scope before server counts and
+pagination (`matching_scope=true` with the bounded selected `root_ids`). Show the
+scope and owning-unit name as concise inline guidance, including when no jobs
+match; Create job remains available. Other disposition job types have no owning
+unit field and are filtered by disposition type. Current
 job lifecycle, permitted membership stage, assignment and access/protection checks
-are also advisory inputs. Checks are server-side and bounded to the selected roots
+remain advisory inputs; matching jobs that fail these checks remain disabled
+with their explanation. Checks are server-side and bounded to the selected roots
 and displayed job page; no entire organizational hierarchy is downloaded.
 Missing or inaccessible roots must not disclose ownership. Save-time locking,
 authorization, current-hierarchy checks and partial-success semantics remain
@@ -846,6 +929,23 @@ authoritative for races, direct API callers and stale clients.
     pending status. A unit whose new due date is not yet due, or whose new
     disposition action does not match the job, must be explicitly removed
     before the job can continue.
+
+For Standard destruction jobs, creation also requires the nearest effective File
+Administrator role and the owning unit's own managing role, each with a current
+effective assignment to an active person. The creation form disables Save and
+identifies needed reviewers with a simple System Administrator help message; the database checks
+the same rule atomically at creation. This applies both with and without selected
+aggregations. Existing jobs, other routes/types and current authorization checks
+remain as specified in Destruction Process §5.1.1. That section explicitly
+distinguishes strict new-job creation from existing-job routing: no File
+Administrator designation anywhere in the owning-unit ancestor chain still
+skips that stage before routing; a configured but unstaffed role blocks. An
+already-started task is not automatically rerouted. Only remaining Standard
+reviews produce warnings on load/Refresh; authorized Save and return for
+correction remain available. Completed/terminated jobs, later stages and other
+routes/types are excluded. Disposition Jobs marks affected rows and the job/task
+workspace explains which reviewer is needed and directs the user to the System
+Administrator. The existing server progression checks revalidate current facts.
 
 ### 10.3 Terminating a job
 
@@ -1426,9 +1526,9 @@ reason, as specified in Section 9. `disposition.jobs.manage` alone does not
 authorize link removal.
 
 For destruction, this execution requirement applies to the approving Records
-Manager, not merely to a task participant proposing removal. The mandatory
-overall submission reason supplies the execution reason if no individual
-proposal reason was provided.
+Manager, not merely to a task participant proposing removal. Optional submission comments supply the execution reason if no individual
+proposal reason was provided; if both are blank, use the system description
+of the approved operation with approval-derived provenance.
 
 Retention-rule administration, including creating, changing, or removing a
 local retention-rule override, is policy management rather than disposition
@@ -1450,10 +1550,11 @@ must define whether the same IGU may prepare, approve, and complete a job. A
 system administrator does not receive `disposition.jobs.manage` or bypass
 record security merely by being an administrator.
 
-Destruction permits the same person to prepare as Records Officer and approve
-or execute as Records Manager if independently authorized for each role and
-task at the time of action. Each action records its acting role; holding one
-role does not supply the other's authorization. The interface resolves this role
+Destruction permits a Records Manager to prepare Standard/Simplified jobs
+without an Officer profile, and the same person may subsequently approve or
+execute when independently authorized for that action and task. Each action
+records its eligible acting role; preparation does not supply approval or
+execution privileges. The interface resolves this role
 automatically from the operation's current eligible-role projection instead of
 asking the user to choose an acting role. Assignment of a person or destination
 role queue remains an explicit business choice. See destruction-process.md,
@@ -1671,6 +1772,19 @@ completion. Releasing, reassigning, losing eligibility, completing, or
 cancelling a task preserves its event history. Action-specific specifications
 define their task types, forms, routing, and completion rules.
 
+For every disposition type, **My Tasks** contains only the current person's
+authorized direct assignments, their own claims, and unclaimed role-queue work
+they can actually claim. Other people's assignments and claims are excluded
+for all viewers, including Information Governance roles. Open parallel queue
+rows for an already claimed job/stage are unavailable and excluded too. Apply
+the personal predicate on the server before counts and pagination, retaining
+current effective role, access and clearance checks. Release makes available
+queue work visible again. **Unclaimed** is a plain display label in the existing
+Task state column, highlighted in dark amber and semibold while other states
+retain normal text. Its wording conveys the meaning independently of colour.
+It is not a new state. Authorized job details retain the existing
+task-inspection and reassignment controls independently of inbox inclusion.
+
 ### 17.6 `disposition_review_rounds` and `disposition_review_decisions`
 
 Workflows that require repeated review use these shared tables.
@@ -1736,6 +1850,55 @@ Action-specific tables remain in their extension specification until another
 approved workflow proves that their semantics are genuinely shared; expected
 future reuse alone is not enough to move them into this common model.
 
+### 17.10 Long-running disposition operations
+
+Long bulk operations must not require the user to keep an HTTP request or page
+open for their complete duration. This rule applies to destruction and to future
+permanent/selective transfer and local-archives implementations. Future workflow
+requirements still need their own approval; shared infrastructure does not
+implement or authorize those processes.
+
+Use a short, idempotent acceptance command that durably records operation
+identity, job/task, confirmed payload/versions, requesting user/role, server
+checkpoints, state, error and outcome. A background worker owns execution. Reuse
+`disposition_private.operation_work`, registered purpose-built handlers, bounded
+worker passes and per-operation single-worker locks where applicable. Do not
+create a generic public mutation endpoint, configurable workflow engine,
+browser-owned background task or a separate queue/service for each disposition
+type. Existing durable destruction runs retain their per-unit checkpoints.
+
+State is queued, running, failed or succeeded; an operation-specific phase may
+explain current work. Preserve each workflow's atomicity boundary. Approval
+applies its complete proposal set atomically; digital destruction persists each
+successful irreversible unit. Record acceptance before acknowledging it,
+revalidate current authority and resource facts when execution begins/resumes,
+and preserve actor/role attribution. Checkpoints and exact command/document
+identities must survive crashes and prevent duplicate application or destruction.
+The client retains a submitted command identity across transport-uncertain retries;
+it does not silently submit new work after a lost acceptance response. A fresh
+explicit attempt follows a reread of the definitive outcome. Progress display
+and sorting use the latest attempt rather than an earlier failed attempt.
+
+Permit navigation, read-only inspection and work on other jobs. Only conflicting
+actions on the processing job are unavailable. Retain the owning task until its
+required processing/evidence and routing commit successfully; never equate
+acceptance with completion. Provide prominent nonmodal progress, truthful counts
+only where supported, a My Tasks status, safe failure/retry and recovery from
+lost status reads. Returning rereads server state. Polling is bounded, confined
+to mounted views, language/identity scoped and abandoned on navigation. Completion
+and actionable failure use governed, deduplicated notifications with currently
+authorized links, respecting existing administrator notification configuration.
+Shared database/resource locks still enforce integrity during transactions.
+
+Apply this contract when implementing a new long operation, and add tests for
+fast acceptance, lost responses, browser abandonment, duplicate requests/workers,
+restart, current authorization/version changes, partial/atomic rollback as
+appropriate, safe retry, deferred task completion and LTR/RTL presentation.
+
+Progress cards use the application’s existing navigation rather than adding a
+My Tasks button. Digital execution progress is shown only after execution has
+been requested; confirmation and claiming remain separate authorized actions.
+
 ## 18. Verification and traceability
 
 Implementation is not complete until every approved requirement is linked to
@@ -1769,7 +1932,7 @@ are required at a minimum:
 | DISP-23 | An authorized IGU may resolve every status-13 aggregation in one terminated job through one all-or-nothing bulk action using one selected eligible status and one shared reason | Authorization, database rollback, full-unit update, UI confirmation, job-admission, and linked event-history tests |
 | DISP-24 | Reopening an eligible or pending aggregation clears its closure date, resets the complete unit to status 1, blocks its active job until explicit removal or compatible in-job acceleration; recovery preserves the membership episode, restores the complete pending unit, clears the reopening flag, retains protections and applies the existing approved-facts comparison; exact restoration can preserve approval while changed approved facts require renewed review | Authorization, database rollback, job-blocking, UI, reclosure, recalculation, and event-history tests |
 | DISP-25 | Status 6, 7, 8, or 9 is possible only with membership in one active job of the matching type, and job addition and full-unit status change succeed or fail together | Database constraint/trigger, direct-SQL bypass, API, import/background-path, concurrency, and rollback tests |
-| DISP-26 | A newly created active job may be unassigned only while it is empty; its assignee is one specific authorized IGU, and the actual authenticated IGU who performs the final action is recorded separately with execution-time identity and action details | Authorization, assignment/reassignment, database/API rejection, executor-versus-assignee, service-account rejection, and event-history tests |
+| DISP-26 | Every new job requires one specific eligible preparer; Managers can prepare Standard/Simplified jobs or add initial aggregations for the assigned Officer while preserving task ownership, and the actual authenticated IGU who performs the final action is recorded separately with execution-time identity and action details | Authorization, assignment/reassignment, database/API rejection, executor-versus-assignee, service-account rejection, and event-history tests |
 | DISP-27 | A multi-selection request adds every valid aggregation, leaves each failed aggregation unchanged, preserves successful additions when another selection fails, and returns each API result; the UI shows a count/job summary and on-demand paginated failure-only details without exposing protected information | API mixed-result, per-item rollback, concurrency, redaction, summary/pagination, and UI tests |
 | DISP-28 | A redacted root disposition unit cannot be selected or added to a job through the UI, API, import, background, or direct-membership path, while redacted descendants remain visible only as blocker explanations | Authorization, API, direct-database enforcement, import/background-path, redaction, and live-browser tests |
 | DISP-29 | An effective retention-rule change recalculates the due date, action, and complete-unit status; an active-job member keeps status 6, 7, 8, or 9 when its action still matches, while a not-yet-due or non-matching member is marked for explicit removal and blocks job progress | Clock-controlled boundary, rule-resolution, full-unit rollback, matching and non-matching active-job, job-blocking, explicit-removal, and event-history tests |
@@ -1782,7 +1945,7 @@ are required at a minimum:
 | DISP-36 | Aggregation and record relationships allow job admission and acceleration but outside-job links block final disposition until authorized removal, regardless of eligibility; links within one unit or the same job do not block or require removal; removal from either endpoint clears the link blocker for both units | Admission, acceleration, descendant, both-direction, all-type, same-job, authorization, redaction, audit, removal-refresh, concurrency, and live-browser Officer/Manager review tests |
 | DISP-37 | Shared jobs enforce controlled type, lifecycle, action-specific stage, assignment, status, completion, termination, and optimistic-concurrency fields without a generic workflow engine | Schema, constraint, transition, API, and stale-version tests |
 | DISP-38 | Membership episodes preserve every addition and removal and permit no more than one active job per governing root | Partial-uniqueness, repeated-membership, termination, completion, concurrency, and history tests |
-| DISP-39 | Shared tasks support exactly one user or role-queue destination, atomic claiming, release, reassignment, eligibility loss, completion, and immutable history | Constraint, simultaneous-claim, authorization-change, reassignment, API, and event-history tests |
+| DISP-39 | Shared tasks support exactly one user or role-queue destination, atomic claiming, release, reassignment, eligibility loss, completion, and immutable history; My Tasks is personal, excluding other people’s work and unavailable parallel queues while retaining authorized job management | Constraint, simultaneous-claim, authorization-change, reassignment, API, and event-history tests |
 | DISP-40 | Review rounds and decisions preserve ordered rounds, membership/version snapshots, stage decisions, actors, acting roles, invalidation, and history | Snapshot, repeat-round, stale-membership, invalidation, authorization, and history tests |
 | DISP-41 | Shared document links connect job evidence to governed records and components with controlled state, provenance, checksums, and action-defined transaction boundaries | Upload, generation, governed-record, failure, retry, authorization, and rollback tests |
 | DISP-42 | Common protected operations cannot be bypassed through general CRUD or direct SQL, and canonical schema and migration produce equivalent logical structures and constraints | API negative, direct-database, schema-from-empty, migration, catalogue-parity, and rollback tests |
@@ -1851,6 +2014,8 @@ For destruction creation in this chooser, the editable owner suggestion follows
 Destruction Process §5.1.1: shared owner, otherwise nearest common ancestor, or
 an explanation to split the selection if none exists. This does not relax
 admission checks or infer ownership for jobs created without selected roots.
+Prefill the selected disposition type too. Explain the suggested owning unit
+inline, including when all selected aggregations already share one unit.
 
 ### Separate job and task details (22 October 2026)
 
@@ -1875,12 +2040,22 @@ and title where applicable), current and intermediate periods in years, and
 disposition action. Unknown or restricted rules remain unavailable; the
 disclosure does not grant access or change the rule.
 
-An active job defaults to Active memberships. Completed and terminated jobs
-default to their respective historical membership state so their aggregations
-remain visible. Explicit Membership filter choices remain available and are
-preserved by existing return navigation. Omit the Membership column when a
-single state is selected; show it for Any. Show Removed at only for Removed or
-Any. Membership episodes and their historical dates remain permanently retained.
+The Aggregations tab automatically lists only aggregations retained in the job:
+active and completed entries while work continues, and the retained completed
+or terminated entries afterwards. Removed membership episodes are excluded from
+both the displayed rows and server pagination counts, including earlier removal
+episodes of an aggregation later re-added to the job. Do not offer a Membership
+dropdown, a Show removed control, a Membership column or a Removed at column.
+Ignore obsolete membership-filter values in saved navigation state. Removal
+events and historical dates remain permanently available through job History;
+this presentation does not delete or rewrite audit data.
+The existing paginated memberships endpoint supports `state=retained` for this
+listing, applying the exclusion before both count and page queries. Existing
+historical read modes remain available to authorized API consumers.
+
+Place **Add aggregations** beside the Aggregations tab's heading in both job and
+task workspaces, rather than in the Job details tab. Preserve the existing
+actor/stage permissions, dirty-work guard and job-scoped selection dialog.
 
 A Review proposals count above zero is a keyboard-accessible link-style control
 opening the existing aggregation-scoped proposals dialog. Zero remains plain
@@ -2003,3 +2178,86 @@ the existing authorized, paginated round summaries with original submission
 comments and review decisions, attributed to their authors and times. This is
 read-only review context and does not load job-wide audit history or add a
 request to initial task rendering.
+
+### Immediate proposal persistence and optional explanations (3 November 2026)
+
+For destruction review tasks, Add/Update and confirmed Withdraw persist proposals
+immediately; Save remains for unsaved Review comments and session work. Proposal
+reasons are optional for every type, including removal from the job. Submission,
+resubmission, routine completion and approval comments are optional on every route;
+rejection/return for correction requires comments explaining the issue. Labels and
+helpers identify optional fields and required correction comments in both languages.
+The detailed contract is destruction-process.md §6.6–6.6.1 (DEST-18/24/29/41).
+
+### 18.1 Bulk membership removal amendment (4 November 2026)
+
+Explicit selection of up to 100 current memberships in one job may be removed
+in one atomic command, using the same actor/stage/access gates and whole-unit
+status transitions as individual removal. A failure rolls back every selected
+removal, status change and event. Retain individual events linked by the command
+UUID and exact-payload idempotent retries. Individual actions and multi-add's
+per-item results remain unchanged. Destruction proposal bulk controls follow
+`destruction-process.md` section 6.5.1.
+
+Individual and bulk membership removal must refresh the job or task workspace
+on the Aggregations tab, retaining its search, sorting and
+page size. Retain the current page when valid; if removal empties the last page,
+show the preceding valid page. A conflict's Refresh selection action retains
+the same workspace view.
+
+### 18.2 Job-scoped aggregation selection (4 November 2026)
+
+**Add aggregations** from a job or its Current task opens a centered dialog over
+the mounted workspace, rather than navigating to the general eligibility page.
+Show the job number and type; for destruction, explicitly show its owning unit
+and descendant-unit scope. The standalone eligibility page and its job-creation
+and destination-chooser flows remain available and unchanged.
+
+The standalone eligibility page is a browsing and assessment view by default;
+do not display instructions that assume the user is selecting aggregations.
+Selection guidance belongs in the explicit Add aggregations dialog.
+
+Sizing refinement approved 5 November 2026: cap the dialog width at 1,100px,
+with viewport margins. Height fits its contents, capped at 75% of desktop
+viewport height. Only the body scrolls; the heading and action buttons remain
+visible. On phones, allow nearly the full viewport height with margins.
+Sparse results must not force an otherwise unnecessary tall empty dialog.
+
+The picker returns only governing root aggregations currently compatible with
+the target job: matching eligible disposition status, closed, no active-job
+membership, no admission protection blockers, current actor access/clearance,
+and current assigned Preparer access/clearance and eligibility. Destruction
+roots must be owned by the job's owning unit or a descendant. Criteria are
+enforced by the server before counts and pagination; optional filters can only
+narrow them. Inaccessible candidates are omitted, not exposed as redacted
+selection rows. No user-editable type/status/blocker filter can escape the scope.
+Search by aggregation number/title, due-date filters, stable sortable columns
+and bounded server pagination remain available.
+
+Relationships do not exclude admission candidates. Show a generic warning for
+outside-job links that can block final disposition, without related-resource
+identities; links within one unit or the same job remain non-blocking under the
+existing relationship rules. The warning and selection do not waive final
+execution checks.
+
+Use **Cancel** and **Add selected (N)**. Selection contains at most 100 explicit
+root/version snapshots, with current-page select-all; paging/sorting preserve
+snapshots and filters/refresh clear them. Selection belongs only to the mounted
+dialog, identity and language, and is discarded on close/navigation. Display a
+contextual no-matches message, loading feedback and recoverable errors. Retain
+the existing unsaved-session-work guard before opening the dialog.
+
+Add selected invokes the existing immediate-persistence membership command,
+without a second job chooser or Save requirement. It rechecks job stage/version,
+role/task/claim authorization, resource versions, ownership, access/clearance,
+protections and active-job membership. Preserve multi-add's per-item results:
+valid additions commit and failures remain unchanged. On full success, close and
+refresh the first, unfiltered page of active job aggregations. On partial/no success, retain the dialog,
+show the existing count summary and paginated failure details, clear stale
+selection and reload candidates. Closing after a successful or uncertain add
+refreshes the workspace. Transport-uncertain retries retain the exact payload,
+version and command UUID; definitive conflicts require a fresh selection.
+
+DISP-44: Verify the job-scoped dialog and fixed server scope, descendant ownership,
+admission versus final blockers, both actors' current access/clearance, existing
+partial-add results, safe retry, refresh/abandonment and English/Arabic rendering.

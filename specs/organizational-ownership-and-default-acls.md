@@ -657,6 +657,12 @@ org-unit code and name.
 The dashboard must show separate aggregation and record counts for each
 distinct org unit represented by the user's currently effective roles.
 
+These are live holdings: exclude disposed statuses 10 (Destroyed), 11
+(Permanently transferred), and 12 (Retained as local archives), for all callers
+including governance users, as defined in [common disposition section 4](disposition.md#4-disposition-status-catalogue).
+Status 13 remains in scope subject to normal authorization. The same live scope
+applies to the medium and digital-storage totals derived from these holdings.
+
 Each org unit appears once even when the user has several effective roles in
 that unit. Counts include only aggregations and records the user is authorized
 to view; ownership alone must not reveal inaccessible holdings. A qualifying

@@ -101,12 +101,11 @@ def test_literal_audit_follows_data_driven_presentation_structures(tmp_path):
         assert expected in visible
 
 
-def test_renderer_escapes_and_isolates_named_parameters():
+def test_renderer_preserves_and_isolates_literal_text_parameters():
     rendered = render_english(
         "preferences.validation.language.unsupported", language="<ar>",
     )
-    assert "<ar>" not in rendered
-    assert "\u2068&lt;ar&gt;\u2069" in rendered
+    assert "\u2068<ar>\u2069" in rendered
     with pytest.raises(ValueError):
         render_english("preferences.validation.language.unsupported", unexpected="ar")
 

@@ -75,6 +75,7 @@ def view(c, job):
     # Access to certificate metadata and bytes remains intersected with normal
     # record permissions; workspace access alone never reveals the attachment.
     certificate = c.execute('''SELECT d.id,d.record_id,d.digital_component_id,c.file_name,
+      current_user_can_record_component_operation(d.record_id,'record.component.view','record.component.view') AS can_preview,
       current_user_can_record_component_operation(d.record_id,'record.component.download','record.component.download') AS can_download
       FROM disposition_job_documents d JOIN digital_components c ON c.id=d.digital_component_id
       WHERE d.job_id=%s AND d.document_type='digital_destruction_certificate'

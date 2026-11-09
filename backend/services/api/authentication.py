@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import ipaddress
+import math
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -163,6 +164,60 @@ def _timestamp(value: Any) -> str | None:
     return value.isoformat() if value is not None else None
 
 
+def _clear_expired_credential_lock(
+    connection: Connection, credential: dict[str, Any], now: datetime,
+) -> bool:
+    """Called with the credential row locked, before either password check."""
+    if credential["locked_until"] is None or credential["locked_until"] > now:
+        return False
+    connection.execute(
+        "UPDATE user_credentials SET failed_attempt_count=0, locked_until=NULL, date_updated=%s WHERE user_id=%s",
+        (now, credential["user_id"]),
+    )
+    credential.update(failed_attempt_count=0, locked_until=None)
+    return True
+
+
+def _record_password_failure(
+    connection: Connection, credential: dict[str, Any], request: Request,
+    now: datetime, settings, *, context: str,
+) -> datetime | None:
+    attempts = credential["failed_attempt_count"] + 1
+    locked_until = (
+        _deadline(now, settings["AUTH_LOCKOUT_MINUTES"], 60)
+        if attempts >= settings["AUTH_LOCKOUT_ATTEMPTS"] else None
+    )
+    connection.execute(
+        "UPDATE user_credentials SET failed_attempt_count=%s, last_failed_at=%s, locked_until=%s, date_updated=%s WHERE user_id=%s",
+        (attempts, now, locked_until, now, credential["user_id"]),
+    )
+    client_ip, user_agent = _client_context(request)
+    _append_event(connection, credential["user_id"], "AUTHENTICATION_FAILED", {
+        "client_ip": client_ip,
+        "user_agent": user_agent,
+        "failed_attempt_count": attempts,
+        "lock_applied": bool(locked_until),
+        "locked_until": _timestamp(locked_until),
+        "authentication_context": context,
+    })
+    # HTTP errors must not roll back the failure or its matching audit event.
+    connection.commit()
+    return locked_until
+
+
+def _password_change_locked(locked_until: datetime, now: datetime) -> HTTPException:
+    seconds = max(1, math.ceil((locked_until - now).total_seconds()))
+    return HTTPException(
+        status_code=429,
+        detail={
+            "code": "password_attempts_locked",
+            "message_key": "authentication.error.password_attempts_locked",
+            "parameters": {"seconds": seconds},
+        },
+        headers={"Retry-After": str(seconds)},
+    )
+
+
 def _session_snapshot(row: dict[str, Any]) -> dict[str, Any]:
     return {
         "session_id": row["id"],
@@ -218,7 +273,7 @@ def login(payload: LoginRequest, request: Request, response: Response, connectio
     generic = HTTPException(status_code=401, detail="invalid email or password")
     row = connection.execute(
         """
-        SELECT u.id, u.name, u.email, u.account_type, u.status,
+        SELECT u.id, c.user_id, u.name, u.email, u.account_type, u.status,
                c.password_hash, c.must_change_password, c.temporary_expires_at,
                c.failed_attempt_count, c.locked_until
         FROM users u JOIN user_credentials c ON c.user_id = u.id
@@ -231,30 +286,17 @@ def login(payload: LoginRequest, request: Request, response: Response, connectio
         raise generic
     if row["locked_until"] and row["locked_until"] > now:
         raise generic
+    expired_lock_cleared = _clear_expired_credential_lock(connection, row, now)
     try:
         valid = password_hasher.verify(row["password_hash"], payload.password)
     except (VerifyMismatchError, InvalidHashError):
         valid = False
     if not valid:
-        attempts = row["failed_attempt_count"] + 1
-        locked_until = _deadline(now, settings['AUTH_LOCKOUT_MINUTES'], 60) if attempts >= settings['AUTH_LOCKOUT_ATTEMPTS'] else None
-        connection.execute(
-            "UPDATE user_credentials SET failed_attempt_count=%s, last_failed_at=%s, locked_until=%s, date_updated=%s WHERE user_id=%s",
-            (attempts, now, locked_until, now, row["id"]),
-        )
-        client_ip, user_agent = _client_context(request)
-        _append_event(connection, row["id"], "AUTHENTICATION_FAILED", {
-            "client_ip": client_ip,
-            "user_agent": user_agent,
-            "failed_attempt_count": attempts,
-            "lock_applied": bool(locked_until),
-            "locked_until": _timestamp(locked_until),
-        })
-        # The request intentionally ends with an HTTP error. Persist the failure
-        # before raising so the dependency cleanup cannot roll back lockout state.
-        connection.commit()
+        _record_password_failure(connection, row, request, now, settings, context="login")
         raise generic
     if row["temporary_expires_at"] and row["temporary_expires_at"] <= now:
+        if expired_lock_cleared:
+            connection.commit()
         raise HTTPException(status_code=401, detail="temporary password has expired")
     token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     expires_at = _deadline(now, settings['AUTH_SESSION_IDLE_MINUTES'], 60)
@@ -477,21 +519,34 @@ def logout(response: Response, principal: Principal = Depends(principal_from_req
 
 
 @router.post("/change-password", status_code=204)
-def change_password(payload: ChangePasswordRequest, principal: Principal = Depends(principal_from_request), connection: Connection = Depends(get_connection, scope="function")):
-    credential = connection.execute("SELECT password_hash FROM user_credentials WHERE user_id=%s", (principal.user_id,)).fetchone()
+def change_password(payload: ChangePasswordRequest, request: Request, principal: Principal = Depends(principal_from_request), connection: Connection = Depends(get_connection, scope="function")):
+    settings = settings_cache.for_connection(connection)
+    credential = connection.execute(
+        "SELECT user_id, password_hash, failed_attempt_count, locked_until FROM user_credentials WHERE user_id=%s FOR UPDATE",
+        (principal.user_id,),
+    ).fetchone()
+    now = datetime.now(timezone.utc)
+    if credential["locked_until"] and credential["locked_until"] > now:
+        raise _password_change_locked(credential["locked_until"], now)
+    expired_lock_cleared = _clear_expired_credential_lock(connection, credential, now)
     try:
         valid = password_hasher.verify(credential["password_hash"], payload.current_password)
     except (VerifyMismatchError, InvalidHashError):
         valid = False
     if not valid:
+        locked_until = _record_password_failure(connection, credential, request, now, settings, context="password_change")
+        if locked_until:
+            raise _password_change_locked(locked_until, now)
         raise HTTPException(status_code=400, detail="current password is incorrect")
     try:
-        validate_password(payload.new_password, settings_cache.for_connection(connection))
+        validate_password(payload.new_password, settings)
         new_hash = hash_password(payload.new_password)
     except ValueError as error:
+        if expired_lock_cleared:
+            connection.commit()
         raise HTTPException(status_code=422, detail=str(error)) from error
     connection.execute(
-        "UPDATE user_credentials SET password_hash=%s, must_change_password=false, temporary_expires_at=NULL, password_changed_at=CURRENT_TIMESTAMP, date_updated=CURRENT_TIMESTAMP WHERE user_id=%s",
+        "UPDATE user_credentials SET password_hash=%s, must_change_password=false, temporary_expires_at=NULL, failed_attempt_count=0, locked_until=NULL, password_changed_at=CURRENT_TIMESTAMP, date_updated=CURRENT_TIMESTAMP WHERE user_id=%s",
         (new_hash, principal.user_id),
     )
     other_sessions = connection.execute(

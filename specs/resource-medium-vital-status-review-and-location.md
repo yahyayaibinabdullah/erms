@@ -639,6 +639,13 @@ branch contains vital resources without exposing unauthorized titles.
 
 ## 14. Dashboard and notifications
 
+All dashboard resource metrics and review counts/previews/pages use the live
+scope in [common disposition section 4](disposition.md#4-disposition-status-catalogue):
+exclude disposed statuses 10, 11 and 12 for every user, including governance.
+Status 13 remains in scope subject to the normal authorization and review
+ownership rules. This scope also applies to the rows used to calculate the
+medium, vital, hold and digital-component/storage totals.
+
 The consolidated dashboard summary endpoint should be extended rather than
 adding per-widget requests. It should return authorized counts and bounded
 previews for:

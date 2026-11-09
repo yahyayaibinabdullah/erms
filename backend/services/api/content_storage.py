@@ -29,6 +29,7 @@ class ContentStorage(Protocol):
     def store_upload(self, connection: Connection, component_id: int, upload: UploadFile, *, settings=None) -> UploadedContent: ...
     def store_draft_upload(self, connection: Connection, draft_component_id: int, upload: UploadFile, *, settings=None) -> UploadedContent: ...
     def promote_draft(self, connection: Connection, draft_component_id: int, component_id: int) -> None: ...
+    def read_draft(self, connection: Connection, draft_component_id: int) -> bytes | None: ...
     def location(self, connection: Connection, component_id: int) -> ContentLocation | None: ...
     def iter_content(self, location: ContentLocation, start: int = 0, end: int | None = None) -> Iterator[bytes]: ...
     def read(self, connection: Connection, component_id: int) -> bytes | None: ...
@@ -188,6 +189,23 @@ class PostgreSQLContentStorage:
             (uploaded.segment_count, uploaded.size_in_bytes, session["id"]),
         )
         return uploaded
+
+    def read_draft(self, connection: Connection, draft_component_id: int) -> bytes | None:
+        """Read a completed staging upload on the caller's authorized transaction.
+
+        The rendition route holds the component row against deletion/promotion;
+        no new connection, permanent content set or cache is created.
+        """
+        if not connection.execute(
+            "SELECT id FROM record_draft_components WHERE id=%s AND content_status='available'",
+            (draft_component_id,),
+        ).fetchone():return None
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT content FROM record_draft_component_blobs WHERE record_draft_component_id=%s ORDER BY segment_no",
+                (draft_component_id,),
+            )
+            return b"".join(bytes(row['content']) for row in cursor)
 
     def promote_draft(
         self, connection: Connection, draft_component_id: int, component_id: int,

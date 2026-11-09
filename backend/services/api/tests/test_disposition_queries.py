@@ -60,6 +60,33 @@ def test_job_membership_episodes_history_and_selector_contracts(client):
             assert e.value.status_code==status
 
 
+def test_retained_members_are_server_paged_without_removed_or_duplicate_episodes(client):
+    from backend.services.api.disposition import membership
+    from backend.services.api.tests.test_disposition_membership import kwargs,job_version
+    with db() as c:
+        job=setup(c);roots=[ready(c)[0] for _ in range(3)]
+        admit(c,job['id'],roots)
+        remove(c,roots[0]);admit(c,job['id'],[roots[0]])
+        remove(c,roots[1])
+        other=setup(c);foreign,*_=ready(c);admit(c,other['id'],[foreign])
+        for offset in (0,1):
+            result=queries.members(c,job['id'],state='retained',limit=1,offset=offset,sort='identity',descending=False)
+            assert result['total']==2 and len(result['items'])==1
+            assert result['items'][0]['membership_state']=='active'
+        retained=queries.members(c,job['id'],state='retained',limit=10,offset=0)
+        assert {r['root_aggregation_id'] for r in retained['items']}=={roots[0],roots[2]}
+        number=c.execute('SELECT aggregation_number FROM aggregations WHERE id=%s',(roots[1],)).fetchone()['aggregation_number']
+        assert queries.members(c,job['id'],state='retained',query=number,limit=10,offset=0)['total']==0
+        assert queries.members(c,job['id'],limit=10,offset=0)['total']==4
+        membership.terminate_job(c,**kwargs(job_id=job['id'],expected_version=job_version(c,job['id']),confirmed=True))
+        result=queries.members(c,job['id'],state='retained',limit=10,offset=0)
+        assert result['total']==2 and {r['membership_state'] for r in result['items']}=={'terminated_history'}
+        assert {r['root_aggregation_id'] for r in result['items']}=={roots[0],roots[2]}
+    response=client.get(f"/api/v1/disposition/jobs/{job['id']}/memberships",params={'state':'retained','limit':1})
+    assert response.status_code==200,response.text
+    assert response.json()['total']==2 and len(response.json()['items'])==1
+
+
 def test_read_http_is_bounded_and_uses_authenticated_actor(client):
     with db() as c:actor(c);ready(c)
     response=client.get('/api/v1/disposition/eligibility?limit=1')
@@ -258,7 +285,10 @@ def test_eligibility_owner_uses_preferred_entity_translation_and_fallback(client
 def test_job_filters_and_localized_name_sorting_are_server_paged(client):
     from psycopg.types.json import Jsonb
     with db() as c:
-        one=setup(c);two=setup(c,kind='permanent_transfer',assigned=None)
+        one=setup(c);two=setup(c,kind='permanent_transfer')
+        from backend.services.api.disposition import membership
+        from backend.services.api.tests.test_disposition_membership import kwargs
+        membership.assign_job(c,**kwargs(job_id=two['id'],expected_version=two['version'],assigned_user_id=None))
         c.execute('UPDATE org_units SET translations=%s WHERE id=1',(Jsonb({'ar':{'name':'إدارة الوثائق'}}),))
         c.execute('UPDATE users SET translations=%s WHERE id=1',(Jsonb({'ar':{'name':'يحيى'}}),))
         filtered=queries.jobs(c,limit=1,offset=0,job_type='destruction',lifecycle='active',owner='إدارة',assignee='يحيى',language_tag='ar',sort='owner',descending=False)
@@ -293,7 +323,7 @@ def test_suggested_owner_current_common_ancestor_and_disconnected_units(client):
         c.execute("UPDATE org_units SET translations='{}'::jsonb || jsonb_build_object('ar',jsonb_build_object('name','الوحدة المشتركة')) WHERE id=%s",(branch,))
         assert queries.suggested_owner(c,[a,b],'ar')['owner']['name']=='الوحدة المشتركة'
         c.execute('UPDATE org_units SET parent_org_unit_id=NULL WHERE id=%s',(right,))
-        assert queries.suggested_owner(c,[a,b])=={'owner':None,'basis':'no_common_ancestor'}
+        assert queries.suggested_owner(c,[a,b])=={'owner':None,'basis':'no_common_ancestor','job_type':None}
         with pytest.raises(HTTPException) as error:queries.suggested_owner(c,[a,999999999])
         assert error.value.status_code==403
         with pytest.raises(HTTPException):queries.suggested_owner(c,[])
@@ -302,6 +332,32 @@ def test_suggested_owner_current_common_ancestor_and_disconnected_units(client):
 def test_suggested_owner_request_is_bounded(client):
     assert client.get('/api/v1/disposition/suggested-owner').status_code==422
     assert client.get('/api/v1/disposition/suggested-owner',params=[('root_ids',i) for i in range(101)]).status_code==422
+
+
+def test_eligibility_owner_compatibility_is_page_bounded_and_hides_unseen_hierarchy(client):
+    from backend.services.api.tests.test_disposition_selection import move_owner
+    with db() as c:
+        actor(c)
+        def org(code,parent):
+            return c.execute('INSERT INTO org_units(code,name,parent_org_unit_id) VALUES(%s,%s,%s) RETURNING id',(code,code,parent)).fetchone()['id']
+        left=org('LEFT',1);right=org('RIGHT',1);deep=org('DEEP',left);outside=org('OUTSIDE',None)
+        roots=[ready(c)[0] for _ in range(6)]
+        owners=[1,left,right,deep,left,outside]
+        for root,owner in zip(roots,owners):move_owner(c,root,owner)
+        rows=queries.eligibility(c,limit=25,offset=0,sort='id')['items']
+        expected={owner:{1,left,right,deep} for owner in (1,left,right,deep)}
+        expected[outside]={outside}
+        for row in rows:
+            assert set(row['compatible_owning_org_unit_ids'])==expected[row['owning_org_unit_id']]
+        # The common ancestor is not returned when it owns no row on this page.
+        subset=queries.eligibility(c,limit=2,offset=1,sort='id')
+        assert subset['total']==6
+        assert [set(r['compatible_owning_org_unit_ids']) for r in subset['items']]==[{left,right},{left,right}]
+        single=queries.eligibility(c,limit=1,offset=3,sort='id')['items'][0]
+        assert single['compatible_owning_org_unit_ids']==[deep]
+        c.execute("DELETE FROM profile_privileges WHERE profile_id IN (SELECT profile_id FROM roles WHERE id IN (SELECT role_id FROM user_role_assignments WHERE user_id=1)) AND privilege_id=(SELECT id FROM privileges WHERE code='aggregation.view')")
+        hidden=queries.eligibility(c,limit=25,offset=0)['items']
+        assert all(r['redacted'] and r['owning_org_unit_id'] is None and r['compatible_owning_org_unit_ids'] is None for r in hidden)
 
 
 def test_owner_selector_localized_code_search_and_hydration(client):
@@ -327,3 +383,65 @@ def test_job_chooser_disables_outside_subtree_and_type_mismatch(client):
         assert errors[transfer['id']]=='disposition_job_type_status_mismatch'
         c.execute('UPDATE org_units SET parent_org_unit_id=%s WHERE id=1',(other,))
         assert queries.job_selection_compatibility(c,[wrong['id']],[one])[wrong['id']] is None
+
+
+def test_matching_jobs_use_exact_nearest_owner_before_counts_and_pagination(client):
+    from backend.services.api.tests.test_disposition_selection import move_owner
+    from backend.services.api.tests.test_disposition_foundation import ensure_officer
+    with db() as c:
+        actor(c);ensure_officer(c)
+        def org(code,parent):
+            return c.execute('INSERT INTO org_units(code,name,parent_org_unit_id) VALUES(%s,%s,%s) RETURNING id',(code,code,parent)).fetchone()['id']
+        unit=org('UNIT',1);child=org('CHILD',unit);sibling=org('OTHER',1)
+        a,*_=ready(c);b,*_=ready(c);move_owner(c,a,unit);move_owner(c,b,child)
+        ancestor=setup(c,owner=1);one=setup(c,owner=unit);two=setup(c,owner=unit)
+        setup(c,owner=child);setup(c,owner=sibling);setup(c,kind='permanent_transfer')
+        suggestion=queries.suggested_owner(c,[a,b])
+        assert suggestion['owner']['id']==unit and suggestion['job_type']=='destruction'
+        assert suggestion['basis']=='common_ancestor'
+        for offset,expected in enumerate((one['id'],two['id'])):
+            page=queries.jobs(c,matching_scope=True,root_ids=[a,b],limit=1,offset=offset,descending=False)
+            assert page['total']==2 and [r['id'] for r in page['items']]==[expected]
+            assert page['items'][0]['selection_error'] is None
+        assert queries.jobs(c,matching_scope=True,root_ids=[a,b],limit=10,offset=0,query=ancestor['job_number'])['total']==0
+        assert queries.jobs(c,limit=10,offset=0)['total']==6
+        audit,*_=ready(c);move_owner(c,audit,sibling)
+        cross_branch=queries.suggested_owner(c,[a,audit])
+        assert cross_branch['owner']['id']==1
+        matches=queries.jobs(c,matching_scope=True,root_ids=[a,audit],limit=10,offset=0)
+        assert matches['total']==1 and matches['items'][0]['id']==ancestor['id']
+    response=client.get('/api/v1/disposition/jobs',params=[('matching_scope','true'),('root_ids',a),('root_ids',b),('limit',1)])
+    assert response.status_code==200,response.text
+    assert response.json()['total']==2 and len(response.json()['items'])==1
+    assert client.get('/api/v1/disposition/jobs?matching_scope=true').status_code==422
+    assert client.get('/api/v1/disposition/jobs?matching_scope=true&root_ids=999999999').status_code==403
+
+
+@pytest.mark.parametrize('kind,action',[('permanent_transfer','transfer_to_external_archive'),('selective_transfer','selective_preservation'),('local_archives','retain_as_local_archives')])
+def test_matching_non_destruction_jobs_use_the_selected_type(client,kind,action):
+    with db() as c:
+        expected=setup(c,kind=kind);setup(c);root,*_=ready(c,action)
+        result=queries.jobs(c,matching_scope=True,root_ids=[root],limit=10,offset=0)
+        assert result['total']==1 and result['items'][0]['id']==expected['id']
+        assert queries.suggested_owner(c,[root])['job_type']==kind
+
+
+def test_owner_role_setup_uses_inherited_file_admin_and_direct_managing_role(client):
+    from backend.services.api.tests.test_disposition_workflow import role
+    from backend.services.api.tests.test_disposition_foundation import ensure_officer
+    from backend.services.api.tests.test_disposition_selection import move_owner
+    with db() as c:
+        actor(c);ensure_officer(c)
+        child=c.execute("INSERT INTO org_units(code,name,parent_org_unit_id) VALUES('CHILD','Child',1) RETURNING id").fetchone()['id']
+        assert queries.owner_review_setup(c,[child])[child]=={'has_file_administrator':False,'has_managing_role':False,'has_file_administrator_assignment':False,'has_managing_role_assignment':False}
+        fa=role(c,'file-admin',owner=1);manager=role(c,'parent-manager',owner=1)
+        c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=1',(fa,manager))
+        assert queries.owner_review_setup(c,[child])[child]=={'has_file_administrator':True,'has_managing_role':False,'has_file_administrator_assignment':True,'has_managing_role_assignment':False}
+        own_manager=role(c,'child-manager',owner=child)
+        c.execute('UPDATE org_units SET managing_role_id=%s WHERE id=%s',(own_manager,child))
+        expected={'has_file_administrator':True,'has_managing_role':True,'has_file_administrator_assignment':True,'has_managing_role_assignment':True}
+        assert queries.selector(c,'owners',selected=child)['items'][0]['review_role_setup']==expected
+        root,*_=ready(c);move_owner(c,root,child)
+        assert queries.suggested_owner(c,[root])['owner']['review_role_setup']==expected
+        c.execute('UPDATE org_units SET file_administrator_role_id=NULL WHERE id=1')
+        assert queries.owner_review_setup(c,[child])[child]=={'has_file_administrator':False,'has_managing_role':True,'has_file_administrator_assignment':False,'has_managing_role_assignment':True}

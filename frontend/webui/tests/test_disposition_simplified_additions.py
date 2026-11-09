@@ -26,6 +26,7 @@ async def test_review_task_add_action_is_separate_from_removal_and_protects_unsa
     class WorkspaceApi(Api):
         async def disposition_page(self,path,**params):
             if path.endswith('/workspace'):return deepcopy(workspace)
+            if path=='eligibility':return {'items':[],'total':0,'scope':workspace['job']}
             return await super().disposition_page(path,**params)
     opened=[];notices=[]
     async def open_selection(identity):opened.append(identity)
@@ -36,10 +37,13 @@ async def test_review_task_add_action_is_separate_from_removal_and_protects_unsa
         buttons=[e for e in host.descendants() if isinstance(e,ui.button) and e.text==text('add_aggregations')]
         assert bool(buttons)==addable
         if addable:
-            await click(buttons[0]);assert opened==[5]
-            editor=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_comments'))
+            await click(buttons[0]);assert not opened
+            dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+            assert any(isinstance(e,ui.label) and e.text==text('picker_title',job='DT-2026-1') for e in dialog.descendants())
+            dialog.close()
+            editor=next(e for e in host.descendants() if isinstance(e,ui.textarea) and e.label==text('review_comments_optional'))
             editor.value='Unsaved Manager comments'
-            await click(buttons[0]);assert opened==[5] and notices[-1]==text('unsaved_warning')
+            await click(buttons[0]);assert not opened and notices[-1]==text('unsaved_warning')
         assert not api.writes
 
 

@@ -253,7 +253,7 @@ def test_certificate_shared_sender_after_completion_requires_actual_manager(clie
     with db() as c:
         job,root,manager_role=digital_prepared(c,monkeypatch)
         officer_role=officer(c);smtp(c);destroy_request(c,job,manager_role)
-    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
     with db() as c:
         actor(c)
         cert=c.execute("SELECT id FROM disposition_job_documents WHERE job_id=%s AND document_type='digital_destruction_certificate'",(job['id'],)).fetchone()

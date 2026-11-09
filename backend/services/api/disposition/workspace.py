@@ -21,7 +21,7 @@ def read(c, job_id, task_id=None, language_tag='en'):
         LEFT JOIN roles q ON q.id=t.destination_role_id LEFT JOIN users u ON u.id=t.claimed_by_user_id
         WHERE '''+where+' ORDER BY disposition_private.task_eligible(current_user_id(),t.id) DESC,(t.claimed_by_user_id=current_user_id()) DESC NULLS LAST,t.id LIMIT 1',params).fetchone()
     if task_id is not None and not task:raise HTTPException(404,detail={'code':'disposition_review_task_unavailable'})
-    roles=[];actions=[];management_roles=[]
+    roles=[];actions=[];management_roles=[];working=False
     if task:
         for field in ('direct_assignee','role_queue','claimant'):
             task[field]=localized_projection({'name':task[field],'translations':task.pop(field+'_translations')},language_tag,'name')['name']
@@ -63,12 +63,26 @@ def read(c, job_id, task_id=None, language_tag='en'):
     recovery_view=recovery.view(c,job)
     from . import destruction
     destruction_view=destruction.view(c,job)
+    if destruction_view and destruction_view['progress'] and destruction_view['progress']['state'] in ('queued','running'):
+        # Changing the current claimant would interrupt the already authorized
+        # worker. Restore these existing controls when processing stops.
+        actions=[a for a in actions if a not in ('release','reassign')]
+        job['assignment_editable']=False
     from . import completion
     completion_view=completion.view(c,job)
     if task and current and working and task['task_type']=='digital_destruction' and destruction_view and (not destruction_view['progress'] or destruction_view['progress']['state']=='failed'):actions.append('destroy_digital')
     if task and current and working and destruction_view and completion_view and completion_view['progress'] and completion_view['progress']['state']=='failed':actions.append('retry_certificate')
-    if task and roles and task['task_type']=='certificate_download' and task['task_state'] in ('open','claimed') and completion_view and completion_view.get('certificate'):actions.append('complete_certificate')
-    return {'completion':completion_view,'destruction':destruction_view,'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
+    if task and current and working and task['task_type']=='certificate_download' and completion_view and completion_view.get('certificate'):actions.append('complete_certificate')
+    from . import operations
+    operation=operations.progress(c,job_id)
+    if operation and (operation['state'] in ('queued','running') or operation['state']=='failed' and operation['approval_committed']):
+        actions=[a for a in actions if operation['state']=='failed' and a in ('claim','release','reassign')]
+        if operation['state']=='failed' and working:actions.append('retry_approval_documents')
+        for key in ('assignment_editable','owner_editable','membership_editable','membership_addable'):job[key]=False
+        if external_view:
+            external_view['can_generate']=False
+            if operation['state']!='failed':external_view['can_renew']=False
+    return {'operation':operation,'completion':completion_view,'destruction':destruction_view,'recovery':recovery_view,'physical':physical_view,'email':email_view,'job':job,'task':task,'roles':roles,'actions':actions,'management_roles':queries.context(c)['roles'] if manager else [],'task_management_roles':management_roles,'external':external_view}
 
 
 def targets(c, task_id, *, acting_role_id, root_id, kind, query='', selected=None):

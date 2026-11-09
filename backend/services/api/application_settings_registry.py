@@ -63,7 +63,7 @@ _DEFINITIONS = (
     integer("MAX_RENDITION_SIZE_BYTES", "content", 104857600, "Maximum rendition size", "Maximum generated document rendition size in bytes."),
     integer("AUTH_SESSION_IDLE_MINUTES", "authentication", 30, "Session idle lifetime", "Idle session lifetime in minutes; changes apply on the next evaluation and never revive an expired session."),
     integer("AUTH_SESSION_ABSOLUTE_HOURS", "authentication", 12, "Session absolute lifetime", "Absolute session lifetime in hours; changes never revive an expired session."),
-    integer("AUTH_LOCKOUT_ATTEMPTS", "authentication", 5, "Lockout attempts", "Failed login attempts before temporary credential lockout."),
+    integer("AUTH_LOCKOUT_ATTEMPTS", "authentication", 5, "Lockout attempts", "Incorrect login or current-password attempts before temporary credential lockout; both share one counter. New-password validation errors do not count."),
     integer("AUTH_LOCKOUT_MINUTES", "authentication", 15, "Lockout duration", "Temporary credential lockout duration in minutes."),
     integer("AUTH_PASSWORD_MIN_LENGTH", "authentication", 12, "Minimum password length", "Minimum characters for newly set or changed passwords; existing password hashes remain valid.", 8),
     integer("AUTH_SESSION_RETENTION_DAYS", "authentication", 90, "Session history retention", "Session history retention in days.", 0),

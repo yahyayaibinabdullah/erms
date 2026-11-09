@@ -7,17 +7,23 @@ from ..config import load_environment,required_environment
 from ..messaging.notification_registry import initialize_registry
 from .destruction import process_one
 from .completion import process_one as complete_one
+from .operations import process_one as operate_one, notify_one
 
 
 def run_pass(connection,batch_size):
-    units=certificates=0
+    units=certificates=operations=0
+    for _ in range(batch_size):
+        if not operate_one(connection):break
+        operations+=1
     for _ in range(batch_size):
         if not process_one(connection):break
         units+=1
     for _ in range(batch_size):
         if not complete_one(connection):break
         certificates+=1
-    return {'units_processed':units,'certificates_processed':certificates}
+    for _ in range(batch_size):
+        if not notify_one(connection):break
+    return {'units_processed':units,'certificates_processed':certificates,'operations_processed':operations}
 
 
 def main(argv=None):
@@ -29,6 +35,7 @@ def main(argv=None):
         with psycopg.connect(url,row_factory=dict_row,options='-c timezone=UTC') as c:yield c
     with connection() as c:
         if not c.execute("SELECT 1 FROM schema_migrations WHERE version='071_remove_destruction_release_gates'").fetchone():raise RuntimeError('Apply migration 071 before starting destruction/completion')
+        if not c.execute("SELECT 1 FROM schema_migrations WHERE version='105_background_disposition_operations'").fetchone():raise RuntimeError('Apply migration 105 before starting background disposition operations')
     while True:
         try:
             print(json.dumps(run_pass(connection,args.batch_size)),flush=True)

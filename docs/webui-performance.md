@@ -147,6 +147,17 @@ invalidation policy.
 
 ## 6. Page API orchestration
 
+Long disposition operations must use the durable server-owned contract in
+`specs/disposition.md` §17.10. A browser callback obtains acceptance, then releases
+its busy state; it must not await application, bulk execution or PDF generation
+through a long HTTP request or modal. Navigation and disconnect never cancel
+accepted work. Poll only mounted views, stop/ignore abandoned responses, keep
+reads bounded and treat failed status reads separately from failed work. Reopen
+from fresh authorized server state. Approval has indeterminate phase progress;
+digital destruction uses real committed-unit counts. Do not invent percentages.
+No new progress cache is introduced; identities and languages retain their
+existing page-session isolation.
+
 Independent requests should run concurrently with `asyncio.gather`, within the
 bounded request concurrency enforced by `ErmsApiClient`. Current examples are:
 
@@ -474,3 +485,95 @@ inherited catalogue for Aggregations and Records in both English and Arabic.
 All four cases pass. A database-free browser preview confirmed repeated refresh
 and navigation retain the expected English and Arabic labels. No translation
 keys or wording changed. The owned preview process and tab were shut down.
+
+### Dashboard identity isolation and batched summaries (4 November 2026)
+
+The visual snapshot remains private to one browser-page client. Its key is the
+login-session revision, user ID, effective language, working timezone, known
+global privileges and effective role IDs. Sign-out, session rejection and every
+successful login clear the snapshot and advance the revision, including another
+login as the same account. Unknown/legacy keys are never rendered. No snapshot
+is written to browser storage or shared server state.
+
+Each dashboard view captures its principal, key and a unique view token.
+Responses are checked before writing any cache, application configuration,
+favourites or UI. An identity/language change, disconnected/deleted client,
+deleted container, navigation or newer dashboard view invalidates the response.
+The API client also advances a token generation, cancels pending reads and
+discards late responses (including 401s) from previous credentials. Old 401s
+must not sign out the new identity. Review and favourite callbacks use the same
+session/view guards. Sign-out removes protected content before remote logout
+finishes. Failed same-user background refreshes retain the visible snapshot and
+restore the Refresh control; fresh-load failures show an error without another
+identity's data.
+
+The summary authorizes record/aggregation sets with request-local materialized
+CTEs equivalent to the canonical view predicates within the dashboard live
+scope. Effective roles, global
+privileges, maximum clearance, governance clearance, organizational activity,
+contextual managers/file administrators and ACL sources are calculated as sets.
+Inherited aggregation ACL sources propagate down the hierarchy once, respecting
+custom child defaults and inheritance breaks. Direct/inherited record ACLs join
+those sets without calling a permission function per record. These visible sets
+feed counts, medium/vital/held totals, ownership, storage, true root counts,
+review counts/previews, favourites, relationship redaction and recent activity.
+This is SQL statement reuse, not a cross-request cache. All dashboard resource
+outputs exclude disposed statuses 10, 11 and 12, including for governance users.
+Status 13 remains in scope subject to normal authorization. Overview
+authorization must be explicit: the
+search views' names alone do not confer visibility.
+
+Materialize nonterminal resources (`disposition_status NOT IN (10,11,12)`)
+before computing ACL targets and hold propagation. Historical metadata is retained,
+so filtering only the final authorized output permits historical data to enlarge
+the working graph. Include only nonterminal aggregations/records and the
+ancestors/containers they actually need. Preserve a required ancestor even if
+it has terminal status: pruning must remain equivalent to canonical inherited
+ACL and hold rules. Do not add unrelated disposed branches to that graph.
+
+Active hold assignments propagate down the hierarchy once with a distinct
+recursive set. Direct record holds are calculated once. This must remain
+equivalent to the canonical effective-hold functions, including half-open
+validity windows, inherited holds across ACL inheritance breaks, overlapping
+holds and holds without resource-state preservation. Avoid restoring an
+ancestry walk per dashboard record.
+
+Classification activity and inherited retention-rule existence also propagate
+as sets, rather than walking each terminal's ancestors. Differential tests must
+compare batched authorization/classification results with the canonical functions
+when either implementation changes. No dashboard SQL may restore per-resource
+permission, role-effectiveness, contextual-ACL or hold-ancestry function calls.
+Iterating a small set of grouped unit totals to localize response labels is
+permitted; fetching or authorizing resources in a Python loop is not.
+
+Recent activity retains the same latest-event grouping, per-group cap,
+visibility checks and ordering, but resolves only bounded candidate IDs against
+the reused authorized sets. Index `event_history_dashboard_resource_latest_idx`
+matches resource-activity filters and ordering; the partial covering
+`event_history_dashboard_content_views_idx` handles personal component-view
+activity by actor/time without unrelated history. Include both component ID
+and operation so the content-view query is covered completely. The covering
+`digital_components_dashboard_storage_idx` on record ID including byte size
+allows storage totals without loading component metadata. All three indexes
+are in the standalone canonical schema; existing installations apply migrations
+`098_dashboard_resource_activity_index.sql`,
+`099_dashboard_content_activity_index.sql` and
+`100_dashboard_component_storage_index.sql` separately.
+Migration `101_dashboard_live_resource_indexes.sql` adds the narrow partial
+indexes `aggregations_dashboard_live_idx` and `records_dashboard_live_idx` on
+ID. Its original status-10-only predicate is replaced by
+`102_dashboard_nonterminal_resource_indexes.sql` with
+`disposition_status NOT IN (10,11,12)`, matching the live-resource queries.
+The final definitions are also in the canonical schema. They allow history-heavy
+tables to read the nonterminal subset without
+filtering the entire metadata heap. The planner can still choose a cheaper
+sequential scan when most rows are live. Avoid covering these indexes with
+large titles or other unbounded metadata. Exact counts still process the
+authorized live subset; personal audit-history work is a separate cost.
+No setting or translation catalogue changes are needed. Restart the API/WebUI
+after deploying the code; local stack startup does not apply migrations.
+
+The dashboard-specific design, index inventory, maintenance rules and regression
+map are in the [dashboard guide](dashboard.md#optimization-and-maintenance).
+Regression matrix, query plans, benchmark scope and cleanup evidence are in
+[dashboard isolation and performance verification](verification/dashboard-isolation-performance.md).

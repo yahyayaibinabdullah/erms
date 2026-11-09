@@ -97,12 +97,36 @@ A credential lock is not a user lifecycle status. Repeated failed local-password
 authentication attempts set `user_credentials.locked_until`. Until that time,
 new local-password authentication is rejected.
 
+Login and password-change current-password checks share the credential's
+`failed_attempt_count`, `locked_until`, `AUTH_LOCKOUT_ATTEMPTS`, and
+`AUTH_LOCKOUT_MINUTES`. Incorrect current passwords count as failed password
+authentication; new-password validation errors (including insufficient length)
+and confirmation mismatches do not increment or clear an existing counter.
+Concurrent checks must serialize on the credential row so neither endpoint nor
+another session can bypass the limit.
+
+During a credential lock, password changes are also rejected. Login retains its
+generic 401 response. Password changes return 429 with `Retry-After` seconds and
+localized cooldown feedback, including on the failure that reaches the limit.
+Blocked requests do not increase the counter or extend the deadline. Existing
+sessions are not revoked by the credential lock.
+
+At the next password check on or after `locked_until`, clear the expired lock
+and reset the counter before evaluating the submitted password. The first
+incorrect attempt after expiry counts as one of a fresh allowance. Preserve
+that reset even if a correct current password is followed by an invalid new
+password. Successful login, successful password change, and administrative
+temporary-password/recovery issuance clear the failure counter and lock.
+Failed password changes persist the counter and matching
+`AUTHENTICATION_FAILED` event atomically before returning an error; safe event
+metadata identifies `authentication_context` as `login` or `password_change`.
+
 | Condition | Cause | Duration | Scope | Existing sessions |
 | --- | --- | --- | --- | --- |
 | Active | Normal lifecycle state | Until changed | Entire account | Remain usable |
 | Inactive | Account lifecycle decision | Until reactivated | Entire account | Revoked |
 | Suspended | Administrator security action | Until unsuspended | Entire account | Revoked |
-| Credential lock | Automatic failed-login protection | Until `locked_until` or recovery | New local-password authentication | Remain usable |
+| Credential lock | Automatic failed-password protection | Until `locked_until` or recovery | New local-password authentication and password changes | Remain usable |
 
 The UI may display **Temporarily locked until ...** as a derived credential
 condition, but `locked` must not be added to `users.status`. An administrator
@@ -310,7 +334,7 @@ verify or supply the required terminal event before deleting them.
 | --- | --- | --- |
 | `AUTH_SESSION_IDLE_MINUTES` | `30` | Sliding idle lifetime |
 | `AUTH_SESSION_ABSOLUTE_HOURS` | `12` | Maximum session lifetime |
-| `AUTH_LOCKOUT_ATTEMPTS` | `5` | Failed attempts before temporary lock |
+| `AUTH_LOCKOUT_ATTEMPTS` | `5` | Shared incorrect login/current-password attempts before temporary lock |
 | `AUTH_LOCKOUT_MINUTES` | `15` | Temporary credential-lock duration |
 | `AUTH_SESSION_RETENTION_DAYS` | `90` | Retention after revocation or effective expiry |
 | `AUTH_SESSION_CLEANUP_INTERVAL_SECONDS` | `3600` | Continuous-worker delay |
@@ -323,6 +347,10 @@ verify or supply the required terminal event before deleting them.
 - Suspension and deactivation revoke active sessions transactionally.
 - Reactivation and unsuspension do not restore revoked sessions.
 - Credential lock remains derived from `locked_until`, not `users.status`.
+- Login and password-change attempts share a limit across sessions and concurrent requests.
+- Cooldown expiry resets failures before the next check; successes and recovery clear them.
+- New-password validation and confirmation errors never count as incorrect-current-password attempts.
+- Password-change lock responses include localized feedback and `Retry-After` without extending the lock.
 - Successful and failed authentication events contain required safe metadata.
 - Individual and bulk revocations contain required durable audit information.
 - No authentication event contains credential, session-token, or CSRF secrets.

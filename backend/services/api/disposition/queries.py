@@ -61,13 +61,45 @@ ELIGIBILITY = '''WITH facts AS (
 
 def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
                 status=None, vital=None, security=None, held=None, due_from=None,
-                due_to=None, group_owner=False, active_job=False, language_tag='en'):
+                due_to=None, group_owner=False, active_job=False, language_tag='en',
+                job_id=None, query=''):
     require_manager(c)
     sorts = {'due': 'calculated_disposition_at', 'owner': 'owner', 'status': 'disposition_status',
              'type': 'final_disposition', 'vital': 'vital', 'security': 'security', 'held': 'held', 'id': 'id'}
     if sort not in sorts:
         raise HTTPException(422, detail='invalid sort')
     clauses, values = [], []
+    target = None
+    if job_id is not None:
+        target = job(c, job_id, language_tag)
+        if not target['membership_addable']:
+            raise HTTPException(403, detail={'code':'disposition_membership_stage_invalid'})
+        # This is an advisory, server-paged subset of the existing admission
+        # rules. The membership command still locks and independently rechecks.
+        clauses.extend(['visible', 'date_closed IS NOT NULL', 'job_id IS NULL',
+                        'NOT vital AND NOT security AND NOT held',
+                        'disposition_status=%s', 'user_can_view_aggregation(%s,id)'])
+        values.extend([target['disposition_status']-4, target['assigned_user_id']])
+        if target['job_type']=='destruction':
+            clauses.extend(['disposition_private.preparer_eligible(%s,%s)', '''owning_org_unit_id IN (
+              WITH RECURSIVE scope AS (
+                SELECT id FROM org_units WHERE id=%s
+                UNION SELECT o.id FROM org_units o JOIN scope s ON o.parent_org_unit_id=s.id
+              ) SELECT id FROM scope)'''])
+            values.extend([target['assigned_user_id'],target['review_route'],target['owning_org_unit_id']])
+        else:
+            # Same assigned-person eligibility as require_job_person, without
+            # invoking a command-only primitive during an advisory read.
+            clauses.append('''EXISTS(SELECT 1 FROM users u JOIN user_role_assignments a ON a.user_id=u.id
+              JOIN roles r ON r.id=a.role_id JOIN profile_privileges pp ON pp.profile_id=r.profile_id
+              JOIN privileges p ON p.id=pp.privilege_id AND p.code='disposition.jobs.manage'
+              WHERE u.id=%s AND u.status='active' AND u.account_type='person'
+              AND r.is_information_governance AND role_effectively_active(r.id)
+              AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP))''')
+            values.append(target['assigned_user_id'])
+    if query.strip():
+        clauses.append('visible AND (aggregation_number ILIKE %s OR title ILIKE %s)')
+        values.extend(['%'+query.strip()+'%']*2)
     for field, value in [('owning_org_unit_id', owner), ('disposition_status', status),
                          ('vital', vital), ('security', security), ('held', held)]:
         if value is not None:
@@ -80,16 +112,39 @@ def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
     where = ' WHERE ' + ' AND '.join(clauses) if clauses else ''
     total = c.execute(ELIGIBILITY + 'SELECT count(*) total FROM facts' + where, values).fetchone()['total']
     order = ('owner ASC NULLS LAST,owning_org_unit_id ASC,' if group_owner else '') + sorts[sort] + (' DESC' if descending else ' ASC') + ' NULLS LAST,id ASC'
-    rows = c.execute(ELIGIBILITY + 'SELECT * FROM facts' + where + ' ORDER BY ' + order + ' LIMIT %s OFFSET %s', [*values, limit, offset]).fetchall()
+    # A boolean warning exposes no related resource identity. Relationships do
+    # not prevent admission; outside-job links can prevent final disposition.
+    projection = '*,EXISTS(SELECT 1 FROM disposition_private.relationship_scope(facts.id) WHERE blocks_final) AS relationships_block_final' if job_id is not None else '*'
+    rows = c.execute(ELIGIBILITY + 'SELECT '+projection+' FROM facts' + where + ' ORDER BY ' + order + ' LIMIT %s OFFSET %s', [*values, limit, offset]).fetchall()
     # Enrich only the visible roots on this server page, never the whole result
     # set or a separate request per row. Share episode rules with details.
     accelerations = current_accelerations(c, [row['id'] for row in rows if row['visible']], language_tag)
+    # Selection compatibility uses only owners already visible on this server
+    # page. Resolve their ancestor relationships in one bounded query; expose
+    # neither a whole hierarchy nor identities of other organization units.
+    compatible_owners = {}
+    if job_id is None:
+        owners = list({row['owning_org_unit_id'] for row in rows if row['visible']})
+        if owners:
+            related = c.execute('''WITH RECURSIVE ancestors AS (
+              SELECT id AS source,id,parent_org_unit_id,ARRAY[id] AS path FROM org_units WHERE id=ANY(%s)
+              UNION ALL SELECT a.source,o.id,o.parent_org_unit_id,a.path||o.id
+              FROM ancestors a JOIN org_units o ON o.id=a.parent_org_unit_id WHERE NOT o.id=ANY(a.path)
+            ), owners AS (SELECT DISTINCT source FROM ancestors)
+            SELECT l.source AS id,array_agg(r.source ORDER BY r.source) AS compatible_ids
+            FROM owners l JOIN owners r ON EXISTS (
+              SELECT 1 FROM ancestors a JOIN ancestors b ON b.id=a.id
+              WHERE a.source=l.source AND b.source=r.source)
+            GROUP BY l.source''',(owners,)).fetchall()
+            compatible_owners = {row['id']:row['compatible_ids'] for row in related}
     for index, row in enumerate(rows):
         row['owner'] = localized_projection(
             {'name': row['owner'], 'translations': row.pop('owner_translations', {})},
             language_tag, 'name')['name']
         row['acceleration'] = accelerations.get(row['id'])
         row['redacted'] = not row.pop('visible')
+        if job_id is None:
+            row['compatible_owning_org_unit_ids'] = compatible_owners.get(row['owning_org_unit_id'], [])
         row['blocked'] = row['vital'] or row['security'] or row['held']
         row['selectable'] = not row['redacted'] and not row['blocked'] and row['job_id'] is None and row['date_closed'] is not None
         if row['hidden_blockers']:
@@ -99,11 +154,14 @@ def eligibility(c, *, limit, offset, sort='due', descending=False, owner=None,
             row = {key: None for key in row}
             row.update(id=f'redacted-{offset+index}',redacted=True,selectable=False)
             rows[index] = row
-    return {'items': rows, 'total': total}
+    result = {'items': rows, 'total': total}
+    if target is not None:
+        result['scope'] = {key:target[key] for key in ('id','version','job_number','job_type','owner','membership_add_role_id')}
+    return result
 
 
 def jobs(c, *, limit, offset, query='', lifecycle=None, sort='id', descending=True,
-         job_type=None, owner='', assignee='', unassigned=False, language_tag='en', root_ids=None):
+         job_type=None, owner='', assignee='', unassigned=False, language_tag='en', root_ids=None, matching_scope=False):
     require_manager(c)
     orders = {'id':'id','job_number':'job_number','job_type':'job_type',
               'lifecycle_state':'lifecycle_state','date_created':'date_created',
@@ -125,15 +183,30 @@ def jobs(c, *, limit, offset, query='', lifecycle=None, sort='id', descending=Tr
             where.append('('+field+' ILIKE %s OR canonical_'+field+' ILIKE %s)')
             values.extend(['%'+value.strip()+'%']*2)
     if unassigned:where.append('assigned_user_id IS NULL')
+    if matching_scope:
+        if not root_ids:raise HTTPException(422,detail='root selection required')
+        scope=suggested_owner(c,root_ids,language_tag)
+        if not scope['job_type']:
+            where.append('false')
+        else:
+            where.append('job_type=%s');values.append(scope['job_type'])
+            if scope['job_type']=='destruction':
+                if scope['owner']:
+                    where.append('owning_org_unit_id=%s');values.append(scope['owner']['id'])
+                else:where.append('false')
     source=' FROM jobs WHERE '+' AND '.join(where)
     total=c.execute(projection+'SELECT count(*) total'+source,values).fetchone()['total']
     rows=c.execute(projection+'SELECT *'+source+' ORDER BY '+orders[sort]+(' DESC' if descending else ' ASC')+' NULLS LAST,id LIMIT %s OFFSET %s',[*values,limit,offset]).fetchall()
+    readiness=job_review_setup(c,[r['id'] for r in rows])
     for row in rows:
+        row['review_setup']=readiness[row['id']]
         row.pop('canonical_owner');row.pop('canonical_assignee')
     if root_ids:
         compatibility=job_selection_compatibility(c,[r['id'] for r in rows],root_ids)
         for row in rows:row['selection_error']=compatibility.get(row['id'])
-    return {'items':rows,'total':total}
+    result={'items':rows,'total':total}
+    if matching_scope:result['selection_scope']=scope
+    return result
 
 
 def job(c, identity, language_tag='en'):
@@ -148,15 +221,20 @@ def job(c, identity, language_tag='en'):
     manager=c.execute('SELECT disposition_private.can_manage() allowed').fetchone()['allowed']
     row['assignment_editable']=manager and row['lifecycle_state']=='active'
     row['owner_editable']=manager and row['lifecycle_state']=='active' and row['job_type']=='destruction' and not row['current_review_round'] and not c.execute("SELECT 1 FROM disposition_job_memberships WHERE job_id=%s AND membership_state='active' UNION ALL SELECT 1 FROM disposition_review_rounds WHERE job_id=%s UNION ALL SELECT 1 FROM event_history WHERE entity_type='disposition_job' AND entity_id=%s AND operation='REVIEW_SUBMIT' LIMIT 1",(identity,identity,identity)).fetchone()
-    preparer=c.execute("SELECT current_user_id()=%s AND disposition_private.governance_person(current_user_id(),%s) allowed",(row['assigned_user_id'],'INFO_GOV_MGR' if row.get('review_route')=='records_manager_only' else 'INFO_GOV_OFFICER')).fetchone()['allowed'] if row['job_type']=='destruction' else True
+    preparer=c.execute("SELECT current_user_id()=%s AND disposition_private.preparer_eligible(current_user_id(),%s) allowed",(row['assigned_user_id'],row.get('review_route'))).fetchone()['allowed'] if row['job_type']=='destruction' else True
     own_preparation_task=row.pop('own_preparation_task')
     row['membership_editable']=row['lifecycle_state']=='active' and (row['job_type']!='destruction' or preparer and own_preparation_task and row['workflow_stage'] in ('officer_preparation','officer_correction','manager_preparation','manager_correction'))
     review_adder=c.execute('''SELECT t.destination_role_id AS role_id FROM disposition_tasks t
         WHERE t.job_id=%s AND t.workflow_stage='records_manager_review' AND t.task_state='claimed'
         AND t.claimed_by_user_id=current_user_id() AND disposition_private.can_add_review_members(t.job_id,t.destination_role_id)
         ORDER BY t.id LIMIT 1''',(identity,)).fetchone() if row['review_route']=='simplified' and row['workflow_stage']=='records_manager_review' else None
-    row['membership_add_role_id']=review_adder['role_id'] if review_adder else None
-    row['membership_addable']=row['membership_editable'] or review_adder is not None
+    preparation_adder=c.execute('SELECT r.id AS role_id FROM roles r WHERE disposition_private.can_add_preparation_members(%s,r.id) ORDER BY r.id LIMIT 1',(identity,)).fetchone() if row['job_type']=='destruction' and row['workflow_stage'] in ('officer_preparation','officer_correction','manager_preparation','manager_correction') else None
+    adder=review_adder or preparation_adder
+    row['membership_add_role_id']=adder['role_id'] if adder else None
+    row['membership_addable']=row['membership_editable'] or adder is not None
+    row['review_setup']=job_review_setup(c,[identity])[identity]
+    if c.execute("SELECT disposition_private.operation_pending(%s) OR EXISTS(SELECT 1 FROM disposition_destruction_runs WHERE job_id=%s AND state IN ('queued','running')) busy",(identity,identity)).fetchone()['busy']:
+        for key in ('assignment_editable','owner_editable','membership_editable','membership_addable'):row[key]=False
     return row
 
 
@@ -168,7 +246,8 @@ def members(c, identity, *, limit, offset, query='', sort='id', descending=True,
     if query.strip():
         clauses.append("current_user_can_view_aggregation(a.id) AND (a.aggregation_number ILIKE %s OR a.title ILIKE %s OR o.name ILIKE %s OR cl.code ILIKE %s OR cl.title ILIKE %s)")
         params.extend(['%'+query.strip()+'%']*5)
-    if state:clauses.append('m.membership_state=%s');params.append(state)
+    if state=='retained':clauses.append("m.membership_state<>'removed'")
+    elif state:clauses.append('m.membership_state=%s');params.append(state)
     source=' FROM disposition_job_memberships m JOIN aggregations a ON a.id=m.root_aggregation_id LEFT JOIN org_units o ON o.id=a.owning_org_unit_id LEFT JOIN classifications cl ON cl.id=a.classification_id WHERE '+' AND '.join(clauses)
     total=c.execute('SELECT count(*) total'+source,params).fetchone()['total']
     row_source=source.replace(' WHERE '," LEFT JOIN LATERAL disposition_private.eligibility(a.id) e ON true LEFT JOIN classifications rule_class ON rule_class.id=(e.rule_snapshot->>'defined_by_classification_id')::bigint WHERE ",1)
@@ -215,6 +294,20 @@ def history_action_events(c, identity, event_id, *, limit, offset, language_tag=
     return events(c,identity,event_id,limit=limit,offset=offset,language_tag=language_tag)
 
 
+def job_review_setup(c, job_ids):
+    """Fresh facts for just the authorized job/page; no cache or directory fetch."""
+    if not job_ids:return {}
+    rows=c.execute('SELECT job.id,setup.* FROM unnest(%s::bigint[]) job(id) CROSS JOIN LATERAL disposition_private.job_review_setup(job.id) setup',(job_ids,)).fetchall()
+    return {r['id']:{key:value for key,value in r.items() if key!='id'} for r in rows}
+
+
+def owner_review_setup(c, owner_ids):
+    """Bounded current role/assignment facts shared with the creation gate."""
+    if not owner_ids:return {}
+    rows=c.execute('SELECT owner.id,setup.* FROM unnest(%s::bigint[]) owner(id) CROSS JOIN LATERAL disposition_private.owner_review_setup(owner.id) setup',(owner_ids,)).fetchall()
+    return {r['id']:{key:value for key,value in r.items() if key!='id'} for r in rows}
+
+
 def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id=None, language_tag='en'):
     require_manager(c)
     saved=job(c,job_id) if job_id is not None else None
@@ -224,7 +317,9 @@ def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id
     if kind=='owners':
         rows=c.execute('''SELECT id,code,name,translations FROM org_units WHERE ((%s::bigint IS NOT NULL AND id=%s) OR (%s::bigint IS NULL AND (name ILIKE %s OR code ILIKE %s OR EXISTS(SELECT 1 FROM jsonb_each(translations) t WHERE t.value->>'name' ILIKE %s))))
           ORDER BY name,id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%','%'+query.strip()+'%')).fetchall()
+        setup=owner_review_setup(c,[row['id'] for row in rows])
         for row in rows:
+            row['review_role_setup']=setup[row['id']]
             row['name']=localized_projection(row,language_tag,'name')['name']
             row.pop('translations')
     elif kind=='assignees':
@@ -234,7 +329,7 @@ def selector(c, kind, *, query='', selected=None, job_type='destruction', job_id
           JOIN profiles profile ON profile.id=r.profile_id JOIN profile_privileges pp ON pp.profile_id=profile.id
           JOIN privileges p ON p.id=pp.privilege_id WHERE a.user_id=u.id AND r.is_information_governance
           AND role_effectively_active(r.id) AND a.valid_from<=CURRENT_TIMESTAMP AND (a.valid_until IS NULL OR a.valid_until>CURRENT_TIMESTAMP)
-          AND p.code='disposition.jobs.manage' AND (%s<>'destruction' OR profile.code=CASE WHEN %s='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END))
+          AND p.code='disposition.jobs.manage' AND (%s<>'destruction' OR profile.code='INFO_GOV_MGR' OR %s<>'records_manager_only' AND profile.code='INFO_GOV_OFFICER'))
           ORDER BY u.name,u.id LIMIT 25''',(selected,selected,selected,'%'+query.strip()+'%','%'+query.strip()+'%',job_type,route)).fetchall()
     else: raise HTTPException(404,detail='selector not found')
     return {'items':rows}
@@ -246,7 +341,7 @@ def suggested_owner(c, root_ids, language_tag='en'):
     ids=list(dict.fromkeys(root_ids))
     if not ids or len(ids)>100:
         raise HTTPException(422,detail='invalid root selection')
-    roots=c.execute('''SELECT id,owning_org_unit_id FROM aggregations
+    roots=c.execute('''SELECT id,owning_org_unit_id,disposition_status FROM aggregations
       WHERE id=ANY(%s) AND parent_aggregation_id IS NULL
       AND current_user_can_view_aggregation(id)''',(ids,)).fetchall()
     if len(roots)!=len(ids):
@@ -267,7 +362,10 @@ def suggested_owner(c, root_ids, language_tag='en'):
     if row:
         row['name']=localized_projection(row,language_tag,'name')['name']
         row.pop('translations')
-    return {'owner':row,'basis':'same_unit' if len(owners)==1 and row else 'common_ancestor' if row else 'no_common_ancestor'}
+        row['review_role_setup']=owner_review_setup(c,[row['id']])[row['id']]
+    statuses={r['disposition_status'] for r in roots}
+    kind={2:'destruction',3:'permanent_transfer',4:'selective_transfer',5:'local_archives'}.get(next(iter(statuses))) if len(statuses)==1 else None
+    return {'owner':row,'basis':'same_unit' if len(owners)==1 and row else 'common_ancestor' if row else 'no_common_ancestor','job_type':kind}
 
 
 def job_selection_compatibility(c, job_ids, root_ids):
@@ -285,10 +383,10 @@ def job_selection_compatibility(c, job_ids, root_ids):
     ) SELECT j.id,CASE
       WHEN j.lifecycle_state<>'active' THEN 'disposition_inactive_job'
       WHEN j.assigned_user_id IS NULL THEN 'disposition_assignment_required'
-      WHEN j.job_type='destruction' AND j.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') AND NOT disposition_private.can_add_review_members(j.id) THEN 'disposition_membership_stage_invalid'
-      WHEN j.job_type='destruction' AND j.assigned_user_id<>current_user_id() AND NOT disposition_private.can_add_review_members(j.id) THEN 'disposition_assigned_preparer_required'
-      WHEN j.job_type='destruction' AND NOT disposition_private.governance_person(j.assigned_user_id,CASE WHEN j.review_route='records_manager_only' THEN 'INFO_GOV_MGR' ELSE 'INFO_GOV_OFFICER' END) THEN 'disposition_assignee_not_authorized'
-      WHEN j.job_type='destruction' AND NOT EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage AND t.destination_user_id=current_user_id() AND t.task_state='open' AND t.task_type IN ('preparation','correction')) AND NOT disposition_private.can_add_review_members(j.id) THEN 'disposition_membership_stage_invalid'
+      WHEN j.job_type='destruction' AND j.workflow_stage NOT IN ('officer_preparation','officer_correction','manager_preparation','manager_correction') AND NOT disposition_private.can_add_review_members(j.id) AND NOT disposition_private.can_add_preparation_members(j.id) THEN 'disposition_membership_stage_invalid'
+      WHEN j.job_type='destruction' AND j.assigned_user_id<>current_user_id() AND NOT disposition_private.can_add_review_members(j.id) AND NOT disposition_private.can_add_preparation_members(j.id) THEN 'disposition_assigned_preparer_required'
+      WHEN j.job_type='destruction' AND NOT disposition_private.preparer_eligible(j.assigned_user_id,j.review_route) THEN 'disposition_assignee_not_authorized'
+      WHEN j.job_type='destruction' AND NOT EXISTS(SELECT 1 FROM disposition_tasks t WHERE t.job_id=j.id AND t.workflow_stage=j.workflow_stage AND t.destination_user_id=current_user_id() AND t.task_state='open' AND t.task_type IN ('preparation','correction')) AND NOT disposition_private.can_add_review_members(j.id) AND NOT disposition_private.can_add_preparation_members(j.id) THEN 'disposition_membership_stage_invalid'
       WHEN EXISTS(SELECT 1 FROM aggregations a WHERE a.id=ANY(%s) AND (a.disposition_status NOT BETWEEN 2 AND 5 OR a.disposition_status<>j.disposition_status-4)) THEN 'disposition_job_type_status_mismatch'
       WHEN j.job_type='destruction' AND EXISTS(SELECT 1 FROM unnest(%s::bigint[]) r(id) WHERE NOT EXISTS(SELECT 1 FROM owners o WHERE o.root_id=r.id AND o.id=j.owning_org_unit_id)) THEN 'disposition_owning_unit_mismatch'
       WHEN EXISTS(SELECT 1 FROM aggregations a WHERE a.id=ANY(%s) AND a.date_closed IS NULL) THEN 'disposition_root_not_closed'

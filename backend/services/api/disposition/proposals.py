@@ -15,22 +15,45 @@ from ..entity_localization import localized_projection
 
 def save(c, *, task_id, expected_version, task_version, changes, review_notes=None,
          note_version=None, overall_reason=None, acting_role_id, command_id: UUID,
-         reason='Save destruction review work'):
+         reason='Save destruction review work', bulk=False):
     payload=dict(task_id=task_id,expected_version=expected_version,task_version=task_version,
                  changes=changes,review_notes=review_notes,note_version=note_version,overall_reason=overall_reason)
+    if bulk:
+        payload['bulk']=True
+        withdrawals=all(item.get('action')=='withdraw' for item in changes)
+        removals=all(item.get('action')=='create' and item.get('proposal_type')=='remove_from_job'
+                     and item.get('target_aggregation_id')==item.get('governing_root_id') for item in changes)
+        ids=[item.get('proposal_id') if withdrawals else item.get('governing_root_id') for item in changes]
+        if not 1<=len(changes)<=100 or not (withdrawals or removals) or len(set(ids))!=len(ids) or None in ids or any(value is not None for value in (review_notes,note_version,overall_reason)):
+            raise HTTPException(422,detail={'code':'disposition_selection_bounds_invalid'})
+
+    def apply(x):
+        if bulk:
+            # Current task ownership/claim, stage and job/task versions first.
+            job_id=x.execute('SELECT (disposition_private.review_context(%s,%s,%s)).job_id job_id',
+                             (task_id,expected_version,task_version)).fetchone()['job_id']
+            if withdrawals:
+                current={row['id']:row for row in x.execute('''SELECT p.id,p.version,p.proposal_state,
+                  p.review_round=disposition_private.review_round_for_work(p.job_id) current_round,
+                  disposition_private.proposal_visible(to_jsonb(p)) visible,
+                  EXISTS(SELECT 1 FROM disposition_job_memberships m WHERE m.job_id=p.job_id AND m.root_aggregation_id=p.governing_root_id AND m.membership_state='active') current_member
+                  FROM disposition_review_proposals p WHERE p.job_id=%s AND p.id=ANY(%s) ORDER BY p.id FOR UPDATE OF p''',(job_id,ids)).fetchall()}
+                invalid=[item['proposal_id'] for item in changes if
+                         (row:=current.get(item['proposal_id'])) is None or row['version']!=item['expected_version'] or
+                         row['proposal_state']!='active' or not row['current_round'] or not row['current_member'] or not row['visible']]
+                if invalid:raise HTTPException(409,detail={'code':'disposition_bulk_selection_changed','item_ids':invalid})
+        return x.execute('SELECT disposition_private.save_review_work(%s,%s,%s,%s,%s,%s,%s) result',
+          (task_id,expected_version,task_version,Jsonb(changes),review_notes,note_version,overall_reason)).fetchone()['result']
+
     return execute_command(c,command_id=command_id,operation='review_save',payload=payload,
-      acting_role_id=acting_role_id,reason=reason,apply=lambda x:x.execute(
-        'SELECT disposition_private.save_review_work(%s,%s,%s,%s,%s,%s,%s) result',
-        (task_id,expected_version,task_version,Jsonb(changes),review_notes,note_version,overall_reason)).fetchone()['result'])
+      acting_role_id=acting_role_id,reason=reason,apply=apply)
 
 
 def submit(c, *, task_id, expected_version, task_version, overall_reason,
            acting_role_id, command_id: UUID, reason=None):
-    if not overall_reason or not overall_reason.strip():
-        raise HTTPException(422,detail={'code':'disposition_submission_reason_required'})
     payload=dict(task_id=task_id,expected_version=expected_version,task_version=task_version,overall_reason=overall_reason)
     return execute_command(c,command_id=command_id,operation='review_submit',payload=payload,
-      acting_role_id=acting_role_id,reason=overall_reason,apply=lambda x:x.execute(
+      acting_role_id=acting_role_id,reason=(overall_reason or '').strip() or 'Submit destruction review',apply=lambda x:x.execute(
         'SELECT disposition_private.submit_review_work(%s,%s,%s,%s) result',
         (task_id,expected_version,task_version,overall_reason)).fetchone()['result'])
 

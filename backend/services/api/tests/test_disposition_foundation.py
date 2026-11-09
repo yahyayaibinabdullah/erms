@@ -4,6 +4,7 @@ Trusted callbacks exercise private transaction primitives. No operational action
 endpoint is exposed until its action-specific gates are implemented.
 """
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from pathlib import Path
 import os
 from uuid import uuid4
@@ -45,6 +46,34 @@ def ensure_officer(c, user=1):
     c.execute('INSERT INTO user_role_assignments(user_id,role_id) SELECT %s,%s WHERE NOT EXISTS(SELECT 1 FROM user_role_assignments WHERE user_id=%s AND role_id=%s)',(user,role['id'],user,role['id']))
 
 
+@contextmanager
+def configured_creation_roles(c, owner=1, kind='destruction'):
+    """Create legacy workflow fixtures through today's valid creation contract.
+
+    Restore the previous configuration afterward to exercise existing jobs when
+    assignments/designations change. Creation-gate tests do not use this helper.
+    """
+    if kind!='destruction' or c.execute("SELECT value#>>'{}' route FROM application_settings WHERE key='DISPOSITION_DESTRUCTION_REVIEW_ROUTE'").fetchone()['route']!='standard' or c.execute("SELECT to_regprocedure('disposition_private.owner_review_setup(bigint)') installed").fetchone()['installed'] is None:
+        yield
+        return
+    previous=c.execute('SELECT file_administrator_role_id,managing_role_id FROM org_units WHERE id=%s',(owner,)).fetchone()
+    if not previous:
+        yield
+        return
+    candidate=c.execute("SELECT r.id FROM roles r JOIN user_role_assignments a ON a.role_id=r.id WHERE r.org_unit_id=%s AND a.user_id=1 AND disposition_private.person_role(1,r.id) ORDER BY r.id LIMIT 1",(owner,)).fetchone()
+    created=candidate is None
+    if created:
+        unique='creation-'+str(uuid4())
+        candidate=c.execute("INSERT INTO roles(org_unit_id,code,name,profile_id) SELECT %s,%s,%s,id FROM profiles WHERE code='ALL_PRIVS' RETURNING id",(owner,unique,unique)).fetchone()
+        c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(1,%s)',(candidate['id'],))
+    c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=%s',(candidate['id'],candidate['id'],owner))
+    try:yield
+    finally:
+        c.execute('UPDATE org_units SET file_administrator_role_id=%s,managing_role_id=%s WHERE id=%s',(previous['file_administrator_role_id'],previous['managing_role_id'],owner))
+        if created:c.execute('DELETE FROM user_role_assignments WHERE role_id=%s',(candidate['id'],))
+        # A created role remains as an auditable reference to the creation setup.
+
+
 def make_job(c, number=None, *, assigned=1, kind='destruction'):
     if kind=='destruction': ensure_officer(c)
     def apply(c):
@@ -53,7 +82,7 @@ def make_job(c, number=None, *, assigned=1, kind='destruction'):
          (number or str(uuid4()),kind,'officer_preparation' if kind=='destruction' else None,
           {'destruction':6,'permanent_transfer':7,'selective_transfer':8,'local_archives':9}[kind],assigned)).fetchone()
         return {'id':row['id']}
-    return command(c,'job_create',apply)['id']
+    with configured_creation_roles(c,kind=kind):return command(c,'job_create',apply)['id']
 
 
 def prepare_unit(c, *, status=2):
@@ -125,7 +154,8 @@ def test_authorized_full_unit_transition_and_pending_membership_are_atomic(clien
 def test_invalid_membership_or_partial_propagation_rolls_back_everything(client,mode):
     with db() as c:
         actor(c); root,child,*_=prepare_unit(c)
-        job=make_job(c,assigned=None if mode=='unassigned' else 1,kind='permanent_transfer' if mode=='wrong_type' else 'destruction')
+        job=make_job(c,assigned=1,kind='permanent_transfer' if mode=='wrong_type' else 'destruction')
+        if mode=='unassigned':command(c,'job_assign',lambda x:(x.execute('UPDATE disposition_jobs SET assigned_user_id=NULL WHERE id=%s',(job,)) and {}))
         events=c.execute('SELECT count(*) n FROM event_history').fetchone()['n']
         def invalid(c):
             if mode=='status_only': transition_unit(c,root,version(c,root),6)
@@ -458,7 +488,9 @@ def test_all_four_job_types_require_matching_pending_membership(client,kind,stat
 
 def test_assignment_is_specific_and_cannot_be_cleared_while_nonempty(client):
     with db() as c:
-        actor(c); job=make_job(c,assigned=None); root,*_=prepare_unit(c)
+        actor(c)
+        with pytest.raises(psycopg.Error,match='disposition_assignment_required'):make_job(c,assigned=None)
+        job=make_job(c); root,*_=prepare_unit(c)
         def assign(c): c.execute('UPDATE disposition_jobs SET assigned_user_id=1 WHERE id=%s',(job,)); return {}
         command(c,'job_assign',assign); add(c,job,root)
         with pytest.raises(psycopg.Error,match='disposition_active_membership_invalid'):

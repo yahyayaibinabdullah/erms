@@ -18,6 +18,27 @@ only when the draft is committed.
 Open drafts expire after seven days by default. Expired drafts cannot be edited
 or committed. A later housekeeping job should physically remove expired drafts.
 
+## Preview staged files
+
+After an upload completes, supported files have a **Preview** action beside
+their component card. This opens the same viewer used for saved records,
+including component switching, PDF navigation and native image/media viewing.
+Preview does not save the record or change unsaved metadata, file order or draft
+expiry. Unsupported or incomplete uploads have no Preview action. If conversion
+is unavailable, the upload remains staged and the viewer shows the error.
+
+`GET` and `HEAD /api/v1/record-drafts/{draft_id}/components/{component_id}/rendition`
+require the current draft owner, an unexpired open draft and `record.create` on
+every request, including byte-range requests. The component must belong to that
+draft. Preview provides no staged Print or Download action. After commit, the
+saved record's normal component permissions apply.
+
+The viewer reuses the mounted editor's component metadata and requests bytes
+only for the selected file. Closing the viewer or abandoning the editor prevents
+late responses from updating it. See the approved
+[preview contract](../specs/digital-component-preview-navigation.md#4-preview-staged-components-before-record-creation)
+and [verification evidence](verification/staged-component-preview.md).
+
 ## Atomic commit
 
 Commit locks the draft, validates its required aggregation, record number, and

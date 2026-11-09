@@ -111,6 +111,29 @@ Do not make an existing renderer accept unrelated modes merely to avoid a new
 component. Reuse means shared semantics, not a single function with many
 unrelated flags.
 
+### 3.1.1 Literal localized text and markup boundaries
+
+`render_message`, `render_message_plain`, and `render_english` return literal
+text, with interpolated values independently isolated for bidirectional display.
+Pass it directly to NiceGUI text properties (labels, titles, buttons, tooltips,
+notifications and selector options). NiceGUI/Vue perform DOM text escaping;
+HTML-encoding names before that boundary displays entities such as `&#x27;`
+verbatim. Never decode entity-like user input or apply a screen-specific
+`html.unescape` workaround.
+
+When embedding a message in an HTML/Vue slot template, explicitly `html.escape`
+the complete message at that boundary. Never pass catalogue text directly to
+`ui.html` or `v-html`. For textual `.props(...)` values, use Python quoting, for
+example `f"aria-label={message!r}"`, so quotes cannot split the property string.
+Keep existing sanitized rich-content workflows separate from catalogue text.
+These are output-boundary requirements implementing the internationalization
+specification's escaping rule; ordinary translations never authorize markup.
+
+Collection editors must refresh the current bounded server page after Save,
+using its existing language, filters, sort and paging state. Do not append a
+created role to a downloaded page or reorder it by internal ID. The server
+remains responsible for sorting the complete collection before pagination.
+
 ### 3.2 Location of new shared code
 
 Small extensions may remain beside the current shared helper in `app.py`.

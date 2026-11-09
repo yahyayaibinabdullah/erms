@@ -41,6 +41,30 @@ def test_request_gate_confirmation_exact_retry_and_single_run(client,monkeypatch
         assert c.execute('SELECT disposition_status FROM aggregations WHERE id=%s',(root,)).fetchone()['disposition_status']==6
 
 
+@pytest.mark.parametrize('state',['queued','running'])
+def test_pending_digital_work_hides_conflicting_controls_and_failure_restores_them(client,monkeypatch,state):
+    from backend.services.api.disposition import workspace,queries
+    with db() as c:
+        job,root,mgr=prepared(c,monkeypatch)
+        before=workspace.read(c,job['id'])
+        assert {'release','reassign','destroy_digital'}<=set(before['actions'])
+        assert before['job']['assignment_editable']
+        request(c,job,mgr);c.commit();actor(c)
+        run=None
+        if state=='running':run=destruction.claim(c);c.commit();actor(c)
+        pending=workspace.read(c,job['id'])
+        assert pending['destruction']['progress']['state']==state
+        assert not ({'release','reassign','destroy_digital'} & set(pending['actions']))
+        assert not pending['job']['assignment_editable']
+        assert not queries.job(c,job['id'])['assignment_editable']
+        c.commit()
+        if run is None:run=destruction.claim(c);c.commit()
+        destruction._fail(c,run['id'],root);destruction.release(c,run['id']);c.commit();actor(c)
+        failed=workspace.read(c,job['id'])
+        assert {'release','reassign','destroy_digital'}<=set(failed['actions'])
+        assert failed['job']['assignment_editable']
+
+
 def test_manifest_has_proof_only_and_crashed_claim_requires_explicit_retry(client,monkeypatch):
     with db() as c:
         job,root,mgr=prepared(c,monkeypatch);result=request(c,job,mgr)

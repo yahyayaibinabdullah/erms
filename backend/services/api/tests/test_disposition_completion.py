@@ -1,7 +1,7 @@
 """Phase 22 acceptance; the runner creates and always drops the test database."""
 from uuid import uuid4
 import pytest
-from backend.services.api.disposition import completion, destruction, documents
+from backend.services.api.disposition import completion, destruction, documents, queries
 from backend.services.api.disposition.destruction_worker import run_pass
 from backend.services.api.tests.test_disposition_destruction import prepared, request, guarded_fixture
 from backend.services.api.tests.test_disposition_membership import actor, job_version, db
@@ -20,7 +20,7 @@ def ready(monkeypatch):
 
 def test_saved_certificate_waits_for_explicit_final_task_completion(client, monkeypatch):
     job, root, mgr = ready(monkeypatch)
-    assert run_pass(db, 1) == {'units_processed': 1, 'certificates_processed': 1}
+    assert run_pass(db, 1) == {'units_processed': 1, 'certificates_processed': 1, 'operations_processed': 0}
     with db() as c:
         actor(c)
         jobrow=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
@@ -36,16 +36,21 @@ def test_saved_certificate_waits_for_explicit_final_task_completion(client, monk
         assert certificate['provenance']['snapshot']['source']['proof']
         assert task(c,job['id'])['task_type']=='certificate_download'
         assert not completion.view(c,jobrow)['completed']
+        # A finished unit stays visible while the final task is still open.
+        retained=queries.members(c,job['id'],state='retained',limit=25,offset=0)
+        assert retained['total']==1 and retained['items'][0]['membership_state']=='completed_history'
     assert not completion.process_one(db)
     response=client.get(f"/api/v1/disposition/jobs/{job['id']}/documents/{certificate['id']}/content")
     assert response.status_code==200,response.text[:300]
     with db() as c:
-        assert c.execute("SELECT task_state FROM disposition_tasks WHERE task_type='certificate_download'").fetchone()['task_state']=='open'
+        assert c.execute("SELECT task_state FROM disposition_tasks WHERE task_type='certificate_download'").fetchone()['task_state']=='claimed'
         actor(c);t=task(c,job['id'])
         args=dict(job_id=job['id'],task_id=t['id'],task_version=t['version'],expected_version=job_version(c,job['id']),acting_role_id=mgr,command_id=uuid4())
         result=completion.complete_task(c,**args)
         assert completion.complete_task(c,**args)==result
         assert result['lifecycle_state']=='completed'
+        retained=queries.members(c,job['id'],state='retained',limit=25,offset=0)
+        assert retained['total']==1 and retained['items'][0]['root_aggregation_id']==root
         assert c.execute("SELECT task_state FROM disposition_tasks WHERE id=%s",(t['id'],)).fetchone()['task_state']=='completed'
         assert c.execute("SELECT count(*) n FROM event_history WHERE operation='DESTRUCTION_JOB_COMPLETED'").fetchone()['n']==1
 
@@ -221,7 +226,7 @@ def test_completion_notification_is_current_authorized_and_deduplicated(client,m
         payload=config.Configuration(expected_version=0,enabled=True,audience_mode='current_eligible_managers',operational_owner='Disposable completion acceptance',templates=[config.Template(language_tag=tag,subject_template=subject,body_template_rich_text=body,review_status='published') for tag,subject,body in [('en','Destruction job outcome','<p>Destruction job {job_id} has completed or requires certificate recovery.</p>'),('ar','نتيجة عملية الإتلاف','<p>اكتملت عملية الإتلاف {job_id} أو تتطلب استرداد الشهادة.</p>')]])
         version=config.save(c,1,notifications.COMPLETION_OUTCOME,payload,'Configure disposable completion notification')
         config.activate(c,1,notifications.COMPLETION_OUTCOME,version['id'],config.Expected(expected_version=version['version']),'Activate disposable completion notification')
-    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
     with db() as c:
         c.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');actor(c);t=task(c,job['id'])
         assert c.execute('SELECT count(*) n FROM message_envelopes').fetchone()['n']==0
@@ -310,7 +315,7 @@ def test_certificate_officer_unit_comes_from_completed_acting_role_not_job_owner
 
 def test_final_task_completion_without_download_or_email(client,monkeypatch):
     job,root,mgr=ready(monkeypatch)
-    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
     with db() as c:
         actor(c);t=task(c,job['id']);version=job_version(c,job['id'])
     payload={'command_id':str(uuid4()),'acting_role_id':mgr,'task_id':t['id'],'task_version':t['version']}
@@ -336,7 +341,7 @@ def test_final_task_rechecks_actor_and_stale_version(client,monkeypatch):
         with pytest.raises(Exception),c.transaction():completion.complete_task(c,**{**args,'task_version':t['version'],'command_id':uuid4()})
         actor(c)
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['lifecycle_state']=='active'
-        assert c.execute('SELECT task_state FROM disposition_tasks WHERE id=%s',(t['id'],)).fetchone()['task_state']=='open'
+        assert c.execute('SELECT task_state FROM disposition_tasks WHERE id=%s',(t['id'],)).fetchone()['task_state']=='claimed'
 
 
 def test_upgrade_reopens_only_jobs_with_outstanding_final_task(client,monkeypatch):
@@ -349,7 +354,7 @@ def test_upgrade_reopens_only_jobs_with_outstanding_final_task(client,monkeypatc
         old=old[old.index('CREATE OR REPLACE FUNCTION disposition_private.finish_destruction_job('):]
         old=old[:old.index('END $$;')+len('END $$;')]
         c.execute(old,prepare=False)
-    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1}
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
     with db() as c:
         before=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
         assert before['lifecycle_state']=='completed'
@@ -364,3 +369,20 @@ def test_upgrade_reopens_only_jobs_with_outstanding_final_task(client,monkeypatc
         assert t['task_state']=='open'
         completion.complete_task(c,job_id=job['id'],task_id=t['id'],task_version=t['version'],expected_version=job_version(c,job['id']),acting_role_id=mgr,command_id=uuid4())
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()['lifecycle_state']=='completed'
+        # Restore today's definitions after exercising the historical upgrade.
+        c.execute((root_path/'database/migrations/106_final_certificate_task_queue.sql').read_text(),prepare=False)
+
+
+def test_certificate_preview_permission_is_distinct_from_download(client,monkeypatch):
+    job,root,mgr=ready(monkeypatch)
+    assert run_pass(db,1)=={'units_processed':1,'certificates_processed':1,'operations_processed':0}
+    with db() as c:
+        actor(c)
+        current=c.execute('SELECT * FROM disposition_jobs WHERE id=%s',(job['id'],)).fetchone()
+        before=completion.view(c,current)['certificate']
+        assert before['can_preview'] and before['can_download']
+        c.execute("DELETE FROM profile_privileges WHERE privilege_id=(SELECT id FROM privileges WHERE code='record.component.view')")
+        after=completion.view(c,current)['certificate']
+        assert after['id']==before['id'] and after['digital_component_id']==before['digital_component_id']
+        assert not after['can_preview'] and after['can_download']
+        assert current['lifecycle_state']=='active'
