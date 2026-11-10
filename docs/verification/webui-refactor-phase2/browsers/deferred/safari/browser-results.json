@@ -1,0 +1,307 @@
+{
+  "browser": "safari",
+  "version": "18.6",
+  "scope": "full",
+  "maildev_enabled": true,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4601.81
+    },
+    {
+      "name": "seven categories, root URL and browser history",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 1040.78
+    },
+    {
+      "name": "required reason, save, current value on return and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8870.1
+    },
+    {
+      "name": "optimistic conflict keeps draft and reason",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4383.78
+    },
+    {
+      "name": "repeated navigation uses one Settings read per visit",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 6681.25
+    },
+    {
+      "name": "controlled error, recovery and abandoned delayed read",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 12190.2
+    },
+    {
+      "name": "reload visual repeatability",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8961.6
+    },
+    {
+      "name": "category keyboard arrows and Enter preserve focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 406.24
+    },
+    {
+      "name": "custody warning and audit event Settings callers",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4474.27
+    },
+    {
+      "name": "scheme-first selector and paged scheme/branch browsing",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 20395.94
+    },
+    {
+      "name": "selected values survive cancelled browse, bounded typeahead and clear",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4081.06
+    },
+    {
+      "name": "masked secret replacement and explicit clear",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 6137.97
+    },
+    {
+      "name": "email dialog validation, keyboard, busy state and cancel",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10063.31
+    },
+    {
+      "name": "real test email is accepted by local MailDev with verified TLS",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: Expected exactly one visible [role=dialog]: None\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 178, in check\n    def check(self,name):\n            ^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 430, in email\n    changes.append(change)\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 86, in one\n    return self.wait.until(found, f'Expected exactly one visible {selector}: {label}')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: Expected exactly one visible [role=dialog]: None\n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c372",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "f_00ccc5ba-e29e-4d2f-bd73-6c75e5e2184d",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c365",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c416",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c419",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "DIV"
+        },
+        {
+          "id": "c449",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c470",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c474",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "DIV"
+        },
+        {
+          "id": "c772",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c776",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c830",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c840",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c836",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c840",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 23761.62
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "settings-error-en.png",
+      "sha256": "59706e299fae9778b3a04da6e7163b2bf3addf997567200d87c5a921ca33a1ff",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "settings-loading-en.png",
+      "sha256": "5a2e8b0f84dc390a6786fe97f438a44762914b3e8c46da567da2af97c0939bd9",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "settings-general-en-first.png",
+      "sha256": "d805184c4970ff5bb8a820836ef1d12b7cebc04ce61d0eb553c1decc18f1568a",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "settings-general-en-repeat.png",
+      "sha256": "db535498094f0034c6a2b7b622d7d15912e6ffe8e35fb05be9b3fad09f887fa3",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "scheme-browser-en.png",
+      "sha256": "16adf50653bc95c79a24cccd0cfad35cfd9bdd9d0c33689b37904db10509d588",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "classification-browser-en.png",
+      "sha256": "324fdc34ff46fe2b8c3f774d8451a3f8a71de08085aab65eab636a5935ae21a3",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "email-validation-en.png",
+      "sha256": "92882663b2221fc56464a108ed4315a3e37e80116009821996ff496a659a44cf",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "email-busy-en.png",
+      "sha256": "6ee26a72b6d818a90a42119b9006016e575be3aa379c5bb1413fb267a183f74e",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    },
+    {
+      "file": "failure-14.png",
+      "sha256": "27b3e48cdccef52ba879004c1e6aa760a214e42632e1222839dabaea171ab3bd",
+      "language": "en",
+      "environment": {
+        "dir": "ltr",
+        "zoom": 1,
+        "fonts": "loaded",
+        "width": 1440,
+        "height": 1000,
+        "scale": 2
+      }
+    }
+  ],
+  "complete": false,
+  "browser_errors": [],
+  "visual_comparisons": [
+    {
+      "images": [
+        "settings-general-en-first.png",
+        "settings-general-en-repeat.png"
+      ],
+      "region": [
+        0,
+        144,
+        2880,
+        2000
+      ],
+      "different_pixels": 0,
+      "excluded": "Animated header and compression margin; full images retained for review"
+    }
+  ],
+  "focus_observations": [
+    {
+      "language": "en",
+      "category_after_arrow_enter": "Content and document viewing"
+    },
+    {
+      "language": "en",
+      "email_dialog_tab": "sendSend test email"
+    }
+  ]
+}

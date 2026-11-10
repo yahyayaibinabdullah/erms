@@ -964,7 +964,7 @@ def test_entity_translation_editor_loads_selected_language_automatically():
                 }''' in editor
     multilingual_configuration = editor[
         editor.index("multilingual_fields = {"):
-        editor.index("if not creating and spec.key in multilingual_fields:")
+        editor.index("if not creating and spec.key in multilingual_fields and translation_edit_allowed:")
     ]
     assert '"aggregations":' not in multilingual_configuration
     assert '"records":' not in multilingual_configuration

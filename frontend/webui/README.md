@@ -145,6 +145,96 @@ DATABASE_URL='' frontend/webui/.venv/bin/python -m pytest frontend/webui/interac
 
 These interaction tests use a fake API and never connect to a database.
 
+## Refactor regression checks
+
+Use the isolated runner for both suites. It clears database configuration,
+disables dotenv loading, blocks Python socket and PostgreSQL connections before
+test collection, and runs each suite in a separate process and storage folder.
+Install test dependencies from `frontend/webui/requirements-test.txt`.
+
+```sh
+frontend/webui/.venv/bin/python tools/run_webui_tests.py --repeat 2
+```
+
+The assembled checks exercise the real root page and real REST API using the
+NiceGUI simulator. The owning runner creates a uniquely named disposable
+PostgreSQL database, initializes the canonical schema and separate seeds, starts
+its own API, and drops the database on success, failure, or interruption:
+
+```sh
+backend/services/api/.venv/bin/python tools/run_webui_integration.py
+```
+
+Use `--preview` for real-browser checks. It prints the loopback URL and keeps its
+disposable API and WebUI alive until Ctrl-C. Synthetic sign-in identities are
+`admin@test.invalid`, `officer@test.invalid`, and `viewer@test.invalid`; their
+fixture password is `Temporary-Test-Password-123!`. Never reuse it elsewhere.
+The viewer has no assigned role. The preview uses the existing richer Settings
+fixture; the assembled suite uses `tools/seed_webui_regression.py`.
+
+For repeatable browser baselines, add `--fixed-fixture` to `--preview`. This
+uses the smaller synthetic fixture with record dates fixed to 1 January 2026,
+28 schemes, paged classification branches, UTC display, enabled search and
+the checked-in Arabic wording published only in that disposable database.
+The fixture version is recorded in `lifecycle.json`. Audit/session timestamps
+still reflect the real run; avoid treating those changing timestamps as fixed
+pixel baselines. Match the browser, viewport, zoom, language and navigation
+trail when comparing captures.
+
+For the automated browser journey, install
+`frontend/webui/requirements-browser-test.txt` in a separate virtual environment
+at `.runtime/webui-browser-venv`, then run:
+
+```sh
+backend/services/api/.venv/bin/python tools/run_webui_integration.py --browser chrome
+```
+
+Repeat with `edge`, `firefox` and `safari`. These use the installed browser
+products on macOS and separate WebDriver sessions. Selenium may download the
+matching driver; browser downloads are disabled. Safari requires the user's
+approval to temporarily enable remote automation; restore its previous setting
+after testing. The runner automatically selects the fixed disposable fixture.
+API request metadata, browser errors, screenshots and individual checks are
+recorded in the output directory. Test-only instrumentation injects controlled
+delays and errors; the email busy-state test intercepts the send before it can
+reach SMTP. It does not establish successful email delivery.
+
+To include successful delivery, start the repository MailDev helper and add
+`--maildev`. The runner checks that managed instance, trusts its local certificate
+only in its test processes, and configures SMTP only in the disposable database:
+
+```sh
+./run-maildev.py up --owner webui-browser-check
+backend/services/api/.venv/bin/python tools/run_webui_integration.py --browser chrome --maildev
+./run-maildev.py down --owner webui-browser-check
+```
+
+The owner check leaves a previously running MailDev instance alone. Follow
+`docs/local-tooling.md` for port or Node runtime options. No outside email is
+sent. `--browser-scope navigation` is available for diagnosing the navigation
+subset; its results do not satisfy the full browser gate.
+
+For the supplemental keyboard/focus baseline, use `--browser chrome
+--browser-scope keyboard` or `--browser edge --browser-scope keyboard`, without
+`--maildev`. This records native Tab/Shift-Tab, Enter, arrows and Escape journeys
+in English and Arabic, including the active control and unchanged screenshots
+for human review. It sends no email. It supplements the full workflow run and
+does not introduce new focus behavior or constitute an accessibility redesign.
+
+Both commands save logs and XML under `.runtime/`; `--output` selects a new
+evidence directory and refuses to overwrite an existing one. The API runner
+also records request counts/timings and database cleanup in `lifecycle.json`.
+Check `database_dropped: true` after every database-backed run. Do not run
+`frontend/webui/assembled/tests` directly against a running development stack.
+The simulator does not execute browser JavaScript or prove visual/history parity.
+
+The [Phase 2 report](../../docs/webui-refactor-phase2-verification.md) records
+completed checks, browser limits, and the remaining gate before extraction.
+The [browser checklist](interaction/browser/webui_refactor.md) covers the four
+required browser products. The prepared CI workflow runs the isolated suites
+twice, runner safety checks, and the assembled suite against an ephemeral
+PostgreSQL service. Its execution remains unverified while changes stay local.
+
 Full-text header visibility now follows the API's saved FULL_TEXT_SEARCH_ENABLED
 value in bootstrap/page configuration. WEBUI_FULL_TEXT_SEARCH_ENABLED is removed.
 No WebUI feature cache or extra bootstrap/widget settings request is introduced.

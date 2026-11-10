@@ -1,0 +1,125 @@
+{
+  "scope": "Chrome and Edge; Firefox and Safari deferred by user on 2026-11-10",
+  "results": [
+    {
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "passed": 44,
+      "failed": 0,
+      "screenshots": 29,
+      "visual_comparisons": [
+        {
+          "images": [
+            "settings-general-en-first.png",
+            "settings-general-en-repeat.png"
+          ],
+          "region": [
+            0,
+            72,
+            1440,
+            1000
+          ],
+          "different_pixels": 0,
+          "excluded": "Animated header and compression margin; full images retained for review"
+        },
+        {
+          "images": [
+            "settings-general-ar-first.png",
+            "settings-general-ar-repeat.png"
+          ],
+          "region": [
+            0,
+            72,
+            1440,
+            1000
+          ],
+          "different_pixels": 0,
+          "excluded": "Animated header and compression margin; full images retained for review"
+        }
+      ],
+      "maildev_deliveries": [
+        {
+          "language": "en",
+          "recipient": "phase2-chrome-en@test.invalid",
+          "count": 1,
+          "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+          "tls_certificate_validation": true
+        },
+        {
+          "language": "ar",
+          "recipient": "phase2-chrome-ar@test.invalid",
+          "count": 1,
+          "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+          "tls_certificate_validation": true
+        }
+      ],
+      "evidence": "docs/verification/webui-refactor-phase2/browsers/chrome/browser-results.json",
+      "tested_runtime_matches_current": true,
+      "test_tool_snapshot_note": "Full-run source snapshot retained; later supplemental keyboard runner changes are recorded separately."
+    },
+    {
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "passed": 44,
+      "failed": 0,
+      "screenshots": 29,
+      "visual_comparisons": [
+        {
+          "images": [
+            "settings-general-en-first.png",
+            "settings-general-en-repeat.png"
+          ],
+          "region": [
+            0,
+            72,
+            1440,
+            1000
+          ],
+          "different_pixels": 0,
+          "excluded": "Animated header and compression margin; full images retained for review"
+        },
+        {
+          "images": [
+            "settings-general-ar-first.png",
+            "settings-general-ar-repeat.png"
+          ],
+          "region": [
+            0,
+            72,
+            1440,
+            1000
+          ],
+          "different_pixels": 0,
+          "excluded": "Animated header and compression margin; full images retained for review"
+        }
+      ],
+      "maildev_deliveries": [
+        {
+          "language": "en",
+          "recipient": "phase2-edge-en@test.invalid",
+          "count": 1,
+          "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+          "tls_certificate_validation": true
+        },
+        {
+          "language": "ar",
+          "recipient": "phase2-edge-ar@test.invalid",
+          "count": 1,
+          "subject": "Wathiq SMTP test / اختبار إرسال البريد من واثق",
+          "tls_certificate_validation": true
+        }
+      ],
+      "evidence": "docs/verification/webui-refactor-phase2/browsers/edge/browser-results.json",
+      "tested_runtime_matches_current": true,
+      "test_tool_snapshot_note": "Full-run source snapshot retained; later supplemental keyboard runner changes are recorded separately."
+    }
+  ],
+  "visual_review": "Representative General, table and dialog captures inspected in English and Arabic. No production styles changed. General repeat pairs differ by zero pixels below the animated header. Other captures require like-for-like comparisons during extraction.",
+  "limitations": [
+    "CI, Firefox and Safari remain deferred by user instruction.",
+    "Scoped keyboard/focus baseline completed; no whole-application accessibility certification.",
+    "Safari remote automation left enabled at user direction; no test driver sessions remain."
+  ],
+  "local_phase2_status": "Complete under approved local Chrome/Edge scope",
+  "keyboard_review": "keyboard/review.json"
+}

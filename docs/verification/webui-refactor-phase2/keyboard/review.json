@@ -1,0 +1,104 @@
+{
+  "date": "2026-11-10",
+  "status": "Local Phase 2 keyboard/focus baseline complete",
+  "method": "Native Selenium key actions in actual Chrome/Edge; read-only DOM focus observations and visual inspection of original screenshots. No injected focus, CSS changes or image editing.",
+  "results": [
+    {
+      "browser": "chrome",
+      "version": "157.0.8103.40",
+      "passed_groups": 12,
+      "focus_observations": 58,
+      "original_screenshots": 54,
+      "browser_errors": []
+    },
+    {
+      "browser": "edge",
+      "version": "157.0.4341.42",
+      "passed_groups": 12,
+      "focus_observations": 58,
+      "original_screenshots": 54,
+      "browser_errors": []
+    }
+  ],
+  "semantic_comparison": {
+    "compared_observations": 58,
+    "matching_observations": 56,
+    "differences": [
+      {
+        "chrome": {
+          "name": "email-tab-2",
+          "language": "ar",
+          "tag": "INPUT",
+          "role": null,
+          "label": "عنوان البريد الإلكتروني للمستلم",
+          "setting": null,
+          "inDialog": true,
+          "focusVisible": true
+        },
+        "edge": {
+          "name": "email-tab-2",
+          "language": "ar",
+          "tag": "BODY",
+          "role": null,
+          "label": "",
+          "setting": null,
+          "inDialog": false,
+          "focusVisible": false
+        }
+      },
+      {
+        "chrome": {
+          "name": "email-tab-3",
+          "language": "ar",
+          "tag": "BUTTON",
+          "role": null,
+          "label": "إغلاق",
+          "setting": null,
+          "inDialog": true,
+          "focusVisible": true
+        },
+        "edge": {
+          "name": "email-tab-3",
+          "language": "ar",
+          "tag": "INPUT",
+          "role": null,
+          "label": "عنوان البريد الإلكتروني للمستلم",
+          "setting": null,
+          "inDialog": true,
+          "focusVisible": true
+        }
+      }
+    ]
+  },
+  "findings": [
+    "General: number -> reason -> Save by Tab; Shift-Tab reverses this order. Required-reason validation leaves focus on Save and retains the draft without a request. Successful save leaves document body focused.",
+    "Category arrows/Enter select the focused tab; screenshots show the existing grey focus background and underline.",
+    "Email: recipient -> Close -> Send. At the boundary, English Chrome/Edge and Arabic Edge reported BODY before returning to recipient; Arabic Chrome returned directly to recipient. This observation is not a new universal focus-trap requirement.",
+    "Repeated Shift-Tab at the recipient boundary kept focus on recipient in the recorded journeys. Invalid-recipient feedback leaves focus on Send. Escape restores Test Send; the next Tab reaches Save.",
+    "Browse: dialog container on open, then Close and first scheme; Shift-Tab returns to Close. Escape restores Browse.",
+    "Drawer entry leaves the drawer container focused; breadcrumb, custody and audit navigation leave BODY focused. The next Tab after breadcrumb reaches Dashboard; after audit it reaches Refresh. The audit setting chooses its category, not automatic field focus.",
+    "Visible field borders and button/tab highlights were reviewed in English and Arabic. Page-level focus has no control highlight. Preserve these existing behaviors; no focus redesign is included."
+  ],
+  "reviewed_screenshots": [
+    "chrome/focus-en-reason-tab.png",
+    "edge/focus-en-save-tab.png",
+    "chrome/focus-en-category-enter.png",
+    "chrome/focus-en-email-tab-0.png",
+    "edge/focus-en-email-invalid-recipient.png",
+    "chrome/focus-en-browse-tab.png",
+    "edge/focus-en-audit-next-tab.png",
+    "chrome/focus-ar-reason-tab.png",
+    "edge/focus-ar-category-enter.png",
+    "chrome/focus-ar-email-invalid-recipient.png",
+    "edge/focus-ar-browse-escape-return.png",
+    "chrome/focus-ar-email-tab-2.png",
+    "edge/focus-ar-email-tab-2.png",
+    "chrome/focus-ar-audit-next-tab.png",
+    "edge/focus-ar-breadcrumb-next-tab.png"
+  ],
+  "limits": [
+    "This completes the scoped pilot baseline, not a whole-application accessibility certification.",
+    "Firefox, Safari and CI remain deferred by user instruction."
+  ],
+  "initial_attempt": "An added test assumed dialog Tab wrapping; it failed on existing behavior. The unsupported expectation was removed and the observed boundary explicitly recorded. Initial failures are retained."
+}

@@ -1,5 +1,24 @@
 # Project instructions
 
+## Git workflow and user control
+
+- Work on the existing branch provided by the user. Keep all changes local and
+  uncommitted so the user can test them before deciding what to commit or push.
+- The user handles branch creation, commits, and pushes to origin. Never perform
+  these actions automatically. Only perform one if the user explicitly instructs
+  the agent to perform that specific action; do not infer permission from a
+  request to implement, refactor, test, continue, or complete a phase.
+- Do not create, switch, rename, or delete branches, or create another worktree,
+  without the user's express approval. Do not use a new branch or worktree as an
+  unapproved workaround for isolation, review, or CI.
+- Do not amend commits, reset or rewrite history, merge, rebase, cherry-pick,
+  revert, or discard existing changes without explicit instructions for that
+  operation. Preserve the user's work and Git state.
+- Do not push code, open pull requests, or otherwise publish repository changes
+  without explicit authorization. A need to run CI does not grant permission to
+  publish. Run authorized local checks and clearly report any CI verification
+  that remains outstanding.
+
 ## Local stack lifecycle
 
 - `./run-local-stack.sh` without a mode retains foreground/Ctrl-C operation;

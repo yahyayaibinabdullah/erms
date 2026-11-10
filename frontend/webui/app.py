@@ -9758,6 +9758,7 @@ def index(q: str = "") -> None:
         await load_held_itemships()
 
     async def open_aggregation(aggregation: dict[str, Any]) -> None:
+        show_authenticated_view()
         relationship_token = object()
         relationship_principal = auth_state.get("principal")
         state["relationship_page_token"] = relationship_token

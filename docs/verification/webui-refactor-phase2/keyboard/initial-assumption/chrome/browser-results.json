@@ -1,0 +1,479 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "keyboard",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9254.44
+    },
+    {
+      "name": "General forward and reverse Tab order, validation and save focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8921.1
+    },
+    {
+      "name": "Category keyboard selection and focus observation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 831.1
+    },
+    {
+      "name": "Email dialog Tab cycle, reverse order, validation and close focus",
+      "language": "en",
+      "status": "fail",
+      "error": "{'name': 'email-tab-2', 'language': 'en', 'focusVisible': False, 'id': '', 'inDialog': False, 'indicator': {'background': 'rgb(255, 255, 255)', 'border': '0px solid rgb(229, 231, 235)', 'className': 'desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll', 'opacity': '1', 'outline': 'rgb(23, 32, 51) none 3px'}, 'label': '', 'rect': {'height': 1686.234375, 'width': 1425, 'x': 0, 'y': -686}, 'role': None, 'setting': None, 'tag': 'BODY', 'visible': True}",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_keyboard.py\", line 112, in check_keyboard\n    assert row['inDialog'] and row['visible'], row\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'name': 'email-tab-2', 'language': 'en', 'focusVisible': False, 'id': '', 'inDialog': False, 'indicator': {'background': 'rgb(255, 255, 255)', 'border': '0px solid rgb(229, 231, 235)', 'className': 'desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll', 'opacity': '1', 'outline': 'rgb(23, 32, 51) none 3px'}, 'label': '', 'rect': {'height': 1686.234375, 'width': 1425, 'x': 0, 'y': -686}, 'role': None, 'setting': None, 'tag': 'BODY', 'visible': True}\n",
+      "recent_native_clicks": [
+        {
+          "id": "c157",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c158",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c161",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "DIV"
+        },
+        {
+          "id": "c495",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c500",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c497",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c500",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "",
+          "tag": "DIV"
+        },
+        {
+          "id": "c759",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 5210.17
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "focus-en-reason-tab.png",
+      "sha256": "aff6197606a6ed12bcaaf11be29e46c92c8700f80b91c0b0add22fe8af413416",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-save-tab.png",
+      "sha256": "496a431938c6881f2b7b7cd6c5a09ed55849876939ee6244121345b93edbdef5",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-number-reverse-tab.png",
+      "sha256": "fb2739a0ae7087684ed33b7c33af95f383f8c37132278eaa0281f330e0d5d82b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-required-reason-validation.png",
+      "sha256": "f4d9721928499eaa2bfdb604d5025870250e98e09c916b7389a100a180229a52",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-category-enter.png",
+      "sha256": "33a4ab456fd2d09d97435f5d0704fde3e98774bb6e72fcfc45b45ce1ce2966c2",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-open.png",
+      "sha256": "5fb9436a65b07f2c26eb1f8b114aecd9f6fe771e3b12776018148f03631986bf",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "focus-en-email-tab-0.png",
+      "sha256": "fe5da877c5ab3e9d6f5305be6dbd1cc20ad3c5afd4b87103cda8480080bdbf4a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-4.png",
+      "sha256": "48149aa6f990f8c20ec621e6f766005e4eee8588f1a3141834ae7b3943b36905",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "keyboard_observations": [
+    {
+      "name": "reason-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c497",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︁⁤︁︌⁤Reason for change (required)",
+      "rect": {
+        "height": 40,
+        "width": 1002,
+        "x": 369,
+        "y": 738.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-reason-tab.png"
+    },
+    {
+      "name": "save-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c500",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save",
+      "rect": {
+        "height": 36,
+        "width": 97.046875,
+        "x": 1285.953125,
+        "y": 810.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-save-tab.png"
+    },
+    {
+      "name": "number-reverse-tab",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c495",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted q-field--with-bottom w-full",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "Review warning window",
+      "rect": {
+        "height": 40,
+        "width": 479,
+        "x": 369,
+        "y": 563.234375
+      },
+      "role": null,
+      "setting": "REVIEW_WARNING_WINDOW_DAYS",
+      "tag": "INPUT",
+      "visible": true,
+      "screenshot": "focus-en-number-reverse-tab.png"
+    },
+    {
+      "name": "required-reason-validation",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c500",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.22",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "save\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save",
+      "rect": {
+        "height": 36,
+        "width": 97.046875,
+        "x": 1285.953125,
+        "y": 830.234375
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-required-reason-validation.png"
+    },
+    {
+      "name": "saved-setting",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1000,
+        "width": 1440,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true
+    },
+    {
+      "name": "category-enter",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c463",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "Content and document viewing",
+      "rect": {
+        "height": 48,
+        "width": 222.4375,
+        "x": 601.953125,
+        "y": 349.734375
+      },
+      "role": "tab",
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-en-category-enter.png"
+    },
+    {
+      "name": "email-open",
+      "language": "en",
+      "focusVisible": true,
+      "id": "",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgba(0, 0, 0, 0)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 0px"
+      },
+      "label": "⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︆︁︆︃︇︄︆︉︆️︆︎⁤︁⁤︉⁤Test Send\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︆︇︇︅︆︉︆︄︆︁︆︎︆︃︆︅⁤︁⁤︆︋⁤Uses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︇︂︆︅︆︃︆︉︇︀︆︉︆︅︆︎︇︄⁤︁⁤︁︇⁤Recipient email address\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︆︃︆︌︆️︇︃︆︅⁤︁⁤︅⁤Close\nsend\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︇︃︆︅︆︎︆︄⁤︁⁤️⁤Send test email",
+      "rect": {
+        "height": 1000,
+        "width": 1425,
+        "x": 0,
+        "y": 0
+      },
+      "role": null,
+      "setting": null,
+      "tag": "DIV",
+      "visible": true,
+      "screenshot": "focus-en-email-open.png"
+    },
+    {
+      "name": "email-tab-0",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c785",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(38, 139, 210)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.218022",
+        "outline": "rgb(38, 139, 210) none 0px"
+      },
+      "label": "⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︆︃︆︌︆️︇︃︆︅⁤︁⁤︅⁤Close",
+      "rect": {
+        "height": 36,
+        "width": 64.6875,
+        "x": 699.703125,
+        "y": 570.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true,
+      "screenshot": "focus-en-email-tab-0.png"
+    },
+    {
+      "name": "email-tab-1",
+      "language": "en",
+      "focusVisible": true,
+      "id": "c786",
+      "inDialog": true,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "q-focus-helper",
+        "opacity": "0.218021",
+        "outline": "rgb(255, 255, 255) none 0px"
+      },
+      "label": "send\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︅︆︍︆︁︆︉︆︌︅️︇︄︆︅︇︃︇︄︂︎︇︃︆︅︆︎︆︄⁤︁⁤️⁤Send test email",
+      "rect": {
+        "height": 36,
+        "width": 164.109375,
+        "x": 772.390625,
+        "y": 570.75
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BUTTON",
+      "visible": true
+    },
+    {
+      "name": "email-tab-2",
+      "language": "en",
+      "focusVisible": false,
+      "id": "",
+      "inDialog": false,
+      "indicator": {
+        "background": "rgb(255, 255, 255)",
+        "border": "0px solid rgb(229, 231, 235)",
+        "className": "desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll",
+        "opacity": "1",
+        "outline": "rgb(23, 32, 51) none 3px"
+      },
+      "label": "",
+      "rect": {
+        "height": 1686.234375,
+        "width": 1425,
+        "x": 0,
+        "y": -686
+      },
+      "role": null,
+      "setting": null,
+      "tag": "BODY",
+      "visible": true
+    }
+  ],
+  "browser_errors": []
+}

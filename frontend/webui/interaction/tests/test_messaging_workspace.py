@@ -388,7 +388,12 @@ async def test_two_character_mixed_search_keeps_to_and_cc_separate(user: User):
     cc.value = [8]
     await asyncio.sleep(0.1)
     next(c for c in user.find(ui.input).elements if c.label=='Subject').value='Mixed recipients'
-    user.find('Send',kind=ui.button).click()
+    # A positional text target also matches the Sender filter; NiceGUI ignores
+    # kind in that overload and iterates a set, making the old click unstable.
+    send = user.find(marker='messaging-send', kind=ui.button)
+    assert len(send.elements) == 1
+    assert next(iter(send.elements)).enabled
+    send.click()
     await user.should_see('Message sent')
     assert api.sent[0]['selectors'] == [
         {'recipient_type':'to','selector_kind':'user','target_id':2},

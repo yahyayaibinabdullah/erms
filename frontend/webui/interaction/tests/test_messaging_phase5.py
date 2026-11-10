@@ -93,7 +93,7 @@ async def test_deleted_mailbox_restore_uses_own_route_and_refresh(user: User, ta
     language(tag)
     user.find(render_message_plain("messaging.retention.recently_deleted")).click()
     await user.should_see("Test notice")
-    user.find(render_message_plain("messaging.action.open")).click()
+    user.find(marker="message-row-delivery").click()
     await user.should_see(render_message_plain("messaging.retention.restore"))
     user.find(render_message_plain("messaging.retention.restore")).click()
     await user.should_see(render_message_plain("messaging.state.empty"))
@@ -254,7 +254,7 @@ async def test_capture_button_is_busy_until_staging_finishes(user: User):
         )
 
     await user.open("/capture-busy")
-    user.find("Open").click()
+    user.find(marker="message-row-delivery").click()
     await user.should_see("Save as record")
     user.find("Save as record").click()
     await asyncio.wait_for(entered.wait(), 1)

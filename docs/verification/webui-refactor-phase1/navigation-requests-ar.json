@@ -1,0 +1,35 @@
+{
+  "scenario": "Three Settings to Dashboard cycles, Arabic, after warm-up",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/application-settings",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/summary",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/application-settings",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/summary",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/application-settings",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/summary",
+      "status": 200
+    }
+  ]
+}

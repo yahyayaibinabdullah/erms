@@ -151,7 +151,7 @@ def test_aggregation_command_centre_matches_the_approved_two_column_layout():
     assert 'for child in children:' in source
     assert 'f"{child[\'aggregation_number\']} · {child_status}"' in source
     assert '"aggregation-retention-stages w-full"' in (APP.parent / "retention_timeline.py").read_text()
-    assert '"aggregation-retention-footer w-full"' in source
+    assert '"aggregation-retention-footer detail-action-row w-full"' in source
     assert 'grid-column: 1 / -1; grid-row: 2' in source
     assert '"w-full text-sm font-semibold text-slate-800"' in (APP.parent / "retention_timeline.py").read_text()
     assert 'disposition_label(rule["final_disposition"])' in (APP.parent / "retention_timeline.py").read_text()
