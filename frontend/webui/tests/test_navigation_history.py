@@ -66,10 +66,8 @@ def test_job_and_task_navigation_restore_their_distinct_identities():
     select.assert_awaited_with('disposition-task',5,saved,task_id=8)
     asyncio.run(namespace['restore_navigation_entry']({'page':'disposition-job','entity_id':5,'state':{}}))
     select.assert_awaited_with('disposition-job',5,{},task_id=None)
-    functions=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in ('navigation_entry_identity','append_navigation_entry')]
-    namespace.update(NAVIGATION_TRAIL_LIMIT=20)
-    exec(compile(ast.Module(body=functions,type_ignores=[]),str(APP_PATH),'exec'),namespace)
+    from frontend.webui.navigation_data import append_navigation_entry
     trail=[]
     for page,identity in [('disposition-job',5),('disposition-task',8),('disposition-task',9)]:
-        trail=namespace['append_navigation_entry'](trail,{'page':page,'entity_id':identity})
+        trail=append_navigation_entry(trail,{'page':page,'entity_id':identity})
     assert len(trail)==3

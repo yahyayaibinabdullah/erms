@@ -49,6 +49,7 @@ from frontend.webui.app import (
     append_navigation_entry,
     visible_navigation_indices,
 )
+from frontend.webui import application_shell
 from frontend.webui.api_client import ApiError
 from frontend.webui.app import native_preview_kind
 from frontend.webui.entities import ENTITIES
@@ -1033,7 +1034,7 @@ def test_detail_pages_use_light_blue_metadata_and_retention_visual_system():
 
 
 def test_application_shell_is_flat_and_uses_one_background():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert "with ui.header().classes" in source
     assert "ui.header(elevated=True)" not in source
     assert "background: var(--erms-bg); color: var(--erms-ink);" in source
@@ -1222,7 +1223,7 @@ def test_navigation_visible_entries_retain_first_and_recent_pages():
 
 
 def test_navigation_drawer_does_not_load_or_render_entity_counts():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert "navigation_badges" not in source
     assert "refresh_navigation_counts" not in source
     assert "active_count" not in source
@@ -1230,7 +1231,7 @@ def test_navigation_drawer_does_not_load_or_render_entity_counts():
 
 
 def test_navigation_drawer_collapses_to_clickable_icon_rail():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert '"width=300 mini-width=64 show-if-above"' in source
     assert '"width=300 mini-width=64 show-if-above bordered"' not in source
     assert '"Browse", "lan", navigation_key="organization-browser"' in source
@@ -1271,7 +1272,9 @@ def test_breadcrumbs_resolve_static_labels_in_the_active_language():
     assert '"org-units": "navigation.item.org_units"' in source
     assert '"translations": "navigation.item.translations"' in source
     assert "message_key = breadcrumb_message_keys.get(page)" in source
-    assert '"label_key": None if dynamic_label else breadcrumb_message_keys.get(page)' in source
+    from frontend.webui.navigation_controller import NavigationController
+    assert 'label_key=lambda page: breadcrumb_message_keys.get(page)' in source
+    assert '"label_key": None if dynamic_label else self._label_key(page)' in inspect.getsource(NavigationController.register_navigation)
     assert "label = localized_breadcrumb_label(entry)" in source
     assert "label if label != entry.get(\"label\")" in source
     assert "erms-breadcrumb-row" in source
@@ -1325,7 +1328,7 @@ def test_translation_administration_reveals_filtered_matches_and_ignores_stale_r
     source = inspect.getsource(index)
     translation_source = source[
         source.index("async def select_translation_administration("):
-        source.index("async def guarded_page_navigation(")
+        source.index("guarded_page_navigation = navigation_controller.guarded_page_navigation")
     ]
     advanced_condition_source = source[
         source.index("def render_condition("):
@@ -1343,7 +1346,7 @@ def test_translation_administration_reveals_filtered_matches_and_ignores_stale_r
 
 
 def test_navigation_links_scroll_independently_when_the_drawer_is_taller_than_the_viewport():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert 'drawer_factory = ui.right_drawer if initial_direction == "rtl" else ui.left_drawer' in source
     assert 'drawer.props(remove="side")' not in source
     assert 'ui.scroll_area().classes("erms-nav-scroll w-full h-full")' in source
@@ -1353,7 +1356,7 @@ def test_navigation_links_scroll_independently_when_the_drawer_is_taller_than_th
 
 
 def test_empty_navigation_sections_are_hidden_with_their_links():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert "drawer_sections: list[tuple[Any, tuple[str, ...]]]" in source
     assert "bool(visible_links.intersection(section_keys))" in source
     assert "refresh_drawer_visibility(privileges)" in source
@@ -1361,7 +1364,7 @@ def test_empty_navigation_sections_are_hidden_with_their_links():
 
 
 def test_governance_custody_page_explains_qualification_and_empty_configuration():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert "Checks that someone can always manage and recover access to protected records" in source
     assert "At least one active person must be able to manage information" in source
     assert "Governance role enabled" in source
@@ -1403,7 +1406,7 @@ def test_governance_custody_page_explains_qualification_and_empty_configuration(
 
 
 def test_login_session_statuses_and_security_operations_use_compact_cards():
-    source = with_english_messages(inspect.getsource(index))
+    source = with_english_messages(inspect.getsource(index) + inspect.getsource(application_shell))
     assert 'localized_lifecycle_value(row.get("status"))' in source
     assert '"expired": "grey-7",' in source
     assert ').props("outline")' in source
@@ -1517,7 +1520,7 @@ def test_forced_password_change_precedes_authenticated_data_loading():
 
     password_flow = source[
         source.index("async def show_change_password()"):
-        source.index("async def sign_out()")
+        source.index("sign_out = session.sign_out")
     ]
     password_changed = password_flow.index(
         'await api.change_password(current.value or "", new.value or "")'
@@ -1980,8 +1983,8 @@ def test_resource_personal_sections_load_lazily_and_update_their_own_host():
 
 def test_committed_navigation_cancels_abandoned_reads():
     register_source = APP_SOURCE[
-        APP_SOURCE.index("def register_navigation("):
-        APP_SOURCE.index("async def breadcrumb_back(")
+        APP_SOURCE.index("def prepare_navigation("):
+        APP_SOURCE.index("async def restore_navigation_entry(")
     ]
     assert "api.cancel_pending_reads()" in register_source
 

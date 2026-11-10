@@ -68,6 +68,7 @@ async def assembled(user: User, monkeypatch, request):
     requests = []
     started = time.monotonic()
     user.api_clients = clients
+    user.api_requests = requests
     user.api_failures = []
     user.pending_requests = 0
     original = webui.ErmsApiClient
@@ -398,3 +399,84 @@ async def test_aggregation_reload_shows_the_restored_content_panel(assembled):
     cards = [e for e in user.client.elements.values() if isinstance(e, ui.card) and 'erms-card' in e.classes]
     assert len(cards) == 1
     assert cards[0].visible, 'B1: restored aggregation content exists but its parent panel remains hidden'
+
+
+@pytest.mark.parametrize('status', [403, 404])
+async def test_unavailable_breadcrumb_restores_previous_visit_in_real_root(assembled, monkeypatch, status):
+    """Controlled target failure through the assembled UI; other calls use real API."""
+    user = assembled
+    await login(user)
+    with user:
+        app.storage.user['navigation_trail'] = [
+            {'page': 'dashboard', 'label': 'Dashboard', 'state': {}},
+            {'page': 'aggregation-details', 'entity_id': 1, 'label': 'Unavailable aggregation', 'state': {}},
+            {'page': 'application-settings', 'label': 'Settings', 'state': {'settings_category': 'general'}},
+        ]
+    await user.open('/')
+    await user.should_see('Shared application settings, grouped by purpose.', retries=200)
+    await eventually(lambda: user.pending_requests == 0)
+    attempted = []
+    for client in user.api_clients:
+        original = client.get
+
+        async def controlled(resource, identity, _original=original):
+            if resource == 'aggregations' and identity == 1:
+                attempted.append(status)
+                raise ApiError(status, 'Controlled unavailable breadcrumb target')
+            return await _original(resource, identity)
+
+        monkeypatch.setattr(client, 'get', controlled)
+    click_one(user, [b for b in user.find(ui.button).elements if plain(b) == 'Unavailable aggregation'])
+    await user.should_see('Overview', retries=200)
+    await eventually(lambda: current_page(user) == 'dashboard' and user.pending_requests == 0)
+    assert attempted == [status]
+    with user:
+        assert [e['page'] for e in app.storage.user['navigation_trail']] == ['dashboard']
+    assert not user.api_failures
+
+
+async def test_temporary_password_recovery_and_abandonment_in_real_root(assembled):
+    from uuid import uuid4
+    user = assembled
+    await login(user)
+    api = user.api_clients[0]
+    email = 'recovery-' + uuid4().hex + '@test.invalid'
+    person = await api.request('POST', '/api/v1/users', json={
+        'name': 'Disposable recovery person', 'email': email, 'account_type': 'person'})
+    issued = await api.request('POST', f"/api/v1/auth/users/{person['id']}/temporary-password")
+    temporary = issued['temporary_password']
+    click_one(user, [b for b in user.find(ui.button).elements if plain(b) == 'Sign out'])
+    await eventually(lambda: any(d.value and any(isinstance(b, ui.button) and plain(b) == 'Continue to wathiq'
+                                               for b in d.descendants()) for d in user.find(ui.dialog).elements))
+
+    async def sign_in_restricted():
+        inputs = {plain(i): i for i in user.find(ui.input).elements}
+        with user:
+            inputs['Email address'].value = email
+            inputs['Password'].value = temporary
+        start = len(user.api_requests)
+        click_one(user, [b for b in user.find(ui.button).elements if plain(b) == 'Continue to wathiq'])
+        await user.should_see('Set a new password', retries=100)
+        await eventually(lambda: user.pending_requests == 0)
+        # NiceGUI's simulator lists child controls even inside a closed drawer.
+        drawers = [e for e in user.client.elements.values() if 'erms-drawer' in e.classes]
+        assert len(drawers) == 1 and not drawers[0].value
+        assert not [r for r in user.api_requests[start:] if r['path'] in (
+            '/api/v1/dashboard/summary', '/api/v1/application-settings', '/api/v1/favourites')]
+        return next(d for d in user.find(ui.dialog).elements if d.value and
+                    any(isinstance(e, ui.input) and plain(e) == 'Temporary password' for e in d.descendants()))
+
+    dialog = await sign_in_restricted()
+    click_one(user, [b for b in dialog.descendants() if isinstance(b, ui.button) and plain(b) == 'Back to sign in'])
+    await eventually(lambda: not dialog.value)
+    await eventually(lambda: user.pending_requests == 0)
+    dialog = await sign_in_restricted()
+    inputs = {plain(i): i for i in dialog.descendants() if isinstance(i, ui.input)}
+    with user:
+        inputs['Temporary password'].value = temporary
+        inputs['New password'].value = 'Changed-Test-Password-456!'
+        inputs['Confirm new password'].value = 'Changed-Test-Password-456!'
+    click_one(user, [b for b in dialog.descendants() if isinstance(b, ui.button) and plain(b) == 'Set new password'])
+    await user.should_see('Overview', retries=100)
+    await eventually(lambda: current_page(user) == 'dashboard' and user.pending_requests == 0)
+    assert not user.api_failures

@@ -13,6 +13,7 @@ import pytest
 from nicegui import ui
 from nicegui.testing import User
 from frontend.webui.api_client import ApiError
+from frontend.webui.navigation_controller import NavigationController
 from frontend.webui.audit_labels import audit_entity_type_label
 from frontend.webui.capabilities import can_navigate
 from frontend.webui import application_settings_controller as settings_feature
@@ -23,7 +24,7 @@ pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
 ROOT=Path(__file__).parents[4]
 TREE=ast.parse((ROOT/'frontend/webui/app.py').read_text())
-NAMES={'event_reference_value','event_value','event_entity_identity','event_actor_identity','can_open_event_entity','navigate_to_event_entity','show_event_detail','render_event_timeline','guarded_page_navigation'}
+NAMES={'event_reference_value','event_value','event_entity_identity','event_actor_identity','can_open_event_entity','navigate_to_event_entity','show_event_detail','render_event_timeline'}
 FUNCTIONS=[n for n in ast.walk(TREE) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in NAMES]
 AR={r['message_key']:r['translated_text'] for r in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
 OPERATIONS=['APPLICATION_SETTING_CHANGED','APPLICATION_SETTING_SEEDED','APPLICATION_SETTINGS_MIGRATION_COMPLETED']
@@ -51,6 +52,14 @@ async def test_old_settings_events_have_shared_labels_and_guarded_open_links(use
                    render_message=render_message,render_message_plain=render_message_plain,event_label=event_label,
                    audit_entity_type_label=audit_entity_type_label,error_message=str,format_timestamp=lambda v:v,
                    table_container=host)
+        navigation = NavigationController(
+            stored=[], write_trail=Mock(), prepare=Mock(), snapshot=Mock(), label_key=Mock(),
+            get_guard=lambda: scope['state'].get('discard_navigation_guard'),
+            clear_guard=lambda: scope['state'].pop('discard_navigation_guard', None),
+            cancel_reads=api.cancel_pending_reads, restore=Mock(), dashboard=Mock(),
+            render=Mock(), notify=ui.notify, on_error=str,
+        )
+        scope['guarded_page_navigation'] = navigation.guarded_page_navigation
         scope['application_settings_controller']=settings_feature.ApplicationSettingsController(
             api=api,container=host,principal=lambda:scope['auth_state']['principal'],
             selected=lambda:True,enter=lambda:None,persist_category=lambda:None,

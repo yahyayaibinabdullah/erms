@@ -83,8 +83,14 @@ def check_navigation(page):
         page.capture('aggregation-restored-' + page.language)
     with page.check('existing relationship types table renders with bounded results'):
         page.activate(page.one('button.erms-nav-link',page.t('relationships.ui.catalogue')))
-        table=page.one('.erms-page-table')
-        page.wait.until(lambda _:len(table.find_elements('css selector','tbody tr'))>0)
+        page.wait.until(lambda _: page.t('relationships.ui.catalogue') in
+                        page.one('.erms-breadcrumb-row [aria-current=page]').text)
+        # The previous aggregation view also has an erms-page-table. Reacquire
+        # the current table while waiting instead of polling a detached element.
+        def loaded_table(_):
+            tables = page.visible('.erms-page-table')
+            return tables[0] if len(tables) == 1 and tables[0].find_elements('css selector', 'tbody tr') else False
+        table = page.wait.until(loaded_table)
         assert len(table.find_elements('css selector','tbody tr'))<=25
         page.capture('relationship-types-table-'+page.language)
     page.settings()

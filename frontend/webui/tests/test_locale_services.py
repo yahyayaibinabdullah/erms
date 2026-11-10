@@ -230,7 +230,8 @@ def test_entity_page_startup_parallelizes_requests_and_bounds_relationship_resol
 
 
 def test_navigation_and_translation_administration_route_visible_copy_through_catalogue():
-    source = inspect.getsource(index)
+    from frontend.webui import application_shell
+    source = inspect.getsource(index) + inspect.getsource(application_shell)
     for key in (
         "navigation.section.records",
         "navigation.section.organization",

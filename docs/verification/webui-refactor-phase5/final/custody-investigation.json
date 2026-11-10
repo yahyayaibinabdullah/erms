@@ -1,0 +1,30 @@
+{
+  "initial_failure": "Final Edge attempt 1 stayed at the custody loading message and timed out before a custody HTTP request appeared in the API log. No browser error was recorded. It had no UI-client diagnostic trace.",
+  "repeat_evidence": [
+    {
+      "run": "custody-transitions-original",
+      "complete": true,
+      "checks": 12,
+      "request_errors": [],
+      "custody_request_count": 12,
+      "custody_median_ms": 28.44,
+      "custody_max_ms": 48.05,
+      "whole_transition_median_ms": 2857.715,
+      "whole_transition_max_ms": 6531.46
+    },
+    {
+      "run": "custody-transitions-after",
+      "complete": true,
+      "checks": 12,
+      "request_errors": [],
+      "custody_request_count": 12,
+      "custody_median_ms": 21.08,
+      "custody_max_ms": 52.63,
+      "whole_transition_median_ms": 3105.93,
+      "whole_transition_max_ms": 4425.42
+    }
+  ],
+  "conclusion": "The timeout did not recur in the full Edge rerun or the matched 12-transition diagnostics. Cause remains unresolved; do not classify it as an application fix or a proven existing defect.",
+  "acceptance_decision": "The user explicitly approved marking Phase 5 complete with the first loading problem recorded as not replicable in subsequent checks. This exception is limited to this observation; diagnostics remain available for any recurrence.",
+  "interrupted_original_full_run": "The preliminary original-source full diagnostic was deliberately stopped to avoid overlapping identical local email recipients. Its database was dropped; it is not a passing acceptance run."
+}

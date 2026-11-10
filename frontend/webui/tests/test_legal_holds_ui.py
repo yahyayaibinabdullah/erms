@@ -8,7 +8,7 @@ HOLDS_API = Path(__file__).parents[3] / "backend" / "services" / "api" / "holds.
 
 
 def test_holds_workspace_and_navigation_are_wired():
-    source = with_english_messages(APP.read_text(encoding="utf-8"))
+    source = with_english_messages(APP.read_text(encoding="utf-8") + APP.with_name("application_shell.py").read_text())
     assert '"Holds", "gavel", navigation_key="holds"' in source
     assert 'async def select_holds()' in source
     assert 'async def select_hold_details(hold_id: int)' in source

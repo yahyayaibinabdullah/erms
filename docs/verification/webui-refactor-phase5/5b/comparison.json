@@ -1,0 +1,546 @@
+{
+  "chrome": {
+    "shell_observations": 19,
+    "geometry_style_differences": [],
+    "focus_differences_excluding_body_document_text": [],
+    "screenshots": [
+      {
+        "file": "shell-expanded-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-overflow-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-collapsed-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-account-menu-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 282,
+        "difference_bounds_below_header": [
+          1248,
+          78,
+          1286,
+          88
+        ]
+      },
+      {
+        "file": "shell-preferences-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 282,
+        "difference_bounds_below_header": [
+          1248,
+          78,
+          1286,
+          88
+        ]
+      },
+      {
+        "file": "shell-preferences-return-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 282,
+        "difference_bounds_below_header": [
+          1248,
+          78,
+          1286,
+          88
+        ]
+      },
+      {
+        "file": "shell-narrow-closed-en.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-narrow-open-en.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-wide-after-close-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-expanded-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-overflow-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-collapsed-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-account-menu-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 406,
+        "difference_bounds_below_header": [
+          138,
+          78,
+          193,
+          91
+        ]
+      },
+      {
+        "file": "shell-preferences-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 405,
+        "difference_bounds_below_header": [
+          138,
+          78,
+          193,
+          91
+        ]
+      },
+      {
+        "file": "shell-preferences-return-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 406,
+        "difference_bounds_below_header": [
+          138,
+          78,
+          193,
+          91
+        ]
+      },
+      {
+        "file": "shell-narrow-closed-ar.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-narrow-open-ar.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-wide-after-close-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-restricted-account-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      }
+    ],
+    "keyboard_observations": 58,
+    "keyboard_differences_excluding_focus_animation_opacity": [],
+    "focus_animation_opacity_differences": [
+      {
+        "name": "required-reason-validation",
+        "language": "en",
+        "before": "0.219892",
+        "after": "0.22"
+      },
+      {
+        "name": "email-tab-0",
+        "language": "en",
+        "before": "0.218023",
+        "after": "0.216758"
+      },
+      {
+        "name": "email-invalid-recipient",
+        "language": "en",
+        "before": "0.22",
+        "after": "0.219893"
+      },
+      {
+        "name": "email-next-tab",
+        "language": "en",
+        "before": "0.218024",
+        "after": "0.218022"
+      },
+      {
+        "name": "browse-tab",
+        "language": "en",
+        "before": "0.216756",
+        "after": "0.215079"
+      },
+      {
+        "name": "browse-next-tab",
+        "language": "en",
+        "before": "0.218025",
+        "after": "0.215082"
+      },
+      {
+        "name": "browse-reverse-tab",
+        "language": "en",
+        "before": "0.218024",
+        "after": "0.216757"
+      },
+      {
+        "name": "breadcrumb-next-tab",
+        "language": "en",
+        "before": "0.218026",
+        "after": "0.218019"
+      },
+      {
+        "name": "audit-next-tab",
+        "language": "en",
+        "before": "0.218023",
+        "after": "0.218025"
+      },
+      {
+        "name": "email-tab-0",
+        "language": "ar",
+        "before": "0.218028",
+        "after": "0.216758"
+      },
+      {
+        "name": "email-tab-1",
+        "language": "ar",
+        "before": "0.218025",
+        "after": "0.216757"
+      },
+      {
+        "name": "email-tab-3",
+        "language": "ar",
+        "before": "0.218027",
+        "after": "0.218023"
+      },
+      {
+        "name": "email-invalid-recipient",
+        "language": "ar",
+        "before": "0.22",
+        "after": "0.219552"
+      },
+      {
+        "name": "email-next-tab",
+        "language": "ar",
+        "before": "0.218025",
+        "after": "0.218027"
+      },
+      {
+        "name": "browse-tab",
+        "language": "ar",
+        "before": "0.216751",
+        "after": "0.218028"
+      },
+      {
+        "name": "browse-next-tab",
+        "language": "ar",
+        "before": "0.218021",
+        "after": "0.216758"
+      },
+      {
+        "name": "browse-reverse-tab",
+        "language": "ar",
+        "before": "0.216761",
+        "after": "0.216748"
+      },
+      {
+        "name": "breadcrumb-next-tab",
+        "language": "ar",
+        "before": "0.216756",
+        "after": "0.218028"
+      },
+      {
+        "name": "audit-next-tab",
+        "language": "ar",
+        "before": "0.216753",
+        "after": "0.218026"
+      }
+    ]
+  },
+  "edge": {
+    "shell_observations": 19,
+    "geometry_style_differences": [],
+    "focus_differences_excluding_body_document_text": [],
+    "screenshots": [
+      {
+        "file": "shell-expanded-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-overflow-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-collapsed-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-account-menu-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 183,
+        "difference_bounds_below_header": [
+          1254,
+          78,
+          1283,
+          88
+        ]
+      },
+      {
+        "file": "shell-preferences-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 183,
+        "difference_bounds_below_header": [
+          1254,
+          78,
+          1283,
+          88
+        ]
+      },
+      {
+        "file": "shell-preferences-return-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 183,
+        "difference_bounds_below_header": [
+          1254,
+          78,
+          1283,
+          88
+        ]
+      },
+      {
+        "file": "shell-narrow-closed-en.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-narrow-open-en.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-wide-after-close-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-expanded-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-overflow-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-collapsed-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-account-menu-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 293,
+        "difference_bounds_below_header": [
+          140,
+          78,
+          193,
+          91
+        ]
+      },
+      {
+        "file": "shell-preferences-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 293,
+        "difference_bounds_below_header": [
+          140,
+          78,
+          193,
+          91
+        ]
+      },
+      {
+        "file": "shell-preferences-return-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 293,
+        "difference_bounds_below_header": [
+          140,
+          78,
+          193,
+          91
+        ]
+      },
+      {
+        "file": "shell-narrow-closed-ar.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-narrow-open-ar.png",
+        "header_crop_y": 110,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-wide-after-close-ar.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      },
+      {
+        "file": "shell-restricted-account-en.png",
+        "header_crop_y": 72,
+        "changed_pixels": 0,
+        "difference_bounds_below_header": null
+      }
+    ],
+    "keyboard_observations": 58,
+    "keyboard_differences_excluding_focus_animation_opacity": [],
+    "focus_animation_opacity_differences": [
+      {
+        "name": "email-tab-0",
+        "language": "en",
+        "before": "0.216754",
+        "after": "0.218026"
+      },
+      {
+        "name": "email-tab-1",
+        "language": "en",
+        "before": "0.218021",
+        "after": "0.218028"
+      },
+      {
+        "name": "email-invalid-recipient",
+        "language": "en",
+        "before": "0.219894",
+        "after": "0.22"
+      },
+      {
+        "name": "email-next-tab",
+        "language": "en",
+        "before": "0.216752",
+        "after": "0.218022"
+      },
+      {
+        "name": "browse-tab",
+        "language": "en",
+        "before": "0.216754",
+        "after": "0.216752"
+      },
+      {
+        "name": "browse-next-tab",
+        "language": "en",
+        "before": "0.218019",
+        "after": "0.216751"
+      },
+      {
+        "name": "browse-reverse-tab",
+        "language": "en",
+        "before": "0.21676",
+        "after": "0.216747"
+      },
+      {
+        "name": "breadcrumb-next-tab",
+        "language": "en",
+        "before": "0.216753",
+        "after": "0.216751"
+      },
+      {
+        "name": "audit-next-tab",
+        "language": "en",
+        "before": "0.216755",
+        "after": "0.218028"
+      },
+      {
+        "name": "required-reason-validation",
+        "language": "ar",
+        "before": "0.22",
+        "after": "0.21955"
+      },
+      {
+        "name": "email-tab-0",
+        "language": "ar",
+        "before": "0.218026",
+        "after": "0.21675"
+      },
+      {
+        "name": "email-tab-1",
+        "language": "ar",
+        "before": "0.216756",
+        "after": "0.218025"
+      },
+      {
+        "name": "email-invalid-recipient",
+        "language": "ar",
+        "before": "0.22",
+        "after": "0.219893"
+      },
+      {
+        "name": "email-next-tab",
+        "language": "ar",
+        "before": "0.218022",
+        "after": "0.216758"
+      },
+      {
+        "name": "browse-tab",
+        "language": "ar",
+        "before": "0.216759",
+        "after": "0.218022"
+      },
+      {
+        "name": "browse-next-tab",
+        "language": "ar",
+        "before": "0.218025",
+        "after": "0.21675"
+      },
+      {
+        "name": "browse-reverse-tab",
+        "language": "ar",
+        "before": "0.216751",
+        "after": "0.216752"
+      },
+      {
+        "name": "breadcrumb-next-tab",
+        "language": "ar",
+        "before": "0.218026",
+        "after": "0.215084"
+      },
+      {
+        "name": "audit-next-tab",
+        "language": "ar",
+        "before": "0.216752",
+        "after": "0.216758"
+      }
+    ]
+  },
+  "interpretation": {
+    "header": "Animated canvas remains live; geometry, fonts, directions and original screenshots retained. Header excluded only from pixel count.",
+    "body_text": "BODY.innerText is full document text, including previous-sign-in timestamp and transient tooltips; focus tag and label compared.",
+    "focus_opacity": "Only opacity differs, by less than 0.003. Existing Quasar CSS transitions opacity over 0.4 seconds to 0.22; keyboard observation waits 0.35 seconds. All other focus fields match exactly.",
+    "account_menu": "Differences below header restricted to real previous-sign-in timestamp in account menu, also visible behind Preferences."
+  }
+}

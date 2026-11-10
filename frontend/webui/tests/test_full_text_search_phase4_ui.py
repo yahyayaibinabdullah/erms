@@ -8,7 +8,7 @@ LOCAL_STACK = Path(__file__).parents[3] / "run-local-stack.sh"
 
 
 def test_global_search_header_results_and_safe_snippets_are_present():
-    source = with_english_messages(APP.read_text())
+    source = with_english_messages(APP.read_text() + APP.with_name("application_shell.py").read_text())
     assert 'placeholder="Search records, files and aggregations"' in source
     assert 'global_search_input.on("keydown.enter"' in source
     assert 'classes("erms-global-search-wrap no-wrap")' in source

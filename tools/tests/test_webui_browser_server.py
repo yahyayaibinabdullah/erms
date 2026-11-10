@@ -67,3 +67,54 @@ def test_held_response_is_released_explicitly_before_reaching_the_api(tmp_path):
         await asyncio.wait_for(task,1)
     asyncio.run(run())
     assert reached==[True]
+
+
+def test_client_diagnostics_preserve_results_and_never_log_credentials_or_payloads(tmp_path, monkeypatch):
+    import httpx
+    from frontend.webui.api_client import ErmsApiClient
+    from tools.webui_browser_server import install_client_diagnostics
+    for name in ('request', 'cancel_pending_reads', 'close'):
+        monkeypatch.setattr(ErmsApiClient, name, getattr(ErmsApiClient, name))
+    install_client_diagnostics(tmp_path)
+
+    async def handler(request):
+        return httpx.Response(200, json={'private': 'sensitive-response-fixture'})
+    async def run():
+        client = ErmsApiClient('http://fixture', transport=httpx.MockTransport(handler))
+        client.set_session_token('sensitive-token-fixture')
+        try:
+            return await client.request('POST', '/fixture', json={'secret': 'sensitive-body-fixture'})
+        finally:
+            await client.close()
+    assert asyncio.run(run()) == {'private': 'sensitive-response-fixture'}
+    raw = (tmp_path / 'ui-client-events.jsonl').read_text()
+    assert 'sensitive-' not in raw
+    events = list(map(json.loads, raw.splitlines()))
+    assert [e['event'] for e in events] == ['cancel-reads', 'request-start', 'request-finish', 'close']
+
+
+def test_client_diagnostics_preserve_read_cancellation(tmp_path, monkeypatch):
+    import httpx
+    import pytest
+    from frontend.webui.api_client import ErmsApiClient
+    from tools.webui_browser_server import install_client_diagnostics
+    for name in ('request', 'cancel_pending_reads', 'close'):
+        monkeypatch.setattr(ErmsApiClient, name, getattr(ErmsApiClient, name))
+    install_client_diagnostics(tmp_path)
+
+    async def run():
+        started = asyncio.Event()
+        async def handler(request):
+            started.set()
+            await asyncio.Event().wait()
+        client = ErmsApiClient('http://fixture', transport=httpx.MockTransport(handler))
+        task = asyncio.create_task(client.request('GET', '/fixture'))
+        await started.wait()
+        client.cancel_pending_reads()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        await client.close()
+    asyncio.run(run())
+    events = list(map(json.loads, (tmp_path / 'ui-client-events.jsonl').read_text().splitlines()))
+    assert any(e['event'] == 'cancel-reads' and e['pending'] == 1 for e in events)
+    assert any(e['event'] == 'request-error' and e['error_type'] == 'CancelledError' for e in events)

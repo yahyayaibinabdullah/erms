@@ -513,6 +513,23 @@ with psycopg.connect(url) as c:
         self.driver.set_window_size(outer['width']+1440-width,outer['height']+1000-height)
         with self.check('real sign-in and Settings drawer caller'):
             self.login();self.settings()
+        if self.args.scope == 'session':
+            from tools.webui_browser_session import check_sessions
+            check_sessions(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'shell':
+            from tools.webui_browser_shell import check_shell, check_restricted_shell
+            for language in ('en', 'ar'):
+                if language == 'ar':
+                    self.language_change('ar')
+                check_shell(self)
+            check_restricted_shell(self)
+            with self.check('shell journey browser errors and API failures'):
+                self.errors()
+                assert all(e['status'] is not None and e['status'] < 400 for e in self.events())
+            self.report['complete'] = True
+            return
         if self.args.scope == 'keyboard':
             from tools.webui_browser_keyboard import check_keyboard
             for language in ('en', 'ar'):
@@ -557,7 +574,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

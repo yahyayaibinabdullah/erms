@@ -107,7 +107,7 @@ def test_inspector_does_not_assign_keys_to_user_authored_values():
 
 def test_inspector_can_always_be_disabled_from_the_user_menu():
     assert "closest('[data-inspector-ignore]')" in INSPECTOR_SOURCE
-    assert "data-inspector-ignore=true" in APP_SOURCE
+    assert "data-inspector-ignore=true" in (Path(__file__).parents[1] / "application_shell.py").read_text()
 
 
 def test_inspector_metadata_cannot_flash_visible_translation_keys():

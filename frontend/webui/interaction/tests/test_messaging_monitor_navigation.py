@@ -15,6 +15,8 @@ from frontend.webui.i18n_catalogue import render_message, render_message_plain, 
 from frontend.webui.audit_labels import audit_entity_type_label
 from frontend.webui.api_client import ApiError
 from frontend.webui.messaging_monitor import messaging_monitor
+from frontend.webui.navigation_controller import NavigationController
+from unittest.mock import Mock
 from frontend.webui.remote_select import RemoteSelect
 from frontend.webui.audit_actor_select import bind_audit_actor_select, actor_condition
 from nicegui import events as nicegui_events
@@ -25,11 +27,17 @@ pytestmark = pytest.mark.asyncio
 
 def application_audit_callback(namespace):
     tree = ast.parse((Path(__file__).parents[2] / "app.py").read_text())
-    guard = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef)
-                 and n.name == "guarded_page_navigation")
+    navigation = NavigationController(
+        stored=[], write_trail=Mock(), prepare=Mock(), snapshot=Mock(), label_key=Mock(),
+        get_guard=lambda: namespace['state'].get('discard_navigation_guard'),
+        clear_guard=lambda: namespace['state'].pop('discard_navigation_guard', None),
+        cancel_reads=namespace['api'].cancel_pending_reads, restore=Mock(), dashboard=Mock(),
+        render=Mock(), notify=ui.notify, on_error=str,
+    )
+    namespace['guarded_page_navigation'] = navigation.guarded_page_navigation
     audit_page = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef)
                       and n.name == "select_audit_trail")
-    exec(compile(ast.Module(body=[guard, audit_page], type_ignores=[]), "app.py", "exec"), namespace)
+    exec(compile(ast.Module(body=[audit_page], type_ignores=[]), "app.py", "exec"), namespace)
     monitor = next(n for n in ast.walk(tree) if isinstance(n, ast.Call)
                    and isinstance(n.func, ast.Name) and n.func.id == "messaging_monitor")
     callback = next(k.value for k in monitor.keywords if k.arg == "open_audit")

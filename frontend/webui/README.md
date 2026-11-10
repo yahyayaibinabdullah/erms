@@ -3,6 +3,33 @@
 The frontend is an independently deployable NiceGUI service. It communicates
 with the FastAPI service over HTTP and does not access PostgreSQL directly.
 
+## Shared infrastructure boundary
+
+Shared shell construction now lives in `application_shell.py`. Its header,
+footer, drawer and content builders run inside the current NiceGUI page context
+and return explicit handles to the existing controls. They do not receive
+application state, create routes or perform API requests. `app.py` retains its
+existing control aliases and callback wiring during the incremental migration.
+See the [Phase 5 verification report](../../docs/webui-refactor-phase5-verification.md)
+for completed local checks and the accepted, non-reproduced Edge loading observation.
+
+`navigation_controller.py` owns the per-client trail, persistence calls, registration,
+breadcrumb navigation, Back and existing discard guards. `navigation_data.py`
+contains the pure trail helpers. Feature snapshots, dispatch, localized breadcrumb
+rendering and shell updates remain explicit host callbacks during migration.
+There are no entity routes or new browser-history entries.
+
+`session_context.py` supplies the existing per-page API client, identity and current
+locale, and coordinates sign-in, sign-out and unauthorized cleanup. It adds no
+cache. Its small identity mapping is a temporary host adapter; features should
+receive a principal reader rather than mutate it. Private feature-cache cleanup,
+password/localization bootstrap and the separate live-message connection retain
+their existing owners and order. Never share a context/controller between clients.
+
+These modules do not import `app.py` or receive its large state dictionary.
+Remaining host callbacks will move with their feature owners; they are not a
+second implementation of the extracted infrastructure.
+
 ## Application Settings pilot boundary
 
 `application_settings_controller.py` owns Settings authorization, its four entry
@@ -20,8 +47,9 @@ the feature's identity/view checks reject abandoned callbacks. Accepted writes
 retain the renderer's existing behavior.
 
 See the [Phase 3 verification report](../../docs/webui-refactor-phase3-verification.md)
-before extending this pattern to other features. Shared infrastructure extraction
-requires the separate Phase 4 review.
+before extending this pattern to other features. The
+[Phase 4 review](../../docs/webui-refactor-phase4-review.md) defines the shared
+infrastructure gates and incremental migration order.
 
 ## Layout and RTL troubleshooting
 
@@ -240,6 +268,14 @@ For the supplemental keyboard/focus baseline, use `--browser chrome
 in English and Arabic, including the active control and unchanged screenshots
 for human review. It sends no email. It supplements the full workflow run and
 does not introduce new focus behavior or constitute an accessibility redesign.
+
+The supplemental `--browser-scope shell` measures header, drawer, breadcrumbs,
+account controls and narrow-screen behavior in English and Arabic. The
+`--browser-scope session` checks independent clients, reconnect, old-identity
+responses, sign-out and the existing administrator-issued temporary-password
+recovery flow. Both use disposable databases and supplement the full gate.
+The current refactor acceptance scope is Chrome and Edge only; Firefox, Safari
+and CI remain deferred by the user.
 
 Both commands save logs and XML under `.runtime/`; `--output` selects a new
 evidence directory and refuses to overwrite an existing one. The API runner

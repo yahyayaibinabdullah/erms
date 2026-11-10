@@ -63,7 +63,7 @@ def main():
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -85,7 +85,7 @@ def main():
             ROOT / 'frontend/webui/i18n/messages.ar.generated.json',
             *[ROOT / 'tools' / filename for filename in (
                 'run_webui_integration.py', 'check_webui_browser.py',
-                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_server.py',
+                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_server.py',
                 'seed_webui_regression.py')],
         ]
         (output / 'source-environment.json').write_text(json.dumps({
@@ -182,7 +182,8 @@ def main():
                     "import os,runpy,functools; from nicegui import app,ui; from starlette.middleware.sessions import SessionMiddleware; "
                     f"ui.run=functools.partial(ui.run,fd={ui_socket.fileno()}); "
                     "app.add_middleware(SessionMiddleware, secret_key=os.environ['WEBUI_STORAGE_SECRET'], session_cookie='erms_refactor_disposable'); "
-                    + ("from tools.webui_browser_server import BrowserDiagnostics; app.add_middleware(BrowserDiagnostics); " if args.browser else "") +
+                    + ("from tools.webui_browser_server import BrowserDiagnostics, install_client_diagnostics; app.add_middleware(BrowserDiagnostics); "
+                       f"install_client_diagnostics({str(output)!r}); " if args.browser else "") +
                     "runpy.run_module('frontend.webui.app',run_name='__main__')"],
                     pass_fds=(ui_socket.fileno(),))
                 wait_ready(webui, ui_url + '/')

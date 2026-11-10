@@ -1,6 +1,6 @@
 # WebUI architecture and migration specification
 
-**Status:** Approved scope; Phases 1–3 complete for the approved local scope; Phase 4 review pending
+**Status:** Phases 1–5 complete for the approved local scope; Phase 6 not started
 **Date:** 10 November 2026
 
 ## 1 Purpose and scope
@@ -173,6 +173,8 @@ combined checks provide the evidence required to accept the refactor.
 
 - [Phase 1 inventory and baseline](../docs/webui-refactor-phase1-baseline.md)
 - [Phase 2 local verification and deferred coverage](../docs/webui-refactor-phase2-verification.md)
+- [Phase 3 pilot verification](../docs/webui-refactor-phase3-verification.md)
+- [Phase 4 approach review and proposed Phase 5 sequence](../docs/webui-refactor-phase4-review.md)
 - [WebUI performance contract](../docs/webui-performance.md)
 - [WebUI design language](../docs/webui-design-language.md)
 - [Persistent navigation breadcrumbs](persistent-navigation-breadcrumbs.md)
@@ -210,6 +212,40 @@ single-page shell, routes and navigation behavior remain unchanged. The
 [Phase 3 verification report](../docs/webui-refactor-phase3-verification.md)
 records the implementation, repeated suites, real-API checks, Chrome/Edge
 workflows, English/Arabic visual and focus comparisons, and database cleanup.
-Firefox, Safari and CI remain deferred. All Phase 3 changes are local and
-uncommitted on the user's existing branch. Phase 4's explicit review decision
-remains pending; broader extraction has not started.
+Firefox, Safari and CI remain deferred. At the Phase 3 handoff, its changes were
+local and uncommitted on the user's existing branch, with Phase 4 review still
+pending. The reviewed Phase 3 revision is recorded in the Phase 4 report below.
+
+## 10 Phase 4 approach review
+
+The [Phase 4 review](../docs/webui-refactor-phase4-review.md) recommends retaining
+the pilot's explicit feature boundaries and dividing Phase 5 into smaller
+steps: navigation data helpers, shell presentation, navigation coordination,
+then session lifecycle. Each step adds missing baseline checks before moving
+code and must pass its acceptance checks before the next begins. This retains
+the eight phases and the existing prohibition on functionality or UX changes.
+The user authorized Phase 5 on 10 November 2026. Its smaller steps were completed
+sequentially; see the [Phase 5 verification report](../docs/webui-refactor-phase5-verification.md).
+
+
+## 11 Phase 5 completion
+
+Phase 5A–5D shared infrastructure is complete locally and the final Chrome/Edge,
+unit, interaction and assembled checks pass. The first Edge run encountered a
+custody-loading timeout. After diagnostic logging was added, it did not recur in
+the full Edge rerun or in 12 transitions each on the original and refactored code.
+The cause remains unresolved; no fix or proven existing defect is claimed.
+
+The user explicitly approved marking Phase 5 complete with this non-reproduced
+loading problem recorded. This exception applies only to that observation; the
+general regression gate and prohibition on functionality or UX changes remain
+unchanged. Diagnostics are retained for any recurrence. See the verification
+report for evidence. Phase 6 has not started; Firefox, Safari and CI remain deferred.
+
+## 12 Proposed Phase 6 sequence — awaiting approval
+
+The [Phase 6 plan](../docs/webui-refactor-phase6-plan.md) proposes ordered steps
+6A–6U based on the inventory, pilot and shared-infrastructure results. It assigns
+each remaining feature, its supporting controls and connected workflows to an
+owner, with baseline and acceptance checks before progressing. The plan is
+submitted for user approval; it does not authorize starting Phase 6 implementation.

@@ -21,7 +21,14 @@ from nicegui import app, background_tasks, context, events, ui
 from .api_client import ApiError, ErmsApiClient
 from .remote_select import RemoteSelect
 from .relationship_select import relationship_select
+from .application_shell import build_header, build_footer, build_drawer, build_content
+from .navigation_data import (
+    NAVIGATION_TRAIL_LIMIT, NAVIGATION_VISIBLE_LIMIT,
+    append_navigation_entry, navigation_entry_identity, visible_navigation_indices,
+)
 from .navigation_drawer import navigation_menu
+from .navigation_controller import NavigationController
+from .session_context import SessionContext
 from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .classification_workspace import classification_workspace
 from .application_settings import disposition_warning_panel
@@ -101,8 +108,6 @@ RELATIONSHIP_DISPLAY_FIELDS = frozenset({
     "profile_display",
     "scheme_display",
 })
-NAVIGATION_TRAIL_LIMIT = 20
-NAVIGATION_VISIBLE_LIMIT = 5
 STOP_PROPAGATION_CLICK_HANDLER = "(event) => { event.stopPropagation(); emit(); }"
 
 ADVANCED_SEARCH_FIELDS: dict[str, dict[str, tuple[str, str, bool]]] = {
@@ -515,34 +520,6 @@ LAST_CUSTODIAN_MESSAGE = (
 )
 
 
-def navigation_entry_identity(entry: dict[str, Any]) -> tuple[str, int | None]:
-    return str(entry["page"]), entry.get("entity_id")
-
-
-def append_navigation_entry(
-    trail: list[dict[str, Any]], entry: dict[str, Any],
-    *, limit: int = NAVIGATION_TRAIL_LIMIT,
-) -> list[dict[str, Any]]:
-    """Append a page visit, collapsing only a consecutive logical duplicate."""
-    updated = [dict(item) for item in trail]
-    if updated and navigation_entry_identity(updated[-1]) == navigation_entry_identity(entry):
-        updated[-1] = {**updated[-1], **entry}
-    else:
-        updated.append(dict(entry))
-    return updated[-limit:]
-
-
-def visible_navigation_indices(
-    length: int, *, limit: int = NAVIGATION_VISIBLE_LIMIT,
-) -> tuple[list[int], list[int]]:
-    """Return visible and overflow indices while retaining first and recent pages."""
-    if length <= limit:
-        return list(range(length)), []
-    recent_count = max(1, limit - 2)
-    visible = [0, *range(length - recent_count - 1, length)]
-    visible = sorted(set(visible))
-    hidden = [index for index in range(length) if index not in visible]
-    return visible, hidden
 USER_AVATAR_BACKGROUND = "#e3f2fd"
 USER_AVATAR_TEXT = "#15527a"
 LIFECYCLE_ACTION_BUTTONS = (
@@ -1456,7 +1433,16 @@ def index(q: str = "") -> None:
     page_client.on_disconnect(api.close)
     page_client.on_disconnect(lambda: clear_active_messages(page_client.id))
     page_client.on_disconnect(lambda: clear_locale_context(page_client.id))
-    auth_state: dict[str, Any] = {"principal": None}
+    session = SessionContext(
+        api=api, storage=lambda: app.storage.user,
+        locale=lambda: state.get("localization") or {},
+        reset_private_views=lambda: reset_private_views(),
+        reset_navigation=lambda: reset_navigation_session(),
+        clear_identity=lambda: clear_signed_in_identity(),
+        close_menu=lambda: user_menu.close(), open_login=lambda: login_dialog.open(),
+        set_connection_status=lambda connected: set_connection_status(connected),
+    )
+    auth_state = session.identity
     message_live = {"adapter": None, "api": None, "token": None, "notifications": []}
     cached_localization = app.storage.user.get("localization_context") or {}
     cached_messages = app.storage.user.get("localization_messages") or {}
@@ -1562,14 +1548,20 @@ def index(q: str = "") -> None:
         "personal_section_hosts": {},
         "collection_pages": {},
     }
-    stored_navigation = app.storage.user.get("navigation_trail")
-    navigation_state: dict[str, Any] = {
-        "trail": [
-            item for item in (stored_navigation if isinstance(stored_navigation, list) else [])
-            if isinstance(item, dict) and isinstance(item.get("page"), str)
-        ][-NAVIGATION_TRAIL_LIMIT:],
-        "restoring": False,
-    }
+    navigation_controller = NavigationController(
+        stored=app.storage.user.get("navigation_trail"),
+        write_trail=lambda trail: app.storage.user.__setitem__("navigation_trail", trail),
+        prepare=lambda page: prepare_navigation(page),
+        snapshot=lambda: current_navigation_snapshot(),
+        label_key=lambda page: breadcrumb_message_keys.get(page),
+        get_guard=lambda: state.get("discard_navigation_guard"),
+        clear_guard=lambda: state.pop("discard_navigation_guard", None),
+        cancel_reads=api.cancel_pending_reads,
+        restore=lambda entry: restore_navigation_entry(entry),
+        dashboard=lambda: select_dashboard(),
+        render=lambda: render_navigation_breadcrumbs(),
+        notify=ui.notify, on_error=error_message,
+    )
 
     def bind_remote_relationship_select(
         control: Any,
@@ -3662,95 +3654,37 @@ def index(q: str = "") -> None:
         }
     """)
 
-    with ui.header().classes("erms-header items-center gap-3") as shell_header:
-        header_network = ui.element("canvas").classes(
-            "wathiq-network-canvas wathiq-header-network"
-        ).props("aria-hidden=true")
-        header_network.set_visibility(False)
-        with ui.row().classes("erms-brand items-center no-wrap").props('aria-label=' + repr(render_message("webui.index.accessible_name.wathiq_faa0862c"))) as brand_row:
-            brand_mark = ui.image("/static/brand/wathiq-mark.svg?v=2").classes("erms-brand-mark").props(
-                "fit=contain alt='" + render_message("webui.index.accessible_name.wathiq_faa0862c") + "'"
-            )
-            brand_name = ui.label(render_message("webui.index.label.wathiq_d1dfb800")).classes("erms-brand-name")
-        with ui.row().classes("erms-global-search-wrap no-wrap") as global_search_wrap:
-            global_search_input = ui.input(
-                placeholder=render_message("webui.index.input.search_records_files_and_aggregations_8808d362"),
-            ).props(
-                'outlined dense clearable aria-label=' + repr(render_message("webui.index.accessible_name.search_records_files_and_aggregations_f4df7ac8"))
-            ).classes("erms-global-search")
-            global_search_input.value = q.strip()
-            global_search_submit = ui.button(icon="search").props(
-                'flat round color=blue-grey-8 aria-label=' + repr(render_message("webui.index.accessible_name.submit_global_search_d3d1329e"))
-            ).tooltip(render_message("webui.index.tooltip.search_93d9b9f9"))
-        global_search_wrap.set_visibility(False)
-        ui.space()
-        message_unread_button = ui.button(icon="inbox", on_click=lambda: select_messages("inbox")).props("flat no-caps")
-        message_unread_button.set_visibility(False)
-        user_menu_button = ui.button(icon="account_circle").props(
-            "flat round color=blue-grey-9 data-inspector-ignore=true"
-        )
-        with user_menu_button, ui.menu() as user_menu:
-            with ui.column().classes("erms-profile-menu w-72 p-3 gap-2"):
-                with ui.row().classes("erms-profile-identity-row w-full items-center gap-3 no-wrap"):
-                    with ui.avatar(size="44px").style(
-                        f"background:{USER_AVATAR_BACKGROUND} !important;"
-                        f"color:{USER_AVATAR_TEXT} !important"
-                    ) as current_user_avatar:
-                        current_user_avatar_initials = ui.label("?").classes("font-medium")
-                    with ui.column().classes("erms-profile-identity-copy gap-0 min-w-0"):
-                        current_user_name = ui.label(render_message("webui.index.label.not_signed_in_589ae00f")).classes(
-                            "font-semibold line-clamp-1"
-                        )
-                        current_user_email = ui.label().classes(
-                            "erms-profile-email text-xs text-slate-500 line-clamp-1"
-                        )
-                ui.separator()
-                ui.label(render_message("webui.index.label.previous_sign_in_2c39a842")).classes("component-meta-label")
-                current_user_last_login = ui.label(render_message("webui.index.label.first_sign_in_63bba234")).classes("text-sm text-slate-600")
-                ui.separator()
-                ui.label(render_message("webui.index.label.assigned_roles_891e6566")).classes("component-meta-label")
-                current_user_roles = ui.column().classes("w-full gap-1")
-                ui.separator()
-                with ui.column().classes("erms-profile-actions w-full").style(
-                    "gap:0 !important;margin:0 !important;padding:0 !important"
-                ):
-                    preferences_menu = ui.button(
-                        render_message("preferences.action.open"), icon="language",
-                    ).props("flat dense no-caps align=left").classes(
-                        "erms-profile-action w-full"
-                    )
-                    change_password_menu = ui.button(render_message("webui.index.button.change_password_04ba3d0b"), icon="key").props(
-                        "flat dense no-caps align=left"
-                    ).classes("erms-profile-action w-full")
-                    diagnostics_separator = ui.separator()
-                    with ui.column().classes(
-                        "erms-profile-diagnostics w-full gap-1"
-                    ).props("data-inspector-ignore=true") as diagnostics_section:
-                        ui.label(
-                            render_message("translation_inspector.menu.diagnostics")
-                        ).classes("component-meta-label")
-                        inspector_switch = ui.switch(
-                            render_message("translation_inspector.menu.toggle"), value=False,
-                        ).props("dense color=primary")
-                    sign_out_menu = ui.button(render_message("webui.index.button.sign_out_a4610dd4"), icon="logout", color="negative").props(
-                        "flat dense no-caps align=left"
-                    ).classes("erms-profile-action w-full")
-                    diagnostics_separator.set_visibility(False)
-                    diagnostics_section.set_visibility(False)
+    header_controls = build_header(
+        q=q, select_messages=lambda folder: select_messages(folder),
+        avatar_background=USER_AVATAR_BACKGROUND, avatar_text=USER_AVATAR_TEXT,
+    )
+    brand_mark = header_controls.brand_mark
+    brand_name = header_controls.brand_name
+    brand_row = header_controls.brand_row
+    change_password_menu = header_controls.change_password_menu
+    current_user_avatar = header_controls.current_user_avatar
+    current_user_avatar_initials = header_controls.current_user_avatar_initials
+    current_user_email = header_controls.current_user_email
+    current_user_last_login = header_controls.current_user_last_login
+    current_user_name = header_controls.current_user_name
+    current_user_roles = header_controls.current_user_roles
+    diagnostics_section = header_controls.diagnostics_section
+    diagnostics_separator = header_controls.diagnostics_separator
+    global_search_input = header_controls.global_search_input
+    global_search_submit = header_controls.global_search_submit
+    global_search_wrap = header_controls.global_search_wrap
+    header_network = header_controls.header_network
+    inspector_bridge = header_controls.inspector_bridge
+    inspector_switch = header_controls.inspector_switch
+    message_unread_button = header_controls.message_unread_button
+    preferences_menu = header_controls.preferences_menu
+    shell_header = header_controls.shell_header
+    sign_out_menu = header_controls.sign_out_menu
+    user_menu = header_controls.user_menu
 
-        inspector_bridge = ui.element("div").props(
-            "id=translation-inspector-bridge aria-hidden=true"
-        ).classes("hidden")
-
-    with ui.footer().classes("erms-footer items-center"):
-        with ui.icon("cloud_done").classes("text-positive text-lg") as connection_icon:
-            connection_tooltip = ui.tooltip(render_message("webui.index.tooltip.connected_f57ac5a8"))
-        ui.label(render_message(
-            "webui.index.label.database_display_name_31c6f7d2",
-            database_name=database_display_name(initial_language),
-        )).classes("erms-footer-database")
-        ui.space()
-        ui.label(render_message("webui.index.label.designed_and_built_by_sharjah_archives_742aec80")).classes("erms-footer-credit")
+    footer_controls = build_footer(initial_language)
+    connection_icon = footer_controls.connection_icon
+    connection_tooltip = footer_controls.connection_tooltip
 
     def set_connection_status(connected: bool) -> None:
         connection_icon.name = "cloud_done" if connected else "cloud_off"
@@ -3761,126 +3695,25 @@ def index(q: str = "") -> None:
         connection_icon.update()
         connection_tooltip.update()
 
-    drawer_links: list[tuple[Any, str, str]] = []
-    drawer_headings: list[Any] = []
-    drawer_sections: list[tuple[Any, tuple[str, ...]]] = []
-
-    def drawer_link(
-        label: str, icon: str, *, navigation_key: str, extra_classes: str = "",
-    ) -> Any:
-        button = ui.button(label, icon=icon).props(
-            f'flat align=left no-caps aria-label={label!r}'
-        ).classes(f"erms-nav-link w-full justify-start px-4 {extra_classes}")
-        with button:
-            ui.tooltip(label)
-        drawer_links.append((button, label, navigation_key))
-        return button
-
-    drawer_factory = ui.right_drawer if initial_direction == "rtl" else ui.left_drawer
-    with drawer_factory(value=True).props(
-        "width=300 mini-width=64 show-if-above"
-    ).classes("erms-drawer") as drawer:
-        drawer_toggle_button = ui.button(
-            icon="chevron_right" if initial_direction == "rtl" else "chevron_left"
-        ).props(
-            'flat dense aria-label=' + repr(render_message("webui.index.accessible_name.collapse_navigation_b4de6b59"))
-        ).classes("erms-drawer-toggle")
-        with drawer_toggle_button:
-            drawer_toggle_tooltip = ui.tooltip(render_message("webui.index.tooltip.collapse_navigation_abf7124d"))
-        navigation: dict[str, Any] = {}
-        localized_navigation = {
-            "disposition_heading": disposition_text("section"),
-            "disposition-eligibility": disposition_text("eligibility"),
-            "disposition-jobs": disposition_text("jobs"),
-            "disposition-templates": disposition_text("templates"),
-            "disposition-tasks": disposition_text("my_tasks"),
-            "records_heading": render_message("navigation.section.records"),
-            "organization_heading": render_message("navigation.section.organization"),
-            "messages_heading": render_message("messaging.navigation.messages"),
-            "messages-inbox": render_message("messaging.navigation.inbox"),
-            "messages-outbox": render_message("messaging.navigation.outbox"),
-            "messages-drafts": render_message("messaging.navigation.drafts"),
-            "messages-notifications": render_message("messaging.admin.title"),
-            "relationship-types": render_message("relationships.ui.catalogue"),
-            "messages-monitor": render_message("messaging.monitor.title"),
-            "advanced-search": render_message("navigation.item.advanced_search"),
-            "aggregations": render_message("navigation.item.aggregations"),
-            "records": render_message("navigation.item.records"),
-            "classification-schemes": render_message("navigation.item.classification_schemes"),
-            "org-units": render_message("navigation.item.org_units"),
-            "roles": render_message("navigation.item.roles"),
-            "users": render_message("navigation.item.users"),
-        }
-        with ui.scroll_area().classes("erms-nav-scroll w-full h-full"):
-            with ui.column().classes("w-full gap-0 no-wrap"):
-                dashboard_navigation = drawer_link(
-                    render_message("navigation.item.dashboard"), "dashboard", navigation_key="dashboard", extra_classes="mt-4",
-                )
-                for heading_key, entries in (
-                    ("records_heading", (("advanced-search", "manage_search"), ("aggregations", "folder"), ("records", "description"), ("classification-schemes", "account_tree"), ("relationship-types", "link"))),
-                    ("disposition_heading", (("disposition-tasks", "task_alt"), ("disposition-eligibility", "event_available"), ("disposition-jobs", "work_outline"), ("disposition-templates", "description"))),
-                    ("messages_heading", (("messages-inbox", "inbox"), ("messages-outbox", "outbox"), ("messages-drafts", "drafts"), ("messages-monitor", "monitor_heart"), ("messages-notifications", "notifications"))),
-                    ("organization_heading", (("org-units", "corporate_fare"), ("roles", "badge"), ("users", "group"))),
-                ):
-                    heading_control = ui.label(localized_navigation[heading_key]).classes(
-                        "erms-nav-heading px-4 pt-5 pb-2"
-                    )
-                    drawer_headings.append(heading_control)
-                    section_keys = tuple(key for key, _ in entries)
-                    if heading_key == "organization_heading":
-                        organization_browser_navigation = drawer_link(
-                            render_message("navigation.item.organization_browser"), "lan", navigation_key="organization-browser",
-                        )
-                        section_keys = ("organization-browser", *section_keys)
-                    drawer_sections.append((heading_control, section_keys))
-                    for key, icon in entries:
-                        navigation[key] = drawer_link(
-                            localized_navigation[key],
-                            icon, navigation_key=key,
-                        )
-                system_heading = ui.label(render_message("webui.index.label.system_administration_53cbe26c")).classes(
-                    "erms-nav-heading px-4 pt-5 pb-2"
-                )
-                drawer_headings.append(system_heading)
-                drawer_sections.append((system_heading, (
-                    "audit-trail", "login-sessions", "security-operations", "saved-search-administration",
-                    "security-levels", "profiles", "governance-custody", "holds",
-                    "text-indexers", "translations", "application-settings",
-                )))
-                text_indexers_navigation = drawer_link(
-                    render_message("navigation.item.text_indexers"), "manage_search", navigation_key="text-indexers",
-                )
-                application_settings_navigation = drawer_link(
-                    render_message("navigation.item.application_settings"), "settings", navigation_key="application-settings",
-                )
-                audit_navigation = drawer_link(
-                    render_message("navigation.item.audit_trail"), "manage_history", navigation_key="audit-trail",
-                )
-                sessions_navigation = drawer_link(
-                    render_message("navigation.item.login_sessions"), "devices", navigation_key="login-sessions",
-                )
-                security_operations_navigation = drawer_link(
-                    render_message("navigation.item.security_operations"), "monitor_heart", navigation_key="security-operations",
-                )
-                saved_search_administration_navigation = drawer_link(
-                    render_message("privilege.search.saved_search.administrator.name"),
-                    "manage_search", navigation_key="saved-search-administration",
-                )
-                navigation["security-levels"] = drawer_link(
-                    render_message("navigation.item.security_levels"), "security", navigation_key="security-levels",
-                )
-                navigation["profiles"] = drawer_link(
-                    render_message("navigation.item.profiles"), "admin_panel_settings", navigation_key="profiles",
-                )
-                navigation["translations"] = drawer_link(
-                    render_message("navigation.item.translations"), "translate", navigation_key="translations",
-                )
-                custody_navigation = drawer_link(
-                    render_message("navigation.item.governance_custody"), "shield_person", navigation_key="governance-custody",
-                )
-                holds_navigation = drawer_link(
-                    render_message("navigation.item.holds"), "gavel", navigation_key="holds",
-                )
+    drawer_controls = build_drawer(initial_direction)
+    application_settings_navigation = drawer_controls.application_settings_navigation
+    audit_navigation = drawer_controls.audit_navigation
+    custody_navigation = drawer_controls.custody_navigation
+    dashboard_navigation = drawer_controls.dashboard_navigation
+    drawer = drawer_controls.drawer
+    drawer_headings = drawer_controls.drawer_headings
+    drawer_links = drawer_controls.drawer_links
+    drawer_sections = drawer_controls.drawer_sections
+    drawer_toggle_button = drawer_controls.drawer_toggle_button
+    drawer_toggle_tooltip = drawer_controls.drawer_toggle_tooltip
+    holds_navigation = drawer_controls.holds_navigation
+    localized_navigation = drawer_controls.localized_navigation
+    navigation = drawer_controls.navigation
+    organization_browser_navigation = drawer_controls.organization_browser_navigation
+    saved_search_administration_navigation = drawer_controls.saved_search_administration_navigation
+    security_operations_navigation = drawer_controls.security_operations_navigation
+    sessions_navigation = drawer_controls.sessions_navigation
+    text_indexers_navigation = drawer_controls.text_indexers_navigation
 
     def set_active_drawer_link(page: str) -> None:
         navigation_key = {
@@ -3975,49 +3808,22 @@ def index(q: str = "") -> None:
 
     drawer_toggle_button.on("click", toggle_navigation_drawer)
 
-    with ui.column().classes("erms-content w-full p-5 gap-4"):
-        breadcrumb_host = ui.element("nav").props(
-            'aria-label=' + repr(render_message("webui.index.accessible_name.navigation_history_21482f31"))
-        ).classes("w-full min-h-7")
-        # NiceGUI's native row follows document direction. Remove the redundant
-        # Quasar row class to avoid the legacy global RTL row-reversal rule.
-        with ui.row().classes("w-full items-center no-wrap gap-4", remove="row"):
-            with ui.column().classes("gap-0 grow min-w-0"):
-                with ui.row().classes("erms-page-title-row items-center no-wrap gap-2"):
-                    page_title_icon = ui.icon("dashboard").classes("erms-page-title-icon")
-                    title = ui.label().classes("text-2xl font-semibold")
-                subtitle = ui.label().classes("text-sm text-slate-500")
-            with ui.row().classes("items-center no-wrap gap-2 flex-none"):
-                add_button = ui.button(render_message("webui.index.button.add_5cee7302"), icon="add", color="primary").props("unelevated rounded")
-                add_record_button = ui.button(
-                    render_message("webui.index.button.add_record_fc8125c4"), icon="note_add", color="secondary"
-                ).props("unelevated rounded")
-
-        with ui.card().classes("erms-card w-full p-0") as content_card:
-            with ui.row().classes(
-                "erms-shared-control w-full items-center px-4 pt-4 gap-2"
-            ) as aggregation_mode_bar:
-                ui.label(render_message("webui.index.label.view_1306dc09")).classes("text-xs font-semibold uppercase tracking-wide text-slate-400 mr-1")
-                aggregation_search_mode = ui.button(render_message("webui.index.button.search_4d02b714"), icon="search").props(
-                    "unelevated dense no-caps color=primary"
-                )
-                aggregation_browse_mode = ui.button(
-                    render_message("webui.index.button.browse_classification_9c15150f"), icon="account_tree"
-                ).props("flat dense no-caps color=primary")
-            with ui.row().classes(
-                "erms-shared-control w-full items-end p-4 gap-2"
-            ) as search_bar:
-                search_input = ui.input(render_message("webui.index.input.search_by_number_title_or_description_e21ed520")).props("outlined clearable").classes("grow")
-                search_button = ui.button(render_message("webui.index.button.search_4d02b714"), icon="search").props("unelevated")
-            guidance = ui.label().classes(
-                "erms-shared-control px-4 pb-4 text-slate-500"
-            )
-            table_container = ui.column().classes("w-full gap-0")
-    content_card.set_visibility(False)
-    aggregation_mode_bar.set_visibility(False)
-    add_button.set_visibility(False)
-    add_record_button.set_visibility(False)
-    page_title_icon.set_visibility(False)
+    content_controls = build_content()
+    add_button = content_controls.add_button
+    add_record_button = content_controls.add_record_button
+    aggregation_browse_mode = content_controls.aggregation_browse_mode
+    aggregation_mode_bar = content_controls.aggregation_mode_bar
+    aggregation_search_mode = content_controls.aggregation_search_mode
+    breadcrumb_host = content_controls.breadcrumb_host
+    content_card = content_controls.content_card
+    guidance = content_controls.guidance
+    page_title_icon = content_controls.page_title_icon
+    search_bar = content_controls.search_bar
+    search_button = content_controls.search_button
+    search_input = content_controls.search_input
+    subtitle = content_controls.subtitle
+    table_container = content_controls.table_container
+    title = content_controls.title
 
     def set_page_title_icon(page: str) -> None:
         icon_name = {
@@ -4408,40 +4214,14 @@ def index(q: str = "") -> None:
                 state["global_search_loading"] = False
                 render_global_search_results()
 
-    def persist_navigation_trail() -> None:
-        app.storage.user["navigation_trail"] = navigation_state["trail"]
+    def reset_navigation_session() -> None:
+        navigation_controller.trail = []
+        app.storage.user.pop("navigation_trail", None)
 
-    async def navigate_to_breadcrumb(index: int) -> None:
-        trail = navigation_state["trail"]
-        if index < 0 or index >= len(trail):
-            return
-        discard_guard = state.get("discard_navigation_guard")
-        if discard_guard is not None and not await discard_guard("leave this page"):
-            return
-        state.pop("discard_navigation_guard", None)
-        entry = dict(trail[index])
-        navigation_state["trail"] = trail[:index + 1]
-        persist_navigation_trail()
-        navigation_state["restoring"] = True
-        try:
-            await restore_navigation_entry(entry)
-        except ApiError as error:
-            if error.status_code in {403, 404}:
-                navigation_state["trail"] = navigation_state["trail"][:-1]
-                persist_navigation_trail()
-                ui.notify(
-                    render_message("webui.navigate_to_breadcrumb.notify.that_page_is_no_longer_available_returning_9e1c0830"),
-                    color="warning",
-                )
-                if navigation_state["trail"]:
-                    await restore_navigation_entry(navigation_state["trail"][-1])
-                else:
-                    await select_dashboard()
-            else:
-                ui.notify(error_message(error), color="negative", close_button=True)
-        finally:
-            navigation_state["restoring"] = False
-            render_navigation_breadcrumbs()
+    persist_navigation_trail = navigation_controller.persist
+    navigate_to_breadcrumb = navigation_controller.navigate_to_breadcrumb
+    register_navigation = navigation_controller.register_navigation
+    breadcrumb_back = navigation_controller.breadcrumb_back
 
     breadcrumb_message_keys = {
         "disposition-eligibility": "disposition.ui.eligibility",
@@ -4492,7 +4272,7 @@ def index(q: str = "") -> None:
 
     def render_navigation_breadcrumbs() -> None:
         breadcrumb_host.clear()
-        trail = navigation_state["trail"]
+        trail = navigation_controller.trail
         breadcrumb_host.set_visibility(bool(auth_state.get("principal") and trail))
         if not trail or not auth_state.get("principal"):
             return
@@ -4533,10 +4313,7 @@ def index(q: str = "") -> None:
                     ).tooltip(accessible_label)
                 previous_index = index
 
-    def register_navigation(
-        page: str, label: str, *, entity_id: int | None = None,
-        accessible_label: str | None = None, dynamic_label: bool = False,
-    ) -> None:
+    def prepare_navigation(page: str) -> None:
         # A newly committed page transition owns subsequent reads. Any older
         # transition may no longer update the visible page and is cancelled.
         api.cancel_pending_reads()
@@ -4550,31 +4327,6 @@ def index(q: str = "") -> None:
             content_card.classes(remove="erms-dashboard-card")
         set_active_drawer_link(page)
         set_page_title_icon(page)
-        if navigation_state["restoring"]:
-            return
-        trail = navigation_state["trail"]
-        if trail:
-            trail[-1]["state"] = current_navigation_snapshot()
-        entry = {
-            "page": page,
-            "label": label,
-            "label_key": None if dynamic_label else breadcrumb_message_keys.get(page),
-            "dynamic_label": dynamic_label,
-            "entity_id": entity_id,
-            "accessible_label": accessible_label or label,
-            "state": {},
-        }
-        navigation_state["trail"] = append_navigation_entry(trail, entry)
-        persist_navigation_trail()
-        render_navigation_breadcrumbs()
-
-    async def breadcrumb_back(fallback: Any) -> None:
-        if len(navigation_state["trail"]) > 1:
-            await navigate_to_breadcrumb(len(navigation_state["trail"]) - 2)
-            return
-        result = fallback()
-        if asyncio.iscoroutine(result):
-            await result
 
     async def restore_navigation_entry(entry: dict[str, Any]) -> None:
         page = entry["page"]
@@ -4773,8 +4525,7 @@ def index(q: str = "") -> None:
         current_user_last_login.text = render_message("webui.clear_signed_in_identity.text.first_sign_in_823bfe67")
         current_user_roles.clear()
         header_network.set_visibility(False)
-        navigation_state["trail"] = []
-        app.storage.user.pop("navigation_trail", None)
+        reset_navigation_session()
         clear_authenticated_view()
 
     def show_authenticated_view() -> None:
@@ -12364,19 +12115,7 @@ def index(q: str = "") -> None:
                 ).props("unelevated")
         dialog.open()
 
-    async def sign_out() -> None:
-        # Close the overlay immediately; waiting for the API logout first leaves
-        # the menu above the persistent login dialog during slower requests.
-        user_menu.close()
-        clear_signed_in_identity()
-        try:
-            await api.logout()
-        except ApiError:
-            pass
-        app.storage.user.pop("session_token", None)
-        app.storage.user.pop("organization_browser_state", None)
-        api.set_session_token(None)
-        login_dialog.open()
+    sign_out = session.sign_out
 
     async def select_login_sessions(user_id: int | None = None) -> None:
         if user_id is None:
@@ -19523,8 +19262,8 @@ def index(q: str = "") -> None:
         table_container.clear()
 
     def persist_application_settings_category() -> None:
-        if navigation_state["trail"] and navigation_state["trail"][-1]["page"] == "application-settings":
-            navigation_state["trail"][-1]["state"] = current_navigation_snapshot()
+        if navigation_controller.trail and navigation_controller.trail[-1]["page"] == "application-settings":
+            navigation_controller.trail[-1]["state"] = current_navigation_snapshot()
             persist_navigation_trail()
 
     async def select_disposition(page="disposition-eligibility", identity=None, saved=None, target_job=None, task_id=None):
@@ -19546,8 +19285,8 @@ def index(q: str = "") -> None:
         def remember(value):
             if active():
                 state["disposition_view"]=value
-                if navigation_state["trail"] and navigation_state["trail"][-1]["page"]==page:
-                    navigation_state["trail"][-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
+                if navigation_controller.trail and navigation_controller.trail[-1]["page"]==page:
+                    navigation_controller.trail[-1]["state"]=current_navigation_snapshot();persist_navigation_trail()
         async def open_tasks():await select_disposition("disposition-tasks")
         async def open_approval_results(identity):await select_disposition("disposition-job",identity,saved={"section":"documents","approval_results":True})
         async def open_job(identity):await select_disposition("disposition-job",identity)
@@ -21233,15 +20972,7 @@ def index(q: str = "") -> None:
         next_page.on("click",lambda:move_translation_page(1))
         await load_messages()
 
-    async def guarded_page_navigation(callback: Callable[[], Any]) -> None:
-        discard_guard = state.get("discard_navigation_guard")
-        if discard_guard is not None and not await discard_guard("leave this page"):
-            return
-        state.pop("discard_navigation_guard", None)
-        api.cancel_pending_reads()
-        result = callback()
-        if inspect.isawaitable(result):
-            await result
+    guarded_page_navigation = navigation_controller.guarded_page_navigation
 
     application_settings_controller = ApplicationSettingsController(
         api=api, container=table_container,
@@ -21471,17 +21202,10 @@ def index(q: str = "") -> None:
         async def submit_login() -> None:
             login_error.text = ""
             try:
-                principal, token = await api.login(
+                principal = await session.sign_in(
                     login_email.value or "", login_password.value or "",
                     user_agent=context.client.request.headers.get("user-agent"),
                 )
-                clear_global_search_session()
-                clear_dashboard_session()
-                await clear_translation_inspector_session()
-                app.storage.user["session_token"] = token
-                api.set_session_token(token)
-                navigation_state["trail"] = []
-                app.storage.user.pop("navigation_trail", None)
                 login_password.value = ""
                 login_dialog.close()
                 if principal["must_change_password"]:
@@ -21503,17 +21227,12 @@ def index(q: str = "") -> None:
         login_submit.on("click", submit_login)
         login_password.on("keydown.enter", submit_login)
 
-    def handle_unauthorized() -> None:
-        """Synchronize the visible UI when FastAPI rejects a session."""
-        api.set_session_token(None)
-        try:
-            app.storage.user.pop("session_token", None)
-        except RuntimeError:
-            # Background tasks may not have NiceGUI's storage request context.
-            pass
-        clear_signed_in_identity()
-        set_connection_status(True)  # A 401 proves that the API is reachable.
-        login_dialog.open()
+    async def reset_private_views() -> None:
+        clear_global_search_session()
+        clear_dashboard_session()
+        await clear_translation_inspector_session()
+
+    handle_unauthorized = session.handle_unauthorized
 
     api.set_unauthorized_handler(handle_unauthorized)
 
@@ -21694,14 +21413,14 @@ def index(q: str = "") -> None:
                 if not await prepare_authenticated_workspace(principal):
                     return
                 if q.strip():
-                    navigation_state["trail"] = []
+                    navigation_controller.trail = []
                     await run_global_search(q)
-                elif navigation_state["trail"]:
-                    navigation_state["restoring"] = True
+                elif navigation_controller.trail:
+                    navigation_controller.restoring = True
                     try:
-                        await restore_navigation_entry(navigation_state["trail"][-1])
+                        await restore_navigation_entry(navigation_controller.trail[-1])
                     finally:
-                        navigation_state["restoring"] = False
+                        navigation_controller.restoring = False
                         render_navigation_breadcrumbs()
                 else:
                     await select_dashboard()

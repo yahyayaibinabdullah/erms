@@ -1,0 +1,56 @@
+{
+  "starting_revision": "541aad12e66b666f79b7009be13e90ecf369fb01",
+  "callbacks_unchanged_after_navigation_state_adapter": {
+    "restore_navigation_entry": true,
+    "current_navigation_snapshot": true,
+    "prepare_authenticated_workspace": true,
+    "initialize_authenticated_ui": true,
+    "show_change_password": true,
+    "start_message_stream": true,
+    "stop_message_stream": true,
+    "load_localization_context": true,
+    "clear_dashboard_session": true,
+    "clear_global_search_session": true,
+    "clear_signed_in_identity_expanded_reset_hook": true
+  },
+  "unchanged_owners_and_artifacts": [
+    {
+      "path": "frontend/webui/api_client.py",
+      "unchanged_from_start": true,
+      "sha256": "098fed93ceda0744b4d27828fd85984a9f4aa45b0ec5dcb654b39cb8a64e9701"
+    },
+    {
+      "path": "frontend/webui/messaging_live.py",
+      "unchanged_from_start": true,
+      "sha256": "408a1f734b4f4b746b19597285b69351f181689e5b47ae0080afc5b87c31370c"
+    },
+    {
+      "path": "frontend/webui/i18n_catalogue.py",
+      "unchanged_from_start": true,
+      "sha256": "66a7cb571aac30187199c5c374d67e0b02bd596ef6a777c272b8eec0735a811b"
+    },
+    {
+      "path": "frontend/webui/application_settings.py",
+      "unchanged_from_start": true,
+      "sha256": "bcac9207942ba9f4def1e3a1e79aa3c81f6025aaca3bcc31f39e343dd9d5fafd"
+    },
+    {
+      "path": "frontend/webui/application_settings_controller.py",
+      "unchanged_from_start": true,
+      "sha256": "062a07729b6bdb0230cb3981c33bbc8cc250a97b8a7f3a8964cb9d7cd3afefe1"
+    },
+    {
+      "path": "frontend/webui/i18n/messages.en.json",
+      "unchanged_from_start": true,
+      "sha256": "c6406c2af76babe841e133714419a74d0d6dc96f40e5d71f2bd66d8af0a8fdc2"
+    },
+    {
+      "path": "frontend/webui/i18n/messages.ar.generated.json",
+      "unchanged_from_start": true,
+      "sha256": "3acb938db8172c87e0986697d4373e2762cd4430a20debd21fa07ec0e833f437"
+    }
+  ],
+  "catalogue_reference_check": "passed",
+  "configuration_authority_check": "122 settings; exactly one owner",
+  "api_environment_sync_check": "36 API environment settings; templates agree"
+}

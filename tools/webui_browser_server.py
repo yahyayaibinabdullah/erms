@@ -104,6 +104,49 @@ class BrowserDiagnostics:
         await self.app(scope, receive, observed)
 
 
+def install_client_diagnostics(directory):
+    """Read-only lifecycle metadata for disposable UI requests; never log payloads/tokens."""
+    import functools
+    import traceback
+    from frontend.webui.api_client import ErmsApiClient
+
+    target = Path(directory) / 'ui-client-events.jsonl'
+    request = ErmsApiClient.request
+    cancel = ErmsApiClient.cancel_pending_reads
+    close = ErmsApiClient.close
+
+    def record(client, event, **fields):
+        row = dict(client=id(client), event=event, monotonic=time.monotonic(), **fields)
+        with target.open('a') as file:
+            file.write(json.dumps(row) + '\n')
+
+    @functools.wraps(request)
+    async def observed_request(client, method, path, **kwargs):
+        record(client, 'request-start', method=method, path=path)
+        try:
+            result = await request(client, method, path, **kwargs)
+        except BaseException as error:
+            record(client, 'request-error', method=method, path=path, error_type=type(error).__name__)
+            raise
+        record(client, 'request-finish', method=method, path=path)
+        return result
+
+    @functools.wraps(cancel)
+    def observed_cancel(client):
+        record(client, 'cancel-reads', pending=sum(not t.done() for t in client._inflight_reads.values()),
+               callers=[f.name for f in traceback.extract_stack(limit=9)[:-1]])
+        return cancel(client)
+
+    @functools.wraps(close)
+    async def observed_close(client):
+        record(client, 'close')
+        return await close(client)
+
+    ErmsApiClient.request = observed_request
+    ErmsApiClient.cancel_pending_reads = observed_cancel
+    ErmsApiClient.close = observed_close
+
+
 def main():
     from psycopg.conninfo import conninfo_to_dict
     parser = argparse.ArgumentParser()

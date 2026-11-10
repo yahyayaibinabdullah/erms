@@ -1,0 +1,327 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "shell",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9015.59
+    },
+    {
+      "name": "shell expanded desktop and breadcrumb overflow",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 7961.19
+    },
+    {
+      "name": "desktop collapse and expand preserve current page and history",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: \n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_shell.py\", line 51, in check_shell\n    page.wait.until(lambda _: all(not e.text.strip() for e in page.visible('button.erms-nav-link')))\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/support/wait.py\", line 121, in until\n    raise TimeoutException(message, screen, stacktrace)\nselenium.common.exceptions.TimeoutException: Message: \n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c157",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c158",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c161",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c53",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c53",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c53",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c3069",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c49",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 22752.6
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "shell-expanded-en.png",
+      "sha256": "46cf545a3c17ccc218b98bd35ea9758e73fcbcab0f18f6a29baa5cb6029b636b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "shell-overflow-en.png",
+      "sha256": "a792c9cd2af453d3200fa13fd9b2799eb998ad627332831e23a256abdab20447",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-3.png",
+      "sha256": "299433aa271245b797b55f03f4897ede559159b36059c1482f79a4300532a259",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "shell_observations": [
+    {
+      "name": "expanded",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "SPAN",
+        "text": ""
+      }
+    },
+    {
+      "name": "overflow",
+      "language": "en",
+      "direction": "ltr",
+      "elements": [
+        {
+          "box": [
+            0,
+            0,
+            1440,
+            54
+          ],
+          "classes": "q-header q-layout__section--marginal fixed-top nicegui-header wrap erms-header items-center gap-3",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "HEADER"
+        },
+        {
+          "box": [
+            18,
+            10,
+            103.83,
+            33
+          ],
+          "classes": "nicegui-row row erms-brand items-center no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            356,
+            5.5,
+            728,
+            42
+          ],
+          "classes": "nicegui-row row erms-global-search-wrap no-wrap",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            54,
+            300,
+            912
+          ],
+          "classes": "q-drawer__content fit scroll nicegui-drawer erms-drawer",
+          "color": "rgb(23, 32, 51)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            336,
+            90,
+            1068,
+            31.98
+          ],
+          "classes": "nicegui-row row erms-breadcrumb-row w-full items-center no-wrap gap-1 text-xs text-slate-500 overflow-hidden",
+          "color": "rgb(100, 116, 139)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "DIV"
+        },
+        {
+          "box": [
+            0,
+            966,
+            1440,
+            34
+          ],
+          "classes": "q-footer q-layout__section--marginal fixed-bottom nicegui-footer wrap erms-footer items-center",
+          "color": "rgb(104, 115, 134)",
+          "direction": "ltr",
+          "display": "flex",
+          "font": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+          "tag": "FOOTER"
+        }
+      ],
+      "focus": {
+        "label": null,
+        "tag": "BODY",
+        "text": "wathiq\nsearch\ninbox\n⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂︎︆︌︆︉︇︆︆︅︂︎︇︅︆︎︇︂︆︅︆︁︆︄⁤︁⁤︋⁤Unread: ⁨0⁩\naccount_circle\nchevron_left\ndashboard\nDashboard\nRECORDS MANAGEMENT\nmanage_search\nAdvanced Search\nfolder\nAggregations\ndescription\nRecords\naccount_tree\nClassification schemes\nlink\nRelationship Types\nDISPOSITION\ntask_alt\nMy tasks\nevent_available\nDisposition eligibility\nwork_outline\nDisposition jobs\nMESSAGES\ninbox\nInbox\noutbox\nOutbox\ndrafts\nDrafts\nmonitor_heart\nMessages Monitor\nnotifications\nNotification Administration\nORGANIZATION STRUCTURE\nlan\nBrowse\ncorporate_fare\nOrganization units\nbadge\nRoles\ngroup\nUsers\nSYSTEM ADMINISTRATION\nmanage_search\nText Indexers\nsettings\nSettings\nmanage_history\nAudit trail\ndevices\nLogin sessions\nmonitor_heart\nSecurity operations\nmanage_search\nAdminister Saved Searches\nsecurity\nSecurity levels\nadmin_panel_settings\nProfiles\ntranslate\nTranslations\nshield_person\nGovernance custody\ngavel\nHolds\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nmore_horiz\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\nchevron_right\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\nsettings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︃︇︅︆︂︇︄︆︉︇︄︆︌︆︅⁤︁⁤︃︀⁤Shared application settings, grouped by purpose.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︇︀︆︁︆︇︆︅︂︎︇︀︇︂︆️︇︀︆︁︆︇︆︁︇︄︆︉︆️︆︎⁤︁⁤︉︀⁤Saved changes can take up to 30 seconds to reach every API instance. New jobs, artifact saves and email attempts use current committed settings.\nrefresh\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︂︆︅︆︆︇︂︆︅︇︃︆︈⁤︁⁤︇⁤Refresh\nGeneral application behavior\nContent and document viewing\nAuthentication and sessions\nDashboard and selection limits\nSearch and indexing\nDisposition\nEmail\nchevron_left\nchevron_right\nDefault root aggregation medium\nMixed\nDefault root aggregation medium\narrow_drop_down\nInitial medium for a new root aggregation. Type: choice. Choices: Digital, Physical, Mixed. Initial default: Mixed. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nDefault working timezone\nDefault working timezone\narrow_drop_down\nWorking timezone used when a person has no saved timezone preference. Type: timezone identifier. Initial default: Asia/Dubai. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\nReview warning window\nReview warning window\nDays before a scheduled review when the resource appears as approaching review. Type: whole number. Minimum: 0. Initial default: 30. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.\n⁣︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃︂︎︆︆︆︉︆︅︆︌︆︄︂︎︇︂︆︅︆︁︇︃︆️︆︎⁤︁⁤︁︌⁤Reason for change (required)\nsave\n⁣︆︃︆️︆︍︆︍︆️︆︎︂︎︆︁︆︃︇︄︆︉︆️︆︎︂︎︇︃︆︁︇︆︆︅⁤︁⁤︄⁤Save\ncloud_done\nDatabase: ⁨WebUI regression fixture⁩\nDesigned and built by Sharjah Archives\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︄︆︁︇︃︆︈︆︂︆️︆︁︇︂︆︄⁤︁⁤︉⁤Dashboard\n⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆︎︂︎︆︉︇︄︆︅︆︍︂︎︆︁︇︀︇︀︆︌︆︉︆︃︆︁︇︄︆︉︆️︆︎︅️︇︃︆︅︇︄︇︄︆︉︆︎︆︇︇︃⁤︁⁤︈⁤Settings"
+      }
+    }
+  ],
+  "browser_errors": []
+}

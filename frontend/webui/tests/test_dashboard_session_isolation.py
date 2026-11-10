@@ -107,7 +107,14 @@ async def test_sign_out_clears_protected_dashboard_before_waiting_for_remote_log
     api = SimpleNamespace(logout=logout,set_session_token=Mock())
     scope = dict(user_menu=Mock(),clear_signed_in_identity=clear,ApiError=ApiError,
                  api=api,app=SimpleNamespace(storage=SimpleNamespace(user={})),login_dialog=Mock())
-    task = asyncio.create_task(load('sign_out',scope)())
+    from frontend.webui.session_context import SessionContext
+    session = SessionContext(
+        api=api, storage=lambda: scope['app'].storage.user, locale=lambda: {},
+        reset_private_views=AsyncMock(), reset_navigation=Mock(), clear_identity=clear,
+        close_menu=scope['user_menu'].close, open_login=scope['login_dialog'].open,
+        set_connection_status=Mock(),
+    )
+    task = asyncio.create_task(session.sign_out())
     await started.wait()
     clear.assert_called_once()
     release.set()

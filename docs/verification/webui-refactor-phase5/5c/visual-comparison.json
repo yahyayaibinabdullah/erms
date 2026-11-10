@@ -1,0 +1,167 @@
+{
+  "chrome": {
+    "checks": 18,
+    "complete": true,
+    "images": [
+      {
+        "file": "search-empty-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/search-empty-en.png"
+      },
+      {
+        "file": "unsaved-confirmation-en.png",
+        "different_pixels": 163,
+        "bounds_below_y72": [
+          1282,
+          328,
+          1303,
+          337
+        ],
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/unsaved-confirmation-en.png"
+      },
+      {
+        "file": "records-table-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/records-table-en.png"
+      },
+      {
+        "file": "aggregation-restored-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/aggregation-restored-en.png"
+      },
+      {
+        "file": "relationship-types-table-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/relationship-types-table-en.png"
+      },
+      {
+        "file": "search-empty-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/search-empty-ar.png"
+      },
+      {
+        "file": "unsaved-confirmation-ar.png",
+        "different_pixels": 266,
+        "bounds_below_y72": [
+          151,
+          328,
+          197,
+          339
+        ],
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/unsaved-confirmation-ar.png"
+      },
+      {
+        "file": "records-table-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/records-table-ar.png"
+      },
+      {
+        "file": "aggregation-restored-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/aggregation-restored-ar.png"
+      },
+      {
+        "file": "relationship-types-table-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/relationship-types-table-ar.png"
+      },
+      {
+        "file": "restricted-dashboard.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/navigation/chrome/restricted-dashboard.png"
+      }
+    ]
+  },
+  "edge": {
+    "checks": 18,
+    "complete": true,
+    "images": [
+      {
+        "file": "search-empty-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/search-empty-en.png"
+      },
+      {
+        "file": "unsaved-confirmation-en.png",
+        "different_pixels": 270,
+        "bounds_below_y72": [
+          1282,
+          328,
+          1322,
+          337
+        ],
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/unsaved-confirmation-en.png"
+      },
+      {
+        "file": "records-table-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/records-table-en.png"
+      },
+      {
+        "file": "aggregation-restored-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/aggregation-restored-en.png"
+      },
+      {
+        "file": "relationship-types-table-en.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/relationship-types-table-en.png"
+      },
+      {
+        "file": "search-empty-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/search-empty-ar.png"
+      },
+      {
+        "file": "unsaved-confirmation-ar.png",
+        "different_pixels": 255,
+        "bounds_below_y72": [
+          151,
+          328,
+          197,
+          339
+        ],
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/unsaved-confirmation-ar.png"
+      },
+      {
+        "file": "records-table-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/records-table-ar.png"
+      },
+      {
+        "file": "aggregation-restored-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/aggregation-restored-ar.png"
+      },
+      {
+        "file": "relationship-types-table-ar.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/relationship-types-table-ar.png"
+      },
+      {
+        "file": "restricted-dashboard.png",
+        "different_pixels": 0,
+        "bounds_below_y72": null,
+        "baseline": "docs/verification/webui-refactor-phase3/browsers/edge/restricted-dashboard.png"
+      }
+    ]
+  },
+  "interpretation": "Only saved-search real update timestamps differ below the animated header; original screenshots retained. Other navigation scenes match exactly."
+}
