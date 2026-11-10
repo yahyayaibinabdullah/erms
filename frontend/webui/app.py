@@ -24,7 +24,8 @@ from .relationship_select import relationship_select
 from .navigation_drawer import navigation_menu
 from .audit_actor_select import bind_audit_actor_select, actor_condition
 from .classification_workspace import classification_workspace
-from .application_settings import settings_page, disposition_warning_panel
+from .application_settings import disposition_warning_panel
+from .application_settings_controller import ApplicationSettingsController
 from .messaging_workspace import messaging_workspace
 from .resource_inspector import resource_inspector
 from .messaging_live import LiveMailbox, stream_events, mailbox_cursor_key
@@ -4054,7 +4055,7 @@ def index(q: str = "") -> None:
             "search_text": str(search_input.value or ""),
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
             "aggregation_mode": state.get("aggregation_mode", "search"),
-            "settings_category": state.get("settings_category", "general"),
+            "settings_category": application_settings_controller.category,
             "disposition_view": dict(state.get("disposition_view") or {}),
             "global_search_query": state.get("global_search_query", ""),
             "global_search_page": state.get("global_search_page", 1),
@@ -4647,7 +4648,7 @@ def index(q: str = "") -> None:
         elif page == "governance-custody":
             await select_governance_custody()
         elif page == "application-settings":
-            await select_application_settings(saved.get("settings_category", "general"))
+            await application_settings_controller.restore(saved)
         elif page == "holds":
             await select_holds()
         elif page == "hold-details" and entity_id is not None:
@@ -5119,19 +5120,12 @@ def index(q: str = "") -> None:
 
     def can_open_event_entity(event: dict[str, Any]) -> bool:
         if event.get("entity_type") == "application_setting":
-            principal = auth_state.get("principal") or {}
-            return can_navigate("application-settings", principal.get("global_privileges", []))
+            return application_settings_controller.can_open()
         return event.get("entity_type") in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}
 
     async def navigate_to_event_entity(event: dict[str, Any]) -> None:
         if event.get("entity_type") == "application_setting":
-            if not can_open_event_entity(event):
-                return
-            origin_dialog = event.get("_origin_dialog")
-            if origin_dialog:
-                origin_dialog.close()
-            setting_key = (event.get("metadata") or {}).get("setting_key")
-            await guarded_page_navigation(lambda: select_application_settings(initial_setting_key=setting_key))
+            await application_settings_controller.open_from_event(event)
             return
         entity = event.get("_current_entity")
         if not entity:
@@ -17310,8 +17304,8 @@ def index(q: str = "") -> None:
                 ui.button(render_message("settings.action.refresh"), icon="refresh", on_click=select_governance_custody).props("flat dense no-caps")
             disposition_warning_panel(
                 report.get("disposition_configuration_warnings", []),
-                can_manage=can_navigate("application-settings", principal.get("global_privileges", [])),
-                open_settings=lambda: guarded_page_navigation(lambda: select_application_settings("disposition")),
+                can_manage=application_settings_controller.can_open(),
+                open_settings=application_settings_controller.open_from_custody,
             )
             with ui.element("div").classes("governance-overview-grid"):
                 with ui.card().classes("governance-purpose-card shadow-none"):
@@ -19516,13 +19510,9 @@ def index(q: str = "") -> None:
         else:
             await open_aggregation(await api.get("aggregations", identity))
 
-    async def select_application_settings(initial_category: str = "general", *, initial_setting_key: str | None = None) -> None:
-        principal = auth_state.get("principal")
-        if not principal or not can_navigate("application-settings", principal.get("global_privileges", [])):
-            return
-        token = object()
-        state.update(resource="application-settings", settings_page_token=token,
-                     settings_category=initial_category, rows=[], searched=True, aggregation_detail=None)
+    def enter_application_settings() -> None:
+        """Adapt the Settings feature to the existing shared shell."""
+        state.update(resource="application-settings", rows=[], searched=True, aggregation_detail=None)
         register_navigation("application-settings", render_message("navigation.item.application_settings"))
         show_authenticated_view()
         title.text = render_message("navigation.item.application_settings")
@@ -19531,20 +19521,11 @@ def index(q: str = "") -> None:
         for control in (search_bar, aggregation_mode_bar, add_button, add_record_button):
             control.set_visibility(False)
         table_container.clear()
-        def remember_settings_category(value):
-            if auth_state.get("principal") is not principal or state.get("resource") != "application-settings" or state.get("settings_page_token") is not token:
-                return
-            state.update(settings_category=value)
-            if navigation_state["trail"] and navigation_state["trail"][-1]["page"] == "application-settings":
-                navigation_state["trail"][-1]["state"] = current_navigation_snapshot()
-                persist_navigation_trail()
-        await settings_page(
-            api=api, container=table_container, bind_relationship=bind_remote_relationship_select,
-            active=lambda: auth_state.get("principal") is principal and state.get("resource") == "application-settings" and state.get("settings_page_token") is token,
-            on_error=error_message, direction=lambda: current_direction["value"], initial_category=initial_category,
-            initial_setting_key=initial_setting_key,
-            on_category=remember_settings_category,
-        )
+
+    def persist_application_settings_category() -> None:
+        if navigation_state["trail"] and navigation_state["trail"][-1]["page"] == "application-settings":
+            navigation_state["trail"][-1]["state"] = current_navigation_snapshot()
+            persist_navigation_trail()
 
     async def select_disposition(page="disposition-eligibility", identity=None, saved=None, target_job=None, task_id=None):
         principal=auth_state.get("principal")
@@ -21262,6 +21243,16 @@ def index(q: str = "") -> None:
         if inspect.isawaitable(result):
             await result
 
+    application_settings_controller = ApplicationSettingsController(
+        api=api, container=table_container,
+        principal=lambda: auth_state.get("principal"),
+        selected=lambda: state.get("resource") == "application-settings",
+        enter=enter_application_settings,
+        persist_category=persist_application_settings_category,
+        guard=guarded_page_navigation, bind_relationship=bind_remote_relationship_select,
+        direction=lambda: current_direction["value"], on_error=error_message,
+    )
+
     async def open_inspected_translation(event: Any) -> None:
         privileges = set(
             (auth_state.get("principal") or {}).get("global_privileges", [])
@@ -21311,7 +21302,7 @@ def index(q: str = "") -> None:
         "click", lambda: guarded_page_navigation(select_saved_search_administration)
     )
     text_indexers_navigation.on("click", lambda: guarded_page_navigation(select_text_indexers))
-    application_settings_navigation.on("click", lambda: guarded_page_navigation(select_application_settings))
+    application_settings_navigation.on("click", application_settings_controller.open_from_drawer)
     custody_navigation.on("click", lambda: guarded_page_navigation(select_governance_custody))
     holds_navigation.on("click", lambda: guarded_page_navigation(select_holds))
     change_password_menu.on("click", show_change_password)

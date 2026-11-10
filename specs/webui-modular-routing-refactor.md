@@ -1,6 +1,6 @@
 # WebUI architecture and migration specification
 
-**Status:** Approved scope; Phases 1 and 2 execution authorized
+**Status:** Approved scope; Phases 1–3 complete for the approved local scope; Phase 4 review pending
 **Date:** 10 November 2026
 
 ## 1 Purpose and scope
@@ -200,5 +200,16 @@ On 10 November 2026, Phase 2 completed its approved local scope: repeated unit
 and interaction suites, assembled real-API tests, and Chrome/Edge workflows,
 visual review and keyboard/focus baselines in English and Arabic. Firefox,
 Safari and CI remain deferred at the user's instruction. The verification
-report records the evidence and existing behavior limitations. Phase 3 has not
-started; all changes remain local and uncommitted on the user's branch.
+report records the evidence and existing behavior limitations.
+
+## 9 Local Phase 3 completion
+
+On 10 November 2026, Application Settings entry points and per-client view state
+were extracted into `application_settings_controller.py`. The existing renderer,
+single-page shell, routes and navigation behavior remain unchanged. The
+[Phase 3 verification report](../docs/webui-refactor-phase3-verification.md)
+records the implementation, repeated suites, real-API checks, Chrome/Edge
+workflows, English/Arabic visual and focus comparisons, and database cleanup.
+Firefox, Safari and CI remain deferred. All Phase 3 changes are local and
+uncommitted on the user's existing branch. Phase 4's explicit review decision
+remains pending; broader extraction has not started.

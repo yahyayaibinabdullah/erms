@@ -26,7 +26,15 @@ def check_navigation(page):
         assert page.driver.current_url.endswith('/?q=zz_phase2_absent')
         # Entering the existing root is an ordinary browser navigation.
         page.driver.get(page.args.url + '/')
+        # Root restores its trail asynchronously (including its existing
+        # Dashboard fallback when the saved entry has no query). Its breadcrumb
+        # is rendered after restoration finishes. Do not race that restoration
+        # with a click which would be treated as part of the restoring visit.
+        page.one('.erms-breadcrumb-row [aria-current=page]')
         page.drawer('dashboard')
+        page.wait.until(lambda _:page.visible('.dashboard-overview-primary'))
+        page.wait.until(lambda _:page.t('navigation.item.dashboard') in
+                        page.one('.erms-breadcrumb-row [aria-current=page]').text)
 
     with page.check('saved search keeps existing unsaved-change confirmation'):
         page.drawer('advanced_search')

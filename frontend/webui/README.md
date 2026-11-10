@@ -3,6 +3,26 @@
 The frontend is an independently deployable NiceGUI service. It communicates
 with the FastAPI service over HTTP and does not access PostgreSQL directly.
 
+## Application Settings pilot boundary
+
+`application_settings_controller.py` owns Settings authorization, its four entry
+paths, the selected category and each view's lifetime. Create one controller per
+NiceGUI client, inside `index`; never share it across sessions. Its `open`,
+`restore`, `open_from_drawer`, `open_from_event` and `open_from_custody` methods
+preserve the existing navigation behavior and saved `settings_category` format.
+
+`application_settings.py` continues to own the unchanged forms, selectors,
+dialogs and API interactions. `app.py` supplies the existing API client, identity
+and direction readers, navigation guard, relationship binding and two small
+shell callbacks. The feature does not receive the shared application/navigation
+dictionaries or import the entry point. Navigation still owns read cancellation;
+the feature's identity/view checks reject abandoned callbacks. Accepted writes
+retain the renderer's existing behavior.
+
+See the [Phase 3 verification report](../../docs/webui-refactor-phase3-verification.md)
+before extending this pattern to other features. Shared infrastructure extraction
+requires the separate Phase 4 review.
+
 ## Layout and RTL troubleshooting
 
 Start with standard NiceGUI components and documented layout/direction
