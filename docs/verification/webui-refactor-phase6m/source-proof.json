@@ -1,0 +1,34 @@
+{
+  "moved_functions_reconstructed": [
+    "show_reopen_aggregation",
+    "show_governed_move",
+    "show_ownership_correction",
+    "browse_advanced_aggregation",
+    "open_aggregation",
+    "set_aggregation_mode_controls",
+    "select_aggregation_browser",
+    "select_aggregation_search",
+    "add_for_current_context",
+    "add_record_for_current_aggregation",
+    "direct_classification_label",
+    "effective_closure",
+    "style_relationship_chip_select"
+  ],
+  "editor_blocks_reconstructed": [
+    "lock_aggregation_close_field",
+    "load_aggregation_creation_context",
+    "render_aggregation_creation_controls",
+    "aggregation_initial_security_level",
+    "aggregation_initial_medium",
+    "render_aggregation_close_help",
+    "configure_aggregation_classification",
+    "configure_aggregation_parent_rules",
+    "prepare_aggregation_payload"
+  ],
+  "other_functions_reconstructed": 117,
+  "existing_runtime_changes": [
+    "frontend/webui/app.py"
+  ],
+  "state_change": "Seven aggregation-only keys now have their own per-client owner; narrow shared page/token callbacks preserve access order.",
+  "catalogue_and_inspector_bytes_unchanged": true
+}

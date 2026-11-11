@@ -1,5 +1,6 @@
 """Run the actual editor Save and collection loader with an in-memory API."""
 import ast
+from frontend.webui.organization_editor import organization_change_reason
 import asyncio
 from copy import deepcopy
 from pathlib import Path
@@ -10,12 +11,12 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from frontend.webui.api_client import ApiError
 from frontend.webui.entities import ENTITIES
+from frontend.webui.tests.shared_controls_fixture import collection_loader
 from frontend.webui.i18n_catalogue import render_message, strip_diagnostic_metadata
 
 TREE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
 EDITOR = next(n for n in ast.walk(TREE) if isinstance(n, ast.AsyncFunctionDef) and n.name == 'open_editor')
 SAVE = next(n for n in ast.walk(EDITOR) if isinstance(n, ast.AsyncFunctionDef) and n.name == 'save')
-LOADER = next(n for n in ast.walk(TREE) if isinstance(n, ast.AsyncFunctionDef) and n.name == 'load_rows')
 
 
 @pytest.mark.parametrize('action', ['create', 'update', 'translation'])
@@ -51,12 +52,13 @@ def test_save_requeries_the_selected_bounded_page(action, sort, query, offset, a
                      prepare_entity_translation_update=(lambda: ('ar', {'name': name}, 'Correct name')) if action=='translation' else None,
                      api=SimpleNamespace(create=write, update=write, update_entity_translation=write, search_request=search),
                      form_payload=lambda *a, **k: {'name': name}, role_change_requires_reason=lambda *a: False,
-                     lookup_rows_by_field={}, resource_change_reason=None, profile_change_reason=None,
+                     lookup_rows_by_field={}, security_change_reason=None, organization_change_reason=organization_change_reason, resource_change_reason=None, profile_change_reason=None,
                      dialog=Mock(), ui=Mock(), render_message=render_message, strip_diagnostic_metadata=strip_diagnostic_metadata,
                      decorate_for_spec=decorate, set_connection_status=Mock(),
                      render_table=lambda spec: rendered.append(deepcopy(state['rows'])),
                      page_client=SimpleNamespace(_deleted=False))
-        exec(compile(ast.Module(body=[SAVE, LOADER], type_ignores=[]), '<actual-editor-save-and-loader>', 'exec'), scope)
+        exec(compile(ast.Module(body=[SAVE], type_ignores=[]), '<actual-editor-save-and-loader>', 'exec'), scope)
+        scope['load_rows'] = collection_loader(scope)
         await scope['save']()
         assert len(writes) == len(requests) == len(rendered) == 1
         resource, payload, kwargs = requests[0]

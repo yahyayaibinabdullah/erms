@@ -1,6 +1,6 @@
 # WebUI architecture and migration specification
 
-**Status:** Phases 1–5 complete for the approved local scope; Phase 6 not started
+**Status:** Phases 1–5 and 6A–6M complete for the approved local scope; stopped pending approval for 6N
 **Date:** 10 November 2026
 
 ## 1 Purpose and scope
@@ -240,12 +240,43 @@ The user explicitly approved marking Phase 5 complete with this non-reproduced
 loading problem recorded. This exception applies only to that observation; the
 general regression gate and prohibition on functionality or UX changes remain
 unchanged. Diagnostics are retained for any recurrence. See the verification
-report for evidence. Phase 6 has not started; Firefox, Safari and CI remain deferred.
+report for evidence. Phase 6 had not started at that handoff; Firefox, Safari and
+CI remain deferred.
 
-## 12 Proposed Phase 6 sequence — awaiting approval
+## 12 Approved Phase 6 sequence
 
-The [Phase 6 plan](../docs/webui-refactor-phase6-plan.md) proposes ordered steps
+The [Phase 6 plan](../docs/webui-refactor-phase6-plan.md) defines ordered steps
 6A–6U based on the inventory, pilot and shared-infrastructure results. It assigns
 each remaining feature, its supporting controls and connected workflows to an
 owner, with baseline and acceptance checks before progressing. The plan is
-submitted for user approval; it does not authorize starting Phase 6 implementation.
+approved by the user. The user authorized 6A, which is now complete; see the
+[6A verification report](../docs/webui-refactor-phase6a-verification.md).
+The original approval required a prompt before each subsequent sub-phase.
+That requirement was superseded by the continuation authorization below.
+
+The user subsequently authorized 6B (audit trail and entity history), now complete;
+see the [6B verification report](../docs/webui-refactor-phase6b-verification.md).
+
+The user subsequently authorized 6C (shared entity controls), now complete;
+see the [6C verification report](../docs/webui-refactor-phase6c-verification.md).
+The user subsequently authorized 6D (Classification), now complete; see the
+[6D verification report](../docs/webui-refactor-phase6d-verification.md).
+The user subsequently authorized 6E (Security configuration and access controls),
+now complete; see the [6E verification report](../docs/webui-refactor-phase6e-verification.md).
+The original approval stop before 6F was superseded below.
+
+On 11 November 2026 the user authorized continuing through all remaining Phase 6
+sub-phases (6F–6U), retaining per-row acceptance and reporting. Individual
+approval stops were lifted by that instruction. The user's later instruction
+supersedes it: **complete 6M, then stop for explicit approval before continuing.**
+No product changes or Git mutations are authorized by either instruction.
+
+6F–6M are complete for the approved local scope; see the individual reports for
+[login sessions](../docs/webui-refactor-phase6f-verification.md),
+[organization](../docs/webui-refactor-phase6g-verification.md),
+[text indexers](../docs/webui-refactor-phase6h-verification.md), and
+[account/preferences](../docs/webui-refactor-phase6i-verification.md) and
+[translations/Inspector](../docs/webui-refactor-phase6j-verification.md) and
+[legal holds](../docs/webui-refactor-phase6k-verification.md) and
+[digital components/preview](../docs/webui-refactor-phase6l-verification.md) and
+[aggregations](../docs/webui-refactor-phase6m-verification.md).

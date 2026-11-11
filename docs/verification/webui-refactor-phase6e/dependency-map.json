@@ -1,0 +1,114 @@
+[
+  {
+    "name": "bind_resource_security_select",
+    "start": 1401,
+    "end": 1472,
+    "frees": [
+      "api"
+    ],
+    "globals": [
+      "render_message_plain",
+      "ui",
+      "background_tasks"
+    ]
+  },
+  {
+    "name": "show_contextual_acl_roles",
+    "start": 4798,
+    "end": 4842,
+    "frees": [
+      "api"
+    ],
+    "globals": [
+      "ui",
+      "render_message"
+    ]
+  },
+  {
+    "name": "show_acl_editor",
+    "start": 4844,
+    "end": 5329,
+    "frees": [
+      "api",
+      "show_contextual_acl_roles",
+      "show_organization_structure",
+      "bind_remote_relationship_select",
+      "open_aggregation",
+      "auth_state",
+      "current_direction"
+    ],
+    "globals": [
+      "sorted",
+      "asyncio",
+      "ApiError",
+      "ui",
+      "error_message",
+      "int",
+      "TypeError",
+      "ValueError",
+      "ordered_permission_catalogue",
+      "render_message",
+      "acl_source_label",
+      "aggregation_reference_label"
+    ]
+  },
+  {
+    "name": "show_access_explanation",
+    "start": 5331,
+    "end": 5644,
+    "frees": [
+      "auth_state",
+      "open_aggregation",
+      "api"
+    ],
+    "globals": [
+      "set",
+      "OPERATIONS",
+      "ui",
+      "render_message",
+      "repr"
+    ]
+  },
+  {
+    "name": "show_security_level_change",
+    "start": 5854,
+    "end": 5988,
+    "frees": [
+      "api",
+      "bind_remote_relationship_select"
+    ],
+    "globals": [
+      "int",
+      "ApiError",
+      "ui",
+      "error_message",
+      "relationship_options",
+      "render_message",
+      "relationship_select",
+      "render_message_plain",
+      "html_escape",
+      "json",
+      "list"
+    ]
+  },
+  {
+    "name": "show_profile_privilege_editor",
+    "start": 9143,
+    "end": 9310,
+    "frees": [
+      "api",
+      "select_entity"
+    ],
+    "globals": [
+      "asyncio",
+      "ApiError",
+      "ui",
+      "error_message",
+      "render_message",
+      "localized_privilege_category",
+      "localized_privilege_name",
+      "localized_privilege_description",
+      "set"
+    ]
+  }
+]

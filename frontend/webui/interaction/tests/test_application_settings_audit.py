@@ -1,5 +1,4 @@
 """Settings events use the real shared timeline/detail/navigation callbacks."""
-import ast
 import asyncio
 import copy
 import inspect
@@ -13,6 +12,7 @@ import pytest
 from nicegui import ui
 from nicegui.testing import User
 from frontend.webui.api_client import ApiError
+from frontend.webui.audit_workspace import build_audit_workspace
 from frontend.webui.navigation_controller import NavigationController
 from frontend.webui.audit_labels import audit_entity_type_label
 from frontend.webui.capabilities import can_navigate
@@ -23,9 +23,6 @@ from frontend.webui.i18n_catalogue import render_message, render_message_plain, 
 pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
 ROOT=Path(__file__).parents[4]
-TREE=ast.parse((ROOT/'frontend/webui/app.py').read_text())
-NAMES={'event_reference_value','event_value','event_entity_identity','event_actor_identity','can_open_event_entity','navigate_to_event_entity','show_event_detail','render_event_timeline'}
-FUNCTIONS=[n for n in ast.walk(TREE) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in NAMES]
 AR={r['message_key']:r['translated_text'] for r in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
 OPERATIONS=['APPLICATION_SETTING_CHANGED','APPLICATION_SETTING_SEEDED','APPLICATION_SETTINGS_MIGRATION_COMPLETED']
 
@@ -67,7 +64,17 @@ async def test_old_settings_events_have_shared_labels_and_guarded_open_links(use
             bind_relationship=lambda *a,**kw:None,direction=lambda:'rtl' if language=='ar' else 'ltr',
             on_error=str,
         )
-        exec(compile(ast.Module(body=FUNCTIONS,type_ignores=[]),'app.py','exec'),scope)
+        workspace=build_audit_workspace(
+            api=api,table_container=host,principal=lambda:scope['auth_state']['principal'],
+            selected=lambda:True,enter=Mock(),error_message=str,format_timestamp=lambda v:v,
+            set_connection_status=Mock(),
+            can_open_settings=scope['application_settings_controller'].can_open,
+            open_settings=scope['application_settings_controller'].open_from_event,
+            open_destination=AsyncMock(),
+        )
+        scope.update(render_event_timeline=workspace.render_event_timeline,
+                     show_event_detail=workspace.show_event_detail,
+                     navigate_to_event_entity=workspace.navigate_to_event_entity)
         holder.update(scope=scope,host=host)
         scope['render_event_timeline'](rows,host)
     await user.open('/settings-audit-test')

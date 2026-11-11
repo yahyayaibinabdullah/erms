@@ -12,7 +12,7 @@ def test_record_and_aggregation_hold_removal_dialogs_use_arabic():
     root = Path(__file__).parents[1]
     arabic = {i['message_key']: i['translated_text'] for i in
               json.loads((root / 'i18n/messages.ar.generated.json').read_text())['items']}
-    tree = ast.parse((root / 'app.py').read_text())
+    tree = ast.parse((root / 'app.py').read_text() + '\n' + (root / 'aggregation_details.py').read_text())
     set_active_messages(arabic)
     try:
         for name in ('remove_record_from_all_holds', 'remove_aggregation_from_all_holds'):
@@ -32,7 +32,7 @@ def test_hold_update_reason_dialog_localizes_title_and_action_in_both_languages(
     root = Path(__file__).parents[1]
     arabic = {item['message_key']: item['translated_text'] for item in
               json.loads((root / 'i18n/messages.ar.generated.json').read_text())['items']}
-    tree = ast.parse((root / 'app.py').read_text())
+    tree = ast.parse((root / 'hold_editor.py').read_text())
     editor = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef)
                   and n.name == 'open_hold_editor')
     save = next(n for n in ast.walk(editor) if isinstance(n, ast.AsyncFunctionDef)

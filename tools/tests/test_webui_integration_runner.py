@@ -128,3 +128,24 @@ def test_fixture_rejects_a_persistent_database_before_connecting(monkeypatch, en
     monkeypatch.setattr(fixture.psycopg, 'connect', forbidden)
     with pytest.raises(RuntimeError, match='disposable WebUI runner'):
         getattr(fixture, entry_point)()
+
+
+def test_text_indexer_browser_scope_signals_completion_to_runner(monkeypatch):
+    """The runner rejects journeys that forget its completion handshake."""
+    import ast
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+    import sys
+    tree=ast.parse((runner.ROOT/'tools/check_webui_browser.py').read_text())
+    cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='Acceptance')
+    run=next(n for n in cls.body if isinstance(n,ast.FunctionDef) and n.name=='run')
+    checked=Mock()
+    monkeypatch.setitem(sys.modules,'tools.webui_browser_text_indexers',SimpleNamespace(check_text_indexers=checked))
+    scope={}
+    exec(compile(ast.Module(body=[run],type_ignores=[]),'<browser-scope>','exec'),scope)
+    driver=SimpleNamespace(set_window_size=Mock(),get=Mock(),execute_script=Mock(return_value=(1440,1000)),get_window_size=lambda:{'width':1440,'height':1000})
+    page=SimpleNamespace(driver=driver,args=SimpleNamespace(url='http://test.invalid',scope='text-indexers'),check=lambda _:nullcontext(),login=Mock(),settings=Mock(),report={})
+    scope['run'](page)
+    checked.assert_called_once_with(page)
+    assert page.report['complete'] is True

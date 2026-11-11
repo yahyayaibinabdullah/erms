@@ -1,5 +1,4 @@
 """Exercise the actual selector binding without a persistent database."""
-import ast
 import asyncio
 import json
 from pathlib import Path
@@ -9,14 +8,14 @@ import pytest
 from nicegui import ui, background_tasks
 from nicegui.testing import User
 from frontend.webui.app import relationship_options, relationship_select, relationship_search_query
+from frontend.webui.security_level_controls import build_security_selector
 from frontend.webui.api_client import ApiError
 from frontend.webui.i18n_catalogue import render_message_plain, set_active_messages
 
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[2]
-BINDING = next(n for n in ast.walk(ast.parse((ROOT / 'app.py').read_text()))
-               if isinstance(n, ast.FunctionDef) and n.name == 'bind_resource_security_select')
+
 
 
 class Api:
@@ -45,7 +44,7 @@ async def setup(user, language):
                  background_tasks=background_tasks, ApiError=ApiError, error_message=str,
                  render_message_plain=render_message_plain, relationship_options=relationship_options,
                  relationship_search_query=relationship_search_query)
-    exec(compile(ast.Module(body=[BINDING], type_ignores=[]), '<security-selector>', 'exec'), scope)
+    scope['bind_resource_security_select'] = build_security_selector(api,error_message=str)
     @ui.page('/security-selector')
     def page():
         translations = {r['message_key']: r['translated_text'] for r in

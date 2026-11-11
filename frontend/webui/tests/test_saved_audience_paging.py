@@ -70,7 +70,7 @@ def test_saved_search_tabs_use_api_scope_ids_separate_from_translated_labels():
 
 
 def test_saved_audience_ancestor_cannot_be_selected():
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse((Path(__file__).parents[1] / 'organization_browser.py').read_text())
     browser = next(n for n in ast.walk(source) if isinstance(n, ast.AsyncFunctionDef)
                    and n.name == 'show_organization_structure')
     predicate = next(n for n in ast.walk(browser) if isinstance(n, ast.FunctionDef)
@@ -89,7 +89,7 @@ def test_saved_audience_ancestor_cannot_be_selected():
 
 
 def test_saved_audience_scope_survives_every_browser_page_and_search():
-    source = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    source = ast.parse((Path(__file__).parents[1] / 'organization_browser.py').read_text())
     browser = next(n for n in ast.walk(source) if isinstance(n, ast.AsyncFunctionDef)
                    and n.name == 'show_organization_structure')
     calls = [n for n in ast.walk(browser) if isinstance(n, ast.Call)

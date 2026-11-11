@@ -1,0 +1,25 @@
+{
+  "unchanged_other_direct_host_functions": 131,
+  "unchanged_helpers_and_renderers": [
+    "event_value",
+    "event_reference_value",
+    "event_entity_identity",
+    "hydrate_historical_audit_identities",
+    "event_actor_identity",
+    "render_event_timeline",
+    "show_entity_history"
+  ],
+  "dependency_substitutions_verified": [
+    "principal",
+    "Settings permission and opener",
+    "destination dispatch"
+  ],
+  "shell_entry_and_destination_dispatch_AST_identical": true,
+  "audit_filter_and_paging_body_AST_identical": true,
+  "private_state_change": "audit page revision moves from shared host dictionary to per-client factory closure; selected resource remains a host callback",
+  "changed_existing_runtime_files": [
+    "frontend/webui/app.py"
+  ],
+  "new_runtime_file": "frontend/webui/audit_workspace.py",
+  "other_baseline_runtime_files_byte_identical": true
+}

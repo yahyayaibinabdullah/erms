@@ -1,0 +1,43 @@
+{
+  "verified_boundaries": {
+    "show_memberships": "identical after explicit shell/read callbacks and per-client token ownership",
+    "confirm_identity_deletion": "identical after explicit shell/read callbacks and per-client token ownership",
+    "select_organization_unit_details": "identical after explicit shell/read callbacks and per-client token ownership",
+    "select_role_details": "identical after explicit shell/read callbacks and per-client token ownership",
+    "select_user_details": "identical after explicit shell/read callbacks and per-client token ownership",
+    "show_organization_structure": "identical after explicit shell/read callbacks and per-client token ownership",
+    "configure_designation_field": "original conditional body retained",
+    "configure_role_profile_field": "original conditional body retained",
+    "configure_organization_browser_field": "original conditional body retained",
+    "configure_role_governance_field": "original conditional body retained",
+    "organization_reason_input": "original conditional body retained",
+    "organization_change_reason": "original conditional body retained",
+    "organization_table_filters": "original conditional body retained",
+    "organization_user_slots": "original conditional body retained",
+    "organization_leading_actions": "original conditional body retained",
+    "organization_membership_action": "original conditional body retained",
+    "organization_user_actions": "original conditional body retained",
+    "organization_lifecycle_actions": "original conditional body retained",
+    "bind_organization_table_destinations": "original conditional body retained",
+    "table_issue_password": "original workflow with explicit row/identity callbacks",
+    "table_change_suspension": "original workflow with explicit row/identity callbacks",
+    "table_confirm_lifecycle": "original workflow with explicit row/identity callbacks",
+    "filter_membership_rows": "identical pure helper",
+    "user_avatar": "identical pure helper",
+    "render_user_avatar": "identical pure helper",
+    "inactive_org_unit_source": "identical pure helper",
+    "role_change_requires_reason": "identical pure helper",
+    "deletion_identity": "identical pure helper",
+    "deletion_blocked_report": "identical pure helper",
+    "organization_hydration": "all three original bounded projection branches identical",
+    "shared_administration_cards": "entire original body identical after page/result accessors",
+    "shared_editor": "complete original AST restored by inlining verified helpers",
+    "table_slot_markup": "original markup preserved, allowing only common source indentation"
+  },
+  "unchanged_direct_host_functions": 108,
+  "styling_and_message_literals_identical": true,
+  "changed_existing_runtime_files": [
+    "frontend/webui/app.py"
+  ],
+  "shared_state_dictionary_passed": false
+}

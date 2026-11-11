@@ -1,0 +1,112 @@
+[
+  {
+    "run": "before-chrome-scrolled",
+    "database_cleanup": true,
+    "checks": [
+      {
+        "name": "real sign-in and Settings drawer caller",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "profile privilege editor, search and keyboard cancellation",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "record access, explanation and security-level dialogs",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "aggregation resource/default ACLs and inherited access",
+        "status": "fail",
+        "error": "Message: Expected exactly one visible .q-expansion-item: Advanced\n"
+      }
+    ]
+  },
+  {
+    "run": "before-chrome",
+    "database_cleanup": true,
+    "checks": [
+      {
+        "name": "real sign-in and Settings drawer caller",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "profile privilege editor, search and keyboard cancellation",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "record access, explanation and security-level dialogs",
+        "status": "fail",
+        "error": "Message: stale element reference: stale element not found in the current frame\n  (Session info: chrome=157.0.8103.40); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#staleelementreferenceexception\n"
+      }
+    ]
+  },
+  {
+    "run": "before-chrome-fixed",
+    "database_cleanup": true,
+    "checks": [
+      {
+        "name": "real sign-in and Settings drawer caller",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "profile privilege editor, search and keyboard cancellation",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "record access, explanation and security-level dialogs",
+        "status": "fail",
+        "error": "Message: element click intercepted: Element <input class=\"q-field__native q-placeholder\" tabindex=\"0\" aria-label=\"\u2063\ufe07\ufe07\ufe06\ufe05\ufe06\ufe02\ufe07\ufe05\ufe06\ufe09\ufe02\ufe0e\ufe07\ufe03\ufe06\ufe08\ufe06\ufe0f\ufe07\ufe07\ufe05\ufe0f\ufe06\ufe01\ufe06\ufe03\ufe06\ufe0c\ufe05\ufe0f\ufe06\ufe05\ufe06\ufe04\ufe06\ufe09\ufe07\ufe04\ufe06\ufe0f\ufe07\ufe02\ufe02\ufe0e\ufe06\ufe09\ufe06\ufe0e\ufe07\ufe00\ufe07\ufe05\ufe07\ufe04\ufe02\ufe0e\ufe07\ufe02\ufe06\ufe05\ufe06\ufe01\ufe07\ufe03\ufe06\ufe0f\ufe06\ufe0e\ufe05\ufe0f\ufe06\ufe06\ufe06\ufe0f\ufe07\ufe02\ufe05\ufe0f\ufe06\ufe01\ufe06\ufe03\ufe06\ufe03\ufe06\ufe05\ufe07\ufe03\ufe07\ufe03\ufe05\ufe0f\ufe06\ufe03\ufe06\ufe08\ufe06\ufe01\ufe06\ufe0e\ufe06\ufe07\ufe06\ufe05\ufe05\ufe0f\ufe03\ufe02\ufe03\ufe07\ufe06\ufe04\ufe03\ufe01\ufe03\ufe02\ufe06\ufe05\ufe06\ufe05\ufe06\ufe06\u2064\ufe01\u2064\ufe01\ufe08\u2064Reason for access change\" name=\"c1669\" loopback=\"false\" list=\"c1669-datalist\" id=\"c1669\" type=\"text\" value=\"\"> is not clickable at point (653, 665). Other element would receive the click: <div id=\"c1610\" class=\"nicegui-column gap-0\" dir=\"ltr\" style=\"min-width: 2686px;\">...</div>\n  (Session info: chrome=157.0.8103.40); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementclickinterceptedexception\n"
+      }
+    ]
+  },
+  {
+    "run": "before-edge",
+    "database_cleanup": true,
+    "checks": [
+      {
+        "name": "real sign-in and Settings drawer caller",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "profile privilege editor, search and keyboard cancellation",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "record access, explanation and security-level dialogs",
+        "status": "fail",
+        "error": "Message: element click intercepted: Element <input class=\"q-field__native q-placeholder\" tabindex=\"0\" aria-label=\"\u2063\ufe07\ufe07\ufe06\ufe05\ufe06\ufe02\ufe07\ufe05\ufe06\ufe09\ufe02\ufe0e\ufe07\ufe03\ufe06\ufe08\ufe06\ufe0f\ufe07\ufe07\ufe05\ufe0f\ufe06\ufe01\ufe06\ufe03\ufe06\ufe0c\ufe05\ufe0f\ufe06\ufe05\ufe06\ufe04\ufe06\ufe09\ufe07\ufe04\ufe06\ufe0f\ufe07\ufe02\ufe02\ufe0e\ufe06\ufe09\ufe06\ufe0e\ufe07\ufe00\ufe07\ufe05\ufe07\ufe04\ufe02\ufe0e\ufe07\ufe02\ufe06\ufe05\ufe06\ufe01\ufe07\ufe03\ufe06\ufe0f\ufe06\ufe0e\ufe05\ufe0f\ufe06\ufe06\ufe06\ufe0f\ufe07\ufe02\ufe05\ufe0f\ufe06\ufe01\ufe06\ufe03\ufe06\ufe03\ufe06\ufe05\ufe07\ufe03\ufe07\ufe03\ufe05\ufe0f\ufe06\ufe03\ufe06\ufe08\ufe06\ufe01\ufe06\ufe0e\ufe06\ufe07\ufe06\ufe05\ufe05\ufe0f\ufe03\ufe02\ufe03\ufe07\ufe06\ufe04\ufe03\ufe01\ufe03\ufe02\ufe06\ufe05\ufe06\ufe05\ufe06\ufe06\u2064\ufe01\u2064\ufe01\ufe08\u2064Reason for access change\" name=\"c1669\" loopback=\"false\" list=\"c1669-datalist\" id=\"c1669\" type=\"text\" value=\"\"> is not clickable at point (720, 669). Other element would receive the click: <div id=\"c1610\" class=\"nicegui-column gap-0\" dir=\"ltr\" style=\"min-width: 2686px;\">...</div>\n  (Session info: MicrosoftEdge=157.0.4341.42); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementclickinterceptedexception\n"
+      }
+    ]
+  },
+  {
+    "run": "before-edge-fixed",
+    "database_cleanup": true,
+    "checks": [
+      {
+        "name": "real sign-in and Settings drawer caller",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "profile privilege editor, search and keyboard cancellation",
+        "status": "pass",
+        "error": ""
+      },
+      {
+        "name": "record access, explanation and security-level dialogs",
+        "status": "fail",
+        "error": "list index out of range"
+      }
+    ]
+  }
+]

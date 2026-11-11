@@ -1,5 +1,6 @@
 """Real NiceGUI browser events with bounded fake API data; no database access."""
-import ast
+import inspect
+from frontend.webui import organization_browser
 import asyncio
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,9 +18,9 @@ from frontend.webui.i18n_catalogue import render_message
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
 
-SOURCE = Path(__file__).parents[2] / 'app.py'
-BROWSER = next(n for n in ast.walk(ast.parse(SOURCE.read_text()))
-               if isinstance(n, ast.AsyncFunctionDef) and n.name == 'show_organization_structure')
+@pytest.fixture(autouse=True)
+def isolated_browser_storage(monkeypatch):
+    monkeypatch.setattr(organization_browser,'app',SimpleNamespace(storage=SimpleNamespace(user={})))
 
 
 class Api:
@@ -89,7 +90,12 @@ async def setup(user, *, direction='ltr', privileges=None, saved=None, selector=
         for name in ('search_bar','aggregation_mode_bar','add_button','add_record_button','guidance','title','subtitle'):
             namespace[name] = ui.label('')
         namespace['table_container'] = ui.column()
-        exec(compile(ast.Module(body=[BROWSER],type_ignores=[]),str(SOURCE),'exec'),namespace)
+        organization_browser.app.storage.user=storage
+        namespace.update(current_page=lambda:state.get('resource'),
+            get_principal=lambda:namespace['auth_state'].get('principal'),
+            enter_organization_browser=lambda:state.update(resource='organization-browser',rows=[],searched=True,aggregation_detail=None))
+        factory=organization_browser.build_organization_browser
+        namespace['show_organization_structure']=factory(**{key:namespace[key] for key in inspect.signature(factory).parameters})
         await namespace['show_organization_structure'](selection_mode=selector if isinstance(selector,str) else 'org_unit' if selector else None, on_selection=on_selection)
     await user.open('/organization-test')
     return api, storage, state, opened

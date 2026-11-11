@@ -7,8 +7,13 @@ CLIENT = Path(__file__).parents[1] / "api_client.py"
 HOLDS_API = Path(__file__).parents[3] / "backend" / "services" / "api" / "holds.py"
 
 
+def hold_sources():
+    return "\n".join(APP.with_name(name+".py").read_text() for name in
+        ("app", "hold_editor", "hold_resources", "holds", "hold_details", "hold_navigation", "holds_people", "aggregation_details"))
+
+
 def test_holds_workspace_and_navigation_are_wired():
-    source = with_english_messages(APP.read_text(encoding="utf-8") + APP.with_name("application_shell.py").read_text())
+    source = with_english_messages(hold_sources() + APP.with_name("application_shell.py").read_text() + APP.with_name("login_sessions.py").read_text())
     assert '"Holds", "gavel", navigation_key="holds"' in source
     assert 'async def select_holds()' in source
     assert 'async def select_hold_details(hold_id: int)' in source
@@ -59,7 +64,7 @@ def test_holds_workspace_and_navigation_are_wired():
 
 
 def test_hold_details_localizes_state_validity_and_protection_values():
-    source = APP.read_text(encoding="utf-8")
+    source = hold_sources()
     details = source[source.index("async def select_hold_details("):]
     assert 'localized_hold_states = {' in details
     assert 'render_message("webui.select_holds.select.active_f5bdb37b")' in details
@@ -76,7 +81,7 @@ def test_hold_details_localizes_state_validity_and_protection_values():
 
 
 def test_hold_listing_localizes_card_labels_states_and_open_ended_validity():
-    source = APP.read_text(encoding="utf-8")
+    source = hold_sources()
     listing = source[source.index("async def select_holds()"):source.index("async def select_hold_details(")]
     assert 'ui.badge(hold_state_label' in listing
     assert 'render_message("webui.select_hold_details.label.owner_7d141da3")' in listing
@@ -107,7 +112,7 @@ def test_hold_api_projects_owner_and_contributor_names_in_preferred_language():
 
 
 def test_hold_person_buttons_keep_avatars_on_the_rtl_leading_edge():
-    source = APP.read_text(encoding="utf-8")
+    source = hold_sources()
     assert 'html[dir="rtl"] .hold-person-button .q-btn__content' in source
     assert '"hold-person-button self-start -ml-2"' in source
     assert '"hold-person-button gap-1"' in source
@@ -115,7 +120,7 @@ def test_hold_person_buttons_keep_avatars_on_the_rtl_leading_edge():
 
 
 def test_hold_mutations_collect_reasons_and_refresh_live_state():
-    source = with_english_messages(APP.read_text(encoding="utf-8"))
+    source = with_english_messages(hold_sources())
     assert 'async def hold_reason_dialog(' in source
     assert 'Reason for updating this hold' in source
     assert 'Reason for removing this direct assignment' in source
@@ -128,7 +133,7 @@ def test_hold_mutations_collect_reasons_and_refresh_live_state():
 
 
 def test_hold_editor_datetime_conversion_uses_application_timezone_without_javascript():
-    source = with_english_messages(APP.read_text(encoding="utf-8"))
+    source = with_english_messages(hold_sources())
     hold_editor = source[source.index("async def open_hold_editor("):source.index("async def add_resource_to_hold_dialog(")]
     assert "ui.run_javascript" not in hold_editor
     assert 'return parsed.astimezone().strftime("%Y-%m-%dT%H:%M")' in hold_editor
@@ -137,7 +142,7 @@ def test_hold_editor_datetime_conversion_uses_application_timezone_without_javas
 
 
 def test_aggregation_command_centre_matches_the_approved_two_column_layout():
-    source = with_english_messages(APP.read_text(encoding="utf-8"))
+    source = with_english_messages(hold_sources())
     assert '"aggregation-command-layout w-full p-5"' in source
     assert '"Aggregation overview"' in source
     assert '"detail-surface aggregation-actions-panel shadow-none p-4 gap-3"' in source
@@ -163,14 +168,14 @@ def test_aggregation_command_centre_matches_the_approved_two_column_layout():
 
 
 def test_access_explainer_renders_redaction_safe_hold_constraints():
-    source = with_english_messages(APP.read_text(encoding="utf-8"))
+    source = with_english_messages(hold_sources() + APP.with_name('access_explanation_dialog.py').read_text())
     assert 'result.get("resource_state_constraints", [])' in source
     assert 'details restricted' in source
     assert 'An effective legal hold prevents this' in source
 
 
 def test_security_level_change_remains_separate_from_hold_frozen_metadata():
-    source = with_english_messages(APP.read_text(encoding="utf-8"))
+    source = with_english_messages(hold_sources() + APP.with_name('security_level_controls.py').read_text())
     assert 'async def show_security_level_change(' in source
     assert 'if capabilities.get("change_security_level"):' in source
     assert 'await api.preview_security_level_change({' in source

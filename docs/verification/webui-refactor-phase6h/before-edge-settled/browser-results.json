@@ -1,0 +1,314 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "text-indexers",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 11291.38
+    },
+    {
+      "name": "indexer list filter, operational dialogs and cancelled writes",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9264.17
+    },
+    {
+      "name": "indexer details, credential metadata and keyboard cancellation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 11001.67
+    },
+    {
+      "name": "indexer browser errors and no cancelled mutations",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 13.87
+    },
+    {
+      "name": "indexer list filter, operational dialogs and cancelled writes",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9194.6
+    },
+    {
+      "name": "indexer details, credential metadata and keyboard cancellation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 10872.36
+    },
+    {
+      "name": "indexer browser errors and no cancelled mutations",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 24.78
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "indexers-list-en.png",
+      "sha256": "60ba5cdf9eb3d6c78f6ec2a60495d51ea959d73bfbd21c32c5af07690325b99e",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-backfill-en.png",
+      "sha256": "83c9b1d8fb03d607a95b0ee40dba8c089e1275d3f70a9aabf8c3a05741d41008",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-empty-en.png",
+      "sha256": "d7e19875fb10fa9263984aacdb2b439d78fecc488193dc6163de24d4c66bf42d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-detail-en.png",
+      "sha256": "b89a07b4b39201c3e2611853428fa3a6dde4f481f8c6baf8131b8f867ef2ec5e",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-generate-en.png",
+      "sha256": "dc24efecfba7d4a0f4a2a12fae6696479f1ea4a6cea117193af3edcf6084cc4f",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-revoke-en.png",
+      "sha256": "9778080bced0d59dec5fc282bb6fb5834ed53fc21fd82bc78b0c99c9a7a846c3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-list-ar.png",
+      "sha256": "cdb4c87e5646dfd2d0376d39c8421002026bb55f6e6bceb027a65219cbedf012",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-backfill-ar.png",
+      "sha256": "2234add6a07be935afff2e304f9d9da8ee612472032783b2e70ab2594721037b",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-empty-ar.png",
+      "sha256": "c09340919816ca6af3c55a418481fe16d46fa8ed57f7d25a6e7482c1f4c6da04",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-detail-ar.png",
+      "sha256": "0ece6b51cfe3e30b6ec75d4b6dfc6979a6b6160d217feb4f945589ea76be3fcc",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-generate-ar.png",
+      "sha256": "74a7fed6fcccc30a0d141085b88632f6313764802db1b559e163d67a9a79ef43",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "indexers-revoke-ar.png",
+      "sha256": "8c434a2ef46a6c25ed3fcef9e4f41b57dcaa32b39f75a24be502125ded4c58ae",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "observation_regions": [
+    {
+      "language": "en",
+      "rect": {
+        "height": 16,
+        "width": 170,
+        "x": 1138,
+        "y": 530.984375
+      },
+      "text": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆︅︆︃︇︄︅️︇︄︆︅︇︈︇︄︅️︆︉︆︎︆︄︆︅︇︈︆︅︇︂︇︃︂︎︇︄︆︅︇︈︇︄︂︎︆️︆︂︇︃︆︅︇︂︇︆︆︅︆︄︅️︆︆︆️︇︂︆︍︆︁︇︄︅️︇︄︆︉︆︍︆︅︇︃︇︄︆︁︆︍︇︀︅️︃︂︃︅︃︁︃︉︆︃︃︀︃︀︃︇⁤︁⁤︂︀⁤Observed ⁨10 Nov 2026, 09:47 PM⁩"
+    },
+    {
+      "language": "ar",
+      "rect": {
+        "height": 16,
+        "width": 171,
+        "x": 130.578125,
+        "y": 574.96875
+      },
+      "text": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆︅︆︃︇︄︅️︇︄︆︅︇︈︇︄︅️︆︉︆︎︆︄︆︅︇︈︆︅︇︂︇︃︂︎︇︄︆︅︇︈︇︄︂︎︆️︆︂︇︃︆︅︇︂︇︆︆︅︆︄︅️︆︆︆️︇︂︆︍︆︁︇︄︅️︇︄︆︉︆︍︆︅︇︃︇︄︆︁︆︍︇︀︅️︃︂︃︅︃︁︃︉︆︃︃︀︃︀︃︇⁤︀⁤︂︁⁤رُصد في ⁨10 نوفمبر 2026, 09:48 م⁩"
+    }
+  ],
+  "existing_pagination_icon_errors": [
+    {
+      "language": "en",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    }
+  ],
+  "indexer_focus": [
+    {
+      "language": "en",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︃︇︂︆︅︆︄︆︅︆︎︇︄︆︉︆︁︆︌︅️︆︄︆︉︆︁︆︌︆️︆︇︂︎︆︉︆︎︇︀︇︅︇︄︂︎︆︁︆︌︆︌︆️︇︇︆︅︆︄︅️︇︂︆️︇︅︇︄︆︅︅️︆︄︃︈︃︀︃︅︃︇︃︃︃︆︆︁⁤︁⁤︍⁤Allowed route"
+    },
+    {
+      "language": "ar",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︃︇︂︆︅︆︄︆︅︆︎︇︄︆︉︆︁︆︌︅️︆︄︆︉︆︁︆︌︆️︆︇︂︎︆︉︆︎︇︀︇︅︇︄︂︎︆︁︆︌︆︌︆️︇︇︆︅︆︄︅️︇︂︆️︇︅︇︄︆︅︅️︆︄︃︈︃︀︃︅︃︇︃︃︃︆︆︁⁤︀⁤︎⁤المسار المسموح"
+    }
+  ],
+  "browser_errors": []
+}

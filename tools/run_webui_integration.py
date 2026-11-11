@@ -63,7 +63,7 @@ def main():
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -85,7 +85,7 @@ def main():
             ROOT / 'frontend/webui/i18n/messages.ar.generated.json',
             *[ROOT / 'tools' / filename for filename in (
                 'run_webui_integration.py', 'check_webui_browser.py',
-                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_server.py',
+                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_classification.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_aggregations.py', 'webui_browser_server.py',
                 'seed_webui_regression.py')],
         ]
         (output / 'source-environment.json').write_text(json.dumps({

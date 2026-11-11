@@ -19,6 +19,82 @@ contains the pure trail helpers. Feature snapshots, dispatch, localized breadcru
 rendering and shell updates remain explicit host callbacks during migration.
 There are no entity routes or new browser-history entries.
 
+`relationship_types_controller.py` owns relationship-type administration entry,
+its existing permission gate and per-client view lifetime. The existing renderer
+and resource relationship panels remain in `resource_relationships.py`. The host
+supplies shell entry, current identity/destination and supported-language readers;
+the controller has no application-state dictionary or data cache. See the
+[Phase 6A verification report](../../docs/webui-refactor-phase6a-verification.md).
+
+`audit_workspace.py` owns audit filters/paging, historical identities, timelines
+and entity-history/detail dialogs. Build one workspace per root-page client.
+The host supplies shell entry, current identity/destination, Settings access and
+existing resource destinations. Audit revisions stay private to that workspace;
+there is no new cache or route. Existing callers use its `select_audit_trail`
+and `show_entity_history` handlers. See the
+[Phase 6B verification report](../../docs/webui-refactor-phase6b-verification.md).
+
+The Phase 6C shared controls have explicit owners:
+
+- `collection_controls.py`: bounded collection reads, stale-response checks and
+  existing filter/paging events; the host retains feature cards and view state.
+- `collection_hydration.py`: selected-row references and ancestor/closure lookups;
+  entity-specific decoration remains with the host pending its feature move.
+- `entity_selectors.py`: bounded relationship choices, selected values and each
+  control's request lifetime.
+- `entity_editor_controls.py` and `entity_translation_editor.py`: existing field
+  rendering/conversion and per-dialog translation loading, validation and removal.
+- `resource_number_controls.py`: existing resource-number suggestions/conflicts.
+- `personal_resources.py`: one `PersonalResourceState` and data/control owner per
+  root-page client; the host's existing sign-out and Dashboard updates use it.
+- `personal_resource_views.py` and `compact_resource_view.py`: existing shared
+  presentation, with explicit callbacks to resource/preview destinations.
+
+These modules do not import `app.py` or receive its application-state dictionary.
+The host still owns feature-specific permissions, fields, validation, writes,
+refresh rules and navigation until the corresponding approved feature step.
+See the [Phase 6C verification report](../../docs/webui-refactor-phase6c-verification.md).
+
+`classification_controller.py` owns classification entry, per-client view tokens
+and browser preferences. Construct it after the audit workspace provides the
+history callback; identity cleanup calls its `reset`. Classification-specific
+editor rules and collection adapters live in `classification_editor.py`; the
+existing editor/Advanced Search pickers and published-scheme type-ahead live in
+`classification_selectors.py`. The existing `classification_workspace.py` and
+`classification_transfer.py` continue to render their screens unchanged. The
+host supplies shell, editor, history and direction callbacks. See the
+[Phase 6D verification report](../../docs/webui-refactor-phase6d-verification.md).
+
+The Phase 6E security owners are `access_control_dialogs.py` (resource/default
+ACLs and contextual roles), `access_explanation_dialog.py` (decisions and bounded
+subject selection), `security_level_controls.py` (assignable selectors and
+reviewed security changes), and `security_administration.py` (profile labels,
+editing rules and privilege dependencies). The common registry, forms and list
+layout are reused. The host supplies API, current-principal/direction readers and
+navigation/refresh callbacks; these modules never import the host or receive its
+shared state dictionary. See the
+[Phase 6E verification report](../../docs/webui-refactor-phase6e-verification.md).
+
+`login_sessions.py` owns the session list, filters, paging and revocation
+confirmations. The root supplies shell entry and current-session cleanup callbacks.
+See the [Phase 6F report](../../docs/webui-refactor-phase6f-verification.md).
+
+Organization ownership is split between `organization_units.py`,
+`organization_roles.py`, `organization_users.py`, `organization_memberships.py`,
+`organization_browser.py` and `organization_deletion.py`. The user-view token
+belongs to its per-client factory; the browser retains the existing session
+storage format and SessionContext cleanup. Cross-feature destinations use
+explicit callbacks to avoid circular imports.
+
+`organization_editor.py` owns organization form rules and reason validation;
+`organization_collections.py` supplies bounded list projections;
+`organization_table.py` and `organization_collection_actions.py` retain table
+presentation and actions. `identity_presentation.py` supplies shared avatars.
+`administration_cards.py` renders the existing shared card layout for organization
+and security administration, receiving only collection pages, a result reader
+and feature callbacks. The root retains common form/list assembly and navigation.
+
+
 `session_context.py` supplies the existing per-page API client, identity and current
 locale, and coordinates sign-in, sign-out and unauthorized cleanup. It adds no
 cache. Its small identity mapping is a temporary host adapter; features should
@@ -274,6 +350,14 @@ account controls and narrow-screen behavior in English and Arabic. The
 `--browser-scope session` checks independent clients, reconnect, old-identity
 responses, sign-out and the existing administrator-issued temporary-password
 recovery flow. Both use disposable databases and supplement the full gate.
+The `--browser-scope relationships` checks relationship-type administration in
+English and Arabic, including real writes, validation/conflicts, pagination,
+focus, restricted access and abandoned reads. It sends no email and supplies
+focused feature evidence; it does not replace application-wide verification.
+The `--browser-scope audit` checks audit filters/paging, historical details,
+record history, Settings/monitor links, native focus, restricted access, errors,
+abandoned reads and restoration in English and Arabic. Its synthetic history
+is seeded only into the runner's disposable database. It sends no email.
 The current refactor acceptance scope is Chrome and Edge only; Firefox, Safari
 and CI remain deferred by the user.
 
@@ -295,3 +379,27 @@ Full-text header visibility now follows the API's saved FULL_TEXT_SEARCH_ENABLED
 value in bootstrap/page configuration. WEBUI_FULL_TEXT_SEARCH_ENABLED is removed.
 No WebUI feature cache or extra bootstrap/widget settings request is introduced.
 See docs/application-settings-upgrade.md before deploying this cutover.
+
+Phase 6G organization verification: [report](../../docs/webui-refactor-phase6g-verification.md).
+
+Text-indexer lists/diagnostics, details and one-time key display are owned by
+`text_indexers.py`, `text_indexer_details.py` and `text_indexer_credentials.py`.
+[Phase 6H verification](../../docs/webui-refactor-phase6h-verification.md).
+
+Account UI and localization coordination are owned by `account_sign_in.py`,
+`account_password.py`, `account_profile.py`, `account_preferences.py`,
+`account_localization.py` and `account_bootstrap.py`; `SessionContext` retains
+authentication lifecycle ownership.
+[Phase 6I verification](../../docs/webui-refactor-phase6i-verification.md).
+Translation administration and Inspector ownership and evidence are recorded in
+[Phase 6J verification](../../docs/webui-refactor-phase6j-verification.md).
+Legal-hold ownership and evidence are recorded in
+[Phase 6K verification](../../docs/webui-refactor-phase6k-verification.md).
+
+Digital component controls, cards, uploads and saved/staged preview ownership are
+recorded in [Phase 6L verification](../../docs/webui-refactor-phase6l-verification.md).
+
+Aggregation browsing, detail/actions, state, selection and editor hooks are owned
+by the `aggregation_*` modules. See
+[Phase 6M verification](../../docs/webui-refactor-phase6m-verification.md).
+The refactor stops after 6M pending the user's approval for 6N.

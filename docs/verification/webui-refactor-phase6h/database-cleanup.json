@@ -1,0 +1,81 @@
+{
+  "created_runs": 12,
+  "unique_names": true,
+  "all_runner_cleanup_confirmed": true,
+  "independent_catalogue_audit": true,
+  "remaining_databases": [],
+  "runs": [
+    {
+      "run": "after-assembled",
+      "database": "erms_webui_test_8d1ef522311e4ca8907d67ebe10c5763",
+      "database_dropped": true,
+      "test_exit_code": 2
+    },
+    {
+      "run": "after-assembled-final",
+      "database": "erms_webui_test_d6e35bfbf1b94fec8746d5cae2724b1a",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-chrome",
+      "database": "erms_webui_test_c532ede8d3454d7f9e350cc79ebfab78",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "after-edge",
+      "database": "erms_webui_test_ae07fd2e383c43df936229d2c996e80c",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-assembled",
+      "database": "erms_webui_test_a4ec0b5adb3e48c59bee4cf231d2906e",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-assembled-final",
+      "database": "erms_webui_test_94444a7de0a24726980130db114a877f",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-chrome",
+      "database": "erms_webui_test_b9b64017122244be89f1d3bf0a7bc4b7",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-final",
+      "database": "erms_webui_test_9b854ef7d5a44035be441771e0530c6c",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-v2",
+      "database": "erms_webui_test_926a21ce69294dd794a9e7b5bc9d4cfe",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge",
+      "database": "erms_webui_test_499d0f412a1a47108563751ed26abf2a",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge-final",
+      "database": "erms_webui_test_5d4d9028840f4074bddbef5136441424",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge-settled",
+      "database": "erms_webui_test_5fd6b3f8be1444aaa5adac1fad2c0879",
+      "database_dropped": true,
+      "test_exit_code": 1
+    }
+  ]
+}

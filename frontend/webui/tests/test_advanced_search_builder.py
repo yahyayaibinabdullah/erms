@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+from frontend.webui.tests.aggregation_sources import aggregation_sources
 from frontend.webui.tests.localization_assertions import with_english_messages
 
 from frontend.webui.app import (
@@ -12,9 +13,13 @@ from frontend.webui.app import (
 
 
 APP_SOURCE = with_english_messages(
-    (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
+    (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8") + aggregation_sources()
 )
 
+
+SELECTOR_SOURCE = with_english_messages((Path(__file__).parents[1] / 'entity_selectors.py').read_text())
+CLASSIFICATION_SOURCE = with_english_messages((Path(__file__).parents[1] / 'classification_selectors.py').read_text())
+COMPACT_SOURCE = with_english_messages((Path(__file__).parents[1] / 'compact_resource_view.py').read_text())
 
 def test_nested_builder_compiles_existing_boolean_and_full_text_grammar():
     tree = {"type": "group", "operator": "and", "children": [
@@ -180,15 +185,15 @@ def test_restored_advanced_search_selectors_reject_stale_values_before_rendering
     assert 'if workspace.get("limit") not in {25, 50, 100}:' in APP_SOURCE
     assert 'load_selected_roles(selected_role_ids)' in APP_SOURCE
     assert 'load_selected_units(selected_unit_ids)' in APP_SOURCE
-    assert 'selected_loader(int(value))' in APP_SOURCE
-    assert 'if not active() or getattr(control, "_deleted", False):' in APP_SOURCE
+    assert 'selected_loader(int(value))' in SELECTOR_SOURCE
+    assert 'if not active() or getattr(control, "_deleted", False):' in SELECTOR_SOURCE
 
 
 def test_restored_relationship_values_are_resolved_to_localized_labels():
-    assert 'async def resolve_selected_options()' in APP_SOURCE
-    assert 'else api.get(resource, int(value))) for value in selected_values' in APP_SOURCE
-    assert 'include_level_number=resource == "security-levels"' in APP_SOURCE
-    assert 'level_label=security_level_label' in APP_SOURCE
+    assert 'async def resolve_selected_options()' in SELECTOR_SOURCE
+    assert 'else api.get(resource, int(value))) for value in selected_values' in SELECTOR_SOURCE
+    assert 'include_level_number=resource == "security-levels"' in SELECTOR_SOURCE
+    assert 'level_label=security_level_label' in SELECTOR_SOURCE
     assert 'selected_label = str(node.get("_value_label") or "…")' in APP_SOURCE
     assert '({int(selected_value): selected_label} if selected_value is not None else {})' in APP_SOURCE
     assert '"_value_label", options[int(condition["value"])]' in APP_SOURCE
@@ -254,7 +259,7 @@ def test_advanced_search_uses_clearable_catalogues_and_classification_aggregatio
 
 def test_record_component_attributions_open_the_governed_viewer():
     assert "Preview digital component" in APP_SOURCE
-    assert 'preview_record_components(selected, component_id)' in APP_SOURCE
+    assert 'preview_record_components(selected, component_id)' in COMPACT_SOURCE
     assert 'workspace["record_component_details"] = {' in APP_SOURCE
     assert 'for component in search_meta.get("matching_components", [])' in APP_SOURCE
     assert '{**authorized_component_details.get(int(component["id"]), {}), **component}' in APP_SOURCE
@@ -269,14 +274,14 @@ def test_advanced_search_builder_and_results_use_compact_aligned_layouts():
     assert 'render_compact_resource_result(' in APP_SOURCE
     assert '.compact-result-row {' in APP_SOURCE
     assert 'grid-template-areas: "identity actions";' in APP_SOURCE
-    assert 'with ui.element("div").classes("compact-result-identity"):' in APP_SOURCE
+    assert 'with ui.element("div").classes("compact-result-identity"):' in COMPACT_SOURCE
     rtl_result_layout = APP_SOURCE.split('html[dir="rtl"] .compact-result-row {', 1)[1].split('}', 1)[0]
     assert 'grid-template-areas: "actions identity";' in rtl_result_layout
     rtl_identity_layout = APP_SOURCE.split('html[dir="rtl"] .compact-result-identity {', 1)[1].split('}', 1)[0]
     assert 'grid-template-areas: "title type";' in rtl_identity_layout
     assert 'justify-content: end;' in rtl_identity_layout
-    assert 'compact-result-primary w-full items-center no-wrap' in APP_SOURCE
-    assert 'compact-result-meta w-full items-center no-wrap' in APP_SOURCE
+    assert 'compact-result-primary w-full items-center no-wrap' in COMPACT_SOURCE
+    assert 'compact-result-meta w-full items-center no-wrap' in COMPACT_SOURCE
     rtl_result_title_row = APP_SOURCE.rsplit('html[dir="rtl"] .compact-result-primary,', 1)[1].split('}', 1)[0]
     assert 'justify-content: flex-start !important;' in rtl_result_title_row
     assert 'width: auto !important;' in rtl_result_title_row
@@ -287,7 +292,7 @@ def test_advanced_search_builder_and_results_use_compact_aligned_layouts():
     assert 'flex-direction: row !important;' in rtl_result_actions
     assert '.compact-result-type {' in APP_SOURCE
     assert '.compact-result-actions { grid-area: actions; flex-wrap: nowrap; gap: 0; }' in APP_SOURCE
-    assert 'ui.button(icon=tree_expander_icon(False))' in APP_SOURCE
+    assert 'ui.button(icon=tree_expander_icon(False))' in COMPACT_SOURCE
 
 
 def test_advanced_search_builder_mirrors_its_structure_in_rtl():
@@ -342,21 +347,24 @@ def test_classification_browse_selectors_sort_each_level_by_code():
     code_order = '''rows.sort(key=lambda item: (
                     str(item.get("code") or "").casefold(), int(item.get("id") or 0),
                 ))'''
-    assert APP_SOURCE.count(code_order) >= 2
+    assert ' '.join(CLASSIFICATION_SOURCE.split()).count(' '.join(code_order.split())) >= 2
 
 
 def test_classification_browse_selectors_mirror_navigation_icons_in_rtl():
-    assert APP_SOURCE.count(
+    assert CLASSIFICATION_SOURCE.count(
         'ui.icon("check_circle" if classification["is_terminal"] else tree_expander_icon(False)'
     ) == 1
-    assert APP_SOURCE.count(
+    assert CLASSIFICATION_SOURCE.count(
         'ui.icon("check_circle" if item["is_terminal"] else tree_expander_icon(False)'
     ) == 1
-    assert APP_SOURCE.count(
-        'icon="arrow_forward" if current_direction["value"] == "rtl" else "arrow_back"'
+    assert CLASSIFICATION_SOURCE.count(
+        'icon="arrow_forward" if direction() == "rtl" else "arrow_back"'
     ) >= 2
-    assert 'current_direction["value"] = normalized' in APP_SOURCE
-    assert "aria-label='Open {'record' if is_record else 'aggregation'}'" in APP_SOURCE
+    assert 'set_direction=lambda value: current_direction.__setitem__("value", value)' in APP_SOURCE
+    direction_source=(Path(__file__).parents[1]/"account_localization.py").read_text()
+    assert "normalized = normalize_direction(direction)" in direction_source
+    assert "set_direction(normalized)" in direction_source
+    assert "aria-label='Open {'record' if is_record else 'aggregation'}'" in COMPACT_SOURCE
 
 
 @pytest.mark.parametrize('resource',['records','aggregations'])

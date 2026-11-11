@@ -1,0 +1,481 @@
+{
+  "original_functions": [
+    {
+      "name": "show_reopen_aggregation",
+      "lines": 36,
+      "closure": [
+        "api"
+      ],
+      "globals": [
+        "ApiError",
+        "error_message",
+        "render_message",
+        "str",
+        "ui"
+      ],
+      "state_access": []
+    },
+    {
+      "name": "show_governed_move",
+      "lines": 95,
+      "closure": [
+        "bind_remote_relationship_select",
+        "api"
+      ],
+      "globals": [
+        "ApiError",
+        "bool",
+        "compatible_aggregations",
+        "error_message",
+        "int",
+        "render_message",
+        "style_relationship_chip_select",
+        "ui"
+      ],
+      "state_access": []
+    },
+    {
+      "name": "show_ownership_correction",
+      "lines": 74,
+      "closure": [
+        "api"
+      ],
+      "globals": [
+        "ApiError",
+        "error_message",
+        "int",
+        "render_message",
+        "ui"
+      ],
+      "state_access": []
+    },
+    {
+      "name": "open_aggregation",
+      "lines": 958,
+      "closure": [
+        "show_authenticated_view",
+        "auth_state",
+        "state",
+        "register_navigation",
+        "api",
+        "add_button",
+        "add_record_button",
+        "search_bar",
+        "aggregation_mode_bar",
+        "guidance",
+        "title",
+        "subtitle",
+        "table_container",
+        "favourite_button",
+        "current_direction",
+        "open_related_resource",
+        "bind_remote_relationship_select",
+        "browse_advanced_aggregation",
+        "restore_compact_result_anchor",
+        "add_resource_to_hold_dialog",
+        "show_governed_move",
+        "show_ownership_correction",
+        "render_compact_resource_result",
+        "load_recent",
+        "show_entity_history",
+        "select_entity",
+        "open_aggregation",
+        "show_reopen_aggregation",
+        "select_classification_workspace",
+        "show_acl_editor",
+        "breadcrumb_back",
+        "show_effective_holds_dialog",
+        "show_access_explanation",
+        "show_record_details",
+        "hold_reason_dialog",
+        "show_security_level_change",
+        "open_editor"
+      ],
+      "globals": [
+        "AGGREGATION_SUMMARY_LAYOUT_CLASSES",
+        "ApiError",
+        "ENTITIES",
+        "ValueError",
+        "accelerate_dialog",
+        "any",
+        "asyncio",
+        "bool",
+        "component_is_previewable",
+        "current_locale_context",
+        "datetime",
+        "dict",
+        "direct_classification_label",
+        "disposition_status_label",
+        "disposition_text",
+        "error_message",
+        "filter",
+        "format_timestamp",
+        "int",
+        "isinstance",
+        "len",
+        "localized_disposition_value",
+        "max",
+        "medium_label",
+        "object",
+        "relationship_panel",
+        "render_disposition_date",
+        "render_message",
+        "render_message_plain",
+        "render_retention_stages",
+        "review_datetime_input_minimum",
+        "review_datetime_input_value",
+        "review_datetime_payload",
+        "review_display",
+        "set",
+        "sorted",
+        "str",
+        "timezone",
+        "ui",
+        "zip"
+      ],
+      "state_access": [
+        "state['aggregation_child_return']",
+        "state['aggregation_detail']",
+        "state['aggregation_detail_return_record_id']",
+        "state['aggregation_detail_return_resource']",
+        "state['relationship_page_token']",
+        "state['resource']"
+      ]
+    },
+    {
+      "name": "set_aggregation_mode_controls",
+      "lines": 7,
+      "closure": [
+        "aggregation_search_mode",
+        "aggregation_browse_mode"
+      ],
+      "globals": [],
+      "state_access": []
+    },
+    {
+      "name": "select_aggregation_browser",
+      "lines": 511,
+      "closure": [
+        "state",
+        "set_aggregation_mode_controls",
+        "search_bar",
+        "guidance",
+        "auth_state",
+        "add_button",
+        "add_record_button",
+        "table_container",
+        "bind_remote_scheme_select",
+        "personal",
+        "api",
+        "tree_expander_icon",
+        "current_direction",
+        "show_record_details",
+        "open_aggregation",
+        "page_client"
+      ],
+      "globals": [
+        "ApiError",
+        "asyncio",
+        "can_add_from_collection",
+        "error_message",
+        "float",
+        "int",
+        "len",
+        "list",
+        "max",
+        "min",
+        "object",
+        "render_message",
+        "set",
+        "str",
+        "ui"
+      ],
+      "state_access": [
+        "state['aggregation_detail']",
+        "state['aggregation_mode']"
+      ]
+    },
+    {
+      "name": "select_aggregation_search",
+      "lines": 6,
+      "closure": [
+        "state",
+        "set_aggregation_mode_controls",
+        "search_bar",
+        "guidance",
+        "render_table"
+      ],
+      "globals": [
+        "ENTITIES",
+        "render_message"
+      ],
+      "state_access": [
+        "state['aggregation_mode']"
+      ]
+    },
+    {
+      "name": "open_editor",
+      "lines": 591,
+      "closure": [
+        "state",
+        "api",
+        "auth_state",
+        "open_record_draft_editor",
+        "accept_application_configuration",
+        "bind_remote_relationship_select",
+        "add_number_suggestion",
+        "bind_resource_security_select",
+        "show_organization_structure",
+        "browse_classification_tree",
+        "show_number_conflict",
+        "load_recent",
+        "load_rows",
+        "render_table",
+        "search_input"
+      ],
+      "globals": [
+        "ApiError",
+        "CHILD_AGGREGATION_CLASSIFICATION_HELP",
+        "CLASSIFICATION_SELECTOR_SEARCH_FIELDS",
+        "ENTITIES",
+        "ValueError",
+        "asyncio",
+        "bool",
+        "can_edit_entity_translation",
+        "clear_medium_error",
+        "configure_designation_field",
+        "configure_organization_browser_field",
+        "configure_profile_field",
+        "configure_role_governance_field",
+        "configure_role_profile_field",
+        "configure_scheme_field",
+        "default_root_aggregation_medium",
+        "dict",
+        "entity_translation_editor",
+        "error_message",
+        "field_input",
+        "filter",
+        "form_payload",
+        "highlight_medium_error",
+        "int",
+        "isinstance",
+        "len",
+        "load_direct_retention",
+        "localized_editor_entity",
+        "medium_options",
+        "min",
+        "next",
+        "organization_change_reason",
+        "organization_reason_input",
+        "prepare_profile_update",
+        "prepare_retention_payload",
+        "profile_reason_input",
+        "profile_translation_only",
+        "protected_organization_role",
+        "read_organization_editor_row",
+        "relationship_options",
+        "render_message",
+        "retention_editor_source",
+        "set",
+        "show_api_error",
+        "strip_diagnostic_metadata",
+        "ui",
+        "validated_profile_change_reason",
+        "validation_error_message"
+      ],
+      "state_access": [
+        "state['resource']",
+        "state['searched']"
+      ]
+    }
+  ],
+  "final_owners": [
+    {
+      "module": "aggregation_actions",
+      "factory": "build_aggregation_actions",
+      "functions": [
+        "show_reopen_aggregation",
+        "show_governed_move",
+        "show_ownership_correction"
+      ],
+      "dependencies": [
+        "api",
+        "bind_remote_relationship_select",
+        "error_message"
+      ]
+    },
+    {
+      "module": "aggregation_selector",
+      "factory": "build_aggregation_selector",
+      "functions": [
+        "browse_advanced_aggregation"
+      ],
+      "dependencies": [
+        "api",
+        "bind_remote_scheme_select",
+        "error_message",
+        "tree_expander_icon"
+      ]
+    },
+    {
+      "module": "aggregation_details",
+      "factory": "build_aggregation_details",
+      "functions": [
+        "open_aggregation"
+      ],
+      "dependencies": [
+        "add_button",
+        "add_record_button",
+        "add_resource_to_hold_dialog",
+        "aggregation_mode_bar",
+        "aggregation_state",
+        "api",
+        "bind_remote_relationship_select",
+        "breadcrumb_back",
+        "browse_advanced_aggregation",
+        "current_direction",
+        "enter_details",
+        "error_message",
+        "favourite_button",
+        "format_timestamp",
+        "get_record_detail_id",
+        "get_relationship_page_token",
+        "get_resource",
+        "guidance",
+        "hold_reason_dialog",
+        "load_recent",
+        "localized_disposition_value",
+        "medium_label",
+        "open_editor",
+        "open_related_resource",
+        "principal",
+        "register_navigation",
+        "render_compact_resource_result",
+        "restore_compact_result_anchor",
+        "review_datetime_input_minimum",
+        "review_datetime_input_value",
+        "review_datetime_payload",
+        "review_display",
+        "search_bar",
+        "select_classification_workspace",
+        "select_entity",
+        "set_relationship_page_token",
+        "show_access_explanation",
+        "show_acl_editor",
+        "show_authenticated_view",
+        "show_effective_holds_dialog",
+        "show_entity_history",
+        "show_governed_move",
+        "show_ownership_correction",
+        "show_record_details",
+        "show_reopen_aggregation",
+        "show_security_level_change",
+        "subtitle",
+        "table_container",
+        "title"
+      ]
+    },
+    {
+      "module": "aggregation_browser",
+      "factory": "build_aggregation_browser",
+      "functions": [
+        "set_aggregation_mode_controls",
+        "select_aggregation_browser",
+        "select_aggregation_search"
+      ],
+      "dependencies": [
+        "add_button",
+        "add_record_button",
+        "aggregation_browse_mode",
+        "aggregation_search_mode",
+        "aggregation_state",
+        "api",
+        "bind_remote_scheme_select",
+        "current_direction",
+        "error_message",
+        "get_resource",
+        "guidance",
+        "open_aggregation",
+        "page_client",
+        "personal",
+        "principal",
+        "render_table",
+        "search_bar",
+        "show_record_details",
+        "table_container",
+        "tree_expander_icon"
+      ]
+    },
+    {
+      "module": "aggregation_toolbar",
+      "factory": "build_aggregation_toolbar",
+      "functions": [
+        "add_for_current_context",
+        "add_record_for_current_aggregation"
+      ],
+      "dependencies": [
+        "aggregation_state",
+        "open_aggregation",
+        "open_editor",
+        "open_record_draft_editor"
+      ]
+    }
+  ],
+  "editor_hooks": [
+    {
+      "name": "lock_aggregation_close_field",
+      "returns": null
+    },
+    {
+      "name": "load_aggregation_creation_context",
+      "returns": "creation_roles, creation_configuration"
+    },
+    {
+      "name": "render_aggregation_creation_controls",
+      "returns": "aggregation_creation_role_status"
+    },
+    {
+      "name": "aggregation_initial_security_level",
+      "returns": "initial_value"
+    },
+    {
+      "name": "aggregation_initial_medium",
+      "returns": "initial_value"
+    },
+    {
+      "name": "render_aggregation_close_help",
+      "returns": null
+    },
+    {
+      "name": "configure_aggregation_classification",
+      "returns": null
+    },
+    {
+      "name": "configure_aggregation_parent_rules",
+      "returns": null
+    },
+    {
+      "name": "prepare_aggregation_payload",
+      "returns": null
+    }
+  ],
+  "feature_state_keys": [
+    "aggregation_browse",
+    "aggregation_child_return",
+    "aggregation_children_page",
+    "aggregation_detail",
+    "aggregation_detail_return_record_id",
+    "aggregation_detail_return_resource",
+    "aggregation_mode"
+  ],
+  "lifetime": "One dictionary per index/client; original defaults, reload policy and authentication cleanup. No new cache.",
+  "shared_callbacks": [
+    "principal",
+    "get_resource",
+    "get_record_detail_id",
+    "set_relationship_page_token",
+    "get_relationship_page_token",
+    "enter_details"
+  ],
+  "cyclic_destinations": "Host supplies deferred callbacks for records, editor, classification, history, holds, personal resources and security. No app import or whole host dictionary enters a module."
+}

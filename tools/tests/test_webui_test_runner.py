@@ -19,6 +19,7 @@ def test_isolated_runner_reports_every_suite_and_rejects_incomplete_evidence(tmp
     calls = []
 
     def run(command, **kwargs):
+        assert Path(kwargs['env']['NICEGUI_STORAGE_PATH']).parent.is_dir()
         calls.append((command, kwargs))
         xml = Path(next(a.removeprefix('--junitxml=') for a in command if a.startswith('--junitxml=')))
         if outcome != 'missing_xml':

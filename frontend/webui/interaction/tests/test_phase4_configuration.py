@@ -41,7 +41,7 @@ async def test_api_page_snapshot_refreshes_only_fallback_timezone(user,language,
 
 @pytest.mark.parametrize('initial_language,effective_language,rebuild',[('en','en',False),('en','ar',True),('ar','ar',False)])
 async def test_first_bootstrap_reuses_matching_rendered_language_and_does_not_persist_settings(user,initial_language,effective_language,rebuild):
-    node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2]/'app.py').read_text()))
+    node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2]/'account_localization.py').read_text()))
               if isinstance(n,ast.AsyncFunctionDef) and n.name=='load_localization_context')
     holder={};scripts=[];calls=[];state={};storage={}
     async def javascript(source,**kwargs):scripts.append(source)
@@ -59,6 +59,7 @@ async def test_first_bootstrap_reuses_matching_rendered_language_and_does_not_pe
             'initial_language':initial_language,'initial_direction':'rtl' if initial_language=='ar' else 'ltr',
             'set_active_messages':lambda *args:None,'set_locale_context':set_locale_context,
             'apply_document_direction':direction,'ui':SimpleNamespace(run_javascript=javascript)}
+        scope.update(get_localization=lambda:state.get('localization'),set_localization=lambda value:state.__setitem__('localization',value),set_configuration=lambda value:state.__setitem__('application_configuration',value))
         exec(compile(ast.Module(body=[node],type_ignores=[]),'<bootstrap>','exec'),scope)
         holder['rebuild']=await scope['load_localization_context']()
     await user.open('/bootstrap-test')

@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="46" time="69.567" timestamp="2026-11-10T19:26:26.060504+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.assembled.tests.test_application" name="test_login_and_settings_use_the_assembled_application" time="0.875" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[dashboard]" time="0.647" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[advanced-search]" time="0.566" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[aggregations]" time="0.604" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[records]" time="0.616" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[classification-workspace]" time="0.681" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[relationship-types]" time="0.631" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-tasks]" time="1.319" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-eligibility]" time="0.609" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-jobs]" time="0.609" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-templates]" time="0.643" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-inbox]" time="0.578" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-outbox]" time="0.596" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-drafts]" time="0.535" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-monitor]" time="0.581" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-notifications]" time="0.620" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[organization-browser]" time="0.608" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[org-units]" time="0.531" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[roles]" time="0.530" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[users]" time="0.641" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[text-indexers]" time="0.598" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[application-settings]" time="0.698" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[audit-trail]" time="0.628" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[login-sessions]" time="0.657" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[security-operations]" time="0.597" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[saved-search-administration]" time="0.560" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[security-levels]" time="0.537" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[profiles]" time="0.570" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[governance-custody]" time="0.549" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[holds]" time="0.727" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[translations]" time="0.721" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_category_survives_navigation_and_breadcrumb_return" time="0.801" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_real_save_validation_and_refresh" time="0.980" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_reload_restores_category_and_current_data" time="1.074" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_restricted_identity_cannot_reach_settings" time="0.541" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_conflict_preserves_draft_and_other_edit" time="0.929" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_sign_out_then_restricted_sign_in_clears_settings_authority" time="2.991" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_custody_warning_opens_disposition_settings" time="0.801" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_audit_event_opens_its_setting_in_the_assembled_app" time="1.022" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_aggregation_reload_shows_the_restored_content_panel" time="0.987" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_unavailable_breadcrumb_restores_previous_visit_in_real_root[403]" time="2.498" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_unavailable_breadcrumb_restores_previous_visit_in_real_root[404]" time="1.145" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_temporary_password_recovery_and_abandonment_in_real_root" time="1.228" /><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[profiles-Profiles]" time="11.092"><failure message="AssertionError: expected to see at least one element with marker=Code is required or content=Code is required on the page:&#10;q-layout&#10; Header [model-value=True, add_scroll_padding=True]&#10;  canvas [aria-hidden=true]&#10;  Button [icon=menu, flat=True, dense=True, round=True, aria-label=Collapse navigation, aria-expanded=true]&#10;   Tooltip [text=Collapse navigation]&#10;  Row [aria-label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;   Image [src=/static/brand/wathiq..., fit=contain, alt=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;   Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;  Row [visible=False]&#10;   Input [placeholder=Search records, file..., type=text, outlined=True, dense=True, clearable=True, aria-label=Search records, file...]&#10;   Button [icon=search, flat=True, round=True, aria-label=Submit global search]&#10;    Tooltip [text=Search]&#10;  Space&#10;  Button [label=⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂..., icon=inbox, flat=True, no-caps=True]&#10;  Button [icon=account_circle, flat=True, round=True, data-inspector-ignore=true]&#10;   Menu&#10;    Column&#10;     Row&#10;      Avatar [size=44px]&#10;       Label [text=TA]&#10;      Column&#10;       Label [text=Test administrator]&#10;       Label [text=admin@test.invalid]&#10;     Separator&#10;     Label [text=Previous sign-in]&#10;     Label [text=10 Nov 2026, 07:27 P...]&#10;     Separator&#10;     Label [text=Assigned roles]&#10;     Column&#10;      Row&#10;       Icon [name=badge, size=18px]&#10;       Column&#10;        Label [text=Test administrator]&#10;        Label [text=WebUI test unit]&#10;     Separator&#10;     Column&#10;      Button [label=Preferences, icon=language, flat=True, dense=True, no-caps=True, align=left]&#10;      Button [label=Change password, icon=key, flat=True, dense=True, no-caps=True, align=left]&#10;      Separator&#10;      Column [data-inspector-ignore=true]&#10;       Label [text=Diagnostics]&#10;       Switch [text=Translation Inspecto..., model-value=True, dense=True]&#10;      Button [label=Sign out, icon=logout, flat=True, dense=True, no-caps=True, align=left]&#10;  div [id=translation-inspecto..., aria-hidden=true]&#10; LeftDrawer [model-value=True, side=left, width=300, mini-width=64]&#10;  Button [icon=chevron_left, flat=True, dense=True, aria-label=Collapse navigation]&#10;   Tooltip [text=Collapse navigation]&#10;  ScrollArea&#10;   Column&#10;    Button [label=Dashboard, icon=dashboard, flat=True, align=left, no-caps=True, aria-label=Dashboard]&#10;     Tooltip [text=Dashboard]&#10;    Label [text=RECORDS MANAGEMENT]&#10;    Button [label=Advanced Search, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Advanced Search]&#10;     Tooltip [text=Advanced Search]&#10;    Button [label=Aggregations, icon=folder, flat=True, align=left, no-caps=True, aria-label=Aggregations]&#10;     Tooltip [text=Aggregations]&#10;    Button [label=Records, icon=description, flat=True, align=left, no-caps=True, aria-label=Records]&#10;     Tooltip [text=Records]&#10;    Button [label=Classification schem..., icon=account_tree, flat=True, align=left, no-caps=True, aria-label=Classification schem...]&#10;     Tooltip [text=Classification schem...]&#10;    Button [label=Relationship Types, icon=link, flat=True, align=left, no-caps=True, aria-label=Relationship Types]&#10;     Tooltip [text=Relationship Types]&#10;    Label [text=Disposition]&#10;    Button [label=My tasks, icon=task_alt, flat=True, align=left, no-caps=True, aria-label=My tasks]&#10;     Tooltip [text=My tasks]&#10;    Button [label=Disposition eligibil..., icon=event_available, flat=True, align=left, no-caps=True, aria-label=Disposition eligibil...]&#10;     Tooltip [text=Disposition eligibil...]&#10;    Button [label=Disposition jobs, icon=work_outline, flat=True, align=left, no-caps=True, aria-label=Disposition jobs]&#10;     Tooltip [text=Disposition jobs]&#10;    Button [label=Document templates, icon=description, flat=True, align=left, no-caps=True, aria-label=Document templates, visible=False]&#10;     Tooltip [text=Document templates]&#10;    Label [text=Messages]&#10;    Button [label=Inbox, icon=inbox, flat=True, align=left, no-caps=True, aria-label=Inbox]&#10;     Tooltip [text=Inbox]&#10;    Button [label=Outbox, icon=outbox, flat=True, align=left, no-caps=True, aria-label=Outbox]&#10;     Tooltip [text=Outbox]&#10;    Button [label=Drafts, icon=drafts, flat=True, align=left, no-caps=True, aria-label=Drafts]&#10;     Tooltip [text=Drafts]&#10;    Button [label=Messages Monitor, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Messages Monitor]&#10;     Tooltip [text=Messages Monitor]&#10;    Button [label=Notification Adminis..., icon=notifications, flat=True, align=left, no-caps=True, aria-label=Notification Adminis...]&#10;     Tooltip [text=Notification Adminis...]&#10;    Label [text=ORGANIZATION STRUCTU...]&#10;    Button [label=Browse, icon=lan, flat=True, align=left, no-caps=True, aria-label=Browse]&#10;     Tooltip [text=Browse]&#10;    Button [label=Organization units, icon=corporate_fare, flat=True, align=left, no-caps=True, aria-label=Organization units]&#10;     Tooltip [text=Organization units]&#10;    Button [label=Roles, icon=badge, flat=True, align=left, no-caps=True, aria-label=Roles]&#10;     Tooltip [text=Roles]&#10;    Button [label=Users, icon=group, flat=True, align=left, no-caps=True, aria-label=Users]&#10;     Tooltip [text=Users]&#10;    Label [text=SYSTEM ADMINISTRATIO...]&#10;    Button [label=Text Indexers, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Text Indexers]&#10;     Tooltip [text=Text Indexers]&#10;    Button [label=Settings, icon=settings, flat=True, align=left, no-caps=True, aria-label=Settings]&#10;     Tooltip [text=Settings]&#10;    Button [label=Audit trail, icon=manage_history, flat=True, align=left, no-caps=True, aria-label=Audit trail]&#10;     Tooltip [text=Audit trail]&#10;    Button [label=Login sessions, icon=devices, flat=True, align=left, no-caps=True, aria-label=Login sessions]&#10;     Tooltip [text=Login sessions]&#10;    Button [label=Security operations, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Security operations]&#10;     Tooltip [text=Security operations]&#10;    Button [label=Administer Saved Sea..., icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Administer Saved Sea...]&#10;     Tooltip [text=Administer Saved Sea...]&#10;    Button [label=Security levels, icon=security, flat=True, align=left, no-caps=True, aria-label=Security levels]&#10;     Tooltip [text=Security levels]&#10;    Button [markers=assembled-target-110, label=Profiles, icon=admin_panel_settings, flat=True, align=left, no-caps=True, aria-label=Profiles, aria-current=page]&#10;     Tooltip [text=Profiles]&#10;    Button [label=Translations, icon=translate, flat=True, align=left, no-caps=True, aria-label=Translations]&#10;     Tooltip [text=Translations]&#10;    Button [label=Governance custody, icon=shield_person, flat=True, align=left, no-caps=True, aria-label=Governance custody]&#10;     Tooltip [text=Governance custody]&#10;    Button [label=Holds, icon=gavel, flat=True, align=left, no-caps=True, aria-label=Holds]&#10;     Tooltip [text=Holds]&#10; q-page-container&#10;  q-page&#10;   div&#10;    QueryElement [selector=html, props={'lang': 'en', 'dir'...]&#10;    Colors [primary=#268bd2, secondary=#0f749f, accent=#72b8e8, dark=#1d1d1d, dark_page=#121212, positive=#2f9e44, negative=#dc5050, info=#31ccec, warning=#e9a23b]&#10;    Column&#10;     nav [aria-label=Navigation history]&#10;      Row&#10;       Button [label=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., flat=True, dense=True, no-caps=True]&#10;        Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;       Icon [name=chevron_right, size=15px, aria-hidden=true]&#10;       Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., aria-current=page]&#10;        Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;     Row&#10;      Column&#10;       Row&#10;        Icon [name=dashboard, visible=False]&#10;        Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;       Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆...]&#10;      Row&#10;       Button [markers=assembled-target-129, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆..., icon=add, unelevated=True, rounded=True]&#10;       Button [label=Add record, icon=note_add, unelevated=True, rounded=True, visible=False]&#10;       Dialog [model-value=True]&#10;        Card&#10;         Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]&#10;         Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]&#10;         Column&#10;          Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]&#10;          Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]&#10;          Textarea [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., type=textarea, outlined=True, autogrow=True]&#10;         Row&#10;          Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., flat=True]&#10;          Button [markers=assembled-target-428, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=save, unelevated=True]&#10;     Card&#10;      Row [visible=False]&#10;       Label [text=View]&#10;       Button [label=Search, icon=search, unelevated=True, dense=True, no-caps=True]&#10;       Button [label=Browse classificatio..., icon=account_tree, flat=True, dense=True, no-caps=True]&#10;      Row [visible=False]&#10;       Input [label=Search by number, ti..., type=text, outlined=True, clearable=True]&#10;       Button [label=Search, icon=search, unelevated=True]&#10;      Label&#10;      Column&#10;       Row&#10;        Input [value=PHASE6C_PROFILES, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., placeholder=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., type=text, outlined=True, dense=True, clearable=True, debounce=350]&#10;        Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;        Select [model-value={'value': 1, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;       Row&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;        Space&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=refresh, flat=True, dense=True, no-caps=True]&#10;       div&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;       Row&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;        Space&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=first_page, flat=True, dense=True, no-caps=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_left, flat=True, dense=True, no-caps=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_right, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=last_page, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]&#10;    Dialog [persistent=True]&#10;     canvas [aria-label=Slowly moving connec...]&#10;     Card [dir=ltr, lang=en]&#10;      Row&#10;       Column&#10;        Column&#10;         Row&#10;          Image [src=/static/brand/wathiq..., fit=contain, alt=Wathiq mark]&#10;          Label [text=wathiq]&#10;         Column&#10;          Label [text=Your records. Your e...]&#10;          Label [text=Secure access to the...]&#10;        Label [text=Reliable stewardship...]&#10;       Column&#10;        Label [text=Sign in]&#10;        Label [text=Use your organizatio...]&#10;        Input [value=admin@test.invalid, label=Email address, type=text, outlined=True, autocomplete=username, input-style=direction: ltr; unic...]&#10;        Input [label=Password, type=password, outlined=True, autocomplete=current-password, input-style=direction: ltr; unic...]&#10;        Label&#10;        Button [markers=assembled-target-161, label=Continue to wathiq, icon=login, unelevated=True, no-caps=True]&#10;        Label [text=Need help? Contact y...]&#10; Footer [model-value=True]&#10;  Icon [name=cloud_done]&#10;   Tooltip [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︇︄︅...]&#10;  Label [text=Database: ⁨Phase 4 d...]&#10;  Space&#10;  Label [text=Designed and built b...]">args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x11f0dcb90&gt;, 'label': 'Profiles', 'resource': 'profiles'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:27: in test_collection_create_update_and_translation_keep_filtered_results
+    await user.should_see('Code is required',retries=100)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x11f0dcb90&gt;
+target = 'Code is required'
+
+    async def should_see(self,
+                         target: Union[str, Type[T], None] = None,
+                         *,
+                         kind: Optional[Type[T]] = None,
+                         marker: Union[str, List[str], None] = None,
+                         content: Union[str, List[str], None] = None,
+                         retries: int = 3,
+                         ) -&gt; None:
+        """Assert that the page contains an element fulfilling certain filter rules.
+    
+        Note that there is no scrolling in the user simulation -- the entire page is always *visible*.
+        Due to asynchronous execution, sometimes the expected elements only appear after a short delay.
+    
+        By default `should_see` makes three attempts to find the element before failing.
+        This can be adjusted with the `retries` parameter.
+        """
+        for _ in range(retries):
+            with self._client:
+                if self.notify.contains(target) or self._gather_elements(target, kind, marker, content):
+                    return
+                await asyncio.sleep(0.1)
+&gt;       raise AssertionError('expected to see at least one ' + self._build_error_message(target, kind, marker, content))
+E       AssertionError: expected to see at least one element with marker=Code is required or content=Code is required on the page:
+E       q-layout
+E        Header [model-value=True, add_scroll_padding=True]
+E         canvas [aria-hidden=true]
+E         Button [icon=menu, flat=True, dense=True, round=True, aria-label=Collapse navigation, aria-expanded=true]
+E          Tooltip [text=Collapse navigation]
+E         Row [aria-label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E          Image [src=/static/brand/wathiq..., fit=contain, alt=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E          Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E         Row [visible=False]
+E          Input [placeholder=Search records, file..., type=text, outlined=True, dense=True, clearable=True, aria-label=Search records, file...]
+E          Button [icon=search, flat=True, round=True, aria-label=Submit global search]
+E           Tooltip [text=Search]
+E         Space
+E         Button [label=⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂..., icon=inbox, flat=True, no-caps=True]
+E         Button [icon=account_circle, flat=True, round=True, data-inspector-ignore=true]
+E          Menu
+E           Column
+E            Row
+E             Avatar [size=44px]
+E              Label [text=TA]
+E             Column
+E              Label [text=Test administrator]
+E              Label [text=admin@test.invalid]
+E            Separator
+E            Label [text=Previous sign-in]
+E            Label [text=10 Nov 2026, 07:27 P...]
+E            Separator
+E            Label [text=Assigned roles]
+E            Column
+E             Row
+E              Icon [name=badge, size=18px]
+E              Column
+E               Label [text=Test administrator]
+E               Label [text=WebUI test unit]
+E            Separator
+E            Column
+E             Button [label=Preferences, icon=language, flat=True, dense=True, no-caps=True, align=left]
+E             Button [label=Change password, icon=key, flat=True, dense=True, no-caps=True, align=left]
+E             Separator
+E             Column [data-inspector-ignore=true]
+E              Label [text=Diagnostics]
+E              Switch [text=Translation Inspecto..., model-value=True, dense=True]
+E             Button [label=Sign out, icon=logout, flat=True, dense=True, no-caps=True, align=left]
+E         div [id=translation-inspecto..., aria-hidden=true]
+E        LeftDrawer [model-value=True, side=left, width=300, mini-width=64]
+E         Button [icon=chevron_left, flat=True, dense=True, aria-label=Collapse navigation]
+E          Tooltip [text=Collapse navigation]
+E         ScrollArea
+E          Column
+E           Button [label=Dashboard, icon=dashboard, flat=True, align=left, no-caps=True, aria-label=Dashboard]
+E            Tooltip [text=Dashboard]
+E           Label [text=RECORDS MANAGEMENT]
+E           Button [label=Advanced Search, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Advanced Search]
+E            Tooltip [text=Advanced Search]
+E           Button [label=Aggregations, icon=folder, flat=True, align=left, no-caps=True, aria-label=Aggregations]
+E            Tooltip [text=Aggregations]
+E           Button [label=Records, icon=description, flat=True, align=left, no-caps=True, aria-label=Records]
+E            Tooltip [text=Records]
+E           Button [label=Classification schem..., icon=account_tree, flat=True, align=left, no-caps=True, aria-label=Classification schem...]
+E            Tooltip [text=Classification schem...]
+E           Button [label=Relationship Types, icon=link, flat=True, align=left, no-caps=True, aria-label=Relationship Types]
+E            Tooltip [text=Relationship Types]
+E           Label [text=Disposition]
+E           Button [label=My tasks, icon=task_alt, flat=True, align=left, no-caps=True, aria-label=My tasks]
+E            Tooltip [text=My tasks]
+E           Button [label=Disposition eligibil..., icon=event_available, flat=True, align=left, no-caps=True, aria-label=Disposition eligibil...]
+E            Tooltip [text=Disposition eligibil...]
+E           Button [label=Disposition jobs, icon=work_outline, flat=True, align=left, no-caps=True, aria-label=Disposition jobs]
+E            Tooltip [text=Disposition jobs]
+E           Button [label=Document templates, icon=description, flat=True, align=left, no-caps=True, aria-label=Document templates, visible=False]
+E            Tooltip [text=Document templates]
+E           Label [text=Messages]
+E           Button [label=Inbox, icon=inbox, flat=True, align=left, no-caps=True, aria-label=Inbox]
+E            Tooltip [text=Inbox]
+E           Button [label=Outbox, icon=outbox, flat=True, align=left, no-caps=True, aria-label=Outbox]
+E            Tooltip [text=Outbox]
+E           Button [label=Drafts, icon=drafts, flat=True, align=left, no-caps=True, aria-label=Drafts]
+E            Tooltip [text=Drafts]
+E           Button [label=Messages Monitor, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Messages Monitor]
+E            Tooltip [text=Messages Monitor]
+E           Button [label=Notification Adminis..., icon=notifications, flat=True, align=left, no-caps=True, aria-label=Notification Adminis...]
+E            Tooltip [text=Notification Adminis...]
+E           Label [text=ORGANIZATION STRUCTU...]
+E           Button [label=Browse, icon=lan, flat=True, align=left, no-caps=True, aria-label=Browse]
+E            Tooltip [text=Browse]
+E           Button [label=Organization units, icon=corporate_fare, flat=True, align=left, no-caps=True, aria-label=Organization units]
+E            Tooltip [text=Organization units]
+E           Button [label=Roles, icon=badge, flat=True, align=left, no-caps=True, aria-label=Roles]
+E            Tooltip [text=Roles]
+E           Button [label=Users, icon=group, flat=True, align=left, no-caps=True, aria-label=Users]
+E            Tooltip [text=Users]
+E           Label [text=SYSTEM ADMINISTRATIO...]
+E           Button [label=Text Indexers, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Text Indexers]
+E            Tooltip [text=Text Indexers]
+E           Button [label=Settings, icon=settings, flat=True, align=left, no-caps=True, aria-label=Settings]
+E            Tooltip [text=Settings]
+E           Button [label=Audit trail, icon=manage_history, flat=True, align=left, no-caps=True, aria-label=Audit trail]
+E            Tooltip [text=Audit trail]
+E           Button [label=Login sessions, icon=devices, flat=True, align=left, no-caps=True, aria-label=Login sessions]
+E            Tooltip [text=Login sessions]
+E           Button [label=Security operations, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Security operations]
+E            Tooltip [text=Security operations]
+E           Button [label=Administer Saved Sea..., icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Administer Saved Sea...]
+E            Tooltip [text=Administer Saved Sea...]
+E           Button [label=Security levels, icon=security, flat=True, align=left, no-caps=True, aria-label=Security levels]
+E            Tooltip [text=Security levels]
+E           Button [markers=assembled-target-110, label=Profiles, icon=admin_panel_settings, flat=True, align=left, no-caps=True, aria-label=Profiles, aria-current=page]
+E            Tooltip [text=Profiles]
+E           Button [label=Translations, icon=translate, flat=True, align=left, no-caps=True, aria-label=Translations]
+E            Tooltip [text=Translations]
+E           Button [label=Governance custody, icon=shield_person, flat=True, align=left, no-caps=True, aria-label=Governance custody]
+E            Tooltip [text=Governance custody]
+E           Button [label=Holds, icon=gavel, flat=True, align=left, no-caps=True, aria-label=Holds]
+E            Tooltip [text=Holds]
+E        q-page-container
+E         q-page
+E          div
+E           QueryElement [selector=html, props={'lang': 'en', 'dir'...]
+E           Colors [primary=#268bd2, secondary=#0f749f, accent=#72b8e8, dark=#1d1d1d, dark_page=#121212, positive=#2f9e44, negative=#dc5050, info=#31ccec, warning=#e9a23b]
+E           Column
+E            nav [aria-label=Navigation history]
+E             Row
+E              Button [label=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., flat=True, dense=True, no-caps=True]
+E               Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E              Icon [name=chevron_right, size=15px, aria-hidden=true]
+E              Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., aria-current=page]
+E               Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E            Row
+E             Column
+E              Row
+E               Icon [name=dashboard, visible=False]
+E               Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E              Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆...]
+E             Row
+E              Button [markers=assembled-target-129, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆..., icon=add, unelevated=True, rounded=True]
+E              Button [label=Add record, icon=note_add, unelevated=True, rounded=True, visible=False]
+E              Dialog [model-value=True]
+E               Card
+E                Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]
+E                Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]
+E                Column
+E                 Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]
+E                 Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]
+E                 Textarea [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., type=textarea, outlined=True, autogrow=True]
+E                Row
+E                 Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., flat=True]
+E                 Button [markers=assembled-target-428, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=save, unelevated=True]
+E            Card
+E             Row [visible=False]
+E              Label [text=View]
+E              Button [label=Search, icon=search, unelevated=True, dense=True, no-caps=True]
+E              Button [label=Browse classificatio..., icon=account_tree, flat=True, dense=True, no-caps=True]
+E             Row [visible=False]
+E              Input [label=Search by number, ti..., type=text, outlined=True, clearable=True]
+E              Button [label=Search, icon=search, unelevated=True]
+E             Label
+E             Column
+E              Row
+E               Input [value=PHASE6C_PROFILES, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., placeholder=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., type=text, outlined=True, dense=True, clearable=True, debounce=350]
+E               Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E               Select [model-value={'value': 1, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E              Row
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E               Space
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=refresh, flat=True, dense=True, no-caps=True]
+E              div
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E              Row
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E               Space
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=first_page, flat=True, dense=True, no-caps=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_left, flat=True, dense=True, no-caps=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_right, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=last_page, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]
+E           Dialog [persistent=True]
+E            canvas [aria-label=Slowly moving connec...]
+E            Card [dir=ltr, lang=en]
+E             Row
+E              Column
+E               Column
+E                Row
+E                 Image [src=/static/brand/wathiq..., fit=contain, alt=Wathiq mark]
+E                 Label [text=wathiq]
+E                Column
+E                 Label [text=Your records. Your e...]
+E                 Label [text=Secure access to the...]
+E               Label [text=Reliable stewardship...]
+E              Column
+E               Label [text=Sign in]
+E               Label [text=Use your organizatio...]
+E               Input [value=admin@test.invalid, label=Email address, type=text, outlined=True, autocomplete=username, input-style=direction: ltr; unic...]
+E               Input [label=Password, type=password, outlined=True, autocomplete=current-password, input-style=direction: ltr; unic...]
+E               Label
+E               Button [markers=assembled-target-161, label=Continue to wathiq, icon=login, unelevated=True, no-caps=True]
+E               Label [text=Need help? Contact y...]
+E        Footer [model-value=True]
+E         Icon [name=cloud_done]
+E          Tooltip [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︇︄︅...]
+E         Label [text=Database: ⁨Phase 4 d...]
+E         Space
+E         Label [text=Designed and built b...]
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:141: AssertionError</failure></testcase><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[org-units-Organization units]" time="11.263"><failure message="AssertionError: expected to see at least one element with marker=Code is required or content=Code is required on the page:&#10;q-layout&#10; Header [model-value=True, add_scroll_padding=True]&#10;  canvas [aria-hidden=true]&#10;  Button [icon=menu, flat=True, dense=True, round=True, aria-label=Collapse navigation, aria-expanded=true]&#10;   Tooltip [text=Collapse navigation]&#10;  Row [aria-label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;   Image [src=/static/brand/wathiq..., fit=contain, alt=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;   Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;  Row [visible=False]&#10;   Input [placeholder=Search records, file..., type=text, outlined=True, dense=True, clearable=True, aria-label=Search records, file...]&#10;   Button [icon=search, flat=True, round=True, aria-label=Submit global search]&#10;    Tooltip [text=Search]&#10;  Space&#10;  Button [label=⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂..., icon=inbox, flat=True, no-caps=True]&#10;  Button [icon=account_circle, flat=True, round=True, data-inspector-ignore=true]&#10;   Menu&#10;    Column&#10;     Row&#10;      Avatar [size=44px]&#10;       Label [text=TA]&#10;      Column&#10;       Label [text=Test administrator]&#10;       Label [text=admin@test.invalid]&#10;     Separator&#10;     Label [text=Previous sign-in]&#10;     Label [text=10 Nov 2026, 07:27 P...]&#10;     Separator&#10;     Label [text=Assigned roles]&#10;     Column&#10;      Row&#10;       Icon [name=badge, size=18px]&#10;       Column&#10;        Label [text=Test administrator]&#10;        Label [text=WebUI test unit]&#10;     Separator&#10;     Column&#10;      Button [label=Preferences, icon=language, flat=True, dense=True, no-caps=True, align=left]&#10;      Button [label=Change password, icon=key, flat=True, dense=True, no-caps=True, align=left]&#10;      Separator&#10;      Column [data-inspector-ignore=true]&#10;       Label [text=Diagnostics]&#10;       Switch [text=Translation Inspecto..., model-value=True, dense=True]&#10;      Button [label=Sign out, icon=logout, flat=True, dense=True, no-caps=True, align=left]&#10;  div [id=translation-inspecto..., aria-hidden=true]&#10; LeftDrawer [model-value=True, side=left, width=300, mini-width=64]&#10;  Button [icon=chevron_left, flat=True, dense=True, aria-label=Collapse navigation]&#10;   Tooltip [text=Collapse navigation]&#10;  ScrollArea&#10;   Column&#10;    Button [label=Dashboard, icon=dashboard, flat=True, align=left, no-caps=True, aria-label=Dashboard]&#10;     Tooltip [text=Dashboard]&#10;    Label [text=RECORDS MANAGEMENT]&#10;    Button [label=Advanced Search, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Advanced Search]&#10;     Tooltip [text=Advanced Search]&#10;    Button [label=Aggregations, icon=folder, flat=True, align=left, no-caps=True, aria-label=Aggregations]&#10;     Tooltip [text=Aggregations]&#10;    Button [label=Records, icon=description, flat=True, align=left, no-caps=True, aria-label=Records]&#10;     Tooltip [text=Records]&#10;    Button [label=Classification schem..., icon=account_tree, flat=True, align=left, no-caps=True, aria-label=Classification schem...]&#10;     Tooltip [text=Classification schem...]&#10;    Button [label=Relationship Types, icon=link, flat=True, align=left, no-caps=True, aria-label=Relationship Types]&#10;     Tooltip [text=Relationship Types]&#10;    Label [text=Disposition]&#10;    Button [label=My tasks, icon=task_alt, flat=True, align=left, no-caps=True, aria-label=My tasks]&#10;     Tooltip [text=My tasks]&#10;    Button [label=Disposition eligibil..., icon=event_available, flat=True, align=left, no-caps=True, aria-label=Disposition eligibil...]&#10;     Tooltip [text=Disposition eligibil...]&#10;    Button [label=Disposition jobs, icon=work_outline, flat=True, align=left, no-caps=True, aria-label=Disposition jobs]&#10;     Tooltip [text=Disposition jobs]&#10;    Button [label=Document templates, icon=description, flat=True, align=left, no-caps=True, aria-label=Document templates, visible=False]&#10;     Tooltip [text=Document templates]&#10;    Label [text=Messages]&#10;    Button [label=Inbox, icon=inbox, flat=True, align=left, no-caps=True, aria-label=Inbox]&#10;     Tooltip [text=Inbox]&#10;    Button [label=Outbox, icon=outbox, flat=True, align=left, no-caps=True, aria-label=Outbox]&#10;     Tooltip [text=Outbox]&#10;    Button [label=Drafts, icon=drafts, flat=True, align=left, no-caps=True, aria-label=Drafts]&#10;     Tooltip [text=Drafts]&#10;    Button [label=Messages Monitor, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Messages Monitor]&#10;     Tooltip [text=Messages Monitor]&#10;    Button [label=Notification Adminis..., icon=notifications, flat=True, align=left, no-caps=True, aria-label=Notification Adminis...]&#10;     Tooltip [text=Notification Adminis...]&#10;    Label [text=ORGANIZATION STRUCTU...]&#10;    Button [label=Browse, icon=lan, flat=True, align=left, no-caps=True, aria-label=Browse]&#10;     Tooltip [text=Browse]&#10;    Button [markers=assembled-target-89, label=Organization units, icon=corporate_fare, flat=True, align=left, no-caps=True, aria-label=Organization units, aria-current=page]&#10;     Tooltip [text=Organization units]&#10;    Button [label=Roles, icon=badge, flat=True, align=left, no-caps=True, aria-label=Roles]&#10;     Tooltip [text=Roles]&#10;    Button [label=Users, icon=group, flat=True, align=left, no-caps=True, aria-label=Users]&#10;     Tooltip [text=Users]&#10;    Label [text=SYSTEM ADMINISTRATIO...]&#10;    Button [label=Text Indexers, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Text Indexers]&#10;     Tooltip [text=Text Indexers]&#10;    Button [label=Settings, icon=settings, flat=True, align=left, no-caps=True, aria-label=Settings]&#10;     Tooltip [text=Settings]&#10;    Button [label=Audit trail, icon=manage_history, flat=True, align=left, no-caps=True, aria-label=Audit trail]&#10;     Tooltip [text=Audit trail]&#10;    Button [label=Login sessions, icon=devices, flat=True, align=left, no-caps=True, aria-label=Login sessions]&#10;     Tooltip [text=Login sessions]&#10;    Button [label=Security operations, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Security operations]&#10;     Tooltip [text=Security operations]&#10;    Button [label=Administer Saved Sea..., icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Administer Saved Sea...]&#10;     Tooltip [text=Administer Saved Sea...]&#10;    Button [label=Security levels, icon=security, flat=True, align=left, no-caps=True, aria-label=Security levels]&#10;     Tooltip [text=Security levels]&#10;    Button [label=Profiles, icon=admin_panel_settings, flat=True, align=left, no-caps=True, aria-label=Profiles]&#10;     Tooltip [text=Profiles]&#10;    Button [label=Translations, icon=translate, flat=True, align=left, no-caps=True, aria-label=Translations]&#10;     Tooltip [text=Translations]&#10;    Button [label=Governance custody, icon=shield_person, flat=True, align=left, no-caps=True, aria-label=Governance custody]&#10;     Tooltip [text=Governance custody]&#10;    Button [label=Holds, icon=gavel, flat=True, align=left, no-caps=True, aria-label=Holds]&#10;     Tooltip [text=Holds]&#10; q-page-container&#10;  q-page&#10;   div&#10;    QueryElement [selector=html, props={'lang': 'en', 'dir'...]&#10;    Colors [primary=#268bd2, secondary=#0f749f, accent=#72b8e8, dark=#1d1d1d, dark_page=#121212, positive=#2f9e44, negative=#dc5050, info=#31ccec, warning=#e9a23b]&#10;    Column&#10;     nav [aria-label=Navigation history]&#10;      Row&#10;       Button [label=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., flat=True, dense=True, no-caps=True]&#10;        Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;       Icon [name=chevron_right, size=15px, aria-hidden=true]&#10;       Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., aria-current=page]&#10;        Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;     Row&#10;      Column&#10;       Row&#10;        Icon [name=corporate_fare]&#10;        Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;       Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆...]&#10;      Row&#10;       Button [markers=assembled-target-129, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆..., icon=add, unelevated=True, rounded=True]&#10;       Button [label=Add record, icon=note_add, unelevated=True, rounded=True, visible=False]&#10;       Dialog [model-value=True]&#10;        Card&#10;         Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]&#10;         Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]&#10;         Column&#10;          Select [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., use-input=True, hide-selected=True, fill-input=True, input-debounce=0, clearable=True, outlined=True, behavior=menu, options-dense=True]&#10;          Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=account_tree, flat=True, dense=True, no-caps=True]&#10;          Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]&#10;          Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]&#10;          Textarea [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., type=textarea, outlined=True, autogrow=True]&#10;         Row&#10;          Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., flat=True]&#10;          Button [markers=assembled-target-267, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=save, unelevated=True]&#10;     Card&#10;      Row [visible=False]&#10;       Label [text=View]&#10;       Button [label=Search, icon=search, unelevated=True, dense=True, no-caps=True]&#10;       Button [label=Browse classificatio..., icon=account_tree, flat=True, dense=True, no-caps=True]&#10;      Row [visible=False]&#10;       Input [label=Search by number, ti..., type=text, outlined=True, clearable=True]&#10;       Button [label=Search, icon=search, unelevated=True]&#10;      Label&#10;      Column&#10;       Row&#10;        Input [value=PHASE6C_ORG_UNITS, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., placeholder=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., type=text, outlined=True, dense=True, clearable=True, debounce=350]&#10;        Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;        Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;        Select [model-value={'value': 1, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;       Row&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;        Space&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=refresh, flat=True, dense=True, no-caps=True]&#10;       div&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;       Row&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;        Space&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=first_page, flat=True, dense=True, no-caps=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_left, flat=True, dense=True, no-caps=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_right, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=last_page, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]&#10;    Dialog [persistent=True]&#10;     canvas [aria-label=Slowly moving connec...]&#10;     Card [dir=ltr, lang=en]&#10;      Row&#10;       Column&#10;        Column&#10;         Row&#10;          Image [src=/static/brand/wathiq..., fit=contain, alt=Wathiq mark]&#10;          Label [text=wathiq]&#10;         Column&#10;          Label [text=Your records. Your e...]&#10;          Label [text=Secure access to the...]&#10;        Label [text=Reliable stewardship...]&#10;       Column&#10;        Label [text=Sign in]&#10;        Label [text=Use your organizatio...]&#10;        Input [value=admin@test.invalid, label=Email address, type=text, outlined=True, autocomplete=username, input-style=direction: ltr; unic...]&#10;        Input [label=Password, type=password, outlined=True, autocomplete=current-password, input-style=direction: ltr; unic...]&#10;        Label&#10;        Button [markers=assembled-target-161, label=Continue to wathiq, icon=login, unelevated=True, no-caps=True]&#10;        Label [text=Need help? Contact y...]&#10; Footer [model-value=True]&#10;  Icon [name=cloud_done]&#10;   Tooltip [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︇︄︅...]&#10;  Label [text=Database: ⁨Phase 4 d...]&#10;  Space&#10;  Label [text=Designed and built b...]">args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x12841e190&gt;, 'label': 'Organization units', 'resource': 'org-units'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:27: in test_collection_create_update_and_translation_keep_filtered_results
+    await user.should_see('Code is required',retries=100)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x12841e190&gt;
+target = 'Code is required'
+
+    async def should_see(self,
+                         target: Union[str, Type[T], None] = None,
+                         *,
+                         kind: Optional[Type[T]] = None,
+                         marker: Union[str, List[str], None] = None,
+                         content: Union[str, List[str], None] = None,
+                         retries: int = 3,
+                         ) -&gt; None:
+        """Assert that the page contains an element fulfilling certain filter rules.
+    
+        Note that there is no scrolling in the user simulation -- the entire page is always *visible*.
+        Due to asynchronous execution, sometimes the expected elements only appear after a short delay.
+    
+        By default `should_see` makes three attempts to find the element before failing.
+        This can be adjusted with the `retries` parameter.
+        """
+        for _ in range(retries):
+            with self._client:
+                if self.notify.contains(target) or self._gather_elements(target, kind, marker, content):
+                    return
+                await asyncio.sleep(0.1)
+&gt;       raise AssertionError('expected to see at least one ' + self._build_error_message(target, kind, marker, content))
+E       AssertionError: expected to see at least one element with marker=Code is required or content=Code is required on the page:
+E       q-layout
+E        Header [model-value=True, add_scroll_padding=True]
+E         canvas [aria-hidden=true]
+E         Button [icon=menu, flat=True, dense=True, round=True, aria-label=Collapse navigation, aria-expanded=true]
+E          Tooltip [text=Collapse navigation]
+E         Row [aria-label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E          Image [src=/static/brand/wathiq..., fit=contain, alt=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E          Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E         Row [visible=False]
+E          Input [placeholder=Search records, file..., type=text, outlined=True, dense=True, clearable=True, aria-label=Search records, file...]
+E          Button [icon=search, flat=True, round=True, aria-label=Submit global search]
+E           Tooltip [text=Search]
+E         Space
+E         Button [label=⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂..., icon=inbox, flat=True, no-caps=True]
+E         Button [icon=account_circle, flat=True, round=True, data-inspector-ignore=true]
+E          Menu
+E           Column
+E            Row
+E             Avatar [size=44px]
+E              Label [text=TA]
+E             Column
+E              Label [text=Test administrator]
+E              Label [text=admin@test.invalid]
+E            Separator
+E            Label [text=Previous sign-in]
+E            Label [text=10 Nov 2026, 07:27 P...]
+E            Separator
+E            Label [text=Assigned roles]
+E            Column
+E             Row
+E              Icon [name=badge, size=18px]
+E              Column
+E               Label [text=Test administrator]
+E               Label [text=WebUI test unit]
+E            Separator
+E            Column
+E             Button [label=Preferences, icon=language, flat=True, dense=True, no-caps=True, align=left]
+E             Button [label=Change password, icon=key, flat=True, dense=True, no-caps=True, align=left]
+E             Separator
+E             Column [data-inspector-ignore=true]
+E              Label [text=Diagnostics]
+E              Switch [text=Translation Inspecto..., model-value=True, dense=True]
+E             Button [label=Sign out, icon=logout, flat=True, dense=True, no-caps=True, align=left]
+E         div [id=translation-inspecto..., aria-hidden=true]
+E        LeftDrawer [model-value=True, side=left, width=300, mini-width=64]
+E         Button [icon=chevron_left, flat=True, dense=True, aria-label=Collapse navigation]
+E          Tooltip [text=Collapse navigation]
+E         ScrollArea
+E          Column
+E           Button [label=Dashboard, icon=dashboard, flat=True, align=left, no-caps=True, aria-label=Dashboard]
+E            Tooltip [text=Dashboard]
+E           Label [text=RECORDS MANAGEMENT]
+E           Button [label=Advanced Search, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Advanced Search]
+E            Tooltip [text=Advanced Search]
+E           Button [label=Aggregations, icon=folder, flat=True, align=left, no-caps=True, aria-label=Aggregations]
+E            Tooltip [text=Aggregations]
+E           Button [label=Records, icon=description, flat=True, align=left, no-caps=True, aria-label=Records]
+E            Tooltip [text=Records]
+E           Button [label=Classification schem..., icon=account_tree, flat=True, align=left, no-caps=True, aria-label=Classification schem...]
+E            Tooltip [text=Classification schem...]
+E           Button [label=Relationship Types, icon=link, flat=True, align=left, no-caps=True, aria-label=Relationship Types]
+E            Tooltip [text=Relationship Types]
+E           Label [text=Disposition]
+E           Button [label=My tasks, icon=task_alt, flat=True, align=left, no-caps=True, aria-label=My tasks]
+E            Tooltip [text=My tasks]
+E           Button [label=Disposition eligibil..., icon=event_available, flat=True, align=left, no-caps=True, aria-label=Disposition eligibil...]
+E            Tooltip [text=Disposition eligibil...]
+E           Button [label=Disposition jobs, icon=work_outline, flat=True, align=left, no-caps=True, aria-label=Disposition jobs]
+E            Tooltip [text=Disposition jobs]
+E           Button [label=Document templates, icon=description, flat=True, align=left, no-caps=True, aria-label=Document templates, visible=False]
+E            Tooltip [text=Document templates]
+E           Label [text=Messages]
+E           Button [label=Inbox, icon=inbox, flat=True, align=left, no-caps=True, aria-label=Inbox]
+E            Tooltip [text=Inbox]
+E           Button [label=Outbox, icon=outbox, flat=True, align=left, no-caps=True, aria-label=Outbox]
+E            Tooltip [text=Outbox]
+E           Button [label=Drafts, icon=drafts, flat=True, align=left, no-caps=True, aria-label=Drafts]
+E            Tooltip [text=Drafts]
+E           Button [label=Messages Monitor, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Messages Monitor]
+E            Tooltip [text=Messages Monitor]
+E           Button [label=Notification Adminis..., icon=notifications, flat=True, align=left, no-caps=True, aria-label=Notification Adminis...]
+E            Tooltip [text=Notification Adminis...]
+E           Label [text=ORGANIZATION STRUCTU...]
+E           Button [label=Browse, icon=lan, flat=True, align=left, no-caps=True, aria-label=Browse]
+E            Tooltip [text=Browse]
+E           Button [markers=assembled-target-89, label=Organization units, icon=corporate_fare, flat=True, align=left, no-caps=True, aria-label=Organization units, aria-current=page]
+E            Tooltip [text=Organization units]
+E           Button [label=Roles, icon=badge, flat=True, align=left, no-caps=True, aria-label=Roles]
+E            Tooltip [text=Roles]
+E           Button [label=Users, icon=group, flat=True, align=left, no-caps=True, aria-label=Users]
+E            Tooltip [text=Users]
+E           Label [text=SYSTEM ADMINISTRATIO...]
+E           Button [label=Text Indexers, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Text Indexers]
+E            Tooltip [text=Text Indexers]
+E           Button [label=Settings, icon=settings, flat=True, align=left, no-caps=True, aria-label=Settings]
+E            Tooltip [text=Settings]
+E           Button [label=Audit trail, icon=manage_history, flat=True, align=left, no-caps=True, aria-label=Audit trail]
+E            Tooltip [text=Audit trail]
+E           Button [label=Login sessions, icon=devices, flat=True, align=left, no-caps=True, aria-label=Login sessions]
+E            Tooltip [text=Login sessions]
+E           Button [label=Security operations, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Security operations]
+E            Tooltip [text=Security operations]
+E           Button [label=Administer Saved Sea..., icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Administer Saved Sea...]
+E            Tooltip [text=Administer Saved Sea...]
+E           Button [label=Security levels, icon=security, flat=True, align=left, no-caps=True, aria-label=Security levels]
+E            Tooltip [text=Security levels]
+E           Button [label=Profiles, icon=admin_panel_settings, flat=True, align=left, no-caps=True, aria-label=Profiles]
+E            Tooltip [text=Profiles]
+E           Button [label=Translations, icon=translate, flat=True, align=left, no-caps=True, aria-label=Translations]
+E            Tooltip [text=Translations]
+E           Button [label=Governance custody, icon=shield_person, flat=True, align=left, no-caps=True, aria-label=Governance custody]
+E            Tooltip [text=Governance custody]
+E           Button [label=Holds, icon=gavel, flat=True, align=left, no-caps=True, aria-label=Holds]
+E            Tooltip [text=Holds]
+E        q-page-container
+E         q-page
+E          div
+E           QueryElement [selector=html, props={'lang': 'en', 'dir'...]
+E           Colors [primary=#268bd2, secondary=#0f749f, accent=#72b8e8, dark=#1d1d1d, dark_page=#121212, positive=#2f9e44, negative=#dc5050, info=#31ccec, warning=#e9a23b]
+E           Column
+E            nav [aria-label=Navigation history]
+E             Row
+E              Button [label=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., flat=True, dense=True, no-caps=True]
+E               Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E              Icon [name=chevron_right, size=15px, aria-hidden=true]
+E              Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., aria-current=page]
+E               Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E            Row
+E             Column
+E              Row
+E               Icon [name=corporate_fare]
+E               Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E              Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆...]
+E             Row
+E              Button [markers=assembled-target-129, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆..., icon=add, unelevated=True, rounded=True]
+E              Button [label=Add record, icon=note_add, unelevated=True, rounded=True, visible=False]
+E              Dialog [model-value=True]
+E               Card
+E                Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]
+E                Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]
+E                Column
+E                 Select [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., use-input=True, hide-selected=True, fill-input=True, input-debounce=0, clearable=True, outlined=True, behavior=menu, options-dense=True]
+E                 Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=account_tree, flat=True, dense=True, no-caps=True]
+E                 Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]
+E                 Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]
+E                 Textarea [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., type=textarea, outlined=True, autogrow=True]
+E                Row
+E                 Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., flat=True]
+E                 Button [markers=assembled-target-267, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=save, unelevated=True]
+E            Card
+E             Row [visible=False]
+E              Label [text=View]
+E              Button [label=Search, icon=search, unelevated=True, dense=True, no-caps=True]
+E              Button [label=Browse classificatio..., icon=account_tree, flat=True, dense=True, no-caps=True]
+E             Row [visible=False]
+E              Input [label=Search by number, ti..., type=text, outlined=True, clearable=True]
+E              Button [label=Search, icon=search, unelevated=True]
+E             Label
+E             Column
+E              Row
+E               Input [value=PHASE6C_ORG_UNITS, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., placeholder=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., type=text, outlined=True, dense=True, clearable=True, debounce=350]
+E               Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E               Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E               Select [model-value={'value': 1, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E              Row
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E               Space
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=refresh, flat=True, dense=True, no-caps=True]
+E              div
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E              Row
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E               Space
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=first_page, flat=True, dense=True, no-caps=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_left, flat=True, dense=True, no-caps=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_right, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=last_page, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]
+E           Dialog [persistent=True]
+E            canvas [aria-label=Slowly moving connec...]
+E            Card [dir=ltr, lang=en]
+E             Row
+E              Column
+E               Column
+E                Row
+E                 Image [src=/static/brand/wathiq..., fit=contain, alt=Wathiq mark]
+E                 Label [text=wathiq]
+E                Column
+E                 Label [text=Your records. Your e...]
+E                 Label [text=Secure access to the...]
+E               Label [text=Reliable stewardship...]
+E              Column
+E               Label [text=Sign in]
+E               Label [text=Use your organizatio...]
+E               Input [value=admin@test.invalid, label=Email address, type=text, outlined=True, autocomplete=username, input-style=direction: ltr; unic...]
+E               Input [label=Password, type=password, outlined=True, autocomplete=current-password, input-style=direction: ltr; unic...]
+E               Label
+E               Button [markers=assembled-target-161, label=Continue to wathiq, icon=login, unelevated=True, no-caps=True]
+E               Label [text=Need help? Contact y...]
+E        Footer [model-value=True]
+E         Icon [name=cloud_done]
+E          Tooltip [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︇︄︅...]
+E         Label [text=Database: ⁨Phase 4 d...]
+E         Space
+E         Label [text=Designed and built b...]
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:141: AssertionError</failure></testcase><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[security-levels-Security levels]" time="11.501"><failure message="AssertionError: expected to see at least one element with marker=Code is required or content=Code is required on the page:&#10;q-layout&#10; Header [model-value=True, add_scroll_padding=True]&#10;  canvas [aria-hidden=true]&#10;  Button [icon=menu, flat=True, dense=True, round=True, aria-label=Collapse navigation, aria-expanded=true]&#10;   Tooltip [text=Collapse navigation]&#10;  Row [aria-label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;   Image [src=/static/brand/wathiq..., fit=contain, alt=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;   Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]&#10;  Row [visible=False]&#10;   Input [placeholder=Search records, file..., type=text, outlined=True, dense=True, clearable=True, aria-label=Search records, file...]&#10;   Button [icon=search, flat=True, round=True, aria-label=Submit global search]&#10;    Tooltip [text=Search]&#10;  Space&#10;  Button [label=⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂..., icon=inbox, flat=True, no-caps=True]&#10;  Button [icon=account_circle, flat=True, round=True, data-inspector-ignore=true]&#10;   Menu&#10;    Column&#10;     Row&#10;      Avatar [size=44px]&#10;       Label [text=TA]&#10;      Column&#10;       Label [text=Test administrator]&#10;       Label [text=admin@test.invalid]&#10;     Separator&#10;     Label [text=Previous sign-in]&#10;     Label [text=10 Nov 2026, 07:27 P...]&#10;     Separator&#10;     Label [text=Assigned roles]&#10;     Column&#10;      Row&#10;       Icon [name=badge, size=18px]&#10;       Column&#10;        Label [text=Test administrator]&#10;        Label [text=WebUI test unit]&#10;     Separator&#10;     Column&#10;      Button [label=Preferences, icon=language, flat=True, dense=True, no-caps=True, align=left]&#10;      Button [label=Change password, icon=key, flat=True, dense=True, no-caps=True, align=left]&#10;      Separator&#10;      Column [data-inspector-ignore=true]&#10;       Label [text=Diagnostics]&#10;       Switch [text=Translation Inspecto..., model-value=True, dense=True]&#10;      Button [label=Sign out, icon=logout, flat=True, dense=True, no-caps=True, align=left]&#10;  div [id=translation-inspecto..., aria-hidden=true]&#10; LeftDrawer [model-value=True, side=left, width=300, mini-width=64]&#10;  Button [icon=chevron_left, flat=True, dense=True, aria-label=Collapse navigation]&#10;   Tooltip [text=Collapse navigation]&#10;  ScrollArea&#10;   Column&#10;    Button [label=Dashboard, icon=dashboard, flat=True, align=left, no-caps=True, aria-label=Dashboard]&#10;     Tooltip [text=Dashboard]&#10;    Label [text=RECORDS MANAGEMENT]&#10;    Button [label=Advanced Search, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Advanced Search]&#10;     Tooltip [text=Advanced Search]&#10;    Button [label=Aggregations, icon=folder, flat=True, align=left, no-caps=True, aria-label=Aggregations]&#10;     Tooltip [text=Aggregations]&#10;    Button [label=Records, icon=description, flat=True, align=left, no-caps=True, aria-label=Records]&#10;     Tooltip [text=Records]&#10;    Button [label=Classification schem..., icon=account_tree, flat=True, align=left, no-caps=True, aria-label=Classification schem...]&#10;     Tooltip [text=Classification schem...]&#10;    Button [label=Relationship Types, icon=link, flat=True, align=left, no-caps=True, aria-label=Relationship Types]&#10;     Tooltip [text=Relationship Types]&#10;    Label [text=Disposition]&#10;    Button [label=My tasks, icon=task_alt, flat=True, align=left, no-caps=True, aria-label=My tasks]&#10;     Tooltip [text=My tasks]&#10;    Button [label=Disposition eligibil..., icon=event_available, flat=True, align=left, no-caps=True, aria-label=Disposition eligibil...]&#10;     Tooltip [text=Disposition eligibil...]&#10;    Button [label=Disposition jobs, icon=work_outline, flat=True, align=left, no-caps=True, aria-label=Disposition jobs]&#10;     Tooltip [text=Disposition jobs]&#10;    Button [label=Document templates, icon=description, flat=True, align=left, no-caps=True, aria-label=Document templates, visible=False]&#10;     Tooltip [text=Document templates]&#10;    Label [text=Messages]&#10;    Button [label=Inbox, icon=inbox, flat=True, align=left, no-caps=True, aria-label=Inbox]&#10;     Tooltip [text=Inbox]&#10;    Button [label=Outbox, icon=outbox, flat=True, align=left, no-caps=True, aria-label=Outbox]&#10;     Tooltip [text=Outbox]&#10;    Button [label=Drafts, icon=drafts, flat=True, align=left, no-caps=True, aria-label=Drafts]&#10;     Tooltip [text=Drafts]&#10;    Button [label=Messages Monitor, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Messages Monitor]&#10;     Tooltip [text=Messages Monitor]&#10;    Button [label=Notification Adminis..., icon=notifications, flat=True, align=left, no-caps=True, aria-label=Notification Adminis...]&#10;     Tooltip [text=Notification Adminis...]&#10;    Label [text=ORGANIZATION STRUCTU...]&#10;    Button [label=Browse, icon=lan, flat=True, align=left, no-caps=True, aria-label=Browse]&#10;     Tooltip [text=Browse]&#10;    Button [label=Organization units, icon=corporate_fare, flat=True, align=left, no-caps=True, aria-label=Organization units]&#10;     Tooltip [text=Organization units]&#10;    Button [label=Roles, icon=badge, flat=True, align=left, no-caps=True, aria-label=Roles]&#10;     Tooltip [text=Roles]&#10;    Button [label=Users, icon=group, flat=True, align=left, no-caps=True, aria-label=Users]&#10;     Tooltip [text=Users]&#10;    Label [text=SYSTEM ADMINISTRATIO...]&#10;    Button [label=Text Indexers, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Text Indexers]&#10;     Tooltip [text=Text Indexers]&#10;    Button [label=Settings, icon=settings, flat=True, align=left, no-caps=True, aria-label=Settings]&#10;     Tooltip [text=Settings]&#10;    Button [label=Audit trail, icon=manage_history, flat=True, align=left, no-caps=True, aria-label=Audit trail]&#10;     Tooltip [text=Audit trail]&#10;    Button [label=Login sessions, icon=devices, flat=True, align=left, no-caps=True, aria-label=Login sessions]&#10;     Tooltip [text=Login sessions]&#10;    Button [label=Security operations, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Security operations]&#10;     Tooltip [text=Security operations]&#10;    Button [label=Administer Saved Sea..., icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Administer Saved Sea...]&#10;     Tooltip [text=Administer Saved Sea...]&#10;    Button [markers=assembled-target-108, label=Security levels, icon=security, flat=True, align=left, no-caps=True, aria-label=Security levels, aria-current=page]&#10;     Tooltip [text=Security levels]&#10;    Button [label=Profiles, icon=admin_panel_settings, flat=True, align=left, no-caps=True, aria-label=Profiles]&#10;     Tooltip [text=Profiles]&#10;    Button [label=Translations, icon=translate, flat=True, align=left, no-caps=True, aria-label=Translations]&#10;     Tooltip [text=Translations]&#10;    Button [label=Governance custody, icon=shield_person, flat=True, align=left, no-caps=True, aria-label=Governance custody]&#10;     Tooltip [text=Governance custody]&#10;    Button [label=Holds, icon=gavel, flat=True, align=left, no-caps=True, aria-label=Holds]&#10;     Tooltip [text=Holds]&#10; q-page-container&#10;  q-page&#10;   div&#10;    QueryElement [selector=html, props={'lang': 'en', 'dir'...]&#10;    Colors [primary=#268bd2, secondary=#0f749f, accent=#72b8e8, dark=#1d1d1d, dark_page=#121212, positive=#2f9e44, negative=#dc5050, info=#31ccec, warning=#e9a23b]&#10;    Column&#10;     nav [aria-label=Navigation history]&#10;      Row&#10;       Button [label=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., flat=True, dense=True, no-caps=True]&#10;        Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;       Icon [name=chevron_right, size=15px, aria-hidden=true]&#10;       Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., aria-current=page]&#10;        Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;     Row&#10;      Column&#10;       Row&#10;        Icon [name=dashboard, visible=False]&#10;        Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]&#10;       Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆...]&#10;      Row&#10;       Button [markers=assembled-target-129, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆..., icon=add, unelevated=True, rounded=True]&#10;       Button [label=Add record, icon=note_add, unelevated=True, rounded=True, visible=False]&#10;       Dialog [model-value=True]&#10;        Card&#10;         Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]&#10;         Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]&#10;         Column&#10;          Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]&#10;          Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]&#10;          Textarea [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., type=textarea, outlined=True, autogrow=True]&#10;          Number [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=number, outlined=True]&#10;          Checkbox [text=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇...]&#10;         Row&#10;          Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., flat=True]&#10;          Button [markers=assembled-target-347, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=save, unelevated=True]&#10;     Card&#10;      Row [visible=False]&#10;       Label [text=View]&#10;       Button [label=Search, icon=search, unelevated=True, dense=True, no-caps=True]&#10;       Button [label=Browse classificatio..., icon=account_tree, flat=True, dense=True, no-caps=True]&#10;      Row [visible=False]&#10;       Input [label=Search by number, ti..., type=text, outlined=True, clearable=True]&#10;       Button [label=Search, icon=search, unelevated=True]&#10;      Label&#10;      Column&#10;       Row&#10;        Input [value=PHASE6C_SECURITY_LEV..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., placeholder=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., type=text, outlined=True, dense=True, clearable=True, debounce=350]&#10;        Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;        Select [model-value={'value': 1, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]&#10;       Row&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;        Space&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=refresh, flat=True, dense=True, no-caps=True]&#10;       div&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;       Row&#10;        Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]&#10;        Space&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=first_page, flat=True, dense=True, no-caps=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_left, flat=True, dense=True, no-caps=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_right, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]&#10;        Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=last_page, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]&#10;    Dialog [persistent=True]&#10;     canvas [aria-label=Slowly moving connec...]&#10;     Card [dir=ltr, lang=en]&#10;      Row&#10;       Column&#10;        Column&#10;         Row&#10;          Image [src=/static/brand/wathiq..., fit=contain, alt=Wathiq mark]&#10;          Label [text=wathiq]&#10;         Column&#10;          Label [text=Your records. Your e...]&#10;          Label [text=Secure access to the...]&#10;        Label [text=Reliable stewardship...]&#10;       Column&#10;        Label [text=Sign in]&#10;        Label [text=Use your organizatio...]&#10;        Input [value=admin@test.invalid, label=Email address, type=text, outlined=True, autocomplete=username, input-style=direction: ltr; unic...]&#10;        Input [label=Password, type=password, outlined=True, autocomplete=current-password, input-style=direction: ltr; unic...]&#10;        Label&#10;        Button [markers=assembled-target-161, label=Continue to wathiq, icon=login, unelevated=True, no-caps=True]&#10;        Label [text=Need help? Contact y...]&#10; Footer [model-value=True]&#10;  Icon [name=cloud_done]&#10;   Tooltip [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︇︄︅...]&#10;  Label [text=Database: ⁨Phase 4 d...]&#10;  Space&#10;  Label [text=Designed and built b...]">args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x1289d5350&gt;, 'label': 'Security levels', 'resource': 'security-levels'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:27: in test_collection_create_update_and_translation_keep_filtered_results
+    await user.should_see('Code is required',retries=100)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1289d5350&gt;
+target = 'Code is required'
+
+    async def should_see(self,
+                         target: Union[str, Type[T], None] = None,
+                         *,
+                         kind: Optional[Type[T]] = None,
+                         marker: Union[str, List[str], None] = None,
+                         content: Union[str, List[str], None] = None,
+                         retries: int = 3,
+                         ) -&gt; None:
+        """Assert that the page contains an element fulfilling certain filter rules.
+    
+        Note that there is no scrolling in the user simulation -- the entire page is always *visible*.
+        Due to asynchronous execution, sometimes the expected elements only appear after a short delay.
+    
+        By default `should_see` makes three attempts to find the element before failing.
+        This can be adjusted with the `retries` parameter.
+        """
+        for _ in range(retries):
+            with self._client:
+                if self.notify.contains(target) or self._gather_elements(target, kind, marker, content):
+                    return
+                await asyncio.sleep(0.1)
+&gt;       raise AssertionError('expected to see at least one ' + self._build_error_message(target, kind, marker, content))
+E       AssertionError: expected to see at least one element with marker=Code is required or content=Code is required on the page:
+E       q-layout
+E        Header [model-value=True, add_scroll_padding=True]
+E         canvas [aria-hidden=true]
+E         Button [icon=menu, flat=True, dense=True, round=True, aria-label=Collapse navigation, aria-expanded=true]
+E          Tooltip [text=Collapse navigation]
+E         Row [aria-label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E          Image [src=/static/brand/wathiq..., fit=contain, alt=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E          Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︉︆︎︆︄︆...]
+E         Row [visible=False]
+E          Input [placeholder=Search records, file..., type=text, outlined=True, dense=True, clearable=True, aria-label=Search records, file...]
+E          Button [icon=search, flat=True, round=True, aria-label=Submit global search]
+E           Tooltip [text=Search]
+E         Space
+E         Button [label=⁣︆︍︆︅︇︃︇︃︆︁︆︇︆︉︆︎︆︇︂..., icon=inbox, flat=True, no-caps=True]
+E         Button [icon=account_circle, flat=True, round=True, data-inspector-ignore=true]
+E          Menu
+E           Column
+E            Row
+E             Avatar [size=44px]
+E              Label [text=TA]
+E             Column
+E              Label [text=Test administrator]
+E              Label [text=admin@test.invalid]
+E            Separator
+E            Label [text=Previous sign-in]
+E            Label [text=10 Nov 2026, 07:27 P...]
+E            Separator
+E            Label [text=Assigned roles]
+E            Column
+E             Row
+E              Icon [name=badge, size=18px]
+E              Column
+E               Label [text=Test administrator]
+E               Label [text=WebUI test unit]
+E            Separator
+E            Column
+E             Button [label=Preferences, icon=language, flat=True, dense=True, no-caps=True, align=left]
+E             Button [label=Change password, icon=key, flat=True, dense=True, no-caps=True, align=left]
+E             Separator
+E             Column [data-inspector-ignore=true]
+E              Label [text=Diagnostics]
+E              Switch [text=Translation Inspecto..., model-value=True, dense=True]
+E             Button [label=Sign out, icon=logout, flat=True, dense=True, no-caps=True, align=left]
+E         div [id=translation-inspecto..., aria-hidden=true]
+E        LeftDrawer [model-value=True, side=left, width=300, mini-width=64]
+E         Button [icon=chevron_left, flat=True, dense=True, aria-label=Collapse navigation]
+E          Tooltip [text=Collapse navigation]
+E         ScrollArea
+E          Column
+E           Button [label=Dashboard, icon=dashboard, flat=True, align=left, no-caps=True, aria-label=Dashboard]
+E            Tooltip [text=Dashboard]
+E           Label [text=RECORDS MANAGEMENT]
+E           Button [label=Advanced Search, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Advanced Search]
+E            Tooltip [text=Advanced Search]
+E           Button [label=Aggregations, icon=folder, flat=True, align=left, no-caps=True, aria-label=Aggregations]
+E            Tooltip [text=Aggregations]
+E           Button [label=Records, icon=description, flat=True, align=left, no-caps=True, aria-label=Records]
+E            Tooltip [text=Records]
+E           Button [label=Classification schem..., icon=account_tree, flat=True, align=left, no-caps=True, aria-label=Classification schem...]
+E            Tooltip [text=Classification schem...]
+E           Button [label=Relationship Types, icon=link, flat=True, align=left, no-caps=True, aria-label=Relationship Types]
+E            Tooltip [text=Relationship Types]
+E           Label [text=Disposition]
+E           Button [label=My tasks, icon=task_alt, flat=True, align=left, no-caps=True, aria-label=My tasks]
+E            Tooltip [text=My tasks]
+E           Button [label=Disposition eligibil..., icon=event_available, flat=True, align=left, no-caps=True, aria-label=Disposition eligibil...]
+E            Tooltip [text=Disposition eligibil...]
+E           Button [label=Disposition jobs, icon=work_outline, flat=True, align=left, no-caps=True, aria-label=Disposition jobs]
+E            Tooltip [text=Disposition jobs]
+E           Button [label=Document templates, icon=description, flat=True, align=left, no-caps=True, aria-label=Document templates, visible=False]
+E            Tooltip [text=Document templates]
+E           Label [text=Messages]
+E           Button [label=Inbox, icon=inbox, flat=True, align=left, no-caps=True, aria-label=Inbox]
+E            Tooltip [text=Inbox]
+E           Button [label=Outbox, icon=outbox, flat=True, align=left, no-caps=True, aria-label=Outbox]
+E            Tooltip [text=Outbox]
+E           Button [label=Drafts, icon=drafts, flat=True, align=left, no-caps=True, aria-label=Drafts]
+E            Tooltip [text=Drafts]
+E           Button [label=Messages Monitor, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Messages Monitor]
+E            Tooltip [text=Messages Monitor]
+E           Button [label=Notification Adminis..., icon=notifications, flat=True, align=left, no-caps=True, aria-label=Notification Adminis...]
+E            Tooltip [text=Notification Adminis...]
+E           Label [text=ORGANIZATION STRUCTU...]
+E           Button [label=Browse, icon=lan, flat=True, align=left, no-caps=True, aria-label=Browse]
+E            Tooltip [text=Browse]
+E           Button [label=Organization units, icon=corporate_fare, flat=True, align=left, no-caps=True, aria-label=Organization units]
+E            Tooltip [text=Organization units]
+E           Button [label=Roles, icon=badge, flat=True, align=left, no-caps=True, aria-label=Roles]
+E            Tooltip [text=Roles]
+E           Button [label=Users, icon=group, flat=True, align=left, no-caps=True, aria-label=Users]
+E            Tooltip [text=Users]
+E           Label [text=SYSTEM ADMINISTRATIO...]
+E           Button [label=Text Indexers, icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Text Indexers]
+E            Tooltip [text=Text Indexers]
+E           Button [label=Settings, icon=settings, flat=True, align=left, no-caps=True, aria-label=Settings]
+E            Tooltip [text=Settings]
+E           Button [label=Audit trail, icon=manage_history, flat=True, align=left, no-caps=True, aria-label=Audit trail]
+E            Tooltip [text=Audit trail]
+E           Button [label=Login sessions, icon=devices, flat=True, align=left, no-caps=True, aria-label=Login sessions]
+E            Tooltip [text=Login sessions]
+E           Button [label=Security operations, icon=monitor_heart, flat=True, align=left, no-caps=True, aria-label=Security operations]
+E            Tooltip [text=Security operations]
+E           Button [label=Administer Saved Sea..., icon=manage_search, flat=True, align=left, no-caps=True, aria-label=Administer Saved Sea...]
+E            Tooltip [text=Administer Saved Sea...]
+E           Button [markers=assembled-target-108, label=Security levels, icon=security, flat=True, align=left, no-caps=True, aria-label=Security levels, aria-current=page]
+E            Tooltip [text=Security levels]
+E           Button [label=Profiles, icon=admin_panel_settings, flat=True, align=left, no-caps=True, aria-label=Profiles]
+E            Tooltip [text=Profiles]
+E           Button [label=Translations, icon=translate, flat=True, align=left, no-caps=True, aria-label=Translations]
+E            Tooltip [text=Translations]
+E           Button [label=Governance custody, icon=shield_person, flat=True, align=left, no-caps=True, aria-label=Governance custody]
+E            Tooltip [text=Governance custody]
+E           Button [label=Holds, icon=gavel, flat=True, align=left, no-caps=True, aria-label=Holds]
+E            Tooltip [text=Holds]
+E        q-page-container
+E         q-page
+E          div
+E           QueryElement [selector=html, props={'lang': 'en', 'dir'...]
+E           Colors [primary=#268bd2, secondary=#0f749f, accent=#72b8e8, dark=#1d1d1d, dark_page=#121212, positive=#2f9e44, negative=#dc5050, info=#31ccec, warning=#e9a23b]
+E           Column
+E            nav [aria-label=Navigation history]
+E             Row
+E              Button [label=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., flat=True, dense=True, no-caps=True]
+E               Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E              Icon [name=chevron_right, size=15px, aria-hidden=true]
+E              Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆..., aria-current=page]
+E               Tooltip [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E            Row
+E             Column
+E              Row
+E               Icon [name=dashboard, visible=False]
+E               Label [text=⁣︆︎︆︁︇︆︆︉︆︇︆︁︇︄︆︉︆️︆...]
+E              Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆...]
+E             Row
+E              Button [markers=assembled-target-129, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆..., icon=add, unelevated=True, rounded=True]
+E              Button [label=Add record, icon=note_add, unelevated=True, rounded=True, visible=False]
+E              Dialog [model-value=True]
+E               Card
+E                Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]
+E                Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆...]
+E                Column
+E                 Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]
+E                 Input [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=text, outlined=True]
+E                 Textarea [label=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇..., type=textarea, outlined=True, autogrow=True]
+E                 Number [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆..., type=number, outlined=True]
+E                 Checkbox [text=⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇...]
+E                Row
+E                 Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., flat=True]
+E                 Button [markers=assembled-target-347, label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︆️︇︀︆︅︆..., icon=save, unelevated=True]
+E            Card
+E             Row [visible=False]
+E              Label [text=View]
+E              Button [label=Search, icon=search, unelevated=True, dense=True, no-caps=True]
+E              Button [label=Browse classificatio..., icon=account_tree, flat=True, dense=True, no-caps=True]
+E             Row [visible=False]
+E              Input [label=Search by number, ti..., type=text, outlined=True, clearable=True]
+E              Button [label=Search, icon=search, unelevated=True]
+E             Label
+E             Column
+E              Row
+E               Input [value=PHASE6C_SECURITY_LEV..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., placeholder=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., type=text, outlined=True, dense=True, clearable=True, debounce=350]
+E               Select [model-value={'value': 0, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E               Select [model-value={'value': 1, 'label'..., options=[{'value': 0, 'label..., label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., outlined=True, dense=True, options-dense=True]
+E              Row
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E               Space
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=refresh, flat=True, dense=True, no-caps=True]
+E              div
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E              Row
+E               Label [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆...]
+E               Space
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=first_page, flat=True, dense=True, no-caps=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_left, flat=True, dense=True, no-caps=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=chevron_right, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]
+E               Button [label=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︂︆︅︆︎︆..., icon=last_page, flat=True, dense=True, no-caps=True, icon-right=True, disable=True]
+E           Dialog [persistent=True]
+E            canvas [aria-label=Slowly moving connec...]
+E            Card [dir=ltr, lang=en]
+E             Row
+E              Column
+E               Column
+E                Row
+E                 Image [src=/static/brand/wathiq..., fit=contain, alt=Wathiq mark]
+E                 Label [text=wathiq]
+E                Column
+E                 Label [text=Your records. Your e...]
+E                 Label [text=Secure access to the...]
+E               Label [text=Reliable stewardship...]
+E              Column
+E               Label [text=Sign in]
+E               Label [text=Use your organizatio...]
+E               Input [value=admin@test.invalid, label=Email address, type=text, outlined=True, autocomplete=username, input-style=direction: ltr; unic...]
+E               Input [label=Password, type=password, outlined=True, autocomplete=current-password, input-style=direction: ltr; unic...]
+E               Label
+E               Button [markers=assembled-target-161, label=Continue to wathiq, icon=login, unelevated=True, no-caps=True]
+E               Label [text=Need help? Contact y...]
+E        Footer [model-value=True]
+E         Icon [name=cloud_done]
+E          Tooltip [text=⁣︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︇︄︅...]
+E         Label [text=Database: ⁨Phase 4 d...]
+E         Space
+E         Label [text=Designed and built b...]
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:141: AssertionError</failure></testcase></testsuite></testsuites>

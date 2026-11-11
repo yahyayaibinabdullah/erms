@@ -1,4 +1,5 @@
 import hashlib
+from frontend.webui.tests.organization_sources import organization_sources
 import json
 from pathlib import Path
 import subprocess
@@ -8,18 +9,20 @@ from frontend.webui.entities import ENTITIES
 from frontend.webui.i18n_catalogue import load_english_manifest
 
 ROOT = Path(__file__).resolve().parents[3]
-APP = (ROOT / "frontend/webui/app.py").read_text()
+APP = (ROOT / "frontend/webui/app.py").read_text() + organization_sources()
+ACL = (ROOT / "frontend/webui/access_control_dialogs.py").read_text()
+EXPLANATION = (ROOT / "frontend/webui/access_explanation_dialog.py").read_text()
 
 
 def test_contextual_principals_use_labels_not_role_selectors_or_anchors():
     for principal in ("owning_and_higher_level_unit_managers", "effective_file_administrator"):
-        assert principal in APP
+        assert principal in ACL
         assert acl_grants_payload([{"principal_type": principal, "role_id": None, "display_name": "Contextual", "permission_codes": ["record.view"]}]) == [
             {"principal_type": principal, "role_id": None, "permission_codes": ["record.view"]},
         ]
-    assert 'render_message("authorization.oversight.dynamic", owner_name=owner_name)' in APP
-    assert '"organization.browse" in (auth_state.get("principal") or {})' in APP
-    assert 'result.get("acl", {}).get("contextual_matches", [])' in APP
+    assert 'render_message("authorization.oversight.dynamic", owner_name=owner_name)' in ACL
+    assert '"organization.browse" in (principal() or {})' in ACL
+    assert 'result.get("acl", {}).get("contextual_matches", [])' in EXPLANATION
 
 
 def test_unit_designations_use_bounded_same_unit_search_and_retain_selected_values():
@@ -41,13 +44,14 @@ def test_unit_details_show_both_designated_roles_with_details_links():
 
 def test_org_unit_editor_reads_complete_record_before_initializing_role_controls():
     section = APP.split("async def open_editor", 1)[1].split("async def show_memberships", 1)[0]
-    fresh_read = section.index('row = await api.get("org-units", row["id"])')
+    assert 'return await api.get("org-units", row["id"])' in APP
+    fresh_read = section.index('row = await read_organization_editor_row(api, row)')
     assert fresh_read < section.index('selected_id = (')
     assert fresh_read < section.index('payload = form_payload(spec, controls, creating=creating)')
 
 
 def test_contextual_details_page_on_server_and_ignore_closed_dialog_responses():
-    section = APP.split("async def show_contextual_acl_roles", 1)[1].split("async def show_acl_editor", 1)[0]
+    section = ACL.split("async def show_contextual_acl_roles", 1)[1].split("async def show_acl_editor", 1)[0]
     assert '"limit": 25, "offset": offset' in section
     assert 'if not dialog.value or revision != state["revision"]:' in section
     assert 'state["offset"]+25' in section

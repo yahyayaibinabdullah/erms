@@ -1,6 +1,14 @@
-# WebUI refactor: proposed Phase 6 sequence
+# WebUI refactor: approved Phase 6 sequence
 
-**Status:** Proposed for user approval. Phase 6 implementation has not started.
+**Status:** Sequence approved. [6A](webui-refactor-phase6a-verification.md),
+[6B](webui-refactor-phase6b-verification.md),
+[6C](webui-refactor-phase6c-verification.md) and
+[6D](webui-refactor-phase6d-verification.md) are complete for the approved local scope.
+[6E](webui-refactor-phase6e-verification.md) (Security configuration and access controls) is complete for the approved local scope.
+On 11 November 2026 the user authorized continuation through 6F–6U without
+individual approval stops. Every row still requires its own acceptance checks
+and verification report. [6F](webui-refactor-phase6f-verification.md) is complete; [6G](webui-refactor-phase6g-verification.md) is complete; [6H](webui-refactor-phase6h-verification.md) is complete; [6I](webui-refactor-phase6i-verification.md) is complete; [6J](webui-refactor-phase6j-verification.md) is complete; [6K](webui-refactor-phase6k-verification.md) is complete; [6L](webui-refactor-phase6l-verification.md) is complete; [6M](webui-refactor-phase6m-verification.md) is complete.
+**Current boundary: stop after 6M; 6N–6U await explicit user approval.**
 
 ## Purpose and evidence
 
@@ -36,7 +44,7 @@ The main findings are:
 - Live messaging owns a separate API client and connection lifecycle. Its host
   integration moves last, after its destination features are established.
 
-## Proposed order
+## Approved order
 
 Module names below describe proposed ownership; existing modules remain in use.
 All paths are under `frontend/webui`. Risk describes regression exposure, not an
@@ -123,8 +131,15 @@ the diagnostic logging and investigate any recurrence.
 
 ## Approval boundary
 
-This document proposes the sequence only. No Phase 6 implementation, tests or
-database/browser sessions were started for this review. Application Settings is
+The user initially required approval before each sub-phase. On 11 November 2026
+the user authorized all remaining Phase 6 sub-phases and requested an individual
+verification report for each, followed by an overall summary. The user's latest
+instruction supersedes that continuation: **finish 6M, then stop and wait for
+explicit approval before proceeding to 6N or later.** Preliminary record/capture
+test preparation is parked in the ignored runtime directory; no 6N runtime
+extraction has been performed. Every acceptance gate and product/Git boundary
+still applies. The planning
+review itself started no implementation or test sessions. Application Settings is
 already extracted and is regression-tested as a caller/destination, not migrated again.
 All inventoried feature families are assigned above, including dialogs and
 background work that have no standalone navigation destination. `privileges` and

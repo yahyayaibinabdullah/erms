@@ -16,7 +16,8 @@ from frontend.webui.audit_labels import audit_entity_type_label
 from frontend.webui.api_client import ApiError
 from frontend.webui.messaging_monitor import messaging_monitor
 from frontend.webui.navigation_controller import NavigationController
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock
+from frontend.webui.audit_workspace import build_audit_workspace
 from frontend.webui.remote_select import RemoteSelect
 from frontend.webui.audit_actor_select import bind_audit_actor_select, actor_condition
 from nicegui import events as nicegui_events
@@ -26,6 +27,7 @@ pytestmark = pytest.mark.asyncio
 
 
 def application_audit_callback(namespace):
+    namespace["aggregation_state"] = {}
     tree = ast.parse((Path(__file__).parents[2] / "app.py").read_text())
     navigation = NavigationController(
         stored=[], write_trail=Mock(), prepare=Mock(), snapshot=Mock(), label_key=Mock(),
@@ -35,9 +37,18 @@ def application_audit_callback(namespace):
         render=Mock(), notify=ui.notify, on_error=str,
     )
     namespace['guarded_page_navigation'] = navigation.guarded_page_navigation
-    audit_page = next(n for n in ast.walk(tree) if isinstance(n, ast.AsyncFunctionDef)
-                      and n.name == "select_audit_trail")
+    audit_page = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+                      and n.name == "enter_audit_trail")
     exec(compile(ast.Module(body=[audit_page], type_ignores=[]), "app.py", "exec"), namespace)
+    workspace=build_audit_workspace(
+        api=namespace['api'],table_container=namespace['table_container'],
+        principal=lambda:{'global_privileges':['audit.view']},
+        selected=lambda:namespace['state'].get('resource')=='audit-trail',
+        enter=namespace['enter_audit_trail'],error_message=str,format_timestamp=str,
+        set_connection_status=namespace['set_connection_status'],
+        can_open_settings=lambda:False,open_settings=AsyncMock(),open_destination=AsyncMock(),
+    )
+    namespace['select_audit_trail']=workspace.select_audit_trail
     monitor = next(n for n in ast.walk(tree) if isinstance(n, ast.Call)
                    and isinstance(n.func, ast.Name) and n.func.id == "messaging_monitor")
     callback = next(k.value for k in monitor.keywords if k.arg == "open_audit")
@@ -51,7 +62,6 @@ async def test_monitor_audit_button_routes_to_dedicated_page_with_navigation_gua
 ):
     events = []
     searches = []
-    rendered = []
     delayed = asyncio.Event()
     translations = {
         r["message_key"]: r["translated_text"]
@@ -82,8 +92,8 @@ async def test_monitor_audit_button_routes_to_dedicated_page_with_navigation_gua
             searches.append(payload)
             if "Delayed Actor" in str(payload):
                 await delayed.wait()
-                return {"items": [{"id": 999}], "total": 1}
-            return {"items": [{"id": 1, "entity_type": "system_notification"}], "total": 75}
+                return {"items": [{"id": 999, "entity_type":"system_notification", "entity_id":999, "operation":"EXPORT", "occurred_at":"2026-01-01", "actor_name":"Delayed response actor"}], "total": 1}
+            return {"items": [{"id": 1, "entity_type": "system_notification", "entity_id": 1, "operation":"EXPORT", "occurred_at":"2026-01-01", "actor_name":"Fixture actor"}], "total": 75}
 
     @ui.page("/monitor-audit-navigation")
     async def page():
@@ -108,8 +118,6 @@ async def test_monitor_audit_button_routes_to_dedicated_page_with_navigation_gua
             "add_button": ui.button(), "add_record_button": ui.button(),
             "search_bar": ui.row(), "aggregation_mode_bar": ui.row(),
             "table_container": host, "ApiError": ApiError,
-            "hydrate_historical_audit_identities": lambda rows: None,
-            "render_event_timeline": lambda rows, container: rendered.extend(r["id"] for r in rows),
             "set_connection_status": lambda connected: None,
             "event_label": str,
         }
@@ -190,7 +198,8 @@ async def test_monitor_audit_button_routes_to_dedicated_page_with_navigation_gua
         assert searches[-1]["offset"] == 0
         delayed.set()
         await asyncio.sleep(0.1)
-        assert 999 not in rendered
+        await user.should_not_see("Delayed response actor")
+        await user.should_see("Fixture actor")
     else:
         await user.should_see(button_text)
         assert events == []

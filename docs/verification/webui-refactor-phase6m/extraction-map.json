@@ -1,0 +1,132 @@
+[
+  {
+    "module": "aggregation_actions",
+    "factory": "build_aggregation_actions",
+    "functions": [
+      "show_reopen_aggregation",
+      "show_governed_move",
+      "show_ownership_correction"
+    ],
+    "dependencies": [
+      "api",
+      "bind_remote_relationship_select",
+      "error_message"
+    ]
+  },
+  {
+    "module": "aggregation_selector",
+    "factory": "build_aggregation_selector",
+    "functions": [
+      "browse_advanced_aggregation"
+    ],
+    "dependencies": [
+      "api",
+      "bind_remote_scheme_select",
+      "error_message",
+      "tree_expander_icon"
+    ]
+  },
+  {
+    "module": "aggregation_details",
+    "factory": "build_aggregation_details",
+    "functions": [
+      "open_aggregation"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "add_resource_to_hold_dialog",
+      "aggregation_mode_bar",
+      "aggregation_state",
+      "api",
+      "bind_remote_relationship_select",
+      "breadcrumb_back",
+      "browse_advanced_aggregation",
+      "current_direction",
+      "enter_details",
+      "error_message",
+      "favourite_button",
+      "format_timestamp",
+      "get_record_detail_id",
+      "get_relationship_page_token",
+      "get_resource",
+      "guidance",
+      "hold_reason_dialog",
+      "load_recent",
+      "localized_disposition_value",
+      "medium_label",
+      "open_editor",
+      "open_related_resource",
+      "principal",
+      "register_navigation",
+      "render_compact_resource_result",
+      "restore_compact_result_anchor",
+      "review_datetime_input_minimum",
+      "review_datetime_input_value",
+      "review_datetime_payload",
+      "review_display",
+      "search_bar",
+      "select_classification_workspace",
+      "select_entity",
+      "set_relationship_page_token",
+      "show_access_explanation",
+      "show_acl_editor",
+      "show_authenticated_view",
+      "show_effective_holds_dialog",
+      "show_entity_history",
+      "show_governed_move",
+      "show_ownership_correction",
+      "show_record_details",
+      "show_reopen_aggregation",
+      "show_security_level_change",
+      "subtitle",
+      "table_container",
+      "title"
+    ]
+  },
+  {
+    "module": "aggregation_browser",
+    "factory": "build_aggregation_browser",
+    "functions": [
+      "set_aggregation_mode_controls",
+      "select_aggregation_browser",
+      "select_aggregation_search"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "aggregation_browse_mode",
+      "aggregation_search_mode",
+      "aggregation_state",
+      "api",
+      "bind_remote_scheme_select",
+      "current_direction",
+      "error_message",
+      "get_resource",
+      "guidance",
+      "open_aggregation",
+      "page_client",
+      "personal",
+      "principal",
+      "render_table",
+      "search_bar",
+      "show_record_details",
+      "table_container",
+      "tree_expander_icon"
+    ]
+  },
+  {
+    "module": "aggregation_toolbar",
+    "factory": "build_aggregation_toolbar",
+    "functions": [
+      "add_for_current_context",
+      "add_record_for_current_aggregation"
+    ],
+    "dependencies": [
+      "aggregation_state",
+      "open_aggregation",
+      "open_editor",
+      "open_record_draft_editor"
+    ]
+  }
+]

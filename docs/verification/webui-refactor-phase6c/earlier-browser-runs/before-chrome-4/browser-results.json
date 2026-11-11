@@ -1,0 +1,962 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "collections",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9265.72
+    },
+    {
+      "name": "security_levels bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8972.26
+    },
+    {
+      "name": "profiles bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9471.73
+    },
+    {
+      "name": "users bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 8898.18
+    },
+    {
+      "name": "roles bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10147.34
+    },
+    {
+      "name": "org_units bounded cards, empty filter, editor and keyboard",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9158.68
+    },
+    {
+      "name": "record compact results, favourites, personal panels and parent navigation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 19393.09
+    },
+    {
+      "name": "security_levels bounded cards, empty filter, editor and keyboard",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 8805.4
+    },
+    {
+      "name": "profiles bounded cards, empty filter, editor and keyboard",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 10630.19
+    },
+    {
+      "name": "users bounded cards, empty filter, editor and keyboard",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9027.87
+    },
+    {
+      "name": "roles bounded cards, empty filter, editor and keyboard",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 11417.03
+    },
+    {
+      "name": "org_units bounded cards, empty filter, editor and keyboard",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 9037.48
+    },
+    {
+      "name": "record compact results, favourites, personal panels and parent navigation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 19838.97
+    },
+    {
+      "name": "shared controls browser errors",
+      "language": "ar",
+      "status": "fail",
+      "error": "[{'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}]",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_collections.py\", line 85, in check_collections\n    page.errors()\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 159, in errors\n    assert not errors, errors\n           ^^^^^^^^^^\nAssertionError: [{'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}, {'kind': 'error', 'message': 'TypeError: u.match is not a function'}]\n",
+      "recent_native_clicks": [
+        {
+          "id": "c1840",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c1688",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c1688",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c89",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c2053",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "f_8f3ca69b-b84a-45c7-a1ef-771df5d6ed34",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c2084",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c2008",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c2008",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c60",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c137",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c138",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c2273",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c2273",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c53",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c60",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c137",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c138",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c2803",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c3004",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 2405.83
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "collections-security_levels-en.png",
+      "sha256": "1bfa44dbad17d2ff5431e360ed8b32644d3f40847a750288ac511f6ee213325d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-editor-en.png",
+      "sha256": "d9c1d5f4edea8b6c939e0792fb93b33619a7bfb68dd7874e2ff4caf0fc8a0e26",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-empty-en.png",
+      "sha256": "b214844f4b0628ce507071acebfb8b52e18ebc1b94a4d451d26c5f2c205eb5cf",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-profiles-en.png",
+      "sha256": "231e51445bcdee0e1c4dd22150827a020e86bc40a1f1e8c1a6eb6f05dcbfc4aa",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-profiles-editor-en.png",
+      "sha256": "d98d897f60c8551d098a6eb234c25f977a1df670eaa2449031a0df6fc05d2e10",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-profiles-empty-en.png",
+      "sha256": "1073127c475e13d6b6c435594ba58c53a538c82d99bcb9f97836977eb353c70a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-users-en.png",
+      "sha256": "8a1536bbe5289ab027520e56b20b81345259881655051e197a33751bf389d4da",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-users-editor-en.png",
+      "sha256": "182b17532bb8f60a31c22b2e09b1d8a9fba8d57f49aea9f2f46bf6919f7e205b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-users-empty-en.png",
+      "sha256": "c6026e08192895646d316ff2478634e12b77cd386154941cf3a57094acacaf04",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-roles-en.png",
+      "sha256": "ff8a9d10400d6c843781d81ec0b23916a805001067db7bbb10dcfdea26fd7dc9",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-roles-editor-en.png",
+      "sha256": "6cac31b3fcd6344a60647ff5f840c15e016f1f0bfcb6695282ce4e10fcf27ef9",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-roles-empty-en.png",
+      "sha256": "42c3da57d0ee17f6856ecb1910bf08d86f1bcb2b5f34dd9286dfb6f89a452dae",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-org_units-en.png",
+      "sha256": "9f1ed484a16985338453bcc3ff3e66212a0d81ec76fc85e259eb582cdb67120f",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-org_units-editor-en.png",
+      "sha256": "101710162295f96813633a6ae0f73f3202b25249863295df2331665427285b4b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-org_units-empty-en.png",
+      "sha256": "bdb87e35e0fa3e740e9dde5b1692cd2e5d4ee0ececc4d05a80f4a5b88ee47730",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-record-results-en.png",
+      "sha256": "1c9be08935c5523cd455d722cac562aac7d1917324249980c75792649d5be3e7",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-record-personal-en.png",
+      "sha256": "cc4e093ee55ba5ed62eff68c2b15f9bfa7b7b3a9048d406dce5fb5e8fef8d068",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-aggregation-detail-en.png",
+      "sha256": "525b8cfc1d312bba4d4856b8b1b60cc5744b19d76dc51689b41a4e5b89ac2976",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-ar.png",
+      "sha256": "4ff1c3e2e2ff94324d59194feeac354659f274abef81081746cc3ed1c098a731",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-editor-ar.png",
+      "sha256": "68f9e3267b5c701235cac6597274b35ad631ace9e5127f2415f2bbf7ebf9a55c",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-security_levels-empty-ar.png",
+      "sha256": "602b12b10a0c5e8eb11b44db2286f8ef321f8a1b3729bef29a3b404e66cf14e5",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-profiles-ar.png",
+      "sha256": "a795c82f39af07f29d3fb5184a5d5d35b242f1c0d8f0c145ee2471024d1db6be",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-profiles-editor-ar.png",
+      "sha256": "e57152f4dbeae3e6123373579a1ccb2ac62968e829cfd2b55bcdb92b47fff671",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-profiles-empty-ar.png",
+      "sha256": "d7d3cdcbd1d06c3ee67921a433a80f629ca9937eb61f9325e3b7e96b2d131541",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-users-ar.png",
+      "sha256": "293316098afbcefd53f72fd1f4fd540da8802536f449f8ff28ee8d71a922ed0b",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-users-editor-ar.png",
+      "sha256": "22f2ee626c495fa750d247bcbdbfdca8c0460e8b1305a60ebf37ff994625d4c9",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-users-empty-ar.png",
+      "sha256": "0a04cc2ac738d032bece19e6f73484d8066f559a44fa60598248468955605c1c",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-roles-ar.png",
+      "sha256": "1d285e22aec7e1f62dee3ae2b6a1588ddcb42a571c9181fb137a97103685519e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-roles-editor-ar.png",
+      "sha256": "ca00dc9946f63380651bcd4cabb3badb036cbd7747f0576c54a3022cb1b5bebe",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-roles-empty-ar.png",
+      "sha256": "843d54c7bce77e36fe29e522c740de3a5d5d4ae5351343f761891838de637f05",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-org_units-ar.png",
+      "sha256": "ada1f933fd73b34d238703ad94bd7995b9b69bea5b02a5f095282066f149b799",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-org_units-editor-ar.png",
+      "sha256": "199e3a62d92776cd181e6d27c7770f8c0a6e420e1a2fe55126149d6302574939",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-org_units-empty-ar.png",
+      "sha256": "99b539209888fcdf1a75dac9077fb771e6edf5f4f3f4aa579eef3e08841c7627",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-record-results-ar.png",
+      "sha256": "5b403442af3f332cc18a194beaf81f91c63a3942af5e6a7b94df39c6ff296cbf",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-record-personal-ar.png",
+      "sha256": "6af63860c470e5e3ffd02bee225a9eca2ee800c733d12d7580a21081831067dc",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "collections-aggregation-detail-ar.png",
+      "sha256": "1424655e972051d7c35fb33ef9f32881a43403ad0c3763ed856530ef46c0165d",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-14.png",
+      "sha256": "0e41b77b1c2158a7dcc8823b5fd741e214823db1ed50277044c1d365f9514938",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "collection_focus": [
+    {
+      "language": "en",
+      "resource": "security_levels",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆︌︆︄︅️︆︉︆︎︇︀︇︅︇︄︂︎︇︄︆︅︇︈︇︄︂︎︆︌︆︁︆︂︆︅︆︌︅️︃︂︃︉︃︄︃︄︃︅︆︄︆︃︃︃⁤︁⁤︄︂⁤⁨⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︎︆︁︆︍︆︅⁤︁⁤︄⁤Name⁩ *"
+    },
+    {
+      "language": "en",
+      "resource": "profiles",
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︄︆︅︇︃︆︃︇︂︆︉︇︀︇︄︆︉︆️︆︎⁤︁⁤︋⁤Description"
+    },
+    {
+      "language": "en",
+      "resource": "users",
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︄︆︅︇︃︆︃︇︂︆︉︇︀︇︄︆︉︆️︆︎⁤︁⁤︋⁤Description"
+    },
+    {
+      "language": "en",
+      "resource": "roles",
+      "tag": "button",
+      "type": "button",
+      "label": null
+    },
+    {
+      "language": "en",
+      "resource": "org_units",
+      "tag": "button",
+      "type": "button",
+      "label": null
+    },
+    {
+      "language": "ar",
+      "resource": "security_levels",
+      "tag": "input",
+      "type": "text",
+      "label": "⁣︇︇︆︅︆︂︇︅︆︉︂︎︆︆︆︉︆︅︆︌︆︄︅️︆︉︆︎︇︀︇︅︇︄︂︎︇︄︆︅︇︈︇︄︂︎︆︌︆︁︆︂︆︅︆︌︅️︃︂︃︉︃︄︃︄︃︅︆︄︆︃︃︃⁤︀⁤︄︃⁤⁨⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︎︆︁︆︍︆︅⁤︀⁤︅⁤الاسم⁩ *"
+    },
+    {
+      "language": "ar",
+      "resource": "profiles",
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︄︆︅︇︃︆︃︇︂︆︉︇︀︇︄︆︉︆️︆︎⁤︀⁤︅⁤الوصف"
+    },
+    {
+      "language": "ar",
+      "resource": "users",
+      "tag": "textarea",
+      "type": "textarea",
+      "label": "⁣︆︅︆︎︇︄︆︉︇︄︇︉︅️︆︍︆︅︇︄︆︁︆︄︆︁︇︄︆︁︂︎︆︆︆︉︆︅︆︌︆︄︂︎︆︄︆︅︇︃︆︃︇︂︆︉︇︀︇︄︆︉︆️︆︎⁤︀⁤︅⁤الوصف"
+    },
+    {
+      "language": "ar",
+      "resource": "roles",
+      "tag": "button",
+      "type": "button",
+      "label": null
+    },
+    {
+      "language": "ar",
+      "resource": "org_units",
+      "tag": "button",
+      "type": "button",
+      "label": null
+    }
+  ],
+  "browser_errors": [
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    },
+    {
+      "kind": "error",
+      "message": "TypeError: u.match is not a function"
+    }
+  ]
+}

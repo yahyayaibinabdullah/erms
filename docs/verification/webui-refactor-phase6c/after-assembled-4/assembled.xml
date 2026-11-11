@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="13.618" timestamp="2026-11-10T19:31:18.334313+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[profiles-Profiles]" time="1.189"><failure message="assert 0 == 2&#10; +  where 0 = sum(&lt;generator object test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;genexpr&gt; at 0x1123c5a40&gt;)">args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x111c2d1d0&gt;, 'label': 'Profiles', 'resource': 'profiles'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+assembled = &lt;nicegui.testing.user.User object at 0x111c2d1d0&gt;
+resource = 'profiles', label = 'Profiles'
+
+    @pytest.mark.parametrize('resource,label',[('profiles','Profiles'),('org-units','Organization units'),('security-levels','Security levels')])
+    async def test_collection_create_update_and_translation_keep_filtered_results(assembled,resource,label):
+        user=assembled;await login(user)
+        click_one(user,[b for b in drawer_buttons(user) if plain(b)==label])
+        await eventually(lambda:current_page(user)==resource and user.pending_requests==0)
+        code='PHASE6C_'+resource.replace('-','_').upper()
+        filter_control=next(i for i in user.find(ui.input).elements if plain(i).startswith('Filter '))
+        with user:filter_control.value=code
+        await user.should_see('No matching items.',retries=100)
+        click_one(user,[b for b in user.find(ui.button).elements if plain(b)=='Add'])
+        await eventually(lambda:any(d.value for d in user.find(ui.dialog).elements))
+        dialog=next(d for d in user.find(ui.dialog).elements if d.value)
+        def fields():return {plain(e).removesuffix(' *'):e for e in dialog.descendants() if isinstance(e,(ui.input,ui.number,ui.select))}
+        def save():click_one(user,[b for b in dialog.descendants() if isinstance(b,ui.button) and plain(b)=='Save'])
+        save()
+        await eventually(lambda:any(visible_text(message)=='Code is required' for message in user.notify.messages))
+        assert dialog.value
+        with user:
+            fields()['Code'].value=code
+            fields()['Name'].value='Shared control fixture'
+            if resource=='security-levels':fields()['Level number'].value=777
+        save();await eventually(lambda:not dialog.value and user.pending_requests==0)
+        await user.should_see('Shared control fixture',retries=100)
+        cards=[e for e in user.find(ui.card).elements if 'governance-list-card' in e.classes]
+        assert len(cards)==1
+        click_one(user,[b for b in cards[0].descendants() if isinstance(b,ui.button) and b.props.get('icon')=='edit'])
+        await eventually(lambda:any(d.value for d in user.find(ui.dialog).elements))
+        dialog=next(d for d in user.find(ui.dialog).elements if d.value)
+        expansion=next(e for e in dialog.descendants() if isinstance(e,ui.expansion))
+        with user:expansion.open()
+        language=next(e for e in expansion.descendants() if isinstance(e,ui.select))
+        with user:language.value='ar'
+        await user.should_see(render_message_plain('entity_translation_editor.status.loaded'),retries=100)
+        canonical_name=next(e for e in dialog.descendants() if isinstance(e,ui.input) and plain(e)=='Name *')
+        translated_name=next(e for e in expansion.descendants() if isinstance(e,ui.input) and plain(e)=='Name')
+        reason=next(e for e in dialog.descendants() if isinstance(e,ui.input) and plain(e).startswith('Reason for'))
+        with user:
+            canonical_name.value='Updated shared fixture'
+            translated_name.value='اسم الاختبار'
+            reason.value='Disposable regression'
+        save();await eventually(lambda:not dialog.value and user.pending_requests==0)
+        await user.should_see('Updated shared fixture',retries=100)
+        assert next(i for i in user.find(ui.input).elements if plain(i).startswith('Filter ')).value==code
+        assert not user.api_failures
+        # Assert one canonical creation, one update and one translation write.
+        writes=[r for r in user.api_requests if r['method'] in {'POST','PUT'} and r['path'].startswith('/api/v1/'+resource)]
+        assert sum(r['method']=='POST' and r['path']=='/api/v1/'+resource for r in writes)==1
+&gt;       assert sum(r['method']=='PUT' for r in writes)==2
+E       assert 0 == 2
+E        +  where 0 = sum(&lt;generator object test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;genexpr&gt; at 0x1123c5a40&gt;)
+
+frontend/webui/assembled/tests/test_shared_entity_controls.py:66: AssertionError</failure></testcase><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[org-units-Organization units]" time="0.940"><failure message="assert 0 == 2&#10; +  where 0 = sum(&lt;generator object test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;genexpr&gt; at 0x112657e00&gt;)">args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x111c6a550&gt;, 'label': 'Organization units', 'resource': 'org-units'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+assembled = &lt;nicegui.testing.user.User object at 0x111c6a550&gt;
+resource = 'org-units', label = 'Organization units'
+
+    @pytest.mark.parametrize('resource,label',[('profiles','Profiles'),('org-units','Organization units'),('security-levels','Security levels')])
+    async def test_collection_create_update_and_translation_keep_filtered_results(assembled,resource,label):
+        user=assembled;await login(user)
+        click_one(user,[b for b in drawer_buttons(user) if plain(b)==label])
+        await eventually(lambda:current_page(user)==resource and user.pending_requests==0)
+        code='PHASE6C_'+resource.replace('-','_').upper()
+        filter_control=next(i for i in user.find(ui.input).elements if plain(i).startswith('Filter '))
+        with user:filter_control.value=code
+        await user.should_see('No matching items.',retries=100)
+        click_one(user,[b for b in user.find(ui.button).elements if plain(b)=='Add'])
+        await eventually(lambda:any(d.value for d in user.find(ui.dialog).elements))
+        dialog=next(d for d in user.find(ui.dialog).elements if d.value)
+        def fields():return {plain(e).removesuffix(' *'):e for e in dialog.descendants() if isinstance(e,(ui.input,ui.number,ui.select))}
+        def save():click_one(user,[b for b in dialog.descendants() if isinstance(b,ui.button) and plain(b)=='Save'])
+        save()
+        await eventually(lambda:any(visible_text(message)=='Code is required' for message in user.notify.messages))
+        assert dialog.value
+        with user:
+            fields()['Code'].value=code
+            fields()['Name'].value='Shared control fixture'
+            if resource=='security-levels':fields()['Level number'].value=777
+        save();await eventually(lambda:not dialog.value and user.pending_requests==0)
+        await user.should_see('Shared control fixture',retries=100)
+        cards=[e for e in user.find(ui.card).elements if 'governance-list-card' in e.classes]
+        assert len(cards)==1
+        click_one(user,[b for b in cards[0].descendants() if isinstance(b,ui.button) and b.props.get('icon')=='edit'])
+        await eventually(lambda:any(d.value for d in user.find(ui.dialog).elements))
+        dialog=next(d for d in user.find(ui.dialog).elements if d.value)
+        expansion=next(e for e in dialog.descendants() if isinstance(e,ui.expansion))
+        with user:expansion.open()
+        language=next(e for e in expansion.descendants() if isinstance(e,ui.select))
+        with user:language.value='ar'
+        await user.should_see(render_message_plain('entity_translation_editor.status.loaded'),retries=100)
+        canonical_name=next(e for e in dialog.descendants() if isinstance(e,ui.input) and plain(e)=='Name *')
+        translated_name=next(e for e in expansion.descendants() if isinstance(e,ui.input) and plain(e)=='Name')
+        reason=next(e for e in dialog.descendants() if isinstance(e,ui.input) and plain(e).startswith('Reason for'))
+        with user:
+            canonical_name.value='Updated shared fixture'
+            translated_name.value='اسم الاختبار'
+            reason.value='Disposable regression'
+        save();await eventually(lambda:not dialog.value and user.pending_requests==0)
+        await user.should_see('Updated shared fixture',retries=100)
+        assert next(i for i in user.find(ui.input).elements if plain(i).startswith('Filter ')).value==code
+        assert not user.api_failures
+        # Assert one canonical creation, one update and one translation write.
+        writes=[r for r in user.api_requests if r['method'] in {'POST','PUT'} and r['path'].startswith('/api/v1/'+resource)]
+        assert sum(r['method']=='POST' and r['path']=='/api/v1/'+resource for r in writes)==1
+&gt;       assert sum(r['method']=='PUT' for r in writes)==2
+E       assert 0 == 2
+E        +  where 0 = sum(&lt;generator object test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;genexpr&gt; at 0x112657e00&gt;)
+
+frontend/webui/assembled/tests/test_shared_entity_controls.py:66: AssertionError</failure></testcase><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[security-levels-Security levels]" time="10.775"><failure message="TimeoutError">predicate = &lt;function test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;lambda&gt; at 0x11299e200&gt;
+
+    async def eventually(predicate, *, timeout=10):
+        async with asyncio.timeout(timeout):
+            while True:
+                try:
+                    if predicate():
+                        return
+                except AssertionError:
+                    # User.find asserts while a control is not yet rendered.
+                    pass
+&gt;               await asyncio.sleep(.02)
+
+frontend/webui/assembled/tests/test_application.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.02, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay &lt;= 0:
+            await __sleep0()
+            return result
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+&gt;           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:649: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x111c2c650&gt;, 'label': 'Security levels', 'resource': 'security-levels'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:40: in test_collection_create_update_and_translation_keep_filtered_results
+    save();await eventually(lambda:not dialog.value and user.pending_requests==0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/assembled/tests/test_application.py:38: in eventually
+    async with asyncio.timeout(timeout):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x112372f80&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Optional[bool]:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is exceptions.CancelledError:
+                # Since there are no new cancel requests, we're
+                # handling this.
+&gt;               raise TimeoutError from exc_val
+E               TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/timeouts.py:115: TimeoutError</failure></testcase></testsuite></testsuites>

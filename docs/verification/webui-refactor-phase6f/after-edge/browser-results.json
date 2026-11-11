@@ -1,0 +1,226 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.42",
+  "scope": "login-sessions",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9681.12
+    },
+    {
+      "name": "session filters, server paging and keyboard focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 6359.3
+    },
+    {
+      "name": "revocation cancellation, empty state and navigation",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 7100.49
+    },
+    {
+      "name": "session filters, server paging and keyboard focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 6206.1
+    },
+    {
+      "name": "revocation cancellation, empty state and navigation",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7179.5
+    },
+    {
+      "name": "no cancelled revocation writes or unexpected browser errors",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 5.06
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "login-sessions-page-one-en.png",
+      "sha256": "63676285e4a9835b55d555af8f4ef13d56d3d4e7dfc6013b34006bc685f08c9b",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-page-two-en.png",
+      "sha256": "91b67af7354fd0e62159167df7961ea2ad6226383c4ed3ae3e50a80718b7c124",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-confirmation-en.png",
+      "sha256": "55dfb1bcc2abe71ec61a3622b4e4f4efc75e3be64f69e79275def09d223de53c",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-empty-en.png",
+      "sha256": "ad277d2782736d38b07059114ab4418d63a77982ecaa048cc745e529d5834370",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-page-one-ar.png",
+      "sha256": "81f6d59a9fe6d1a6993682a4b3a9456d8915a1ff42d3908293bc2c51152ce8e6",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-page-two-ar.png",
+      "sha256": "9c7026f6ca970af675775fc448aec00bd0e268026a190785db861bd3e9a93c5e",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-confirmation-ar.png",
+      "sha256": "10218cac97366e1889654b66009889b7733fc53993cefbe7f1d92e4af61f6835",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "login-sessions-empty-ar.png",
+      "sha256": "618ffafb9f1e785b836821085cb76a71f7d76e705b00dd68cbc725573b42ea6c",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "login_sessions_focus": [
+    {
+      "language": "en",
+      "tag": "i",
+      "type": null,
+      "label": "Clear"
+    },
+    {
+      "language": "ar",
+      "tag": "i",
+      "type": null,
+      "label": "Clear"
+    }
+  ],
+  "existing_pagination_icon_errors": [
+    {
+      "language": "en",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    },
+    {
+      "language": "ar",
+      "errors": [
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        },
+        {
+          "kind": "error",
+          "message": "TypeError: u.match is not a function"
+        }
+      ]
+    }
+  ],
+  "browser_errors": []
+}

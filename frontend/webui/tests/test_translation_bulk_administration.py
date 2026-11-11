@@ -2,7 +2,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).parents[3]
-APP_SOURCE = (ROOT / "frontend/webui/app.py").read_text()
+APP_SOURCE = (ROOT / "frontend/webui/translation_administration.py").read_text()
 CLIENT_SOURCE = (ROOT / "frontend/webui/api_client.py").read_text()
 
 

@@ -1,4 +1,5 @@
 """Real administration controls, bounded fake API, no database."""
+from frontend.webui.entity_selectors import build_relationship_selector
 
 import ast
 import asyncio
@@ -20,11 +21,6 @@ from frontend.webui.notification_administration import notification_administrati
 pytest_plugins = ["nicegui.testing.user_plugin"]
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[2]
-BINDING = next(
-    n
-    for n in ast.walk(ast.parse((ROOT / "app.py").read_text()))
-    if isinstance(n, ast.FunctionDef) and n.name == "bind_remote_relationship_select"
-)
 
 
 class Api:
@@ -116,10 +112,7 @@ async def setup(user, language="en"):
         relationship_options=relationship_options,
         relationship_search_query=relationship_search_query,
     )
-    exec(
-        compile(ast.Module(body=[BINDING], type_ignores=[]), "<selector>", "exec"),
-        scope,
-    )
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
 
     @ui.page("/notification-test")
     async def page():

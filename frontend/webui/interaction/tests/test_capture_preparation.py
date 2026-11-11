@@ -1,4 +1,5 @@
 """Run the real shared record editor while PDF preparation is deliberately blocked."""
+from frontend.webui.entity_selectors import build_relationship_selector
 import ast
 import asyncio
 from pathlib import Path
@@ -34,7 +35,7 @@ async def setup(user, outcome='success', active=None):
         browse_advanced_aggregation=AsyncMock(),
         render_component_cards=lambda *a,**k:ui.label('Validated PDF').mark('prepared-pdf'),
         error_message=lambda error:'Validation failed')
-    exec(compile(ast.Module(body=[fixture.BINDING],type_ignores=[]),'<binding>','exec'),scope)
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
     node=next(n for n in ast.walk(TREE) if isinstance(n,ast.AsyncFunctionDef) and n.name=='open_record_draft_editor')
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<editor>','exec'),scope)
     async def open_editor():

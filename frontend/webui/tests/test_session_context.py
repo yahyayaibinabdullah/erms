@@ -9,10 +9,11 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 from frontend.webui.api_client import ApiError
+from frontend.webui.tests.account_sources import account_sources
 
 
 def host():
-    tree = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+    tree = ast.parse((Path(__file__).parents[1] / 'app.py').read_text() + '\n' + account_sources())
     names = {'submit_login', 'reset_private_views', 'reset_navigation_session'}
     nodes = [n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name in names]
     calls = Mock()
@@ -31,6 +32,7 @@ def host():
              select_dashboard=AsyncMock(), user_menu=SimpleNamespace(close=calls.close_menu),
              clear_signed_in_identity=calls.clear_identity, set_connection_status=calls.connection,
              calls=calls, storage=storage, principal=principal)
+    h['set_principal'] = lambda value: h['auth_state'].__setitem__('principal',value)
     exec(compile(ast.Module(body=nodes, type_ignores=[]), '<existing lifecycle>', 'exec'), h)
     from frontend.webui.session_context import SessionContext
     h['session'] = SessionContext(

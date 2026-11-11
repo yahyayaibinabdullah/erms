@@ -1,0 +1,181 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "audit",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9352.47
+    },
+    {
+      "name": "audit drawer entry, bounded pagination, reset and keyboard focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 29687.53
+    },
+    {
+      "name": "audit details preserve snapshots, collapsed technical section and current-record link",
+      "language": "en",
+      "status": "fail",
+      "error": "['manage_history\\nAudit trail', 'history\\n\\u2063︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆︅︆︃︇︄︅️︇︂︆︅︆︃︆️︇︂︆︄︅️︆︄︆︅︇︄︆︁︆︉︆︌︇︃︂︎︆︂︇︅︇︄︇︄︆️︆︎︂︎︆︅︇︆︆︅︆︎︇︄︅️︆︈︆︉︇︃︇︄︆️︇︂︇︉︅️︃︈︃︉︆︄︃︂︃︂︃︀︃︅︆︅\\u2064︁\\u2064︍\\u2064Event history']",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 182, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_audit.py\", line 85, in check_audit\n    assert len(buttons)==1, [b.text for b in buttons]\n           ^^^^^^^^^^^^^^^\nAssertionError: ['manage_history\\nAudit trail', 'history\\n\\u2063︇︇︆︅︆︂︇︅︆︉︂︎︇︃︆︅︆︌︆︅︆︃︇︄︅️︇︂︆︅︆︃︆️︇︂︆︄︅️︆︄︆︅︇︄︆︁︆︉︆︌︇︃︂︎︆︂︇︅︇︄︇︄︆️︆︎︂︎︆︅︇︆︆︅︆︎︇︄︅️︆︈︆︉︇︃︇︄︆️︇︂︇︉︅️︃︈︃︉︆︄︃︂︃︂︃︀︃︅︆︅\\u2064︁\\u2064︍\\u2064Event history']\n",
+      "recent_native_clicks": [
+        {
+          "id": "c157",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c158",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c161",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c100",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c784",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c787",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c784",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c791",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c790",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c786",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c784",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c787",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c4512",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c5405",
+          "tag": "BUTTON"
+        }
+      ],
+      "milliseconds": 9448.1
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "audit-timeline-en.png",
+      "sha256": "81bca3823408a2ba68f420324d14a7da8b40cfa4d8676aff54a65c67c24dfc47",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-second-page-en.png",
+      "sha256": "8408d6533aca2b8b23a1c0d29e807fd82e0603738337ec7f163e7eb5462792f0",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "audit-detail-en.png",
+      "sha256": "d17b6787a30846d52849defd914419b11ce5e615e7c1560e4185f9a753acd7c6",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-3.png",
+      "sha256": "4e1e98908e93facbaf6e6b8a5f12ab888257dfa243c1b4ab9f62e38d0dcc09c3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "audit_focus": [
+    {
+      "language": "en",
+      "sequence": [
+        {
+          "tag": "i",
+          "text": "cancel",
+          "role": "button",
+          "aria_label": "Clear"
+        },
+        {
+          "tag": "button",
+          "text": "filter_alt_off\n⁣︆︁︇︅︆︄︆︉︇︄︂︎︆︆︆︉︆︌︇︄︆︅︇︂︂︎︆︃︆︌︆︅︆︁︇︂⁤︁⁤︍⁤Clear filters",
+          "role": null,
+          "aria_label": null
+        }
+      ]
+    }
+  ],
+  "browser_errors": []
+}

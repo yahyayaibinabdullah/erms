@@ -1,0 +1,134 @@
+[
+  {
+    "line": 4045,
+    "owner": "restore_navigation_entry",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace()"
+  },
+  {
+    "line": 4047,
+    "owner": "restore_navigation_entry",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace(initial_scheme_id=entity_id)"
+  },
+  {
+    "line": 4049,
+    "owner": "restore_navigation_entry",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace(initial_classification_id=entity_id)"
+  },
+  {
+    "line": 4157,
+    "owner": "clear_signed_in_identity",
+    "symbol": "classification_browser_preferences",
+    "source": "state.pop(\"classification_browser_preferences\", None)"
+  },
+  {
+    "line": 4158,
+    "owner": "clear_signed_in_identity",
+    "symbol": "classification_workspace_token",
+    "source": "state.pop(\"classification_workspace_token\", None)"
+  },
+  {
+    "line": 4241,
+    "owner": "open_audit_entity",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace(initial_scheme_id=entity[\"id\"])"
+  },
+  {
+    "line": 4243,
+    "owner": "open_audit_entity",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace("
+  },
+  {
+    "line": 6729,
+    "owner": "browse_advanced_aggregation",
+    "symbol": "bind_remote_scheme_select",
+    "source": "bind_remote_scheme_select(scheme_control)"
+  },
+  {
+    "line": 7779,
+    "owner": "open_editor",
+    "symbol": "browse_classification_tree",
+    "source": "on_click=lambda control=controls[field.name]: browse_classification_tree(control),"
+  },
+  {
+    "line": 8532,
+    "owner": "open_parent_classification",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace("
+  },
+  {
+    "line": 11202,
+    "owner": "load_dashboard",
+    "symbol": "select_classification_workspace",
+    "source": "(\"classification-schemes\", render_message(\"navigation.item.classification_schemes\"), \"account_tree\", select_classification_workspace),"
+  },
+  {
+    "line": 11203,
+    "owner": "load_dashboard",
+    "symbol": "select_classification_workspace",
+    "source": "(\"classifications\", render_message(\"dashboard.admin.classifications\"), \"schema\", select_classification_workspace),"
+  },
+  {
+    "line": 11568,
+    "owner": "load_dashboard",
+    "symbol": "select_classification_workspace",
+    "source": ").on(\"click\", select_classification_workspace):"
+  },
+  {
+    "line": 12358,
+    "owner": "select_aggregation_browser",
+    "symbol": "bind_remote_scheme_select",
+    "source": "bind_remote_scheme_select(scheme_select)"
+  },
+  {
+    "line": 15832,
+    "owner": "open_security_event_target",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace("
+  },
+  {
+    "line": 15837,
+    "owner": "open_security_event_target",
+    "symbol": "select_classification_workspace",
+    "source": "await select_classification_workspace("
+  },
+  {
+    "line": 16943,
+    "owner": "browse_advanced_relationship",
+    "symbol": "browse_advanced_classification",
+    "source": "await browse_advanced_classification(target_control)"
+  },
+  {
+    "line": 17782,
+    "owner": "select_classification_workspace",
+    "symbol": "classification_workspace_token",
+    "source": "state[\"classification_workspace_token\"] = token"
+  },
+  {
+    "line": 17801,
+    "owner": "select_classification_workspace",
+    "symbol": "classification_workspace",
+    "source": "await classification_workspace("
+  },
+  {
+    "line": 17808,
+    "owner": "select_classification_workspace",
+    "symbol": "classification_workspace_token",
+    "source": "active=lambda: state.get(\"classification_workspace_token\") is token"
+  },
+  {
+    "line": 17811,
+    "owner": "select_classification_workspace",
+    "symbol": "classification_browser_preferences",
+    "source": "preferences=state.setdefault(\"classification_browser_preferences\", {}),"
+  },
+  {
+    "line": 19291,
+    "owner": "index",
+    "symbol": "select_classification_workspace",
+    "source": "button.on(\"click\", lambda: guarded_page_navigation(select_classification_workspace))"
+  }
+]

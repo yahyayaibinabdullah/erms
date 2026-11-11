@@ -1,0 +1,72 @@
+{
+  "runs": [
+    {
+      "run": "after-assembled",
+      "database": "erms_webui_test_60d3742c01b940c89d8a2bfd0112a347",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-chrome",
+      "database": "erms_webui_test_20ef954c70ea4e97b71b47394dd9a196",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "after-edge",
+      "database": "erms_webui_test_8e5d97b2e4544cb38efab873632ce2e3",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-assembled",
+      "database": "erms_webui_test_8e4e8912f26446868fd454f5c655b186",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-chrome-1",
+      "database": "erms_webui_test_cc7313f8be864cb5bcfd4040f93abd08",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-2",
+      "database": "erms_webui_test_4f1630a3bb0c48cab365f402912a432c",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-3",
+      "database": "erms_webui_test_3ce95ea6840a4f38b3c3b3d890ae72b0",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-4",
+      "database": "erms_webui_test_f7e4493230394f638446ac9cfa2c0c7e",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-chrome-5",
+      "database": "erms_webui_test_722dbca9d75c4f60ac35f3a46816f7de",
+      "database_dropped": true,
+      "test_exit_code": 0
+    },
+    {
+      "run": "before-edge-1",
+      "database": "erms_webui_test_936fb68507664072abe7691a9e95892a",
+      "database_dropped": true,
+      "test_exit_code": 1
+    },
+    {
+      "run": "before-edge-2",
+      "database": "erms_webui_test_c71adec958524f01b306bbdf9b47886f",
+      "database_dropped": true,
+      "test_exit_code": 0
+    }
+  ],
+  "independent_catalogue_check": "pass",
+  "remaining": []
+}

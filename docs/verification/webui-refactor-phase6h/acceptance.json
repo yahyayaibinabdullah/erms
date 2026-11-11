@@ -1,0 +1,18 @@
+{
+  "complete": true,
+  "unit": 1603,
+  "interaction": 285,
+  "assembled": 57,
+  "original_new_interaction": 21,
+  "original_new_assembled": 2,
+  "browser_checks_per_journey": 7,
+  "browser_scenes_per_journey": 12,
+  "browsers": [
+    "Chrome",
+    "Edge"
+  ],
+  "browser_requests_and_focus_equal": true,
+  "pixels_outside_header_and_live_observation_equal": true,
+  "disposable_databases_removed": 12,
+  "harness_findings": "Raw browser reports preserve complete=false and runner exit=1 because the new dispatcher omitted the completion flag, despite all seven groups passing. The one-line reporting correction is verified by test_text_indexer_browser_scope_signals_completion_to_runner; all 24 runner tests pass. No raw report or exit status was rewritten."
+}

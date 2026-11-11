@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="46" time="78.859" timestamp="2026-11-10T19:28:45.521594+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.assembled.tests.test_application" name="test_login_and_settings_use_the_assembled_application" time="0.943" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[dashboard]" time="0.727" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[advanced-search]" time="0.844" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[aggregations]" time="0.815" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[records]" time="3.066" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[classification-workspace]" time="0.916" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[relationship-types]" time="0.988" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-tasks]" time="1.088" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-eligibility]" time="0.869" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-jobs]" time="0.844" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[disposition-templates]" time="0.902" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-inbox]" time="0.731" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-outbox]" time="1.019" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-drafts]" time="0.817" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-monitor]" time="0.828" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[messages-notifications]" time="0.902" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[organization-browser]" time="1.066" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[org-units]" time="0.802" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[roles]" time="0.953" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[users]" time="0.893" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[text-indexers]" time="0.902" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[application-settings]" time="1.095" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[audit-trail]" time="0.811" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[login-sessions]" time="1.159" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[security-operations]" time="0.960" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[saved-search-administration]" time="0.764" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[security-levels]" time="0.750" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[profiles]" time="0.737" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[governance-custody]" time="0.750" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[holds]" time="0.690" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_main_destination_through_real_drawer[translations]" time="0.986" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_category_survives_navigation_and_breadcrumb_return" time="1.278" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_real_save_validation_and_refresh" time="1.582" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_reload_restores_category_and_current_data" time="3.054" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_restricted_identity_cannot_reach_settings" time="0.646" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_settings_conflict_preserves_draft_and_other_edit" time="0.831" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_sign_out_then_restricted_sign_in_clears_settings_authority" time="0.942" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_custody_warning_opens_disposition_settings" time="0.841" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_audit_event_opens_its_setting_in_the_assembled_app" time="0.895" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_aggregation_reload_shows_the_restored_content_panel" time="1.039" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_unavailable_breadcrumb_restores_previous_visit_in_real_root[403]" time="1.046" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_unavailable_breadcrumb_restores_previous_visit_in_real_root[404]" time="1.354" /><testcase classname="frontend.webui.assembled.tests.test_application" name="test_temporary_password_recovery_and_abandonment_in_real_root" time="1.907" /><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[profiles-Profiles]" time="10.798"><failure message="TimeoutError">predicate = &lt;function test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;lambda&gt; at 0x121279f80&gt;
+
+    async def eventually(predicate, *, timeout=10):
+        async with asyncio.timeout(timeout):
+            while True:
+                try:
+                    if predicate():
+                        return
+                except AssertionError:
+                    # User.find asserts while a control is not yet rendered.
+                    pass
+&gt;               await asyncio.sleep(.02)
+
+frontend/webui/assembled/tests/test_application.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.02, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay &lt;= 0:
+            await __sleep0()
+            return result
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+&gt;           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:649: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x121d95bd0&gt;, 'label': 'Profiles', 'resource': 'profiles'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:27: in test_collection_create_update_and_translation_keep_filtered_results
+    await eventually(lambda:any(strip_diagnostic_metadata(str(message))=='Code is required' for message in user.notify.messages))
+frontend/webui/assembled/tests/test_application.py:38: in eventually
+    async with asyncio.timeout(timeout):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x120e49e80&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Optional[bool]:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is exceptions.CancelledError:
+                # Since there are no new cancel requests, we're
+                # handling this.
+&gt;               raise TimeoutError from exc_val
+E               TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/timeouts.py:115: TimeoutError</failure></testcase><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[org-units-Organization units]" time="11.133"><failure message="TimeoutError">predicate = &lt;function test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;lambda&gt; at 0x120b7f420&gt;
+
+    async def eventually(predicate, *, timeout=10):
+        async with asyncio.timeout(timeout):
+            while True:
+                try:
+                    if predicate():
+                        return
+                except AssertionError:
+                    # User.find asserts while a control is not yet rendered.
+                    pass
+&gt;               await asyncio.sleep(.02)
+
+frontend/webui/assembled/tests/test_application.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.02, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay &lt;= 0:
+            await __sleep0()
+            return result
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+&gt;           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:649: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x121acce90&gt;, 'label': 'Organization units', 'resource': 'org-units'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:27: in test_collection_create_update_and_translation_keep_filtered_results
+    await eventually(lambda:any(strip_diagnostic_metadata(str(message))=='Code is required' for message in user.notify.messages))
+frontend/webui/assembled/tests/test_application.py:38: in eventually
+    async with asyncio.timeout(timeout):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x121d30480&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Optional[bool]:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is exceptions.CancelledError:
+                # Since there are no new cancel requests, we're
+                # handling this.
+&gt;               raise TimeoutError from exc_val
+E               TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/timeouts.py:115: TimeoutError</failure></testcase><testcase classname="frontend.webui.assembled.tests.test_shared_entity_controls" name="test_collection_create_update_and_translation_keep_filtered_results[security-levels-Security levels]" time="10.856"><failure message="TimeoutError">predicate = &lt;function test_collection_create_update_and_translation_keep_filtered_results.&lt;locals&gt;.&lt;lambda&gt; at 0x121883380&gt;
+
+    async def eventually(predicate, *, timeout=10):
+        async with asyncio.timeout(timeout):
+            while True:
+                try:
+                    if predicate():
+                        return
+                except AssertionError:
+                    # User.find asserts while a control is not yet rendered.
+                    pass
+&gt;               await asyncio.sleep(.02)
+
+frontend/webui/assembled/tests/test_application.py:46: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+delay = 0.02, result = None
+
+    async def sleep(delay, result=None):
+        """Coroutine that completes after a given time (in seconds)."""
+        if delay &lt;= 0:
+            await __sleep0()
+            return result
+    
+        loop = events.get_running_loop()
+        future = loop.create_future()
+        h = loop.call_later(delay,
+                            futures._set_result_unless_cancelled,
+                            future, result)
+        try:
+&gt;           return await future
+                   ^^^^^^^^^^^^
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:649: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'assembled': &lt;nicegui.testing.user.User object at 0x12196cbd0&gt;, 'label': 'Security levels', 'resource': 'security-levels'}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/assembled/tests/test_shared_entity_controls.py:27: in test_collection_create_update_and_translation_keep_filtered_results
+    await eventually(lambda:any(strip_diagnostic_metadata(str(message))=='Code is required' for message in user.notify.messages))
+frontend/webui/assembled/tests/test_application.py:38: in eventually
+    async with asyncio.timeout(timeout):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;Timeout [expired]&gt;
+exc_type = &lt;class 'asyncio.exceptions.CancelledError'&gt;
+exc_val = CancelledError(), exc_tb = &lt;traceback object at 0x120a39380&gt;
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -&gt; Optional[bool]:
+        assert self._state in (_State.ENTERED, _State.EXPIRING)
+    
+        if self._timeout_handler is not None:
+            self._timeout_handler.cancel()
+            self._timeout_handler = None
+    
+        if self._state is _State.EXPIRING:
+            self._state = _State.EXPIRED
+    
+            if self._task.uncancel() &lt;= self._cancelling and exc_type is exceptions.CancelledError:
+                # Since there are no new cancel requests, we're
+                # handling this.
+&gt;               raise TimeoutError from exc_val
+E               TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/timeouts.py:115: TimeoutError</failure></testcase></testsuite></testsuites>

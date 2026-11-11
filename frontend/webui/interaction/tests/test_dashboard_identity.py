@@ -1,4 +1,5 @@
 """Render the real dashboard across identity and cache boundaries, without a database."""
+from frontend.webui.personal_resources import PersonalResourceState
 import ast
 import asyncio
 import copy
@@ -53,7 +54,8 @@ class DashboardFixture:
         self.auth={'principal':{'user':{'id':1},'global_privileges':[]}}
         self.api=SimpleNamespace(dashboard_summary=AsyncMock(side_effect=self.fetch))
         self.host=ui.column()
-        self.scope=dict(vars(webui),state=self.state,auth_state=self.auth,api=self.api,
+        self.personal=PersonalResourceState()
+        self.scope=dict(vars(webui),state=self.state,aggregation_state={},personal=self.personal,auth_state=self.auth,api=self.api,
             page_client=SimpleNamespace(id=client.id,_deleted=False,has_socket_connection=True),
             table_container=self.host,title=SimpleNamespace(text=''),subtitle=SimpleNamespace(text=''),
             guidance=SimpleNamespace(text=''),register_navigation=Mock(),show_authenticated_view=Mock(),
@@ -102,7 +104,7 @@ async def test_real_dashboard_a_b_a_and_same_account_login_never_reuse_another_s
                     assert 'USER A PRIVATE ACTIVITY' in labels
                 else:
                     assert 'USER A PRIVATE' not in labels
-                    assert fixture.state['favourites']=={'aggregations':[],'records':[]}
+                    assert fixture.personal.favourites=={'aggregations':[],'records':[]}
                 assert fixture.state['dashboard_summary_cache_key'][1]==identity
                 assert fixture.state['dashboard_summary_cache']['overview_counts']['records']==(12 if identity==1 else 0)
             assert fixture.api.dashboard_summary.await_count==4

@@ -1,0 +1,1279 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "relationships",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 10160.9
+    },
+    {
+      "name": "relationship catalogue entry, repeated visits, URL and restoration",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 4832.55
+    },
+    {
+      "name": "relationship kind tabs, server pagination, sorting and empty search",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9646.76
+    },
+    {
+      "name": "relationship creation validation, Arabic names and keyboard focus",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 13079.51
+    },
+    {
+      "name": "relationship editing refreshes data and preserves immutable fields",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 7983.37
+    },
+    {
+      "name": "relationship deletion cancellation and confirmed removal",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 3433.37
+    },
+    {
+      "name": "relationship read failure and abandoned response preserve next view",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 5128.45
+    },
+    {
+      "name": "relationship catalogue entry, repeated visits, URL and restoration",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 5171.63
+    },
+    {
+      "name": "relationship kind tabs, server pagination, sorting and empty search",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7155.06
+    },
+    {
+      "name": "relationship creation validation, Arabic names and keyboard focus",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 13460.49
+    },
+    {
+      "name": "relationship editing refreshes data and preserves immutable fields",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 7821.09
+    },
+    {
+      "name": "relationship deletion cancellation and confirmed removal",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 3561.19
+    },
+    {
+      "name": "relationship read failure and abandoned response preserve next view",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 5461.5
+    },
+    {
+      "name": "restricted identity cannot enter relationship administration",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 12787.09
+    },
+    {
+      "name": "relationship browser errors and bounded API requests",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 12.87
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "relationships-table-en.png",
+      "sha256": "ca49d8a12e992397d8648ac5789aac83de0df201d7a358769f1b69d7796fa9ae",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-empty-en.png",
+      "sha256": "e1957f4927d583025826cd678709237a3ebb791ca82d1e6c52acb852702b5bd5",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-required-en.png",
+      "sha256": "8fee011431db7d2bfdce04741f110a0b3a08a6fae7dd89836c060466e204ebdb",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-create-en.png",
+      "sha256": "bb954c8ac031bf279e5f51f56a8ea2fc7c3414c794ec50c2004d576f07929413",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-edit-en.png",
+      "sha256": "e06500ec65dd655baf7f7451b21c258b52d964fa309d45baf57ce21451f6288e",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-conflict-en.png",
+      "sha256": "cd4e8d75eeb303c33ee75924ece8d462d2584f5371c682c5d3646584531c9f5d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-delete-en.png",
+      "sha256": "017e572a13e5165eadedb4cbf3c9f14a5125fbf936a105ab8abf52debaeebfa2",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-error-en.png",
+      "sha256": "75f157b6c8b101b5a0fca2502f16ee806b026569184315a139c0fdcccd911701",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-table-ar.png",
+      "sha256": "ca3415a66c52888ede1932081144feeca7c8a43433ef0eb5d34a2a50f94d95e7",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-empty-ar.png",
+      "sha256": "ea10e9ec0669dc2cf8ddd9f0890d91de009350e032c61dcd21964f33a7216eb2",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-required-ar.png",
+      "sha256": "38d3b1d644697dfa6941af632d8eabbec8d4b2c50207fed1be7a8a9a69bc4395",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-create-ar.png",
+      "sha256": "4fbe9314a00a062d87c78731702a360f30addbfd1fbb0de8d8bbae58370f2dda",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-edit-ar.png",
+      "sha256": "0fb3792e7b4bb9f5f434507f3ca1e2247773d55900797df54fc4a6166f81d2e5",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-conflict-ar.png",
+      "sha256": "d6bde3289d652a61b479e529d7b91d5853952ec50500b7b7b189cc7bce7c1d9f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-delete-ar.png",
+      "sha256": "44b8526a695dbb632cea5df57404bb8e0a5f82c8d8b7c62fb78e56388ad8412f",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-error-ar.png",
+      "sha256": "ba7b4b08a6f5516fd48123ac3e10989aab5eddcabad501b1fe32d3a014c9560a",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "relationships-restricted-en.png",
+      "sha256": "2bdc9281ac57cc355f0d11a9d7093d226111eef85e257fe74d15315ce66a254a",
+      "language": "en",
+      "identity": "viewer@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": true,
+  "browser_errors": [],
+  "focus": [
+    {
+      "language": "en",
+      "from": "english_forward",
+      "to": "english_reverse",
+      "tag": "input"
+    },
+    {
+      "language": "ar",
+      "from": "english_forward",
+      "to": "english_reverse",
+      "tag": "input"
+    }
+  ],
+  "relationship_requests": [
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 109.09
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 15.15
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 15.59
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 27.89
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 16.13
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 18.55
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 45.85
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 18.0
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 13.37
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 13.88
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 12.13
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 16.29
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 7.45
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.03
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 16.64
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 16.41
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 27.48
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 10.96
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 15.0
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 13.92
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 14.93
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 17.26
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 20.95
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 16.91
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 11.65
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 11.05
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 9.91
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 6.3
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 6.24
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.19
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.94
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 11.69
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 1096.52
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 16.39
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.19
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 5.91
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 4.21
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 6.83
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 4.14
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 6.38
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 3.77
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 5.96
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 5.88
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 6.56
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 6.01
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 7.22
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 9.48
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 5.54
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.52
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 5.42
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 5.88
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.96
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 11.6
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 20.93
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 8.18
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 7.04
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 9.16
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 18.32
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 15.89
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=25&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 12.6
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 12.02
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 32.26
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 12.12
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=no-such-type&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 11.75
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 10.04
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 7.3
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 84.72
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 27.51
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_en",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 21.42
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record/68",
+      "query": "",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 47.23
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/relationships/types/record/68",
+      "query": "",
+      "controlled": true,
+      "status": 409,
+      "milliseconds": 21.69
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/relationships/types/record/68",
+      "query": "",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 169.6
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 17.11
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_en",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 22.46
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record/68",
+      "query": "",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 7.15
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/relationships/types/record/68",
+      "query": "",
+      "controlled": false,
+      "status": 204,
+      "milliseconds": 15.77
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 9.72
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_en",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 17.09
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": true,
+      "status": 503,
+      "milliseconds": 28.64
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 23.0
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": true,
+      "status": 200,
+      "milliseconds": 746.17
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=en&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 12.3
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 44.7
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 19.76
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 86.42
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=25&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 54.24
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 14.58
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 16.13
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 16.94
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=no-such-type&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 8.77
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 9.48
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 67.93
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/record",
+      "query": "",
+      "controlled": false,
+      "status": 201,
+      "milliseconds": 31.28
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 14.08
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_ar",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 7.74
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record/69",
+      "query": "",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 8.79
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/relationships/types/record/69",
+      "query": "",
+      "controlled": true,
+      "status": 409,
+      "milliseconds": 6.94
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/relationships/types/record/69",
+      "query": "",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 25.21
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 13.58
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_ar",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 6.62
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record/69",
+      "query": "",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 6.83
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/relationships/types/record/69",
+      "query": "",
+      "controlled": false,
+      "status": 204,
+      "milliseconds": 21.45
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 24.2
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/record",
+      "query": "q=new_ar",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 13.82
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": true,
+      "status": 503,
+      "milliseconds": 2.13
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 11.43
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": true,
+      "status": 200,
+      "milliseconds": 534.74
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "q=&limit=25&offset=0&active_only=false&language_tag=ar&descending=false",
+      "controlled": false,
+      "status": 200,
+      "milliseconds": 9.97
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/relationships/types/aggregation",
+      "query": "",
+      "controlled": false,
+      "status": 403,
+      "milliseconds": 8.66
+    }
+  ]
+}

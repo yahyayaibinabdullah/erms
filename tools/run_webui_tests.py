@@ -40,6 +40,9 @@ def main():
                 command = [args.python, '-m', 'pytest', target, '-q',
                            '-p', 'tools.webui_no_network', '-o', 'asyncio_mode=auto',
                            f'--junitxml={xml}']
+                # NiceGUI creates the storage directory itself, but not its
+                # parents. Each isolated suite needs its own existing parent.
+                (output / name).mkdir()
                 with (output / f'{name}.log').open('w') as log:
                     status = subprocess.run(command, cwd=ROOT,
                                             env=dict(environment, NICEGUI_STORAGE_PATH=str(output / name / 'storage')),

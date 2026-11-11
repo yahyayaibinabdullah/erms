@@ -1,4 +1,5 @@
 """Real NiceGUI controls with bounded fake data; no database connections."""
+from frontend.webui.entity_selectors import build_relationship_selector
 
 import ast
 import asyncio
@@ -22,11 +23,6 @@ from frontend.webui.messaging_workspace import messaging_workspace
 pytest_plugins = ["nicegui.testing.user_plugin"]
 pytestmark = pytest.mark.asyncio
 ROOT = Path(__file__).parents[2]
-BINDING = next(
-    n
-    for n in ast.walk(ast.parse((ROOT / "app.py").read_text()))
-    if isinstance(n, ast.FunctionDef) and n.name == "bind_remote_relationship_select"
-)
 
 
 class Api:
@@ -104,12 +100,7 @@ async def setup(user, language="en", exchange=True, browse=None, mailbox="inbox"
         relationship_options=relationship_options,
         relationship_search_query=relationship_search_query,
     )
-    exec(
-        compile(
-            ast.Module(body=[BINDING], type_ignores=[]), "<shared-selector>", "exec"
-        ),
-        scope,
-    )
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
 
     @ui.page("/messaging-test")
     async def page():
@@ -268,12 +259,7 @@ async def test_shared_remote_selector_retains_selection_and_disables_explained_r
         relationship_options=relationship_options,
         relationship_search_query=relationship_search_query,
     )
-    exec(
-        compile(
-            ast.Module(body=[BINDING], type_ignores=[]), "<shared-selector>", "exec"
-        ),
-        scope,
-    )
+    scope["bind_remote_relationship_select"] = build_relationship_selector(scope["api"], error_message=str)
     controls = {}
 
     @ui.page("/shared-messaging-selector")

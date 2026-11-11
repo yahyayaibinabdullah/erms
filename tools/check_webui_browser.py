@@ -157,7 +157,7 @@ class Acceptance:
         self.report.setdefault('browser_errors',[]).extend(errors)
         self.driver.execute_script('if(window.__webuiTestErrors)window.__webuiTestErrors=[]')
         assert not errors, errors
-    def capture(self,name):
+    def capture(self,name,*,target=None):
         self.wait.until(lambda _:self.driver.execute_script('return document.fonts.status')=='loaded')
         if not name.startswith('failure-'):
             self.wait.until(lambda _:not self.visible('.q-notification'))
@@ -166,7 +166,9 @@ class Acceptance:
         self.driver.execute_script('window.scrollTo(0,0)')
         # Move the real pointer out of the scrollable drawer so its existing
         # hover scrollbar finishes fading in the same state for each capture.
-        ActionChains(self.driver).move_to_element(self.one('header')).perform()
+        ActionChains(self.driver).move_to_element(self.one('header.q-header')).perform()
+        if target is not None:
+            self.driver.execute_script("arguments[0].scrollIntoView({block:'center',inline:'nearest'})",target)
         time.sleep(2)
         path=self.args.output/(name+'.png');self.driver.save_screenshot(str(path))
         self.report['screenshots'].append({'file':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -513,6 +515,75 @@ with psycopg.connect(url) as c:
         self.driver.set_window_size(outer['width']+1440-width,outer['height']+1000-height)
         with self.check('real sign-in and Settings drawer caller'):
             self.login();self.settings()
+        if self.args.scope == 'aggregations':
+            from tools.webui_browser_aggregations import check_aggregations
+            check_aggregations(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'components':
+            from tools.webui_browser_components import check_components
+            check_components(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'holds':
+            from tools.webui_browser_holds import check_holds
+            check_holds(self)
+            self.report['complete'] = True
+            return
+
+        if self.args.scope == 'translations':
+            from tools.webui_browser_translations import check_translations
+            check_translations(self)
+            self.report['complete'] = True
+            return
+
+        if self.args.scope == 'account':
+            from tools.webui_browser_account import check_account
+            check_account(self)
+            self.report['complete'] = True
+            return
+
+        if self.args.scope == 'text-indexers':
+            from tools.webui_browser_text_indexers import check_text_indexers
+            check_text_indexers(self)
+            self.report['complete'] = True
+            return
+
+        if self.args.scope == 'organization':
+            from tools.webui_browser_organization import check_organization
+            check_organization(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'login-sessions':
+            from tools.webui_browser_login_sessions import check_login_sessions
+            check_login_sessions(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'security':
+            from tools.webui_browser_security import check_security
+            check_security(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'classification':
+            from tools.webui_browser_classification import check_classification
+            check_classification(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'collections':
+            from tools.webui_browser_collections import check_collections
+            check_collections(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'audit':
+            from tools.webui_browser_audit import check_audit
+            check_audit(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'relationships':
+            from tools.webui_browser_relationships import check_relationships
+            check_relationships(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'session':
             from tools.webui_browser_session import check_sessions
             check_sessions(self)
@@ -574,7 +645,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

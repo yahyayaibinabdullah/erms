@@ -18,8 +18,32 @@ from zoneinfo import available_timezones
 
 from nicegui import app, background_tasks, context, events, ui
 
+from .aggregation_editor import (
+    lock_aggregation_close_field,
+    load_aggregation_creation_context,
+    render_aggregation_creation_controls,
+    aggregation_initial_security_level,
+    aggregation_initial_medium,
+    render_aggregation_close_help,
+    configure_aggregation_classification,
+    configure_aggregation_parent_rules,
+    prepare_aggregation_payload,
+)
+from .aggregation_presentation import CHILD_AGGREGATION_CLASSIFICATION_HELP, AGGREGATION_SUMMARY_LAYOUT_CLASSES, direct_classification_label, effective_closure
+from .relationship_select_styles import style_relationship_chip_select
+from .aggregation_state import new_aggregation_state
+from .aggregation_actions import build_aggregation_actions
+from .aggregation_selector import build_aggregation_selector
+from .aggregation_details import build_aggregation_details
+from .aggregation_browser import build_aggregation_browser
+from .aggregation_toolbar import build_aggregation_toolbar
+from .component_presentation import localized_component_status, localized_indexing_status, component_file_icon, native_preview_kind, requires_document_conversion, component_is_previewable, component_uploader
+from .upload_buffers import buffer_upload_batch
+from .component_cards import build_component_cards
+from .component_presentation import CONVERTIBLE_PREVIEW_EXTENSIONS
+from .component_preview import build_component_preview
+from .components import build_components
 from .api_client import ApiError, ErmsApiClient
-from .remote_select import RemoteSelect
 from .relationship_select import relationship_select
 from .application_shell import build_header, build_footer, build_drawer, build_content
 from .navigation_data import (
@@ -29,17 +53,78 @@ from .navigation_data import (
 from .navigation_drawer import navigation_menu
 from .navigation_controller import NavigationController
 from .session_context import SessionContext
-from .audit_actor_select import bind_audit_actor_select, actor_condition
-from .classification_workspace import classification_workspace
+from .audit_workspace import build_audit_workspace
+from .login_sessions import build_login_sessions
+from .holds_people import build_people_select
+from .hold_editor import build_hold_editor
+from .hold_resources import build_hold_resources
+from .holds import build_holds
+from .hold_details import build_hold_details
+from .hold_navigation import build_hold_navigation
+from .holds_people import style_person_select
+from .translation_administration import build_translation_administration
+from .translation_inspector import build_translation_inspector
+from .account_localization import build_account_localization
+from .account_preferences import build_account_preferences
+from .account_profile import build_account_profile
+from .account_password import build_account_password
+from .account_bootstrap import build_account_bootstrap
+from .account_sign_in import build_sign_in, build_login_error_message
+from .text_indexers import build_text_indexers
+from .text_indexer_details import build_text_indexer_details
+from .organization_table import (
+    organization_table_filters, organization_user_slots, organization_leading_actions, organization_membership_action, organization_user_actions, organization_lifecycle_actions, bind_organization_table_destinations, LIFECYCLE_ACTION_BUTTONS, USER_SUSPENSION_ACTION_BUTTONS,
+)
+from .organization_collection_actions import build_issue_password, build_change_suspension, build_confirm_lifecycle
+from .organization_editor import (
+    configure_designation_field, configure_role_profile_field, configure_organization_browser_field, configure_role_governance_field, organization_reason_input, organization_change_reason, protected_organization_role, read_organization_editor_row,
+)
+from .organization_collections import decorate_organization_rows
+from .identity_presentation import user_avatar, render_user_avatar, USER_AVATAR_BACKGROUND, USER_AVATAR_TEXT
+from .organization_memberships import filter_membership_rows
+from .organization_editor import inactive_org_unit_source, role_change_requires_reason
+from .organization_deletion import deletion_identity, deletion_blocked_report
+from .administration_cards import build_administration_cards
+from .organization_memberships import build_organization_memberships
+from .organization_deletion import build_organization_deletion
+from .organization_units import build_organization_units
+from .organization_roles import build_organization_roles
+from .organization_users import build_organization_users
+from .organization_browser import build_organization_browser
+from .security_level_controls import build_security_selector, build_security_level_change
+from .access_control_dialogs import build_access_control_dialogs
+from .access_explanation_dialog import build_access_explanation
+from .security_administration import (
+    build_profile_privilege_editor, localized_profile_value, localized_privilege_name,
+    localized_privilege_description, localized_privilege_category, localized_privilege_matches_search,
+    profile_translation_only, configure_profile_field, profile_reason_input,
+    prepare_profile_update, profile_change_reason as validated_profile_change_reason,
+)
+from .entity_selectors import (relationship_options, relationship_search_query, apply_relationship_selection, build_relationship_selector)
+from .entity_translation_editor import entity_translation_editor
+from .entity_editor_controls import ENTITY_METADATA_LABEL_KEYS, entity_metadata_label, medium_options, field_input, form_payload
+from .resource_number_controls import build_number_controls
+from .collection_hydration import build_row_hydrators
+from .collection_controls import build_collection_loader, bind_collection_paging
+from .personal_resources import PersonalResourceState, build_personal_resources
+from .personal_resource_views import build_personal_resource_views
+from .compact_resource_view import build_compact_resource_view
+from .classification_controller import ClassificationController
+from .classification_selectors import build_scheme_selector, build_classification_pickers
+from .classification_editor import (
+    load_direct_retention, retention_editor_source, configure_scheme_field,
+    prepare_retention_payload, decorate_classifications,
+    render_classification_search_prompt, scheme_action_buttons, bind_scheme_actions,
+)
 from .application_settings import disposition_warning_panel
 from .application_settings_controller import ApplicationSettingsController
 from .messaging_workspace import messaging_workspace
 from .resource_inspector import resource_inspector
 from .messaging_live import LiveMailbox, stream_events, mailbox_cursor_key
 from .notification_administration import notification_administration
-from .resource_relationships import relationship_panel, relationship_administration
+from .resource_relationships import relationship_panel
+from .relationship_types_controller import RelationshipTypesController
 from .messaging_monitor import messaging_monitor
-from .audit_labels import audit_entity_type_label
 from .retention_timeline import render_disposition_date, render_retention_stages
 from .capabilities import (
     capability_allowed,
@@ -49,8 +134,6 @@ from .capabilities import (
     can_navigate_disposition,
     can_open_organization_detail,
 )
-from .profile_privileges import closure as privilege_closure, dependents as privilege_dependents
-from .acl_editor import acl_grants_payload, dependents_of, permission_closure
 from .authorization_ui import (
     gate_label, OPERATIONS, acl_source_label, aggregation_reference_label,
     authorization_code_label, decision_code_label, operation_label, gate_detail, ordered_permission_catalogue,
@@ -92,13 +175,7 @@ app.add_static_files("/static/inspector", Path(__file__).with_name("static"))
 
 CLASSIFICATION_WORKSPACE_SEARCH_FIELDS = ("code", "title", "description", "keywords")
 CLASSIFICATION_SELECTOR_SEARCH_FIELDS = ("code", "title", "description", "keywords")
-CHILD_AGGREGATION_CLASSIFICATION_HELP = (
-    render_message("webui.module.text.child_aggregations_inherit_classification_d422f011")
-)
 RECORD_UPLOAD_WAIT_MESSAGE = render_message("webui.module.text.please_wait_until_all_files_have_finished_65b4bf18")
-AGGREGATION_SUMMARY_LAYOUT_CLASSES = (
-    "detail-surface aggregation-command-summary shadow-none flex-1 min-w-[520px] p-5 gap-4"
-)
 RECORD_DETAIL_HEADER_CLASSES = "w-full items-center gap-3 no-wrap"
 RECORD_DETAIL_TITLE_CLASSES = "gap-0 grow min-w-0"
 RELATIONSHIP_DISPLAY_FIELDS = frozenset({
@@ -188,72 +265,8 @@ ADVANCED_SEARCH_CONTROLLED_VALUES: dict[str, dict[Any, str]] = {
 # Entity metadata labels live in schema descriptors because they are also used
 # by validation and API-shaping code.  Resolve them at the presentation edge so
 # every table, editor and selector receives the active locale consistently.
-ENTITY_METADATA_LABEL_KEYS = {
-    "Managing role": "entity_metadata.field.managing_role",
-    "File Administrator role": "entity_metadata.field.file_administrator_role",
-    "Account type": "entity_metadata.field.account_type",
-    "Aggregation": "entity_metadata.field.aggregation",
-    "Aggregation number": "entity_metadata.field.aggregation_number",
-    "Assigned location": "entity_metadata.field.assigned_location",
-    "Authority": "entity_metadata.field.authority",
-    "Built-in": "entity_metadata.field.built_in",
-    "Category": "entity_metadata.field.category",
-    "Classification": "entity_metadata.field.classification",
-    "Classification scheme": "entity_metadata.field.classification_scheme",
-    "Classification type": "entity_metadata.field.classification_type",
-    "Code": "entity_metadata.field.code",
-    "Current location": "entity_metadata.field.current_location",
-    "Current retention (years)": "entity_metadata.field.current_retention_years",
-    "Date closed": "entity_metadata.field.date_closed",
-    "Date of next review": "entity_metadata.field.date_of_next_review",
-    "Date opened": "entity_metadata.field.date_opened",
-    "Date originated": "entity_metadata.field.date_originated",
-    "Date published": "entity_metadata.field.date_published",
-    "Deactivated": "entity_metadata.field.deactivated",
-    "Description": "entity_metadata.field.description",
-    "Edition": "entity_metadata.field.edition",
-    "Email": "entity_metadata.field.email",
-    "External ID": "entity_metadata.field.external_id",
-    "Final disposition": "entity_metadata.field.final_disposition",
-    "Information-governance role": "entity_metadata.field.information_governance_role",
-    "Inherited location": "entity_metadata.field.inherited_location",
-    "Intermediate retention (years)": "entity_metadata.field.intermediate_retention_years",
-    "Keywords": "entity_metadata.field.keywords",
-    "Level": "entity_metadata.field.level",
-    "Level number": "entity_metadata.field.level_number",
-    "Location": "entity_metadata.field.location",
-    "Medium": "entity_metadata.field.medium",
-    "Name": "entity_metadata.field.name",
-    "Number": "entity_metadata.field.number",
-    "Organization unit": "entity_metadata.field.organization_unit",
-    "Parent": "entity_metadata.field.parent",
-    "Parent aggregation": "entity_metadata.field.parent_aggregation",
-    "Parent classification": "entity_metadata.field.parent_classification",
-    "Parent organization unit": "entity_metadata.field.parent_organization_unit",
-    "Prevents disposition": "entity_metadata.field.prevents_disposition",
-    "Profile": "entity_metadata.field.profile",
-    "Published": "entity_metadata.field.published",
-    "Record number": "entity_metadata.field.record_number",
-    "Reserved": "entity_metadata.field.reserved",
-    "Resource type": "entity_metadata.field.resource_type",
-    "Retention and disposal instructions": "entity_metadata.field.retention_disposal_instructions",
-    "Review": "entity_metadata.field.review",
-    "Scheme": "entity_metadata.field.scheme",
-    "Scope note": "entity_metadata.field.scope_note",
-    "Security clearance": "entity_metadata.field.security_clearance",
-    "Security level": "entity_metadata.field.security_level",
-    "Status": "entity_metadata.field.status",
-    "Supervising role": "entity_metadata.field.supervising_role",
-    "Title": "entity_metadata.field.title",
-    "Type": "entity_metadata.field.type",
-    "Vital": "entity_metadata.field.vital",
-    "Vital aggregation": "entity_metadata.field.vital_aggregation",
-    "Vital record": "entity_metadata.field.vital_record",
-}
 
 
-def entity_metadata_label(label: str) -> str:
-    return render_message(ENTITY_METADATA_LABEL_KEYS[label])
 
 
 def localized_lifecycle_value(value: Any) -> str:
@@ -268,34 +281,12 @@ def localized_lifecycle_value(value: Any) -> str:
     }.get(str(value or "").lower(), str(value or "—"))
 
 
-def localized_privilege_name(privilege: dict[str, Any]) -> str:
-    translation_code = {
-        "search.saved_search.administer": "search.saved_search.administrator",
-    }.get(privilege["code"], privilege["code"])
-    message_key = f"privilege.{translation_code}.name"
-    return render_message(message_key)
 
 
-def localized_privilege_description(privilege: dict[str, Any]) -> str:
-    translation_code = {
-        "search.saved_search.administer": "search.saved_search.administrator",
-    }.get(privilege["code"], privilege["code"])
-    message_key = f"privilege.{translation_code}.description"
-    return render_message(message_key)
 
 
-def localized_privilege_category(category: str) -> str:
-    message_key = f"privilege.category.{category}"
-    return render_message(message_key)
 
 
-def localized_privilege_matches_search(privilege: dict[str, Any], query: str) -> bool:
-    localized = {
-        **privilege,
-        "name": localized_privilege_name(privilege),
-        "description": localized_privilege_description(privilege),
-    }
-    return privilege_matches_search(localized, query)
 
 
 def localized_account_type(value: Any) -> str:
@@ -332,35 +323,6 @@ def localized_disposition_value(value: Any) -> str:
     }.get(str(value or ""), str(value or "—"))
 
 
-def localized_profile_value(row: dict[str, Any], field: str) -> Any:
-    localized = row.get("localized") or {}
-    if localized.get(field):
-        return localized[field]
-    code = str(row.get("code") or "")
-    if field == "name":
-        values = {
-            "ALL_PRIVS": render_message("profile.built_in.all_privileges.name"),
-            "END_USER": render_message("profile.built_in.end_user.name"),
-            "INFO_GOV_MGR": render_message("profile.built_in.information_governance_manager.name"),
-            "INFO_GOV_OFFICER": render_message("profile.built_in.information_governance_officer.name"),
-            "SYS_ADMIN": render_message("profile.built_in.system_administrator.name"),
-            "TEXT_INDEXER_SERVICE": render_message("profile.built_in.text_indexer_service.name"),
-            "UNIT_MGR": render_message("profile.built_in.unit_manager.name"),
-            "VIEW_ONLY": render_message("profile.built_in.view_only.name"),
-        }
-        if code in values:
-            return values[code]
-    elif field == "description":
-        values = {
-            "ALL_PRIVS": render_message("profile.built_in.all_privileges.description"),
-            "INFO_GOV_MGR": render_message("profile.built_in.information_governance.description"),
-            "INFO_GOV_OFFICER": render_message("profile.built_in.information_governance.description"),
-            "SYS_ADMIN": render_message("profile.built_in.system_administrator.description"),
-            "TEXT_INDEXER_SERVICE": render_message("profile.built_in.text_indexer_service.description"),
-        }
-        if code in values:
-            return values[code]
-    return row.get(field)
 
 
 def advanced_search_field_options(resource: str, *, can_manage_disposition: bool = False) -> dict[str, str]:
@@ -520,29 +482,6 @@ LAST_CUSTODIAN_MESSAGE = (
 )
 
 
-USER_AVATAR_BACKGROUND = "#e3f2fd"
-USER_AVATAR_TEXT = "#15527a"
-LIFECYCLE_ACTION_BUTTONS = (
-    '<q-btn v-if="props.row.status === \'inactive\'" flat round dense '
-    'icon="toggle_on" color="positive" aria-label="Activate" '
-    '@click="$parent.$emit(\'lifecycle\', props.row)">'
-    '<q-tooltip>Activate</q-tooltip></q-btn>'
-    '<q-btn v-else flat round dense icon="toggle_off" color="negative" '
-    'aria-label="Deactivate" @click="$parent.$emit(\'lifecycle\', props.row)">'
-    '<q-tooltip>Deactivate</q-tooltip></q-btn>'
-)
-USER_SUSPENSION_ACTION_BUTTONS = (
-    '<q-btn v-if="props.row.status !== \'suspended\'" flat round dense '
-    'icon="pause_circle" color="warning" '
-    ':disable="props.row.status !== \'active\'" '
-    ':aria-label="props.row.status === \'active\' ? \'Suspend\' : \'Suspend unavailable while inactive\'" '
-    '@click="$parent.$emit(\'suspend_user\', props.row)">'
-    '<q-tooltip>{{ props.row.status === \'active\' ? \'Suspend\' : '
-    "'Activate the user before suspending' }}</q-tooltip></q-btn>"
-    '<q-btn v-else flat round dense icon="play_circle" color="positive" '
-    'aria-label="Unsuspend" @click="$parent.$emit(\'unsuspend_user\', props.row)">'
-    '<q-tooltip>Unsuspend</q-tooltip></q-btn>'
-)
 
 
 def favourite_preview(items: list[dict[str, Any]], limit: int) -> tuple[list[dict[str, Any]], bool]:
@@ -555,56 +494,10 @@ def personal_dialog_list_height(item_count: int) -> int:
     return min(520, max(120, item_count * 58))
 
 
-def filter_membership_rows(
-    rows: list[dict[str, Any]], *, query: str = "", status: str = "all",
-    valid_from: str | None = None, valid_until: str | None = None,
-) -> list[dict[str, Any]]:
-    """Filter assignments by counterpart identity, status, and overlapping validity."""
-    needle = query.strip().casefold()
-
-    def date_part(value: Any) -> str | None:
-        return str(value)[:10] if value else None
-
-    def included(row: dict[str, Any]) -> bool:
-        if needle and needle not in row.get("counterpart_search", "").casefold():
-            return False
-        if status != "all" and row.get("counterpart_status") != status:
-            return False
-        row_start = date_part(row.get("valid_from"))
-        row_end = date_part(row.get("valid_until"))
-        if valid_from and row_end and row_end < valid_from:
-            return False
-        if valid_until and row_start and row_start > valid_until:
-            return False
-        return True
-
-    return [row for row in rows if included(row)]
 
 
-def user_avatar(user: dict[str, Any]) -> dict[str, str]:
-    """Return best-effort initials with the standard Wathiq user-avatar palette."""
-    parts = [part for part in str(user.get("name") or "").split() if part]
-    if len(parts) >= 2:
-        initials = f"{parts[0][0]}{parts[-1][0]}"
-    elif parts:
-        initials = parts[0][:2]
-    else:
-        initials = "?"
-    return {
-        "initials": initials.upper(),
-        "color": USER_AVATAR_BACKGROUND,
-        "text_color": USER_AVATAR_TEXT,
-    }
 
 
-def render_user_avatar(user: dict[str, Any], *, size: str = "38px") -> Any:
-    """Render the same deterministic avatar used by the Users listing."""
-    avatar = user_avatar(user)
-    with ui.avatar(size=size).style(
-        f"background:{avatar['color']} !important;color:{avatar['text_color']} !important"
-    ) as control:
-        ui.label(avatar["initials"]).classes("font-medium")
-    return control
 
 
 def display_value(value: Any) -> str:
@@ -613,12 +506,6 @@ def display_value(value: Any) -> str:
     return str(value)
 
 
-def medium_options() -> dict[str, str]:
-    return {
-        "digital": render_message("webui.field_input.select.digital_a8c0d87b"),
-        "physical": render_message("webui.field_input.select.physical_c583106a"),
-        "mixed": render_message("webui.field_input.select.mixed_3c647345"),
-    }
 
 
 def medium_label(value: Any) -> str:
@@ -629,12 +516,6 @@ def medium_label(value: Any) -> str:
     }.get(str(value or "").lower(), "—")
 
 
-def direct_classification_label(classification_path: list[dict[str, Any]]) -> str:
-    """Format only the classification directly assigned to the aggregation."""
-    if not classification_path:
-        return "—"
-    classification = classification_path[-1]
-    return f"{classification['code']} — {classification['title']}"
 
 
 def review_state(value: Any) -> str | None:
@@ -656,29 +537,8 @@ def review_display(value: Any) -> str:
     return f"{localized_state} · {format_timestamp(value)}"
 
 
-def localized_component_status(value: Any) -> str:
-    return render_message({
-        "available": "advanced_search.value.available",
-        "staged": "advanced_search.value.pending",
-        "pending": "advanced_search.value.pending",
-        "failed": "advanced_search.value.failed",
-        "quarantined": "advanced_search.value.quarantined",
-        "deleted": "advanced_search.value.deleted",
-    }.get(str(value or "").lower(), "common.status.loading"))
 
 
-def localized_indexing_status(value: Any) -> str:
-    return render_message({
-        "indexed": "advanced_search.value.available",
-        "succeeded": "advanced_search.value.available",
-        "failed": "advanced_search.value.failed",
-        "unsupported": "translation_inspector.value.no",
-        "processing": "webui.select_text_indexers.text.processing_c1ea7da0",
-        "leased": "webui.select_text_indexers.text.processing_c1ea7da0",
-        "queued": "advanced_search.value.pending",
-        "pending": "advanced_search.value.pending",
-        "stale": "advanced_search.value.pending",
-    }.get(str(value or "").lower(), "common.status.loading"))
 
 
 def record_draft_component_context(
@@ -764,232 +624,25 @@ def validation_error_message(error: ValueError) -> str:
     return str(error)
 
 
-def component_file_icon(mime_type: str | None) -> str:
-    value = (mime_type or "").lower()
-    if value == "application/pdf":
-        return "picture_as_pdf"
-    if value.startswith("image/"):
-        return "image"
-    if value.startswith("audio/"):
-        return "audio_file"
-    if value.startswith("video/"):
-        return "video_file"
-    if "spreadsheet" in value or "excel" in value or value == "text/csv":
-        return "table_view"
-    if "word" in value or "document" in value or value.startswith("text/"):
-        return "description"
-    return "description"
 
 
-def native_preview_kind(mime_type: str | None) -> str | None:
-    value = (mime_type or "").lower()
-    if value in {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/avif"}:
-        return "image"
-    if value.startswith("audio/"):
-        return "audio"
-    if value.startswith("video/"):
-        return "video"
-    return None
 
 
-CONVERTIBLE_PREVIEW_EXTENSIONS = {
-    ".doc", ".docx", ".odt", ".rtf",
-    ".xls", ".xlsx", ".ods", ".csv",
-    ".ppt", ".pptx", ".odp",
-    ".md", ".msg", ".eml", ".html", ".txt", ".xml",
-}
 
 
-def requires_document_conversion(component: dict[str, Any]) -> bool:
-    return (
-        native_preview_kind(component.get("mime_type")) is None
-        and (component.get("mime_type") or "").lower() != "application/pdf"
-        and Path(component.get("file_name") or "").suffix.lower()
-        in CONVERTIBLE_PREVIEW_EXTENSIONS
-    )
 
 
-def component_is_previewable(component: dict[str, Any], *, staged: bool = False) -> bool:
-    """Supported saved content, or completed staged content only in a draft context."""
-    if component.get("content_status", "pending") not in ({"staged"} if staged else {"available"}):
-        return False
-    mime_type = (component.get("mime_type") or "").lower()
-    return bool(
-        native_preview_kind(mime_type)
-        or mime_type == "application/pdf"
-        or requires_document_conversion(component)
-    )
 
 
-def effective_closure(
-    aggregation: dict[str, Any] | None,
-    aggregations_by_id: dict[int, dict[str, Any]],
-) -> dict[str, Any] | None:
-    """Return the nearest directly closed aggregation, including the item itself."""
-    current = aggregation
-    seen: set[int] = set()
-    while current and current.get("id") not in seen:
-        seen.add(current["id"])
-        if current.get("date_closed"):
-            return current
-        current = aggregations_by_id.get(current.get("parent_aggregation_id"))
-    return None
 
 
-def inactive_org_unit_source(
-    org_unit: dict[str, Any] | None,
-    org_units_by_id: dict[int, dict[str, Any]],
-) -> dict[str, Any] | None:
-    current = org_unit
-    seen: set[int] = set()
-    while current and current.get("id") not in seen:
-        seen.add(current["id"])
-        if current.get("status") == "inactive":
-            return current
-        current = org_units_by_id.get(current.get("parent_org_unit_id"))
-    return None
 
 
-def buffer_upload_batch(event: events.MultiUploadEventArguments) -> list[tuple[bytes, str, str]]:
-    """Copy NiceGUI temporary uploads before any awaited API operation can release them."""
-    return [
-        (content_source.read(), name, mime_type or "application/octet-stream")
-        for content_source, name, mime_type in zip(event.contents, event.names, event.types)
-    ]
 
 
-def render_component_cards(
-    rows: list[dict[str, Any]], on_move, on_remove, on_history=None,
-    on_view=None, on_download=None, on_reindex=None, *, readonly: bool = False,
-    capabilities: dict[str, bool] | None = None,
-    focused_component_id: int | None = None, staged_preview: bool = False,
-) -> None:
-    for index, component in enumerate(rows):
-        status = component.get("content_status", "pending")
-        status_color = {
-            "available": "positive", "staged": "primary", "pending": "warning",
-            "failed": "negative", "quarantined": "orange", "deleted": "grey",
-        }.get(status, "grey")
-        checksum = component.get("checksum_value") or "—"
-        checksum_short = checksum if len(checksum) <= 18 else f"{checksum[:10]}…{checksum[-6:]}"
-        focused = component.get("id") == focused_component_id
-        with ui.card().classes(
-            "component-card w-full p-4 gap-3"
-            + (" ring-2 ring-primary bg-blue-50" if focused else "")
-        ).props(f'id="digital-component-{component.get("id")}"'):
-            with ui.row().classes("w-full items-start no-wrap gap-3"):
-                ui.avatar(icon=component_file_icon(component.get("mime_type")), color="blue-1", text_color="primary").props("rounded")
-                with ui.column().classes("gap-1 grow min-w-0"):
-                    component_name = component.get("file_name") or render_message("webui.render_component_cards.text.unnamed_file_c7b0e1b2")
-                    ui.label(component_name).classes(
-                        "component-filename font-semibold text-slate-800"
-                    ).tooltip(component_name)
-                    mime_type = component.get("mime_type") or render_message("webui.render_component_cards.text.unknown_file_type_b64b244a")
-                    ui.label(mime_type).classes(
-                        "component-mime-type text-xs text-slate-500"
-                    ).tooltip(mime_type)
-                ui.badge(render_message("webui.render_component_cards.badge.get_a17efdc9", get=component.get('component_order', '—'))).props(
-                    "outline color=primary"
-                ).classes("shrink-0")
-            with ui.row().classes("component-card-actions w-full items-center justify-end gap-0 no-wrap"):
-                if on_view is not None and (not staged_preview or component_is_previewable(component, staged=True)):
-                    preview_label = render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875") if staged_preview else render_message("webui.render_component_cards.tooltip.view_document_92d64052")
-                    ui.button(icon="visibility", on_click=lambda _, item=component: on_view(item)).props(
-                        "flat round dense" + (" disable" if status != ("staged" if staged_preview else "available") or not capability_allowed(capabilities, "view_component") else "")
-                    ).props(f'aria-label={preview_label!r}').tooltip(preview_label if capability_allowed(capabilities, "view_component") else render_message("webui.render_component_cards.tooltip.your_effective_roles_do_not_grant_componen_ac7b50e0"))
-                if on_download is not None:
-                    ui.button(icon="download", on_click=lambda _, item=component: on_download(item)).props(
-                        "flat round dense" + (" disable" if status != "available" or not capability_allowed(capabilities, "download_component") else "")
-                    ).tooltip(render_message("webui.render_component_cards.tooltip.download_original_bbc9b167") if capability_allowed(capabilities, "download_component") else render_message("webui.render_component_cards.tooltip.your_effective_roles_do_not_grant_componen_c83f01c9"))
-                if on_reindex is not None and capability_allowed(capabilities, "reindex_components"):
-                    ui.button(icon="manage_search", on_click=lambda _, item=component: on_reindex(item)).props(
-                        "flat round dense" + (" disable" if status != "available" else "")
-                    ).tooltip(render_message("webui.render_component_cards.tooltip.reindex_component_content_3ce189d9"))
-                ui.button(icon="arrow_upward", on_click=lambda _, item=component: on_move(item, -1)).props(
-                    "flat round dense" + (" disable" if readonly or not capability_allowed(capabilities, "reorder_components") or index == 0 else "")
-                ).tooltip(render_message("webui.render_component_cards.tooltip.move_earlier_0de89c72"))
-                ui.button(icon="arrow_downward", on_click=lambda _, item=component: on_move(item, 1)).props(
-                    "flat round dense" + (" disable" if readonly or not capability_allowed(capabilities, "reorder_components") or index == len(rows) - 1 else "")
-                ).tooltip(render_message("webui.render_component_cards.tooltip.move_later_71077211"))
-                ui.button(icon="delete_outline", color="negative", on_click=lambda _, item=component: on_remove(item)).props(
-                    "flat round dense" + (" disable" if readonly or not capability_allowed(capabilities, "remove_component") else "")
-                ).tooltip(render_message("webui.render_component_cards.tooltip.remove_component_34d21bd2") if not readonly and capability_allowed(capabilities, "remove_component") else render_message("webui.render_component_cards.tooltip.this_operation_is_unavailable_under_the_cu_9d386e97"))
-                if on_history is not None:
-                    ui.button(icon="history", color="blue-grey", on_click=lambda _, item=component: on_history(item)).props("flat round dense").tooltip(render_message("webui.render_component_cards.tooltip.event_history_bbccf5f1"))
-            with ui.row().classes("w-full items-center gap-2 flex-wrap"):
-                ui.badge(localized_component_status(status), color=status_color).props("rounded")
-                indexing = component.get("_indexing")
-                if indexing:
-                    index_status = indexing.get("status", "pending")
-                    ui.badge(render_message("webui.render_component_cards.badge.index_title_c266923f", title=localized_indexing_status(index_status)), color={
-                        "indexed":"positive","succeeded":"positive","failed":"negative",
-                        "unsupported":"orange","processing":"primary","leased":"primary",
-                        "queued":"warning","pending":"warning","stale":"warning",
-                    }.get(index_status,"blue-grey")).props("outline rounded")
-                    if indexing.get("indexed_at"):
-                        ui.label(render_message("webui.render_component_cards.label.last_indexed_format_timestamp_cc1a7293", format_timestamp=format_timestamp(indexing['indexed_at']))).classes("text-xs text-slate-500")
-                ui.label(format_file_size(component.get("size_in_bytes"))).classes("text-sm font-medium text-slate-600")
-            ui.separator()
-            with ui.grid(columns=2).classes("w-full gap-x-6 gap-y-3"):
-                for label, value in (
-                    (render_message("entity_metadata.field.date_originated"), format_timestamp(component.get("date_originated"))),
-                    (render_message("advanced_search.field.date_created"), format_timestamp(component.get("date_created"))),
-                    (render_message("components.field.storage_backend"), str(component.get("storage_backend") or "—")),
-                    (component.get("checksum_algo") or render_message("advanced_search.field.checksum_value"), checksum_short),
-                ):
-                    with ui.column().classes("gap-0 min-w-0"):
-                        ui.label(label).classes("component-meta-label")
-                        value_label = ui.label(value).classes("component-meta-value truncate max-w-full")
-                        if value == checksum_short and checksum != "—":
-                            value_label.tooltip(checksum)
+render_component_cards = build_component_cards(format_timestamp=format_timestamp, format_file_size=format_file_size)
 
 
-def component_uploader(on_multi_upload, *, label: str | None = None):
-    component_label = label or render_message("webui.open_record_draft_editor.label.digital_components_21c9474b")
-    component_guidance = render_message("webui.select_record_details.label.files_belonging_to_this_record_can_be_mana_7c78350c")
-    browse_label = render_message("navigation.item.organization_browser")
-    empty_label = render_message("webui.render_current_components.label.no_digital_components_have_been_uploaded_y_3f61a29a")
-    uploader = ui.upload(
-        on_multi_upload=on_multi_upload,
-        label=component_label,
-        auto_upload=True,
-        multiple=True,
-    ).props("accept=*").classes("record-uploader w-full")
-    uploader.add_slot("header", f"""
-        <div class="row items-center no-wrap full-width q-pa-md q-gutter-md upload-header">
-          <q-avatar icon="cloud_upload" color="blue-1" text-color="primary" size="42px" />
-          <div class="column col">
-            <span class="text-weight-medium text-slate-800">{html_escape(component_label)}</span>
-            <span class="text-caption text-slate-500">{html_escape(component_guidance)}</span>
-          </div>
-          <q-btn outline no-caps color="primary" icon="folder_open" label="{html_escape(browse_label)}">
-            <q-uploader-add-trigger />
-          </q-btn>
-        </div>
-    """)
-    uploader.add_slot("list", f"""
-        <div v-if="props.files.length === 0" class="upload-empty">
-          {html_escape(empty_label)}
-        </div>
-        <q-list v-else separator class="upload-queue">
-          <q-item v-for="file in props.files" :key="file.__key" dense class="q-px-md q-py-sm">
-            <q-item-section avatar style="min-width: 38px">
-              <q-icon name="description" color="blue-grey-5" size="22px" />
-            </q-item-section>
-            <q-item-section class="min-width-0">
-              <q-item-label class="text-weight-medium ellipsis">{{{{ file.name }}}}</q-item-label>
-              <q-item-label caption>{{{{ file.__sizeLabel }}}} · {{{{ file.__progressLabel }}}}</q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <q-spinner v-if="file.__status === 'uploading'" color="primary" size="22px" />
-              <q-icon v-else-if="file.__status === 'uploaded'" name="check_circle" color="positive" size="22px" />
-              <q-icon v-else-if="file.__status === 'failed'" name="error" color="negative" size="22px" />
-              <q-icon v-else name="schedule" color="blue-grey-4" size="22px" />
-            </q-item-section>
-          </q-item>
-        </q-list>
-    """)
-    return uploader
 
 
 def add_timestamp_slots(table: Any, column_names: list[str]) -> None:
@@ -1009,11 +662,6 @@ def add_timestamp_slots(table: Any, column_names: list[str]) -> None:
         """)
 
 
-def login_error_message(error: ApiError) -> str:
-    """Distinguish rejected credentials from an expired authenticated session."""
-    if error.status_code == 401:
-        return render_message_plain("authentication.error.credentials_not_accepted")
-    return error_message(error)
 
 
 def error_message(error: ApiError) -> str:
@@ -1066,6 +714,9 @@ def error_message(error: ApiError) -> str:
     return render_message_plain(status_messages.get(error.status_code, "shared.errors.unexpected"))
 
 
+login_error_message = build_login_error_message(error_message)
+
+
 def clear_medium_error(control) -> None:
     # NiceGUI validation requires its error prop to remain present.
     control.error = None
@@ -1106,93 +757,16 @@ def show_api_error(error: ApiError) -> None:
     dialog.open()
 
 
-def role_change_requires_reason(
-    current: dict[str, Any], proposed: dict[str, Any],
-    security_levels: list[dict[str, Any]],
-) -> bool:
-    """Return whether a role edit is sensitive enough to require an audit reason."""
-    if any(
-        proposed.get(name) != current.get(name)
-        for name in ("profile_id", "is_information_governance")
-        if name in proposed
-    ):
-        return True
-    if "security_level_id" not in proposed:
-        return False
-    level_numbers = {item["id"]: item["level_number"] for item in security_levels}
-    old_number = level_numbers.get(current.get("security_level_id"))
-    new_number = level_numbers.get(proposed.get("security_level_id"))
-    return (
-        old_number is not None
-        and new_number is not None
-        and new_number < old_number
-    )
 
 
-def deletion_identity(item: dict[str, Any]) -> str:
-    """Identify a deletion target by its display name and stable identifier."""
-    name = str(item.get("name") or "").strip()
-    stable_identifier = str(item.get("email") or item.get("code") or "").strip()
-    if name and stable_identifier and stable_identifier != name:
-        return f"{name} — {stable_identifier}"
-    return name or stable_identifier or f"Item #{item['id']}"
 
 
-def deletion_blocked_report(error: ApiError) -> dict[str, Any] | None:
-    """Extract the server's authoritative deletion report from a race conflict."""
-    if (
-        error.status_code == 409
-        and isinstance(error.detail, dict)
-        and error.detail.get("code") == "deletion_blocked"
-    ):
-        return error.detail
-    return None
 
 
-def relationship_options(
-    rows: list[dict[str, Any]], label_fields: tuple[str, ...], *,
-    include_level_number: bool = False,
-    level_label: str | None = None,
-) -> dict[int, str]:
-    options: dict[int, str] = {}
-    for item in rows:
-        localized = item.get("localized") or {}
-        values = [
-            str(localized.get(name) or item.get(name) or "").strip()
-            for name in label_fields
-        ]
-        values = [value for value in values if value]
-        code = values[0] if len(values) > 1 else ""
-        name = values[-1] if values else render_message_plain("webui.relationship_options.text.item_id_0e84a7f9", id=item['id'])
-        label = (
-            f"{code} · {name}"
-            if code else name
-        )
-        if include_level_number and item.get("level_number") is not None:
-            label = (
-                f"{label} · "
-                f"{level_label or render_message_plain('webui.render_table.text.level_167db239')} "
-                f"{item['level_number']}"
-            )
-        options[item["id"]] = label
-    return options
 
 
-def relationship_search_query(control: Any, raw_query: object) -> str | None:
-    """Ignore the select's display-label echo, but preserve typed/cleared input."""
-    query = str(raw_query or "")
-    if not control.multiple and control.value is not None and query:
-        selected_label = dict(control.options or {}).get(control.value)
-        if selected_label is not None and query == str(selected_label):
-            return None
-    return query
 
 
-def apply_relationship_selection(control: Any, value: int, label: str) -> None:
-    """Atomically add a browsed relationship option and select it."""
-    options = dict(control.options or {})
-    options[int(value)] = label
-    control.set_options(options, value=int(value))
 
 
 def relationship_cell(item: dict[str, Any] | None, *, number_field: str | None = None) -> dict[str, Any] | None:
@@ -1236,105 +810,8 @@ def decorate_relationship_rows(
     return decorated
 
 
-def style_person_select(control: Any, *, multiple: bool = False) -> None:
-    """Give user selectors a consistent name/email hierarchy and compact identity chips."""
-    control.props(
-        'use-input input-debounce=0 behavior=menu options-dense '
-        'popup-content-style="min-width:420px;max-width:calc(100vw - 48px)"'
-    ).classes("person-select")
-    control.add_slot("option", """
-        <q-item v-bind="props.itemProps" class="person-select-option q-py-sm">
-          <q-item-section avatar style="min-width:44px">
-            <q-avatar color="blue-1" text-color="primary" size="34px">
-              {{ props.opt.label.split(' — ')[0].split(' ').filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() }}
-            </q-avatar>
-          </q-item-section>
-          <q-item-section style="min-width:0">
-            <q-item-label class="text-weight-medium ellipsis">{{ props.opt.label.split(' — ')[0] }}</q-item-label>
-            <q-item-label caption class="ellipsis">{{ props.opt.label.split(' — ').slice(1).join(' — ') }}</q-item-label>
-          </q-item-section>
-        </q-item>
-    """)
-    if multiple:
-        control.add_slot("selected-item", """
-            <q-chip
-              dense removable outline color="primary" text-color="blue-grey-9"
-              class="person-select-chip"
-              @remove="props.removeAtIndex(props.index)"
-              :tabindex="props.tabindex"
-            >
-              <q-avatar color="blue-1" text-color="primary">
-                {{ props.opt.label.split(' — ')[0].split(' ').filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() }}
-              </q-avatar>
-              <span class="ellipsis">{{ props.opt.label.split(' — ')[0] }}</span>
-              <q-tooltip>{{ props.opt.label }}</q-tooltip>
-            </q-chip>
-        """)
-    else:
-        # NiceGUI's single-select `with_input=True` defaults to hiding the
-        # selected-item slot and filling the filter input with the raw label.
-        # Keep search enabled, but let the selected identity render through
-        # the same visual chip slot used by the contributors selector.
-        control._props["hide-selected"] = False
-        control._props["fill-input"] = False
-        control.add_slot("selected-item", """
-            <q-chip
-              dense outline color="primary" text-color="blue-grey-9"
-              class="person-select-chip"
-              :tabindex="props.tabindex"
-            >
-              <q-avatar color="blue-1" text-color="primary">
-                {{ props.opt.label.split(' — ')[0].split(' ').filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() }}
-              </q-avatar>
-              <span class="ellipsis">{{ props.opt.label.split(' — ')[0] }}</span>
-              <q-tooltip>{{ props.opt.label }}</q-tooltip>
-            </q-chip>
-        """)
 
 
-def style_relationship_chip_select(control: Any, field_name: str = "") -> None:
-    """Render relationship choices as cards and the selected value compactly."""
-    icon = {
-        "aggregation_id": "folder",
-        "parent_aggregation_id": "folder",
-        "classification_id": "account_tree",
-        "security_level_id": "shield",
-        "owning_org_unit_id": "corporate_fare",
-        "role_id": "badge",
-        "user_id": "person",
-    }.get(field_name, "link")
-    control.props(
-        'use-input input-debounce=0 behavior=menu options-dense '
-        'popup-content-style="min-width:360px;max-width:calc(100vw - 48px)"'
-    ).classes("relationship-chip-select")
-    control.add_slot("option", """
-        <q-item v-bind="props.itemProps" class="relationship-option-card q-ma-xs q-py-sm">
-          <q-item-section avatar>
-            <q-avatar color="blue-1" text-color="primary" icon="__ICON__" size="36px" />
-          </q-item-section>
-          <q-item-section style="min-width:0">
-            <q-item-label class="text-weight-medium ellipsis">
-              {{ props.opt.label.includes(' · ') ? props.opt.label.split(' · ').slice(1).join(' · ') : props.opt.label }}
-            </q-item-label>
-            <q-item-label caption>
-              <q-badge v-if="props.opt.label.includes(' · ')" outline color="primary"
-                :label="props.opt.label.split(' · ')[0]" />
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-    """.replace("__ICON__", icon))
-    control._props["hide-selected"] = False
-    control._props["fill-input"] = False
-    control.add_slot("selected-item", """
-        <q-chip outline color="primary" text-color="blue-grey-9" class="relationship-value-chip">
-          <q-badge v-if="props.opt.label.includes(' · ')" color="blue-1" text-color="primary"
-            :label="props.opt.label.split(' · ')[0]" />
-          <span class="text-weight-medium ellipsis">
-            {{ props.opt.label.includes(' · ') ? props.opt.label.split(' · ').slice(1).join(' · ') : props.opt.label }}
-          </span>
-          <q-tooltip>{{ props.opt.label }}</q-tooltip>
-        </q-chip>
-    """)
 
 
 def style_status_chip_select(control: Any) -> None:
@@ -1353,75 +830,8 @@ def style_status_chip_select(control: Any) -> None:
     """)
 
 
-def field_input(field: FieldSpec, value: Any = None, options: dict[int, str] | None = None):
-    localized_label = entity_metadata_label(field.label)
-    display_label = render_message("webui.field_input.text.label_29445dc3", label=localized_label) if field.required else localized_label
-    if field.kind == "account_type":
-        return ui.select(
-            {"person": render_message("webui.field_input.select.person_d4b133be"), "service": render_message("webui.field_input.select.service_9bbc2101")},
-            label=display_label, value=value or "person",
-        ).props("outlined").classes("w-full")
-    if field.kind == "classification_type":
-        return ui.select(
-            {False: render_message("webui.field_input.select.branch_may_contain_children_10410e17"), True: render_message("webui.field_input.select.terminal_assignable_to_root_aggregations_b091e9dc")},
-            label=display_label, value=False if value is None else value,
-        ).props("outlined").classes("w-full")
-    if field.kind == "disposition":
-        return ui.select({
-            "destruction": render_message("webui.field_input.select.destruction_2711246f"),
-            "transfer_to_external_archive": render_message("webui.field_input.select.permanent_preservation_external_archive_53d3f9f7"),
-            "selective_preservation": render_message("webui.field_input.select.selective_preservation_04d0086f"),
-            "retain_as_local_archives": render_message("webui.field_input.select.retain_as_local_archives_8d22b8ed"),
-        }, label=display_label, value=value, clearable=True).props("outlined").classes("w-full")
-    if field.kind == "medium":
-        control = ui.select(medium_options(), label=display_label, value=value).props("outlined options-dense").classes("w-full")
-        control.tooltip(render_message("webui.field_input.tooltip.how_the_resource_is_held_digital_files_phy_317d9b8b"))
-        return control
-    if field.kind == "textarea":
-        return ui.textarea(display_label, value=value or "").props("outlined autogrow").classes("w-full")
-    if field.kind == "int":
-        return ui.number(display_label, value=value, format="%.0f").props("outlined").classes("w-full")
-    if field.kind == "bool":
-        return ui.checkbox(display_label, value=bool(value))
-    if field.kind in {"lookup", "classification"}:
-        return relationship_select(
-            display_label, options or {}, value=value, required=field.required
-        )
-    if field.kind == "datetime":
-        rendered = ""
-        if value:
-            _, timezone_name = current_locale_context()
-            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
-            rendered = utc_instant_to_working(parsed, timezone_name).strftime("%Y-%m-%dT%H:%M")
-        props = "outlined type=datetime-local"
-        if field.name == "date_of_next_review":
-            _, timezone_name = current_locale_context()
-            props += f" min={datetime.now(timezone.utc).astimezone(working_zone(timezone_name)).strftime('%Y-%m-%dT%H:%M')}"
-        return ui.input(display_label, value=rendered).props(props).classes("w-full")
-    return ui.input(display_label, value=value or "").props("outlined").classes("w-full")
 
 
-def form_payload(spec: EntitySpec, controls: dict[str, Any], *, creating: bool) -> dict[str, Any]:
-    payload: dict[str, Any] = {}
-    for field in spec.fields:
-        if field.name not in controls:
-            continue
-        value = controls[field.name].value
-        if field.kind in {"int", "lookup", "classification"} and value not in (None, ""):
-            value = int(value)
-        if field.kind == "datetime" and value:
-            _, timezone_name = current_locale_context()
-            value = working_datetime_to_utc(
-                datetime.fromisoformat(value), timezone_name,
-            ).isoformat().replace("+00:00", "Z")
-        if isinstance(value, str):
-            value = value.strip()
-        if field.required and value in (None, ""):
-            raise ValueError(render_message("entity_metadata.validation.required", field=entity_metadata_label(field.label)))
-        if creating and value in (None, "") and not field.required:
-            continue
-        payload[field.name] = None if value == "" else value
-    return payload
 
 
 @ui.page("/")
@@ -1463,79 +873,12 @@ def index(q: str = "") -> None:
         set_locale_context(initial_language, str(cached_localization["working_timezone"]))
     ui.query("html").props(f"lang={initial_language} dir={initial_direction}")
 
-    async def apply_document_direction(language: str, direction: str) -> None:
-        normalized = normalize_direction(direction)
-        current_direction["value"] = normalized
-        ui.query("html").props(remove="lang dir").props(
-            add=f"lang={language} dir={normalized}"
-        )
-        drawer_toggle_button.icon = (
-            "chevron_right" if normalized == "rtl" else "chevron_left"
-        )
-        await ui.run_javascript(
-            document_direction_script(language, normalized), timeout=5,
-        )
 
-    async def load_localization_context() -> bool:
-        bootstrap = await api.localization_bootstrap()
-        previous = app.storage.user.get("localization_context") or {}
-        session_messages = app.storage.user.get("localization_messages") or {}
-        session_fallback_keys = app.storage.user.get("localization_fallback_keys") or []
-        session_catalogue_etag = app.storage.user.get("localization_catalogue_etag")
-        cache_is_current = (
-            isinstance(session_messages, dict)
-            and bool(session_messages)
-            and previous.get("effective_language") == bootstrap["effective_language"]
-            and previous.get("catalogue_revision") == bootstrap["catalogue_revision"]
-        )
-        if cache_is_current:
-            messages = session_messages
-            fallback_keys = session_fallback_keys
-            catalogue_etag = session_catalogue_etag
-        else:
-            same_language = (
-                previous.get("effective_language") == bootstrap["effective_language"]
-            )
-            has_cached_catalogue = isinstance(session_messages, dict) and bool(session_messages)
-            catalogue = await api.localization_catalogue(
-                bootstrap["effective_language"],
-                etag=session_catalogue_etag if same_language and has_cached_catalogue else None,
-            )
-            if catalogue.get("not_modified") and isinstance(session_messages, dict) and session_messages:
-                messages = session_messages
-                fallback_keys = session_fallback_keys
-            else:
-                messages = catalogue["messages"]
-                fallback_keys = catalogue.get("fallback_keys", [])
-            catalogue_etag = catalogue.get("etag") or session_catalogue_etag
-        set_active_messages(messages, fallback_keys)
-        # Persist remembered locale metadata only. Business settings remain a
-        # transient page response, never another browser settings cache.
-        state["localization"] = {key:value for key,value in bootstrap.items() if key != "application_configuration"}
-        state["application_configuration"] = bootstrap["application_configuration"]
-        set_locale_context(
-            bootstrap["effective_language"], bootstrap["working_timezone"],
-        )
-        app.storage.user["localization_context"] = state["localization"]
-        app.storage.user["localization_messages"] = messages
-        app.storage.user["localization_fallback_keys"] = fallback_keys
-        app.storage.user["localization_catalogue_etag"] = catalogue_etag
-        await apply_document_direction(
-            bootstrap["effective_language"], bootstrap["direction"],
-        )
-        needs_rebuild = (
-            previous.get("effective_language", initial_language) != bootstrap["effective_language"]
-            or previous.get("direction", initial_direction) != bootstrap["direction"]
-        )
-        if needs_rebuild:
-            await ui.run_javascript("window.location.reload(); true", timeout=5)
-        return needs_rebuild
+    personal = PersonalResourceState()
+    aggregation_state = new_aggregation_state()
     state: dict[str, Any] = {
         "resource": "dashboard", "rows": [], "searched": False,
-        "recent_created": [], "recent_updated": [], "recent_activity": [], "aggregation_detail": None,
-        "lifecycle_filter": "all", "aggregation_mode": "search",
-        "favourites": {"aggregations": [], "records": []},
-        "favourite_ids": {"aggregations": set(), "records": set()},
+        "lifecycle_filter": "all",
         "global_search_query": q.strip(), "global_search_items": [],
         "global_search_cursor": None, "global_search_filter": "all",
         "global_search_page": 1, "global_search_page_size": 10,
@@ -1544,8 +887,6 @@ def index(q: str = "") -> None:
         "entity_result_states": {},
         "search_diagnostics_enabled": False, "search_diagnostics_sent": None,
         "search_diagnostics_accepted": None, "search_diagnostics_error": None,
-        "personal_sections_loading": {},
-        "personal_section_hosts": {},
         "collection_pages": {},
     }
     navigation_controller = NavigationController(
@@ -1563,251 +904,7 @@ def index(q: str = "") -> None:
         notify=ui.notify, on_error=error_message,
     )
 
-    def bind_remote_relationship_select(
-        control: Any,
-        resource: str,
-        search_fields: tuple[str, ...],
-        label_fields: tuple[str, ...],
-        *,
-        filters: dict[str, Any] | None = None,
-        exclude_id: int | None = None,
-        item_filter: Callable[[dict[str, Any]], bool] | None = None,
-        on_options_resolved: Callable[[dict[int, str]], None] | None = None,
-        eligible_classifications: bool = False,
-        page_loader: Callable | None = None,
-        selected_loader: Callable | None = None,
-        option_reason: Callable | None = None,
-        active: Callable = lambda: True,
-        min_query_length: int = 0,
-    ) -> Callable[..., Any]:
-        """Load a bounded relationship page as the user filters a selector."""
-        request_state: dict[str, Any] = {"revision": 0, "task": None, "loaded": False}
-        # Capture localized static labels while rendering the page. The remote
-        # typeahead later runs in a background task, where falling back to the
-        # process-level English catalogue would leak English into an RTL menu.
-        # Option labels also enter the select's input-value events; inspector
-        # diagnostics belong on rendered UI text, never in searchable values.
-        security_level_label = render_message_plain(
-            "webui.render_table.text.level_167db239"
-        )
 
-        def make_options(rows: list[dict[str, Any]]) -> dict[int, str]:
-            options = relationship_options(
-                rows, label_fields,
-                include_level_number=resource == "security-levels",
-                level_label=security_level_label,
-            )
-            if option_reason is not None:
-                disabled = request_state.setdefault("disabled", {})
-                for row in rows:
-                    reason = option_reason(row)
-                    disabled[row["id"]] = bool(reason)
-                    if hasattr(control, "option_details"):
-                        control.option_details[row["id"]] = {
-                            "email": row.get("email") or "", "reason": reason or "",
-                        }
-                    elif reason:
-                        options[row["id"]] += " · " + reason
-            return options
-
-        def apply_disabled_options() -> None:
-            if option_reason is None:
-                return
-            disabled = request_state.setdefault("disabled", {})
-            # NiceGUI maps option IDs to ordinal values for Quasar. Using
-            # ordinals avoids disabling a different person with the same name.
-            indices = [index for index, key in enumerate(control.options) if disabled.get(key)]
-            request_state["disabled"] = {key: value for key, value in disabled.items() if key in control.options}
-            control._props[":option-disable"] = "opt => " + json.dumps(indices) + ".includes(opt.value)"
-            control.update()
-
-        async def resolve_selected_options() -> None:
-            """Replace restored foreign-key placeholders with localized labels."""
-            selected_values = (
-                list(control.value or []) if control.multiple
-                else ([control.value] if control.value is not None else [])
-            )
-            if not selected_values:
-                return
-            try:
-                rows = await asyncio.gather(*(
-                    (selected_loader(int(value)) if selected_loader else api.get(resource, int(value))) for value in selected_values
-                ))
-            except (ApiError, TypeError, ValueError):
-                # A deleted or inaccessible reference remains visible as an unresolved
-                # value; server-side search validation will reject it when appropriate.
-                return
-            if not active() or getattr(control, "_deleted", False):
-                return
-            resolved = make_options(list(rows))
-            raw_current_values = (
-                set(control.value or []) if control.multiple
-                else ({control.value} if control.value is not None else set())
-            )
-            current_values = {
-                int(value) if str(value).isdigit() else value
-                for value in raw_current_values
-            }
-            control.options = {
-                **dict(control.options or {}),
-                **{
-                    key: value for key, value in resolved.items()
-                    if key in current_values
-                },
-            }
-            control.update()
-            apply_disabled_options()
-            if on_options_resolved is not None:
-                on_options_resolved(resolved)
-
-        async def load_options(query: str = "") -> None:
-            if not active() or getattr(control, "_deleted", False):
-                return
-            request_state["revision"] += 1
-            revision = request_state["revision"]
-            try:
-                result = {'items': []} if len(query.strip()) < min_query_length else await page_loader(query) if page_loader else (
-                    await api.administration_reference_page(
-                        resource, query=query, limit=25,
-                        sort="level_number" if resource == "security-levels" else "name",
-                        filters=filters,
-                    )
-                    if resource in {"profiles", "security-levels"}
-                    else await api.relationship_page(
-                        resource, search_fields, query, limit=25, filters=filters,
-                        eligible_classifications=eligible_classifications,
-                    )
-                )
-            except asyncio.CancelledError:
-                return
-            except ApiError as error:
-                if revision == request_state["revision"] and active() and not getattr(control, "_deleted", False):
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                return
-            if revision != request_state["revision"] or not active() or getattr(control, "_deleted", False):
-                return
-            selected_values = (
-                set(control.value or []) if control.multiple
-                else ({control.value} if control.value is not None else set())
-            )
-            selected_options = {
-                key: value for key, value in dict(control.options).items()
-                if key in selected_values
-            }
-            page_options = make_options(
-                [
-                    item for item in result.get("items", [])
-                    if exclude_id is None or int(item["id"]) != int(exclude_id)
-                    if item_filter is None or item_filter(item)
-                ],
-            )
-            control.options = {**selected_options, **page_options}
-            control.update()
-            apply_disabled_options()
-            if on_options_resolved is not None:
-                on_options_resolved(page_options)
-            request_state["loaded"] = True
-
-        def schedule_filter(event: Any) -> None:
-            previous = request_state.get("task")
-            if previous is not None and not previous.done():
-                previous.cancel()
-            query = relationship_search_query(control, event.args)
-            request_state["revision"] += 1
-            if query is None:
-                return
-
-            async def delayed() -> None:
-                await asyncio.sleep(0.2)
-                # Selection may settle after input-value was emitted.
-                if relationship_search_query(control, query) is None:
-                    return
-                await load_options(query)
-
-            request_state["task"] = asyncio.create_task(delayed())
-
-        def ensure_loaded() -> None:
-            if not request_state["loaded"]:
-                request_state["task"] = asyncio.create_task(load_options())
-
-        control.on("input-value", schedule_filter)
-        control.on("popup-show", ensure_loaded)
-        if control.value is not None:
-            background_tasks.create(resolve_selected_options())
-        return load_options
-
-    def bind_resource_security_select(
-        control: Any, *, parent_control: Any = None,
-        parent_id: int | None = None, aggregation_id: int | None = None,
-    ) -> Callable[..., Any]:
-        """Keep resource choices within freshly evaluated server-side bounds."""
-        revision = 0
-        search_task: Any = None
-        hint = render_message_plain("security_level.selection.constraints")
-        # A normal-flow NiceGUI label reserves space for wrapped guidance;
-        # the select's native hint overlaps the next field at narrow widths.
-        with ui.column().classes("w-full min-w-0 gap-1") as field_group:
-            control.move(field_group)
-            ui.label(hint).classes("w-full text-xs text-slate-500 leading-relaxed")
-
-        async def load(query: str = "") -> None:
-            nonlocal revision
-            if control.is_deleted:
-                return
-            revision += 1
-            current = revision
-            selected = control.value
-            try:
-                page = await api.administration_reference_page(
-                    "security-levels", query=query, sort="level_number", limit=25,
-                    filters={"assignable": True,
-                             "parent_aggregation_id": parent_control.value if parent_control else parent_id,
-                             "aggregation_id": aggregation_id},
-                )
-                if "maximum_level" not in page or "minimum_level" not in page:
-                    # An older API ignores assignable=true and returns unfiltered
-                    # choices. Never interpret missing bounds as unrestricted.
-                    raise ApiError(503, {"message_key": "shared.errors.unexpected"})
-                rows = list(page["items"])
-                if selected is not None and selected not in {item["id"] for item in rows}:
-                    rows.append(await api.get("security-levels", int(selected)))
-                if current != revision or control.is_deleted or control.value != selected:
-                    return
-                maximum, minimum = page["maximum_level"], page["minimum_level"]
-                rows = [item for item in rows if maximum is not None
-                        and item["level_number"] <= maximum
-                        and (minimum is None or item["level_number"] >= minimum)]
-                with control:
-                    options = relationship_options(rows, ("code", "name"), include_level_number=True)
-                control.set_options(options, value=selected if selected in options else None)
-                control.enable()
-            except ApiError as error:
-                if current != revision or control.is_deleted:
-                    return
-                control.set_options({}, value=None)
-                with control:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-
-        def search(event: Any) -> None:
-            nonlocal search_task, revision
-            query = relationship_search_query(control, event.args)
-            if query is not None:
-                revision += 1
-                if search_task is not None and not search_task.done():
-                    search_task.cancel()
-                async def delayed() -> None:
-                    await asyncio.sleep(0.2)
-                    if not control.is_deleted:
-                        await load(query)
-                search_task = background_tasks.create(delayed())
-
-        control.disable()
-        control.on("input-value", search)
-        control.on("popup-show", lambda: background_tasks.create(load()))
-        if parent_control is not None:
-            parent_control.on_value_change(lambda: background_tasks.create(load()))
-        background_tasks.create(load())
-        return load
 
     def bind_remote_saved_audience_select(
         control: Any, audience_kind: str, more_button: Any,
@@ -1900,99 +997,12 @@ def index(q: str = "") -> None:
             control.on_value_change(lambda: control.run_method("updateInputValue", ""))
         return load_options, load_selected
 
-    def bind_remote_people_select(
-        control: Any,
-        *,
-        excluded_ids: Callable[[], set[int]] | None = None,
-    ) -> Callable[..., Any]:
-        """Attach debounced active-person typeahead behavior to a user selector."""
-        request_state: dict[str, Any] = {"revision": 0, "task": None}
+    bind_remote_people_select = build_people_select(
+        api=api,
+        error_message=error_message,
+    )
 
-        async def load_options(query: str = "") -> None:
-            request_state["revision"] += 1
-            revision = request_state["revision"]
-            selected_values = (
-                set(control.value or []) if control.multiple
-                else ({control.value} if control.value is not None else set())
-            )
-            selected_options = {
-                key: value for key, value in dict(control.options).items()
-                if key in selected_values
-            }
-            term = query.strip()
-            if len(term) < 2:
-                control.options = selected_options
-                control.update()
-                return
-            try:
-                result = await api.active_people(term, limit=25, offset=0)
-            except asyncio.CancelledError:
-                return
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-                return
-            if revision != request_state["revision"]:
-                return
-            excluded = excluded_ids() if excluded_ids else set()
-            page_options = {
-                int(person["id"]): (
-                    f"{(person.get('localized') or {}).get('name') or person['name']} — "
-                    f"{person.get('email') or render_message('webui.select_user_details.label.no_email_address_1d665180')}"
-                )
-                for person in result.get("items", [])
-                if int(person["id"]) not in excluded
-            }
-            control.options = {**selected_options, **page_options}
-            control.update()
-
-        def schedule_filter(event: Any) -> None:
-            previous = request_state.get("task")
-            if previous is not None and not previous.done():
-                previous.cancel()
-
-            async def delayed() -> None:
-                await asyncio.sleep(0.2)
-                await load_options(str(event.args or ""))
-
-            request_state["task"] = asyncio.create_task(delayed())
-
-        control.on("input-value", schedule_filter)
-        return load_options
-
-    def bind_remote_scheme_select(control: Any) -> None:
-        """Attach bounded published-scheme type-ahead behavior."""
-        request_state: dict[str, Any] = {"revision": 0, "task": None}
-
-        async def load(query: str = "") -> None:
-            request_state["revision"] += 1
-            revision = request_state["revision"]
-            try:
-                rows = await api.browse_schemes(query, limit=25)
-            except (ApiError, asyncio.CancelledError):
-                return
-            if revision != request_state["revision"]:
-                return
-            selected = control.value
-            options = {
-                item["id"]: f"{item['code']} — {item['title']}" for item in rows
-            }
-            if selected is not None and selected not in options:
-                options[selected] = dict(control.options).get(selected, str(selected))
-            control.options = options
-            control.update()
-
-        def schedule(event: Any) -> None:
-            previous = request_state.get("task")
-            if previous is not None and not previous.done():
-                previous.cancel()
-
-            async def delayed() -> None:
-                await asyncio.sleep(0.2)
-                await load(str(event.args or ""))
-
-            request_state["task"] = asyncio.create_task(delayed())
-
-        control.on("input-value", schedule)
+    bind_remote_scheme_select = build_scheme_selector(api)
 
     ui.colors(
         primary="#268bd2", secondary="#0f749f", accent="#72b8e8",
@@ -3860,7 +2870,7 @@ def index(q: str = "") -> None:
             "searched": bool(state.get("searched")),
             "search_text": str(search_input.value or ""),
             "lifecycle_filter": state.get("lifecycle_filter", "all"),
-            "aggregation_mode": state.get("aggregation_mode", "search"),
+            "aggregation_mode": aggregation_state.get("aggregation_mode", "search"),
             "settings_category": application_settings_controller.category,
             "disposition_view": dict(state.get("disposition_view") or {}),
             "global_search_query": state.get("global_search_query", ""),
@@ -4373,11 +3383,11 @@ def index(q: str = "") -> None:
                 )
                 state.setdefault("entity_result_states", {})[page] = restored_result_state
             if page == "aggregations":
-                state["aggregation_mode"] = saved.get("aggregation_mode", "search")
+                aggregation_state["aggregation_mode"] = saved.get("aggregation_mode", "search")
             await select_entity(page)
             # Browse restores its own expanded branches, selection and scroll.
             # A search made before switching modes must not replace that tree.
-            if page == "aggregations" and state.get("aggregation_mode") == "browse":
+            if page == "aggregations" and aggregation_state.get("aggregation_mode") == "browse":
                 return
             search_input.value = saved.get("search_text", "")
             state["lifecycle_filter"] = saved.get("lifecycle_filter", "all")
@@ -4430,10 +3440,10 @@ def index(q: str = "") -> None:
 
     def clear_authenticated_view() -> None:
         """Remove protected data as soon as there is no authenticated principal."""
-        state.update(resource="dashboard", rows=[], searched=False, aggregation_detail=None)
-        state.pop("aggregation_browse", None)
-        state["favourites"] = {"aggregations": [], "records": []}
-        state["favourite_ids"] = {"aggregations": set(), "records": set()}
+        state.update(resource='dashboard', rows=[], searched=False); aggregation_state.update(aggregation_detail=None)
+        aggregation_state.pop("aggregation_browse", None)
+        personal.favourites = {"aggregations": [], "records": []}
+        personal.favourite_ids = {"aggregations": set(), "records": set()}
         title.text = ""
         subtitle.text = ""
         page_title_icon.set_visibility(False)
@@ -4464,12 +3474,6 @@ def index(q: str = "") -> None:
         global_search_input.value = ""
         global_search_input.update()
 
-    async def clear_translation_inspector_session() -> None:
-        """Clear browser diagnostics without pre-creating an awaitable response."""
-        await page_client.run_javascript(
-            "window.wathiqTranslationInspector?.clearSession(); "
-            "history.replaceState(null, '', '/'); true", timeout=5,
-        )
 
     def dashboard_session_key() -> tuple[Any, ...] | None:
         principal = auth_state.get("principal")
@@ -4498,8 +3502,7 @@ def index(q: str = "") -> None:
         message_unread_button.set_visibility(False)
         clear_global_search_session()
         clear_dashboard_session()
-        state.pop("classification_browser_preferences", None)
-        state.pop("classification_workspace_token", None)
+        classification_controller.reset()
         api.cancel_pending_reads()
         drawer.hide()
         mobile_navigation.set_visibility(False)
@@ -4543,224 +3546,11 @@ def index(q: str = "") -> None:
                 set_locale_context(localization["effective_language"], timezone_name)
             app.storage.user["localization_context"] = localization
 
-    async def reload_favourites() -> dict[str, list[dict[str, Any]]]:
-        principal = auth_state.get("principal")
-        resource = state.get("resource")
-        favourites = await api.favourites()
-        if auth_state.get("principal") is not principal or state.get("resource") != resource:
-            return favourites
-        accept_application_configuration(favourites["application_configuration"])
-        state["favourites"] = {key:favourites[key] for key in ("aggregations","records")}
-        state["favourite_ids"] = {
-            resource: {int(item["id"]) for item in favourites[resource]}
-            for resource in ("aggregations", "records")
-        }
-        return favourites
 
-    def favourite_state(resource: str, entity_id: int) -> bool:
-        return int(entity_id) in state["favourite_ids"][resource]
 
-    def apply_favourite_button(button: Any, tooltip: Any, selected: bool) -> None:
-        label = render_message("webui.apply_favourite_button.text.remove_from_favourites_596874e5") if selected else render_message("webui.apply_favourite_button.text.add_to_favourites_46913fe5")
-        button.props(remove="icon color aria-label")
-        button.props(
-            f"icon={('favorite' if selected else 'favorite_border')} color={('red' if selected else 'primary')} aria-label={label!r}"
-        )
-        tooltip.text = label
-        button.update()
-        tooltip.update()
 
-    async def toggle_favourite(
-        resource: str, entity_id: int, *, button: Any | None = None,
-        tooltip: Any | None = None, on_changed: Any | None = None,
-    ) -> bool:
-        was_selected = favourite_state(resource, entity_id)
-        now_selected = not was_selected
-        if button is not None:
-            button.disable()
-            if tooltip is not None:
-                apply_favourite_button(button, tooltip, now_selected)
-        ids = state["favourite_ids"][resource]
-        (ids.add if now_selected else ids.discard)(int(entity_id))
-        try:
-            if now_selected:
-                await api.favourite(resource, entity_id)
-            else:
-                await api.unfavourite(resource, entity_id)
-            ui.notify(
-                render_message("webui.toggle_favourite.notify.added_to_favourites_c5febdef") if now_selected else render_message("webui.toggle_favourite.notify.removed_from_favourites_4077349e"),
-                color="positive",
-            )
-            if on_changed is not None:
-                result = on_changed(now_selected)
-                if asyncio.iscoroutine(result):
-                    await result
-            return now_selected
-        except ApiError as error:
-            (ids.add if was_selected else ids.discard)(int(entity_id))
-            if button is not None and tooltip is not None:
-                apply_favourite_button(button, tooltip, was_selected)
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return was_selected
-        finally:
-            if button is not None:
-                button.enable()
 
-    def favourite_button(resource: str, entity_id: int, *, on_changed: Any | None = None) -> Any:
-        selected = favourite_state(resource, entity_id)
-        button = ui.button(
-            icon="favorite" if selected else "favorite_border",
-        ).props(
-            f"flat round dense color={('red' if selected else 'primary')} aria-label={('Remove from favourites' if selected else 'Add to favourites')!r}"
-        )
-        with button:
-            tooltip = ui.tooltip(
-                render_message("webui.favourite_button.tooltip.remove_from_favourites_bf36943b") if selected else render_message("webui.favourite_button.tooltip.add_to_favourites_524a224e")
-            )
-        button.on(
-            "click",
-            lambda: toggle_favourite(
-                resource, entity_id, button=button, tooltip=tooltip,
-                on_changed=on_changed,
-            ),
-            js_handler=STOP_PROPAGATION_CLICK_HANDLER,
-        )
-        return button
 
-    def render_compact_resource_result(
-        resource: str,
-        item: dict[str, Any],
-        *,
-        on_open: Any,
-        components: list[dict[str, Any]] | None = None,
-        metadata_matched: bool = False,
-        content_matched: bool = False,
-        show_medium: bool = False,
-        can_favourite: bool = True,
-        can_preview: bool = False,
-        can_expand_components: bool = False,
-        components_are_matches: bool = False,
-        initially_expanded: bool = False,
-        on_expansion_changed: Any | None = None,
-    ) -> None:
-        """Render the shared compact record/aggregation result treatment."""
-        is_record = resource == "records"
-        number = item.get("record_number" if is_record else "aggregation_number") or render_message("webui.render_compact_resource_result.text.id_8f7a97fe", id=item['id'])
-        date_value = item.get("date_originated" if is_record else "date_opened")
-        component_rows = list(components or []) if is_record and can_expand_components else []
-        result_id = f"compact-result-{resource}-{int(item['id'])}"
-        with ui.column().classes("compact-result-item gap-0").props(f"id={result_id}"):
-            with ui.row().classes("compact-result-row w-full items-center no-wrap"):
-                with ui.element("div").classes("compact-result-identity"):
-                    with ui.element("div").classes("compact-result-type"):
-                        ui.icon("description" if is_record else "folder", size="20px").tooltip(
-                            render_message("webui.render_compact_resource_result.tooltip.record_1b123585") if is_record else render_message("webui.render_compact_resource_result.tooltip.aggregation_fbf8ea6e")
-                        )
-                    with ui.column().classes("compact-result-title gap-0"):
-                        with ui.row().classes("compact-result-primary w-full items-center no-wrap gap-2 min-w-0"):
-                            ui.label(str(number)).classes("text-sm font-semibold text-slate-800 shrink-0")
-                            ui.label("·").classes("text-slate-300 shrink-0")
-                            ui.label(item.get("title") or render_message("webui.render_compact_resource_result.label.untitled_84d7d2e0")).classes(
-                                "text-sm font-semibold text-slate-800 truncate"
-                            ).tooltip(item.get("title") or render_message("webui.render_compact_resource_result.tooltip.untitled_72cde12a"))
-                        with ui.row().classes("compact-result-meta w-full items-center no-wrap gap-1"):
-                            ui.label(disposition_status_label(item.get("disposition_status", 1))).classes("text-xs text-slate-600").tooltip(disposition_text("status"))
-                            ui.label(format_date(date_value)).classes(
-                                "compact-result-date"
-                            ).tooltip(render_message("webui.render_compact_resource_result.tooltip.originated_d00c8b65") if is_record else render_message("webui.render_compact_resource_result.tooltip.opened_4b8fc56f"))
-                            with ui.row().classes("compact-result-indicators items-center no-wrap"):
-                                if item.get("is_vital"):
-                                    ui.icon("emergency", color="red-8", size="18px").classes(
-                                        "compact-result-indicator"
-                                    ).tooltip(render_message("webui.render_compact_resource_result.tooltip.vital_record_9db00737") if is_record else render_message("webui.render_compact_resource_result.tooltip.vital_aggregation_8c3d9591"))
-                                if item.get("on_effective_hold") or item.get("is_on_effective_hold"):
-                                    ui.icon("gavel", color="warning", size="18px").classes(
-                                        "compact-result-indicator"
-                                    ).tooltip(render_message("webui.render_compact_resource_result.tooltip.on_effective_legal_hold_07877134"))
-                                if metadata_matched:
-                                    ui.icon("manage_search", color="blue-grey-7", size="18px").classes(
-                                        "compact-result-indicator"
-                                    ).tooltip(render_message("webui.render_compact_resource_result.tooltip.record_metadata_matched_2ba2a770") if is_record else render_message("webui.render_compact_resource_result.tooltip.aggregation_metadata_matched_5dbe7774"))
-                                if content_matched:
-                                    ui.icon("text_snippet", color="blue-grey-7", size="18px").classes(
-                                        "compact-result-indicator"
-                                    ).tooltip(render_message("webui.render_compact_resource_result.tooltip.digital_component_content_matched_35625a16"))
-                                if show_medium and item.get("medium"):
-                                    medium = str(item["medium"]).lower()
-                                    medium_icon = {
-                                        "physical": "inventory_2", "digital": "computer", "mixed": "layers",
-                                    }.get(medium, "category")
-                                    ui.icon(medium_icon, color="blue-grey-7", size="18px").classes(
-                                        "compact-result-indicator"
-                                    ).tooltip(render_message("webui.render_compact_resource_result.tooltip.medium_medium_label_f8be324f", medium_label=medium_label(medium)))
-                with ui.row().classes("compact-result-actions items-center no-wrap"):
-                    component_host = None
-                    expand_button = None
-                    if component_rows:
-                        expand_button = ui.button(icon=tree_expander_icon(False)).props(
-                            'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.show_digital_components_08467816"))
-                        )
-                        ui.badge(str(len(component_rows)), color="warning").props(
-                            "outline"
-                        ).classes("compact-result-component-badge").tooltip(
-                            render_message("webui.render_compact_resource_result.tooltip.component_row_count_value_digital_componen_6ee517ef", component_row_count=len(component_rows), value='matching ' if components_are_matches else '', value_2='s' if len(component_rows) != 1 else '')
-                        )
-                    if can_favourite:
-                        favourite_button(resource, int(item["id"]))
-                    if is_record and can_preview:
-                        ui.button(
-                            icon="visibility", on_click=lambda _, selected=item: preview_record_components(selected),
-                        ).props(
-                            'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_components_72d3f864"))
-                        ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_components_81745e00"))
-                    if on_open is not None:
-                        ui.button(
-                            icon="open_in_new", on_click=lambda _, selected=item: on_open(selected),
-                        ).props(
-                            f"flat round dense color=primary aria-label='Open {'record' if is_record else 'aggregation'}'"
-                        ).tooltip(render_message("webui.render_compact_resource_result.tooltip.open_record_3e4dcd53") if is_record else render_message("webui.render_compact_resource_result.tooltip.open_aggregation_2f0f3e73"))
-            if component_rows:
-                component_host = ui.column().classes("compact-result-components w-full gap-0")
-                component_host.set_visibility(initially_expanded)
-                with component_host:
-                    for component in component_rows:
-                        with ui.row().classes("compact-result-component w-full items-center no-wrap gap-2"):
-                            ui.icon("attach_file", size="17px").classes("text-slate-500 shrink-0")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label(component.get("file_name") or render_message("webui.render_compact_resource_result.label.unnamed_file_d47632b1")).classes(
-                                    "text-xs font-semibold text-slate-800 truncate"
-                                ).tooltip(component.get("file_name") or render_message("webui.render_compact_resource_result.tooltip.unnamed_file_4f8f400c"))
-                                if component.get("snippet"):
-                                    with ui.row().classes("compact-result-snippet w-full text-xs text-slate-500 no-wrap"):
-                                        render_safe_snippet(component.get("snippet"), compact=True)
-                            if component_is_previewable(component):
-                                ui.button(
-                                    icon="visibility",
-                                    on_click=lambda _, selected=item, component_id=int(component["id"]):
-                                        preview_record_components(selected, component_id),
-                                ).props(
-                                    'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_component_f8b12cac"))
-                                ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875"))
-
-                expanded = {"value": initially_expanded}
-                if initially_expanded:
-                    expand_button.props(remove="icon aria-label")
-                    expand_button.props('icon=expand_more aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.hide_digital_components_53390064")))
-                    expand_button.update()
-
-                def toggle_components() -> None:
-                    expanded["value"] = not expanded["value"]
-                    component_host.set_visibility(expanded["value"])
-                    expand_button.props(remove="icon aria-label")
-                    expand_button.props(
-                        f"icon={tree_expander_icon(expanded['value'])} "
-                        f"aria-label='{'Hide' if expanded['value'] else 'Show'} digital components'"
-                    )
-                    expand_button.update()
-                    if on_expansion_changed is not None:
-                        on_expansion_changed(expanded["value"])
-
-                expand_button.on("click", toggle_components, js_handler=STOP_PROPAGATION_CLICK_HANDLER)
 
     def restore_compact_result_anchor(anchor_id: str | None) -> None:
         if not anchor_id:
@@ -4782,136 +3572,7 @@ def index(q: str = "") -> None:
         "classifications": "classification",
     }
 
-    def event_value(value: Any) -> str:
-        if value is None:
-            return "—"
-        if isinstance(value, (dict, list)):
-            return json.dumps(value, ensure_ascii=False, sort_keys=True)
-        return str(value)
-
-    def event_reference_value(event: dict[str, Any], side: str, field: str, value: Any) -> str:
-        """Prefer the immutable readable identity captured with a new audit event."""
-        references = (
-            (event.get("metadata") or {})
-            .get("reference_snapshots", {})
-            .get(side, {})
-        )
-        snapshot = references.get(field) or {}
-        if not snapshot:
-            return event_value(value)
-        primary = snapshot.get("code") or snapshot.get("name") or snapshot.get("title")
-        secondary = snapshot.get("title") or snapshot.get("name") or snapshot.get("email")
-        if secondary == primary:
-            secondary = None
-        identity = " — ".join(str(part) for part in (primary, secondary) if part)
-        return identity or event_value(value)
-
-    def event_entity_identity(event: dict[str, Any]) -> tuple[str, str]:
-        entity_type = event["entity_type"]
-        if entity_type in ('disposition_job', 'disposition_task'):
-            from .audit_labels import disposition_event_identity
-            return disposition_event_identity(event)
-        snapshot = event.get("after_state") or event.get("before_state") or {}
-        if event.get("operation") == "EXPORT" and entity_type == "classification_scheme":
-            snapshot = (event.get("metadata") or {}).get("scheme") or snapshot
-        current = event.get("_current_entity") or event.get("_historical_entity") or {}
-
-        if entity_type == "user_role_assignment":
-            parties = (event.get("metadata") or {}).get("assignment_parties") or {}
-            assigned_user = parties.get("user") or {}
-            assigned_role = parties.get("role") or {}
-            user_identity = assigned_user.get("name") or "Unknown user"
-            if assigned_user.get("email"):
-                user_identity += f" ({assigned_user['email']})"
-            role_identity = " — ".join(
-                str(part) for part in (assigned_role.get("code"), assigned_role.get("name"))
-                if part
-            ) or "Unknown role"
-            return "Role assignment", f"{user_identity} → {role_identity}"
-
-        value = lambda field: snapshot.get(field) or current.get(field)
-        identities = {
-            "aggregation": (value("aggregation_number"), value("title")),
-            "record": (value("record_number"), value("title")),
-            "digital_component": (value("file_name"), None),
-            "org_unit": (value("code"), value("name")),
-            "user": (value("name"), value("email")),
-            "role": (value("code"), value("name")),
-            "classification_scheme": (value("code"), value("title")),
-            "classification": (value("code"), value("title")),
-        }
-        primary, secondary = identities.get(entity_type, (None, None))
-        identity = " — ".join(str(value) for value in (primary, secondary) if value)
-        entity_title = audit_entity_type_label(entity_type) if entity_type == "application_setting" else entity_type.replace('_', ' ').title()
-        heading = render_message("webui.event_entity_identity.text.title_entity_id_3be1e8f8", title=entity_title, entity_id=event['entity_id'])
-        return heading, identity
-
-    def hydrate_historical_audit_identities(events_list: list[dict[str, Any]]) -> None:
-        """Reuse immutable snapshots within the result set without extra API calls."""
-        identities: dict[tuple[str, int], dict[str, Any]] = {}
-        for event in reversed(events_list):
-            snapshot = event.get("after_state") or event.get("before_state")
-            if snapshot:
-                identities[(event["entity_type"], event["entity_id"])] = snapshot
-        for event in events_list:
-            event["_historical_entity"] = identities.get((event["entity_type"], event["entity_id"]))
-
-    def event_actor_identity(event: dict[str, Any]) -> tuple[str, str | None]:
-        if event.get("actor_name"):
-            return event["actor_name"], event.get("actor_email") or "No email address"
-        actor_type = event.get("actor_type") or "unknown"
-        if event.get("actor_user_id"):
-            return "User identity was not captured", None
-        labels = {
-            "anonymous": render_message("webui.event_actor_identity.text.anonymous_actor_7be4bc7f"),
-            "automated_process": render_message("webui.event_actor_identity.text.automated_process_0d4c2aac"),
-            "user": render_message("webui.event_actor_identity.text.application_user_f9f45948"),
-        }
-        return labels.get(actor_type, actor_type.replace("_", " ").title()), None
-
-    def can_open_event_entity(event: dict[str, Any]) -> bool:
-        if event.get("entity_type") == "application_setting":
-            return application_settings_controller.can_open()
-        return event.get("entity_type") in {"aggregation", "record", "digital_component", "org_unit", "user", "role"}
-
-    async def navigate_to_event_entity(event: dict[str, Any]) -> None:
-        if event.get("entity_type") == "application_setting":
-            await application_settings_controller.open_from_event(event)
-            return
-        entity = event.get("_current_entity")
-        if not entity:
-            resources = {
-                "aggregation": "aggregations", "record": "records",
-                "digital_component": "digital-components", "org_unit": "org-units",
-                "user": "users", "role": "roles",
-                "classification_scheme": "classification-schemes",
-                "classification": "classifications",
-            }
-            resource = resources.get(event["entity_type"])
-            if not resource:
-                ui.notify(render_message("webui.navigate_to_event_entity.notify.this_event_type_does_not_have_a_standalone_d2f6c8ef"), color="warning")
-                return
-            try:
-                entity = await api.get(resource, event["entity_id"])
-                event["_current_entity"] = entity
-            except ApiError as error:
-                if error.status_code == 404:
-                    if event['entity_type'] in ('aggregation','record','digital_component'):
-                        try:proof=await api.disposition_page(f"retained/{event['entity_type']}/{event['entity_id']}",audit=True)
-                        except ApiError:proof=None
-                        if proof:
-                            from .disposition.destruction import retained_detail
-                            await retained_detail(api=api,proof=proof,active=lambda:True,on_error=error_message,format_timestamp=format_timestamp)
-                            return
-                    ui.notify(render_message("webui.navigate_to_event_entity.notify.this_entity_no_longer_exists_its_historica_a20fef91"), color="warning")
-                else:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                return
-        origin_dialog = event.get("_origin_dialog")
-        if origin_dialog:
-            origin_dialog.close()
-            await asyncio.sleep(0.15)
-        entity_type = event["entity_type"]
+    async def open_audit_entity(entity_type: str, entity: dict[str, Any]) -> None:
         if entity_type == "aggregation":
             await open_aggregation(entity)
         elif entity_type == "record":
@@ -4938,1980 +3599,32 @@ def index(q: str = "") -> None:
             with table_container:
                 await open_editor(entity)
 
-    def show_event_detail(event: dict[str, Any]) -> None:
-        disposition_event = event.get('display_presentation') == 'disposition'
-        entity_heading, entity_identity = event_entity_identity(event)
-        dialog = ui.dialog()
-        before = event.get("before_state") or {}
-        after = event.get("after_state") or {}
-        changed = event.get("changed_fields") or sorted(set(before) | set(after))
-        actor_name, actor_email = event_actor_identity(event)
+    preview_record_components = build_component_preview(
+        api=api,
+        error_message=error_message,
+    )
 
-        async def open_entity() -> None:
-            dialog.close()
-            await asyncio.sleep(0.05)
-            await navigate_to_event_entity(event)
+    show_components = build_components(
+        api=api,
+        error_message=error_message,
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        preview_record_components=preview_record_components,
+        render_component_cards=render_component_cards,
+    )
 
-        with dialog, ui.card().classes("p-0 max-h-[calc(100vh-32px)]").style("width: 960px; max-width: calc(100vw - 32px)"):
-            with ui.row().classes("w-full items-center px-5 pt-5"):
-                ui.avatar(icon="history", color="blue-1", text_color="primary")
-                with ui.column().classes("gap-0 grow"):
-                    operation_heading = ui.label(event_label(event["operation"], event=event)).classes("text-xl font-semibold")
-                    if not disposition_event:
-                        operation_heading.tooltip(event["operation"])
-                    ui.label(entity_heading).classes("text-sm text-slate-500")
-                    if entity_identity:
-                        ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
-                if can_open_event_entity(event):
-                    ui.button(
-                        render_message("webui.show_event_detail.button.open_entity_ef774537"), icon="open_in_new",
-                        on_click=open_entity,
-                    ).props("flat no-caps color=primary")
-                ui.button(icon="close", on_click=dialog.close).props("flat round")
-            with ui.column().classes("w-full px-5 pb-4 gap-4 overflow-y-auto"):
-                with ui.row().classes("w-full gap-5 text-sm"):
-                    with ui.column().classes("gap-0"):
-                        ui.label(render_message("webui.show_event_detail.label.occurred_608bfcc8")).classes("component-meta-label")
-                        ui.label(format_timestamp(event.get("occurred_at"))).classes("text-sm text-slate-700")
-                    with ui.column().classes("gap-0 min-w-[220px]"):
-                        ui.label(render_message("webui.show_event_detail.label.actor_43121a3e")).classes("component-meta-label")
-                        ui.label(actor_name).classes("text-sm font-medium text-slate-700")
-                        if actor_email:
-                            ui.label(actor_email).classes("text-xs text-slate-500")
-                    with ui.column().classes("gap-0"):
-                        ui.label(render_message("webui.show_event_detail.label.source_c6457d34")).classes("component-meta-label")
-                        ui.label(event.get("source") or "—").classes("text-sm text-slate-700")
-                if event.get("reason") and event["operation"] not in ("DISPOSITION_BLOCKERS_DETECTED", "DISPOSITION_BLOCKERS_RESOLVED"):
-                    with ui.card().classes("w-full bg-blue-50 shadow-none border border-blue-100"):
-                        ui.label(render_message("webui.show_event_detail.label.change_reason_93b265ba")).classes("component-meta-label")
-                        ui.label(event["reason"]).classes("text-sm")
-                if disposition_event:
-                    from .disposition.history import readable_event_fields
-                    readable_event_fields(event, format_timestamp)
-                elif changed:
-                    ui.label(render_message("webui.show_event_detail.label.field_changes_252aeebc")).classes("font-semibold")
-                    change_rows = [
-                        {
-                            "field": field.replace("_", " ").title(),
-                            "before": event_reference_value(event, "before", field, before.get(field)),
-                            "after": event_reference_value(event, "after", field, after.get(field)),
-                        }
-                        for field in changed
-                    ]
-                    change_table = ui.table(
-                        columns=[
-                            {"name": "field", "label": "Field", "field": "field", "align": "left"},
-                            {"name": "before", "label": "Before", "field": "before", "align": "left"},
-                            {"name": "after", "label": "After", "field": "after", "align": "left"},
-                        ], rows=change_rows, row_key="field",
-                    ).props("flat bordered wrap-cells hide-pagination").classes("w-full shrink-0")
-                    for key in ("before", "after"):
-                        change_table.add_slot(f"body-cell-{key}", f'<q-td :props="props"><div class="audit-value">{{{{ props.row.{key} }}}}</div></q-td>')
-                if can_navigate("audit-trail", (auth_state.get("principal") or {}).get("global_privileges", [])):
-                    with ui.expansion(disposition_text('history_technical'), icon='code', value=False).classes('w-full'):
-                        with ui.grid(columns=2).classes("w-full gap-3"):
-                            for label, value in (
-                                ("Request ID", event.get("request_id")),
-                                ("Correlation ID", event.get("correlation_id")),
-                                ("Transaction", event.get("transaction_id")),
-                                ("Event ID", event.get("id")),
-                            ):
-                                with ui.column().classes("gap-0 min-w-0"):
-                                    ui.label(label).classes("component-meta-label")
-                                    ui.label(event_value(value)).classes("text-xs text-slate-600 break-all")
-                        if disposition_event or event.get("metadata"):
-                            ui.label(render_message("webui.show_event_detail.label.metadata_426a77f1")).classes("font-semibold")
-                            ui.code(json.dumps(event if disposition_event else event["metadata"], ensure_ascii=False, indent=2, sort_keys=True, default=str)).classes("w-full text-xs")
-        dialog.open()
 
-    def render_event_timeline(events_list: list[dict[str, Any]], container: Any) -> None:
-        container.clear()
-        with container:
-            if not events_list:
-                with ui.column().classes("w-full items-center py-10 text-slate-400 gap-2"):
-                    ui.icon("history_toggle_off").classes("text-4xl")
-                    ui.label(render_message("webui.render_event_timeline.label.no_matching_events_bd2c227e"))
-                return
-            previous_correlation = None
-            for event in events_list:
-                actor_name, actor_email = event_actor_identity(event)
-                correlation = event.get("correlation_id")
-                if correlation and correlation != previous_correlation:
-                    ui.label(render_message("webui.render_event_timeline.label.correlation_group_value_5807bee2", value=str(correlation)[:8])).classes(
-                        "text-xs text-slate-400 font-medium mt-2"
-                    ).tooltip(render_message("webui.render_event_timeline.tooltip.events_sharing_this_correlation_id_belong_6351adea"))
-                previous_correlation = correlation
-                operation = event_label(event["operation"], event=event)
-                entity_heading, entity_identity = event_entity_identity(event)
-                with ui.card().classes("audit-event w-full px-4 py-3"):
-                    with ui.row().classes("w-full items-center no-wrap gap-3"):
-                        ui.avatar(icon={"CREATE": "add", "UPDATE": "edit", "DELETE": "delete"}.get(event["operation"], "bolt"), color="blue-1", text_color="primary", size="36px")
-                        with ui.column().classes("gap-0 grow min-w-0"):
-                            operation_heading = ui.label(operation).classes("font-semibold")
-                            if event.get('display_presentation') != 'disposition':
-                                operation_heading.tooltip(event["operation"])
-                            ui.label(entity_heading).classes("text-xs text-slate-500")
-                            if entity_identity:
-                                ui.label(entity_identity).classes("text-sm font-medium text-slate-700 line-clamp-1")
-                            if event.get("changed_fields"):
-                                ui.label(", ".join(field.replace("_", " ") for field in event["changed_fields"])).classes("text-xs text-slate-400 line-clamp-1")
-                        with ui.column().classes("items-end gap-0"):
-                            ui.label(format_timestamp(event["occurred_at"])).classes("text-xs font-medium text-slate-600")
-                            ui.label(actor_name).classes("text-xs font-medium text-slate-600")
-                            if actor_email:
-                                ui.label(actor_email).classes("text-xs text-slate-400")
-                            ui.label(event.get("source", render_message("webui.render_event_timeline.label.unknown_509e35f5"))).classes("text-xs text-slate-400")
-                        if can_open_event_entity(event):
-                            ui.button(
-                                icon="open_in_new",
-                                on_click=lambda _, item=event: navigate_to_event_entity(item),
-                            ).props("flat round dense color=primary").props(
-                                f"aria-label={render_message_plain('webui.render_event_timeline.tooltip.open_current_entity_208e2a65')!r}"
-                            ).tooltip(render_message("webui.render_event_timeline.tooltip.open_current_entity_208e2a65"))
-                        ui.button(
-                            icon="chevron_right",
-                            on_click=lambda _, item=event: show_event_detail(item),
-                        ).props("flat round dense color=blue-grey").tooltip(render_message("webui.render_event_timeline.tooltip.view_audit_details_74f728b6"))
 
-    async def show_entity_history(resource: str, entity: dict[str, Any]) -> None:
-        try:
-            history = await api.history(resource, entity["id"])
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        name = entity.get("title") or entity.get("name") or entity.get("file_name") or render_message("webui.show_entity_history.text.id_56b4dfc9", id=entity['id'])
-        dialog = ui.dialog()
-        for event in history:
-            event["_current_entity"] = entity
-            event["_origin_dialog"] = dialog
-        with dialog, ui.card().classes("p-0 max-h-[calc(100vh-32px)]").style("width: 820px; max-width: calc(100vw - 32px)"):
-            with ui.row().classes("w-full items-center px-5 py-4 border-b"):
-                ui.avatar(icon="manage_history", color="blue-1", text_color="primary")
-                with ui.column().classes("gap-0 grow min-w-0"):
-                    ui.label(render_message("webui.show_entity_history.label.event_history_670b1156")).classes("text-xl font-semibold")
-                    ui.label(name).classes("text-sm text-slate-500 line-clamp-1")
-                ui.badge(str(len(history)), color="primary").props("outline")
-                ui.button(icon="close", on_click=dialog.close).props("flat round")
-            timeline = ui.column().classes("w-full gap-2 px-5 pb-5 overflow-y-auto")
-            render_event_timeline(history, timeline)
-        dialog.open()
 
-    async def preview_record_components(
-        record: dict[str, Any] | None, initial_component_id: int | None = None, *,
-        draft_id: int | None = None, staged_components: list[dict[str, Any]] | None = None,
-        source_active=None,
-    ) -> None:
-        """One viewer for saved records and private, uncommitted draft uploads."""
-        # Async work and dynamic host clearing can delete the slot which originated
-        # this callback (especially a q-table body slot). Keep a stable client
-        # reference for the viewer's complete lifetime instead of resolving it
-        # later through NiceGUI's implicit current-slot context.
-        viewer_client = context.client
-        if source_active is not None and not source_active():return
-        preview_page = {"limit": 50, "offset": 0, "total": 0}
-        staged_rows = sorted(
-            (dict(item) for item in staged_components or [] if component_is_previewable(item, staged=True)),
-            key=lambda item: item.get("component_order", 0),
-        ) if draft_id is not None else []
-        supported = lambda item: component_is_previewable(item, staged=draft_id is not None)
-        try:
-            if draft_id is not None:
-                # Reuse the mounted editor's metadata; every rendition request
-                # independently checks current ownership, privilege and expiry.
-                capabilities = {"view_component": True, "print_component": False, "download_component": False}
-                record = {"id": f"draft-{draft_id}"}
-                initial_index = next((i for i,item in enumerate(staged_rows) if item["id"]==initial_component_id),0)
-                preview_page["offset"] = initial_index // preview_page["limit"] * preview_page["limit"]
-                components = {"items": staged_rows[preview_page["offset"]:preview_page["offset"]+preview_page["limit"]], "total": len(staged_rows)}
-            else:
-                capabilities = await api.resource_capabilities("records", record["id"])
-                if initial_component_id is not None:
-                    initial_component = await api.get("digital-components", initial_component_id)
-                    preview_page["offset"] = (
-                        (int(initial_component["component_order"]) - 1) // preview_page["limit"]
-                    ) * preview_page["limit"]
-                components = await api.component_page(
-                    record["id"], limit=preview_page["limit"], offset=preview_page["offset"],
-                )
-        except ApiError as error:
-            if source_active is None or source_active():ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        if source_active is not None and not source_active():return
-        preview_page["total"] = int(components["total"])
-        components = components["items"]
-        previewable = sorted(
-            (item for item in components if supported(item)),
-            key=lambda item: item.get("component_order", 0),
-        )
-        if not capabilities.get("view_component") or not previewable:
-            ui.notify(render_message("webui.preview_record_components.notify.no_previewable_digital_components_are_avai_8160d774"), color="warning")
-            return
-        selected = next(
-            (item for item in previewable if item["id"] == initial_component_id),
-            previewable[0],
-        )
-        viewer_state: dict[str, Any] = {
-            "component": selected, "canvas_id": None, "loading_id": None, "request_id": 0, "closed": False,
-        }
-        dialog = ui.dialog().props("maximized transition-show=fade transition-hide=fade")
 
-        async def download_component(component: dict[str, Any]) -> None:
-            try:
-                content = await api.download_component(component["id"])
-                ui.download(
-                    content, component["file_name"],
-                    component.get("mime_type") or "application/octet-stream",
-                )
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
 
-        async def print_component(component: dict[str, Any]) -> None:
-            try:
-                ui.notify(render_message("webui.print_component.notify.preparing_document_for_printing_21820277"), color="info")
-                printable = await api.print_component_pdf(component["id"])
-                encoded = base64.b64encode(printable).decode("ascii")
-                print_mime_type = (
-                    component.get("mime_type")
-                    if native_preview_kind(component.get("mime_type")) == "image"
-                    else "application/pdf"
-                )
-                await viewer_client.run_javascript(
-                    "import('/static/pdfjs/erms-viewer.mjs').then(() => "
-                    f"window.ermsPdfViewer.print({json.dumps(encoded)}, "
-                    f"{json.dumps(print_mime_type)}))",
-                    timeout=30,
-                )
-            except (ApiError, TimeoutError) as error:
-                message = error_message(error) if isinstance(error, ApiError) else render_message("webui.print_component.text.the_print_view_did_not_finish_loading_58f6bfd9")
-                ui.notify(message, color="negative", close_button=True)
+    show_reopen_aggregation, show_governed_move, show_ownership_correction = build_aggregation_actions(
+        api=api,
+        bind_remote_relationship_select=lambda *args, **kwargs: bind_remote_relationship_select(*args, **kwargs),
+        error_message=error_message,
+    )
 
-        def close_viewer() -> None:
-            viewer_state["closed"] = True
-            viewer_state["request_id"] += 1
-            canvas_id = viewer_state.get("canvas_id")
-            if canvas_id:
-                viewer_client.run_javascript(
-                    f"window.ermsPdfViewer?.close({json.dumps(canvas_id)})"
-                )
-            dialog.close()
 
-        switcher_host: Any = None
-        toolbar_host: Any = None
-        content_host: Any = None
 
-        async def load_preview_page(direction: int) -> None:
-            nonlocal previewable
-            target_offset = max(
-                0,
-                int(preview_page["offset"]) + direction * int(preview_page["limit"]),
-            )
-            try:
-                result = {"items": staged_rows[target_offset:target_offset+preview_page["limit"]], "total": len(staged_rows)} if draft_id is not None else await api.component_page(
-                    record["id"], limit=int(preview_page["limit"]), offset=target_offset,
-                )
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-                return
-            candidates = sorted(
-                (item for item in result["items"] if supported(item)),
-                key=lambda item: item.get("component_order", 0),
-            )
-            if not candidates:
-                ui.notify(render_message("webui.preview_record_components.notify.no_previewable_digital_components_are_avai_8160d774"), color="warning")
-                return
-            preview_page.update(offset=target_offset, total=int(result["total"]))
-            previewable = candidates
-            await select_component(previewable[0])
-
-        def render_switcher() -> None:
-            switcher_host.clear()
-            active_id = viewer_state["component"]["id"]
-            active_index = next(
-                index for index, item in enumerate(previewable, start=1)
-                if item["id"] == active_id
-            )
-            active_component = viewer_state["component"]
-            with switcher_host:
-                with ui.row().classes("component-switcher-bar w-full items-center no-wrap gap-3"):
-                    ui.label(
-                        render_message("webui.render_switcher.label.previewable_count_digital_component_value_6b9458a3", previewable_count=len(previewable), value='s' if current_locale_context()[0].split('-')[0]=='en' and len(previewable) != 1 else '')
-                    ).classes("component-switcher-summary")
-                    ui.element("div").classes("component-switcher-divider")
-                    with ui.row().classes("component-switcher-file items-center no-wrap gap-3"):
-                        ui.icon(
-                            component_file_icon(active_component.get("mime_type")),
-                            color="primary", size="24px",
-                        )
-                        ui.label(
-                            active_component.get("file_name") or render_message("webui.render_switcher.label.unnamed_file_ccc9edc2")
-                        ).classes("component-switcher-filename").tooltip(
-                            active_component.get("file_name") or render_message("webui.render_switcher.tooltip.unnamed_file_1e7c23b2")
-                        )
-                        ui.label(
-                            render_message("webui.render_switcher.label.active_index_of_previewable_count_8114d6d6", active_index=active_index, previewable_count=len(previewable))
-                        ).classes("component-switcher-position")
-                    with ui.row().classes(
-                        "component-switcher-scroll items-center no-wrap gap-2"
-                    ):
-                        for index, item in enumerate(previewable, start=1):
-                            active = item["id"] == active_id
-                            button = ui.button(
-                                str(index),
-                                on_click=lambda _, component=item: select_component(component),
-                            ).props(
-                                "flat dense no-caps"
-                                + (" aria-pressed=true" if active else " aria-pressed=false")
-                            ).classes(
-                                "component-switcher-button"
-                                + (" component-switcher-button--active" if active else "")
-                            )
-                            if viewer_state.get("loading_id") == item["id"]:
-                                button.disable()
-                            button.tooltip(item.get("file_name") or render_message("webui.render_switcher.tooltip.unnamed_file_1e7c23b2"))
-                    previous_components = ui.button(icon="chevron_left").props(
-                        'flat round dense aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275"))
-                    )
-                    next_components = ui.button(icon="chevron_right").props(
-                        'flat round dense aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc"))
-                    )
-                    if preview_page["offset"] <= 0:
-                        previous_components.disable()
-                    if preview_page["offset"] + preview_page["limit"] >= preview_page["total"]:
-                        next_components.disable()
-                    previous_components.on("click", lambda: load_preview_page(-1))
-                    next_components.on("click", lambda: load_preview_page(1))
-
-        async def select_component(component: dict[str, Any]) -> None:
-            if viewer_state["closed"] or (source_active is not None and not source_active()):return
-            if viewer_state.get("loading_id") == component["id"]:
-                return
-            viewer_state["request_id"] += 1
-            request_id = viewer_state["request_id"]
-            old_canvas_id = viewer_state.get("canvas_id")
-            if old_canvas_id:
-                await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer?.close({json.dumps(old_canvas_id)}); true"
-                )
-            if viewer_state["closed"] or (source_active is not None and not source_active()):return
-            viewer_state.update(component=component, canvas_id=None, loading_id=component["id"])
-            render_switcher()
-            toolbar_host.clear()
-            content_host.clear()
-            converting = requires_document_conversion(component)
-            with toolbar_host:
-                with ui.row().classes(
-                    "component-viewer-toolbar w-full items-center no-wrap px-4 py-2 bg-white border-b"
-                ):
-                    ui.space()
-                    ui.button(icon="close", on_click=close_viewer).props(
-                        'flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.close_viewer_7a596c99"))
-                    ).tooltip(render_message("webui.select_component.tooltip.close_viewer_4ef26fde"))
-            with content_host:
-                with ui.column().classes("w-full h-full items-center justify-center gap-3"):
-                    ui.spinner("dots", size="3em", color="primary")
-                    ui.label(
-                        render_message("webui.select_component.label.converting_this_document_to_pdf_larger_fil_00483fe4")
-                        if converting else render_message("webui.select_component.label.loading_the_document_larger_files_may_take_0e9d50c1")
-                    ).classes("text-sm text-slate-500")
-            try:
-                preview = await api.view_draft_component(draft_id, component["id"]) if draft_id is not None else await api.view_component_pdf(component["id"])
-            except ApiError as error:
-                if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
-                    return
-                viewer_state["loading_id"] = None
-                render_switcher()
-                content_host.clear()
-                with content_host:
-                    with ui.column().classes("w-full h-full items-center justify-center gap-3"):
-                        ui.icon("error_outline", color="negative", size="42px")
-                        ui.label(error_message(error)).classes("text-sm text-negative")
-                        ui.label(render_message("webui.select_component.label.choose_another_component_or_try_this_compo_ad8750a1")).classes(
-                            "text-xs text-slate-500"
-                        )
-                return
-
-            if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):
-                return
-            viewer_state["loading_id"] = None
-            render_switcher()
-
-            preview_kind = native_preview_kind(component.get("mime_type"))
-            toolbar_host.clear()
-            content_host.clear()
-            with toolbar_host:
-                with ui.row().classes(
-                    "component-viewer-toolbar w-full items-center no-wrap px-4 py-2 bg-white border-b"
-                ):
-                    ui.space()
-                    if not preview_kind:
-                        canvas_id = f"erms-pdf-canvas-{record['id']}-{component['id']}"
-                        viewer_state["canvas_id"] = canvas_id
-                        ui.button(icon="chevron_left", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.previous({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.previous_page_9be2e903"))).tooltip(render_message("webui.select_component.tooltip.previous_page_4dc31a67"))
-                        ui.label(render_message("webui.select_component.label.loading_db611d00")).props(f'id={canvas_id}-status').classes(
-                            "text-sm text-slate-500 min-w-32 text-center"
-                        )
-                        ui.button(icon="chevron_right", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.next({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.next_page_7783d4cb"))).tooltip(render_message("webui.select_component.tooltip.next_page_9877cd5a"))
-                        ui.button(icon="zoom_out", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.zoomOut({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_out_23d40a31"))).tooltip(render_message("webui.select_component.tooltip.zoom_out_011b8edf"))
-                        ui.button(icon="zoom_in", on_click=lambda: viewer_client.run_javascript(
-                            f"window.ermsPdfViewer.zoomIn({json.dumps(canvas_id)})"
-                        )).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.zoom_in_1db29908"))).tooltip(render_message("webui.select_component.tooltip.zoom_in_5062398d"))
-                    if (
-                        capabilities.get("print_component")
-                        and preview_kind not in {"audio", "video"}
-                    ):
-                        print_button = ui.button(icon="print").props(
-                            'flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.print_document_ce8c78a3"))
-                        )
-                        print_button.on(
-                            "click",
-                            lambda: print_component(component),
-                            js_handler=(
-                                "() => { const w = window.open('', '_blank'); "
-                                "window.__ermsPrintWindow = w; "
-                                "if (w) { w.document.write('<title>Preparing print view...</title>"
-                                "<p style=\"font:16px Arial;padding:24px\">Preparing print view...</p>'); "
-                                "w.document.close(); } emit(); }"
-                            ),
-                        )
-                        print_button.tooltip(render_message("webui.select_component.tooltip.print_document_224d0560"))
-                    if capabilities.get("download_component"):
-                        ui.button(
-                            icon="download", on_click=lambda: download_component(component),
-                        ).props('flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.download_original_45d7f998"))).tooltip(render_message("webui.select_component.tooltip.download_original_24db5a23"))
-                    ui.button(icon="close", on_click=close_viewer).props(
-                        'flat round dense aria-label=' + repr(render_message("webui.select_component.accessible_name.close_viewer_7a596c99"))
-                    ).tooltip(render_message("webui.select_component.tooltip.close_viewer_4ef26fde"))
-
-            if preview_kind:
-                mime_type = component.get("mime_type") or render_message("webui.select_component.text.application_octet_stream_775de0d3")
-                data_url = f"data:{mime_type};base64,{base64.b64encode(preview).decode('ascii')}"
-                with content_host:
-                    with ui.element("div").classes(
-                        "w-full h-full overflow-auto flex items-center justify-center p-6"
-                    ):
-                        if preview_kind == "image":
-                            ui.image(data_url).classes(
-                                "max-w-full max-h-[calc(100vh-150px)] object-contain shadow-lg"
-                            )
-                        elif preview_kind == "audio":
-                            with ui.card().classes("w-[680px] max-w-full p-8"):
-                                ui.icon("audio_file", size="72px").classes("self-center text-primary")
-                                ui.label(component["file_name"]).classes("self-center font-semibold")
-                                ui.audio(data_url, controls=True).classes("w-full")
-                        else:
-                            ui.video(data_url, controls=True).classes(
-                                "w-full max-w-[1200px] max-h-[calc(100vh-150px)] bg-black"
-                            )
-                return
-
-            canvas_id = viewer_state["canvas_id"]
-            with content_host:
-                with ui.element("div").classes(
-                    "w-full h-full overflow-auto flex justify-center items-start p-5"
-                ):
-                    ui.element("canvas").props(f"id={canvas_id} dir=ltr").classes("bg-white shadow-lg")
-            encoded = base64.b64encode(preview).decode("ascii")
-            try:
-                await viewer_client.run_javascript(
-                    "import('/static/pdfjs/erms-viewer.mjs').then(() => true)", timeout=15,
-                )
-                if request_id != viewer_state["request_id"] or viewer_state["closed"] or (source_active is not None and not source_active()):return
-                await viewer_client.run_javascript(
-                    f"window.ermsPdfViewer.open({json.dumps(canvas_id)}, {json.dumps(encoded)})",
-                    timeout=30,
-                )
-            except TimeoutError:
-                ui.notify(render_message("webui.select_component.notify.the_pdf_viewer_did_not_finish_loading_f32f23d1"), color="negative")
-
-        with dialog, ui.card().classes("w-full h-full p-0 gap-0 bg-slate-100"):
-            if draft_id is not None:
-                ui.label(render_message("components.staged.preview_hint")).classes("w-full px-4 py-2 text-sm text-slate-600 bg-white")
-            switcher_host = ui.column().classes("w-full gap-0 shrink-0")
-            toolbar_host = ui.column().classes("w-full gap-0 shrink-0")
-            content_host = ui.column().classes("w-full grow min-h-0 gap-0")
-        dialog.on_value_change(lambda event: close_viewer() if not event.value and not viewer_state["closed"] else None)
-        dialog.open()
-        await select_component(selected)
-
-    async def show_components(
-        record: dict[str, Any], *, container: Any | None = None,
-        focused_component_id: int | None = None,
-    ) -> None:
-        try:
-            closure, component_capabilities = await asyncio.gather(
-                api.effective_aggregation_closure(record["aggregation_id"]),
-                api.resource_capabilities("records", record["id"]),
-            )
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        readonly = closure is not None
-        current_rows: list[dict[str, Any]] = []
-        component_page = {"limit": 25, "offset": 0, "total": 0}
-        upload_lock = asyncio.Lock()
-        uploader_control: dict[str, Any] = {}
-        component_refresh: dict[str, Any] = {}
-
-        async def download_component(component: dict[str, Any]) -> None:
-            try:
-                content = await api.download_component(component["id"])
-                ui.download(content, component["file_name"], component.get("mime_type") or "application/octet-stream")
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        async def reindex_component(component: dict[str, Any]) -> None:
-            try:
-                result=await api.reindex_component(component["id"])
-                component["_indexing"]={"status":result["status"]}
-                render_current_components()
-                ui.notify(
-                    render_message("webui.reindex_component.notify.component_indexing_is_already_in_progress_f9c08cd9") if result.get("already_in_progress")
-                    else render_message("webui.reindex_component.notify.component_reindex_queued_processing_contin_9faeb3e5"),
-                    color="info",
-                )
-            except ApiError as error:
-                ui.notify(error_message(error),color="negative",close_button=True)
-
-        def uploaded(event: events.MultiUploadEventArguments) -> None:
-            try:
-                buffered_files = buffer_upload_batch(event)
-            except (OSError, ValueError) as error:
-                ui.notify(render_message("webui.uploaded.notify.could_not_read_an_uploaded_file_error_4a253d6b", error=error), color="negative", close_button=True)
-                return
-
-            async def stage_buffered_files() -> None:
-                try:
-                    async with upload_lock:
-                        await component_refresh["fn"]()
-                        first_position = int(component_page["total"]) + 1
-                        for offset, (content, name, mime_type) in enumerate(buffered_files):
-                            await api.upload_component(
-                                record["id"], first_position + offset, name, content, mime_type,
-                            )
-                            await component_refresh["fn"]()
-                    with component_area:
-                        ui.notify(
-                            render_message("webui.stage_buffered_files.notify.buffered_file_count_digital_component_valu_e0a402d5", buffered_file_count=len(buffered_files), value='s' if len(buffered_files) != 1 else ''),
-                            color="positive",
-                        )
-                    uploader_control["uploader"].reset()
-                except ApiError as error:
-                    with component_area:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-
-            background_tasks.create(
-                stage_buffered_files(), name=f"stage components for record {record['id']}"
-            )
-
-        dialog = None
-        component_area: Any = None
-
-        def render_current_components() -> None:
-            component_area.clear()
-            with component_area:
-                if not current_rows:
-                    with ui.column().classes(
-                        "col-span-full w-full items-center justify-center py-10 gap-2 text-center text-slate-400"
-                    ):
-                        ui.icon("cloud_upload").classes("text-4xl")
-                        ui.label(render_message("webui.render_current_components.label.no_digital_components_have_been_uploaded_y_3f61a29a"))
-                else:
-                    render_component_cards(
-                        current_rows, move_component, remove_component,
-                        lambda item: show_entity_history("digital-components", item),
-                        lambda item: preview_record_components(record, item["id"]),
-                        download_component, reindex_component, readonly=readonly,
-                        capabilities=component_capabilities,
-                        focused_component_id=focused_component_id,
-                    )
-                total = int(component_page["total"])
-                if total:
-                    first = int(component_page["offset"]) + 1
-                    last = int(component_page["offset"]) + len(current_rows)
-                    with ui.row().classes("w-full items-center justify-center gap-2 pt-3"):
-                        previous = ui.button(icon="chevron_left").props(
-                            'flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275"))
-                        )
-                        ui.badge(f"{first}–{last} / {total}", color="blue-grey").props("outline")
-                        next_button = ui.button(icon="chevron_right").props(
-                            'flat round aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc"))
-                        )
-                        if component_page["offset"] <= 0:
-                            previous.disable()
-                        if last >= total:
-                            next_button.disable()
-                        previous.on("click", lambda: change_component_page(-1))
-                        next_button.on("click", lambda: change_component_page(1))
-
-        async def change_component_page(direction: int) -> None:
-            component_page["offset"] = max(
-                0,
-                int(component_page["offset"]) + direction * int(component_page["limit"]),
-            )
-            await refresh_components()
-
-        async def refresh_components() -> None:
-            try:
-                result = await api.component_page(
-                    record["id"], limit=int(component_page["limit"]),
-                    offset=int(component_page["offset"]),
-                )
-                if not result["items"] and result["total"] and component_page["offset"]:
-                    component_page["offset"] = max(
-                        0,
-                        ((int(result["total"]) - 1) // int(component_page["limit"]))
-                        * int(component_page["limit"]),
-                    )
-                    result = await api.component_page(
-                        record["id"], limit=int(component_page["limit"]),
-                        offset=int(component_page["offset"]),
-                    )
-                rows = result["items"]
-                component_page["total"] = int(result["total"])
-                if capability_allowed(component_capabilities,"reindex_components"):
-                    statuses=await asyncio.gather(*[
-                        api.component_indexing_status(item["id"]) for item in rows
-                    ],return_exceptions=True)
-                    for item,indexing in zip(rows,statuses):
-                        if isinstance(indexing,dict): item["_indexing"]=indexing
-                current_rows.clear()
-                current_rows.extend(rows)
-                render_current_components()
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative")
-
-        async def move_component(component: dict[str, Any], direction: int) -> None:
-            try:
-                await api.move_component(record["id"], component["id"], direction)
-                await refresh_components()
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative")
-
-        async def remove_component(component: dict[str, Any]) -> None:
-            previous_rows = list(current_rows)
-            current_rows[:] = [item for item in current_rows if item["id"] != component["id"]]
-            render_current_components()
-            try:
-                await api.delete_component(component["id"], component["version"])
-                ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
-                await refresh_components()
-            except ApiError as error:
-                current_rows[:] = previous_rows
-                render_current_components()
-                ui.notify(error_message(error), color="negative")
-
-        component_refresh["fn"] = refresh_components
-
-        async def render_component_section(*, standalone: bool) -> None:
-            nonlocal component_area
-            if standalone:
-                with ui.row().classes("w-full items-start no-wrap"):
-                    with ui.column().classes("gap-0 grow"):
-                        ui.label(render_message("webui.render_component_section.label.digital_components_ffe75eb9")).classes("text-xl font-semibold")
-                        ui.label(render_message("webui.render_component_section.label.record_record_number_644e601d", record_number=record['record_number'])).classes("text-sm text-slate-500")
-                    ui.button(icon="close", on_click=dialog.close).props("flat round dense")
-            scroll_classes = (
-                "w-full overflow-y-auto max-h-[calc(100vh-190px)] pr-1"
-                if standalone else "w-full"
-            )
-            with ui.element("div").classes(scroll_classes):
-                if readonly:
-                    with ui.row().classes("w-full items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg"):
-                        ui.icon("lock", color="amber-8")
-                        with ui.column().classes("gap-0 grow"):
-                            ui.label(render_message("webui.render_component_section.label.digital_components_are_read_only_15f586a5")).classes("font-semibold text-amber-900")
-                            ui.label(
-                                render_message("webui.render_component_section.label.closed_by_aggregation_number_title_files_m_69c0e22c", aggregation_number=closure['aggregation_number'], title=closure['title'])
-                            ).classes("text-sm text-amber-800")
-                elif record.get("medium") == "physical":
-                    with ui.row().classes("w-full items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3"):
-                        ui.icon("inventory_2", color="primary")
-                        with ui.column().classes("gap-0 grow"):
-                            ui.label(render_message("webui.render_component_section.label.this_is_a_physical_record_5a1bd071")).classes("font-semibold text-blue-900")
-                            ui.label(render_message("webui.render_component_section.label.digital_files_cannot_be_added_7800d8c2")).classes("text-sm text-blue-800")
-                elif component_capabilities.get("add_component"):
-                    uploader_control["uploader"] = component_uploader(uploaded)
-                else:
-                    with ui.row().classes("w-full items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3"):
-                        ui.icon("lock", color="blue-grey")
-                        ui.label(render_message("webui.render_component_section.label.adding_digital_components_is_unavailable_u_6f6dc0a1")).classes("text-sm text-slate-600")
-                with ui.element("div").classes("component-list w-full mt-3"):
-                    component_area = ui.element("div").classes("component-grid w-full")
-
-            if standalone:
-                with ui.row().classes("w-full justify-end"):
-                    ui.button(render_message("webui.render_component_section.button.close_0f34a40c"), on_click=dialog.close).props("flat")
-            await refresh_components()
-            if focused_component_id is not None:
-                await ui.run_javascript(
-                    "document.getElementById(" + json.dumps(
-                        f"digital-component-{focused_component_id}"
-                    ) + ")?.scrollIntoView({behavior:'smooth',block:'center'})"
-                )
-
-        if container is None:
-            dialog = ui.dialog()
-            with dialog, ui.card().classes("max-h-[calc(100vh-32px)]").style("width: 920px; max-width: calc(100vw - 32px)"):
-                await render_component_section(standalone=True)
-        else:
-            with container:
-                await render_component_section(standalone=False)
-        if dialog is not None:
-            dialog.open()
-
-    def add_number_suggestion(control: Any, resource: str, controls: dict[str, Any]) -> None:
-        def selected_context() -> dict[str, Any]:
-            parent_field = "aggregation_id" if resource == "records" else "parent_aggregation_id"
-            parent = controls.get(parent_field)
-            parent_id = parent.value if parent is not None else None
-            if parent_id is not None:
-                return {"parent_aggregation_id": parent_id}
-            classification = controls.get("classification_id")
-            if resource == "aggregations" and classification is not None and classification.value is not None:
-                return {"classification_id": classification.value}
-            return {}
-
-        async def suggest() -> None:
-            context = selected_context()
-            if not context:
-                ui.notify(render_message("webui.number_conflict.select_context"), color="warning")
-                return
-            button.disable()
-            original = control.value
-            try:
-                result = await api.request("GET", f"/api/v1/number-suggestions/{resource}", params=context)
-                if selected_context() == context and control.value == original and result.get("suggested_number"):
-                    control.set_value(result["suggested_number"])
-            except ApiError as error:
-                show_api_error(error)
-            finally:
-                button.enable()
-
-        with control.add_slot("append"):
-            button = ui.button(render_message("webui.number_conflict.suggest"), icon="auto_fix_high", on_click=suggest).props("flat dense no-caps")
-
-    async def show_number_conflict(error: ApiError, resource: str, control: Any, *, root: bool = False) -> bool:
-        if not isinstance(error.detail, dict) or error.detail.get("code") != "duplicate_resource_number":
-            return False
-        attempted = str(control.value or "")
-        suggestion = None
-        try:
-            result = await api.request("GET", f"/api/v1/number-suggestions/{resource}", params={"number": attempted, "root": root})
-            suggestion = result.get("suggested_number")
-        except ApiError:
-            pass  # The duplicate message remains useful if suggestion lookup fails.
-        with ui.dialog() as conflict_dialog, ui.card().classes("w-[520px] max-w-full"):
-            ui.label(render_message("webui.number_conflict.duplicate", number=attempted)).classes("text-lg font-semibold")
-            if suggestion:
-                ui.label(render_message("webui.number_conflict.suggestion", number=suggestion))
-                ui.label(render_message("webui.number_conflict.not_reserved")).classes("text-sm text-slate-500")
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.number_conflict.close"), on_click=conflict_dialog.close).props("flat")
-                if suggestion:
-                    def use_suggestion() -> None:
-                        control.set_value(suggestion)
-                        conflict_dialog.close()
-                    ui.button(render_message("webui.number_conflict.use"), on_click=use_suggestion).props("unelevated")
-        conflict_dialog.open()
-        return True
-
-    async def show_contextual_acl_roles(resource, entity_id, principal_type) -> None:
-        dialog = ui.dialog()
-        with dialog, ui.card().classes("w-[560px] max-w-full gap-3"):
-            ui.label(
-                render_message("authorization.oversight.managers")
-                if principal_type == "owning_and_higher_level_unit_managers"
-                else render_message("authorization.oversight.file_administrator")
-            ).classes("text-lg font-semibold")
-            host = ui.column().classes("w-full gap-2")
-            state = {"offset": 0, "revision": 0}
-
-            async def load_page(offset=0):
-                state["revision"] += 1
-                revision = state["revision"]
-                try:
-                    result = await api.request("GET", f"/api/v1/{resource}/{entity_id}/acl-contextual-principals", params={
-                        "principal_type": principal_type, "limit": 25, "offset": offset,
-                    })
-                except ApiError as error:
-                    if dialog.value and revision == state["revision"]:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                    return
-                if not dialog.value or revision != state["revision"]:
-                    return
-                state["offset"] = offset
-                host.clear()
-                with host:
-                    if not result["items"]:
-                        ui.label(render_message("authorization.oversight.no_matches"))
-                    for item in result["items"]:
-                        ui.label(f'{item["org_unit_code"]} — {item["org_unit_name"]}').classes("text-sm font-medium")
-                        if item["role_id"] is not None:
-                            ui.label(f'{item["role_code"]} — {item["role_name"]}').classes("text-sm")
-                            if not item["active"]:
-                                ui.label(render_message("authorization.oversight.inactive")).classes("text-xs text-amber-900")
-                        else:
-                            ui.label(render_message("authorization.oversight.no_designation")).classes("text-xs text-slate-500")
-                    with ui.row():
-                        previous = ui.button(render_message("authorization.oversight.previous"), on_click=lambda: load_page(max(0, state["offset"]-25))).props("flat no-caps")
-                        previous.set_enabled(offset>0)
-                        following = ui.button(render_message("authorization.oversight.next"), on_click=lambda: load_page(state["offset"]+25)).props("flat no-caps")
-                        following.set_enabled(result["has_more"])
-            ui.button(render_message("authorization.oversight.close"), on_click=dialog.close).props("flat no-caps")
-        dialog.open()
-        await load_page()
-
-    async def show_acl_editor(
-        resource: str, entity_id: int, *, scope: str = "resource",
-        on_saved: Callable[[], Any] | None = None,
-    ) -> None:
-        """Edit a complete ACL atomically; inherited and dormant sets stay visually distinct."""
-        resource_type = "record" if resource == "records" or scope == "record" else "aggregation"
-        try:
-            catalogue = await api.permissions_catalogue(resource_type)
-            if scope == "resource":
-                acl = await api.resource_acl(resource, entity_id)
-                displayed = acl["override_acl"]
-                version = acl["resource_acl_version"]
-            else:
-                child_type = "record" if scope == "record" else "aggregation"
-                acl = await api.child_acl(entity_id, child_type)
-                displayed = acl.get("custom_acl", acl.get("effective_acl", []))
-                version = acl["version"]
-            selected_role_ids = sorted({
-                int(item["role_id"]) for item in displayed
-                if item.get("principal_type") == "role" and item.get("role_id") is not None
-            })
-            roles = await asyncio.gather(*(
-                api.get("roles", identifier) for identifier in selected_role_ids
-            ))
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-
-        source_aggregation: dict[str, Any] | None = None
-        edited_aggregation: dict[str, Any] | None = None
-        owner_resource: dict[str, Any] | None = None
-        try:
-            if scope != "resource" or resource_type == "aggregation":
-                edited_aggregation = await api.get("aggregations", entity_id)
-                owner_resource = edited_aggregation
-            else:
-                owner_resource = await api.get("records", entity_id)
-        except ApiError:
-            edited_aggregation = None
-            owner_resource = None
-        owner_name = (
-            owner_resource.get("owning_org_unit_name")
-            if owner_resource else "this resource's organizational unit"
-        )
-        if owner_resource and owner_resource.get("owning_org_unit_id") is not None:
-            try:
-                owner_unit = await api.get("org-units", int(owner_resource["owning_org_unit_id"]))
-                owner_name = (
-                    (owner_unit.get("localized") or {}).get("name")
-                    or owner_unit.get("name") or owner_name
-                )
-            except ApiError:
-                pass  # Retain the resource's owner name if the unit cannot be read.
-        source_aggregation_id = acl.get("source_resource_id") or acl.get("effective_acl_source_id")
-        if source_aggregation_id:
-            try:
-                source_aggregation = await api.get("aggregations", int(source_aggregation_id))
-            except (ApiError, TypeError, ValueError):
-                source_aggregation = None
-
-        options = {
-            item["code"]: operation_label(item["code"])
-            for item in ordered_permission_catalogue(catalogue, resource_type)
-        }
-        role_options = {item["id"]: f"{item['code']} — {item['name']}" for item in roles}
-        principals: list[dict[str, Any]] = [dict(item) for item in displayed]
-        dialog_title = (
-            render_message("webui.show_acl_editor.text.default_child_aggregation_acl_bdf05df3")
-            if scope == "aggregation"
-            else render_message("webui.show_acl_editor.text.default_child_record_acl_316d787d")
-            if scope == "record"
-            else render_message("webui.show_acl_editor.text.access_control_list_d8401318")
-        )
-        dialog = ui.dialog()
-        with dialog, ui.card().classes("max-h-[92vh] p-0 gap-0").style(
-            "width: min(1050px, 90vw); max-width: none"
-        ):
-            with ui.row().classes("w-full items-center px-5 py-4 border-b border-slate-200"):
-                ui.icon("policy", color="primary")
-                ui.label(dialog_title).classes("text-xl font-semibold grow")
-                ui.button(icon="close", on_click=dialog.close).props("flat round dense")
-            with ui.element("div").classes(
-                "w-full h-[680px] max-h-[calc(92vh-142px)] overflow-y-auto overflow-x-hidden px-5 py-4"
-            ):
-                if scope == "resource" and acl.get("inherit_acl_from_parent") is not None:
-                    with ui.row().classes("w-full items-start gap-3 rounded-lg border border-blue-100 bg-blue-50 p-3"):
-                        ui.icon("account_tree", color="primary")
-                        with ui.column().classes("gap-0 grow"):
-                            ui.label(render_message("webui.show_acl_editor.label.effective_source_acl_source_label_de94ce9b", acl_source_label=acl_source_label(acl))).classes("font-semibold text-slate-800")
-                            if source_aggregation is not None:
-                                ui.label(aggregation_reference_label(source_aggregation)).classes("text-sm text-slate-700")
-                            ui.label(
-                                render_message("webui.show_acl_editor.label.a_root_aggregation_has_no_parent_acl_so_th_5e629db4")
-                                if edited_aggregation is not None and edited_aggregation.get("parent_aggregation_id") is None else
-                                render_message("webui.show_acl_editor.label.inherited_access_is_evaluated_live_a_local_d5ec9a6a")
-                            ).classes("text-xs text-slate-600")
-
-                        if source_aggregation is not None:
-                            async def open_editor_acl_source() -> None:
-                                dialog.close()
-                                await open_aggregation(source_aggregation)
-
-                            ui.button(render_message("webui.show_acl_editor.button.open_81b1e6e8"), icon="open_in_new", on_click=open_editor_acl_source).props(
-                                "flat dense no-caps"
-                            )
-                    inherit = ui.switch(render_message("authorization.acl.inherit_from_parent"), value=acl["inherit_acl_from_parent"])
-                    if edited_aggregation is not None and edited_aggregation.get("parent_aggregation_id") is None:
-                        inherit.set_enabled(False)
-                        inherit.tooltip(render_message("webui.show_acl_editor.tooltip.a_root_aggregation_has_no_parent_acl_to_in_8d57d004"))
-                        ui.label(
-                            render_message("webui.show_acl_editor.label.this_is_a_root_aggregation_so_its_acl_must_bc32d08b")
-                        ).classes("text-xs text-slate-500 ml-2")
-                    if acl.get("override_acl_is_dormant"):
-                        ui.label(render_message("webui.show_acl_editor.label.the_local_override_shown_below_is_dormant_980a9af4")).classes("text-xs text-slate-500")
-                else:
-                    inherit = None
-                if scope == "aggregation":
-                    mode = ui.select(
-                        {"mirror_resource_acl": render_message("webui.show_acl_editor.select.mirror_this_aggregation_s_effective_resour_7d0607b1"), "custom": render_message("webui.show_acl_editor.select.use_custom_default_acl_497bc7b9")},
-                        value=acl["mode"], label=render_message("webui.show_acl_editor.select.default_child_aggregation_acl_mode_751a7cee"),
-                    ).classes("w-full mt-3")
-                    ui.label(render_message("webui.show_acl_editor.label.mirror_is_a_live_reference_the_custom_defa_1151569c")).classes("text-xs text-slate-500")
-                else:
-                    mode = None
-                state_banner = ui.column().classes("w-full mt-3")
-                editor = ui.column().classes("w-full gap-3 mt-4")
-                editor_controls: list[Any] = []
-                permission_controls: dict[int, dict[str, Any]] = {}
-                matrix_control: dict[str, Any] = {}
-
-                def reset_matrix_scroll() -> None:
-                    matrix_control["area"].scroll_to(
-                        percent=1 if current_direction["value"] == "rtl" else 0,
-                        axis="horizontal",
-                    )
-
-                # Measure after the dialog is shown, not while its width is zero.
-                dialog.on("show", reset_matrix_scroll)
-
-                def is_dormant() -> bool:
-                    if inherit is not None:
-                        return bool(inherit.value)
-                    if mode is not None:
-                        return mode.value == "mirror_resource_acl"
-                    return False
-
-                def activate_local_acl() -> None:
-                    if inherit is not None:
-                        inherit.value = False
-                        inherit.update()
-                    elif mode is not None:
-                        mode.value = "custom"
-                        mode.update()
-                    render_acl_state()
-                    render_principals()
-
-                def render_acl_state() -> None:
-                    state_banner.clear()
-                    with state_banner:
-                        if is_dormant():
-                            with ui.card().classes("w-full shadow-none border border-amber-200 bg-amber-50 p-3"):
-                                with ui.row().classes("w-full items-start gap-3"):
-                                    ui.icon("visibility_off", color="amber-9")
-                                    with ui.column().classes("gap-0 grow"):
-                                        ui.label(
-                                            render_message("webui.render_acl_state.label.dormant_local_acl_not_currently_used_412e5d6f")
-                                            if inherit is not None else
-                                            render_message("webui.render_acl_state.label.dormant_custom_default_acl_not_currently_u_e9730cb4")
-                                        ).classes("font-semibold text-amber-950")
-                                        ui.label(
-                                            render_message("webui.render_acl_state.label.effective_access_comes_from_the_parent_whi_c5f7c617")
-                                            if inherit is not None else
-                                            render_message("webui.render_acl_state.label.child_aggregations_currently_mirror_this_a_12962422")
-                                        ).classes("text-xs text-amber-900")
-                                    ui.button(
-                                        render_message("webui.render_acl_state.button.use_local_acl_43acc939") if inherit is not None else render_message("webui.render_acl_state.button.use_custom_default_acl_01cde39d"),
-                                        icon="edit", on_click=activate_local_acl,
-                                    ).props("outline no-caps color=amber-10")
-                        else:
-                            with ui.row().classes("w-full items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3"):
-                                ui.icon("check_circle", color="positive")
-                                ui.label(
-                                    render_message("webui.render_acl_state.label.this_local_acl_is_active_and_changes_here_4f1b1dd3")
-                                    if scope == "resource" else
-                                    render_message("webui.render_acl_state.label.this_custom_default_acl_is_active_and_chan_91f39756")
-                                ).classes("text-sm font-medium text-green-900")
-
-                def render_principals() -> None:
-                    editor.clear()
-                    editor_controls.clear()
-                    permission_controls.clear()
-                    with editor:
-                        with ui.row().classes("w-full items-center gap-2"):
-                            ui.label(
-                                render_message(
-                                    "webui.render_principals.label.assigned_principal_count",
-                                    count=len(principals),
-                                )
-                            ).classes("text-sm text-slate-500 grow")
-                            add_role_button = ui.button(render_message("webui.render_principals.button.add_role_504bd3b3"), icon="person_add", on_click=add_role).props("outline no-caps")
-                            editor_controls.append(add_role_button)
-                            if not any(item["principal_type"] == "everyone" for item in principals):
-                                add_everyone_button = ui.button(
-                                    render_message("webui.render_principals.button.add_everyone_c070438a"), icon="groups",
-                                    on_click=lambda: (
-                                        principals.insert(0, {"principal_type": "everyone", "role_id": None, "permission_codes": []}),
-                                        render_principals(),
-                                    ),
-                                ).props("outline no-caps")
-                                editor_controls.append(add_everyone_button)
-                            if not any(
-                                item["principal_type"] == "org_unit_members"
-                                for item in principals
-                            ):
-                                add_org_members_button = ui.button(
-                                    render_message("webui.render_principals.button.add_all_org_unit_members_47c111a3"), icon="corporate_fare",
-                                    on_click=lambda: (
-                                        principals.insert(0, {
-                                            "principal_type": "org_unit_members",
-                                            "role_id": None,
-                                            "permission_codes": [],
-                                        }),
-                                        render_principals(),
-                                    ),
-                                ).props("outline no-caps")
-                                editor_controls.append(add_org_members_button)
-
-                            for contextual_type in ("owning_and_higher_level_unit_managers", "effective_file_administrator"):
-                                if not any(item["principal_type"] == contextual_type for item in principals):
-                                    button = ui.button(
-                                        render_message("authorization.oversight.add_managers")
-                                        if contextual_type == "owning_and_higher_level_unit_managers"
-                                        else render_message("authorization.oversight.add_file_administrator"),
-                                        icon="corporate_fare",
-                                        on_click=lambda _, kind=contextual_type: (
-                                            principals.append({"principal_type": kind, "role_id": None, "permission_codes": []}),
-                                            render_principals(),
-                                        ),
-                                    ).props("outline no-caps")
-                                    editor_controls.append(button)
-
-                        with ui.row().classes("w-full items-center gap-2 text-slate-500"):
-                            ui.icon("groups", size="17px")
-                            ui.label(
-                                render_message("webui.render_principals.label.everyone_represents_all_authenticated_user_1d9d9a84")
-                            ).classes("text-xs")
-                        with ui.row().classes("w-full items-center gap-2 text-slate-500"):
-                            ui.icon("corporate_fare", size="17px")
-                            ui.label(
-                                render_message("webui.render_principals.label.all_org_unit_members_means_everyone_curren_05b026f1", owner_name=owner_name)
-                            ).classes("text-xs")
-
-                        ui.label(
-                            render_message("webui.render_principals.label.select_permissions_by_principal_required_p_9d029dd3")
-                        ).classes("text-xs text-slate-500 mb-2")
-                        # Use NiceGUI's scroll area, as in the dashboard lists,
-                        # so horizontal scrolling remains discoverable on systems
-                        # that hide native scrollbars.
-                        matrix = ui.scroll_area().classes(
-                            "w-full rounded-xl border border-slate-200 bg-white"
-                        ).props("visible dir=ltr").style("height: 300px")
-                        matrix_control["area"] = matrix
-                        matrix_width = 310 + (len(options) * 132)
-                        with matrix:
-                            # The scroll widget uses the framework's LTR scroll
-                            # coordinates; document RTL alone does not switch its
-                            # drag calculations. Keep that viewport LTR and give
-                            # the content its actual direction via public props.
-                            with ui.column().classes("gap-0").props(
-                                f'dir={current_direction["value"]}'
-                            ).style(f"min-width: {matrix_width}px"):
-                                # ui.row has no direction argument. Its inherited
-                                # RTL direction already mirrors the cells; bypass
-                                # the global .row reversal to avoid mirroring twice.
-                                with ui.row().classes(
-                                    "w-full gap-0 no-wrap border-b border-slate-200 bg-slate-50"
-                                ).style("position: sticky; top: 0; z-index: 30; flex-direction: row"):
-                                    with ui.element("div").classes(
-                                        "w-[310px] shrink-0 self-stretch px-3 py-3 bg-slate-50 border-r border-slate-200"
-                                    ).style("position: sticky; inset-inline-start: 0; z-index: 35"):
-                                        ui.label(render_message("webui.render_principals.label.principal_6f352deb")).classes("text-xs font-semibold uppercase tracking-wide text-slate-500")
-                                    for code, name in options.items():
-                                        with ui.element("div").classes(
-                                            "w-[132px] shrink-0 self-stretch px-2 py-3 border-r border-slate-200 text-center"
-                                        ):
-                                            ui.label(name).classes(
-                                                "text-xs font-semibold leading-tight text-slate-600"
-                                            ).tooltip(name)
-
-                                if not principals:
-                                    ui.label(
-                                        render_message("webui.render_principals.label.no_principals_are_present_add_a_role_every_a101b46b")
-                                    ).classes("m-5 text-sm text-slate-500")
-
-                                for index, principal in enumerate(principals):
-                                    selected = set(principal.get("permission_codes", []))
-                                    row_controls: dict[str, Any] = {}
-                                    permission_controls[id(principal)] = row_controls
-                                    with ui.row().classes(
-                                        "w-full gap-0 no-wrap border-b border-slate-100 last:border-b-0 hover:bg-blue-50/30"
-                                    ).style("flex-direction: row"):
-                                        with ui.element("div").classes(
-                                            "w-[310px] shrink-0 min-h-[62px] bg-white border-r border-slate-200 px-2 py-1"
-                                        ).style("position: sticky; inset-inline-start: 0; z-index: 20"):
-                                            with ui.row().classes("w-full no-wrap items-center gap-2"):
-                                                ui.icon(
-                                                    {
-                                                        "everyone": "groups",
-                                                        "org_unit_members": "corporate_fare",
-                                                    }.get(principal["principal_type"], "badge"),
-                                                    color="primary", size="20px",
-                                                )
-                                                if principal["principal_type"] == "everyone":
-                                                    with ui.column().classes("gap-0 grow min-w-0"):
-                                                        ui.label(render_message("webui.render_principals.label.everyone_8d69f084")).classes("font-semibold")
-                                                        ui.label(render_message("webui.render_principals.label.all_authenticated_users_fb3e7d95")).classes("text-xs text-slate-500")
-                                                elif principal["principal_type"] == "org_unit_members":
-                                                    with ui.column().classes("gap-0 grow min-w-0"):
-                                                        ui.label(render_message("webui.render_principals.label.all_org_unit_members_53d5b79a")).classes("font-semibold")
-                                                        ui.label(
-                                                            render_message("webui.render_principals.label.everyone_currently_working_in_owner_name_271a9a37", owner_name=owner_name)
-                                                        ).classes("text-xs text-slate-500")
-                                                elif principal["principal_type"] in {"owning_and_higher_level_unit_managers", "effective_file_administrator"}:
-                                                    with ui.column().classes("gap-0 grow min-w-0"):
-                                                        ui.label(
-                                                            render_message("authorization.oversight.managers")
-                                                            if principal["principal_type"] == "owning_and_higher_level_unit_managers"
-                                                            else render_message("authorization.oversight.file_administrator")
-                                                        ).classes("font-semibold")
-                                                        ui.label(render_message("authorization.oversight.dynamic", owner_name=owner_name)).classes("text-xs text-slate-500")
-                                                        if "organization.browse" in (auth_state.get("principal") or {}).get("global_privileges", []):
-                                                            ui.button(
-                                                                render_message("authorization.oversight.show_roles"),
-                                                                on_click=lambda _, kind=principal["principal_type"]: show_contextual_acl_roles(resource, entity_id, kind),
-                                                            ).props("flat dense no-caps")
-                                                else:
-                                                    role_picker = ui.select(
-                                                        role_options, value=principal.get("role_id"),
-                                                    ).props(
-                                                        "dense outlined options-dense use-input input-debounce=0"
-                                                    ).classes("grow min-w-0")
-                                                    bind_remote_relationship_select(
-                                                        role_picker,
-                                                        resource="roles",
-                                                        search_fields=("code", "name"),
-                                                        label_fields=("code", "name"),
-                                                    )
-                                                    role_picker.on_value_change(
-                                                        lambda event, item=principal: item.update(role_id=event.value)
-                                                    )
-                                                    editor_controls.append(role_picker)
-                                                    browse_role_button = ui.button(
-                                                        icon="account_tree",
-                                                        on_click=lambda _, control=role_picker: show_organization_structure(
-                                                            selection_mode="role", target_control=control,
-                                                        ),
-                                                    ).props(
-                                                        'flat round dense aria-label=' + repr(render_message("webui.render_principals.accessible_name.browse_roles_dac5f03b"))
-                                                    ).tooltip(render_message("webui.render_principals.tooltip.browse_organization_structure_for_a_role_ce297699"))
-                                                    editor_controls.append(browse_role_button)
-                                                remove_button = ui.button(
-                                                    icon="delete_outline", color="negative",
-                                                    on_click=lambda _, i=index: (principals.pop(i), render_principals()),
-                                                ).props("flat round dense").tooltip(render_message("webui.render_principals.tooltip.remove_principal_8dc60c3b"))
-                                                editor_controls.append(remove_button)
-
-                                        for code in options:
-                                            with ui.element("div").classes(
-                                                "w-[132px] shrink-0 min-h-[62px] border-r border-slate-100 flex items-center justify-center"
-                                            ):
-                                                checkbox = ui.checkbox(value=code in selected).props("dense")
-                                                checkbox.tooltip(options[code])
-                                                row_controls[code] = checkbox
-                                                editor_controls.append(checkbox)
-
-                                                def update_permission(
-                                                    event: Any, item=principal, permission=code,
-                                                ) -> None:
-                                                    current = set(item.get("permission_codes", []))
-                                                    if bool(event.value):
-                                                        updated = permission_closure(current | {permission})
-                                                        added = updated - current - {permission}
-                                                        if added:
-                                                            ui.notify(
-                                                                render_message("webui.update_permission.notify.required_prerequisite_permissions_were_add_7b363cdf"),
-                                                                color="info",
-                                                            )
-                                                    else:
-                                                        removed_dependents = dependents_of(permission, current)
-                                                        updated = current - {permission} - removed_dependents
-                                                        if removed_dependents:
-                                                            ui.notify(
-                                                                render_message("webui.update_permission.notify.dependent_permissions_were_also_removed_9b480b90"),
-                                                                color="info",
-                                                            )
-                                                    item["permission_codes"] = sorted(updated)
-                                                    for permission_code, control in permission_controls.get(id(item), {}).items():
-                                                        expected = permission_code in updated
-                                                        if bool(control.value) != expected:
-                                                            control.value = expected
-                                                            control.update()
-
-                                                checkbox.on_value_change(update_permission)
-
-                        if dialog.value:
-                            reset_matrix_scroll()
-
-                def add_role() -> None:
-                    if any(
-                        item["principal_type"] == "role" and item.get("role_id") is None
-                        for item in principals
-                    ):
-                        ui.notify(render_message("webui.add_role.notify.select_the_blank_role_before_adding_anothe_ccce15f6"), color="warning")
-                        return
-                    principals.append({"principal_type": "role", "role_id": None, "permission_codes": []})
-                    render_principals()
-
-                def apply_editor_state() -> None:
-                    dormant = is_dormant()
-                    editor.classes(replace="w-full gap-3 mt-4 " + ("opacity-55" if dormant else ""))
-                    for control in editor_controls:
-                        control.set_enabled(not dormant)
-
-                original_render_principals = render_principals
-                def render_principals() -> None:
-                    original_render_principals()
-                    apply_editor_state()
-
-                if inherit is not None:
-                    inherit.on_value_change(lambda _: (render_acl_state(), render_principals()))
-                if mode is not None:
-                    mode.on_value_change(lambda _: (render_acl_state(), render_principals()))
-                render_acl_state()
-                render_principals()
-                reason = ui.input(render_message("webui.show_acl_editor.input.reason_for_access_change_27d12eef")).classes("w-full mt-4")
-
-            async def save_acl() -> None:
-                if any(
-                    item["principal_type"] == "role" and item.get("role_id") is None
-                    for item in principals
-                ):
-                    ui.notify(render_message("webui.save_acl.notify.select_a_role_for_every_role_row_before_sa_ac946d6d"), color="warning")
-                    return
-                if not reason.value or not str(reason.value).strip():
-                    ui.notify(render_message("webui.save_acl.notify.a_reason_is_required_29a5d403"), color="warning"); return
-                payload: dict[str, Any] = {
-                    "version": version,
-                    "grants": acl_grants_payload(principals),
-                    "reason": str(reason.value).strip(),
-                }
-                if inherit is not None: payload["inherit_acl_from_parent"] = inherit.value
-                if mode is not None: payload["mode"] = mode.value
-                async def apply_change() -> None:
-                    try:
-                        if scope == "resource": await api.replace_resource_acl(resource, entity_id, payload)
-                        else: await api.replace_child_acl(entity_id, "record" if scope == "record" else "aggregation", payload)
-                        dialog.close(); ui.notify(render_message("webui.apply_change.notify.access_control_list_updated_2f758b3c"), color="positive")
-                        if on_saved:
-                            result = on_saved()
-                            if inspect.isawaitable(result): await result
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                try:
-                    if scope == "resource":
-                        await apply_change(); return
-                    impact = await api.preview_child_acl(
-                        entity_id, "record" if scope == "record" else "aggregation", payload,
-                    )
-                    confirmation = ui.dialog()
-                    with confirmation, ui.card().classes("w-[520px] max-w-full"):
-                        ui.label(render_message("webui.save_acl.label.apply_inherited_access_change_96b5990f")).classes("text-lg font-semibold")
-                        ui.label(
-                            render_message("webui.save_acl.label.this_changes_added_grants_grants_added_and_91334da7", added_grants=impact['added_grants'], removed_grants=impact['removed_grants'], get=impact.get('affected_aggregation_count', 0), get_2=impact.get('affected_record_count', 0), potentially_affected_user_count=impact['potentially_affected_user_count'])
-                        ).classes("text-sm text-slate-600")
-                        with ui.row().classes("w-full justify-end gap-2"):
-                            ui.button(render_message("webui.save_acl.button.cancel_5d123d5d"), on_click=confirmation.close).props("flat no-caps")
-                            async def confirm_apply() -> None:
-                                confirmation.close(); await apply_change()
-                            ui.button(render_message("webui.save_acl.button.apply_change_16aede93"), icon="check", on_click=confirm_apply).props("unelevated no-caps")
-                    confirmation.open()
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-            with ui.row().classes("w-full justify-end gap-2 px-5 py-4 border-t border-slate-200"):
-                ui.button(render_message("webui.show_acl_editor.button.cancel_256f9c91"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.show_acl_editor.button.save_acl_a2306fa4"), icon="save", on_click=save_acl).props("unelevated no-caps")
-        dialog.open()
-
-    async def show_access_explanation(resource_type: str, entity_id: int) -> None:
-        """Explain every authorization gate without treating the UI as an enforcement boundary."""
-        privileges = set((auth_state.get("principal") or {}).get("global_privileges", []))
-        can_examine_others = "authorization.explain" in privileges
-        operations = {code: operation_label(code) for code in OPERATIONS[resource_type]}
-        dialog = ui.dialog()
-        result_host: Any = None
-        explanation_request = {"sequence": 0}
-        with dialog, ui.card().classes("w-[820px] max-w-[95vw] max-h-[90vh] p-0 gap-0"):
-            with ui.row().classes("w-full items-center border-b border-slate-200 px-5 py-4"):
-                ui.icon("fact_check", color="primary")
-                with ui.column().classes("gap-0 grow"):
-                    ui.label(render_message("webui.show_access_explanation.label.access_explanation_054e47dd")).classes("text-xl font-semibold")
-                    ui.label(render_message("webui.show_access_explanation.label.shows_which_policy_gates_and_roles_contrib_b13484e9")).classes("text-xs text-slate-500")
-                ui.button(icon="close", on_click=dialog.close).props('flat round dense aria-label=' + repr(render_message("webui.show_access_explanation.accessible_name.close_access_explanation_347ccd8f")))
-            with ui.row().classes("w-full items-end gap-3 px-5 pt-4"):
-                operation = ui.select(operations, value=OPERATIONS[resource_type][0], label=render_message("webui.show_access_explanation.select.operation_709c7c46")).props("outlined").classes("grow")
-                user = None
-                if can_examine_others:
-                    with ui.column().classes("grow gap-1"):
-                        user = ui.select(
-                            {}, label=render_message("webui.show_access_explanation.select.explain_for_another_user_optional_c0131ea6"),
-                            clearable=True, with_input=True,
-                        ).props("outlined input-debounce=0").classes("w-full")
-                        more_users = ui.button(render_message("webui.render_collection.button.load_more_755f4879"), icon="more_horiz").props("flat dense no-caps")
-                        more_users.set_visibility(False)
-                    picker = {"revision": 0, "query": "", "offset": 0, "task": None}
-
-                    async def load_users(query: str = "", *, append: bool = False) -> None:
-                        picker["revision"] += 1
-                        revision = picker["revision"]
-                        offset = picker["offset"] if append else 0
-                        try:
-                            rows = await api.explainable_users(query=query, limit=26, offset=offset)
-                        except ApiError as error:
-                            ui.notify(error_message(error), color="negative", close_button=True)
-                            return
-                        if revision != picker["revision"] or not dialog.value:
-                            return
-                        retained = dict(user.options) if append else {
-                            key: label for key, label in user.options.items() if key == user.value
-                        }
-                        user.set_options({**retained, **{
-                            item["id"]: f"{item['name']} — {item.get('email') or '—'}" for item in rows[:25]
-                        }})
-                        picker.update(query=query, offset=offset + len(rows[:25]))
-                        more_users.set_visibility(len(rows) > 25)
-
-                    def search_users(event: Any) -> None:
-                        query = relationship_search_query(user, event.args)
-                        if query is None:
-                            return
-                        picker["revision"] += 1
-                        more_users.set_visibility(False)
-                        if picker["task"] is not None:
-                            picker["task"].cancel()
-                        async def delayed() -> None:
-                            await asyncio.sleep(0.2)
-                            await load_users(strip_diagnostic_metadata(query).strip())
-                        picker["task"] = background_tasks.create(delayed())
-                    user.on("input-value", search_users)
-                    user.on("popup-show", lambda: load_users() if not user.options else None)
-                    more_users.on("click", lambda: load_users(picker["query"], append=True))
-                run = ui.button(render_message("webui.show_access_explanation.button.explain_46823543"), icon="play_arrow").props("unelevated no-caps")
-            result_host = ui.scroll_area().classes("w-full h-[520px] px-5 py-4")
-
-            async def load_explanation() -> None:
-                explanation_request["sequence"] += 1
-                request_sequence = explanation_request["sequence"]
-                selected_operation = operation.value
-                try:
-                    result = await api.explain_access({
-                        "resource_type": resource_type, "resource_id": entity_id,
-                        "operation": selected_operation,
-                        **({"user_id": user.value} if user is not None and user.value else {}),
-                    })
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True); return
-                if (
-                    request_sequence != explanation_request["sequence"]
-                    or selected_operation != operation.value
-                ):
-                    return
-                source_aggregation: dict[str, Any] | None = None
-                source_aggregation_id = result.get("acl", {}).get("source_resource_id")
-                if source_aggregation_id:
-                    try:
-                        source_aggregation = await api.get("aggregations", int(source_aggregation_id))
-                    except (ApiError, TypeError, ValueError):
-                        # A source ancestor can legitimately be hidden by the same
-                        # authorization policy this dialog is explaining.
-                        source_aggregation = None
-                async def localize_explanation_entity(resource: str, identifier: int) -> dict[str, Any]:
-                    try:
-                        return await api.get(resource, identifier)
-                    except ApiError:
-                        return {}
-
-                roles = {item["role_id"]: dict(item) for item in result["subject"]["effective_roles"]}
-                references = [("roles", role_id) for role_id in roles]
-                level_fields = [name for name in ("effective_security_level", "required_security_level")
-                                if (result.get(name) or {}).get("id") is not None]
-                references.extend(("security-levels", result[name]["id"]) for name in level_fields)
-                localized_rows = await asyncio.gather(*(
-                    localize_explanation_entity(kind, identifier) for kind, identifier in references
-                ))
-                for role_id, localized in zip(roles, localized_rows):
-                    roles[role_id]["role_name"] = (
-                        (localized.get("localized") or {}).get("name")
-                        or localized.get("name") or roles[role_id].get("role_name")
-                    )
-                for name, localized in zip(level_fields, localized_rows[len(roles):]):
-                    if localized:
-                        result[name] = localized
-                if request_sequence != explanation_request["sequence"] or selected_operation != operation.value:
-                    return
-                result_host.clear()
-                with result_host:
-                    with ui.row().classes(
-                        "w-full items-center gap-3 rounded-xl border p-4 " +
-                        ("border-green-200 bg-green-50" if result["allowed"] else "border-red-200 bg-red-50")
-                    ):
-                        ui.icon("check_circle" if result["allowed"] else "cancel", color="positive" if result["allowed"] else "negative", size="28px")
-                        with ui.column().classes("gap-0 grow"):
-                            ui.label(render_message("webui.load_explanation.label.allowed_4d6e5631") if result["allowed"] else render_message("webui.load_explanation.label.denied_c4e96002")).classes("text-lg font-semibold")
-                            ui.label(decision_code_label(result["decision_code"])).classes("text-sm text-slate-600")
-                    ui.label(render_message("webui.load_explanation.label.decision_gates_1847ec0e")).classes("text-base font-semibold mt-4")
-                    for gate in result["gates"]:
-                        with ui.row().classes("w-full items-start gap-3 py-2 border-b border-slate-100"):
-                            ui.icon("check_circle" if gate["passed"] else "cancel", color="positive" if gate["passed"] else "negative")
-                            with ui.column().classes("gap-0 grow"):
-                                ui.label(gate_label(gate["gate"])).classes("font-medium")
-                                ui.label(gate_detail(gate)).classes("text-xs text-slate-500")
-                    constraint_labels = {
-                        "deletion": render_message("authorization.explanation.constraint.deletion"),
-                        "metadata_change": render_message("authorization.explanation.constraint.metadata_change"),
-                        "movement": render_message("authorization.explanation.constraint.movement"),
-                        "addition": render_message("authorization.explanation.constraint.addition"),
-                        "removal": render_message("authorization.explanation.constraint.removal"),
-                        "replacement": render_message("authorization.explanation.constraint.replacement"),
-                        "reordering": render_message("authorization.explanation.constraint.reordering"),
-                        "change": render_message("authorization.explanation.constraint.change"),
-                        "direct": render_message("authorization.explanation.constraint.direct"),
-                        "inherited": render_message("authorization.explanation.constraint.inherited"),
-                        "both": render_message("authorization.explanation.constraint.both"),
-                        "unknown": render_message("authorization.explanation.constraint.unknown"),
-                    }
-                    constraints = result.get("resource_state_constraints", [])
-                    if constraints:
-                        ui.label(render_message("webui.load_explanation.label.resource_state_restrictions_2f05b5a7")).classes("text-base font-semibold mt-4")
-                        for constraint in constraints:
-                            effect = constraint_labels.get(constraint.get("effect"), constraint_labels["change"])
-                            with ui.column().classes("w-full gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3"):
-                                with ui.row().classes("items-center gap-2"):
-                                    ui.icon("gavel", color="warning")
-                                    ui.label(
-                                        render_message("webui.load_explanation.label.an_effective_legal_hold_prevents_this_reso_bc46e497", resource_type=localized_editor_entity("aggregations" if resource_type == "aggregation" else "records", resource_type), effect=effect)
-                                    ).classes("font-medium text-amber-900")
-                                ui.label(
-                                    render_message("webui.load_explanation.label.coverage_get_get_2_effective_hold_s_7dc8ce69", get=constraint_labels.get(constraint.get('source'), constraint_labels['unknown']), get_2=constraint.get('effective_hold_count', 0))
-                                ).classes("text-xs text-amber-800")
-                                for hold in constraint.get("holds", []):
-                                    preservation = render_message("authorization.explanation.preservation") if hold.get("preserve_resource_state") else ""
-                                    ui.label(
-                                        render_message("webui.load_explanation.label.get_get_2_get_3_preservation_8736fc35", get=hold.get('code', ''), get_2=hold.get('name', ''), get_3=constraint_labels.get(hold.get('source'), constraint_labels['unknown']), preservation=preservation)
-                                    ).classes("text-sm text-amber-900")
-                    ui.label(render_message("webui.load_explanation.label.contributing_context_eeadfa0a")).classes("text-base font-semibold mt-4")
-                    with ui.grid(columns=2).classes("w-full gap-3"):
-                        with ui.column().classes("gap-0 rounded-lg border border-slate-200 p-3"):
-                            ui.label(render_message("webui.load_explanation.label.effective_clearance_db68dd23")).classes(
-                                "text-xs font-semibold uppercase tracking-wide text-slate-500"
-                            )
-                            ui.label(
-                                security_level_label(result.get("effective_security_level"))
-                            ).classes("text-sm font-medium text-slate-800")
-                        with ui.column().classes("gap-0 rounded-lg border border-slate-200 p-3"):
-                            ui.label(render_message("webui.load_explanation.label.required_clearance_32337131")).classes(
-                                "text-xs font-semibold uppercase tracking-wide text-slate-500"
-                            )
-                            ui.label(
-                                security_level_label(result.get("required_security_level"))
-                            ).classes("text-sm font-medium text-slate-800")
-                    with ui.column().classes("w-full gap-1 rounded-lg border border-slate-200 bg-slate-50 p-3"):
-                        ui.label(render_message("webui.load_explanation.label.acl_source_6a8f565e")).classes("text-xs font-semibold uppercase tracking-wide text-slate-500")
-                        ui.label(
-                            acl_source_label(result.get("acl", {}))
-                        ).classes("text-sm font-medium text-slate-800")
-                        if source_aggregation is not None:
-                            with ui.row().classes("w-full items-center gap-2"):
-                                ui.icon("folder", color="primary", size="18px")
-                                ui.label(
-                                    aggregation_reference_label(source_aggregation)
-                                ).classes("text-sm text-slate-700 grow")
-
-                                async def open_acl_source() -> None:
-                                    dialog.close()
-                                    await open_aggregation(source_aggregation)
-
-                                ui.button(render_message("webui.load_explanation.button.open_6153e24c"), icon="open_in_new", on_click=open_acl_source).props(
-                                    "flat dense no-caps"
-                                )
-                        elif source_aggregation_id:
-                            ui.label(
-                                render_message("webui.load_explanation.label.aggregation_reference_source_aggregation_i_f8ac63d4", source_aggregation_id=source_aggregation_id)
-                            ).classes("text-xs text-slate-500")
-                    contributors = result["contributors"]
-
-                    def contributor_heading(title: str, code: str, icon: str) -> None:
-                        with ui.row().classes("w-full items-start gap-3"):
-                            ui.icon(icon, color="primary", size="20px").classes("mt-1")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label(title).classes("text-sm font-semibold text-slate-800")
-                                ui.label(code).classes("text-xs font-mono text-slate-400")
-
-                    def contributor_role(role_id: int, *, clearance: bool = False) -> None:
-                        role = roles.get(role_id, {})
-                        with ui.row().classes("w-full items-center gap-2 pl-8"):
-                            ui.icon("badge", color="blue-grey-5", size="16px")
-                            ui.label(
-                                render_message("webui.contributor_role.label.get_get_2_303a1c41", get=role.get('role_code', 'Role'), get_2=role.get('role_name', role_id))
-                            ).classes("text-sm text-slate-700")
-                            if clearance:
-                                ui.label(
-                                    render_message("webui.contributor_role.label.get_level_get_2_fa6ba9ac", get=role.get('security_level_code', '—'), get_2=role.get('clearance', '—'))
-                                ).classes("text-xs text-slate-400")
-
-                    privilege_role_ids = contributors.get("privilege_role_ids", [])
-                    if privilege_role_ids:
-                        with ui.column().classes("w-full gap-1 rounded-lg border border-slate-200 p-3"):
-                            required_privilege = result["required_privilege"]
-                            contributor_heading(
-                                render_message('authorization.explanation.privilege', name=localized_privilege_name({"code": required_privilege})),
-                                required_privilege, "key",
-                            )
-                            for role_id in privilege_role_ids:
-                                contributor_role(role_id)
-
-                    clearance_role_ids = contributors.get("clearance_role_ids", [])
-                    if clearance_role_ids:
-                        with ui.column().classes("w-full gap-1 rounded-lg border border-slate-200 p-3"):
-                            contributor_heading(
-                                render_message('authorization.explanation.clearance', level=result.get('required_clearance', '—')),
-                                render_message('authorization.explanation.maximum_clearance'), "verified_user",
-                            )
-                            for role_id in clearance_role_ids:
-                                contributor_role(role_id, clearance=True)
-
-                    everyone_permissions = contributors.get("everyone_permissions", [])
-                    org_unit_member_permissions = contributors.get(
-                        "org_unit_member_permissions", []
-                    )
-                    org_unit_member_roles = contributors.get(
-                        "org_unit_member_role_ids_by_permission", {}
-                    )
-                    acl_roles = contributors.get("acl_role_ids_by_permission", {})
-                    for permission in dict.fromkeys([
-                        *everyone_permissions,
-                        *org_unit_member_permissions,
-                        *acl_roles.keys(),
-                    ]):
-                        role_ids = acl_roles.get(permission, [])
-                        if (
-                            permission not in everyone_permissions
-                            and permission not in org_unit_member_permissions
-                            and not role_ids
-                        ):
-                            continue
-                        with ui.column().classes("w-full gap-1 rounded-lg border border-slate-200 p-3"):
-                            contributor_heading(
-                                render_message('authorization.explanation.permission', name=operation_label(permission)),
-                                permission, "policy",
-                            )
-                            if permission in everyone_permissions:
-                                with ui.row().classes("w-full items-center gap-2 pl-8"):
-                                    ui.icon("groups", color="blue-grey-5", size="16px")
-                                    ui.label(render_message("webui.load_explanation.label.everyone_all_authenticated_users_f5ef1381")).classes("text-sm text-slate-700")
-                            if permission in org_unit_member_permissions:
-                                with ui.column().classes("w-full gap-1 pl-8"):
-                                    with ui.row().classes("w-full items-center gap-2"):
-                                        ui.icon("corporate_fare", color="blue-grey-5", size="16px")
-                                        ui.label(
-                                            render_message("webui.load_explanation.label.all_org_unit_members_matched_through_the_r_485b0ebf")
-                                        ).classes("text-sm text-slate-700")
-                                    for role_id in org_unit_member_roles.get(permission, []):
-                                        contributor_role(role_id)
-                            for role_id in role_ids:
-                                for match in result.get("acl", {}).get("contextual_matches", []):
-                                    if match["role_id"] == role_id and match["permission_code"] == permission:
-                                        ui.label(
-                                            render_message("authorization.oversight.managers")
-                                            if match["principal_type"] == "owning_and_higher_level_unit_managers"
-                                            else render_message("authorization.oversight.file_administrator")
-                                        ).classes("text-sm font-medium")
-                                        ui.label(render_message("authorization.oversight.match_unit", unit_id=match["org_unit_id"])).classes("text-xs text-slate-500")
-                                contributor_role(role_id)
-
-                    bypass_role_ids = contributors.get("governance_bypass_role_ids", [])
-                    if bypass_role_ids:
-                        with ui.column().classes("w-full gap-1 rounded-lg border border-amber-200 bg-amber-50 p-3"):
-                            contributor_heading(
-                                render_message('authorization.explanation.bypass'),
-                                render_message('authorization.explanation.bypass_detail'),
-                                "admin_panel_settings",
-                            )
-                            for role_id in bypass_role_ids:
-                                contributor_role(role_id)
-                    if result["acl"].get("dormant_override_grants"):
-                        ui.label(render_message("webui.load_explanation.label.a_dormant_local_acl_override_is_retained_b_4df0897f")).classes("text-xs text-amber-800 bg-amber-50 rounded p-2 mt-2")
-            run.on("click", load_explanation)
-            operation.on_value_change(lambda _: load_explanation())
-            if user is not None:
-                user.on_value_change(lambda _: load_explanation())
-        dialog.open()
-        await load_explanation()
-
-    async def show_reopen_aggregation(
-        item: dict[str, Any], on_saved,
-    ) -> None:
-        dialog = ui.dialog()
-        with dialog, ui.card().classes("w-[560px] max-w-full gap-4"):
-            ui.label(render_message("webui.show_reopen_aggregation.label.reopen_aggregation_efcee1d6")).classes("text-xl font-semibold")
-            ui.label(
-                render_message("webui.show_reopen_aggregation.label.reopening_makes_this_aggregation_and_any_d_bd06dc73")
-            ).classes("text-sm text-slate-600")
-            reason = ui.textarea(
-                render_message("webui.show_reopen_aggregation.textarea.reason_for_reopening_08c23aed"), placeholder=render_message("webui.show_reopen_aggregation.textarea.explain_why_this_aggregation_must_be_reope_b0247ea9"),
-            ).props("outlined autogrow counter maxlength=2000").classes("w-full")
-
-            async def submit() -> None:
-                change_reason = str(reason.value or "").strip()
-                if not change_reason:
-                    ui.notify(render_message("webui.submit.notify.enter_a_reason_for_reopening_63c8fdd5"), color="warning")
-                    reason.run_method("focus")
-                    return
-                try:
-                    saved = await api.update(
-                        "aggregations", item["id"], item["version"],
-                        {"date_closed": None}, change_reason=change_reason,
-                    )
-                    dialog.close()
-                    ui.notify(render_message("webui.submit.notify.aggregation_reopened_d22f4bc3"), color="positive")
-                    await on_saved(saved)
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.show_reopen_aggregation.button.cancel_38de8fc5"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.show_reopen_aggregation.button.reopen_3a12b38d"), icon="lock_open", on_click=submit).props(
-                    "unelevated no-caps color=primary"
-                )
-        dialog.open()
-
-    async def show_governed_move(
-        resource: str, item: dict[str, Any], on_saved,
-    ) -> None:
-        dialog = ui.dialog()
-        preview_host: Any = None
-        preview_state: dict[str, Any] = {}
-        with dialog, ui.card().classes("w-[680px] max-w-full gap-4"):
-            ui.label(render_message("webui.show_governed_move.label.move_rstrip_d9d67912", rstrip=resource.rstrip('s'))).classes("text-xl font-semibold")
-            destination = ui.select({}, label=render_message("webui.show_governed_move.select.destination_aggregation_622d5aa3"), with_input=True).props(
-                "outlined options-dense use-input input-debounce=0"
-            ).classes("w-full")
-            style_relationship_chip_select(destination, "aggregation_id")
-            bind_remote_relationship_select(
-                destination, "aggregations", ("aggregation_number", "title"),
-                ("aggregation_number", "title"),
-                exclude_id=item["id"] if resource == "aggregations" else None,
-                item_filter=lambda row: (
-                    row.get("medium", "mixed") == item.get("medium", "mixed")
-                    if resource == "aggregations"
-                    else row.get("medium", "mixed") in {"mixed", item.get("medium", "mixed")}
-                ),
-            )
-            ui.label(
-                render_message("webui.show_governed_move.label.only_destinations_compatible_with_this_res_70f37c56")
-            ).classes("text-xs leading-5 text-slate-500 -mt-2")
-            if not compatible_aggregations:
-                ui.label(
-                    render_message("webui.show_governed_move.label.no_compatible_destination_aggregation_is_c_7999f980")
-                ).classes("text-sm text-amber-800")
-                destination.disable()
-            keep_access = ui.checkbox(render_message("webui.show_governed_move.checkbox.keep_current_effective_access_as_a_local_o_896dc413"))
-            reason = ui.textarea(render_message("webui.show_governed_move.textarea.reason_bfc77d50"), placeholder=render_message("webui.show_governed_move.textarea.required_5352a893")).props(
-                "outlined autogrow"
-            ).classes("w-full")
-            preview_host = ui.column().classes("w-full gap-2")
-
-            async def refresh_preview() -> None:
-                preview_host.clear()
-                preview_state.clear()
-                if destination.value is None:
-                    return
-                try:
-                    preview = await api.acl_move_preview(
-                        resource, item["id"], int(destination.value),
-                        keep_current_access_as_override=bool(keep_access.value),
-                    )
-                except ApiError as error:
-                    with preview_host:
-                        ui.label(error_message(error)).classes("text-sm text-negative")
-                    return
-                preview_state.update(preview)
-                with preview_host:
-                    ui.label(
-                        render_message("webui.refresh_preview.label.acl_impact_added_count_grants_added_remove_7a89dbba", added_count=preview['added_count'], removed_count=preview['removed_count'])
-                    ).classes("text-sm font-medium")
-                    if resource == "aggregations":
-                        impact = preview.get("affected_subtree", {})
-                        ui.label(
-                            render_message("webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8", get=impact.get('aggregation_count', 0), get_2=impact.get('record_count', 0))
-                        ).classes("text-sm text-slate-600")
-                    if preview.get("ownership_changes"):
-                        ui.label(
-                            render_message("webui.refresh_preview.label.this_move_changes_organizational_ownership_d0b5efd9")
-                        ).classes("text-sm font-medium text-amber-900 bg-amber-50 rounded p-2")
-                        ui.label(render_message("authorization.oversight.ownership_change")).classes("text-sm text-amber-900")
-
-            destination.on_value_change(lambda _: refresh_preview())
-            keep_access.on_value_change(lambda _: refresh_preview())
-
-            async def submit() -> None:
-                if destination.value is None or not (reason.value or "").strip():
-                    ui.notify(render_message("webui.submit.notify.destination_and_reason_are_required_6216e905"), color="warning")
-                    return
-                if not preview_state:
-                    await refresh_preview()
-                if not preview_state:
-                    return
-                try:
-                    saved = await api.move_with_acl(resource, item["id"], {
-                        "destination_aggregation_id": int(destination.value),
-                        "resource_version": item["version"],
-                        "keep_current_access_as_override": bool(keep_access.value),
-                        "confirm_ownership_change": bool(preview_state.get("ownership_changes")),
-                        "reason": reason.value.strip(),
-                    })
-                    dialog.close()
-                    ui.notify(render_message("webui.submit.notify.resource_moved_c17aeea4"), color="positive")
-                    await on_saved(saved)
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.show_governed_move.button.cancel_ace0514f"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.show_governed_move.button.move_115a42b3"), icon="drive_file_move", on_click=submit).props("unelevated no-caps")
-        dialog.open()
-
-    async def show_ownership_correction(root: dict[str, Any], on_saved) -> None:
-        try:
-            rows = await api.ownership_correction_options()
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        rows = [row for row in rows if row["org_unit_id"] != root["owning_org_unit_id"]]
-        dialog = ui.dialog()
-        preview_host: Any = None
-        preview_state: dict[str, Any] = {}
-        with dialog, ui.card().classes("w-[680px] max-w-full gap-4"):
-            ui.label(render_message("webui.show_ownership_correction.label.correct_ownership_11df57cb")).classes("text-xl font-semibold")
-            ui.label(
-                render_message("webui.show_ownership_correction.label.use_this_governed_correction_only_when_the_97d4cb0d")
-            ).classes("text-sm text-slate-600")
-            destination = ui.select(
-                {row["role_id"]: row["label"] for row in rows},
-                label=render_message("webui.show_ownership_correction.select.correct_owner_and_creator_acl_role_67d37f56"),
-            ).props("outlined options-dense").classes("w-full")
-            reason = ui.textarea(render_message("webui.show_ownership_correction.textarea.reason_e8df7b2d"), placeholder=render_message("webui.show_ownership_correction.textarea.required_3f1a5512")).props(
-                "outlined autogrow"
-            ).classes("w-full")
-            preview_host = ui.column().classes("w-full gap-2")
-
-            async def refresh_preview() -> None:
-                preview_host.clear(); preview_state.clear()
-                if destination.value is None:
-                    return
-                try:
-                    preview = await api.ownership_correction_preview(
-                        root["id"], int(destination.value)
-                    )
-                except ApiError as error:
-                    with preview_host:
-                        ui.label(error_message(error)).classes("text-sm text-negative")
-                    return
-                preview_state.update(preview)
-                with preview_host:
-                    ui.label(
-                        render_message("webui.refresh_preview.label.affected_holdings_affected_aggregation_cou_8eb75b58", affected_aggregation_count=preview['affected_aggregation_count'], affected_record_count=preview['affected_record_count'])
-                    ).classes("text-sm font-medium")
-                    ui.label(
-                        render_message("webui.refresh_preview.label.creator_role_grants_reassigned_creator_rol_c7ba8ad9", creator_role_grant_count=preview['creator_role_grant_count'])
-                    ).classes("text-sm text-slate-600")
-                    ui.label(
-                        render_message("webui.refresh_preview.label.all_org_unit_members_will_immediately_refe_37d206d8")
-                    ).classes("text-sm text-amber-900 bg-amber-50 rounded p-2")
-
-            destination.on_value_change(lambda _: refresh_preview())
-
-            async def submit() -> None:
-                if destination.value is None or not (reason.value or "").strip():
-                    ui.notify(render_message("webui.submit.notify.correct_owner_and_reason_are_required_d93eb8ea"), color="warning")
-                    return
-                if not preview_state:
-                    await refresh_preview()
-                if not preview_state:
-                    return
-                try:
-                    saved = await api.correct_ownership(
-                        root["id"], int(destination.value), reason.value.strip()
-                    )
-                    dialog.close()
-                    ui.notify(render_message("webui.submit.notify.organizational_ownership_corrected_60d51623"), color="positive")
-                    await on_saved(saved)
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.show_ownership_correction.button.cancel_d23390f6"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.show_ownership_correction.button.confirm_correction_3bd277b6"), icon="published_with_changes", on_click=submit).props(
-                    "unelevated no-caps color=negative"
-                )
-        dialog.open()
-
-    async def show_security_level_change(
-        resource_type: str, resource: dict[str, Any], on_saved: Any,
-    ) -> None:
-        try:
-            levels = [await api.get("security-levels", int(resource["security_level_id"]))]
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        options = relationship_options(
-            levels, ("code", "name"), include_level_number=True,
-        )
-        dialog = ui.dialog().props("persistent")
-        preview_state: dict[str, Any] = {}
-        with dialog, ui.card().classes("w-[620px] max-w-[calc(100vw-32px)]"):
-            ui.label(render_message("webui.show_security_level_change.label.change_security_level_b3ecad36")).classes("text-xl font-semibold")
-            ui.label(
-                render_message("webui.show_security_level_change.label.this_governed_action_remains_available_whe_7b7f9891")
-            ).classes("text-sm text-slate-500")
-            target = relationship_select(
-                render_message_plain("webui.show_security_level_change.select.security_level_2a839288"),
-                options, value=resource["security_level_id"], required=True,
-            )
-            bind_remote_relationship_select(
-                target,
-                resource="security-levels",
-                search_fields=("code", "name"),
-                label_fields=("code", "name"),
-            )
-            remedy_options = {
-                "none": render_message("webui.show_security_level_change.text.change_only_this_resource_338bd39b"),
-                "raise_ancestors": render_message("webui.show_security_level_change.text.also_raise_parent_aggregations_as_needed_8cd69521"),
-                "downgrade_subtree": render_message("webui.show_security_level_change.text.also_lower_contained_resources_as_needed_e69b8640"),
-            }
-            remedy_descriptions = {
-                "none": render_message_plain("webui.security_level_remedy.description.none"),
-                "raise_ancestors": render_message_plain("webui.security_level_remedy.description.raise_ancestors"),
-                "downgrade_subtree": render_message_plain("webui.security_level_remedy.description.downgrade_subtree"),
-            }
-            remedy = ui.select(
-                remedy_options, value="none", label=render_message("webui.show_security_level_change.select.hierarchy_remedy_925ecf92"),
-            ).props(
-                'outlined options-dense '
-                'popup-content-style="width:572px;max-width:calc(100vw - 64px)"'
-            ).classes("w-full")
-            remedy.add_slot("option", """
-                <q-item v-bind="props.itemProps" class="q-py-sm" style="width:100%; max-width:100%;">
-                  <q-item-section style="min-width:0; max-width:100%;">
-                    <q-item-label class="text-weight-medium" style="white-space:normal; overflow-wrap:anywhere;">{{ props.opt.label }}</q-item-label>
-                    <q-item-label caption style="white-space:normal; overflow-wrap:anywhere; line-height:1.35;">
-                      {{ __REMEDY_DESCRIPTIONS__[props.opt.value] }}
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-            """.replace("__REMEDY_DESCRIPTIONS__", html_escape(json.dumps(list(remedy_descriptions.values()), ensure_ascii=False), quote=True)))
-            remedy_description = ui.label(remedy_descriptions["none"]).classes(
-                "-mt-2 px-3 text-xs leading-relaxed text-slate-500"
-            )
-            reason = ui.textarea(render_message("webui.show_security_level_change.textarea.reason_d03ff5f6")).props("outlined autogrow maxlength=2000").classes("w-full")
-            impact = ui.column().classes("w-full gap-1 rounded-lg bg-slate-50 p-3")
-            apply_button: Any = None
-
-            def invalidate_preview() -> None:
-                preview_state.clear()
-                impact.clear()
-                with impact:
-                    ui.label(render_message("webui.invalidate_preview.label.review_the_change_before_applying_it_47fa0daa")).classes("text-sm text-slate-500")
-                if apply_button is not None:
-                    apply_button.disable()
-
-            async def review() -> None:
-                if target.value == resource["security_level_id"]:
-                    ui.notify(render_message("webui.review.notify.choose_a_different_security_level_be7a0438"), color="warning")
-                    return
-                try:
-                    preview = await api.preview_security_level_change({
-                        "resource_type": resource_type,
-                        "resource_id": resource["id"],
-                        "target_security_level_id": int(target.value),
-                        "remedy": remedy.value,
-                    })
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                    return
-                preview_state.clear(); preview_state.update(preview)
-                impact.clear()
-                with impact:
-                    if preview["conflict"] and remedy.value == "none":
-                        ui.label(render_message("webui.review.label.this_change_conflicts_with_the_security_le_fe1be5fd")).classes("text-sm font-medium text-negative")
-                    else:
-                        ui.label(render_message("webui.review.label.security_level_change_reviewed_96f32743")).classes("text-sm font-semibold")
-                        affected = len(preview["affected_aggregations"]) + len(preview["affected_records"])
-                        ui.label(
-                            render_message(
-                                "webui.review.label.related_resources_affected",
-                                count=affected,
-                            )
-                        ).classes("text-xs text-slate-600")
-                apply_button.set_enabled(not preview["conflict"] or remedy.value != "none")
-
-            async def apply_change() -> None:
-                change_reason = (reason.value or "").strip()
-                if not change_reason:
-                    ui.notify(render_message("webui.apply_change.notify.a_reason_is_required_4346f523"), color="warning")
-                    return
-                if not preview_state:
-                    ui.notify(render_message("webui.apply_change.notify.review_the_change_before_applying_it_1d5df14d"), color="warning")
-                    return
-                try:
-                    result = await api.apply_security_level_change({
-                        "resource_type": resource_type,
-                        "resource_id": resource["id"],
-                        "target_security_level_id": int(target.value),
-                        "remedy": remedy.value,
-                        "reviewed_versions": preview_state["reviewed_versions"],
-                    }, reason=change_reason)
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                    return
-                dialog.close()
-                ui.notify(render_message("webui.apply_change.notify.security_level_changed_ae3a3c4b"), color="positive")
-                await on_saved(result["resource"])
-
-            target.on_value_change(lambda _: invalidate_preview())
-            def remedy_changed() -> None:
-                remedy_description.set_text(remedy_descriptions.get(remedy.value, ""))
-                invalidate_preview()
-
-            remedy.on_value_change(lambda _: remedy_changed())
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.show_security_level_change.button.cancel_d37961e9"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.show_security_level_change.button.review_change_e13907fc"), icon="fact_check", on_click=review).props("outline no-caps")
-                apply_button = ui.button(render_message("webui.show_security_level_change.button.apply_change_aee38579"), icon="security", on_click=apply_change).props("unelevated no-caps")
-                apply_button.disable()
-            invalidate_preview()
-        dialog.open()
 
     async def show_record_details(record: dict[str, Any]) -> None:
         """Navigate to the dedicated details page for a record."""
@@ -6925,7 +3638,7 @@ def index(q: str = "") -> None:
         previous_resource = state.get("resource")
         if previous_resource != "record-details":
             state["record_detail_return_resource"] = previous_resource
-            state["record_detail_return_aggregation"] = state.get("aggregation_detail")
+            state["record_detail_return_aggregation"] = aggregation_state.get("aggregation_detail")
         show_authenticated_view()
         state.update(resource="record-details", record_detail_id=record_id, rows=[], searched=True)
         search_bar.set_visibility(False)
@@ -7362,56 +4075,14 @@ def index(q: str = "") -> None:
         aggregation_rows: list[dict[str, Any]] | None = None,
         related_rows: list[dict[str, Any]] | None = None,
     ) -> list[dict[str, Any]]:
-        async def rows_by_id(resource: str, identifiers: set[int | None]) -> dict[int, dict[str, Any]]:
-            wanted = sorted({int(value) for value in identifiers if value is not None})
-            if not wanted:
-                return {}
-            resolved = await asyncio.gather(*(api.get(resource, value) for value in wanted))
-            return {int(item["id"]): item for item in resolved}
+        rows_by_id = row_hydrators.rows_by_id
+        closure_flags = row_hydrators.closure_flags
+        org_unit_context = row_hydrators.org_unit_context
 
-        async def closure_flags(items: list[dict[str, Any]], field: str) -> dict[int, bool]:
-            identifiers = sorted({int(item[field]) for item in items if item.get(field) is not None})
-            closures = await asyncio.gather(*(
-                api.effective_aggregation_closure(identifier) for identifier in identifiers
-            ))
-            return {
-                identifier: closure is not None
-                for identifier, closure in zip(identifiers, closures)
-            }
 
-        async def org_unit_context(
-            identifiers: set[int | None],
-        ) -> dict[int, dict[str, Any]]:
-            result: dict[int, dict[str, Any]] = {}
-            pending = {int(value) for value in identifiers if value is not None}
-            while pending:
-                batch = await rows_by_id("org-units", pending - set(result))
-                if not batch:
-                    break
-                result.update(batch)
-                pending = {
-                    int(item["parent_org_unit_id"])
-                    for item in batch.values()
-                    if item.get("parent_org_unit_id") is not None
-                    and int(item["parent_org_unit_id"]) not in result
-                }
-            return result
 
         if spec.key == "classifications":
-            schemes_by_id = await rows_by_id(
-                "classification-schemes",
-                {item.get("classification_scheme_id") for item in rows},
-            )
-            return [{
-                **item,
-                "type_display": {
-                    "name": "Terminal" if item.get("is_terminal") else "Branch",
-                    "code": "Assignable" if item.get("is_terminal") else "Hierarchy",
-                },
-                "scheme_display": relationship_cell(
-                    schemes_by_id.get(item.get("classification_scheme_id"))
-                ),
-            } for item in rows]
+            return await decorate_classifications(rows, rows_by_id=rows_by_id, relationship_cell=relationship_cell)
         if spec.key == "aggregations":
             closed_by_id = await closure_flags(rows, "id")
             return [
@@ -7426,64 +4097,11 @@ def index(q: str = "") -> None:
                 }
                 for item in rows
             ]
-        if spec.key == "org-units":
-            parents = await org_unit_context(
-                {item.get("parent_org_unit_id") for item in rows},
+        if spec.key in {"org-units", "roles", "users"}:
+            return await decorate_organization_rows(
+                spec, rows, org_unit_context=org_unit_context, rows_by_id=rows_by_id,
+                decorate_relationship_rows=decorate_relationship_rows, relationship_cell=relationship_cell,
             )
-            decorated = decorate_relationship_rows(spec.key, rows, list(parents.values()))
-            result = []
-            for item in decorated:
-                source = inactive_org_unit_source(item, {**parents, int(item["id"]): item})
-                result.append({
-                    **item,
-                    "effective_status": "inactive" if source else "active",
-                    "_inactive_reason": (
-                        "Directly inactive" if source and source["id"] == item["id"]
-                        else f"Inherited from {source['code']} — {source['name']}" if source
-                        else "Active"
-                    ),
-                })
-            return result
-        if spec.key == "roles":
-            units_by_id, profiles_by_id, security_levels_by_id = await asyncio.gather(
-                org_unit_context({item.get("org_unit_id") for item in rows}),
-                rows_by_id("profiles", {item.get("profile_id") for item in rows}),
-                rows_by_id("security-levels", {item.get("security_level_id") for item in rows}),
-            )
-            decorated = decorate_relationship_rows(spec.key, rows, list(units_by_id.values()))
-            result = []
-            for item in decorated:
-                unit = units_by_id.get(item.get("org_unit_id"))
-                source = inactive_org_unit_source(unit, units_by_id)
-                effective = item.get("status") == "active" and source is None
-                result.append({
-                    **item,
-                    "profile_display": relationship_cell({
-                        **profiles_by_id[item["profile_id"]],
-                        "name": localized_profile_value(
-                            profiles_by_id[item["profile_id"]], "name",
-                        ),
-                    }) if item.get("profile_id") in profiles_by_id else None,
-                    "security_level_display": relationship_cell(
-                        security_levels_by_id.get(item.get("security_level_id"))
-                    ),
-                    "effective_status": "active" if effective else "inactive",
-                    "_inactive_reason": (
-                        "Role is directly inactive" if item.get("status") == "inactive"
-                        else f"Organization inactive: {source['code']} — {source['name']}" if source
-                        else "Active"
-                    ),
-                })
-            return result
-        if spec.key == "users":
-            return [
-                {
-                    **item,
-                    "_avatar": user_avatar(item),
-                    "_inactive_reason": item.get("status", "active").title(),
-                }
-                for item in rows
-            ]
         if spec.key == "records":
             aggregations_by_id = await rows_by_id(
                 "aggregations", {item.get("aggregation_id") for item in rows},
@@ -7507,192 +4125,13 @@ def index(q: str = "") -> None:
             ]
         return rows
 
-    async def load_recent(spec: EntitySpec) -> None:
-        if not spec.search_first:
-            state["recent_created"] = []
-            state["recent_updated"] = []
-            state["recent_activity"] = []
-            return
-        if spec.key == "classifications":
-            state["recent_created"] = []
-            state["recent_updated"] = []
-            state["recent_activity"] = []
-            return
-        if spec.key in {"aggregations", "records"}:
-            activity = await api.recent_resource_activity(spec.key, limit=50)
-            decorated = await decorate_for_spec(spec, activity)
-            state["recent_activity"] = decorated
-            state["recent_created"] = [item for item in decorated if item["_operation"] == "CREATE"]
-            state["recent_updated"] = [item for item in decorated if item["_operation"] == "UPDATE"]
-            return
-        created, updated = await api.recently_created(spec.key), await api.recently_updated(spec.key)
-        state["recent_activity"] = []
-        state["recent_created"] = await decorate_for_spec(spec, created)
-        state["recent_updated"] = await decorate_for_spec(spec, updated)
 
-    async def browse_advanced_aggregation(target_control: Any, *, record_creation=False, digital_only=False, resource_kind="aggregation", exclude_id=None, on_select=None, active=lambda: True) -> None:
-        dialog = ui.dialog()
-        content: Any = None
-        scheme_control: Any = None
-        def current():
-            return active() and dialog.value and not dialog._deleted
-        browser = {"collections": {}, "expanded": set(), "scheme_id": None}
-
-        async def load_collection(path: str, *, append: bool = False) -> None:
-            requested_scheme = browser['scheme_id']
-            collection = browser["collections"].setdefault(path, {"items": [], "next_cursor": None})
-            page = await api.browse_page(
-                path, cursor=collection["next_cursor"] if append else None, limit=50,
-                **({"record_creation": True, "digital_only": digital_only} if record_creation and (path.endswith("/aggregations") or path.startswith("aggregations/")) else {}),
-            )
-            if not current() or browser['scheme_id'] != requested_scheme:
-                return
-            collection["items"] = [*collection["items"], *page["items"]] if append else list(page["items"])
-            collection["next_cursor"] = page.get("next_cursor")
-
-        async def toggle_node(kind: str, item: dict[str, Any]) -> None:
-            if not current():
-                return
-            node = (kind, int(item["id"]))
-            if node in browser["expanded"]:
-                browser["expanded"].remove(node)
-                render_tree()
-                return
-            browser["expanded"].add(node)
-            if kind == "classification":
-                path = (
-                    f"classifications/{item['id']}/aggregations"
-                    if item["is_terminal"] else f"classifications/{item['id']}/children"
-                )
-            else:
-                path = f"aggregations/{item['id']}/children"
-            paths = [path]
-            if kind == "aggregation" and resource_kind == "record":
-                paths.append(f"aggregations/{item['id']}/records")
-            await asyncio.gather(*(load_collection(candidate) for candidate in paths if candidate not in browser["collections"]))
-            if current():
-                render_tree()
-
-        async def select_aggregation(item: dict[str, Any]) -> None:
-            if not current():
-                return
-            if on_select:
-                try:
-                    await on_select(item, current)
-                except ApiError as error:
-                    if current():
-                        ui.notify(error_message(error), color="negative")
-                    return
-            else:
-                apply_relationship_selection(target_control, item["id"], f"{item['aggregation_number']} · {item['title']}")
-            if current():
-                dialog.close()
-
-        def render_collection(path: str, kind: str, depth: int) -> None:
-            collection = browser["collections"].get(path, {"items": [], "next_cursor": None})
-            for item in collection["items"]:
-                node_kind = kind
-                node = (node_kind, int(item["id"]))
-                expanded = node in browser["expanded"]
-                with ui.column().classes("advanced-relationship-tree-node gap-0"):
-                    with ui.row().classes(
-                        "advanced-relationship-tree-row w-full rounded-lg py-1 pe-2 hover:bg-blue-50"
-                    ):
-                        expander = ui.button(
-                            icon=tree_expander_icon(expanded),
-                            on_click=lambda _, selected=item, selected_kind=node_kind: toggle_node(selected_kind, selected),
-                        ).props("flat round dense size=sm color=blue-grey").classes(
-                            "advanced-relationship-tree-expander"
-                        )
-                        if node_kind == "record":
-                            expander.set_visibility(False)
-                        ui.icon(
-                            "description" if node_kind == "record" else "schema" if node_kind == "classification" and not item.get("is_terminal")
-                            else "label" if node_kind == "classification" else "folder",
-                            color="primary",
-                        ).classes("advanced-relationship-tree-icon")
-                        with ui.column().classes(
-                            "advanced-relationship-tree-content min-w-0 gap-0"
-                        ):
-                            ui.label(item["title"]).classes("text-sm font-semibold")
-                            ui.label(item.get("code") or item.get(node_kind + "_number")).classes(
-                                "text-xs text-slate-500"
-                            )
-                        if node_kind == resource_kind and item['id'] != exclude_id:
-                            ui.button(
-                                render_message("webui.render_collection.button.select_c2c58965"), icon="check",
-                                on_click=lambda _, selected=item: select_aggregation(selected),
-                            ).props("flat dense no-caps").classes(
-                                "advanced-relationship-tree-action"
-                            )
-                    if expanded:
-                        child_path = (
-                            f"classifications/{item['id']}/aggregations"
-                            if node_kind == "classification" and item["is_terminal"] else
-                            f"classifications/{item['id']}/children"
-                            if node_kind == "classification" else
-                            f"aggregations/{item['id']}/children"
-                        )
-                        with ui.column().classes(
-                            "advanced-relationship-tree-children w-auto gap-0"
-                        ):
-                            render_collection(
-                                child_path,
-                                "aggregation" if node_kind == "aggregation" or item.get("is_terminal") else "classification",
-                                depth + 1,
-                            )
-                            if node_kind == "aggregation" and resource_kind == "record":
-                                render_collection(f"aggregations/{item['id']}/records", "record", depth + 1)
-            if collection.get("next_cursor"):
-                async def load_more(collection_path: str = path) -> None:
-                    await load_collection(collection_path, append=True)
-                    render_tree()
-                ui.button(
-                    render_message("webui.render_collection.button.load_more_755f4879"),
-                    icon="more_horiz", on_click=load_more,
-                ).props("flat dense no-caps").classes("self-start ms-8")
-
-        def render_tree() -> None:
-            if not current():
-                return
-            content.clear()
-            with content:
-                scheme_id = browser.get("scheme_id")
-                if scheme_id is None:
-                    ui.label(render_message("webui.render_tree.label.choose_a_classification_scheme_20386596")).classes("text-sm text-slate-500 py-6 self-center")
-                    return
-                render_collection(f"classification-schemes/{scheme_id}/roots", "classification", 0)
-
-        async def select_scheme(scheme_id: int | None) -> None:
-            if scheme_id is None:
-                return
-            browser.update(scheme_id=int(scheme_id), collections={}, expanded=set())
-            await load_collection(f"classification-schemes/{scheme_id}/roots")
-            render_tree()
-
-        with dialog, ui.card().classes("w-[760px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"):
-            with ui.row().classes("w-full items-center"):
-                ui.label(render_message("webui.browse_advanced_aggregation.label.browse_classification_and_aggregation_hier_26704b25")).classes("text-xl font-semibold")
-                ui.space(); ui.button(icon="close", on_click=dialog.close).props("flat round")
-            scheme_control = ui.select({}, label=render_message("webui.browse_advanced_aggregation.select.classification_scheme_84f93d50")).props("outlined dense options-dense use-input input-debounce=0").classes("w-full")
-            bind_remote_scheme_select(scheme_control)
-            content = ui.column().classes("w-full gap-2 overflow-y-auto max-h-[calc(100vh-150px)]")
-        dialog.open()
-        try:
-            schemes = await api.browse_schemes()
-            if not current():
-                return
-            scheme_control.options = {item["id"]: f"{item['code']} — {item['title']}" for item in schemes}
-            scheme_control.update()
-            if schemes:
-                scheme_control.value = schemes[0]["id"]
-                scheme_control.update()
-                await select_scheme(schemes[0]["id"])
-            else:
-                render_tree()
-        except ApiError as error:
-            dialog.close(); ui.notify(error_message(error), color="negative", close_button=True)
-        scheme_control.on_value_change(lambda event: select_scheme(event.value))
+    browse_advanced_aggregation = build_aggregation_selector(
+        api=api,
+        bind_remote_scheme_select=lambda *args, **kwargs: bind_remote_scheme_select(*args, **kwargs),
+        error_message=error_message,
+        tree_expander_icon=lambda *args, **kwargs: tree_expander_icon(*args, **kwargs),
+    )
 
     async def open_record_draft_editor(
         target_aggregation_id: int | None = None, on_committed=None, existing_capture_draft=None, capture_active=None,
@@ -8220,17 +4659,14 @@ def index(q: str = "") -> None:
             # records. Read all persisted fields before initializing controls;
             # an omitted designation must never turn into an implicit clear.
             try:
-                row = await api.get("org-units", row["id"])
+                row = await read_organization_editor_row(api, row)
             except ApiError as error:
                 show_api_error(error)
                 return
         translation_only = bool(
             row and (
-                (spec.key == "roles" and row.get("is_system"))
-                or (
-                    spec.key == "profiles"
-                    and row.get("code") == "TEXT_INDEXER_SERVICE"
-                )
+                protected_organization_role(spec.key, row)
+                or profile_translation_only(spec.key, row)
             )
         )
         translation_edit_allowed = can_edit_entity_translation(
@@ -8266,8 +4702,7 @@ def index(q: str = "") -> None:
             )
             return
         if row and spec.key == "aggregations" and row.get("date_closed") is None:
-            if not editor_capabilities.get("close"):
-                effective_locked_fields.add("date_closed")
+            lock_aggregation_close_field(editor_capabilities, effective_locked_fields)
         if creating and spec.key == "records":
             await open_record_draft_editor()
             return
@@ -8277,17 +4712,9 @@ def index(q: str = "") -> None:
         retention_rule: dict[str, Any] | None = None
         try:
             if creating and spec.key == "aggregations":
-                creation_roles, creation_configuration = await asyncio.gather(
-                    api.creation_role_options((initial_values or {}).get("parent_aggregation_id")),
-                    api.application_configuration(),
-                )
-                accept_application_configuration(creation_configuration)
+                creation_roles, creation_configuration = await load_aggregation_creation_context(api, initial_values, accept_application_configuration)
             if row and spec.key == "classifications":
-                try:
-                    retention_rule = await api.classification_retention_rule(row["id"])
-                except ApiError as error:
-                    if error.status_code != 404:
-                        raise
+                retention_rule = await load_direct_retention(api, row)
             for field in spec.fields:
                 if not field.lookup_resource:
                     continue
@@ -8332,142 +4759,6 @@ def index(q: str = "") -> None:
             ui.notify(error_message(error), color="negative", close_button=True)
             return
 
-        async def browse_classification_tree(target_control: Any) -> None:
-            browser = ui.dialog()
-            content: Any = None
-
-            async def show_schemes(
-                *, offset: int = 0,
-                accumulated: list[dict[str, Any]] | None = None,
-            ) -> None:
-                try:
-                    page_schemes = await api.list(
-                        "classification-schemes", eligible=True,
-                        limit=26, offset=offset,
-                    )
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                    return
-                has_more = len(page_schemes) > 25
-                schemes = [*(accumulated or []), *page_schemes[:25]]
-                content.clear()
-                with content:
-                    ui.label(render_message("webui.show_schemes.label.published_classification_schemes_60973ae8")).classes("text-lg font-semibold")
-                    ui.label(render_message("webui.show_schemes.label.choose_a_scheme_to_browse_its_classificati_16640d3e")).classes("text-sm text-slate-500")
-                    if not schemes:
-                        ui.label(render_message("webui.show_schemes.label.no_active_published_classification_schemes_5c51e82c")).classes("py-8 text-slate-400")
-                    for scheme in schemes:
-                        with ui.card().classes("w-full shadow-none border border-slate-200 cursor-pointer").on(
-                            "click", lambda _, selected=scheme: show_level(selected, None, [])
-                        ):
-                            with ui.row().classes("w-full items-start gap-3 no-wrap"):
-                                ui.avatar(
-                                    icon="account_tree", color="blue-1", text_color="primary"
-                                ).classes("shrink-0")
-                                with ui.column().classes("gap-0 grow min-w-0"):
-                                    ui.label(scheme["title"]).classes(
-                                        "w-full font-semibold whitespace-normal break-words"
-                                    )
-                                    ui.label(scheme["code"]).classes(
-                                        "w-full text-xs text-primary truncate"
-                                    )
-                                    if scheme.get("description"):
-                                        ui.label(scheme["description"]).classes(
-                                            "w-full text-xs text-slate-500 line-clamp-2"
-                                        )
-                                ui.icon(tree_expander_icon(False)).classes(
-                                    "text-slate-400 shrink-0 self-center"
-                                )
-                    if has_more:
-                        ui.button(
-                            render_message("webui.render_collection.button.load_more_755f4879"),
-                            icon="more_horiz",
-                            on_click=lambda: show_schemes(
-                                offset=offset + 25, accumulated=schemes,
-                            ),
-                        ).props("flat dense no-caps").classes("self-center")
-
-            async def show_level(
-                scheme: dict[str, Any], parent: dict[str, Any] | None,
-                path: list[dict[str, Any]], *, offset: int = 0,
-                accumulated: list[dict[str, Any]] | None = None,
-            ) -> None:
-                try:
-                    page_rows = await api.list(
-                        "classifications",
-                        classification_scheme_id=scheme["id"],
-                        limit=26, offset=offset,
-                        **({"roots_only": True} if parent is None else {"parent_classification_id": parent["id"]}),
-                    )
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                    return
-                has_more = len(page_rows) > 25
-                rows = [*(accumulated or []), *page_rows[:25]]
-                rows.sort(key=lambda item: (
-                    str(item.get("code") or "").casefold(), int(item.get("id") or 0),
-                ))
-                content.clear()
-                with content:
-                    with ui.row().classes("w-full items-center gap-1"):
-                        ui.button(icon="arrow_forward" if current_direction["value"] == "rtl" else "arrow_back", on_click=show_schemes if not path else lambda: show_level(scheme, path[-1] if path else None, path[:-1])).props("flat round dense").tooltip(render_message("webui.show_level.tooltip.back_f6d07119"))
-                        ui.label(scheme["title"]).classes("font-semibold")
-                        for ancestor in path:
-                            ui.icon(tree_expander_icon(False), size="16px").classes("text-slate-400")
-                            ui.label(ancestor["code"]).classes("text-xs text-slate-500")
-                        if parent:
-                            ui.icon(tree_expander_icon(False), size="16px").classes("text-slate-400")
-                            ui.label(parent["code"]).classes("text-xs font-semibold text-primary")
-                    if not rows:
-                        ui.label(render_message("webui.show_level.label.this_branch_has_no_child_classifications_y_83ec7e08")).classes("py-8 text-slate-400")
-                    for classification in rows:
-                        async def choose(item=classification) -> None:
-                            if item["is_terminal"]:
-                                apply_relationship_selection(
-                                    target_control, item["id"],
-                                    relationship_options([item], ("code", "title"))[item["id"]],
-                                )
-                                browser.close()
-                            else:
-                                await show_level(
-                                    scheme, item,
-                                    [*path, parent] if parent else path,
-                                )
-                        with ui.card().classes("w-full shadow-none border border-slate-200 cursor-pointer").on("click", choose):
-                            with ui.row().classes("w-full items-center gap-3"):
-                                ui.avatar(
-                                    icon="label" if classification["is_terminal"] else "schema",
-                                    color="blue-1", text_color="primary",
-                                )
-                                with ui.column().classes("gap-0 grow"):
-                                    with ui.row().classes("items-center gap-2"):
-                                        ui.label(classification["title"]).classes("font-semibold")
-                                        ui.badge(
-                                            render_message("webui.show_level.badge.terminal_06982bf6") if classification["is_terminal"] else render_message("webui.show_level.badge.branch_f3904c54"),
-                                            color="primary",
-                                        ).props("outline")
-                                    ui.label(classification["code"]).classes("text-xs text-primary")
-                                    if classification.get("description"):
-                                        ui.label(classification["description"]).classes("text-xs text-slate-500 line-clamp-2")
-                                ui.icon("check_circle" if classification["is_terminal"] else tree_expander_icon(False), color="primary")
-                    if has_more:
-                        ui.button(
-                            render_message("webui.render_collection.button.load_more_755f4879"),
-                            icon="more_horiz",
-                            on_click=lambda: show_level(
-                                scheme, parent, path,
-                                offset=offset + 25, accumulated=rows,
-                            ),
-                        ).props("flat dense no-caps").classes("self-center")
-
-            with browser, ui.card().classes("w-[760px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"):
-                with ui.row().classes("w-full items-center"):
-                    ui.label(render_message("webui.browse_classification_tree.label.browse_classifications_9c9abe6c")).classes("text-xl font-semibold")
-                    ui.space()
-                    ui.button(icon="close", on_click=browser.close).props("flat round")
-                content = ui.column().classes("w-full gap-2 overflow-y-auto max-h-[calc(100vh-150px)]")
-            browser.open()
-            await show_schemes()
 
         dialog = ui.dialog()
         controls: dict[str, Any] = {}
@@ -8502,56 +4793,7 @@ def index(q: str = "") -> None:
                         render_message("webui.open_editor.label.ownership_is_determined_by_placement_move_9bd5bbc5")
                     ).classes("text-xs leading-5 text-slate-500 -mt-2")
                 if creating and spec.key == "aggregations":
-                    parent_field = next(
-                        field for field in spec.fields if field.name == "parent_aggregation_id"
-                    )
-                    initial_parent_id = (initial_values or {}).get("parent_aggregation_id")
-                    controls["parent_aggregation_id"] = field_input(
-                        parent_field,
-                        initial_parent_id,
-                        lookup_options.get("parent_aggregation_id"),
-                    )
-                    bind_remote_relationship_select(
-                        controls["parent_aggregation_id"], "aggregations",
-                        ("aggregation_number", "title"),
-                        parent_field.lookup_label_fields,
-                    )
-                    ui.label(
-                        render_message("webui.open_editor.label.optional_leave_this_blank_to_create_a_root_62bd543d")
-                    ).classes("text-xs leading-5 text-slate-500 -mt-2")
-                    if "parent_aggregation_id" in effective_locked_fields:
-                        controls["parent_aggregation_id"].disable()
-                    role_options = {
-                        item["role_id"]: item["label"] for item in creation_roles
-                    }
-                    initial_role_id = (
-                        creation_roles[0]["role_id"] if len(creation_roles) == 1 else None
-                    )
-                    controls["creator_acl_role_id"] = ui.select(
-                        role_options, value=initial_role_id, label=render_message("webui.open_editor.select.create_for_ab95b7b7"),
-                    ).props("outlined options-dense").classes("w-full")
-                    if len(creation_roles) == 1:
-                        controls["creator_acl_role_id"].disable()
-                    ui.label(
-                        render_message("webui.open_editor.label.for_a_child_aggregation_the_parent_determi_cd47a50d")
-                    ).classes("text-xs leading-5 text-slate-500 -mt-2")
-                    aggregation_creation_role_status = ui.label(
-                        (
-                            (
-                                render_message("webui.open_editor.label.you_do_not_have_an_eligible_role_in_the_pa_4862616a")
-                                if initial_parent_id is not None
-                                else render_message("webui.open_editor.label.you_do_not_have_an_eligible_role_so_you_ca_7fcb954d")
-                            )
-                            if not creation_roles
-                            else render_message("webui.open_editor.label.choose_one_of_your_roles_in_the_parent_agg_3f0d544f")
-                            if initial_parent_id is not None and len(creation_roles) > 1
-                            else render_message("webui.open_editor.label.create_for_was_set_automatically_because_y_cf4e8502")
-                            if initial_parent_id is not None
-                            else render_message("webui.open_editor.label.no_parent_is_selected_so_this_will_be_a_ro_36c62919")
-                        )
-                    ).props('role="status" aria-live="polite"').classes(
-                        "text-xs leading-5 text-amber-800 -mt-2"
-                    )
+                    aggregation_creation_role_status = render_aggregation_creation_controls(spec, initial_values, lookup_options, controls, effective_locked_fields, creation_roles, bind_remote_relationship_select)
                 for field in spec.fields:
                     if creating and spec.key == "org-units" and field.name in {"managing_role_id", "file_administrator_role_id"}:
                         continue
@@ -8562,10 +4804,7 @@ def index(q: str = "") -> None:
                         continue
                     if creating and spec.key == "aggregations" and field.name == "parent_aggregation_id":
                         continue
-                    source = retention_rule if field.name in {
-                        "current_period_years", "intermediate_period_years",
-                        "final_disposition", "instructions",
-                    } else row
+                    source = retention_editor_source(field, row, retention_rule)
                     initial_value = (
                         (initial_values or {}).get(field.name)
                         if creating else source.get(field.name) if source else None
@@ -8573,20 +4812,13 @@ def index(q: str = "") -> None:
                     if creating and field.name == "security_level_id" and initial_value is None:
                         available_levels = lookup_rows_by_field.get(field.name, [])
                         if spec.key == "aggregations" and (initial_values or {}).get("parent_aggregation_id"):
-                            parent = next(
-                                (item for item in lookup_rows_by_field.get("parent_aggregation_id", [])
-                                 if item["id"] == (initial_values or {}).get("parent_aggregation_id")),
-                                None,
-                            )
-                            initial_value = parent.get("security_level_id") if parent else None
+                            initial_value = aggregation_initial_security_level(initial_values, lookup_rows_by_field)
                         if initial_value is None and available_levels:
                             initial_value = min(
                                 available_levels, key=lambda item: (item["level_number"], item["id"])
                             )["id"]
                     if creating and spec.key == "aggregations" and field.name == "medium":
-                        parent_id = controls["parent_aggregation_id"].value
-                        parent = next((item for item in lookup_rows_by_field.get("parent_aggregation_id", []) if item["id"] == parent_id), None)
-                        initial_value = parent.get("medium", "mixed") if parent else default_root_aggregation_medium(creation_configuration)
+                        initial_value = aggregation_initial_medium(controls, lookup_rows_by_field, creation_configuration)
                     if creating and field.name == "profile_id" and initial_value is None:
                         available_profiles = lookup_rows_by_field.get(field.name, [])
                         compatibility = next(
@@ -8629,104 +4861,22 @@ def index(q: str = "") -> None:
                                 if row and field.lookup_resource == spec.key else None
                             ),
                         )
-                    if spec.key == "org-units" and field.name in {"managing_role_id", "file_administrator_role_id"}:
-                        async def designated_roles(query, unit_id=row["id"]):
-                            if len(query.strip()) < 2:
-                                return {"items": []}
-                            return await api.search_request("roles", {
-                                "where": {"and": [
-                                    {"field": "org_unit_id", "operator": "eq", "value": unit_id},
-                                    {"or": [{"field": name, "operator": "contains_ci", "value": query.strip()} for name in ("code", "name")]},
-                                ]},
-                                "sort": [{"field": "code", "direction": "asc"}], "limit": 25,
-                            })
-                        bind_remote_relationship_select(
-                            controls[field.name], "roles", ("code", "name"), ("code", "name"),
-                            page_loader=designated_roles, active=lambda: dialog.value,
-                        )
-                    if spec.key == "roles" and field.name == "profile_id":
-                        profiles_by_id = {
-                            item["id"]: item
-                            for item in lookup_rows_by_field.get(field.name, [])
-                        }
-                        with ui.row().classes(
-                            "w-full items-start gap-2 rounded-lg border border-amber-200 "
-                            "bg-amber-50 px-3 py-2 -mt-2"
-                        ) as all_privileges_warning:
-                            ui.icon("warning_amber", color="amber-9", size="20px").classes(
-                                "mt-0.5 shrink-0"
-                            )
-                            ui.label(
-                                render_message("webui.open_editor.label.this_profile_grants_every_currently_define_e746104e")
-                            ).classes("text-xs leading-5 text-amber-10")
-
-                        def update_all_privileges_warning() -> None:
-                            all_privileges_warning.set_visibility(
-                                bool(profiles_by_id.get(
-                                    controls["profile_id"].value, {}
-                                ).get("grants_all_privileges"))
-                                or str(controls["profile_id"].options.get(
-                                    controls["profile_id"].value, "",
-                                )).startswith("ALL_PRIVS")
-                            )
-
-                        controls["profile_id"].on_value_change(
-                            lambda _: update_all_privileges_warning()
-                        )
-                        update_all_privileges_warning()
-                    if (
-                        not translation_only
-                        and field.lookup_resource in {"org-units", "roles", "users"}
-                    ):
-                        selector_mode = {
-                            "org-units": "org_unit", "roles": "role", "users": "user",
-                        }[field.lookup_resource]
-                        ui.button(
-                            render_message("webui.open_editor.button.browse_organization_structure_8fdef32d"), icon="account_tree",
-                            on_click=lambda _, control=controls[field.name], mode=selector_mode: show_organization_structure(
-                                selection_mode=mode, target_control=control,
-                            ),
-                        ).props("flat dense no-caps color=primary").classes("self-start -mt-2")
+                    configure_designation_field(spec, field, row, controls, dialog, api, bind_remote_relationship_select)
+                    configure_role_profile_field(spec, field, controls, lookup_rows_by_field)
+                    configure_organization_browser_field(translation_only, field, controls, show_organization_structure)
                     if field.name in effective_locked_fields:
                         controls[field.name].disable()
                         if spec.key == "aggregations" and field.name == "date_closed":
-                            ui.label(
-                                render_message("webui.open_editor.label.closing_an_aggregation_requires_the_aggreg_3d670823")
-                            ).classes("text-xs leading-5 text-slate-500 -mt-2")
-                    if spec.key == "profiles" and field.name == "code" and not creating:
-                        controls[field.name].disable()
+                            render_aggregation_close_help()
+                    if spec.key == "profiles":
+                        configure_profile_field(field, controls[field.name], creating=creating)
                     if translation_only:
                         controls[field.name].disable()
-                    if spec.key == "roles" and field.name == "is_information_governance":
-                        ui.label(
-                            render_message("webui.open_editor.label.information_governance_roles_may_bypass_re_697d91ef")
-                        ).classes("text-xs leading-5 text-slate-500 -mt-2")
-                    if (
-                        spec.key == "classification-schemes"
-                        and field.name == "date_published"
-                        and not creating
-                    ):
-                        controls[field.name].disable()
-                        ui.label(
-                            render_message("webui.open_editor.label.use_the_publish_or_unpublish_action_to_cha_004f776d")
-                        ).classes("text-xs text-slate-500 -mt-2")
+                    configure_role_governance_field(spec, field)
+                    if spec.key == "classification-schemes":
+                        configure_scheme_field(field, controls[field.name], creating=creating)
                     if spec.key == "aggregations" and field.name == "classification_id":
-                        parent_id = (initial_values or {}).get("parent_aggregation_id") if creating else row.get("parent_aggregation_id")
-                        if parent_id is not None:
-                            controls[field.name].value = None
-                            controls[field.name].disable()
-                            with ui.row().classes(
-                                "w-full items-start gap-1 text-xs text-slate-500 -mt-2"
-                            ):
-                                ui.icon("info", size="16px").classes("mt-px shrink-0")
-                                ui.label(CHILD_AGGREGATION_CLASSIFICATION_HELP).classes(
-                                    "leading-5"
-                                )
-                        else:
-                            ui.button(
-                                render_message("webui.open_editor.button.browse_classification_tree_19ef047a"), icon="account_tree",
-                                on_click=lambda control=controls[field.name]: browse_classification_tree(control),
-                            ).props("outline dense no-caps color=primary").classes("self-start")
+                        configure_aggregation_classification(field, controls, creating, initial_values, row, browse_classification_tree)
 
                 multilingual_fields = {
                     "classification-schemes": ("title", "description"),
@@ -8742,271 +4892,16 @@ def index(q: str = "") -> None:
                 ] | None = None
                 profile_change_reason = None
                 if not creating and spec.key in multilingual_fields and translation_edit_allowed:
-                    bootstrap = state.get("localization") or {}
-                    language_options = {
-                        item["language_tag"]: f'{item["native_name"]} · {item["english_name"]}'
-                        for item in bootstrap.get("supported_languages", [])
-                        if item.get("is_enabled", True)
-                    }
-                    translation_state: dict[str, Any] = {
-                        "loaded_language": None,
-                        "load_generation": 0,
-                        "baseline": {field: "" for field in multilingual_fields[spec.key]},
-                    }
-                    with ui.expansion(render_message("entity_translation_editor.expansion.title"), icon="translate").props(
-                        "dense header-class='text-sm font-medium'"
-                    ).classes("w-full rounded-lg border border-slate-200 bg-slate-50"):
-                        ui.label(
-                            render_message("webui.open_editor.label.optional_add_localized_names_and_descripti_611fdfb3")
-                        ).classes("text-xs leading-5 text-slate-600")
-                        language_control = ui.select(
-                            language_options, label=render_message("webui.open_editor.select.language_a1337600")
-                        ).props("outlined dense options-dense").classes("w-full")
-                        translation_field_labels = {
-                            "name": render_message("entity_translation_editor.input.name"),
-                            "title": render_message("entity_translation_editor.input.title"),
-                            "description": render_message("entity_translation_editor.input.description"),
-                        }
-                        translation_controls = {
-                            field: (
-                                ui.textarea(translation_field_labels[field]).props("outlined dense autogrow")
-                                if field == "description"
-                                else ui.input(translation_field_labels[field]).props("outlined dense")
-                            ).classes("w-full")
-                            for field in multilingual_fields[spec.key]
-                        }
-                        for control in translation_controls.values():
-                            control.disable()
-                        translation_reason = (
-                            None if spec.key == "profiles" else ui.input(
-                                render_message("webui.open_editor.input.reason_for_translation_change_82d24ea1")
-                            ).props("outlined dense").classes("w-full")
-                        )
-                        translation_status = ui.label(
-                            render_message("webui.open_editor.label.choose_a_language_then_load_its_current_va_7921b5e3")
-                        ).props('role="status" aria-live="polite"').classes(
-                            "text-xs text-slate-500"
-                        )
-                        # Capture these while the editor's client-localized UI
-                        # context is active. The API await below may resume in a
-                        # background task where NiceGUI no longer exposes that
-                        # client as the current rendering context.
-                        translation_loading_status = render_message("common.status.loading")
-                        translation_loaded_status = render_message(
-                            "entity_translation_editor.status.loaded"
-                        )
-
-                        async def load_entity_translation() -> None:
-                            language = language_control.value
-                            if not language:
-                                ui.notify(render_message("webui.load_entity_translation.notify.choose_a_language_049998ee"), color="warning")
-                                return
-                            translation_state["load_generation"] += 1
-                            load_generation = translation_state["load_generation"]
-                            translation_state["loaded_language"] = None
-                            translation_state["baseline"] = {
-                                field: "" for field in translation_controls
-                            }
-                            translation_status.set_text(translation_loading_status)
-                            for control in translation_controls.values():
-                                control.value = ""
-                                control.disable()
-                                control.update()
-                            try:
-                                current = await api.entity_translation(spec.key, row["id"], language)
-                                if (
-                                    load_generation != translation_state["load_generation"]
-                                    or language_control.value != language
-                                ):
-                                    return
-                                translation_state["loaded_language"] = language
-                                row["version"] = current["version"]
-                                for field, control in translation_controls.items():
-                                    control.value = current["fields"].get(field) or ""
-                                    control.enable()
-                                    control.update()
-                                translation_state["baseline"] = {
-                                    field: (control.value or "").strip()
-                                    for field, control in translation_controls.items()
-                                }
-                                translation_status.set_text(translation_loaded_status)
-                            except ApiError as error:
-                                if (load_generation != translation_state["load_generation"]
-                                    or language_control.value != language or not dialog.value):
-                                    return
-                                # Language changes run in a background task. Restore
-                                # this editor's client context for localized errors.
-                                # Failed loads keep fields disabled and cannot save
-                                # a translation against an unknown baseline/version.
-                                with translation_status.client:
-                                    translation_status.set_text(error_message(error))
-                                    show_api_error(error)
-
-                        def pending_entity_translation() -> tuple[
-                            str, dict[str, str], str
-                        ] | None:
-                            language = language_control.value
-                            entered_values = {
-                                field: (control.value or "").strip()
-                                for field, control in translation_controls.items()
-                            }
-                            if entered_values == translation_state["baseline"]:
-                                return None
-                            if not language or translation_state["loaded_language"] != language:
-                                raise ValueError(
-                                    render_message("webui.save_entity_translation.notify.load_the_selected_language_before_saving_dc2d8ba1")
-                                )
-                            reason_control = (
-                                profile_change_reason
-                                if spec.key == "profiles" else translation_reason
-                            )
-                            reason = (reason_control.value or "").strip()
-                            if not reason:
-                                raise ValueError(
-                                    render_message("webui.save_entity_translation.notify.enter_a_reason_for_the_translation_change_23f6bb0d")
-                                )
-                            values = {
-                                field: value for field, value in entered_values.items() if value
-                            }
-                            if not values:
-                                raise ValueError(
-                                    render_message("entity_translation_editor.status.enter_one")
-                                )
-                            return language, values, reason
-
-                        prepare_entity_translation_update = pending_entity_translation
-
-                        async def remove_entity_translation() -> None:
-                            language = language_control.value
-                            if not language or translation_state["loaded_language"] != language:
-                                ui.notify(render_message("webui.save_entity_translation.notify.load_the_selected_language_before_saving_dc2d8ba1"), color="warning")
-                                return
-                            reason_control = (
-                                profile_change_reason
-                                if spec.key == "profiles" else translation_reason
-                            )
-                            reason = (reason_control.value or "").strip()
-                            if not reason:
-                                ui.notify(render_message("webui.save_entity_translation.notify.enter_a_reason_for_the_translation_change_23f6bb0d"), color="warning")
-                                return
-                            try:
-                                removed_translation = await api.update_entity_translation(
-                                    spec.key, row["id"], language,
-                                    {field: None for field in multilingual_fields[spec.key]},
-                                    row["version"], reason,
-                                )
-                                row["version"] = removed_translation["version"]
-                                for control in translation_controls.values():
-                                    control.value = ""
-                                    control.update()
-                                reason_control.value = ""
-                                reason_control.update()
-                                translation_status.set_text(render_message("webui.remove_entity_translation.notify.translation_removed_09e85c43"))
-                                ui.notify(render_message("webui.remove_entity_translation.notify.translation_removed_09e85c43"), color="positive")
-                            except ApiError as error:
-                                show_api_error(error)
-
-                        with ui.row().classes("w-full justify-end gap-1"):
-                            ui.button(icon="refresh", on_click=load_entity_translation).props(
-                                "flat round dense"
-                            ).tooltip(render_message("webui.open_editor.tooltip.load_translation_d75ce604"))
-                            ui.button(icon="delete_outline", on_click=remove_entity_translation).props(
-                                "flat round dense color=negative"
-                            ).tooltip(render_message("webui.open_editor.tooltip.remove_translation_01e5d951"))
-
-                        language_control.on_value_change(
-                            lambda: background_tasks.create(load_entity_translation())
-                        )
-                        if language_control.value:
-                            await load_entity_translation()
+                    prepare_entity_translation_update = await entity_translation_editor(
+                        api, resource=spec.key, row=row, fields=multilingual_fields[spec.key],
+                        languages=(state.get("localization") or {}).get("supported_languages", []),
+                        dialog=dialog, uses_external_reason=spec.key == "profiles",
+                        get_external_reason=lambda: profile_change_reason,
+                        error_message=error_message, show_api_error=show_api_error,
+                    )
 
             if spec.key == "aggregations" and "security_level_id" in controls:
-                parents = lookup_rows_by_field.get("parent_aggregation_id", [])
-
-                def constrain_aggregation_medium() -> None:
-                    parent_id = controls["parent_aggregation_id"].value
-                    parent = next((item for item in parents if item["id"] == parent_id), None)
-                    medium_control = controls["medium"]
-                    if parent:
-                        medium = parent.get("medium", "mixed")
-                        medium_control.set_options({medium: medium_options()[medium]}, value=medium)
-                        medium_control.disable()
-                    else:
-                        medium_control.set_options(
-                            medium_options(),
-                            value=medium_control.value or (row["medium"] if row else default_root_aggregation_medium(creation_configuration)),
-                        )
-                        medium_control.enable()
-                    medium_control.update()
-
-                if controls.get("parent_aggregation_id"):
-                    controls["parent_aggregation_id"].on_value_change(
-                        lambda _: constrain_aggregation_medium()
-                    )
-                    if creating:
-                        async def refresh_aggregation_creation_roles() -> None:
-                            control = controls["creator_acl_role_id"]
-                            previous_role_id = control.value
-                            parent_id = controls["parent_aggregation_id"].value
-                            try:
-                                rows = await api.creation_role_options(
-                                    parent_id
-                                )
-                            except ApiError as error:
-                                ui.notify(error_message(error), color="negative", close_button=True)
-                                return
-                            options = {item["role_id"]: item["label"] for item in rows}
-                            eligible_role_ids = set(options)
-                            previous_role_was_cleared = (
-                                previous_role_id is not None
-                                and previous_role_id not in eligible_role_ids
-                            )
-                            selected_role_id = (
-                                previous_role_id if previous_role_id in eligible_role_ids
-                                else rows[0]["role_id"] if len(rows) == 1
-                                else None
-                            )
-                            control.set_options(
-                                options,
-                                value=selected_role_id,
-                            )
-                            if len(rows) <= 1:
-                                control.disable()
-                            else:
-                                control.enable()
-                            if not rows:
-                                aggregation_creation_role_status.set_text(
-                                    "You do not have an eligible role"
-                                    + (
-                                        " in the parent aggregation's organizational unit, so you "
-                                        "cannot add a child aggregation there."
-                                        if parent_id is not None
-                                        else ", so you cannot create a root aggregation."
-                                    )
-                                )
-                            elif previous_role_was_cleared:
-                                aggregation_creation_role_status.set_text(
-                                    "Your previous Create for selection was cleared because it does not "
-                                    "belong to the parent aggregation's organizational unit."
-                                )
-                            elif parent_id is None:
-                                aggregation_creation_role_status.set_text(
-                                    "No parent is selected, so this will be a root aggregation and the "
-                                    "selected role's organizational unit will become its owner."
-                                )
-                            elif len(rows) == 1:
-                                aggregation_creation_role_status.set_text(
-                                    "Create for was set automatically because you have one eligible role."
-                                )
-                            else:
-                                aggregation_creation_role_status.set_text(
-                                    "Choose one of your roles in the parent aggregation's organizational unit."
-                                )
-
-                        controls["parent_aggregation_id"].on_value_change(
-                            lambda _: refresh_aggregation_creation_roles()
-                        )
-                constrain_aggregation_medium()
+                configure_aggregation_parent_rules(controls, lookup_rows_by_field, creating, row, creation_configuration, aggregation_creation_role_status, api, error_message)
 
             if spec.key == "records" and "medium" in controls:
                 aggregation_rows = lookup_rows_by_field.get("aggregation_id", [])
@@ -9048,15 +4943,9 @@ def index(q: str = "") -> None:
                     render_message("webui.open_editor.label.a_reason_is_required_when_changing_the_med_8019dd27")
                 ).classes("text-xs text-slate-500 -mt-2")
             security_change_reason = None
-            if not creating and spec.key == "roles" and not translation_only:
-                security_change_reason = ui.textarea(
-                    render_message("webui.open_editor.textarea.reason_for_sensitive_authorization_changes_1726b6f0"),
-                    placeholder=render_message("webui.open_editor.textarea.required_for_profile_governance_status_or_ee1c9562"),
-                ).props("outlined autogrow").classes("w-full")
+            security_change_reason = organization_reason_input(spec, creating=creating, translation_only=translation_only)
             if not creating and spec.key == "profiles":
-                profile_change_reason = ui.textarea(
-                    render_message("webui.open_editor.textarea.reason_for_changing_this_profile_5882ddfb"), placeholder=render_message("webui.open_editor.textarea.required_b956865c"),
-                ).props("outlined autogrow").classes("w-full")
+                profile_change_reason = profile_reason_input()
 
             async def save() -> None:
                 try:
@@ -9098,36 +4987,16 @@ def index(q: str = "") -> None:
                             await load_rows(repeat_search=True)
                         return
                     payload = form_payload(spec, controls, creating=creating)
-                    if creating and spec.key == "aggregations":
-                        creator_role_id = controls["creator_acl_role_id"].value
-                        if creator_role_id is None:
-                            raise ValueError("Select who this aggregation is being created for")
-                        payload["creator_acl_role_id"] = int(creator_role_id)
-                    if spec.key == "aggregations":
-                        if payload.get("parent_aggregation_id") is None and payload.get("classification_id") is None:
-                            raise ValueError("A root aggregation must have a terminal classification")
+                    if spec.key == 'aggregations':
+                        prepare_aggregation_payload(creating, controls, payload)
                     rule_payload = None
                     if spec.key == "classifications":
-                        rule_values = {
-                            key: payload.pop(key, None) for key in (
-                                "current_period_years", "intermediate_period_years",
-                                "final_disposition", "instructions",
-                            )
-                        }
-                        if any(value not in (None, "") for value in rule_values.values()):
-                            required = ("current_period_years", "intermediate_period_years", "final_disposition")
-                            if any(rule_values[key] in (None, "") for key in required):
-                                raise ValueError("A direct retention rule requires both periods and a final disposition")
-                            rule_payload = rule_values
-                            if creating:
-                                payload["retention_rule"] = rule_payload
-                        if not creating:
-                            payload.pop("classification_scheme_id", None)
+                        rule_payload = prepare_retention_payload(payload, creating=creating)
                     if creating:
                         saved = await api.create(spec.key, payload)
                     else:
                         if spec.key == "profiles":
-                            payload.pop("code", None)
+                            prepare_profile_update(payload)
                         change_reason = None
                         if (
                             resource_change_reason is not None
@@ -9137,20 +5006,9 @@ def index(q: str = "") -> None:
                             change_reason = (resource_change_reason.value or "").strip()
                             if not change_reason:
                                 raise ValueError("A reason is required when changing the record medium")
-                        if spec.key == "roles" and role_change_requires_reason(
-                            row, payload,
-                            lookup_rows_by_field.get("security_level_id", []),
-                        ):
-                            change_reason = (security_change_reason.value or "").strip()
-                            if not change_reason:
-                                raise ValueError(
-                                    "A reason is required when changing a role's profile, "
-                                    "governance status, or lowering its security clearance"
-                                )
+                        change_reason = organization_change_reason(spec, row, payload, lookup_rows_by_field, security_change_reason, change_reason)
                         if profile_change_reason is not None:
-                            change_reason = (profile_change_reason.value or "").strip()
-                            if not change_reason:
-                                raise ValueError("A reason is required when changing a profile")
+                            change_reason = validated_profile_change_reason(profile_change_reason)
                         saved = await api.update(
                             spec.key, row["id"], row["version"], payload,
                             change_reason=change_reason,
@@ -9203,1797 +5061,63 @@ def index(q: str = "") -> None:
                 ui.button(render_message("webui.open_editor.button.save_46081ed6"), on_click=save, icon="save").props("unelevated")
         dialog.open()
 
-    async def show_memberships(entity: dict[str, Any], *, for_user: bool) -> None:
-        dialog = ui.dialog()
-        entity_kind = "user" if for_user else "role"
-        counterpart_resource = "roles" if for_user else "users"
-        counterpart_label = "role" if for_user else "user"
-        localized_counterpart_label = render_message(
-            "entity_metadata.field.role" if for_user else "entity_metadata.field.user"
-        )
-        assignment_allowed = (
-            entity.get("effective_status", entity.get("status", "active")) == "active"
-        )
-        assignments_area: Any = None
-        selection_holder: dict[str, Any] = {}
-        assigned_ids: set[int] = set()
-        assignment_page = {"offset": 0, "limit": 25, "total": 0}
 
-        async def load_held_itemships() -> None:
-            try:
-                result = await (
-                    api.user_roles(
-                        entity["id"], limit=assignment_page["limit"],
-                        offset=assignment_page["offset"],
-                    ) if for_user else api.role_users(
-                        entity["id"], limit=assignment_page["limit"],
-                        offset=assignment_page["offset"],
-                    )
-                )
-                assignments = result["items"]
-                assignment_page["total"] = int(result["total"])
-                if not assignments and assignment_page["offset"] and assignment_page["total"]:
-                    assignment_page["offset"] = max(
-                        0, assignment_page["offset"] - assignment_page["limit"],
-                    )
-                    await load_held_itemships()
-                    return
-                assigned_ids.clear()
-                assigned_ids.update({
-                    item["role_id" if for_user else "user_id"] for item in assignments
-                })
-                selection_holder["control"].value = None
-                selection_holder["control"].update()
-                assignments_area.clear()
-                with assignments_area:
-                    if not assignments:
-                        ui.label(render_message("webui.load_held_itemships.label.no_counterpart_label_s_assigned_09a70b6e", counterpart_label=localized_counterpart_label)).classes("text-slate-500 py-4")
-                    else:
-                        rows = []
-                        for assignment in assignments:
-                            counterpart_id = assignment["role_id" if for_user else "user_id"]
-                            counterpart = assignment.get("counterpart") or {}
-                            inactive_reason = ""
-                            effective_status = counterpart.get("status", render_message("webui.load_held_itemships.text.inactive_06345426"))
-                            if for_user:
-                                if counterpart.get("status") != "active":
-                                    effective_status = render_message("webui.load_held_itemships.text.inactive_06345426")
-                                    inactive_reason = "This role is directly inactive."
-                                else:
-                                    effective_status = render_message("webui.load_held_itemships.text.active_537ddc31")
-                                    inactive_reason = "This role is effective."
-                            elif effective_status == "active":
-                                inactive_reason = "This user is active."
-                            elif effective_status == "suspended":
-                                inactive_reason = "This user is suspended."
-                            else:
-                                inactive_reason = "This user is inactive."
-                            rows.append({
-                                **assignment,
-                                "counterpart": (
-                                    f"{counterpart.get('code', '')} — {counterpart.get('name', counterpart_id)}"
-                                    if for_user else counterpart.get("name", counterpart_id)
-                                ),
-                                "counterpart_name": counterpart.get("name", str(counterpart_id)),
-                                "counterpart_email": counterpart.get("email") or "",
-                                "counterpart_avatar": user_avatar(counterpart) if not for_user else None,
-                                "counterpart_search": " ".join(
-                                    str(value) for value in (
-                                        counterpart.get("code"), counterpart.get("name"),
-                                        counterpart.get("email"),
-                                    ) if value
-                                ),
-                                "counterpart_status": effective_status,
-                                "counterpart_status_label": localized_lifecycle_value(effective_status),
-                                "counterpart_status_reason": inactive_reason,
-                            })
-                        filter_panel: Any = None
 
-                        def toggle_filter_panel() -> None:
-                            filter_panel.set_visibility(not filter_panel.visible)
+    open_aggregation = build_aggregation_details(
+        add_button=add_button,
+        add_record_button=add_record_button,
+        add_resource_to_hold_dialog=lambda *args, **kwargs: add_resource_to_hold_dialog(*args, **kwargs),
+        aggregation_mode_bar=aggregation_mode_bar,
+        aggregation_state=aggregation_state,
+        api=api,
+        bind_remote_relationship_select=lambda *args, **kwargs: bind_remote_relationship_select(*args, **kwargs),
+        breadcrumb_back=lambda *args, **kwargs: breadcrumb_back(*args, **kwargs),
+        browse_advanced_aggregation=lambda *args, **kwargs: browse_advanced_aggregation(*args, **kwargs),
+        current_direction=current_direction,
+        enter_details=lambda: state.__setitem__("resource", "aggregation-details"),
+        error_message=error_message,
+        favourite_button=lambda *args, **kwargs: favourite_button(*args, **kwargs),
+        format_timestamp=format_timestamp,
+        get_record_detail_id=lambda: state.get("record_detail_id"),
+        get_relationship_page_token=lambda: state.get("relationship_page_token"),
+        get_resource=lambda: state.get("resource"),
+        guidance=guidance,
+        hold_reason_dialog=lambda *args, **kwargs: hold_reason_dialog(*args, **kwargs),
+        load_recent=lambda *args, **kwargs: load_recent(*args, **kwargs),
+        localized_disposition_value=localized_disposition_value,
+        medium_label=medium_label,
+        open_editor=lambda *args, **kwargs: open_editor(*args, **kwargs),
+        open_related_resource=lambda *args, **kwargs: open_related_resource(*args, **kwargs),
+        principal=lambda: auth_state.get("principal"),
+        register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
+        render_compact_resource_result=lambda *args, **kwargs: render_compact_resource_result(*args, **kwargs),
+        restore_compact_result_anchor=lambda *args, **kwargs: restore_compact_result_anchor(*args, **kwargs),
+        review_datetime_input_minimum=review_datetime_input_minimum,
+        review_datetime_input_value=review_datetime_input_value,
+        review_datetime_payload=review_datetime_payload,
+        review_display=review_display,
+        search_bar=search_bar,
+        select_classification_workspace=lambda *args, **kwargs: select_classification_workspace(*args, **kwargs),
+        select_entity=lambda *args, **kwargs: select_entity(*args, **kwargs),
+        set_relationship_page_token=lambda token: state.__setitem__("relationship_page_token", token),
+        show_access_explanation=lambda *args, **kwargs: show_access_explanation(*args, **kwargs),
+        show_acl_editor=lambda *args, **kwargs: show_acl_editor(*args, **kwargs),
+        show_authenticated_view=lambda *args, **kwargs: show_authenticated_view(*args, **kwargs),
+        show_effective_holds_dialog=lambda *args, **kwargs: show_effective_holds_dialog(*args, **kwargs),
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        show_governed_move=lambda *args, **kwargs: show_governed_move(*args, **kwargs),
+        show_ownership_correction=lambda *args, **kwargs: show_ownership_correction(*args, **kwargs),
+        show_record_details=lambda *args, **kwargs: show_record_details(*args, **kwargs),
+        show_reopen_aggregation=lambda *args, **kwargs: show_reopen_aggregation(*args, **kwargs),
+        show_security_level_change=lambda *args, **kwargs: show_security_level_change(*args, **kwargs),
+        subtitle=subtitle,
+        table_container=table_container,
+        title=title,
+    )
 
-                        with ui.row().classes("w-full items-center gap-2"):
-                            membership_search = ui.input(
-                                render_message(
-                                    "webui.show_memberships.input.search_counterpart_name_or_code"
-                                    if for_user else
-                                    "webui.show_memberships.input.search_counterpart_name_or_email",
-                                    counterpart=localized_counterpart_label,
-                                ),
-                            ).props("outlined dense clearable debounce=250").classes(
-                                "grow max-w-[430px] min-w-[220px]"
-                            )
-                            ui.button(
-                                render_message("webui.load_held_itemships.button.filters_d7704feb"), icon="filter_list", on_click=toggle_filter_panel,
-                            ).props("flat dense no-caps color=primary").tooltip(
-                                render_message("webui.load_held_itemships.tooltip.filter_by_status_or_assignment_validity_b46438f9")
-                            )
-                        filter_panel = ui.row().classes(
-                            "w-full items-end gap-2 flex-nowrap overflow-x-auto rounded-lg "
-                            "bg-slate-50 border border-slate-200 p-3"
-                        )
-                        with filter_panel:
-                            status_options = {
-                                "all": render_message("webui.load_held_itemships.text.all_statuses_6b30cb23"), "active": render_message("webui.load_held_itemships.text.active_9406c1d5"),
-                                "inactive": render_message("webui.load_held_itemships.text.inactive_fff50323"),
-                            }
-                            if not for_user:
-                                status_options["suspended"] = localized_lifecycle_value("suspended")
-                            membership_status = ui.select(
-                                status_options,
-                                value="all", label=render_message("webui.load_held_itemships.select.status_f583ecf6"),
-                            ).props("outlined dense options-dense").classes("w-40 shrink-0")
-                            membership_valid_from = ui.input(
-                                render_message("webui.load_held_itemships.input.valid_during_or_after_426a5d0b"),
-                            ).props("outlined dense type=date clearable").classes("w-40 shrink-0")
-                            membership_valid_until = ui.input(
-                                render_message("webui.load_held_itemships.input.valid_during_or_before_d4e95a3d"),
-                            ).props("outlined dense type=date clearable").classes("w-40 shrink-0")
-                            ui.button(
-                                icon="filter_alt_off",
-                                on_click=lambda: (
-                                    membership_status.set_value("all"),
-                                    membership_valid_from.set_value(None),
-                                    membership_valid_until.set_value(None),
-                                ),
-                            ).props('flat round dense color=grey-7 aria-label=' + repr(render_message("webui.load_held_itemships.accessible_name.clear_filters_2f8c06a6"))).tooltip(
-                                render_message("webui.load_held_itemships.tooltip.clear_filters_6414665b")
-                            )
-                        filter_panel.set_visibility(False)
-                        membership_table = ui.table(
-                            columns=[
-                                {"name": "counterpart", "label": localized_counterpart_label, "field": "counterpart", "align": "left", "sortable": True},
-                                {"name": "counterpart_status", "label": entity_metadata_label("Status"), "field": "counterpart_status", "align": "left", "sortable": True},
-                                {"name": "valid_from", "label": render_message("webui.show_memberships.table.valid_from"), "field": "valid_from", "align": "left", "sortable": True},
-                                {"name": "valid_until", "label": render_message("webui.show_memberships.table.valid_until"), "field": "valid_until", "align": "left", "sortable": True},
-                                {"name": "actions", "label": "", "field": "actions", "align": "right"},
-                            ],
-                            rows=rows,
-                            row_key="id",
-                            pagination={"rowsPerPage": 10, "sortBy": "counterpart", "descending": False},
-                        ).props("flat bordered dense hide-bottom").classes("w-full membership-table")
 
-                        if not for_user:
-                            membership_table.add_slot(
-                                "body-cell-counterpart",
-                                '''
-                                <q-td :props="props">
-                                  <div class="column">
-                                    <div class="row items-center no-wrap q-gutter-sm">
-                                      <q-avatar size="36px" :style="{ backgroundColor: props.row.counterpart_avatar.color, color: props.row.counterpart_avatar.text_color }">
-                                        {{ props.row.counterpart_avatar.initials }}
-                                      </q-avatar>
-                                      <div class="column">
-                                        <span>{{ props.row.counterpart_name }}</span>
-                                        <span v-if="props.row.counterpart_email" class="text-caption text-grey-7">{{ props.row.counterpart_email }}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </q-td>
-                                ''',
-                            )
 
-                        def apply_membership_filters() -> None:
-                            membership_table.rows = filter_membership_rows(
-                                rows,
-                                query=membership_search.value or "",
-                                status=membership_status.value or "all",
-                                valid_from=membership_valid_from.value or None,
-                                valid_until=membership_valid_until.value or None,
-                            )
-                            membership_table.update()
 
-                        for control in (
-                            membership_search, membership_status,
-                            membership_valid_from, membership_valid_until,
-                        ):
-                            control.on_value_change(apply_membership_filters)
-                        add_timestamp_slots(membership_table, ["valid_from", "valid_until"])
-                        membership_table.add_slot(
-                            "body-cell-counterpart_status",
-                            '''
-                            <q-td :props="props">
-                              <q-badge
-                                :color="props.value === 'active' ? 'positive' : (props.value === 'suspended' ? 'warning' : 'grey-7')"
-                                :label="props.row.counterpart_status_label"
-                              />
-                            </q-td>
-                            ''',
-                        )
-                        membership_table.add_slot(
-                            "body-cell-actions",
-                            '<q-td :props="props"><q-btn flat round dense icon="person_remove" color="negative" @click="$parent.$emit(\'remove\', props.row)"><q-tooltip>Remove assignment</q-tooltip></q-btn></q-td>',
-                        )
-
-                        async def remove_assignment(event) -> None:
-                            assignment = event.args
-                            try:
-                                await api.delete_assignment(assignment["id"], assignment["version"])
-                                ui.notify(render_message("webui.remove_assignment.notify.assignment_removed_d3a39d0c"), color="positive")
-                                await load_held_itemships()
-                            except ApiError as error:
-                                show_api_error(error)
-
-                        membership_table.on("remove", remove_assignment)
-                        with ui.row().classes("w-full items-center gap-2"):
-                            start = assignment_page["offset"] + 1 if assignments else 0
-                            end = assignment_page["offset"] + len(assignments)
-                            ui.label(render_message("webui.load_held_itemships.label.start_end_total_caa5dacc", start=start, end=end, total=assignment_page['total'])).classes(
-                                "text-xs text-slate-500 grow"
-                            )
-                            previous_assignments = ui.button(icon="chevron_left").props("flat round dense")
-                            next_assignments = ui.button(icon="chevron_right").props("flat round dense")
-                            previous_assignments.set_enabled(assignment_page["offset"] > 0)
-                            next_assignments.set_enabled(end < assignment_page["total"])
-
-                            async def move_assignment_page(direction: int) -> None:
-                                assignment_page["offset"] = max(
-                                    0,
-                                    assignment_page["offset"]
-                                    + direction * assignment_page["limit"],
-                                )
-                                await load_held_itemships()
-
-                            previous_assignments.on("click", lambda: move_assignment_page(-1))
-                            next_assignments.on("click", lambda: move_assignment_page(1))
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        async def assign() -> None:
-            counterpart_id = selection_holder["control"].value
-            if counterpart_id is None:
-                ui.notify(render_message("webui.assign.notify.select_a_counterpart_label_ba181b86", counterpart_label=localized_counterpart_label), color="warning")
-                return
-            payload = {
-                "user_id": entity["id"] if for_user else int(counterpart_id),
-                "role_id": int(counterpart_id) if for_user else entity["id"],
-            }
-            try:
-                await api.create("user-role-assignments", payload)
-                ui.notify(render_message("webui.assign.notify.capitalize_assigned_dd48342e", capitalize=localized_counterpart_label), color="positive")
-                await load_held_itemships()
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        with dialog, ui.card().classes(
-            "membership-dialog flex flex-col"
-        ):
-            heading = entity.get("name") or entity.get("code") or entity["id"]
-            ui.label(render_message("webui.show_memberships.label.capitalize_assignments_heading_ecd9d308", capitalize=localized_counterpart_label, heading=heading)).classes("text-xl font-semibold")
-            if not assignment_allowed:
-                with ui.row().classes("w-full items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg"):
-                    ui.icon("block", color="amber-8")
-                    ui.label(
-                    render_message("webui.show_memberships.label.new_assignments_are_unavailable_while_this_9dc434ca")
-                    ).classes("text-sm text-amber-900")
-            assignments_area = ui.column().classes("w-full min-h-0 overflow-hidden")
-            with ui.row().classes("w-full items-end gap-2"):
-                selection_holder["control"] = relationship_select(
-                    render_message(
-                        "webui.show_memberships.select.counterpart",
-                        counterpart=localized_counterpart_label,
-                    ), {}
-                ).classes("grow")
-                bind_remote_relationship_select(
-                    selection_holder["control"],
-                    resource=counterpart_resource,
-                    search_fields=("code", "name") if for_user else ("name", "email"),
-                    label_fields=("code", "name") if for_user else ("name", "email"),
-                    item_filter=lambda item: (
-                        item.get("status") == "active"
-                        and int(item["id"]) not in assigned_ids
-                    ),
-                )
-                ui.button(
-                    render_message("webui.show_memberships.button.browse_aed12689"), icon="account_tree",
-                    on_click=lambda: show_organization_structure(
-                        selection_mode="role" if for_user else "user",
-                        target_control=selection_holder["control"],
-                    ),
-                ).props('outline no-caps color=primary aria-label=' + repr(render_message("webui.show_memberships.accessible_name.browse_organization_structure_0d480876"))).tooltip(
-                    render_message("webui.show_memberships.tooltip.browse_and_select_a_counterpart_label_908694f6", counterpart_label=localized_counterpart_label)
-                )
-                assign_button = ui.button(render_message("webui.show_memberships.button.assign_e003b2ce"), on_click=assign, icon="person_add").props("unelevated")
-                if not assignment_allowed:
-                    selection_holder["control"].disable()
-                    assign_button.disable()
-            with ui.row().classes("w-full justify-end"):
-                ui.button(render_message("webui.show_memberships.button.close_4c7a508f"), on_click=dialog.close).props("flat")
-        dialog.open()
-        await load_held_itemships()
-
-    async def open_aggregation(aggregation: dict[str, Any]) -> None:
-        show_authenticated_view()
-        relationship_token = object()
-        relationship_principal = auth_state.get("principal")
-        state["relationship_page_token"] = relationship_token
-        register_navigation(
-            "aggregation-details", aggregation.get("title") or f"Aggregation #{aggregation['id']}",
-            entity_id=aggregation["id"],
-            accessible_label=" — ".join(filter(None, (
-                aggregation.get("title"), aggregation.get("aggregation_number"),
-            ))),
-        )
-        previous_resource = state.get("resource")
-        if previous_resource != "aggregation-details":
-            state["aggregation_detail_return_resource"] = previous_resource
-            state["aggregation_detail_return_record_id"] = state.get("record_detail_id")
-        state["resource"] = "aggregation-details"
-        try:
-            current = await api.get("aggregations", aggregation["id"])
-            security_level, owning_org_unit, capabilities, effective_holds, closure = await asyncio.gather(
-                api.get("security-levels", current["security_level_id"]),
-                api.get("org-units", current["owning_org_unit_id"]),
-                api.resource_capabilities("aggregations", current["id"]),
-                api.effective_holds("aggregation", current["id"]),
-                api.effective_aggregation_closure(current["id"]),
-            )
-            ancestors = []
-            seen = {current["id"]}
-            parent_id = current.get("parent_aggregation_id")
-            while parent_id and parent_id not in seen:
-                parent = await api.get("aggregations", int(parent_id))
-                ancestors.append(parent)
-                seen.add(parent_id)
-                parent_id = parent.get("parent_aggregation_id")
-            ancestors.reverse()
-            aggregation_context_by_id = {
-                int(item["id"]): item for item in [*ancestors, current]
-            }
-            child_page_state = state.setdefault("aggregation_children_page", {})
-            child_page_number = max(1, int(child_page_state.get(current["id"], 1)))
-            child_page = await api.relationship_page(
-                "aggregations", ("aggregation_number", "title"), limit=25,
-                offset=(child_page_number - 1) * 25,
-                filters={"parent_aggregation_id": current["id"]},
-            )
-            children = child_page["items"]
-            child_total = int(child_page["total"])
-            child_return = state.get("aggregation_child_return") or {}
-            if int(child_return.get("aggregation_id") or 0) != int(current["id"]):
-                child_return = {}
-            record_page_number = max(1, int(child_return.get("page") or 1))
-            record_query = str(child_return.get("filter") or "").strip()
-            record_conditions: list[dict[str, Any]] = [{
-                "field": "aggregation_id", "operator": "eq", "value": current["id"],
-            }]
-            if record_query:
-                record_conditions.append({"or": [
-                    {"field": field, "operator": "contains_ci", "value": record_query}
-                    for field in ("record_number", "title")
-                ]})
-            record_page_result = await api.search_request("records", {
-                "where": {"and": record_conditions},
-                "sort": [{"field": "record_number", "direction": "asc"}],
-                "limit": 10, "offset": (record_page_number - 1) * 10,
-            })
-            records = record_page_result["items"]
-            record_total = int(record_page_result["total"])
-            async def load_record_result_context(
-                record: dict[str, Any],
-            ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-                if record.get("medium") == "physical":
-                    try:
-                        return await api.resource_capabilities("records", record["id"]), []
-                    except ApiError:
-                        return {}, []
-                try:
-                    record_capabilities, components = await asyncio.gather(
-                        api.resource_capabilities("records", record["id"]),
-                        api.component_page(record["id"], limit=25),
-                    )
-                except ApiError:
-                    return {}, []
-                return record_capabilities, components["items"]
-
-            record_contexts = await asyncio.gather(*[
-                load_record_result_context(record) for record in records
-            ])
-            for record, (record_capabilities, components) in zip(records, record_contexts):
-                record["_components"] = components if record_capabilities.get("list_components") else []
-                record["_can_expand_components"] = bool(
-                    record_capabilities.get("list_components") and record["_components"]
-                )
-                record["_can_preview"] = bool(
-                    record_capabilities.get("view_component")
-                    and any(component_is_previewable(item) for item in record["_components"])
-                )
-                record["on_effective_hold"] = bool(
-                    record.get("on_effective_hold")
-                    or record_capabilities.get("is_on_effective_hold")
-                )
-            effective_rule = None
-            local_retention_rule = None
-            classification_path = []
-            try:
-                effective_rule = await api.effective_retention_rule(current["id"])
-                if current.get("parent_aggregation_id") is None:
-                    local_retention_rule = await api.aggregation_retention_rule(current["id"])
-                if effective_rule.get("classification_id"):
-                    classification_path = await api.classification_path(
-                        effective_rule["classification_id"]
-                    )
-            except ApiError as error:
-                if error.status_code != 404:
-                    raise
-            for record in records:
-                record["_effectively_closed"] = closure is not None
-            state["aggregation_detail"] = current
-            if closure is None and capabilities.get("add_child"):
-                add_button.text = render_message("webui.open_aggregation.text.add_child_aggregation_13879ca9")
-                add_button.update()
-                add_button.set_visibility(True)
-            else:
-                add_button.set_visibility(False)
-            if closure is None and capabilities.get("add_record"):
-                add_record_button.set_visibility(True)
-            else:
-                add_record_button.set_visibility(False)
-            search_bar.set_visibility(False)
-            aggregation_mode_bar.set_visibility(False)
-            guidance.text = ""
-            title.text = current["title"]
-            subtitle.text = current["aggregation_number"]
-            table_container.clear()
-            with table_container:
-                async def leave_aggregation_page() -> None:
-                    await breadcrumb_back(lambda: select_entity("aggregations"))
-
-                async def open_parent_aggregation() -> None:
-                    parent = aggregation_context_by_id.get(current.get("parent_aggregation_id"))
-                    if parent:
-                        await open_aggregation(parent)
-
-                async def open_parent_classification() -> None:
-                    if not classification_path:
-                        return
-                    classification = classification_path[-1]
-                    await select_classification_workspace(
-                        initial_scheme_id=classification["classification_scheme_id"],
-                        initial_classification_id=classification["id"],
-                    )
-
-                async def remove_aggregation_from_all_holds() -> None:
-                    async def remove(reason: str) -> None:
-                        await api.remove_all_direct_holds("aggregation", current["id"], reason)
-                        ui.notify(render_message("webui.remove.notify.aggregation_removed_from_all_directly_assi_dfa06ec9"), color="positive")
-                        await open_aggregation(current)
-
-                    await hold_reason_dialog(
-                        render_message("webui.hold_reason_dialog.remove_all_confirmation"),
-                        render_message("webui.open_aggregation.button.remove_direct_holds_d5ecb7ae"),
-                        remove,
-                    )
-
-                async def reopen_current() -> None:
-                    async def reopened(saved: dict[str, Any]) -> None:
-                        await load_recent(ENTITIES["aggregations"])
-                        await open_aggregation(saved)
-
-                    await show_reopen_aggregation(current, reopened)
-
-                async def close_current() -> None:
-                    try:
-                        closed = await api.update(
-                            "aggregations", current["id"], current["version"],
-                            {"date_closed": datetime.now(timezone.utc).isoformat()},
-                        )
-                        ui.notify(render_message("webui.close_current.notify.aggregation_closed_cf4843ed"), color="positive")
-                        await load_recent(ENTITIES["aggregations"])
-                        await open_aggregation(closed)
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-
-                async def manage_local_retention_rule() -> None:
-                    dialog = ui.dialog()
-                    existing = local_retention_rule or {}
-                    with dialog, ui.card().classes("w-[680px] max-w-full"):
-                        ui.label(render_message("webui.manage_local_retention_rule.label.local_retention_override_5527d4e3")).classes("text-xl font-semibold")
-                        ui.label(
-                            render_message("webui.manage_local_retention_rule.label.this_root_only_rule_overrides_the_classifi_9e9ad680")
-                        ).classes("text-sm text-slate-500")
-                        with ui.grid(columns=2).classes("w-full gap-3"):
-                            current_years = ui.number(
-                                render_message("webui.manage_local_retention_rule.number.current_retention_years_e5bac82b"), value=existing.get("current_period_years"),
-                                min=0, format="%.0f",
-                            ).props("outlined").classes("w-full")
-                            intermediate_years = ui.number(
-                                render_message("webui.manage_local_retention_rule.number.intermediate_retention_years_94590fa4"), value=existing.get("intermediate_period_years"),
-                                min=0, format="%.0f",
-                            ).props("outlined").classes("w-full")
-                        disposition = ui.select({
-                            "destruction": render_message("webui.manage_local_retention_rule.select.destruction_b012be28"),
-                            "transfer_to_external_archive": render_message("webui.manage_local_retention_rule.select.permanent_preservation_external_archive_e21679e7"),
-                            "selective_preservation": render_message("webui.manage_local_retention_rule.select.selective_preservation_1054f692"),
-                            "retain_as_local_archives": render_message("webui.manage_local_retention_rule.select.retain_as_local_archives_0508fb16"),
-                        }, label=render_message("webui.manage_local_retention_rule.select.final_disposition_4becf8e1"), value=existing.get("final_disposition")).props("outlined").classes("w-full")
-                        instructions = ui.textarea(
-                            render_message("webui.manage_local_retention_rule.textarea.retention_and_disposal_instructions_a3815ea6"), value=existing.get("instructions") or "",
-                        ).props("outlined autogrow").classes("w-full")
-                        justification = ui.textarea(
-                            render_message("webui.manage_local_retention_rule.textarea.justification_143f855a"), value=existing.get("justification") or "",
-                        ).props("outlined autogrow").classes("w-full")
-
-                        async def save_rule() -> None:
-                            if current_years.value is None or intermediate_years.value is None or not disposition.value:
-                                ui.notify(render_message("webui.save_rule.notify.both_periods_and_a_final_disposition_are_r_6dd63826"), color="warning")
-                                return
-                            if not (justification.value or "").strip():
-                                ui.notify(render_message("webui.save_rule.notify.a_justification_is_required_6e06d373"), color="warning")
-                                return
-                            payload = {
-                                "current_period_years": int(current_years.value),
-                                "intermediate_period_years": int(intermediate_years.value),
-                                "final_disposition": disposition.value,
-                                "instructions": (instructions.value or "").strip() or None,
-                                "justification": justification.value.strip(),
-                            }
-                            try:
-                                await api.put_aggregation_retention_rule(
-                                    current["id"], payload, existing.get("version"),
-                                )
-                                dialog.close()
-                                ui.notify(render_message("webui.save_rule.notify.local_retention_override_saved_0fd4260d"), color="positive")
-                                await open_aggregation(current)
-                            except ApiError as error:
-                                ui.notify(error_message(error), color="negative", close_button=True)
-
-                        async def remove_rule() -> None:
-                            reason = (justification.value or "").strip()
-                            if not reason:
-                                ui.notify(render_message("webui.remove_rule.notify.enter_a_justification_for_removing_the_ove_02112188"), color="warning")
-                                return
-                            try:
-                                await api.delete_aggregation_retention_rule(current["id"], existing["version"], reason)
-                                dialog.close()
-                                ui.notify(render_message("webui.remove_rule.notify.local_retention_override_removed_3ca4941f"), color="positive")
-                                await open_aggregation(current)
-                            except ApiError as error:
-                                ui.notify(error_message(error), color="negative", close_button=True)
-
-                        with ui.row().classes("w-full justify-end gap-2"):
-                            if existing:
-                                ui.button(render_message("webui.manage_local_retention_rule.button.remove_override_f21897cb"), icon="delete_outline", color="negative", on_click=remove_rule).props("flat no-caps")
-                            ui.button(render_message("webui.manage_local_retention_rule.button.cancel_e8913c84"), on_click=dialog.close).props("flat no-caps")
-                            ui.button(render_message("webui.manage_local_retention_rule.button.save_override_8ac0707c"), icon="save", on_click=save_rule).props("unelevated no-caps")
-                    dialog.open()
-
-                async def confirm_delete_current() -> None:
-                    confirmation = ui.dialog()
-                    with confirmation, ui.card().classes("w-[500px] max-w-full"):
-                        ui.label(render_message("webui.confirm_delete_current.label.delete_aggregation_6ac41d4a")).classes("text-xl font-semibold")
-                        ui.label(
-                            render_message("webui.confirm_delete_current.label.aggregation_number_title_will_be_permanent_43423da7", aggregation_number=current['aggregation_number'], title=current['title'])
-                        ).classes("text-sm text-slate-700")
-                        ui.label(
-                            render_message("webui.confirm_delete_current.label.only_an_open_empty_aggregation_can_be_dele_6de7637e")
-                        ).classes("text-xs text-slate-500")
-
-                        async def delete_current() -> None:
-                            try:
-                                await api.delete(
-                                    "aggregations", current["id"], current["version"]
-                                )
-                                confirmation.close()
-                                ui.notify(render_message("webui.delete_current.notify.aggregation_deleted_f893101c"), color="positive")
-                                await load_recent(ENTITIES["aggregations"])
-                                parent = aggregation_context_by_id.get(current.get("parent_aggregation_id"))
-                                if parent:
-                                    await open_aggregation(parent)
-                                else:
-                                    await select_entity("aggregations")
-                            except ApiError as error:
-                                ui.notify(error_message(error), color="negative", close_button=True)
-
-                        with ui.row().classes("w-full justify-end gap-2"):
-                            ui.button(render_message("webui.confirm_delete_current.button.cancel_dc05f882"), on_click=confirmation.close).props("flat no-caps")
-                            ui.button(
-                                render_message("webui.confirm_delete_current.button.delete_aggregation_a57f0f28"), icon="delete_forever", color="negative",
-                                on_click=delete_current,
-                            ).props("unelevated no-caps")
-                    confirmation.open()
-
-                with ui.row().classes("w-full items-center px-5 pt-4 gap-1 text-sm"):
-                    ui.button(render_message("webui.open_aggregation.button.aggregations_8a85acd2"), icon="folder", on_click=lambda: select_entity("aggregations")).props("flat dense no-caps").classes("breadcrumb-link")
-                    for ancestor in ancestors:
-                        ui.icon("chevron_right").classes("text-slate-400")
-                        ui.button(
-                            ancestor["title"],
-                            on_click=lambda _, item=ancestor: open_aggregation(item),
-                        ).props("flat dense no-caps").classes("breadcrumb-link")
-                    ui.icon("chevron_right").classes("text-slate-400")
-                    ui.label(current["title"]).classes("font-semibold text-slate-800")
-
-                with ui.element("div").classes("aggregation-command-layout w-full p-5"):
-                    with ui.column().classes("aggregation-command-controls"):
-                        aggregation_hold_host = ui.card().classes(
-                            "detail-surface aggregation-hold-controls shadow-none p-4 gap-3"
-                        )
-                        aggregation_actions_host = ui.card().classes(
-                            "detail-surface aggregation-actions-panel shadow-none p-4 gap-3"
-                        )
-                    with ui.card().classes(
-                        AGGREGATION_SUMMARY_LAYOUT_CLASSES
-                    ):
-                        with ui.row().classes("aggregation-panel-heading w-full items-center"):
-                            ui.label(render_message("webui.open_aggregation.label.aggregation_overview_bb8398e3"))
-                            ui.space()
-                            ui.badge(render_message("webui.open_aggregation.badge.closed_30c24826") if closure else render_message("webui.open_aggregation.badge.open_88407b0f"), color="amber-8" if closure else "positive").props("outline")
-                        with ui.grid(columns="auto minmax(0, 1fr) auto").classes(
-                            "aggregation-detail-identity-header w-full items-center gap-3"
-                        ):
-                            ui.avatar(icon="folder", color="primary", text_color="white")
-                            with ui.column().classes("gap-0 grow min-w-0"):
-                                ui.label(current["aggregation_number"]).classes("text-xs text-primary font-semibold")
-                                ui.label(current["title"]).classes("text-lg font-semibold break-words")
-                            with ui.grid(columns="repeat(2, max-content)").classes(
-                                "aggregation-detail-header-actions items-center gap-2"
-                            ):
-                                favourite_button("aggregations", current["id"])
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.back_4d496e53"),
-                                    icon=None if current_direction["value"] == "rtl" else "arrow_back",
-                                    on_click=leave_aggregation_page,
-                                ).props(
-                                    "flat dense no-caps"
-                                    + (" icon-right=arrow_forward" if current_direction["value"] == "rtl" else "")
-                                )
-                        if closure:
-                            with ui.row().classes(
-                                "detail-status-notice w-full items-center gap-3 rounded-xl border border-amber-200 "
-                                "bg-amber-50 px-4 py-3"
-                            ):
-                                ui.icon("lock", color="amber-8").classes("shrink-0")
-                                with ui.column().classes("detail-status-notice-copy gap-0 grow min-w-0"):
-                                    if closure["id"] == current["id"]:
-                                        ui.label(render_message("webui.open_aggregation.label.closed_directly_77d7dcfc")).classes(
-                                            "text-sm font-semibold text-amber-900"
-                                        )
-                                    else:
-                                        ui.label(render_message("webui.open_aggregation.label.closed_by_an_ancestor_aggregation_dab7c6d7")).classes(
-                                            "text-sm font-semibold text-amber-900"
-                                        )
-                                        ui.label(
-                                            render_message("webui.open_aggregation.label.aggregation_number_title_a5ebf4f9", aggregation_number=closure['aggregation_number'], title=closure['title'])
-                                        ).classes("text-xs text-amber-800 truncate")
-                                    ui.label(
-                                        format_timestamp(closure.get("date_closed"))
-                                    ).classes("text-xs text-amber-700")
-                                if closure["id"] == current["id"] and capabilities.get("reopen"):
-                                    ui.button(
-                                        render_message("webui.open_aggregation.button.reopen_96cb2ac2"), icon="lock_open", on_click=reopen_current,
-                                    ).props("flat dense no-caps color=primary").tooltip(
-                                        render_message("webui.open_aggregation.tooltip.clear_the_closure_date_all_other_metadata_1cc0adcd")
-                                    )
-                        if current.get("is_vital") or current.get("has_vital_descendants"):
-                            with ui.row().classes("detail-status-notice w-full items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3"):
-                                ui.icon("emergency", color="red-8")
-                                ui.label(render_message("webui.open_aggregation.label.vital_1334921b") if current.get("is_vital") else render_message("webui.open_aggregation.label.contains_vital_resources_006b2b72")).classes("text-sm font-semibold text-red-900")
-                                ui.label(render_message("webui.open_aggregation.label.this_aggregation_cannot_be_deleted_while_v_e9204a66")).classes("text-xs text-red-800")
-                        if current.get("parent_aggregation_state") == "redacted":
-                            # A null ID with redacted state means the parent
-                            # exists; it must never be interpreted as a root.
-                            with ui.row().classes(
-                                "detail-status-notice w-full items-center gap-2 rounded-xl border border-slate-200 "
-                                "bg-slate-50 px-4 py-3"
-                            ):
-                                ui.icon("visibility_off", color="blue-grey-7")
-                                ui.label(render_message("webui.open_aggregation.label.parent_aggregation_restricted_684099c8")).classes(
-                                    "text-sm font-semibold text-slate-700"
-                                )
-                        if effective_holds:
-                            with ui.row().classes(
-                                "detail-status-notice w-fit max-w-full items-center gap-2 flex-wrap rounded-xl "
-                                "border border-amber-200 bg-amber-50 px-3 py-2"
-                            ):
-                                ui.icon("gavel", color="warning").classes("shrink-0")
-                                hold_count = len(effective_holds)
-                                ui.label(
-                                    render_message("webui.open_aggregation.label.protected_by_hold_count_effective_value_065566e7", hold_count=hold_count)
-                                ).classes("text-sm font-semibold text-amber-900")
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.view_holds_b4a3f017"), icon="visibility",
-                                    on_click=lambda: show_effective_holds_dialog(
-                                        effective_holds, "aggregation", current["id"],
-                                        lambda: open_aggregation(current),
-                                    ),
-                                ).props("flat dense no-caps color=warning")
-                        with ui.grid(columns=2).classes("w-full gap-x-8 gap-y-0"):
-                            aggregation_metadata = [
-                                (
-                                    "status", render_message("entity_metadata.field.status"),
-                                    render_message("webui.open_aggregation.badge.closed_30c24826")
-                                    if closure else render_message("webui.open_aggregation.badge.open_88407b0f"),
-                                ),
-                                (
-                                    "security_level", render_message("entity_metadata.field.security_level"),
-                                    f"{security_level['code']} — {(security_level.get('localized') or {}).get('name') or security_level['name']}",
-                                ),
-                                (
-                                    "owning_org_unit",
-                                    render_message("advanced_search.field.owning_org_unit"),
-                                    f"{owning_org_unit['code']} — {(owning_org_unit.get('localized') or {}).get('name') or owning_org_unit['name']}",
-                                ),
-                                ("medium", render_message("entity_metadata.field.medium"), medium_label(current.get("medium"))),
-                                (
-                                    "vital_status",
-                                    render_message("webui.open_aggregation.button.vital_status_69064d77"),
-                                    render_message("translation_inspector.value.yes")
-                                    if current.get("is_vital") else
-                                    render_message("translation_inspector.value.no"),
-                                ),
-                                ("date_opened", render_message("entity_metadata.field.date_opened"), format_timestamp(current.get("date_opened"))),
-                            ]
-                            if current.get("medium") != "digital":
-                                aggregation_metadata.extend([
-                                    (
-                                        "assigned_location", render_message("entity_metadata.field.assigned_location"),
-                                        current.get("effective_assigned_location") or render_message("webui.render_detail_content.text.unknown_d3c1ce73"),
-                                    ),
-                                    (
-                                        "current_location", render_message("entity_metadata.field.current_location"),
-                                        current.get("effective_current_location") or render_message("webui.render_detail_content.text.unknown_d3c1ce73"),
-                                    ),
-                                ])
-                            direct_classification = classification_path[-1] if classification_path else None
-                            parent_aggregation = aggregation_context_by_id.get(
-                                current.get("parent_aggregation_id")
-                            )
-                            governing_relationship = (
-                                (
-                                    "parent_aggregation", render_message("entity_metadata.field.parent_aggregation"),
-                                    parent_aggregation or render_message("webui.open_aggregation.label.parent_aggregation_restricted_684099c8"),
-                                )
-                                if current.get("parent_aggregation_id") is not None
-                                else (
-                                    "parent_classification", render_message("entity_metadata.field.parent_classification"),
-                                    direct_classification or direct_classification_label(classification_path),
-                                )
-                            )
-                            aggregation_metadata.extend([
-                                ("disposition_status", disposition_text("status"), disposition_status_label(current.get("disposition_status", 1))),
-                                ("review", render_message("entity_metadata.field.review"), review_display(current.get("date_of_next_review"))),
-                                governing_relationship,
-                                (
-                                    "contains", render_message("webui.render_governance_cards.text.assigned_content_6b3ceaf7"),
-                                    render_message(
-                                        "webui.render_governance_cards.text.get_aggregations_get_2_records_5bb78a16",
-                                        get=child_total, get_2=record_total,
-                                    ),
-                                ),
-                            ])
-                            for field_key, label, value in aggregation_metadata:
-                                with ui.column().classes("detail-field gap-1"):
-                                    ui.label(label).classes("detail-field-label")
-                                    if field_key == "status":
-                                        ui.badge(
-                                            str(value), color="amber-8" if closure else "positive",
-                                        ).props("outline")
-                                    elif field_key == "vital_status":
-                                        ui.badge(
-                                            str(value),
-                                            color="red-8" if current.get("is_vital") else "blue-grey-7",
-                                        ).props("outline")
-                                    elif field_key == "parent_classification" and isinstance(value, dict):
-                                        with ui.button(on_click=open_parent_classification).props(
-                                            "flat dense no-caps color=primary"
-                                        ).classes("detail-linked-entity self-start -m-2 p-2"):
-                                            with ui.column().classes("detail-linked-entity-content"):
-                                                ui.label(value.get("title") or "—").classes(
-                                                    "detail-linked-entity-title"
-                                                )
-                                                if value.get("code"):
-                                                    ui.label(value["code"]).classes(
-                                                        "detail-linked-entity-identifier"
-                                                    )
-                                    elif field_key == "parent_aggregation" and isinstance(value, dict):
-                                        with ui.button(on_click=open_parent_aggregation).props(
-                                            "flat dense no-caps color=primary"
-                                        ).classes("detail-linked-entity self-start -m-2 p-2"):
-                                            with ui.column().classes("detail-linked-entity-content"):
-                                                ui.label(value.get("title") or "—").classes(
-                                                    "detail-linked-entity-title"
-                                                )
-                                                if value.get("aggregation_number"):
-                                                    ui.label(value["aggregation_number"]).classes(
-                                                        "detail-linked-entity-identifier"
-                                                    )
-                                    else:
-                                        ui.label(str(value or "—")).classes("detail-field-value")
-                                        if field_key in {"assigned_location", "current_location"}:
-                                            source_key = "effective_assigned_location_source_aggregation_id" if field_key == "assigned_location" else "effective_current_location_source_aggregation_id"
-                                            source_id = current.get(source_key)
-                                            source = aggregation_context_by_id.get(source_id)
-                                            if source_id == current["id"]:
-                                                ui.label(render_message("webui.open_aggregation.label.set_on_this_aggregation_85415ad9")).classes("text-xs text-slate-500")
-                                            elif source:
-                                                ui.label(render_message("webui.open_aggregation.label.inherited_from_aggregation_number_title_fdcc3805", aggregation_number=source['aggregation_number'], title=source['title'])).classes("text-xs text-slate-500")
-                            if current.get("description"):
-                                with ui.column().classes("detail-field col-span-full gap-1"):
-                                    ui.label(
-                                        render_message("webui.open_aggregation.label.description_27051c3b")
-                                    ).classes("detail-field-label")
-                                    ui.label(current["description"]).props("dir=auto").classes(
-                                        "detail-field-value whitespace-pre-wrap break-words leading-6"
-                                    )
-                        aggregation_actions_host.__enter__()
-                        ui.label(render_message("webui.open_aggregation.label.aggregation_actions_ef188212")).classes("aggregation-panel-heading w-full")
-                        ui.label(render_message("webui.open_aggregation.label.metadata_and_review_8b297ce3")).classes("aggregation-action-group-label")
-                        with ui.row().classes("aggregation-overview-actions w-full"):
-                            if capabilities.get("change_location"):
-                                async def change_location() -> None:
-                                    dialog = ui.dialog()
-                                    with dialog, ui.card().classes("w-[520px] max-w-full"):
-                                        ui.label(render_message("webui.change_location.label.change_location_ee3c1037")).classes("text-xl font-semibold")
-                                        ui.label(render_message("webui.change_location.label.leave_a_location_blank_to_clear_its_local_448d79ab")).classes("text-sm text-slate-500")
-                                        assigned = ui.input(render_message("webui.change_location.input.assigned_location_7abee0ea"), value=current.get("assigned_location") or "").classes("w-full")
-                                        current_location = ui.input(render_message("webui.change_location.input.current_location_53a3ef86"), value=current.get("current_location") or "").classes("w-full")
-                                        impact_host = ui.column().classes("w-full gap-1 rounded-lg bg-slate-50 p-3")
-                                        impact_host.set_visibility(False)
-                                        initial_locations = (
-                                            current.get("assigned_location") or "",
-                                            current.get("current_location") or "",
-                                        )
-                                        async def refresh_location_impact() -> None:
-                                            impact_host.clear()
-                                            proposed_locations = (
-                                                (assigned.value or "").strip(),
-                                                (current_location.value or "").strip(),
-                                            )
-                                            if proposed_locations == initial_locations:
-                                                impact_host.set_visibility(False)
-                                                return
-                                            impact_host.set_visibility(True)
-                                            try:
-                                                preview = await api.preview_aggregation_location(current["id"], {
-                                                    "assigned_location": proposed_locations[0] or None,
-                                                    "current_location": proposed_locations[1] or None,
-                                                })
-                                            except ApiError as error:
-                                                with impact_host:
-                                                    ui.label(
-                                                        render_message("webui.refresh_location_impact.label.the_descendant_impact_preview_could_not_be_43c4fd0e")
-                                                    ).classes("text-sm text-negative")
-                                                return
-                                            with impact_host:
-                                                count = preview["affected_descendant_count"]
-                                                ui.label(render_message("webui.refresh_location_impact.label.descendant_impact_count_resource_value_b7d4133c", count=count, value='s' if count != 1 else '')).classes("text-sm font-semibold")
-                                                if not count:
-                                                    ui.label(render_message("webui.refresh_location_impact.label.no_descendant_s_effective_location_will_ch_daa579cd")).classes("text-xs text-slate-500")
-                                                for descendant in preview["affected_descendants"]:
-                                                    kind = "Aggregation" if descendant["entity_type"] == "aggregation" else "Record"
-                                                    ui.label(render_message("webui.refresh_location_impact.label.kind_number_title_a042b696", kind=kind, number=descendant['number'], title=descendant['title'])).classes("text-xs text-slate-600")
-                                                if preview.get("preview_truncated"):
-                                                    ui.label(render_message("webui.refresh_location_impact.label.only_the_first_50_affected_descendants_are_d865e3b2")).classes("text-xs text-slate-500")
-                                        assigned.on_value_change(lambda _: refresh_location_impact())
-                                        current_location.on_value_change(lambda _: refresh_location_impact())
-                                        reason = ui.textarea(render_message("webui.change_location.textarea.reason_f58258f8")).props("outlined autogrow").classes("w-full")
-                                        async def submit() -> None:
-                                            if not (reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.enter_a_reason_f7e81e79"), color="warning"); return
-                                            if ((assigned.value or "").strip(), (current_location.value or "").strip()) == initial_locations:
-                                                ui.notify(render_message("webui.submit.notify.no_location_changes_have_been_entered_3a447a79"), color="warning"); return
-                                            try:
-                                                saved = await api.change_aggregation_location(current["id"], current["version"], {"assigned_location": assigned.value.strip() or None, "current_location": current_location.value.strip() or None, "reason": reason.value.strip()})
-                                                dialog.close(); await open_aggregation(saved)
-                                            except ApiError as error: ui.notify(error_message(error), color="negative", close_button=True)
-                                        ui.button(render_message("webui.change_location.button.save_b8a2bd1a"), on_click=submit).props("unelevated")
-                                    dialog.open()
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.location_5c67a431"), icon="location_on", on_click=change_location,
-                                ).props("flat dense no-caps").tooltip(
-                                    render_message("webui.open_aggregation.tooltip.change_this_aggregation_s_assigned_or_curr_2b6fc205")
-                                )
-                            if capabilities.get("change_vital_status"):
-                                async def change_vital_aggregation() -> None:
-                                    dialog = ui.dialog()
-                                    with dialog, ui.card().classes("w-[520px] max-w-full"):
-                                        ui.label(render_message("webui.change_vital_aggregation.label.change_vital_status_e7417d42")).classes("text-xl font-semibold")
-                                        value = ui.checkbox(render_message("webui.change_vital_aggregation.checkbox.vital_aggregation_cba8512c"), value=bool(current.get("is_vital")))
-                                        reason = ui.textarea(render_message("webui.change_vital_aggregation.textarea.reason_bb22de70")).props("outlined autogrow").classes("w-full")
-                                        async def submit() -> None:
-                                            if not (reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.enter_a_reason_f7e81e79"), color="warning"); return
-                                            try:
-                                                saved = await api.change_vital_status("aggregations", current["id"], current["version"], bool(value.value), reason.value.strip())
-                                                dialog.close(); await open_aggregation(saved)
-                                            except ApiError as error: ui.notify(error_message(error), color="negative", close_button=True)
-                                        ui.button(render_message("webui.change_vital_aggregation.button.save_7cfd22dd"), on_click=submit).props("unelevated")
-                                    dialog.open()
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.vital_status_69064d77"), icon="emergency", on_click=change_vital_aggregation,
-                                ).props("flat dense no-caps").tooltip(
-                                    render_message("webui.open_aggregation.tooltip.change_whether_this_aggregation_is_protect_1b3beacd")
-                                )
-                            if capabilities.get("change_review_date"):
-                                async def change_aggregation_review_date() -> None:
-                                    dialog = ui.dialog()
-                                    with dialog, ui.card().classes("w-[520px] max-w-full"):
-                                        ui.label(render_message("webui.change_aggregation_review_date.label.schedule_next_review_5b8f3054")).classes("text-xl font-semibold")
-                                        ui.label(render_message("webui.change_aggregation_review_date.label.set_a_future_date_or_clear_it_when_no_revi_df572311")).classes("text-sm text-slate-500")
-                                        review_date = ui.input(render_message("webui.change_aggregation_review_date.input.date_of_next_review_a2774fe0"), value=review_datetime_input_value(current.get("date_of_next_review"))).props(f"outlined clearable type=datetime-local min={review_datetime_input_minimum()}").classes("w-full")
-                                        reason = ui.textarea(render_message("webui.change_aggregation_review_date.textarea.reason_62653c9f")).props("outlined autogrow").classes("w-full")
-                                        async def submit() -> None:
-                                            if not (reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.enter_a_reason_f7e81e79"), color="warning"); return
-                                            value = review_datetime_payload(review_date.value)
-                                            try:
-                                                saved = await api.change_review_date("aggregations", current["id"], current["version"], value, reason.value.strip())
-                                                dialog.close(); await open_aggregation(saved)
-                                            except (ApiError, ValueError) as error: ui.notify(error_message(error) if isinstance(error, ApiError) else render_message("webui.submit.notify.choose_a_valid_future_date_d0f7285f"), color="negative", close_button=True)
-                                        ui.button(render_message("webui.change_aggregation_review_date.button.save_3a2dff2e"), on_click=submit).props("unelevated")
-                                    dialog.open()
-                                ui.button(render_message("webui.open_aggregation.button.next_review_699d407b"), icon="event", on_click=change_aggregation_review_date).props("flat dense no-caps").tooltip(render_message("webui.open_aggregation.tooltip.schedule_or_clear_this_aggregation_s_next_4f66006e"))
-                            if closure is None and (
-                                capabilities.get("close") or capabilities.get("delete")
-                            ):
-                                ui.label(render_message("webui.open_aggregation.label.lifecycle_118239ec")).classes("aggregation-action-group-label w-full")
-                            if closure is None and capabilities.get("close"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.close_5dfd4eee"), icon="lock",
-                                    on_click=close_current,
-                                ).props("flat dense no-caps").tooltip(
-                                    render_message("webui.open_aggregation.tooltip.close_this_aggregation_using_the_current_d_a8421be4")
-                                )
-                            if closure is None and capabilities.get("delete"):
-                                delete_button = ui.button(
-                                    render_message("webui.open_aggregation.button.delete_dad73ebe"), icon="delete_outline", color="negative",
-                                    on_click=confirm_delete_current,
-                                ).props("flat dense no-caps")
-                                if children or records:
-                                    delete_button.disable()
-                                    delete_button.tooltip(
-                                        render_message("webui.open_aggregation.tooltip.remove_or_move_all_child_aggregations_and_19f76f7b")
-                                    )
-                            ui.label(render_message("webui.open_aggregation.label.security_access_and_audit_503e702e")).classes(
-                                "aggregation-action-group-label w-full"
-                            )
-                            if capabilities.get("change_security_level"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.security_level_5d0b4408"), icon="security",
-                                    on_click=lambda: show_security_level_change(
-                                        "aggregation", current,
-                                        lambda saved: open_aggregation(saved),
-                                    ),
-                                ).props("flat dense no-caps").tooltip(
-                                    render_message("webui.open_aggregation.tooltip.change_the_aggregation_security_level_00937d90")
-                                )
-                            if closure is None and capabilities.get("modify_metadata"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.edit_metadata_3ee4d255"), icon="edit",
-                                    on_click=lambda: open_editor(
-                                        current, on_saved=open_aggregation,
-                                        resource_key="aggregations",
-                                    ),
-                                ).props("flat dense no-caps")
-                            ui.button(
-                                render_message("webui.open_aggregation.button.event_history_77f15b1e"), icon="history",
-                                on_click=lambda: show_entity_history("aggregations", current),
-                            ).props("flat dense no-caps")
-                            ui.button(
-                                render_message("webui.open_aggregation.button.why_this_access_bb85ae4d"), icon="fact_check",
-                                on_click=lambda: show_access_explanation("aggregation", current["id"]),
-                            ).props("flat dense no-caps").tooltip(
-                                render_message("webui.open_aggregation.tooltip.explain_the_authorization_decision_gate_by_231294dc")
-                            )
-                            if capabilities.get("manage_acl"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.access_2361cbee"), icon="policy",
-                                    on_click=lambda: show_acl_editor(
-                                        "aggregations", current["id"], on_saved=lambda: open_aggregation(current),
-                                    ),
-                                ).props("flat dense no-caps")
-                        show_aggregation_move = (
-                            closure is None
-                            and current.get("parent_aggregation_id") is not None
-                            and capabilities.get("move")
-                        )
-                        show_ownership_correction_action = (
-                            closure is None and capabilities.get("correct_ownership")
-                        )
-                        # Default ACL endpoints also require authorization administration;
-                        # ordinary resource ACL management alone is insufficient.
-                        show_acl_defaults = bool(
-                            capabilities.get("manage_acl")
-                            and "authorization.administer" in set(
-                                (auth_state.get("principal") or {}).get("global_privileges", [])
-                            )
-                        )
-                        if (
-                            show_aggregation_move
-                            or show_ownership_correction_action
-                            or show_acl_defaults
-                        ):
-                            with ui.expansion(
-                                render_message("webui.open_aggregation.expansion.advanced_2d1fcc81"), caption=render_message("aggregation_details.guidance.specialist_actions"),
-                                icon="tune", value=False,
-                            ).classes(
-                                "w-full border-t border-slate-100"
-                            ):
-                                with ui.row().classes("w-full justify-start gap-2 pb-2"):
-                                    if show_aggregation_move:
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.move_aeafbea8"), icon="drive_file_move",
-                                            on_click=lambda: show_governed_move(
-                                                "aggregations", current, open_aggregation,
-                                            ),
-                                        ).props("flat dense no-caps")
-                                    if show_ownership_correction_action:
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.correct_ownership_07b940fe"), icon="published_with_changes",
-                                            on_click=lambda: show_ownership_correction(
-                                                current, open_aggregation,
-                                            ),
-                                        ).props("flat dense no-caps color=negative")
-                                    if show_acl_defaults:
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.child_defaults_8ac3012b"), icon="account_tree",
-                                        ).props("flat dense no-caps").on(
-                                            "click", lambda: show_acl_editor(
-                                                "aggregations", current["id"], scope="aggregation"
-                                            )
-                                        )
-                                        ui.button(
-                                            render_message("webui.open_aggregation.button.record_defaults_3e8c0414"), icon="description",
-                                        ).props("flat dense no-caps").on(
-                                            "click", lambda: show_acl_editor(
-                                                "aggregations", current["id"], scope="record"
-                                            )
-                                        )
-                        aggregation_actions_host.__exit__(None, None, None)
-                    aggregation_command_side = ui.column().classes("aggregation-command-side")
-                    aggregation_command_side.__enter__()
-                    if effective_rule:
-                        with ui.card().classes(
-                            "retention-card aggregation-retention-compact shadow-none p-4 gap-3"
-                        ):
-                            with ui.row().classes("detail-action-row w-full items-center gap-3"):
-                                ui.avatar(icon="schedule", color="blue-1", text_color="primary", size="38px")
-                                with ui.column().classes("gap-0 grow"):
-                                    ui.label(render_message("webui.open_aggregation.label.effective_retention_rule_4dce9765")).classes("text-base font-semibold text-slate-900")
-                                    if effective_rule["rule_source"] == "aggregation":
-                                        source_text = render_message("webui.open_aggregation.text.specified_locally_for_the_governing_root_a_e8018e53")
-                                    elif effective_rule.get("inheritance_depth", 0) == 0:
-                                        source_text = render_message("webui.open_aggregation.text.specified_by_its_classification_11387963")
-                                    else:
-                                        source_text = render_message("webui.open_aggregation.text.inherited_from_an_ancestor_classification_297425fa")
-                                    if current.get("parent_aggregation_id") is not None:
-                                        governing_root_id = effective_rule["governing_root_aggregation_id"]
-                                        governing_root = aggregation_context_by_id.get(governing_root_id)
-                                        root_reference = (
-                                            f"{governing_root['aggregation_number']} — {governing_root['title']}"
-                                            if governing_root else f"#{governing_root_id}"
-                                        )
-                                        source_text = render_message(
-                                            "webui.open_aggregation.text.governed_by_root_aggregation",
-                                            source=render_message_plain(
-                                                "webui.open_aggregation.text.specified_locally_for_the_governing_root_a_e8018e53"
-                                                if effective_rule["rule_source"] == "aggregation"
-                                                else "webui.open_aggregation.text.specified_by_its_classification_11387963"
-                                                if effective_rule.get("inheritance_depth", 0) == 0
-                                                else "webui.open_aggregation.text.inherited_from_an_ancestor_classification_297425fa"
-                                            ),
-                                            root_reference=root_reference,
-                                        )
-                                    ui.label(source_text).classes("text-xs text-sky-700")
-                                ui.badge(render_message("webui.open_aggregation.badge.effective_a28f890c"), color="primary").props("outline")
-                                if current.get("parent_aggregation_id") is None and current.get("disposition_status",1)==1 and (auth_state.get("principal") or {}).get("can_manage_disposition"):
-                                    async def accelerated(result):await open_aggregation(await api.get("aggregations",current["id"]))
-                                    ui.button(disposition_text("accelerate"),icon="event_available",on_click=lambda:accelerate_dialog(
-                                        api=api,root=current,active=lambda:state.get("resource")=="aggregation-details" and (state.get("aggregation_detail") or {}).get("id")==current["id"],
-                                        on_error=error_message,after=accelerated)).props("outline dense no-caps")
-                            render_retention_stages(effective_rule, localized_disposition_value)
-                            render_disposition_date(
-                                effective_rule,
-                                aggregation_context_by_id.get(effective_rule["governing_root_aggregation_id"]),
-                                *current_locale_context(),
-                            )
-                            with ui.element("div").classes("aggregation-retention-footer detail-action-row w-full"):
-                                if classification_path:
-                                    classification_text = " › ".join(
-                                        f"{item['code']} — {item['title']}" for item in classification_path
-                                    )
-                                    ui.label(render_message("webui.open_aggregation.label.classification_classification_text_6200f5a0", classification_text=classification_text)).classes(
-                                        "aggregation-retention-chip"
-                                    ).tooltip(classification_text)
-                                if effective_rule.get("instructions"):
-                                    ui.label(render_message("webui.open_aggregation.label.instructions_instructions_a62c4c64", instructions=effective_rule['instructions'])).classes(
-                                        "aggregation-retention-chip"
-                                    ).tooltip(effective_rule["instructions"])
-                                if current.get("parent_aggregation_id") is None and closure is None:
-                                    ui.button(
-                                        render_message("webui.open_aggregation.button.edit_override_c8b224ea") if local_retention_rule else render_message("webui.open_aggregation.button.set_override_76c53fa2"),
-                                        icon="tune", on_click=manage_local_retention_rule,
-                                    ).props("flat dense no-caps color=primary")
-                    else:
-                        with ui.card().classes(
-                            "detail-surface aggregation-retention-compact shadow-none p-4 gap-3"
-                        ):
-                            with ui.row().classes("items-center gap-3"):
-                                ui.avatar(icon="schedule", color="blue-1", text_color="primary", size="44px")
-                                with ui.column().classes("gap-0"):
-                                    ui.label(render_message("webui.open_aggregation.label.effective_retention_rule_4dce9765")).classes("text-lg font-semibold")
-                                    ui.label(render_message("webui.open_aggregation.label.no_effective_retention_rule_is_available_67150eb4")).classes("text-sm text-slate-500")
-
-                    with aggregation_hold_host:
-                        ui.label(render_message("webui.open_aggregation.label.hold_controls_e01cb162")).classes("aggregation-panel-heading w-full")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            if effective_holds:
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.view_holds_b4a3f017"), icon="visibility",
-                                    on_click=lambda: show_effective_holds_dialog(
-                                        effective_holds, "aggregation", current["id"],
-                                        lambda: open_aggregation(current),
-                                    ),
-                                ).props("outline dense no-caps color=primary")
-                            if capabilities.get("add_to_hold"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.add_to_hold_8e80a4dc"), icon="add_link",
-                                    on_click=lambda: add_resource_to_hold_dialog(
-                                        "aggregation", current["id"], lambda: open_aggregation(current),
-                                    ),
-                                ).props("outline dense no-caps color=primary")
-                            if capabilities.get("remove_all_direct_hold_assignments"):
-                                ui.button(
-                                    render_message("webui.open_aggregation.button.remove_direct_holds_d5ecb7ae"), icon="link_off",
-                                    on_click=remove_aggregation_from_all_holds,
-                                ).props("outline dense no-caps color=negative")
-                            if not effective_holds and not capabilities.get("add_to_hold"):
-                                ui.label(render_message("webui.open_aggregation.label.no_hold_actions_are_available_c0a40db4")).classes("text-xs text-slate-500")
-                    aggregation_command_side.__exit__(None, None, None)
-
-                await relationship_panel(
-                    api=api, kind="aggregation", identity=current["id"],
-                    source_label=" · ".join(filter(None, (current.get("aggregation_number"), current.get("title")))),
-                    can_link="relationships.link" in (auth_state.get("principal") or {}).get("global_privileges", []),
-                    active=lambda: auth_state.get("principal") is relationship_principal and state.get("resource") == "aggregation-details" and state.get("relationship_page_token") is relationship_token,
-                    open_target=open_related_resource, bind_remote=bind_remote_relationship_select, on_error=error_message,
-                browse_resource=browse_advanced_aggregation,
-                )
-                with ui.row().classes(
-                    "aggregation-child-section-heading w-full items-center px-5 pt-1"
-                ):
-                    ui.label(render_message("webui.open_aggregation.label.child_aggregations_cd3bce3a")).classes("text-base font-semibold text-slate-800")
-                    ui.space()
-                    ui.label(render_message("webui.open_aggregation.label.children_count_children_0b322dbd", children_count=child_total)).classes("text-xs text-slate-500")
-                if children:
-                    with ui.element("div").classes("aggregation-child-preview-grid mx-5 mb-3"):
-                        for child in children:
-                            child_closure = child.get("date_closed")
-                            with ui.element("button").classes(
-                                "aggregation-child-preview cursor-pointer text-left"
-                            ).on("click", lambda _, item=child: open_aggregation(item)):
-                                with ui.row().classes("items-start no-wrap gap-2"):
-                                    ui.icon("folder", color="primary", size="19px").classes("mt-0.5")
-                                    with ui.column().classes("gap-0 min-w-0"):
-                                        ui.label(child["title"]).classes("text-xs font-semibold line-clamp-2")
-                                        child_status = "Closed" if child_closure else (
-                                            "Vital" if child.get("is_vital") else "Open"
-                                        )
-                                        ui.label(
-                                            render_message("webui.open_aggregation.label.aggregation_number_child_status_20b87630", aggregation_number=child['aggregation_number'], child_status=child_status)
-                                        ).classes("text-[10px] text-slate-500 truncate")
-                    if child_total > 25:
-                        child_pagination = ui.pagination(
-                            1, max(1, (child_total + 24) // 25), value=child_page_number,
-                        ).props("direction-links boundary-links color=primary").classes("self-center mb-3")
-
-                        async def reload_child_aggregations() -> None:
-                            child_page_state[current["id"]] = int(child_pagination.value or 1)
-                            await open_aggregation(current)
-
-                        child_pagination.on_value_change(lambda _: reload_child_aggregations())
-                else:
-                    ui.label(render_message("webui.open_aggregation.label.no_child_aggregations_7e6e2073")).classes("px-5 pb-3 text-sm text-slate-400")
-
-                ui.label(render_message("webui.open_aggregation.label.records_in_this_aggregation_db111558")).classes("px-5 pt-2 text-base font-semibold")
-                if not records:
-                    ui.label(render_message("webui.open_aggregation.label.this_aggregation_does_not_contain_any_reco_4b0da9c6")).classes("px-5 pb-6 text-slate-500")
-                else:
-                    expanded_child_records = set(
-                        int(value) for value in child_return.get("expanded_records", [])
-                    )
-                    with ui.row().classes("w-full items-center px-5 pt-2 gap-3"):
-                        contained_record_filter = ui.input(
-                            render_message("webui.open_aggregation.input.filter_records_d5ad0981"),
-                            placeholder=render_message("webui.open_aggregation.input.number_title_or_date_6fab14e9"),
-                            value=str(child_return.get("filter") or ""),
-                        ).props("outlined dense clearable debounce=250").classes("w-80 max-w-full")
-                        ui.space()
-                        ui.label(render_message("webui.open_aggregation.label.record_count_records_ca93489a", record_count=record_total)).classes("text-sm text-slate-500")
-                    contained_records_host = ui.column().classes("w-full px-5 pt-2 gap-2")
-                    contained_record_page = ui.pagination(
-                        1, max(1, (record_total + 9) // 10),
-                        value=max(1, int(child_return.get("page") or 1)),
-                    ).props("direction-links boundary-links color=primary")
-
-                    async def open_contained_record(record: dict[str, Any]) -> None:
-                        state["aggregation_child_return"] = {
-                            "aggregation_id": int(current["id"]),
-                            "page": int(contained_record_page.value or 1),
-                            "filter": str(contained_record_filter.value or ""),
-                            "anchor": f"compact-result-records-{int(record['id'])}",
-                            "expanded_records": sorted(expanded_child_records),
-                        }
-                        await show_record_details(record)
-
-                    def set_child_record_expansion(identifier: int, expanded: bool) -> None:
-                        (expanded_child_records.add if expanded else expanded_child_records.discard)(
-                            int(identifier)
-                        )
-
-                    def render_contained_records() -> None:
-                        matching_records = records
-                        contained_record_page.set_visibility(record_total > 10)
-                        contained_record_page.update()
-                        contained_records_host.clear()
-                        with contained_records_host:
-                            if not matching_records:
-                                ui.label(render_message("webui.render_contained_records.label.no_records_match_this_filter_1041b4b7")).classes(
-                                    "w-full py-6 text-center text-sm text-slate-500"
-                                )
-                                return
-                            with ui.column().classes("compact-result-list w-full gap-0"):
-                                for record in matching_records:
-                                    render_compact_resource_result(
-                                        "records", record,
-                                        on_open=open_contained_record,
-                                        components=record.get("_components", []),
-                                        can_preview=bool(record.get("_can_preview")),
-                                        can_expand_components=bool(record.get("_can_expand_components")),
-                                        initially_expanded=int(record["id"]) in expanded_child_records,
-                                        on_expansion_changed=lambda expanded, identifier=int(record["id"]):
-                                            set_child_record_expansion(identifier, expanded),
-                                    )
-
-                    async def reload_contained_records(*, reset: bool = False) -> None:
-                        state["aggregation_child_return"] = {
-                            "aggregation_id": int(current["id"]),
-                            "page": 1 if reset else int(contained_record_page.value or 1),
-                            "filter": str(contained_record_filter.value or ""),
-                            "expanded_records": sorted(expanded_child_records),
-                        }
-                        await open_aggregation(current)
-
-                    contained_record_filter.on("keydown.enter", lambda: reload_contained_records(reset=True))
-                    contained_record_page.on_value_change(lambda _: reload_contained_records())
-                    render_contained_records()
-                    restore_compact_result_anchor(child_return.get("anchor"))
-                    if child_return:
-                        state.pop("aggregation_child_return", None)
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-
-    def render_recent_section(spec: EntitySpec) -> None:
-        refresh_control: dict[str, Any] = {}
-
-        async def refresh_recent() -> None:
-            refresh_control["button"].props("loading disable")
-            try:
-                await load_recent(spec)
-                ui.notify(render_message("webui.refresh_recent.notify.recent_items_refreshed_066b66f6"), color="positive")
-                render_table(spec)
-            except ApiError as error:
-                refresh_control["button"].props(remove="loading disable")
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        with ui.row().classes("w-full items-center px-5 pt-5"):
-            ui.label(render_message("webui.render_recent_section.label.start_where_you_left_off_e8cad0b7")).classes("text-lg font-semibold")
-            ui.space()
-            refresh_control["button"] = ui.button(
-                render_message("webui.render_recent_section.button.refresh_a8985428"), icon="refresh", on_click=refresh_recent,
-            ).props("flat dense no-caps color=primary").tooltip(
-                render_message("webui.render_recent_section.tooltip.reload_recently_created_and_updated_items_51826227")
-            )
-        with ui.row().classes("w-full px-5 pb-5 gap-6 items-start"):
-            for heading, rows, icon, color in (
-                ("Recently created", state["recent_created"], "add_circle", "positive"),
-                ("Recently updated", state["recent_updated"], "history", "primary"),
-            ):
-                with ui.column().classes("grow gap-2 min-w-[320px]"):
-                    with ui.row().classes("translation-card-heading items-center gap-2"):
-                        ui.icon(icon, color=color)
-                        ui.label(heading).classes("font-semibold text-slate-700")
-                    if not rows:
-                        ui.label(render_message("webui.render_recent_section.label.nothing_here_yet_16a950c9")).classes("text-sm text-slate-400 py-3")
-                    for item in rows:
-                        click_handler = (
-                            (lambda _, entry=item: open_aggregation(entry))
-                            if spec.key == "aggregations"
-                            else (lambda _, entry=item: show_record_details(entry))
-                        )
-                        with ui.card().classes("recent-card cursor-pointer w-full px-3 py-2 shadow-none").on("click", click_handler):
-                            with ui.row().classes("items-center no-wrap w-full gap-2"):
-                                ui.avatar(
-                                    icon="folder" if spec.key == "aggregations" else "description",
-                                    color="blue-1",
-                                    text_color="primary",
-                                    size="32px",
-                                )
-                                with ui.column().classes("gap-0 grow"):
-                                    ui.label(item["title"]).classes("text-sm font-semibold line-clamp-1")
-                                    number = item.get("aggregation_number") or item.get("record_number")
-                                    ui.label(number).classes("text-xs text-slate-400 leading-tight")
-                                ui.icon("chevron_right", size="18px").classes("text-slate-300")
-
-    def render_entity_favourites_section(spec: EntitySpec) -> None:
-        preview_host = ui.column().classes("w-full px-5 pt-5")
-        limit = dashboard_favourite_item_limit(state["application_configuration"])
-        resource = spec.key
-        singular = "aggregation" if resource == "aggregations" else "record"
-        localized_singular = render_message(
-            "dashboard.resource.aggregation" if resource == "aggregations" else "dashboard.resource.record"
-        )
-        localized_plural = render_message(
-            "navigation.item.aggregations" if resource == "aggregations" else "navigation.item.records"
-        )
-        heading = render_message("webui.render_entity_favourites_section.text.favourite_resource_e60851b2", resource=localized_plural)
-        icon = "folder" if resource == "aggregations" else "description"
-
-        async def open_favourite(item: dict[str, Any]) -> None:
-            try:
-                entity = await api.get(resource, item["id"])
-                if resource == "aggregations":
-                    await open_aggregation(entity)
-                else:
-                    await show_record_details(entity)
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        def render_entry(item: dict[str, Any], *, after_remove: Any) -> None:
-            row = ui.element("div").classes("dashboard-personal-item").props(
-                "role=button tabindex=0"
-            ).on("click", lambda _, selected=item: open_favourite(selected)).on(
-                "keydown.enter", lambda _, selected=item: open_favourite(selected)
-            )
-            with row:
-                with ui.element("div").classes("dashboard-overview-icon"):
-                    ui.icon(icon, size="18px")
-                with ui.column().classes("gap-0 grow min-w-0"):
-                    ui.label(item["title"]).classes(
-                        "text-sm font-semibold text-slate-700 truncate w-full"
-                    ).tooltip(item["title"])
-                    number = item.get("aggregation_number") or item.get("record_number")
-                    ui.label(render_message("webui.render_entry.label.title_value_32d79d0d", title=localized_singular, value=number or '—')).classes(
-                        "text-xs text-slate-500 truncate w-full"
-                    )
-                remove_button = ui.button(icon="favorite", color="red").props(
-                    'flat round dense aria-label=' + repr(render_message("webui.render_entry.accessible_name.remove_from_favourites_5fa138ab"))
-                )
-                remove_button.tooltip(render_message("webui.render_entry.tooltip.remove_from_favourites_84f9ea27"))
-                remove_button.on(
-                    "click", lambda _, selected=item: after_remove(selected),
-                    js_handler=STOP_PROPAGATION_CLICK_HANDLER,
-                )
-
-        def show_all() -> None:
-            dialog = ui.dialog()
-            with dialog, ui.card().classes(
-                "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
-            ):
-                with ui.row().classes("w-full items-center"):
-                    ui.label(heading).classes("text-xl font-semibold")
-                    ui.space()
-                    ui.button(icon="close", on_click=dialog.close).props("flat round")
-                complete_host = (
-                    ui.scroll_area()
-                    .classes("dashboard-personal-dialog-list")
-                    .props("visible")
-                    .style(
-                        f"height:min(65vh,{personal_dialog_list_height(len(state['favourites'][resource]))}px)"
-                    )
-                )
-
-            def render_complete() -> None:
-                complete_host.clear()
-                with complete_host:
-                    items = state["favourites"][resource]
-                    if not items:
-                        ui.label(render_message("webui.render_complete.label.no_favourite_resource_5a366cf8", resource=localized_plural)).classes("text-sm text-slate-400 py-4")
-                    for item in items:
-                        render_entry(
-                            item,
-                            after_remove=lambda selected: remove_favourite(
-                                selected, refresh_dialog=render_complete,
-                            ),
-                        )
-
-            render_complete()
-            dialog.open()
-
-        async def remove_favourite(
-            item: dict[str, Any], *, refresh_dialog: Any | None = None,
-        ) -> None:
-            selected = await toggle_favourite(resource, item["id"])
-            if selected:
-                return
-            state["favourites"][resource] = [
-                row for row in state["favourites"][resource]
-                if int(row["id"]) != int(item["id"])
-            ]
-            render_table(spec)
-            if refresh_dialog is not None:
-                refresh_dialog()
-
-        def render_preview() -> None:
-            preview_host.clear()
-            items = state["favourites"][resource]
-            with preview_host:
-                with ui.card().classes("dashboard-personal-panel w-full"):
-                    with ui.row().classes("dashboard-personal-header w-full items-center gap-2"):
-                        ui.icon("favorite_border", color="primary", size="19px")
-                        ui.label(heading).classes("font-semibold text-slate-800")
-                        ui.badge(str(len(items)), color="blue-grey").props("outline")
-                        ui.space()
-                        if len(items) > limit:
-                            ui.button(render_message("webui.render_preview.button.view_all_39d201d6"), on_click=show_all).props(
-                                "flat dense no-caps color=primary"
-                            )
-                    if not items:
-                        ui.label(render_message("webui.render_preview.label.no_favourite_resource_2e245f47", resource=localized_plural)).classes("text-sm text-slate-500 p-4")
-                    else:
-                        for item in items[:limit]:
-                            render_entry(item, after_remove=remove_favourite)
-
-        render_preview()
-
-    def render_resource_personal_sections(
-        spec: EntitySpec, *, container: Any | None = None,
-    ) -> None:
-        """Render resource favourites and activity using the Dashboard treatment."""
-        limit = dashboard_favourite_item_limit(state["application_configuration"])
-        resource = spec.key
-        icon = "folder" if resource == "aggregations" else "description"
-        number_field = "aggregation_number" if resource == "aggregations" else "record_number"
-        favourite_items = state["favourites"][resource]
-        recent_items = sorted(
-            state["recent_activity"],
-            key=lambda item: str(item.get("_activity_at") or ""),
-            reverse=True,
-        )
-        personal_loading = bool(
-            state.get("personal_sections_loading", {}).get(resource)
-        )
-
-        async def open_resource(item: dict[str, Any]) -> None:
-            try:
-                entity = await api.get(resource, item["id"])
-                if resource == "aggregations":
-                    await open_aggregation(entity)
-                else:
-                    await show_record_details(entity)
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        def render_favourite_item(item: dict[str, Any]) -> None:
-            row = ui.element("div").classes("dashboard-personal-item").props(
-                "role=button tabindex=0"
-            ).on(
-                "click", lambda _, selected=item: open_resource(selected),
-            ).on(
-                "keydown.enter", lambda _, selected=item: open_resource(selected),
-            )
-            with row:
-                with ui.element("div").classes("dashboard-overview-icon"):
-                    ui.icon(icon, size="18px")
-                with ui.column().classes("gap-0 grow min-w-0"):
-                    ui.label(item["title"]).classes(
-                        "text-sm font-semibold text-slate-700 truncate w-full"
-                    ).tooltip(item["title"])
-                    ui.label(
-                        render_message("webui.render_favourite_item.label.title_value_e1a0d09d", title=localized_singular, value=item.get(number_field) or '—')
-                    ).classes("text-xs text-slate-500 truncate w-full")
-                remove_button = ui.button(icon="favorite", color="red").props(
-                    'flat round dense aria-label=' + repr(render_message("webui.render_favourite_item.accessible_name.remove_from_favourites_89be972a"))
-                )
-                remove_button.tooltip(render_message("webui.render_favourite_item.tooltip.remove_from_favourites_96304e80"))
-                remove_button.on(
-                    "click", lambda _, selected=item: remove_favourite(selected),
-                    js_handler=STOP_PROPAGATION_CLICK_HANDLER,
-                )
-
-        def render_recent_item(item: dict[str, Any]) -> None:
-            operation = item["_operation"]
-            activity_label, activity_icon, activity_class = {
-                "CREATE": (render_message("dashboard.activity.created"), "add", "dashboard-activity-created"),
-                "UPDATE": (render_message("dashboard.activity.updated"), "edit", "dashboard-activity-updated"),
-                "CONTENT_VIEWED": (render_message("dashboard.activity.viewed"), "visibility", "dashboard-activity-viewed"),
-            }[operation]
-            row = ui.element("div").classes("dashboard-personal-item").props(
-                "role=button tabindex=0"
-            ).on(
-                "click", lambda _, selected=item: open_resource(selected),
-            ).on(
-                "keydown.enter", lambda _, selected=item: open_resource(selected),
-            )
-            with row:
-                with ui.element("div").classes("dashboard-overview-icon"):
-                    ui.icon(icon, size="18px")
-                with ui.column().classes("gap-0 grow min-w-0"):
-                    ui.label(item["title"]).classes(
-                        "text-sm font-semibold text-slate-700 truncate w-full"
-                    ).tooltip(item["title"])
-                    ui.label(
-                        render_message("webui.render_recent_item.label.value_format_timestamp_2d04c976", value=item.get(number_field) or '—', format_timestamp=format_timestamp(item.get('_activity_at')))
-                    ).classes("text-xs text-slate-500 truncate w-full")
-                with ui.element("div").classes(
-                    f"dashboard-activity-badge {activity_class}"
-                ):
-                    ui.icon(activity_icon, size="13px")
-                    ui.label(activity_label)
-
-        async def remove_favourite(item: dict[str, Any]) -> None:
-            selected = await toggle_favourite(resource, item["id"])
-            if selected:
-                return
-            state["favourites"][resource] = [
-                row for row in state["favourites"][resource]
-                if int(row["id"]) != int(item["id"])
-            ]
-            render_table(spec)
-
-        def show_all_favourites() -> None:
-            dialog = ui.dialog()
-            with dialog, ui.card().classes(
-                "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
-            ):
-                with ui.row().classes("w-full items-center"):
-                    ui.label(render_message("webui.show_all_favourites.label.favourite_resource_e9e7ec57", resource=localized_plural)).classes("text-xl font-semibold")
-                    ui.space()
-                    ui.button(icon="close", on_click=dialog.close).props("flat round")
-                with (
-                    ui.scroll_area()
-                    .classes("dashboard-personal-dialog-list")
-                    .props("visible")
-                    .style(f"height:min(65vh,{personal_dialog_list_height(len(favourite_items))}px)")
-                ):
-                    if not favourite_items:
-                        ui.label(render_message("webui.show_all_favourites.label.no_favourite_resource_6427b546", resource=localized_plural)).classes("text-sm text-slate-400 p-4")
-                    for item in favourite_items:
-                        render_favourite_item(item)
-            dialog.open()
-
-        def show_all_recent() -> None:
-            dialog = ui.dialog()
-            with dialog, ui.card().classes(
-                "dashboard-personal-dialog w-[820px] max-w-full max-h-[85vh]"
-            ):
-                with ui.row().classes("w-full items-center"):
-                    ui.label(render_message("webui.show_all_recent.label.recent_singular_activity_2b35eaf4", singular=localized_singular)).classes("text-xl font-semibold")
-                    ui.space()
-                    ui.button(icon="close", on_click=dialog.close).props("flat round")
-                with (
-                    ui.scroll_area()
-                    .classes("dashboard-personal-dialog-list")
-                    .props("visible")
-                    .style(f"height:min(65vh,{personal_dialog_list_height(len(recent_items))}px)")
-                ):
-                    if not recent_items:
-                        ui.label(render_message("webui.show_all_recent.label.no_recent_singular_activity_9108240b", singular=localized_singular)).classes("text-sm text-slate-400 p-4")
-                    for item in recent_items:
-                        render_recent_item(item)
-            dialog.open()
-
-        personal_host = container
-        if personal_host is None:
-            personal_host = ui.element("div").classes("w-full")
-            state["personal_section_hosts"][resource] = personal_host
-        personal_host.clear()
-        with personal_host, ui.element("div").classes("dashboard-personal-columns w-full px-5 pt-5 pb-5"):
-            # Deferred refreshes run in a background task. Resolve nested
-            # localized values only after entering the retained UI container,
-            # where NiceGUI has restored the owning client's locale context.
-            localized_singular = render_message(
-                "dashboard.resource.aggregation"
-                if resource == "aggregations"
-                else "dashboard.resource.record"
-            )
-            localized_plural = render_message(
-                "navigation.item.aggregations"
-                if resource == "aggregations"
-                else "navigation.item.records"
-            )
-            with ui.card().classes("dashboard-personal-panel"):
-                with ui.row().classes("dashboard-personal-header w-full items-center gap-2"):
-                    ui.icon("favorite_border", color="primary", size="19px")
-                    ui.label(render_message("webui.render_resource_personal_sections.label.favourite_resource_c0cb6542", resource=localized_plural)).classes("font-semibold text-slate-800")
-                    ui.badge(str(len(favourite_items)), color="blue-grey").props("outline")
-                    ui.space()
-                    ui.button(render_message("webui.render_resource_personal_sections.button.view_all_a52a6926"), on_click=show_all_favourites).props(
-                        "flat dense no-caps color=primary"
-                    )
-                if not favourite_items:
-                    if personal_loading:
-                        with ui.row().classes("w-full items-center gap-2 p-4 text-slate-500"):
-                            ui.spinner("dots", size="20px")
-                            ui.label(render_message("common.status.loading"))
-                    else:
-                        ui.label(render_message("webui.render_resource_personal_sections.label.no_favourite_resource_5a26f58b", resource=localized_plural)).classes("text-sm text-slate-500 p-4")
-                for item in favourite_items[:limit]:
-                    render_favourite_item(item)
-            with ui.card().classes("dashboard-personal-panel"):
-                with ui.row().classes("dashboard-personal-header w-full items-center gap-2"):
-                    ui.icon("history", color="primary", size="19px")
-                    ui.label(render_message("webui.render_resource_personal_sections.label.recent_singular_activity_4bf70ea7", singular=localized_singular)).classes("font-semibold text-slate-800")
-                    ui.space()
-                    ui.button(render_message("webui.render_resource_personal_sections.button.view_all_a52a6926"), on_click=show_all_recent).props(
-                        "flat dense no-caps color=primary"
-                    )
-                if not recent_items:
-                    if personal_loading:
-                        with ui.row().classes("w-full items-center gap-2 p-4 text-slate-500"):
-                            ui.spinner("dots", size="20px")
-                            ui.label(render_message("common.status.loading"))
-                    else:
-                        ui.label(render_message("webui.render_resource_personal_sections.label.no_recent_singular_activity_750e055d", singular=localized_singular)).classes("text-sm text-slate-500 p-4")
-                for item in recent_items[:limit]:
-                    render_recent_item(item)
-
-    async def show_profile_privilege_editor(profile: dict[str, Any]) -> None:
-        try:
-            all_privileges, selected, impact = await asyncio.gather(
-                api.list("privileges"), api.profile_privileges(profile["id"]),
-                api.profile_impact(profile["id"]),
-            )
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        selected_ids = {item["id"] for item in selected}
-        dialog = ui.dialog()
-        controls: dict[int, Any] = {}
-        privilege_entries: list[tuple[dict[str, Any], Any]] = []
-        category_sections: dict[str, tuple[Any, list[tuple[dict[str, Any], Any]]]] = {}
-        with dialog, ui.card().classes("w-[760px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"):
-            ui.label(render_message("webui.show_profile_privilege_editor.label.privileges_name_26affeed", name=profile['name'])).classes("text-xl font-semibold")
-            ui.label(
-                render_message("webui.show_profile_privilege_editor.label.changes_affect_role_count_role_s_and_user_61490a28", role_count=impact['role_count'], user_count=impact['user_count'])
-            ).classes("text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2")
-            privilege_search = ui.input(
-                render_message("webui.show_profile_privilege_editor.input.find_privileges_1fa8656a"),
-                placeholder=render_message("webui.show_profile_privilege_editor.input.search_by_code_name_or_description_a4008a4a"),
-            ).props("outlined dense clearable debounce=200").classes("w-full")
-            with ui.column().classes("w-full gap-2 overflow-y-auto max-h-[55vh]"):
-                current_category = None
-                for privilege in all_privileges:
-                    if privilege["category"] != current_category:
-                        current_category = privilege["category"]
-                        category_label = ui.label(
-                            localized_privilege_category(current_category)
-                        ).classes(
-                            "text-xs tracking-wider text-slate-500 font-semibold mt-2"
-                        )
-                        category_sections[current_category] = (category_label, [])
-                    with ui.row().classes("w-full items-start") as privilege_entry:
-                        with ui.column().classes("w-full gap-0"):
-                            controls[privilege["id"]] = ui.checkbox(
-                                render_message("webui.show_profile_privilege_editor.checkbox.name_code_988b7e60", name=localized_privilege_name(privilege), code=privilege['code']),
-                                value=privilege["id"] in selected_ids,
-                            )
-                            ui.label(
-                                localized_privilege_description(privilege)
-                            ).classes(
-                                "text-xs leading-5 text-slate-500 pl-10 -mt-1 pr-2"
-                            )
-                    entry = (privilege, privilege_entry)
-                    privilege_entries.append(entry)
-                    category_sections[current_category][1].append(entry)
-
-            def filter_privileges() -> None:
-                query = privilege_search.value or ""
-                for privilege, entry_element in privilege_entries:
-                    entry_element.set_visibility(localized_privilege_matches_search(privilege, query))
-                for _, (category_label, entries) in category_sections.items():
-                    category_label.set_visibility(
-                        any(localized_privilege_matches_search(privilege, query) for privilege, _ in entries)
-                    )
-
-            privilege_search.on_value_change(lambda _: filter_privileges())
-            with ui.row().classes(
-                "w-full items-start gap-2 rounded-lg border border-amber-200 "
-                "bg-amber-50 px-3 py-2"
-            ) as unrestricted_profile_warning:
-                ui.icon("warning_amber", color="amber-9", size="20px").classes(
-                    "mt-0.5 shrink-0"
-                )
-                ui.label(
-                    render_message("webui.show_profile_privilege_editor.label.this_profile_contains_every_defined_privil_2f49509c")
-                ).classes("text-xs leading-5 text-amber-10")
-
-            def update_unrestricted_profile_warning() -> None:
-                unrestricted_profile_warning.set_visibility(
-                    bool(controls) and all(control.value for control in controls.values())
-                )
-
-            dependencies = {item["id"]: set(item["required_privilege_ids"]) for item in all_privileges}
-            selection = set(selected_ids)
-            applying_selection = False
-
-            def apply_selection(updated):
-                nonlocal applying_selection
-                applying_selection = True
-                try:
-                    selection.clear()
-                    selection.update(updated)
-                    for identifier, control in controls.items():
-                        control.set_value(identifier in selection)
-                finally:
-                    applying_selection = False
-                update_unrestricted_profile_warning()
-
-            def selection_changed(identifier, checked):
-                if applying_selection:
-                    return
-                if checked:
-                    updated = privilege_closure(selection | {identifier}, dependencies)
-                    added = updated - selection - {identifier}
-                    apply_selection(updated)
-                    if added:
-                        names = ", ".join(item["code"] for item in all_privileges if item["id"] in added)
-                        ui.notify(render_message("authorization.profile.prerequisites_added", privileges=names), color="info")
-                    return
-                affected = privilege_dependents(identifier, selection, dependencies)
-                if not affected:
-                    apply_selection(selection - {identifier})
-                    return
-                # Keep the valid selection until the user confirms removal.
-                apply_selection(set(selection))
-                with ui.dialog().props("persistent") as confirm, ui.card():
-                    names = ", ".join(item["code"] for item in all_privileges if item["id"] in affected)
-                    ui.label(render_message("authorization.profile.remove_dependents", privileges=names))
-                    with ui.row():
-                        ui.button(render_message("webui.show_profile_privilege_editor.button.cancel_d03380ff"), on_click=confirm.close).props("flat")
-                        def remove_together():
-                            apply_selection(selection - affected - {identifier})
-                            confirm.close()
-                        ui.button(render_message("authorization.profile.remove_together"), on_click=remove_together)
-                confirm.open()
-
-            for identifier, privilege_control in controls.items():
-                privilege_control.on_value_change(
-                    lambda event, identifier=identifier: selection_changed(identifier, event.value)
-                )
-            update_unrestricted_profile_warning()
-            reason = ui.textarea(render_message("webui.show_profile_privilege_editor.textarea.reason_for_changing_this_profile_6813db02"), placeholder=render_message("webui.show_profile_privilege_editor.textarea.required_e75da8d4")).props(
-                "outlined autogrow"
-            ).classes("w-full")
-
-            dependency_feedback = ui.column().classes("w-full gap-1")
-
-            async def save_privileges() -> None:
-                dependency_feedback.clear()
-                for control in controls.values():
-                    control.props(remove="error error-message")
-                change_reason = (reason.value or "").strip()
-                if not change_reason:
-                    ui.notify(render_message("webui.save_privileges.notify.a_reason_is_required_ae7186e1"), color="warning")
-                    return
-                try:
-                    await api.replace_profile_privileges(
-                        profile["id"], profile["version"],
-                        [identifier for identifier, control in controls.items() if control.value],
-                        reason=change_reason,
-                    )
-                    dialog.close()
-                    ui.notify(render_message("webui.save_privileges.notify.profile_privileges_saved_3a8e587a"), color="positive")
-                    await select_entity("profiles")
-                except ApiError as error:
-                    if isinstance(error.detail, dict) and error.detail.get("code") == "privilege_dependency_violation":
-                        missing = error.detail.get("missing", [])
-                        required_codes = {item["required_code"] for item in missing}
-                        privilege_search.set_value("")
-                        filter_privileges()
-                        for privilege, _ in privilege_entries:
-                            if privilege["code"] in required_codes:
-                                controls[privilege["id"]].props("error")
-                        with dependency_feedback:
-                            for item in missing:
-                                ui.label(render_message(
-                                    "authorization.profile.error.missing_prerequisite",
-                                    privilege=item["privilege_code"], required=item["required_code"],
-                                )).classes("text-negative").props('role="alert"')
-                    show_api_error(error)
-
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.show_profile_privilege_editor.button.cancel_d03380ff"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.show_profile_privilege_editor.button.save_privileges_9223c6cc"), icon="save", on_click=save_privileges).props("unelevated no-caps")
-        dialog.open()
 
     async def decorate_record_search_components(
         rows: list[dict[str, Any]],
@@ -11136,12 +5260,7 @@ def index(q: str = "") -> None:
                 return
             if spec.search_first and not state["searched"]:
                 if spec.key == "classifications":
-                    with ui.column().classes("w-full items-center py-12 gap-2 text-slate-500"):
-                        ui.icon("manage_search", size="42px").classes("text-primary")
-                        ui.label(
-                            render_message("webui.render_table.label.search_classifications_by_code_title_descr_30044cab")
-                        ).classes("font-medium")
-                        ui.label(render_message("webui.render_table.label.partial_matching_is_automatic_wildcard_cha_6cff96d6")).classes("text-xs")
+                    render_classification_search_prompt()
                     return
                 render_recent_section(spec)
                 return
@@ -11161,256 +5280,7 @@ def index(q: str = "") -> None:
             visible_rows = state["rows"]
             result_filter = None
             if spec.key in {"security-levels", "profiles", "users", "roles", "org-units"}:
-                card_page = state["collection_pages"].setdefault(spec.key, {
-                    "offset": 0, "limit": 25, "total": len(state["rows"]),
-                    "query": "", "status": "all", "account_type": "all",
-                    "sort": "level_number" if spec.key == "security-levels" else "name",
-                })
-                with ui.row().classes("w-full items-end gap-3 px-5 pt-3 flex-wrap"):
-                    card_filter = ui.input(
-                        {
-                            "security-levels": render_message("webui.render_table.input.filter_security_levels_f290cff4"),
-                            "profiles": render_message("webui.render_table.input.filter_profiles_2f4a2c88"),
-                            "users": render_message("webui.render_table.input.filter_users_87c1f82f"),
-                            "roles": render_message("webui.render_table.input.filter_roles_89b2d475"),
-                            "org-units": render_message("webui.render_table.input.filter_organization_units_472aad07"),
-                        }[spec.key],
-                        placeholder={
-                            "users": render_message("webui.render_table.input.name_email_or_external_identifier_52dac4f4"),
-                            "roles": render_message("webui.render_table.input.code_name_organization_unit_or_profile_1ba283b1"),
-                            "org-units": render_message("webui.render_table.input.code_name_parent_unit_or_description_0e985d50"),
-                        }.get(spec.key, render_message("webui.render_table.input.code_name_or_description_8b7e9b8d")),
-                        value=card_page.get("query", ""),
-                    ).props("outlined dense clearable debounce=350").classes("grow min-w-[260px]")
-                    card_status = None
-                    card_account_type = None
-                    if spec.key in {"users", "roles", "org-units"}:
-                        status_options = {"all": render_message("webui.render_table.text.all_statuses_06d8caa8"), "active": render_message("webui.render_table.text.active_3a692d6a"), "inactive": render_message("webui.render_table.text.inactive_ffa76f23")}
-                        if spec.key == "users":
-                            status_options["suspended"] = render_message("webui.show_organization_structure.select.suspended_e5b9d9f5")
-                        selected_status = card_page.get("status", "all")
-                        if selected_status not in status_options:
-                            selected_status = "all"
-                            state["lifecycle_filter"] = "all"
-                        card_status = ui.select(
-                            status_options, value=selected_status, label=render_message("webui.render_table.select.status_bba3b0bf"),
-                        ).props("outlined dense options-dense").classes("w-44")
-                    if spec.key == "users":
-                        card_account_type = ui.select(
-                            {"all": render_message("webui.render_table.select.all_account_types_4efb11a2"), "person": render_message("webui.render_table.select.person_71413829"), "service": render_message("webui.render_table.select.service_e1263edf")},
-                            value=card_page.get("account_type", "all"), label=render_message("webui.render_table.select.account_type_1e818a83"),
-                        ).props("outlined dense options-dense").classes("w-48")
-                    sort_options = {
-                        "security-levels": {"level_number": render_message("webui.render_table.text.level_167db239"), "code": render_message("webui.render_table.text.code_85512fe5"), "name": render_message("webui.render_table.text.name_12ca0838")},
-                        "profiles": {"name": render_message("webui.render_table.text.name_12ca0838"), "code": render_message("webui.render_table.text.code_85512fe5"), "is_system": render_message("webui.render_table.text.type_4f2149b1")},
-                        "users": {"name": render_message("webui.render_table.text.name_12ca0838"), "email": render_message("webui.render_table.text.email_28a52077"), "date_created": render_message("webui.render_table.text.created_a2dd6a8e")},
-                        "roles": {"name": render_message("webui.render_table.text.name_12ca0838"), "code": render_message("webui.render_table.text.code_85512fe5"), "status": render_message("webui.render_table.text.status_9c5fc70c")},
-                        "org-units": {"name": render_message("webui.render_table.text.name_12ca0838"), "code": render_message("webui.render_table.text.code_85512fe5"), "status": render_message("webui.render_table.text.status_9c5fc70c")},
-                    }[spec.key]
-                    card_sort = ui.select(
-                        sort_options,
-                        value=card_page.get("sort", "level_number" if spec.key == "security-levels" else "name"),
-                        label=render_message("webui.render_table.select.sort_by_dc4ba2eb"),
-                    ).props("outlined dense options-dense").classes("w-44")
-                    card_page_size = ui.select(
-                        {10: "10", 25: "25", 50: "50"}, value=int(card_page.get("limit", 25)),
-                        label=render_message("webui.render_table.select.per_page_204d3934"),
-                    ).props("outlined dense options-dense").classes("w-28")
-                with ui.row().classes("w-full items-center px-5"):
-                    card_summary = ui.label().classes("text-sm text-slate-500")
-                    ui.space()
-                    ui.button(render_message("webui.render_table.button.refresh_d245cda4"), icon="refresh", on_click=lambda: reload_governance_cards()).props("flat dense no-caps")
-                card_host = ui.element("div").classes("governance-card-list w-full px-5")
-                with ui.row().classes("w-full items-center px-5 pb-5 gap-2"):
-                    card_range = ui.label().classes("text-sm text-slate-500")
-                    ui.space()
-                    card_first = ui.button(render_message("webui.render_table.button.first_6e0613a1"), icon="first_page").props("flat dense no-caps")
-                    card_previous = ui.button(render_message("webui.render_table.button.previous_ff5ac91d"), icon="chevron_left").props("flat dense no-caps")
-                    card_next = ui.button(render_message("webui.render_table.button.next_7c669a6d"), icon="chevron_right").props("flat dense no-caps icon-right")
-                    card_last = ui.button(render_message("webui.render_table.button.last_cb5252cb"), icon="last_page").props("flat dense no-caps icon-right")
-
-                def render_governance_cards(*, reset: bool = False) -> None:
-                    rows = list(state["rows"])
-                    def card_value(row: dict[str, Any], field: str) -> Any:
-                        if spec.key == "profiles" and field in {"name", "description"}:
-                            return localized_profile_value(row, field)
-                        if field in {"name", "description"} and spec.key in {
-                            "security-levels", "users", "roles", "org-units",
-                        }:
-                            return (row.get("localized") or {}).get(field) or row.get(field)
-                        return row.get(field)
-
-                    page_rows = rows
-                    card_host.clear()
-                    with card_host:
-                        if not page_rows:
-                            ui.label(render_message("webui.render_governance_cards.label.no_matching_items_38db9ba1")).classes("w-full text-center text-slate-400 py-12")
-                        for row in page_rows:
-                            with ui.card().classes("governance-list-card shadow-none"):
-                                # Grid follows document direction directly; the
-                                # global RTL flex-row reversal must not move
-                                # the leading identity icon to the trailing edge.
-                                with ui.grid(columns="auto minmax(0, 1fr) auto").classes("governance-card-header w-full items-start gap-3"):
-                                    with ui.element("div").classes("governance-card-icon mt-1"):
-                                        ui.icon(
-                                            {
-                                                "security-levels": "shield",
-                                                "profiles": "admin_panel_settings",
-                                                "users": "person" if row.get("account_type") == "person" else "smart_toy",
-                                                "roles": "badge",
-                                                "org-units": "corporate_fare",
-                                            }[spec.key],
-                                            size="22px",
-                                        )
-                                    with ui.column().classes("gap-0 min-w-0 grow"):
-                                        ui.label(card_value(row, "name") or render_message("webui.render_governance_cards.label.unnamed_7a826fff")).classes("font-semibold text-base leading-tight")
-                                        identity = row.get("code") or row.get("email") or row.get("external_id") or "—"
-                                        ui.label(identity).classes("text-xs font-medium text-primary break-all")
-                                        if spec.key in {"profiles", "roles", "org-units"}:
-                                            ui.label(card_value(row, "description") or render_message("webui.render_governance_cards.label.no_description_provided_6c1f71ae")).classes("text-xs text-slate-500 mt-1 leading-5")
-                                    if spec.key == "profiles":
-                                        ui.badge(render_message("webui.render_governance_cards.badge.built_in_0f593ef6") if row.get("is_system") else render_message("webui.render_governance_cards.badge.custom_50f80791"), color="blue-grey").props("outline")
-                                    elif spec.key == "roles" and row.get("is_system"):
-                                        ui.badge(render_message("webui.render_governance_cards.badge.built_in_0f593ef6"), color="blue-grey").props("outline")
-                                    elif spec.key in {"users", "roles", "org-units"}:
-                                        status_value = row.get("effective_status", row.get("status", "active"))
-                                        localized_status = localized_lifecycle_value(status_value)
-                                        ui.badge(
-                                            localized_status,
-                                            color="positive" if status_value == "active" else "warning" if status_value == "suspended" else "blue-grey",
-                                        ).props("outline")
-                                with ui.element("div").classes("governance-list-facts w-full"):
-                                    facts_by_resource = {
-                                        "security-levels": (
-                                            (render_message("webui.render_governance_cards.text.level_9166a0c6"), str(row.get("level_number", "—"))),
-                                            (render_message("webui.render_governance_cards.text.roles_assigned_this_level_cdc0781e"), str(row.get("roles_assigned_count", 0))),
-                                            (render_message("webui.render_governance_cards.text.assigned_content_6b3ceaf7"), render_message("webui.render_governance_cards.text.get_aggregations_get_2_records_5bb78a16", get=row.get('aggregation_count', 0), get_2=row.get('record_count', 0))),
-                                            (render_message("webui.render_governance_cards.text.prevents_disposition_02424d41"), render_message("webui.render_governance_cards.text.yes_1e245559") if row.get("prevents_disposition") else render_message("webui.render_governance_cards.text.no_10013db4")),
-                                        ),
-                                        "profiles": (
-                                            (render_message("webui.render_governance_cards.text.privileges_228b97c0"), render_message("webui.render_governance_cards.text.get_privileges_bd0fe2c3", get=row.get('privilege_count', 0))),
-                                            (render_message("webui.render_governance_cards.text.assigned_roles_5abc87ce"), render_message("webui.render_governance_cards.text.get_roles_144c9447", get=row.get('role_count', 0))),
-                                            (render_message("webui.render_governance_cards.text.profile_type_84511002"), render_message("webui.render_governance_cards.text.built_in_2cc42a11") if row.get("is_system") else render_message("webui.render_governance_cards.text.custom_9bafe4e0")),
-                                            (render_message("webui.render_governance_cards.text.last_updated_fdb63867"), format_timestamp(row.get("date_updated"))),
-                                        ),
-                                        "users": (
-                                            (render_message("webui.render_governance_cards.text.account_type_f4a822a4"), localized_account_type(row.get("account_type"))),
-                                            (render_message("webui.render_governance_cards.text.external_identifier_e529aee4"), row.get("external_id") or "—"),
-                                            (render_message("webui.render_governance_cards.text.created_f7945475"), format_timestamp(row.get("date_created"))),
-                                            (render_message("webui.render_governance_cards.text.account_state_2d75af66"), localized_lifecycle_value(row.get("status"))),
-                                        ),
-                                        "roles": (
-                                            (render_message("webui.render_governance_cards.text.organization_unit_ba48dcf7"), " — ".join(filter(None, ((row.get("org_unit_display") or {}).get("code"), (row.get("org_unit_display") or {}).get("name")))) or "—"),
-                                            (render_message("webui.render_governance_cards.text.profile_160b9a86"), " — ".join(filter(None, ((row.get("profile_display") or {}).get("code"), (row.get("profile_display") or {}).get("name")))) or "—"),
-                                            (render_message("webui.render_governance_cards.text.security_clearance_6ed9f255"), " — ".join(filter(None, ((row.get("security_level_display") or {}).get("code"), (row.get("security_level_display") or {}).get("name")))) or "—"),
-                                            (render_message("webui.render_governance_cards.text.role_type_2eb796a4"), render_message("webui.render_governance_cards.text.built_in_2cc42a11") if row.get("is_system") else render_message("webui.render_governance_cards.text.custom_9bafe4e0")),
-                                        ),
-                                        "org-units": (
-                                            (render_message("webui.render_governance_cards.text.parent_unit_b7e8e83c"), " — ".join(filter(None, ((row.get("parent_org_unit_display") or {}).get("code"), (row.get("parent_org_unit_display") or {}).get("name")))) or render_message("webui.render_governance_cards.text.top_level_unit_2e4edd39")),
-                                            (render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"), localized_lifecycle_value(row.get("effective_status"))),
-                                            (render_message("webui.render_governance_cards.text.created_f7945475"), format_timestamp(row.get("date_created"))),
-                                            (render_message("webui.render_governance_cards.text.deactivated_8c6071da"), format_timestamp(row.get("date_deactivated")) if row.get("date_deactivated") else "—"),
-                                        ),
-                                    }
-                                    facts = facts_by_resource[spec.key]
-                                    for fact_index, (label, value) in enumerate(facts):
-                                        with ui.column().classes("gap-0 min-w-0"):
-                                            ui.label(label).classes("detail-field-label")
-                                            if spec.key == "security-levels" and fact_index == 3 and row.get("prevents_disposition"):
-                                                ui.badge(render_message("webui.render_governance_cards.badge.yes_c316a2c3"), color="warning").props(
-                                                    "rounded text-color=white"
-                                                ).classes("font-semibold")
-                                            elif (
-                                                spec.key == "org-units"
-                                                and fact_index == 0
-                                                and row.get("parent_org_unit_id")
-                                            ):
-                                                ui.label(value).classes(
-                                                    "text-sm font-medium text-primary cursor-pointer "
-                                                    "truncate w-full"
-                                                ).on(
-                                                    "click",
-                                                    lambda _, parent_id=row["parent_org_unit_id"]:
-                                                        select_organization_unit_details(parent_id),
-                                                ).tooltip(render_message("webui.render_governance_cards.tooltip.open_value_f1e5a469", value=value))
-                                            else:
-                                                fact_value = ui.label(value).classes(
-                                                    "text-sm font-medium truncate w-full"
-                                                ).tooltip(value)
-                                                if (
-                                                    (spec.key == "users" and fact_index == 2)
-                                                    or (spec.key == "profiles" and fact_index == 3)
-                                                    or (spec.key == "org-units" and fact_index in {2, 3})
-                                                ):
-                                                    fact_value.props('dir="ltr"').classes("text-left")
-                                with ui.row().classes("w-full justify-end gap-1"):
-                                    if spec.key == "users":
-                                        ui.button(icon="open_in_new", on_click=lambda _, item=row: select_user_details(item["id"])).props("outline dense color=primary").tooltip(render_message("webui.render_governance_cards.tooltip.open_user_0dd1ba6f"))
-                                    elif spec.key == "roles":
-                                        ui.button(icon="open_in_new", on_click=lambda _, item=row: select_role_details(item["id"])).props("outline dense color=primary").tooltip(render_message("webui.render_governance_cards.tooltip.open_role_5c0462a7"))
-                                    elif spec.key == "org-units":
-                                        ui.button(icon="open_in_new", on_click=lambda _, item=row: select_organization_unit_details(item["id"])).props("outline dense color=primary").tooltip(render_message("webui.render_governance_cards.tooltip.open_organization_unit_831f72f6"))
-                                    ui.button(icon="edit", on_click=lambda _, item=row: open_editor(item)).props("outline dense color=primary").tooltip(render_message("webui.render_governance_cards.tooltip.edit_e758b62a"))
-                                    if spec.key == "profiles":
-                                        ui.button(icon="key", on_click=lambda _, item=row: show_profile_privilege_editor(item)).props("outline dense color=primary").tooltip(render_message("webui.render_governance_cards.tooltip.manage_privileges_aafa40bb"))
-                                    if spec.key in {"users", "roles"} and not (
-                                        spec.key == "roles" and row.get("is_system")
-                                    ):
-                                        ui.button(
-                                            icon="group",
-                                            on_click=lambda _, item=row, user_view=spec.key == "users": show_memberships(item, for_user=user_view),
-                                        ).props("outline dense color=primary").tooltip(render_message("webui.render_governance_cards.tooltip.role_assignments_130ac369"))
-                                    ui.button(icon="history", on_click=lambda _, item=row: show_entity_history(spec.key, item)).props("outline dense color=blue-grey").tooltip(render_message("webui.render_governance_cards.tooltip.event_history_b5a81195"))
-                    start = card_page["offset"] + 1 if page_rows else 0
-                    end = card_page["offset"] + len(page_rows)
-                    resource_count_label = {
-                        "security-levels": render_message("navigation.item.security_levels"),
-                        "profiles": render_message("navigation.item.profiles"),
-                        "users": render_message("navigation.item.users"),
-                        "roles": render_message("navigation.item.roles"),
-                        "org-units": render_message("navigation.item.org_units"),
-                    }[spec.key]
-                    card_summary.text = render_message("webui.render_governance_cards.text.row_count_lower_b95cb021", row_count=card_page["total"], lower=resource_count_label)
-                    card_range.text = render_message("webui.render_governance_cards.text.showing_start_end_of_row_count_2542d0d0", start=start, end=end, row_count=card_page["total"])
-                    at_start = card_page["offset"] == 0
-                    at_end = end >= card_page["total"]
-                    card_first.set_enabled(not at_start); card_previous.set_enabled(not at_start)
-                    card_next.set_enabled(not at_end); card_last.set_enabled(not at_end)
-
-                async def reload_governance_cards(*, reset: bool = False) -> None:
-                    card_page.update(
-                        query=(card_filter.value or "").strip(),
-                        status=card_status.value if card_status is not None else "all",
-                        account_type=card_account_type.value if card_account_type is not None else "all",
-                        sort=card_sort.value,
-                        limit=int(card_page_size.value),
-                    )
-                    if reset:
-                        card_page["offset"] = 0
-                    await load_rows(
-                        repeat_search=True, on_loaded=render_governance_cards,
-                        is_current=lambda: not card_host.is_deleted,
-                    )
-
-                async def move_card_page(offset: int) -> None:
-                    card_page["offset"] = max(0, offset)
-                    await load_rows(
-                        repeat_search=True, on_loaded=render_governance_cards,
-                        is_current=lambda: not card_host.is_deleted,
-                    )
-
-                card_filter.on_value_change(lambda: reload_governance_cards(reset=True))
-                card_sort.on_value_change(lambda: reload_governance_cards(reset=True))
-                card_page_size.on_value_change(lambda: reload_governance_cards(reset=True))
-                if card_status is not None:
-                    card_status.on_value_change(lambda: reload_governance_cards(reset=True))
-                if card_account_type is not None:
-                    card_account_type.on_value_change(lambda: reload_governance_cards(reset=True))
-                card_first.on("click", lambda: move_card_page(0))
-                card_previous.on("click", lambda: move_card_page(card_page["offset"] - int(card_page_size.value)))
-                card_next.on("click", lambda: move_card_page(card_page["offset"] + int(card_page_size.value)))
-                card_last.on("click", lambda: move_card_page(max(0, ((card_page["total"] - 1) // int(card_page_size.value)) * int(card_page_size.value))))
-                render_governance_cards()
+                render_governance_cards = render_administration_cards(spec)
                 return
             if spec.key in {"aggregations", "records"}:
                 with ui.row().classes("w-full items-center px-5 pt-2 gap-3"):
@@ -11420,42 +5290,11 @@ def index(q: str = "") -> None:
                     ).props("outlined dense clearable debounce=250").classes("w-96 max-w-full")
                     ui.space()
                     ui.label(render_message("webui.render_table.label.visible_row_count_results_07a8f243", visible_row_count=len(visible_rows))).classes("text-sm text-slate-500")
-            if spec.key in {"org-units", "roles", "users"}:
-                status_options = {
-                    "all": render_message("webui.render_table.text.all_statuses_06d8caa8"),
-                    "active": render_message("webui.render_table.text.active_3a692d6a"),
-                    "inactive": render_message("webui.render_table.text.inactive_ffa76f23"),
-                }
-                if spec.key == "users":
-                    status_options["suspended"] = "Suspended"
-                filter_labels = {
-                    "org-units": "Search code, name, or parent unit",
-                    "roles": "Search code, name, or organization unit",
-                    "users": "Search name or email",
-                }
-                selected_lifecycle_filter = state.get("lifecycle_filter", "all")
-                if selected_lifecycle_filter not in status_options:
-                    selected_lifecycle_filter = "all"
-                    state["lifecycle_filter"] = "all"
-                with ui.row().classes(
-                    "w-full items-center gap-3 px-5 pt-2 pb-1 mb-2"
-                ):
-                    administration_filter = ui.input(
-                        filter_labels[spec.key],
-                        placeholder=render_message("webui.render_table.input.type_to_filter_this_table_c56c09a2"),
-                    ).props("outlined dense clearable debounce=250").classes("w-96 max-w-full")
-                    ui.space()
-                    if spec.key == "users":
-                        account_type_filter = ui.select(
-                            {"all": render_message("webui.render_table.select.all_account_types_4efb11a2"), "person": render_message("webui.render_table.select.person_71413829"), "service": render_message("webui.render_table.select.service_e1263edf")},
-                            value=state.get("account_type_filter", "all"),
-                            label=render_message("webui.render_table.select.account_type_1e818a83"),
-                        ).props("outlined dense options-dense").classes("w-48")
-                    lifecycle_filter = ui.select(
-                        status_options,
-                        value=selected_lifecycle_filter,
-                        label=render_message("webui.render_table.select.status_bba3b0bf"),
-                    ).props("outlined dense options-dense").classes("w-48")
+            administration_filter, account_type_filter, lifecycle_filter = organization_table_filters(
+                spec, lambda: state.get("lifecycle_filter", "all"),
+                lambda: state.get("account_type_filter", "all"),
+                lambda: state.update(lifecycle_filter="all"),
+            )
             sortable_relationships = {"parent_org_unit_display", "org_unit_display", "profile_display"}
             localized_metadata_fields = (
                 {"name", "description"}
@@ -11568,19 +5407,7 @@ def index(q: str = "") -> None:
             add_timestamp_slots(
                 table, [key for key, _ in spec.columns if key.startswith("date_")]
             )
-            if spec.key == "users":
-                table.add_slot("body-cell-_avatar", '''
-                    <q-td :props="props" style="width: 56px">
-                      <q-avatar size="38px" :style="{ backgroundColor: props.row._avatar.color, color: props.row._avatar.text_color }">
-                        {{ props.row._avatar.initials }}
-                      </q-avatar>
-                    </q-td>
-                ''')
-                table.add_slot("body-cell-account_type", '''
-                    <q-td :props="props">
-                      <span>{{ props.value === 'person' ? 'Person' : 'Service' }}</span>
-                    </q-td>
-                ''')
+            organization_user_slots(spec, table)
             if spec.key == "profiles":
                 table.add_slot("body-cell-name", '''
                     <q-td :props="props">
@@ -11673,10 +5500,7 @@ def index(q: str = "") -> None:
                 buttons = ''
             else:
                 buttons = '<q-btn flat round dense icon="edit" color="primary" @click="$parent.$emit(\'edit\', props.row)"><q-tooltip>Edit</q-tooltip></q-btn>'
-            if spec.key == "org-units":
-                buttons = '<q-btn flat round dense icon="open_in_new" color="primary" @click="$parent.$emit(\'open_org_unit\', props.row)"><q-tooltip>Open organization unit</q-tooltip></q-btn>' + buttons
-            if spec.key == "roles":
-                buttons = '<q-btn flat round dense icon="open_in_new" color="primary" @click="$parent.$emit(\'open_role\', props.row)"><q-tooltip>Open role</q-tooltip></q-btn>' + buttons
+            buttons = organization_leading_actions(spec, buttons)
             if spec.key not in {"privileges", "permissions"}:
                 buttons += '<q-btn flat round dense icon="history" color="blue-grey" @click="$parent.$emit(\'history\', props.row)"><q-tooltip>Event history</q-tooltip></q-btn>'
             if spec.key == "records":
@@ -11685,29 +5509,19 @@ def index(q: str = "") -> None:
             if spec.key == "aggregations":
                 buttons = '<q-btn flat round dense icon="folder_open" color="secondary" @click="$parent.$emit(\'open_aggregation\', props.row)"><q-tooltip>Open aggregation</q-tooltip></q-btn>' + buttons
                 buttons += '<q-btn v-if="props.row._directly_closed" flat round dense icon="lock_open" color="primary" @click="$parent.$emit(\'reopen\', props.row)"><q-tooltip>Reopen aggregation</q-tooltip></q-btn>'
-            if spec.key in {"users", "roles"}:
-                buttons += '<q-btn flat round dense icon="group" color="secondary" @click="$parent.$emit(\'memberships\', props.row)"><q-tooltip>Role assignments</q-tooltip></q-btn>'
+            buttons = organization_membership_action(spec, buttons)
             if spec.key == "profiles":
                 buttons += '<q-btn flat round dense icon="key" color="secondary" @click="$parent.$emit(\'profile_privileges\', props.row)"><q-tooltip>Manage privileges</q-tooltip></q-btn>'
-            if spec.key == "users":
-                buttons = '<q-btn flat round dense icon="open_in_new" color="primary" @click="$parent.$emit(\'open_user\', props.row)"><q-tooltip>Open user</q-tooltip></q-btn>' + buttons
-                buttons += '<q-btn flat round dense icon="password" color="orange" @click="$parent.$emit(\'temporary_password\', props.row)"><q-tooltip>Issue temporary password</q-tooltip></q-btn>'
-            if spec.key in {"org-units", "roles", "users"}:
-                buttons += LIFECYCLE_ACTION_BUTTONS
-            if spec.key == "users":
-                buttons += USER_SUSPENSION_ACTION_BUTTONS
+            buttons = organization_user_actions(spec, buttons)
+            buttons = organization_lifecycle_actions(spec, buttons)
             if spec.key == "classification-schemes":
-                buttons += '<q-btn v-if="!props.row.date_published" flat round dense icon="publish" color="primary" @click="$parent.$emit(\'publish_scheme\', props.row)"><q-tooltip>Publish now</q-tooltip></q-btn>'
-                buttons += '<q-btn flat round dense :icon="props.row.date_deactivated ? \'toggle_on\' : \'toggle_off\'" :color="props.row.date_deactivated ? \'positive\' : \'negative\'" @click="$parent.$emit(\'scheme_lifecycle\', props.row)"><q-tooltip>{{ props.row.date_deactivated ? \'Reactivate\' : \'Deactivate\' }}</q-tooltip></q-btn>'
+                buttons = scheme_action_buttons(buttons)
             table.add_slot("body-cell-actions", f'<q-td :props="props">{buttons}</q-td>')
             table.on("edit", lambda event: open_editor(event.args))
             table.on("history", lambda event, resource=spec.key: show_entity_history(resource, event.args))
             if spec.key == "profiles":
                 table.on("profile_privileges", lambda event: show_profile_privilege_editor(event.args))
-            if spec.key == "org-units":
-                table.on("open_org_unit", lambda event: select_organization_unit_details(event.args["id"]))
-            if spec.key == "roles":
-                table.on("open_role", lambda event: select_role_details(event.args["id"]))
+            bind_organization_table_destinations(spec, table, select_organization_unit_details, select_role_details)
             if spec.key in {"aggregations", "records"}:
                 async def toggle_table_favourite(event) -> None:
                     row = event.args
@@ -11741,40 +5555,13 @@ def index(q: str = "") -> None:
                     await show_reopen_aggregation(row, reopened)
                 table.on("reopen", reopen_from_table)
             if spec.key == "classification-schemes":
-                async def publish_scheme(event) -> None:
-                    row = event.args
-                    try:
-                        await api.request(
-                            "POST", f"/api/v1/classification-schemes/{row['id']}/publish",
-                            headers={"If-Match": str(row["version"])},
-                        )
-                        ui.notify(render_message("webui.publish_scheme.notify.classification_scheme_published_cd141332"), color="positive")
-                        await load_rows(
+                bind_scheme_actions(
+                    table, api=api, error_message=error_message,
+                    refresh=lambda: load_rows(
                         repeat_search=True, on_loaded=render_governance_cards,
                         is_current=lambda: not card_host.is_deleted,
-                    )
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                async def change_scheme_lifecycle(event) -> None:
-                    row = event.args
-                    action = render_message("webui.change_scheme_lifecycle.text.reactivate_ef9784c4") if row.get("date_deactivated") else render_message("webui.change_scheme_lifecycle.text.deactivate_871a64d1")
-                    try:
-                        await api.request(
-                            "POST", f"/api/v1/classification-schemes/{row['id']}/{action}",
-                            headers={
-                                "If-Match": str(row["version"]),
-                                "X-Change-Reason": f"{action.title()} from classification administration",
-                            },
-                        )
-                        ui.notify(render_message("webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda", action=action), color="positive")
-                        await load_rows(
-                        repeat_search=True, on_loaded=render_governance_cards,
-                        is_current=lambda: not card_host.is_deleted,
-                    )
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                table.on("publish_scheme", publish_scheme)
-                table.on("scheme_lifecycle", change_scheme_lifecycle)
+                    ),
+                )
             if spec.key in {"users", "roles"}:
                 table.on(
                     "memberships",
@@ -11784,344 +5571,71 @@ def index(q: str = "") -> None:
                 )
             if spec.key == "users":
                 table.on("open_user", lambda event: select_user_details(event.args["id"]))
-                async def issue_password(event) -> None:
-                    try:
-                        result = await api.issue_temporary_password(event.args["id"])
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                        return
-                    dialog = ui.dialog().props("persistent")
-                    with dialog, ui.card().classes("w-[520px] max-w-full"):
-                        ui.label(render_message("webui.issue_password.label.temporary_password_2069ddbc")).classes("text-xl font-semibold")
-                        ui.label(render_message("webui.issue_password.label.copy_this_password_now_it_will_not_be_show_289e8425")).classes("text-sm text-slate-500")
-                        ui.code(result["temporary_password"]).classes("w-full text-lg")
-                        ui.label(render_message("webui.issue_password.label.expires_format_timestamp_45b017c7", format_timestamp=format_timestamp(result['expires_at']))).classes("text-xs text-slate-400")
-                        with ui.row().classes("w-full justify-end"):
-                            ui.button(render_message("webui.issue_password.button.i_have_copied_it_2fc9a18e"), on_click=dialog.close).props("unelevated no-caps")
-                    dialog.open()
+                issue_password = build_issue_password(
+                    api=api,
+                    error_message=error_message,
+                    format_timestamp=format_timestamp,
+                )
                 table.on("temporary_password", issue_password)
-                async def change_suspension(event, *, suspended: bool) -> None:
-                    row = event.args
-                    action = render_message("webui.change_suspension.text.suspend_a1029af3") if suspended else render_message("webui.change_suspension.text.unsuspend_41fef4cf")
-                    dialog = ui.dialog()
-                    with dialog, ui.card().classes("w-[520px] max-w-full"):
-                        ui.label(render_message("webui.change_suspension.label.action_user_06f864cb", action=action)).classes("text-xl font-semibold")
-                        ui.label(row.get("name") or render_message("webui.change_suspension.label.id_deaa5a5b", id=row['id'])).classes("font-medium")
-                        ui.label(
-                            render_message("webui.change_suspension.label.all_active_sessions_will_be_revoked_the_us_e789a9b9")
-                            if suspended else
-                            render_message("webui.change_suspension.label.the_account_will_become_active_again_previ_fceeb526")
-                        ).classes("text-sm text-slate-600")
-
-                        async def proceed() -> None:
-                            try:
-                                saved = await api.set_user_suspended(
-                                    row["id"], row["version"], suspended=suspended,
-                                )
-                                dialog.close()
-                                if suspended and row["id"] == auth_state["principal"]["user"]["id"]:
-                                    app.storage.user.pop("session_token", None)
-                                    api.set_session_token(None)
-                                    clear_signed_in_identity()
-                                    login_dialog.open()
-                                    return
-                                state["rows"] = [
-                                    saved if item["id"] == saved["id"] else item
-                                    for item in state["rows"]
-                                ]
-                                state["rows"] = await decorate_for_spec(spec, state["rows"])
-                                render_table(spec)
-                                ui.notify(render_message("webui.proceed.notify.user_lower_ed_9fe77e33", lower=action.lower()), color="positive")
-                            except ApiError as error:
-                                show_api_error(error)
-
-                        with ui.row().classes("w-full justify-end gap-2"):
-                            ui.button(render_message("webui.change_suspension.button.cancel_7d52ce8e"), on_click=dialog.close).props("flat no-caps")
-                            ui.button(action, on_click=proceed).props("unelevated no-caps")
-                    dialog.open()
+                change_suspension = build_change_suspension(
+                    api=api,
+                    current_session_revoked=current_session_revoked,
+                    decorate_for_spec=decorate_for_spec,
+                    get_principal=lambda: auth_state["principal"],
+                    get_rows=lambda: state["rows"],
+                    render_table=render_table,
+                    set_rows=lambda rows: state.update(rows=rows),
+                    show_api_error=show_api_error,
+                    spec=spec,
+                )
 
                 table.on("suspend_user", lambda event: change_suspension(event, suspended=True))
                 table.on("unsuspend_user", lambda event: change_suspension(event, suspended=False))
             if spec.key in {"org-units", "roles", "users"}:
-                async def confirm_lifecycle(event) -> None:
-                    row = event.args
-                    activating = row.get("status") == "inactive"
-                    action = render_message("webui.confirm_lifecycle.text.activate_4a659dd4") if activating else render_message("webui.confirm_lifecycle.text.deactivate_dd352ea2")
-                    dialog = ui.dialog()
-                    with dialog, ui.card().classes("w-[520px] max-w-full"):
-                        ui.label(render_message("webui.confirm_lifecycle.label.action_singular_abe41001", action=action, singular=spec.singular)).classes("text-xl font-semibold")
-                        ui.label(row.get("name") or row.get("code") or render_message("webui.confirm_lifecycle.label.id_01b3b0e1", id=row['id'])).classes("font-medium")
-                        if spec.key == "org-units":
-                            message = (
-                                render_message("webui.confirm_lifecycle.text.its_roles_and_descendant_unit_roles_become_d117ff90")
-                                if activating else
-                                render_message("webui.confirm_lifecycle.text.roles_in_this_unit_and_every_descendant_un_688329e2")
-                            )
-                        elif spec.key == "roles":
-                            message = (
-                                render_message("webui.confirm_lifecycle.text.existing_assignments_can_contribute_author_ee495e15")
-                                if activating else
-                                render_message("webui.confirm_lifecycle.text.existing_users_and_assignments_remain_unch_49553f07")
-                            )
-                        else:
-                            message = (
-                                render_message("webui.confirm_lifecycle.text.the_user_can_authenticate_again_existing_r_8ed548e9")
-                                if activating else
-                                render_message("webui.confirm_lifecycle.text.all_active_login_sessions_will_be_revoked_080d677f")
-                            )
-                        ui.label(message).classes("text-sm text-slate-600")
-
-                        async def proceed() -> None:
-                            try:
-                                saved = await api.set_active(
-                                    spec.key, row["id"], row["version"], active=activating,
-                                )
-                                dialog.close()
-                                if (
-                                    spec.key == "users" and not activating
-                                    and row["id"] == auth_state["principal"]["user"]["id"]
-                                ):
-                                    app.storage.user.pop("session_token", None)
-                                    api.set_session_token(None)
-                                    clear_signed_in_identity()
-                                    login_dialog.open()
-                                    return
-                                state["rows"] = [
-                                    saved if item["id"] == saved["id"] else item
-                                    for item in state["rows"]
-                                ]
-                                state["rows"] = await decorate_for_spec(spec, state["rows"])
-                                render_table(spec)
-                                ui.notify(
-                                    render_message(
-                                        "webui.proceed.notify.entity_activated"
-                                        if activating else
-                                        "webui.proceed.notify.entity_deactivated"
-                                    ),
-                                    color="positive",
-                                )
-                            except ApiError as error:
-                                show_api_error(error)
-
-                        with ui.row().classes("w-full justify-end gap-2"):
-                            ui.button(render_message("webui.confirm_lifecycle.button.cancel_4534950b"), on_click=dialog.close).props("flat no-caps")
-                            ui.button(action, on_click=proceed, icon="toggle_on" if activating else "toggle_off").props(
-                                f"unelevated no-caps color={'positive' if activating else 'negative'}"
-                            )
-                    dialog.open()
+                confirm_lifecycle = build_confirm_lifecycle(
+                    api=api,
+                    current_session_revoked=current_session_revoked,
+                    decorate_for_spec=decorate_for_spec,
+                    get_principal=lambda: auth_state["principal"],
+                    get_rows=lambda: state["rows"],
+                    render_table=render_table,
+                    set_rows=lambda rows: state.update(rows=rows),
+                    show_api_error=show_api_error,
+                    spec=spec,
+                )
                 table.on("lifecycle", confirm_lifecycle)
 
-    async def ensure_translation_inspector_asset() -> None:
-        """Load and initialize the inspector before any switch state is applied."""
-        await page_client.run_javascript(
-            "if (!window.wathiqTranslationInspectorLoad) window.wathiqTranslationInspectorLoad = new Promise((resolve, reject) => {"
-            "if (window.wathiqTranslationInspector) { resolve(true); return; }"
-            "const existing = document.getElementById('wathiq-translation-inspector-script');"
-            "if (existing) existing.remove();"
-            "const script = document.createElement('script');"
-            "script.id = 'wathiq-translation-inspector-script';"
-            "script.src = '/static/inspector/translation-inspector.js?v=10';"
-            "script.onload = () => resolve(true);"
-            "script.onerror = () => { script.remove(); reject(new Error('Translation inspector failed to load')); };"
-            "document.head.appendChild(script);"
-            "}).catch(error => { window.wathiqTranslationInspectorLoad = null; throw error; });"
-            "window.wathiqTranslationInspectorLoad",
-            timeout=15,
-        )
-        inspector_labels = {
-            "title": render_message_plain("translation_inspector.panel.title"),
-            "guidance": render_message_plain("translation_inspector.panel.guidance"),
-            "clickGuidance": render_message_plain("translation_inspector.panel.click_guidance"),
-            "copy": render_message_plain("translation_inspector.action.copy_key"),
-            "open": render_message_plain("translation_inspector.action.open_administration"),
-            "language": render_message_plain("translation_inspector.field.language"),
-            "fallback": render_message_plain("translation_inspector.field.fallback"),
-            "yes": render_message_plain("translation_inspector.value.yes"),
-            "no": render_message_plain("translation_inspector.value.no"),
-        }
-        await page_client.run_javascript(
-            "window.wathiqTranslationInspector.initialize("
-            + json.dumps(inspector_labels, ensure_ascii=False)
-            + "); true",
-            timeout=5,
-        )
+    (clear_translation_inspector_session, synchronize_translation_inspector,
+     toggle_translation_inspector, open_inspected_translation) = build_translation_inspector(
+        page_client=page_client, principal=lambda: auth_state.get("principal"),
+        brand_row=brand_row, brand_mark=brand_mark, brand_name=brand_name,
+        diagnostics_separator=diagnostics_separator, diagnostics_section=diagnostics_section,
+        inspector_switch=inspector_switch, user_menu=user_menu,
+        guarded_page_navigation=lambda callback: guarded_page_navigation(callback),
+        select_translation_administration=lambda **kwargs: select_translation_administration(**kwargs),
+    )
 
-    def refresh_inspectable_chrome() -> None:
-        """Re-render persistent header text after Inspector metadata is enabled."""
-        accessible_name = render_message("webui.index.accessible_name.wathiq_faa0862c")
-        brand_row.props('aria-label=' + repr(accessible_name))
-        brand_mark.props("fit=contain alt='" + accessible_name + "'")
-        brand_name.text = render_message("webui.index.label.wathiq_d1dfb800")
-        brand_name.update()
 
-    async def synchronize_translation_inspector(privileges: set[str]) -> None:
-        authorized = "localization.administer" in privileges
-        if authorized:
-            enable_diagnostic_metadata(page_client.id)
-        else:
-            disable_diagnostic_metadata(page_client.id)
-        diagnostics_separator.set_visibility(authorized)
-        diagnostics_section.set_visibility(authorized)
-        if not authorized:
-            inspector_switch.value = False
-            inspector_switch.update()
-            return
-        try:
-            await ensure_translation_inspector_asset()
-            enabled = await page_client.run_javascript(
-                "window.wathiqTranslationInspector.setAuthorized("
-                + ("true" if authorized else "false")
-                + "); window.wathiqTranslationInspector.restore()",
-                timeout=5,
-            )
-        except Exception:
-            enabled = False
-        inspector_switch.value = bool(enabled) if authorized else False
-        inspector_switch.update()
-        if enabled:
-            refresh_inspectable_chrome()
 
-    async def toggle_translation_inspector(event: Any) -> None:
-        authorized = "localization.administer" in set(
-            (auth_state.get("principal") or {}).get("global_privileges", [])
-        )
-        try:
-            await ensure_translation_inspector_asset()
-            enabled = await page_client.run_javascript(
-                "window.wathiqTranslationInspector.setAuthorized("
-                + ("true" if authorized else "false")
-                + "); window.wathiqTranslationInspector.setEnabled("
-                + ("true" if bool(event.value) else "false")
-                + ")",
-                timeout=5,
-            )
-        except Exception:
-            enabled = False
-            ui.notify(render_message("shared.errors.unexpected"), color="negative")
-        if bool(inspector_switch.value) != bool(enabled):
-            inspector_switch.value = bool(enabled)
-            inspector_switch.update()
-        if enabled:
-            refresh_inspectable_chrome()
 
     inspector_switch.on_value_change(toggle_translation_inspector)
 
-    def populate_user_menu(principal: dict[str, Any]) -> None:
-        drawer.show()
-        mobile_navigation.set_visibility(True)
-        header_network.set_visibility(True)
-        auth_state["principal"] = principal
-        privileges = set(principal.get("global_privileges", []))
-        holds_navigation.set_visibility(False)
-        refresh_drawer_visibility(privileges)
-        background_tasks.create(synchronize_translation_inspector(privileges))
-        user = principal["user"]
-        display_user = {**user, "name": (user.get("localized") or {}).get("name") or user["name"]}
-        current_user_name.text = display_user["name"]
-        current_user_email.text = user.get("email") or user["account_type"].title()
-        avatar = user_avatar(display_user)
-        current_user_avatar_initials.text = avatar["initials"]
-        current_user_avatar.style(
-            replace=(
-                f"background:{avatar['color']} !important;"
-                f"color:{avatar['text_color']} !important"
-            )
-        )
-        previous_login_at = principal.get("previous_login_at")
-        current_user_last_login.text = (
-            format_timestamp(previous_login_at) if previous_login_at else render_message("webui.populate_user_menu.text.first_sign_in_42778cbf")
-        )
-        current_user_roles.clear()
-        with current_user_roles:
-            if not principal["roles"]:
-                ui.label(render_message("webui.populate_user_menu.label.no_assigned_roles_2628632d")).classes("text-xs text-slate-400")
-            for role in principal["roles"]:
-                with ui.row().classes("erms-profile-role-row w-full items-center gap-2 no-wrap"):
-                    ui.icon("badge", size="18px").classes("text-primary")
-                    with ui.column().classes("erms-profile-role-copy gap-0 min-w-0"):
-                        ui.label((role.get("localized") or {}).get("name") or role["name"]).classes("text-sm font-medium line-clamp-1")
-                        unit = role["org_unit"]
-                        ui.label((unit.get("localized") or {}).get("name") or unit["name"]).classes("text-xs text-slate-400 line-clamp-1")
 
-    async def refresh_hold_navigation() -> None:
-        privileges=set((auth_state.get("principal") or {}).get("global_privileges",[]))
-        if {"holds.administer", "holds.held_items.manage_all"} & privileges:
-            holds_navigation.set_visibility(True)
-            refresh_drawer_headings()
-            return
-        try:
-            page=await api.holds_page(limit=1)
-            holds_navigation.set_visibility(bool(page["total"]))
-        except ApiError:
-            holds_navigation.set_visibility(False)
-        finally:
-            refresh_drawer_headings()
+    refresh_hold_navigation = build_hold_navigation(
+        api=api,
+        principal=lambda: auth_state.get("principal"),
+        holds_navigation=holds_navigation,
+        refresh_drawer_headings=refresh_drawer_headings,
+    )
 
-    async def show_change_password() -> None:
-        forced_change = bool(
-            (auth_state.get("principal") or {}).get("must_change_password")
-        )
-        dialog = ui.dialog().props("persistent")
-        with dialog, ui.card().classes("w-[480px] max-w-full"):
-            ui.label(
-                render_message("webui.show_change_password.label.set_a_new_password_f6a268ba") if forced_change else render_message("webui.show_change_password.label.change_password_01795a6b")
-            ).classes("text-xl font-semibold")
-            if forced_change:
-                ui.label(
-                    render_message("webui.show_change_password.label.your_temporary_password_must_be_replaced_b_2cba2da1")
-                ).classes("text-sm text-slate-500")
-            current = ui.input(
-                render_message("webui.show_change_password.input.temporary_password_b83bc142") if forced_change else render_message("webui.show_change_password.input.current_password_00f4f73a"),
-                password=True,
-                password_toggle_button=True,
-            ).props('outlined autocomplete=current-password input-style="direction: ltr; unicode-bidi: isolate;"').classes("w-full")
-            new = ui.input(render_message("webui.show_change_password.input.new_password_28399c5b"), password=True, password_toggle_button=True).props("outlined").classes("w-full")
-            confirm = ui.input(render_message("webui.show_change_password.input.confirm_new_password_abd1d774"), password=True).props("outlined").classes("w-full")
-
-            async def save_password() -> None:
-                if new.value != confirm.value:
-                    ui.notify(render_message("webui.save_password.notify.new_passwords_do_not_match_26d93e32"), color="warning")
-                    return
-                try:
-                    await api.change_password(current.value or "", new.value or "")
-                    dialog.close()
-                    ui.notify(render_message("webui.save_password.notify.password_changed_9140fb7f"), color="positive")
-                    principal = await api.me()
-                    if not await prepare_authenticated_workspace(principal):
-                        return
-                    await select_dashboard()
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-
-            async def return_to_sign_in() -> None:
-                # A forced-change session is deliberately restricted. Let the
-                # person abandon it safely when the temporary password is no
-                # longer available, instead of trapping them in this dialog.
-                dialog.close()
-                await sign_out()
-
-            with ui.row().classes("w-full justify-end"):
-                if forced_change:
-                    ui.button(
-                        render_message("webui.show_change_password.button.back_to_sign_in_a4e9c09d"), icon="arrow_back",
-                        on_click=return_to_sign_in,
-                    ).props("flat no-caps")
-                else:
-                    ui.button(render_message("webui.show_change_password.button.cancel_6a686362"), on_click=dialog.close).props("flat")
-                ui.button(
-                    render_message("webui.show_change_password.button.set_new_password_067753d1") if forced_change else render_message("webui.show_change_password.button.change_password_81533b94"),
-                    icon="password",
-                    on_click=save_password,
-                ).props("unelevated")
-        dialog.open()
 
     sign_out = session.sign_out
 
-    async def select_login_sessions(user_id: int | None = None) -> None:
+    def enter_login_sessions(user_id: int | None) -> None:
         if user_id is None:
             register_navigation("login-sessions", "Login sessions")
         show_authenticated_view()
-        state.update(resource="login-sessions", rows=[], searched=True, aggregation_detail=None)
+        state.update(resource='login-sessions', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         title.text = render_message("webui.select_login_sessions.text.login_sessions_06291138")
         subtitle.text = (
             render_message("webui.select_login_sessions.text.review_and_revoke_sessions_for_the_selecte_eab5be28")
@@ -12133,197 +5647,12 @@ def index(q: str = "") -> None:
         aggregation_mode_bar.set_visibility(False)
         guidance.text = ""
         table_container.clear()
-        with table_container:
-            outer = ui.column().classes("w-full p-5 gap-4")
 
-        page_state = {"offset": 0, "total": 0, "active": 0, "loading": False}
-        with outer:
-            with ui.card().classes("w-full shadow-none border border-slate-200 p-4 gap-3"):
-                ui.label(render_message("webui.select_login_sessions.label.filter_sessions_aa1ab045")).classes("font-semibold")
-                with ui.element("div").classes("hold-held-item-filter-primary w-full"):
-                    session_filter = ui.input(
-                        render_message("webui.select_login_sessions.input.user_or_client_e41c0521"), placeholder=render_message("webui.select_login_sessions.input.name_email_ip_address_or_browser_d1aeccf0"),
-                    ).props("outlined dense clearable").classes("w-full col-span-2")
-                    status_filter = ui.select(
-                        {"all": render_message("webui.select_login_sessions.select.all_statuses_34d5de11"), "active": render_message("webui.select_login_sessions.select.active_36219838"), "expired": render_message("webui.select_login_sessions.select.expired_4f6360cb"), "revoked": render_message("webui.select_login_sessions.select.revoked_c6e031f9")},
-                        value="all", label=render_message("webui.select_login_sessions.select.status_de37c9ef"),
-                    ).props("outlined dense options-dense").classes("w-full")
-                    sort_filter = ui.select(
-                        {"date_created": render_message("webui.select_login_sessions.select.signed_in_54f907f7"), "last_seen_at": render_message("webui.select_login_sessions.select.last_activity_cd341923"), "expires_at": render_message("webui.select_login_sessions.select.expiry_252f7b7d"), "status": render_message("webui.select_login_sessions.select.status_de37c9ef"), "client_ip": render_message("webui.select_login_sessions.select.ip_address_ebf48f5f")},
-                        value="date_created", label=render_message("webui.select_login_sessions.select.sort_by_bc12d82d"),
-                    ).props("outlined dense options-dense").classes("w-full")
-                    timestamp_field = ui.select(
-                        {"date_created": render_message("webui.select_login_sessions.select.signed_in_54f907f7"), "last_seen_at": render_message("webui.select_login_sessions.select.last_activity_cd341923")},
-                        label=render_message("webui.select_login_sessions.select.date_field_3d55a2d9"), value="date_created",
-                    ).props("outlined dense options-dense").classes("w-full")
-                    from_filter = ui.input(render_message("webui.select_login_sessions.input.from_d21e44c1")).props("outlined dense clearable type=datetime-local").classes("w-full")
-                    until_filter = ui.input(render_message("webui.select_login_sessions.input.to_fe61918d")).props("outlined dense clearable type=datetime-local").classes("w-full")
-                    direction_filter = ui.select(
-                        {True: render_message("webui.select_login_sessions.select.newest_descending_f99e885f"), False: render_message("webui.select_login_sessions.select.oldest_ascending_a4172995")},
-                        value=True, label=render_message("webui.select_login_sessions.select.direction_784704c5"),
-                    ).props("outlined dense options-dense").classes("w-full")
-                filter_actions = ui.row().classes("w-full justify-end gap-2")
-            with ui.row().classes("w-full items-center"):
-                result_summary = ui.label().classes("text-sm text-slate-500")
-                ui.space()
-                refresh_button = ui.button(render_message("webui.select_login_sessions.button.refresh_85d6e787"), icon="refresh").props("flat no-caps")
-            results = ui.element("div").classes("login-session-card-grid w-full")
-            empty_state = ui.label(render_message("webui.select_login_sessions.label.no_login_sessions_match_these_filters_2c8578fd")).classes(
-                "w-full text-center text-slate-400 py-12"
-            )
-            with ui.row().classes("w-full items-center gap-3"):
-                page_range = ui.label().classes("text-sm text-slate-500")
-                ui.space()
-                rows_per_page = ui.select({20: "20", 50: "50", 100: "100"}, value=20, label=render_message("webui.select_login_sessions.select.per_page_a942866a")).props("outlined dense options-dense").classes("w-28")
-                first_page = ui.button(render_message("webui.select_login_sessions.button.first_3e9443bf"), icon="first_page").props("flat dense no-caps")
-                previous_page = ui.button(render_message("webui.select_login_sessions.button.previous_6631329f"), icon="chevron_left").props("flat dense no-caps")
-                next_page = ui.button(render_message("webui.select_login_sessions.button.next_b09718d5"), icon="chevron_right").props("flat dense no-caps icon-right")
-                last_page = ui.button(render_message("webui.select_login_sessions.button.last_5cfe5c95"), icon="last_page").props("flat dense no-caps icon-right")
-
-        def client_summary(user_agent: str | None) -> tuple[str, str]:
-            value = user_agent or render_message("webui.client_summary.text.unknown_client_a90618da")
-            browser = next((name for token, name in (("Edg/", "Microsoft Edge"), ("Chrome/", "Google Chrome"), ("Firefox/", "Mozilla Firefox"), ("Safari/", "Safari")) if token in value), "Browser")
-            platform = next((name for token, name in (("Macintosh", "macOS"), ("Windows", "Windows"), ("Android", "Android"), ("iPhone", "iOS"), ("Linux", "Linux")) if token in value), "Unknown platform")
-            return browser, platform
-
-        async def confirm_revoke(row: dict[str, Any], *, all_for_user: bool = False) -> None:
-            confirmation = ui.dialog()
-            with confirmation, ui.card().classes("w-[460px] max-w-full"):
-                ui.label(render_message("webui.confirm_revoke.label.force_sign_out_fdc134c3")).classes("text-xl font-semibold")
-                scope = "all active sessions for" if all_for_user else "this session for"
-                ui.label(render_message("webui.confirm_revoke.label.this_will_immediately_revoke_scope_user_na_d568e325", scope=scope, user_name=row['user_name'])).classes("text-sm text-slate-600")
-
-                async def proceed() -> None:
-                    confirmation.close()
-                    try:
-                        if all_for_user:
-                            await api.revoke_user_sessions(row["user_id"])
-                        else:
-                            await api.revoke_session(row["id"])
-                        if row.get("is_current"):
-                            app.storage.user.pop("session_token", None)
-                            api.set_session_token(None)
-                            clear_signed_in_identity()
-                            login_dialog.open()
-                        else:
-                            ui.notify(render_message("webui.proceed.notify.session_revoked_69e45d5b"), color="positive")
-                            await load_sessions()
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative")
-
-                with ui.row().classes("w-full justify-end"):
-                    ui.button(render_message("webui.confirm_revoke.button.cancel_9fc0545b"), on_click=confirmation.close).props("flat")
-                    ui.button(render_message("webui.confirm_revoke.button.force_sign_out_e02eacd0"), icon="logout", color="negative", on_click=proceed).props("unelevated no-caps")
-            confirmation.open()
-
-        def render_session_card(row: dict[str, Any], *, can_revoke_all: bool) -> None:
-            browser, platform = client_summary(row.get("user_agent"))
-            with ui.card().classes("login-session-card shadow-none"):
-                with ui.row().classes("w-full items-start no-wrap gap-3"):
-                    render_user_avatar({"id": row.get("user_id"), "name": row.get("user_name"), "email": row.get("user_email")}, size="40px")
-                    with ui.column().classes("gap-0 min-w-0 grow"):
-                        ui.label(row.get("user_name") or render_message("webui.render_session_card.label.unknown_user_acc76adf")).classes("font-semibold leading-tight")
-                        ui.label(row.get("user_email") or render_message("webui.render_session_card.label.no_email_address_ab665b8b")).classes("text-xs text-slate-500 truncate w-full").tooltip(row.get("user_email") or render_message("webui.render_session_card.tooltip.no_email_address_be875868"))
-                        if row.get("is_current"):
-                            ui.badge(render_message("webui.render_session_card.badge.current_session_01ba47c6"), color="primary").props("outline").classes("mt-1")
-                    ui.badge(
-                        localized_lifecycle_value(row.get("status")),
-                        color={
-                            "active": "positive", "revoked": "negative",
-                            "expired": "grey-7",
-                        }.get(row.get("status"), "grey-7"),
-                    ).props("outline")
-                with ui.grid(columns=3).classes("w-full gap-x-4 gap-y-3"):
-                    session_facts = (
-                        (render_message("webui.render_session_card.text.signed_in_74099f59"), format_timestamp(row.get("date_created"))),
-                        (render_message("webui.render_session_card.text.last_activity_d18059ae"), format_timestamp(row.get("last_seen_at"))),
-                        (render_message("webui.render_session_card.text.expires_af4d4f10"), format_timestamp(row.get("expires_at"))),
-                        (render_message("webui.render_session_card.text.ip_address_c3b3a584"), row.get("client_ip") or "—"),
-                        (render_message("webui.render_session_card.text.platform_015c8cc7"), platform), (render_message("webui.render_session_card.text.browser_126852df"), browser),
-                    )
-                    for label, value in session_facts:
-                        with ui.column().classes("gap-0 min-w-0"):
-                            ui.label(label).classes("detail-field-label")
-                            ui.label(value).classes("text-xs truncate w-full").tooltip(value)
-                with ui.row().classes("w-full items-center no-wrap border-t border-slate-100 pt-2 gap-2"):
-                    ui.icon("devices", color="primary", size="18px")
-                    ui.label(row.get("user_agent") or render_message("webui.render_session_card.label.unknown_client_c63ac50c")).classes("text-xs text-slate-500 truncate grow").tooltip(row.get("user_agent") or render_message("webui.render_session_card.tooltip.unknown_client_b07bbf57"))
-                    if row.get("status") == "active":
-                        ui.button(icon="logout", on_click=lambda _, item=row: confirm_revoke(item)).props("outline dense color=negative").classes("login-session-action-button").tooltip(render_message("webui.render_session_card.tooltip.force_sign_out_this_session_3882517f"))
-                        if can_revoke_all:
-                            ui.button(icon="person_off", on_click=lambda _, item=row: confirm_revoke(item, all_for_user=True)).props("outline dense color=negative").classes("login-session-action-button").tooltip(render_message("webui.render_session_card.tooltip.force_sign_out_all_sessions_for_this_user_27a3671e"))
-
-        async def load_sessions(*, reset: bool = False) -> None:
-            if page_state["loading"]:
-                return
-            if reset:
-                page_state["offset"] = 0
-            page_state["loading"] = True
-            results.clear()
-            empty_state.set_visibility(False)
-            with results:
-                for _ in range(4):
-                    ui.skeleton(type="rect").classes("h-48 rounded-xl")
-            try:
-                page = await api.login_sessions_page(
-                    user_id, limit=int(rows_per_page.value), offset=page_state["offset"],
-                    query=(session_filter.value or "").strip(),
-                    session_status=status_filter.value or "all",
-                    sort_by=sort_filter.value or "date_created",
-                    descending=bool(direction_filter.value),
-                    date_field=timestamp_field.value or "date_created",
-                    from_timestamp=from_filter.value or None,
-                    until_timestamp=until_filter.value or None,
-                )
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative")
-                return
-            finally:
-                page_state["loading"] = False
-            rows = page.get("items", [])
-            page_state.update(total=int(page.get("total", 0)), active=int(page.get("active", 0)))
-            if page_state["offset"] >= page_state["total"] and page_state["offset"]:
-                page_state["offset"] = max(0, ((page_state["total"] - 1) // int(rows_per_page.value)) * int(rows_per_page.value))
-                await load_sessions()
-                return
-            results.clear()
-            can_revoke_all = "identity.sessions.administer" in set(auth_state["principal"].get("global_privileges", []))
-            with results:
-                for row in rows:
-                    render_session_card(row, can_revoke_all=can_revoke_all)
-            empty_state.set_visibility(not rows)
-            start = page_state["offset"] + 1 if rows else 0
-            end = page_state["offset"] + len(rows)
-            result_summary.text = render_message("webui.load_sessions.text.total_sessions_active_active_bf830d8b", total=page_state['total'], active=page_state['active'])
-            page_range.text = render_message("webui.load_sessions.text.showing_start_end_of_total_sessions_5362e794", start=start, end=end, total=page_state['total'])
-            at_start = page_state["offset"] == 0
-            at_end = end >= page_state["total"]
-            first_page.set_enabled(not at_start); previous_page.set_enabled(not at_start)
-            next_page.set_enabled(not at_end); last_page.set_enabled(not at_end)
-
-        async def clear_session_filters() -> None:
-            session_filter.value = ""; status_filter.value = "all"; sort_filter.value = "date_created"
-            timestamp_field.value = "date_created"; from_filter.value = ""; until_filter.value = ""; direction_filter.value = True
-            for control in (session_filter, status_filter, sort_filter, timestamp_field, from_filter, until_filter, direction_filter):
-                control.update()
-            await load_sessions(reset=True)
-
-        with filter_actions:
-            ui.button(render_message("webui.select_login_sessions.button.clear_7925d8e0"), icon="filter_alt_off", on_click=clear_session_filters).props("flat dense no-caps")
-            ui.button(render_message("webui.select_login_sessions.button.apply_filters_fc2322aa"), icon="filter_alt", on_click=lambda: load_sessions(reset=True)).props("unelevated dense no-caps")
-        refresh_button.on("click", load_sessions)
-        session_filter.on("keydown.enter", lambda: load_sessions(reset=True))
-        rows_per_page.on_value_change(lambda: load_sessions(reset=True))
-
-        async def go_to_offset(offset: int) -> None:
-            page_state["offset"] = max(0, offset)
-            await load_sessions()
-
-        first_page.on("click", lambda: go_to_offset(0))
-        previous_page.on("click", lambda: go_to_offset(page_state["offset"] - int(rows_per_page.value)))
-        next_page.on("click", lambda: go_to_offset(page_state["offset"] + int(rows_per_page.value)))
-        last_page.on("click", lambda: go_to_offset(((page_state["total"] - 1) // int(rows_per_page.value)) * int(rows_per_page.value)))
-        await load_sessions()
+    def current_session_revoked() -> None:
+        app.storage.user.pop("session_token", None)
+        api.set_session_token(None)
+        clear_signed_in_identity()
+        login_dialog.open()
 
     async def select_dashboard() -> None:
         dashboard_principal = auth_state.get("principal")
@@ -12337,7 +5666,7 @@ def index(q: str = "") -> None:
             state.pop("dashboard_summary_cache_key", None)
         register_navigation("dashboard", render_message("navigation.item.dashboard"))
         show_authenticated_view()
-        state.update(resource="dashboard", rows=[], searched=True, aggregation_detail=None)
+        state.update(resource='dashboard', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         title.text = render_message("navigation.item.dashboard")
         subtitle.text = render_message("dashboard.subtitle")
         add_button.set_visibility(False)
@@ -12575,8 +5904,8 @@ def index(q: str = "") -> None:
                 unclassified_root_count = int(summary["unclassified_root_count"])
                 ownership_counts = summary["ownership_counts"]
                 favourites = summary["favourites"]
-                state["favourites"] = favourites
-                state["favourite_ids"] = {
+                personal.favourites = favourites
+                personal.favourite_ids = {
                     resource: {int(item["id"]) for item in favourites[resource]}
                     for resource in ("aggregations", "records")
                 }
@@ -13141,8 +6470,8 @@ def index(q: str = "") -> None:
                             entry for entry in favourites[resource]
                             if entry["id"] != item["id"]
                         ]
-                        state["favourites"] = favourites
-                        state["favourite_ids"][resource].discard(int(item["id"]))
+                        personal.favourites = favourites
+                        personal.favourite_ids[resource].discard(int(item["id"]))
                         render_favourites_dashboard()
                         if dialog_refresh is not None:
                             dialog_refresh()
@@ -13401,17 +6730,10 @@ def index(q: str = "") -> None:
         else:
             await load_dashboard()
 
-    async def select_audit_trail(*, initial_entity_type: str | None = None) -> None:
-        state["audit_page_revision"] = state.get("audit_page_revision", 0) + 1
-        audit_page_revision = state["audit_page_revision"]
-
-        def audit_page_is_current() -> bool:
-            return (state.get("resource") == "audit-trail"
-                    and state.get("audit_page_revision") == audit_page_revision)
-
+    def enter_audit_trail() -> None:
         register_navigation("audit-trail", "Audit trail")
         show_authenticated_view()
-        state.update(resource="audit-trail", rows=[], searched=True, aggregation_detail=None)
+        state.update(resource='audit-trail', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         title.text = render_message("webui.select_audit_trail.text.audit_trail_2f72156b")
         subtitle.text = render_message("webui.select_audit_trail.text.immutable_history_of_changes_across_the_sy_788bd954")
         add_button.set_visibility(False)
@@ -13420,3577 +6742,53 @@ def index(q: str = "") -> None:
         aggregation_mode_bar.set_visibility(False)
         guidance.text = ""
         table_container.clear()
-        with table_container:
-            with ui.column().classes("w-full p-5 gap-4"):
-                with ui.card().classes("w-full shadow-none border border-slate-200 p-4"):
-                    ui.label(render_message("webui.select_audit_trail.label.filter_events_5327c240")).classes("font-semibold")
-                    with ui.grid().classes("w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"):
-                        type_filter = ui.select(
-                            {initial_entity_type: audit_entity_type_label(initial_entity_type)}
-                            if initial_entity_type else {},
-                            value=initial_entity_type,
-                            label=render_message("webui.select_audit_trail.select.entity_type_3b68096e"), clearable=True,
-                        ).props("outlined dense use-input options-dense").classes("w-full")
-                        operation_filter = ui.select(
-                            [],
-                            label=render_message("webui.select_audit_trail.select.operation_c3539ad5"), clearable=True,
-                        ).props("outlined dense use-input options-dense").classes("w-full")
-                        source_filter = ui.select(
-                            [], label=render_message("webui.select_audit_trail.select.source_47e0b469"), clearable=True,
-                        ).props("outlined dense use-input options-dense").classes("w-full")
-                        actor_filter = ui.select(
-                            [], label=render_message("webui.select_audit_trail.select.actor_type_1e26e211"), clearable=True,
-                        ).props("outlined dense use-input options-dense").classes("w-full")
-                        with ui.column().classes("w-full sm:col-span-2 gap-1"):
-                            actor_identity_filter = RemoteSelect(
-                                {}, label=render_message("audit.filter.actor_identity"),
-                                with_input=True, clearable=True,
-                            ).props("outlined dense options-dense input-debounce=0").classes("w-full remote-relationship-select")
-                            actor_identity_filter.props["placeholder"] = render_message("audit.filter.actor_identity_hint")
-                            actor_suggestion_status = ui.label(
-                                render_message("audit.filter.actor_suggestions_hint")
-                            ).classes("text-xs text-slate-500")
-                        from_filter = ui.input(render_message("webui.select_audit_trail.input.from_0cee5608")).props("outlined dense type=datetime-local").classes("w-full")
-                        until_filter = ui.input(render_message("webui.select_audit_trail.input.until_dafbbcb5")).props("outlined dense type=datetime-local").classes("w-full")
-                        entity_id_filter = ui.number(render_message("webui.select_audit_trail.number.entity_id_39367eca"), min=1, format="%.0f").props("outlined dense clearable").classes("w-full")
-                        correlation_filter = ui.input(render_message("webui.select_audit_trail.input.correlation_id_e6872415")).props("outlined dense clearable").classes("w-full")
-                    with ui.row().classes("w-full justify-end"):
-                        reset_button = ui.button(render_message("audit.filter.clear"), icon="filter_alt_off").props("flat no-caps")
-                        refresh_button = ui.button(render_message("webui.select_audit_trail.button.apply_filters_bf49489c"), icon="filter_alt").props("unelevated no-caps")
-                with ui.row().classes("w-full items-center gap-2"):
-                    result_summary = ui.label().classes("text-sm text-slate-500 grow")
-                    previous_button = ui.button(render_message("webui.select_audit_trail.button.previous_928715e5"), icon="chevron_left").props("flat dense no-caps")
-                    next_button = ui.button(render_message("webui.select_audit_trail.button.next_4982f418"), icon="chevron_right").props("flat dense no-caps")
-                    previous_button.disable()
-                    next_button.disable()
-                result_cap_notice = ui.label().classes("text-sm text-amber-700")
-                result_cap_notice.set_visibility(False)
-                results_container = ui.column().classes("w-full gap-2")
 
-        page = {"offset": 0, "size": 50, "total": 0}
 
-        actor_search, selected_actor, reset_actor = bind_audit_actor_select(
-            actor_identity_filter, actor_suggestion_status, api=api,
-            active=audit_page_is_current,
-            scope=lambda: {"entity_type": type_filter.value, "actor_type": actor_filter.value},
-            on_error=lambda error: ui.notify(error_message(error), color="negative", close_button=True),
-        )
+    set_aggregation_mode_controls, select_aggregation_browser, select_aggregation_search = build_aggregation_browser(
+        add_button=add_button,
+        add_record_button=add_record_button,
+        aggregation_browse_mode=aggregation_browse_mode,
+        aggregation_search_mode=aggregation_search_mode,
+        aggregation_state=aggregation_state,
+        api=api,
+        bind_remote_scheme_select=lambda *args, **kwargs: bind_remote_scheme_select(*args, **kwargs),
+        current_direction=current_direction,
+        error_message=error_message,
+        get_resource=lambda: state.get("resource"),
+        guidance=guidance,
+        open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
+        page_client=page_client,
+        personal=personal,
+        principal=lambda: auth_state.get("principal"),
+        render_table=lambda *args, **kwargs: render_table(*args, **kwargs),
+        search_bar=search_bar,
+        show_record_details=lambda *args, **kwargs: show_record_details(*args, **kwargs),
+        table_container=table_container,
+        tree_expander_icon=lambda *args, **kwargs: tree_expander_icon(*args, **kwargs),
+    )
 
-        try:
-            filter_options = await api.event_history_filter_options()
-            if not audit_page_is_current():
-                return
-            type_filter.options = {
-                value: audit_entity_type_label(value)
-                for value in filter_options["entity_types"]
-            }
-            # Keep the shortcut's scope even before any matching event exists.
-            if initial_entity_type:
-                type_filter.options.setdefault(
-                    initial_entity_type, audit_entity_type_label(initial_entity_type)
-                )
-            operation_filter.options = {code: event_label(code) for code in filter_options["operations"]}
-            source_filter.options = filter_options["sources"]
-            actor_filter.options = filter_options["actor_types"]
-            for control in (
-                type_filter, operation_filter, source_filter, actor_filter,
-            ):
-                control.update()
-        except ApiError as error:
-            if audit_page_is_current() and error.status_code != 401:
-                ui.notify(
-                    render_message("webui.select_audit_trail.notify.could_not_load_audit_operation_filters_err_1e52391b", error_message=error_message(error)),
-                    color="warning",
-                    close_button=True,
-                )
 
-        async def load_audit_events() -> None:
-            if not audit_page_is_current():
-                return
-            page["revision"] = page.get("revision", 0) + 1
-            request_revision = page["revision"]
-            refresh_button.props("loading disable")
-            conditions: list[dict[str, Any]] = []
-            for field, operator, value in (
-                ("entity_type", "eq", type_filter.value),
-                ("operation", "eq", operation_filter.value),
-                ("source", "eq", source_filter.value),
-                ("actor_type", "eq", actor_filter.value),
-                ("entity_id", "eq", int(entity_id_filter.value) if entity_id_filter.value else None),
-                ("correlation_id", "eq", (correlation_filter.value or "").strip()),
-                ("occurred_at", "gte", from_filter.value),
-                ("occurred_at", "lte", until_filter.value),
-            ):
-                if value not in (None, ""):
-                    conditions.append({"field": field, "operator": operator, "value": value})
-            actor = selected_actor()
-            actor_identity = actor_search["query"]
-            if actor:
-                conditions.append(actor_condition(actor))
-            elif actor_identity:
-                conditions.append({"or": [
-                    {"field": field, "operator": "contains_ci", "value": actor_identity}
-                    for field in ("actor_name", "actor_email")
-                ]})
-            payload: dict[str, Any] = {
-                "sort": [{"field": "occurred_at", "direction": "desc"}, {"field": "id", "direction": "desc"}],
-                "limit": page["size"], "offset": page["offset"],
-            }
-            if conditions:
-                payload["where"] = conditions[0] if len(conditions) == 1 else {"and": conditions}
-            try:
-                response = await api.search_request("event-history", payload)
-                if not audit_page_is_current() or page["revision"] != request_revision:
-                    return
-                events_list = response["items"]
-                hydrate_historical_audit_identities(events_list)
-                page["total"] = response["total"]
-                result_cap_notice.set_visibility(bool(response.get("truncated")))
-                if response.get("truncated"):
-                    result_cap_notice.text = render_message("audit.filter.results_capped", limit=response["result_cap"])
-                first = page["offset"] + 1 if events_list else 0
-                last = page["offset"] + len(events_list)
-                result_summary.text = render_message("webui.load_audit_events.text.showing_first_last_of_total_matching_event_a86705af", first=first, last=last, total=page['total'])
-                if page["offset"] > 0:
-                    previous_button.enable()
-                else:
-                    previous_button.disable()
-                if last < page["total"]:
-                    next_button.enable()
-                else:
-                    next_button.disable()
-                render_event_timeline(events_list, results_container)
-                set_connection_status(True)
-            except ApiError as error:
-                if audit_page_is_current() and page["revision"] == request_revision:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-            finally:
-                if audit_page_is_current() and page["revision"] == request_revision:
-                    refresh_button.props(remove="loading disable")
 
-        async def apply_filters() -> None:
-            page["offset"] = 0
-            await load_audit_events()
 
-        async def previous_page() -> None:
-            page["offset"] = max(0, page["offset"] - page["size"])
-            await load_audit_events()
 
-        async def next_page() -> None:
-            if page["offset"] + page["size"] < page["total"]:
-                page["offset"] += page["size"]
-                await load_audit_events()
+    def enter_organization_units() -> None:
+        state.update(resource='org-unit-details', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
 
-        async def reset_filters() -> None:
-            for control in (operation_filter, source_filter, actor_filter,
-                            from_filter, until_filter,
-                            entity_id_filter, correlation_filter):
-                control.value = None
-            reset_actor()
-            type_filter.value = initial_entity_type
-            await apply_filters()
 
-        reset_button.on("click", reset_filters)
-        refresh_button.on("click", apply_filters)
-        previous_button.on("click", previous_page)
-        next_button.on("click", next_page)
-        await load_audit_events()
+    def enter_organization_roles() -> None:
+        state.update(resource='role-details', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
 
-    async def load_rows(
-        *, repeat_search: bool = False, on_loaded: Callable[[], None] | None = None,
-        is_current: Callable[[], bool] | None = None,
-    ) -> None:
-        spec = ENTITIES[state["resource"]]
-        revision = state.get("collection_request_revision", 0) + 1
-        state["collection_request_revision"] = revision
 
-        def request_is_current() -> bool:
-            return (state.get("resource") == spec.key
-                    and state.get("collection_request_revision") == revision
-                    and (is_current is None or is_current()))
-        try:
-            if spec.search_first:
-                query = (search_input.value or "").strip()
-                if not query and not repeat_search:
-                    state["searched"] = False
-                    state["rows"] = []
-                    state.setdefault("entity_result_states", {}).pop(spec.key, None)
-                elif query:
-                    rows = await api.search(spec.key, query, spec.search_fields)
-                    if not request_is_current():
-                        return
-                    decorated_rows = await decorate_for_spec(spec, rows)
-                    decorated_rows = (
-                        await decorate_record_search_components(decorated_rows)
-                        if spec.key == "records" else decorated_rows
-                    )
-                    if not request_is_current() or getattr(page_client, "_deleted", False):
-                        return
-                    state["rows"] = decorated_rows
-                    state["searched"] = True
-            else:
-                page = state["collection_pages"].setdefault(spec.key, {
-                    "offset": 0, "limit": 25, "total": 0, "query": "",
-                    "status": "all", "account_type": "all",
-                    "sort": "level_number" if spec.key == "security-levels" else "name",
-                })
-                conditions: list[dict[str, Any]] = []
-                query = str(page.get("query") or "").strip()
-                if query:
-                    conditions.append({"or": [
-                        {"field": field, "operator": "contains_ci", "value": query}
-                        for field in spec.search_fields
-                    ]})
-                if page.get("status") not in {None, "all"}:
-                    conditions.append({
-                        "field": "status", "operator": "eq", "value": page["status"],
-                    })
-                if spec.key == "users" and page.get("account_type") not in {None, "all"}:
-                    conditions.append({
-                        "field": "account_type", "operator": "eq",
-                        "value": page["account_type"],
-                    })
-                payload: dict[str, Any] = {
-                    "limit": int(page["limit"]), "offset": int(page["offset"]),
-                    "sort": [
-                        {"field": page["sort"], "direction": "asc"},
-                        *(
-                            [{"field": "id", "direction": "asc"}]
-                            if page["sort"] != "id" else []
-                        ),
-                    ],
-                }
-                if conditions:
-                    payload["where"] = conditions[0] if len(conditions) == 1 else {"and": conditions}
-                result = (
-                    await api.administration_reference_page(
-                        spec.key, query=query, sort=str(page["sort"]),
-                        limit=int(page["limit"]), offset=int(page["offset"]),
-                    )
-                    if spec.key in {"profiles", "security-levels"}
-                    else await api.search_request(
-                        spec.key, payload,
-                        include_system=True if spec.key == "roles" else None,
-                    )
-                )
-                if not request_is_current():
-                    return
-                decorated = await decorate_for_spec(spec, result["items"])
-                if not request_is_current():
-                    return
-                page["total"] = int(result["total"])
-                state["rows"] = decorated
-                state["searched"] = True
-            set_connection_status(True)
-            if on_loaded is not None:
-                on_loaded()
-            else:
-                render_table(spec)
-        except ApiError as error:
-            if not request_is_current() or getattr(page_client, "_deleted", False):
-                return
-            set_connection_status(error.status_code != 503)
-            ui.notify(error_message(error), color="negative", close_button=True)
 
-    def set_aggregation_mode_controls(mode: str) -> None:
-        for button, active in (
-            (aggregation_search_mode, mode == "search"),
-            (aggregation_browse_mode, mode == "browse"),
-        ):
-            button.props(remove="flat unelevated")
-            button.props("unelevated" if active else "flat")
 
-    async def select_aggregation_browser() -> None:
-        state["aggregation_mode"] = "browse"
-        state["aggregation_detail"] = None
-        set_aggregation_mode_controls("browse")
-        search_bar.set_visibility(False)
-        guidance.text = render_message("webui.select_aggregation_browser.text.browse_published_classification_schemes_go_45d4b5c6")
-        privileges = set(
-            (auth_state.get("principal") or {}).get("global_privileges", [])
-        )
-        add_button.set_visibility(can_add_from_collection("aggregations", privileges))
-        add_button.text = render_message("webui.select_aggregation_browser.text.add_828a436b")
-        add_button.update()
-        add_record_button.set_visibility(False)
-        table_container.clear()
 
-        browse: dict[str, Any] = state.setdefault("aggregation_browse", {
-            "schemes": [], "scheme_id": None, "collections": {},
-            "expanded": set(), "selected": None,
-            "revision": 0,
-        })
+    def enter_organization_users() -> None:
+        state.update(resource='user-details', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
 
-        def collection_key(kind: str, owner_id: int, collection: str) -> str:
-            return f"{kind}:{owner_id}:{collection}"
 
-        def collection_state(key: str, path: str) -> dict[str, Any]:
-            return browse["collections"].setdefault(key, {
-                "path": path, "items": [], "next_cursor": None, "total": 0,
-                "loaded": False, "loading": False, "error": None, "query": "",
-                "request_version": 0,
-            })
+    def enter_organization_browser() -> None:
+        state.update(resource='organization-browser', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
 
-        # Data belongs to this authenticated page invocation. Keep expansion,
-        # filters and page lengths for return, but re-read rows after navigation.
-        invocation = object()
-        browse["invocation"] = invocation
-        browse["opening"] = False
-
-        def browser_active() -> bool:
-            return (
-                browse.get("invocation") is invocation
-                and state.get("resource") == "aggregations"
-                and state.get("aggregation_mode") == "browse"
-                and tree_panel is not None and not tree_panel.is_deleted
-            )
-
-        tree_panel: Any = None
-        scheme_select: Any = None
-
-        async def render_tree_preserving_scroll(*, anchor_id: str | None = None) -> None:
-            anchor_expression = (
-                f"document.getElementById('{anchor_id}')?.getBoundingClientRect().top ?? null"
-                if anchor_id else "null"
-            )
-            if not browser_active():
-                return
-            scroll_position = await page_client.run_javascript(
-                "({ page: window.scrollY || 0, "
-                "tree: document.getElementById('aggregation-browser-tree')?.scrollTop || 0, "
-                f"anchor: {anchor_expression} }})"
-            )
-            if not browser_active():
-                return
-            render_tree()
-            anchor_top = (scroll_position or {}).get("anchor")
-            anchor_top_javascript = "null" if anchor_top is None else str(float(anchor_top))
-            anchor_restore = (
-                f"const anchor = document.getElementById('{anchor_id}'); "
-                f"if (anchor && {anchor_top_javascript} !== null) "
-                f"tree.scrollTop += anchor.getBoundingClientRect().top - {float(anchor_top or 0)}; "
-                if anchor_id else ""
-            )
-            await page_client.run_javascript(
-                "requestAnimationFrame(() => requestAnimationFrame(() => { "
-                "const tree = document.getElementById('aggregation-browser-tree'); "
-                f"if (tree) tree.scrollTop = {float((scroll_position or {}).get('tree', 0))}; "
-                f"if (tree) {{ {anchor_restore} }} "
-                f"window.scrollTo(0, {float((scroll_position or {}).get('page', 0))}); "
-                "}));"
-            )
-
-        async def select_browse_item(item: dict[str, Any]) -> None:
-            if not browser_active() or browse.get("opening"):
-                return
-            browse["opening"] = True
-            try:
-                browse["scroll"] = await page_client.run_javascript(
-                    "({page: window.scrollY || 0, tree: "
-                    "document.getElementById('aggregation-browser-tree')?.scrollTop || 0})"
-                )
-                if not browser_active():
-                    return
-                browse["selected"] = (item["type"], item["id"])
-                if item["type"] == "aggregation":
-                    await open_aggregation(item)
-                else:
-                    await show_record_details(item)
-            finally:
-                browse["opening"] = False
-
-        async def load_collection(
-            key: str, *, append: bool = False, render: bool = True,
-        ) -> None:
-            current = browse["collections"].get(key)
-            if not browser_active() or current is None or current["loading"]:
-                return
-            append_anchor_id = (
-                browse_item_dom_id(current["items"][-1])
-                if append and current["items"] else None
-            )
-            browse["revision"] += 1
-            current["request_version"] += 1
-            request_version = current["request_version"]
-            current["loading"] = True
-            current["error"] = None
-            if render:
-                await render_tree_preserving_scroll()
-            try:
-                result = await api.browse_page(
-                    current["path"],
-                    cursor=current["next_cursor"] if append else None,
-                    query=current["query"],
-                )
-                if (
-                    not browser_active()
-                    or current["request_version"] != request_version
-                    or browse["collections"].get(key) is not current
-                ):
-                    return
-                existing = {entry["id"] for entry in current["items"]} if append else set()
-                additions = [entry for entry in result["items"] if entry["id"] not in existing]
-                current["items"] = [*current["items"], *additions] if append else additions
-                current["next_cursor"] = result.get("next_cursor")
-                current["total"] = int(result["total"])
-                current["loaded"] = True
-            except ApiError as error:
-                if browser_active() and current["request_version"] == request_version:
-                    current["error"] = error_message(error)
-            finally:
-                if browser_active() and current["request_version"] == request_version:
-                    current["loading"] = False
-                    if render:
-                        await render_tree_preserving_scroll(anchor_id=append_anchor_id)
-
-        def browse_item_dom_id(item: dict[str, Any]) -> str:
-            if "is_terminal" in item:
-                kind = "classification"
-            elif "aggregation_number" in item:
-                kind = "aggregation"
-            else:
-                kind = "record"
-            return f"aggregation-browser-{kind}-{int(item['id'])}"
-
-        async def filter_collection(key: str, value: str) -> None:
-            current = browse["collections"][key]
-            current["request_version"] += 1
-            current.update(
-                items=[], next_cursor=None, total=0, loaded=False,
-                loading=False, error=None, query=value.strip(),
-            )
-            await load_collection(key)
-
-        def render_collection_controls(key: str, noun: str) -> None:
-            current = browse["collections"][key]
-            if current["total"] <= 50 and not current["query"]:
-                return
-            with ui.row().classes("w-full items-center gap-1 py-1"):
-                filter_input = ui.input(
-                    render_message("webui.render_collection_controls.input.filter_noun_a1a1bf93", noun=noun), value=current["query"],
-                ).props("outlined dense clearable").classes("grow")
-                ui.button(
-                    icon="search", on_click=lambda: filter_collection(key, filter_input.value or ""),
-                ).props("flat round dense color=primary").tooltip(render_message("webui.render_collection_controls.tooltip.filter_these_noun_ee29d2dc", noun=noun))
-                filter_input.on(
-                    "keydown.enter", lambda: filter_collection(key, filter_input.value or "")
-                )
-
-        def render_continuation(key: str, noun: str, depth: int) -> None:
-            current = browse["collections"][key]
-            if not current.get("next_cursor"):
-                return
-            remaining = max(0, current["total"] - len(current["items"]))
-            amount = min(50, remaining)
-            with ui.button(
-                on_click=lambda: load_collection(key, append=True), icon="more_horiz",
-            ).props("flat dense no-caps color=primary").classes("w-full justify-start").style(
-                f"padding-inline-start: {depth * 20 + 36}px"
-            ):
-                ui.label(
-                    render_message("webui.render_continuation.label.load_amount_more_noun_item_count_of_total_4c5b6463", amount=amount, noun=noun, item_count=len(current['items']), total=current['total'])
-                ).classes("text-xs")
-
-        def render_collection_status(key: str, empty_text: str, depth: int) -> bool:
-            current = browse["collections"][key]
-            if current["loading"] and not current["items"]:
-                with ui.row().classes("items-center gap-2 py-2 text-slate-400").style(
-                    f"padding-inline-start: {depth * 20 + 36}px"
-                ):
-                    ui.spinner("dots", size="20px")
-                    ui.label(render_message("webui.render_collection_status.label.loading_9be967d2")).classes("text-xs")
-                return True
-            if current["error"]:
-                with ui.row().classes("items-center gap-2 py-2 text-negative").style(
-                    f"padding-inline-start: {depth * 20 + 36}px"
-                ):
-                    ui.label(current["error"]).classes("text-xs")
-                    ui.button(render_message("webui.render_collection_status.button.retry_a8d0f7d9"), on_click=lambda: load_collection(key)).props(
-                        "flat dense no-caps color=negative"
-                    )
-                return True
-            if current["loaded"] and not current["items"]:
-                ui.label(empty_text).classes("text-xs text-slate-400 py-2").style(
-                    f"padding-inline-start: {depth * 20 + 36}px"
-                )
-                return True
-            return False
-
-        async def toggle_classification(item: dict[str, Any]) -> None:
-            node = ("classification", item["id"])
-            if node in browse["expanded"]:
-                browse["expanded"].remove(node)
-                await render_tree_preserving_scroll()
-                return
-            browse["expanded"].add(node)
-            collection = "aggregations" if item["is_terminal"] else "classifications"
-            path = (
-                f"classifications/{item['id']}/aggregations"
-                if item["is_terminal"] else f"classifications/{item['id']}/children"
-            )
-            key = collection_key("classification", item["id"], collection)
-            current = collection_state(key, path)
-            if not current["loaded"]:
-                await load_collection(key)
-            else:
-                await render_tree_preserving_scroll()
-
-        async def toggle_aggregation(item: dict[str, Any]) -> None:
-            node = ("aggregation", item["id"])
-            if node in browse["expanded"]:
-                browse["expanded"].remove(node)
-                await render_tree_preserving_scroll()
-                return
-            browse["expanded"].add(node)
-            child_key = collection_key("aggregation", item["id"], "aggregations")
-            record_key = collection_key("aggregation", item["id"], "records")
-            child_state = collection_state(
-                child_key, f"aggregations/{item['id']}/children",
-            )
-            record_state = collection_state(
-                record_key, f"aggregations/{item['id']}/records",
-            )
-            await render_tree_preserving_scroll()
-            await asyncio.gather(*(
-                load_collection(key, render=False)
-                for key, value in ((child_key, child_state), (record_key, record_state))
-                if not value["loaded"]
-            ))
-            await render_tree_preserving_scroll()
-
-        def render_classification(item: dict[str, Any], depth: int) -> None:
-            node = ("classification", item["id"])
-            expanded = node in browse["expanded"]
-            with ui.row().props(f"id={browse_item_dom_id(item)}").classes(
-                "aggregation-browser-tree-row w-full items-center no-wrap rounded-lg py-1 pe-2 hover:bg-blue-50"
-            ).style(f"padding-inline-start: {depth * 20 + 4}px"):
-                disclosure = ui.button(
-                    icon=tree_expander_icon(expanded),
-                    on_click=lambda: toggle_classification(item),
-                ).props("flat round dense size=sm color=blue-grey")
-                disclosure.props["aria-label"] = item["title"]
-                disclosure.props["aria-expanded"] = str(expanded).lower()
-                ui.icon("label" if item["is_terminal"] else "schema", color="primary").classes("w-6")
-                with ui.button(on_click=lambda: toggle_classification(item)).props(
-                    f"flat no-caps align={'right' if current_direction['value'] == 'rtl' else 'left'}"
-                ).classes("aggregation-browser-node-link grow min-w-0"):
-                    with ui.column().classes("min-w-0 gap-0 text-start"):
-                        ui.label(item["title"]).classes("text-sm font-semibold whitespace-normal break-words")
-                        ui.label(item["code"]).classes("text-xs text-slate-400")
-                ui.badge(render_message("webui.render_classification.badge.terminal_c550b780") if item["is_terminal"] else render_message("webui.render_classification.badge.branch_dd50f161"), color="primary").props("outline")
-            if not expanded:
-                return
-            collection = "aggregations" if item["is_terminal"] else "classifications"
-            key = collection_key("classification", item["id"], collection)
-            current = browse["collections"].get(key)
-            if current is None or render_collection_status(
-                key,
-                "No governed aggregations" if item["is_terminal"] else "No child classifications",
-                depth + 1,
-            ):
-                return
-            render_collection_controls(key, "aggregations" if item["is_terminal"] else "classifications")
-            for child in current["items"]:
-                if item["is_terminal"]:
-                    render_aggregation(child, depth + 1)
-                else:
-                    render_classification(child, depth + 1)
-            render_continuation(
-                key, "aggregations" if item["is_terminal"] else "classifications", depth + 1,
-            )
-
-        def render_aggregation(item: dict[str, Any], depth: int) -> None:
-            item["type"] = "aggregation"
-            node = ("aggregation", item["id"])
-            expanded = node in browse["expanded"]
-            selected = browse["selected"] == node
-            with ui.row().props(f"id={browse_item_dom_id(item)}").classes(
-                "aggregation-browser-tree-row w-full items-center no-wrap rounded-lg py-1 pe-2 hover:bg-blue-50 "
-                + ("bg-blue-50" if selected else "")
-            ).style(f"padding-inline-start: {depth * 20 + 4}px"):
-                has_content = item["child_aggregation_count"] or item["record_count"]
-                with ui.element("div").classes("w-8 shrink-0"):
-                    if has_content:
-                        disclosure = ui.button(
-                            icon=tree_expander_icon(expanded),
-                            on_click=lambda: toggle_aggregation(item),
-                        ).props("flat round dense size=sm color=blue-grey")
-                        disclosure.props["aria-label"] = item["title"]
-                        disclosure.props["aria-expanded"] = str(expanded).lower()
-                ui.icon("folder", color="primary").classes("w-6")
-                with ui.button(on_click=lambda: select_browse_item(item)).props(
-                    f"flat no-caps align={'right' if current_direction['value'] == 'rtl' else 'left'}"
-                ).classes("aggregation-browser-node-link grow min-w-0"):
-                    with ui.column().classes("min-w-0 gap-0 text-start"):
-                        ui.label(item["title"]).classes("text-sm font-semibold whitespace-normal break-words")
-                        ui.label(item["aggregation_number"]).classes("text-xs text-slate-400")
-                ui.label(render_message(
-                    "webui.render_aggregation.label.heading_count_6ad646b7",
-                    heading=render_message("navigation.item.records"), count=item["record_count"],
-                )).classes("text-xs text-slate-400 shrink-0")
-                ui.badge(
-                    render_message("webui.render_aggregation.badge.closed_d0d85ac9")
-                    if item.get("date_closed") else render_message("webui.open_aggregation.badge.open_88407b0f"),
-                    color="amber-8" if item.get("date_closed") else "positive",
-                ).props("outline")
-            if not expanded:
-                return
-            for collection, heading, noun, empty in (
-                ("aggregations", render_message("webui.open_aggregation.label.child_aggregations_cd3bce3a"), "child aggregations", "No child aggregations"),
-                ("records", render_message("navigation.item.records"), "records", "No records in this aggregation"),
-            ):
-                count = item["child_aggregation_count"] if collection == "aggregations" else item["record_count"]
-                if not count:
-                    continue
-                key = collection_key("aggregation", item["id"], collection)
-                ui.label(render_message("webui.render_aggregation.label.heading_count_6ad646b7", heading=heading, count=count)).classes(
-                    "text-[10px] font-semibold tracking-wider text-slate-400 py-1"
-                ).style(f"padding-inline-start: {(depth + 1) * 20 + 36}px")
-                if render_collection_status(key, empty, depth + 1):
-                    continue
-                render_collection_controls(key, noun)
-                current = browse["collections"][key]
-                for child in current["items"]:
-                    if collection == "aggregations":
-                        render_aggregation(child, depth + 1)
-                    else:
-                        render_record(child, depth + 1)
-                render_continuation(key, noun, depth + 1)
-
-        def render_record(item: dict[str, Any], depth: int) -> None:
-            item["type"] = "record"
-            selected = browse["selected"] == ("record", item["id"])
-            with ui.row().props(f"id={browse_item_dom_id(item)}").classes(
-                "aggregation-browser-tree-row w-full items-center no-wrap rounded-lg py-2 pe-2 hover:bg-blue-50 cursor-pointer "
-                + ("bg-blue-50" if selected else "")
-            ).style(f"padding-inline-start: {depth * 20 + 40}px"):
-                ui.icon("description", color="primary", size="18px").classes("w-6")
-                with ui.button(on_click=lambda: select_browse_item(item)).props(
-                    f"flat no-caps align={'right' if current_direction['value'] == 'rtl' else 'left'}"
-                ).classes("aggregation-browser-node-link grow min-w-0"):
-                    with ui.column().classes("min-w-0 gap-0 text-start"):
-                        ui.label(item["title"]).classes("text-sm font-semibold whitespace-normal break-words")
-                        ui.label(item["record_number"]).classes("text-xs text-slate-400")
-                if item["digital_component_count"]:
-                    ui.badge(str(item["digital_component_count"]), color="blue-grey").props("outline")
-
-        def render_tree() -> None:
-            tree_panel.clear()
-            with tree_panel:
-                scheme_id = browse["scheme_id"]
-                if scheme_id is None:
-                    ui.label(render_message("webui.render_tree.label.choose_a_classification_scheme_to_begin_br_b8ecd124")).classes(
-                        "text-sm text-slate-400 py-10 self-center"
-                    )
-                    return
-                key = collection_key("scheme", scheme_id, "classifications")
-                if key not in browse["collections"]:
-                    return
-                if render_collection_status(key, "This scheme has no root classifications", 0):
-                    return
-                current = browse["collections"][key]
-                render_collection_controls(key, "classifications")
-                for item in current["items"]:
-                    render_classification(item, 0)
-                render_continuation(key, "classifications", 0)
-
-        async def select_browse_scheme(scheme_id: int | None) -> None:
-            if scheme_id is None:
-                return
-            browse["revision"] += 1
-            browse.update(
-                scheme_id=int(scheme_id), collections={}, expanded=set(),
-                selected=None,
-            )
-            key = collection_key("scheme", int(scheme_id), "classifications")
-            collection_state(key, f"classification-schemes/{scheme_id}/roots")
-            await load_collection(key)
-
-        async def reload_visible_collections() -> None:
-            async def reload_collection(key: str, current: dict[str, Any]) -> None:
-                count = len(current["items"])
-                current["loading"] = False
-                current["request_version"] += 1
-                await load_collection(key, render=False)
-                while (
-                    browser_active() and not current["error"]
-                    and current["next_cursor"] and len(current["items"]) < count
-                ):
-                    await load_collection(key, append=True, render=False)
-            await asyncio.gather(*(
-                reload_collection(key, current)
-                for key, current in list(browse["collections"].items())
-                if current["loaded"] or current["loading"] or current["error"]
-            ))
-            if not browser_active():
-                return
-            render_tree()
-            scroll = browse.get("scroll") or {}
-            await page_client.run_javascript(
-                "requestAnimationFrame(() => { const tree = "
-                "document.getElementById('aggregation-browser-tree'); "
-                f"if (tree) tree.scrollTop = {float(scroll.get('tree', 0))}; "
-                f"window.scrollTo(0, {float(scroll.get('page', 0))}); }})"
-            )
-
-        with table_container:
-            with ui.grid(columns="minmax(0, 1fr) auto").classes("w-full items-end gap-3 px-5 pt-5"):
-                scheme_select = ui.select(
-                    {}, label=render_message("webui.select_aggregation_browser.select.classification_scheme_bcbbfb3c"),
-                ).props("outlined dense options-dense use-input input-debounce=0").classes("grow")
-                bind_remote_scheme_select(scheme_select)
-                ui.button(
-                    icon="refresh",
-                    on_click=lambda: select_browse_scheme(browse["scheme_id"]),
-                ).props("flat round color=primary").tooltip(render_message("webui.select_aggregation_browser.tooltip.refresh_the_hierarchy_3ccde65c"))
-            with ui.column().classes("w-full h-[720px] min-h-0 gap-0 p-5 pt-3"):
-                with ui.card().classes(
-                    "w-full h-full min-h-0 overflow-hidden shadow-none border border-slate-200 p-0"
-                ):
-                    with ui.grid(columns="auto minmax(0, 1fr)").classes("w-full items-center px-4 py-3 border-b border-slate-200"):
-                        ui.icon("account_tree", color="primary")
-                        ui.label(render_message("webui.select_aggregation_browser.label.classification_aggregation_and_record_tree_06d28fb7")).classes("font-semibold")
-                    tree_panel = ui.column().props("id=aggregation-browser-tree").classes(
-                        "w-full grow min-h-0 gap-0 overflow-y-auto p-2"
-                    )
-            with ui.expansion(
-                render_message("aggregation_browser.heading.recent_activity"), icon="history",
-            ).classes("w-full border-t border-slate-200"):
-                with ui.row().classes("w-full p-4 gap-5 items-start"):
-                    for heading, rows in (
-                        (render_message("aggregation_browser.heading.recently_created"), state["recent_created"]),
-                        (render_message("aggregation_browser.heading.recently_updated"), state["recent_updated"]),
-                    ):
-                        with ui.column().classes("grow min-w-[280px] gap-2"):
-                            ui.label(heading).classes("text-sm font-semibold text-slate-600")
-                            if not rows:
-                                ui.label(render_message("webui.select_aggregation_browser.label.nothing_here_yet_b8809aaa")).classes("text-xs text-slate-400")
-                            for recent in rows:
-                                with ui.row().classes(
-                                    "w-full items-center gap-2 rounded-lg border border-slate-200 "
-                                    "px-3 py-2 cursor-pointer hover:bg-blue-50"
-                                ).on("click", lambda _, entry=recent: open_aggregation(entry)):
-                                    ui.icon("folder", color="primary", size="18px")
-                                    with ui.column().classes("grow min-w-0 gap-0"):
-                                        ui.label(recent["title"]).classes("text-sm font-semibold truncate")
-                                        ui.label(recent["aggregation_number"]).classes("text-xs text-slate-400")
-
-        try:
-            schemes = await api.browse_schemes()
-            if not browser_active():
-                return
-            browse["schemes"] = schemes
-            scheme_select.options = {
-                item["id"]: (
-                    f"{item['code']} — {item['title']}"
-                    + (render_message("common.status.inactive_suffix") if item.get("date_deactivated") else "")
-                ) for item in browse["schemes"]
-            }
-            scheme_select.update()
-            if browse["schemes"]:
-                available_ids = {item["id"] for item in browse["schemes"]}
-                target_scheme_id = (
-                    browse["scheme_id"]
-                    if browse["scheme_id"] in available_ids
-                    else browse["schemes"][0]["id"]
-                )
-                scheme_select.value = target_scheme_id
-                scheme_select.update()
-                root_key = collection_key("scheme", target_scheme_id, "classifications")
-                if root_key in browse["collections"] and browse["collections"][root_key]["loaded"]:
-                    with tree_panel:
-                        ui.spinner("dots", size="20px")
-                    await reload_visible_collections()
-                else:
-                    await select_browse_scheme(target_scheme_id)
-            else:
-                render_tree()
-        except ApiError as error:
-            if not browser_active():
-                return
-            with tree_panel:
-                ui.label(error_message(error)).classes("text-negative p-4")
-        scheme_select.on_value_change(lambda event: select_browse_scheme(event.value))
-
-    async def select_aggregation_search() -> None:
-        state["aggregation_mode"] = "search"
-        set_aggregation_mode_controls("search")
-        search_bar.set_visibility(True)
-        guidance.text = render_message("webui.select_aggregation_search.text.large_collections_are_search_first_to_avoi_cd3ab332")
-        render_table(ENTITIES["aggregations"])
-
-    async def confirm_identity_deletion(
-        resource: str, item: dict[str, Any], *, label: str, on_deleted: Callable[[], Any],
-    ) -> None:
-        """Explain the server's deletion analysis and require a reason."""
-        try:
-            report = await api.deletion_preflight(resource, item["id"])
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        dialog = ui.dialog().props("persistent")
-        with dialog, ui.card().classes("w-[620px] max-w-full gap-4 p-5"):
-            ui.label(render_message("webui.confirm_identity_deletion.label.permanently_delete_label_421a1183", label=label)).classes("text-xl font-semibold")
-            ui.label(deletion_identity(item)).classes("font-medium")
-            if report["blockers"]:
-                ui.label(render_message("webui.confirm_identity_deletion.label.deletion_is_currently_blocked_f60d1f75")).classes("text-negative font-semibold")
-                for blocker in report["blockers"]:
-                    with ui.row().classes("items-start gap-2"):
-                        ui.icon("block", color="negative").classes("mt-0.5")
-                        with ui.column().classes("gap-0 grow"):
-                            ui.label(blocker["message"]).classes("text-sm")
-                            details = blocker.get("details") or {}
-                            if details:
-                                ui.label(" · ".join(f"{key.replace('_', ' ').title()}: {value}" for key, value in details.items())).classes("text-xs text-slate-500")
-                ui.label(render_message("webui.confirm_identity_deletion.label.resolve_every_blocker_and_run_the_prefligh_4fcfa2c6")).classes("text-xs text-slate-500")
-                ui.button(render_message("webui.confirm_identity_deletion.button.close_ef4c48d5"), on_click=dialog.close).props("flat no-caps").classes("self-end")
-            else:
-                cascades = {key: value for key, value in report.get("cascades", {}).items() if value}
-                ui.label(render_message("webui.confirm_identity_deletion.label.the_live_entity_cannot_be_restored_immutab_9045451d")).classes("text-sm text-slate-600")
-                if cascades:
-                    ui.label(render_message("webui.confirm_identity_deletion.label.data_removed_automatically_590a2b44")).classes("text-sm font-semibold")
-                    ui.label(" · ".join(f"{key.replace('_', ' ').title()}: {value}" for key, value in cascades.items())).classes("text-sm text-slate-600")
-                reason = ui.textarea(render_message("webui.confirm_identity_deletion.textarea.reason_for_permanent_deletion_4d209619")).props("outlined autogrow counter maxlength=2000").classes("w-full")
-
-                async def remove() -> None:
-                    change_reason = (reason.value or "").strip()
-                    if not change_reason:
-                        ui.notify(render_message("webui.remove.notify.a_deletion_reason_is_required_21f0a705"), color="warning")
-                        return
-                    try:
-                        await api.delete(resource, item["id"], report["entity_version"], reason=change_reason)
-                    except ApiError as error:
-                        dialog.close()
-                        if deletion_blocked_report(error) is not None:
-                            await confirm_identity_deletion(
-                                resource, item, label=label, on_deleted=on_deleted,
-                            )
-                        else:
-                            show_api_error(error)
-                        return
-                    dialog.close()
-                    ui.notify(render_message("webui.remove.notify.title_permanently_deleted_d3785d76", title=label.title()), color="positive")
-                    result = on_deleted()
-                    if inspect.isawaitable(result):
-                        await result
-
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.confirm_identity_deletion.button.cancel_a7ad1d30"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.confirm_identity_deletion.button.delete_permanently_3b2f8fa1"), icon="delete_forever", color="negative", on_click=remove).props("unelevated no-caps")
-        dialog.open()
-
-    async def select_organization_unit_details(org_unit_id: int) -> None:
-        register_navigation("org-unit-details", f"Organization unit #{org_unit_id}", entity_id=org_unit_id)
-        show_authenticated_view()
-        state.update(resource="org-unit-details", rows=[], searched=True, aggregation_detail=None)
-        search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False); add_record_button.set_visibility(False)
-        guidance.text = ""; table_container.clear()
-        try:
-            unit = await api.organization_summary("org-units", org_unit_id)
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True); return
-        title.text = unit["name"]; subtitle.text = render_message("webui.select_organization_unit_details.text.organization_unit_details_and_inherited_li_03c74d6b")
-        register_navigation(
-            "org-unit-details", unit["name"], entity_id=org_unit_id,
-            accessible_label=f"{unit['name']} — {unit['code']}",
-        )
-
-        async def refresh(_: Any = None) -> None:
-            await select_organization_unit_details(org_unit_id)
-
-        async def change_status() -> None:
-            try:
-                await api.set_active(
-                    "org-units", org_unit_id, unit["version"],
-                    active=unit["status"] == "inactive",
-                )
-                await refresh()
-            except ApiError as error:
-                show_api_error(error)
-
-        with table_container, ui.column().classes("w-full p-5 gap-4"):
-            with ui.element("div").classes("identity-command-layout w-full"):
-                with ui.card().classes(
-                    "detail-surface identity-command-actions shadow-none p-4 gap-3"
-                ):
-                    ui.label(render_message("webui.select_organization_unit_details.label.organization_unit_actions_9cdc2b66")).classes("aggregation-panel-heading w-full")
-                    ui.label(render_message("webui.select_organization_unit_details.label.manage_and_audit_224b4446")).classes("record-action-group-label")
-                    with ui.row().classes("w-full gap-2 flex-wrap"):
-                        ui.button(render_message("webui.select_organization_unit_details.button.edit_cfc8d565"), icon="edit", on_click=lambda: open_editor(unit, on_saved=refresh, resource_key="org-units")).props("outline dense no-caps")
-                        ui.button(render_message("webui.select_organization_unit_details.button.history_1d5fdf03"), icon="history", on_click=lambda: show_entity_history("org-units", unit)).props("outline dense no-caps")
-                    ui.label(render_message("webui.select_organization_unit_details.label.lifecycle_6664ab76")).classes("record-action-group-label")
-                    with ui.row().classes("w-full gap-2 flex-wrap"):
-                        ui.button(render_message("webui.select_organization_unit_details.button.activate_e8099903") if unit["status"] == "inactive" else render_message("webui.select_organization_unit_details.button.deactivate_5e1ac197"), icon="toggle_on" if unit["status"] == "inactive" else "toggle_off", on_click=change_status).props("outline dense no-caps")
-                        ui.button(
-                            render_message("webui.select_organization_unit_details.button.permanently_delete_257a572f"), icon="delete_forever", color="negative",
-                            on_click=lambda: confirm_identity_deletion(
-                                "org-units", unit, label="organization unit",
-                                on_deleted=lambda: select_entity("org-units"),
-                            ),
-                        ).props("outline dense no-caps")
-                organization_metadata_panel = ui.card().classes(
-                    "detail-surface identity-command-metadata shadow-none p-5 gap-4"
-                )
-                organization_metadata_panel.__enter__()
-                with ui.grid(columns="auto minmax(0, 1fr) auto").classes("identity-detail-header w-full items-start gap-4"):
-                    ui.avatar(icon="corporate_fare", color="blue-1", text_color="primary", size="58px")
-                    with ui.column().classes("gap-1 min-w-0 break-words"):
-                        ui.label(unit["name"]).classes("text-xl font-semibold")
-                        ui.label(unit["code"]).classes("text-primary")
-                        if unit.get("description"): ui.label(unit["description"]).classes("text-slate-600")
-                    ui.button(
-                        render_message("webui.select_organization_unit_details.button.back_534197f5"), icon=None if current_direction["value"] == "rtl" else "arrow_back",
-                        on_click=lambda: breadcrumb_back(lambda: select_entity("org-units")),
-                    ).props("flat no-caps" + (" icon-right=arrow_forward" if current_direction["value"] == "rtl" else ""))
-                with ui.grid(columns=3).classes("identity-detail-facts w-full gap-4"):
-                    for label, value, value_kind in (
-                        (entity_metadata_label("Status"), unit.get("status"), "status"),
-                        (render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"), unit.get("effective_status"), "status"),
-                        (render_message("webui.render_tree_level.text.inactive_via_parent_29212032"), (unit.get("inactive_source") or {}).get("name"), None),
-                        (entity_metadata_label("Parent organization unit"), (unit.get("parent") or {}).get("name"), "parent"),
-                        (entity_metadata_label("Managing role"), unit.get("managing_role"), "role"),
-                        (entity_metadata_label("File Administrator role"), unit.get("file_administrator_role"), "role"),
-                        (render_message("navigation.item.org_units"), unit.get("child_org_unit_count"), None),
-                        (render_message("navigation.item.roles"), unit.get("role_count"), None),
-                    ):
-                        guidance_text = {
-                            entity_metadata_label("Status"): render_message("webui.select_organization_unit_details.text.set_directly_on_this_organization_unit_wit_d76d3eda"),
-                            render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"): render_message("webui.select_organization_unit_details.text.also_includes_inactivity_inherited_from_an_109127e4"),
-                        }.get(label)
-                        with ui.column().classes("identity-detail-fact gap-0 border-b border-slate-100 pb-1.5"):
-                            ui.label(label).classes("detail-field-label")
-                            display_value = (
-                                localized_lifecycle_value(value)
-                                if value is not None and value_kind == "status"
-                                else str(value) if value is not None else "—"
-                            )
-                            if value_kind == "role" and value:
-                                ui.label(f"{value['code']} · {value['name']}").classes(
-                                    "font-medium text-primary cursor-pointer break-words"
-                                ).on("click", lambda _, role_id=value["id"]: select_role_details(role_id))
-                            elif value_kind == "parent" and (unit.get("parent") or {}).get("id"):
-                                ui.label(display_value).classes(
-                                    "font-medium text-primary cursor-pointer"
-                                ).on(
-                                    "click",
-                                    lambda: select_organization_unit_details(
-                                        unit["parent"]["id"]
-                                    ),
-                                ).tooltip(render_message("webui.select_organization_unit_details.tooltip.open_parent_organization_unit_25f29976"))
-                            else:
-                                ui.label(display_value).classes("font-medium")
-                            if guidance_text:
-                                ui.label(guidance_text).classes("w-full text-[10px] leading-3 text-slate-400")
-                organization_metadata_panel.__exit__(None, None, None)
-            with ui.card().classes(
-                "detail-surface shadow-none p-0 gap-0 w-full overflow-hidden"
-            ):
-                with ui.row().classes(
-                    "w-full items-center gap-2 px-4 py-3 border-b border-slate-200"
-                ):
-                    ui.icon("account_tree", size="19px").classes("text-primary")
-                    with ui.column().classes("gap-0"):
-                        ui.label(render_message("webui.select_organization_unit_details.label.organizational_lineage_26c71af1")).classes(
-                            "font-semibold text-slate-800"
-                        )
-                        ui.label(
-                            render_message("webui.select_organization_unit_details.label.from_the_highest_ancestor_to_the_current_o_6092bcab")
-                        ).classes("text-xs text-slate-500")
-                with ui.element("div").classes("org-unit-lineage-list"):
-                    lineage = [*(unit.get("ancestors") or []), {
-                        "id": unit["id"], "code": unit["code"],
-                        "name": unit["name"], "is_current": True,
-                    }]
-                    for lineage_unit in lineage:
-                        is_current = bool(lineage_unit.get("is_current"))
-                        with ui.element("div").classes("org-unit-lineage-row"):
-                            with ui.element("div").classes(
-                                "org-unit-lineage-node" + (" current" if is_current else "")
-                            ):
-                                ui.icon(
-                                    "location_on" if is_current else "corporate_fare",
-                                    size="16px",
-                                )
-                            with ui.element("div").classes("org-unit-lineage-copy"):
-                                lineage_name = ui.label(lineage_unit["name"]).classes(
-                                    "text-sm font-semibold truncate"
-                                )
-                                if not is_current:
-                                    lineage_name.classes("org-unit-lineage-link").on(
-                                        "click",
-                                        lambda _, ancestor_id=lineage_unit["id"]:
-                                            select_organization_unit_details(ancestor_id),
-                                    ).tooltip(
-                                        render_message("webui.select_organization_unit_details.tooltip.open_name_fcf4fb5e", name=lineage_unit['name'])
-                                    )
-                                ui.label(lineage_unit["code"]).classes(
-                                    "org-unit-lineage-code shrink-0"
-                                )
-            holdings_metrics = unit["holdings_metrics"]
-            with ui.card().classes(
-                "detail-surface shadow-none p-0 gap-0 w-full overflow-hidden"
-            ):
-                with ui.row().classes(
-                    "w-full items-center gap-2 px-4 py-3 border-b border-slate-200"
-                ):
-                    ui.icon("inventory_2", size="19px").classes("text-primary")
-                    with ui.column().classes("gap-0"):
-                        ui.label(render_message("webui.select_organization_unit_details.label.holdings_summary_0736c95f")).classes("font-semibold text-slate-800")
-                        ui.label(render_message("webui.select_organization_unit_details.label.visible_holdings_owned_by_this_organizatio_c8712879")).classes(
-                            "text-xs text-slate-500"
-                        )
-                with ui.element("div").classes("org-unit-holdings-grid"):
-                    with ui.element("div").classes("org-unit-holdings-group"):
-                        with ui.row().classes("items-center gap-2"):
-                            ui.icon("folder", size="18px").classes("text-primary")
-                            ui.label(
-                                render_message("webui.select_organization_unit_details.label.aggregation_count_aggregations_5d7f7f5c", aggregation_count=holdings_metrics['aggregation_count'])
-                            ).classes("text-sm font-semibold tabular-nums")
-                        with ui.element("div").classes("dashboard-holdings-mediums mt-1"):
-                            ui.label(
-                                render_message("webui.select_organization_unit_details.label.open_aggregation_count_open_closed_aggrega_b1b24d8d", open_aggregation_count=holdings_metrics['open_aggregation_count'], closed_aggregation_count=holdings_metrics['closed_aggregation_count'])
-                            ).classes("dashboard-holdings-medium tabular-nums")
-                            ui.label("|").classes(
-                                "dashboard-holdings-medium"
-                            ).props("aria-hidden=true")
-                            for medium_index, medium in enumerate((
-                                "physical", "digital", "mixed",
-                            )):
-                                if medium_index:
-                                    ui.label("·").classes(
-                                        "dashboard-holdings-medium"
-                                    ).props("aria-hidden=true")
-                                ui.label(
-                                    render_message(
-                                        "webui.select_organization_unit_details.label.title_value_df57d819",
-                                        title=render_message(ADVANCED_SEARCH_CONTROLLED_VALUES["medium"][medium]),
-                                        value=holdings_metrics[f'{medium}_aggregation_count'],
-                                    )
-                                ).classes("dashboard-holdings-medium tabular-nums")
-                    with ui.element("div").classes("org-unit-holdings-group"):
-                        with ui.row().classes("items-center gap-2"):
-                            ui.icon("description", size="18px").classes("text-primary")
-                            ui.label(
-                                render_message("webui.select_organization_unit_details.label.record_count_records_36bb2d62", record_count=holdings_metrics['record_count'])
-                            ).classes("text-sm font-semibold tabular-nums")
-                        with ui.element("div").classes("dashboard-holdings-mediums mt-1"):
-                            for medium_index, medium in enumerate((
-                                "physical", "digital", "mixed",
-                            )):
-                                if medium_index:
-                                    ui.label("·").classes(
-                                        "dashboard-holdings-medium"
-                                    ).props("aria-hidden=true")
-                                ui.label(
-                                    render_message(
-                                        "webui.select_organization_unit_details.label.title_value_df57d819",
-                                        title=render_message(ADVANCED_SEARCH_CONTROLLED_VALUES["medium"][medium]),
-                                        value=holdings_metrics[f'{medium}_record_count'],
-                                    )
-                                ).classes("dashboard-holdings-medium tabular-nums")
-                    with ui.element("div").classes("org-unit-holdings-group"):
-                        with ui.column().classes("gap-1"):
-                            with ui.element("span").classes(
-                                "dashboard-holdings-peer-stat tabular-nums"
-                            ):
-                                ui.icon("emergency", size="14px").classes("text-red-600")
-                                ui.label(
-                                    render_message("webui.select_organization_unit_details.label.vital_record_count_vital_records_a2c63104", vital_record_count=holdings_metrics['vital_record_count'])
-                                )
-                            with ui.element("span").classes(
-                                "dashboard-holdings-peer-stat tabular-nums"
-                            ):
-                                ui.icon("storage", size="14px").classes("text-primary")
-                                ui.label(
-                                    render_message("webui.select_organization_unit_details.label.format_file_size_storage_f4642599", format_file_size=format_file_size(holdings_metrics['storage_size_in_bytes']))
-                                )
-
-    async def select_role_details(role_id: int) -> None:
-        register_navigation("role-details", f"Role #{role_id}", entity_id=role_id)
-        show_authenticated_view()
-        state.update(resource="role-details", rows=[], searched=True, aggregation_detail=None)
-        search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False); add_record_button.set_visibility(False)
-        guidance.text = ""; table_container.clear()
-        try:
-            role = await api.organization_summary("roles", role_id)
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True); return
-        title.text = role["name"]; subtitle.text = render_message("webui.select_role_details.text.role_details_assignments_supervision_and_i_312b583b")
-        register_navigation(
-            "role-details", role["name"], entity_id=role_id,
-            accessible_label=f"{role['name']} — {role['code']}",
-        )
-
-        async def refresh(_: Any = None) -> None:
-            await select_role_details(role_id)
-
-        async def change_status() -> None:
-            try:
-                await api.set_active("roles", role_id, role["version"], active=role["status"] == "inactive")
-                await refresh()
-            except ApiError as error:
-                show_api_error(error)
-
-        is_builtin = bool(role.get("is_system"))
-        with table_container, ui.column().classes("w-full p-5 gap-4"):
-            with ui.element("div").classes("identity-command-layout w-full"):
-                with ui.card().classes(
-                    "detail-surface identity-command-actions shadow-none p-4 gap-3"
-                ):
-                    ui.label(render_message("webui.select_role_details.label.role_actions_c60a91ae")).classes("aggregation-panel-heading w-full")
-                    if is_builtin:
-                        ui.badge(render_message("webui.select_role_details.badge.built_in_read_only_503b4528"), color="blue-grey").props("outline")
-                        if role.get("code") == "text-indexer-service":
-                            ui.label(
-                                render_message("webui.select_role_details.label.this_is_a_platform_managed_service_role_fo_846ede9b")
-                            ).classes("text-xs text-slate-500 leading-5")
-                        else:
-                            ui.label(
-                                render_message("webui.select_role_details.label.built_in_roles_are_provisioned_by_the_plat_fefe2800")
-                            ).classes("text-xs text-slate-500 leading-5")
-                        ui.button(
-                            render_message("webui.select_role_details.button.edit_a1e87f79"),
-                            icon="translate",
-                            on_click=lambda: open_editor(
-                                role, on_saved=refresh, resource_key="roles"
-                            ),
-                        ).props("outline dense no-caps")
-                        if (
-                            role.get("code") == "text-indexer-service"
-                            and "identity.text_indexers.administer" in set(
-                                (auth_state.get("principal") or {}).get("global_privileges", [])
-                            )
-                        ):
-                            ui.button(
-                                render_message("webui.select_role_details.button.open_text_indexers_e325fca4"), icon="manage_search",
-                                on_click=select_text_indexers,
-                            ).props("outline dense no-caps")
-                    else:
-                        ui.label(render_message("webui.select_role_details.label.manage_and_assignments_4a3e9ade")).classes("record-action-group-label")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            ui.button(render_message("webui.select_role_details.button.edit_a1e87f79"), icon="edit", on_click=lambda: open_editor(role, on_saved=refresh, resource_key="roles")).props("outline dense no-caps")
-                            ui.button(render_message("webui.select_role_details.button.user_assignments_5033da78"), icon="group", on_click=lambda: show_memberships(role, for_user=False)).props("outline dense no-caps")
-                    ui.label(render_message("webui.select_role_details.label.audit_82b2637e")).classes("record-action-group-label")
-                    with ui.row().classes("w-full gap-2 flex-wrap"):
-                        ui.button(render_message("webui.select_role_details.button.history_bf61825c"), icon="history", on_click=lambda: show_entity_history("roles", role)).props("outline dense no-caps")
-                    if not is_builtin:
-                        ui.label(render_message("webui.select_role_details.label.lifecycle_1cff3de1")).classes("record-action-group-label")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            ui.button(render_message("webui.select_role_details.button.activate_93e70c1e") if role["status"] == "inactive" else render_message("webui.select_role_details.button.deactivate_84105425"), icon="toggle_on" if role["status"] == "inactive" else "toggle_off", on_click=change_status).props("outline dense no-caps")
-                            ui.button(
-                                render_message("webui.select_role_details.button.permanently_delete_307494a2"), icon="delete_forever", color="negative",
-                                on_click=lambda: confirm_identity_deletion(
-                                    "roles", role, label="role", on_deleted=lambda: select_entity("roles"),
-                                ),
-                            ).props("outline dense no-caps")
-                role_metadata_panel = ui.card().classes(
-                    "detail-surface identity-command-metadata shadow-none p-5 gap-4"
-                )
-                role_metadata_panel.__enter__()
-                with ui.grid(columns="auto minmax(0, 1fr) auto").classes("identity-detail-header w-full items-start gap-4"):
-                    ui.avatar(icon="badge", color="blue-1", text_color="primary", size="58px")
-                    with ui.column().classes("gap-1 min-w-0 break-words"):
-                        ui.label(role["name"]).classes("text-xl font-semibold")
-                        ui.label(role["code"]).classes("text-primary")
-                        if is_builtin:
-                            ui.badge(render_message("webui.select_role_details.badge.built_in_13c676c0"), color="blue-grey").props("outline")
-                        if role.get("description"): ui.label(role["description"]).classes("text-slate-600")
-                    ui.button(
-                        render_message("webui.select_role_details.button.back_26071a1c"), icon=None if current_direction["value"] == "rtl" else "arrow_back",
-                        on_click=lambda: breadcrumb_back(lambda: select_entity("roles")),
-                    ).props("flat no-caps" + (" icon-right=arrow_forward" if current_direction["value"] == "rtl" else ""))
-                with ui.grid(columns=3).classes("identity-detail-facts w-full gap-4"):
-                    assignment_label = render_message("webui.show_organization_structure.select.all_assignments_1a3e1480")
-                    for label, value, value_kind in (
-                        (entity_metadata_label("Status"), role.get("status"), "status"),
-                        (render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"), role.get("effective_status"), "status"),
-                        (entity_metadata_label("Security clearance"), " — ".join(filter(None, (
-                            role.get("security_level_code"), role.get("security_level_name"),
-                        ))), None),
-                        (entity_metadata_label("Profile"), " — ".join(filter(None, (
-                            role.get("profile_code"),
-                            role.get("profile_name"),
-                        ))), "profile"),
-                        (entity_metadata_label("Information-governance role"), render_message("webui.render_governance_cards.text.yes_1e245559") if role.get("is_information_governance") else render_message("webui.render_governance_cards.text.no_10013db4"), "governance"),
-                        (entity_metadata_label("Organization unit"), " — ".join(filter(None, (
-                            role.get("org_unit_code"), role.get("org_unit_name"),
-                        ))), "organization"),
-                        (entity_metadata_label("Supervising role"), " — ".join(filter(None, (
-                            role.get("supervisor_role_code"), role.get("supervisor_role_name"),
-                        ))) or None, "supervisor"),
-                        (render_message("webui.render_governance_cards.text.roles_assigned_this_level_cdc0781e"), role.get("subordinate_role_count"), None),
-                        (assignment_label, role.get("assigned_user_count"), None),
-                        (render_message("governance_custody.stat.current_assignments"), role.get("current_assignment_count"), None),
-                        (f"{localized_lifecycle_value('future')} · {assignment_label}", role.get("future_assignment_count"), None),
-                        (f"{localized_lifecycle_value('expired')} · {assignment_label}", role.get("expired_assignment_count"), None),
-                    ):
-                        guidance_text = {
-                            entity_metadata_label("Status"): render_message("webui.select_role_details.text.set_directly_on_this_role_without_consider_0646bc65"),
-                            render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"): render_message("webui.select_role_details.text.also_includes_inactivity_inherited_from_it_c99dbc46"),
-                            entity_metadata_label("Profile"): (
-                                render_message("webui.select_role_details.text.all_privileges_is_a_migration_compatibilit_bca70ba7")
-                                if role.get("profile_code") == "ALL_PRIVS" else
-                                render_message("webui.select_role_details.text.the_role_receives_its_global_capabilities_173ecedf")
-                            ),
-                            entity_metadata_label("Information-governance role"): (
-                                render_message("webui.select_role_details.text.this_role_may_bypass_resource_acls_only_gl_a6785150")
-                            ),
-                        }.get(label)
-                        with ui.column().classes("identity-detail-fact gap-0 border-b border-slate-100 pb-1.5"):
-                            ui.label(label).classes("detail-field-label")
-                            if value_kind == "organization" and role.get("org_unit_id"):
-                                ui.label(str(value)).classes(
-                                    "font-medium text-primary cursor-pointer"
-                                ).on(
-                                    "click",
-                                    lambda: select_organization_unit_details(
-                                        role["org_unit_id"]
-                                    ),
-                                ).tooltip(render_message("webui.select_role_details.tooltip.open_organization_unit_de3a3909"))
-                            elif value_kind == "supervisor" and role.get("supervisor_role_id"):
-                                ui.label(str(value)).classes(
-                                    "font-medium text-primary cursor-pointer"
-                                ).on(
-                                    "click",
-                                    lambda: select_role_details(role["supervisor_role_id"]),
-                                ).tooltip(render_message("webui.select_role_details.tooltip.open_supervising_role_10bd647e"))
-                            else:
-                                rendered_value = (
-                                    localized_lifecycle_value(value)
-                                    if value_kind == "status" and value is not None
-                                    else str(value) if value is not None else "—"
-                                )
-                                ui.label(rendered_value).classes("font-medium")
-                            if guidance_text:
-                                ui.label(guidance_text).classes("w-full text-[10px] leading-3 text-slate-400")
-                role_metadata_panel.__exit__(None, None, None)
-
-            profile_privileges = role.get("profile_privileges") or []
-            privileges_by_category: dict[str, list[dict[str, Any]]] = {}
-            for privilege in profile_privileges:
-                privileges_by_category.setdefault(
-                    privilege.get("category") or "other", [],
-                ).append(privilege)
-            with ui.card().classes("detail-surface shadow-none w-full p-0 gap-0"):
-                with ui.row().classes(
-                    "w-full items-center gap-3 px-4 py-3 border-b border-slate-200"
-                ):
-                    with ui.column().classes("gap-0 grow min-w-0"):
-                        ui.label(render_message("webui.select_role_details.label.privileges_inherited_from_profile_f70566f2")).classes(
-                            "text-base font-semibold"
-                        )
-                        with ui.row().classes("items-center gap-1 text-xs text-slate-500"):
-                            ui.label(render_message("webui.select_role_details.label.granted_by_313bfb40"))
-                            ui.label(
-                                " — ".join(filter(None, (
-                                    role.get("profile_code"), role.get("profile_name"),
-                                ))) or render_message("webui.select_role_details.label.unknown_profile_bcf958f1")
-                            ).classes("font-semibold text-primary")
-                    ui.badge(
-                        render_message("webui.select_role_details.badge.profile_privilege_count_privileges_b8629558", profile_privilege_count=len(profile_privileges)), color="primary",
-                    ).props("outline")
-                if not profile_privileges:
-                    ui.label(render_message("webui.select_role_details.label.this_profile_grants_no_privileges_180094b3")).classes(
-                        "w-full text-center text-slate-400 py-8"
-                    )
-                else:
-                    category_icons = {
-                        "administration": "settings", "aggregation": "folder",
-                        "record": "description", "component": "attachment",
-                        "exceptional": "warning_amber", "hold": "gavel",
-                    }
-                    with ui.element("div").classes("role-privilege-groups w-full p-3"):
-                        for category, privileges in privileges_by_category.items():
-                            with ui.element("section").classes("role-privilege-group"):
-                                with ui.element("header").classes(
-                                    "role-privilege-group-header w-full gap-2"
-                                ):
-                                    ui.icon(
-                                        category_icons.get(category, "verified_user"),
-                                        size="18px",
-                                    ).classes("text-primary")
-                                    ui.label(
-                                        localized_privilege_category(category)
-                                    ).classes("role-privilege-group-title text-sm font-semibold")
-                                    ui.label(str(len(privileges))).classes(
-                                        "role-privilege-group-count text-xs text-slate-500 tabular-nums"
-                                    )
-                                with ui.element("div").classes("role-privilege-list"):
-                                    for privilege in privileges:
-                                        with ui.element("div").classes(
-                                            "role-privilege-item gap-2"
-                                        ):
-                                            ui.icon(
-                                                "check", color="positive", size="16px",
-                                            ).classes("mt-0.5 shrink-0")
-                                            with ui.column().classes("role-privilege-copy gap-0 min-w-0"):
-                                                ui.label(localized_privilege_name(privilege)).classes(
-                                                    "text-xs font-semibold leading-4"
-                                                )
-                                                ui.label(privilege["code"]).classes(
-                                                    "text-[10px] font-mono text-slate-500 "
-                                                    "break-all leading-4"
-                                                ).tooltip(
-                                                    localized_privilege_description(privilege)
-                                                )
-
-    def reveal_text_indexer_key(
-        result: dict[str, Any], on_closed: Any,
-    ) -> None:
-        api_key = result.pop("api_key")
-        dialog = ui.dialog().props("persistent")
-        with dialog, ui.card().classes("w-[680px] max-w-full gap-4"):
-            ui.label(render_message("webui.reveal_text_indexer_key.label.new_text_indexer_api_key_2a85fa1b")).classes("text-xl font-semibold")
-            with ui.row().classes(
-                "w-full items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3"
-            ):
-                ui.icon("warning", color="warning")
-                ui.label(
-                    render_message("webui.reveal_text_indexer_key.label.copy_and_store_this_key_now_it_will_not_be_49aad18d")
-                ).classes("text-sm font-medium")
-            ui.label(api_key).classes(
-                "w-full font-mono text-sm bg-slate-100 rounded p-3 break-all select-all"
-            )
-
-            async def close_reveal() -> None:
-                nonlocal api_key
-                api_key = ""
-                dialog.close()
-                follow_up = on_closed()
-                if asyncio.iscoroutine(follow_up):
-                    await follow_up
-
-            with ui.row().classes("w-full justify-between gap-2 flex-wrap"):
-                ui.button(
-                    render_message("webui.reveal_text_indexer_key.button.copy_e8a7c395"), icon="content_copy",
-                    on_click=lambda: ui.run_javascript(
-                        f"navigator.clipboard.writeText({json.dumps(api_key)}).then(() => true)",
-                        timeout=5,
-                    ),
-                ).props("outline no-caps")
-                ui.button(
-                    render_message("webui.reveal_text_indexer_key.button.download_credential_file_99e25d6c"), icon="download",
-                    on_click=lambda: ui.run_javascript(
-                        "(() => { const b=new Blob([" + json.dumps(
-                            "TEXT_INDEXER_API_KEY=" + api_key + "\n"
-                        ) + "],{type:'text/plain'});const a=document.createElement('a');"
-                        "a.href=URL.createObjectURL(b);a.download='wathiq-text-indexer.env';"
-                        "a.click();URL.revokeObjectURL(a.href);return true;})()",
-                        timeout=5,
-                    ),
-                ).props("flat no-caps color=warning").tooltip(
-                    render_message("webui.reveal_text_indexer_key.tooltip.downloads_a_sensitive_plaintext_file_0acbd408")
-                )
-                ui.button(
-                    render_message("webui.reveal_text_indexer_key.button.i_have_stored_it_safely_e3a69b9d"), on_click=close_reveal,
-                ).props("unelevated no-caps")
-        dialog.open()
-
-    async def select_text_indexers() -> None:
-        register_navigation("text-indexers", "Text Indexers")
-        show_authenticated_view()
-        state.update(resource="text-indexers", rows=[], searched=True, aggregation_detail=None)
-        search_bar.set_visibility(False)
-        aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False)
-        add_record_button.set_visibility(False)
-        guidance.text = ""
-        title.text = render_message("webui.select_text_indexers.text.text_indexers_1f668c0c")
-        subtitle.text = render_message("webui.select_text_indexers.text.non_interactive_indexing_identities_and_ap_ac33df30")
-        table_container.clear()
-        try:
-            indexers, health, diagnostics = await asyncio.gather(
-                api.text_indexers(), api.text_indexers_health(),
-                api.text_indexer_diagnostics(limit=10, offset=0),
-            )
-        except ApiError as error:
-            with table_container, ui.column().classes("w-full p-5"):
-                ui.label(error_message(error)).classes("text-negative")
-                ui.button(render_message("webui.select_text_indexers.button.try_again_f7ef4536"), icon="refresh", on_click=select_text_indexers).props(
-                    "outline no-caps"
-                )
-            return
-
-        def add_text_indexer_dialog() -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[580px] max-w-full gap-3"):
-                ui.label(render_message("webui.add_text_indexer_dialog.label.add_text_indexer_4b375416")).classes("text-xl font-semibold")
-                ui.label(
-                    render_message("webui.add_text_indexer_dialog.label.creates_a_non_interactive_identity_assigns_a634b67e")
-                ).classes("text-sm text-slate-500")
-                name = ui.input(render_message("webui.add_text_indexer_dialog.input.deployment_or_pool_name_7539da84")).props("outlined").classes("w-full")
-                external_id = ui.input(render_message("webui.add_text_indexer_dialog.input.immutable_external_id_0e9e9051")).props("outlined").classes("w-full")
-                credential_name = ui.input(render_message("webui.add_text_indexer_dialog.input.initial_credential_name_33daef5e")).props("outlined").classes("w-full")
-                expiry = ui.input(
-                    render_message("webui.add_text_indexer_dialog.input.credential_expiry_iso_8601_e10ffe03"),
-                    value=(datetime.now(timezone.utc) + timedelta(days=90)).replace(
-                        microsecond=0
-                    ).isoformat(),
-                ).props("outlined").classes("w-full")
-                ui.input(
-                    render_message("webui.add_text_indexer_dialog.input.assigned_role_ae268a10"), value="Text Indexer Service (protected, sole role)",
-                ).props("outlined readonly").classes("w-full")
-
-                async def submit() -> None:
-                    payload = {
-                        "name": (name.value or "").strip(),
-                        "external_id": (external_id.value or "").strip(),
-                        "credential_name": (credential_name.value or "").strip(),
-                        "expires_at": (expiry.value or "").strip(),
-                    }
-                    try:
-                        created = await api.create_text_indexer(payload)
-                    except ApiError as error:
-                        show_api_error(error)
-                        return
-                    dialog.close()
-                    account = created["text_indexer"]
-                    reveal_text_indexer_key(
-                        created["credential"],
-                        lambda: select_text_indexer_details(account["id"]),
-                    )
-
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.add_text_indexer_dialog.button.cancel_45f5d861"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.add_text_indexer_dialog.button.create_and_generate_key_a5f16e9e"), icon="add", on_click=submit).props(
-                        "unelevated no-caps"
-                    )
-            dialog.open()
-
-        def queue_backfill_dialog() -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[520px] max-w-full gap-3"):
-                ui.label(render_message("webui.queue_backfill_dialog.label.queue_backfill_batch_c4ea11b0")).classes("text-xl font-semibold")
-                ui.label(
-                    render_message("webui.queue_backfill_dialog.label.queues_low_priority_indexing_jobs_for_exis_f6ecc87b")
-                ).classes("text-sm text-slate-500")
-                batch_size = ui.number(
-                    render_message("webui.queue_backfill_dialog.number.maximum_components_453f254a"), value=500, min=1, max=500, step=1,
-                ).props("outlined").classes("w-full")
-                ui.label(
-                    render_message("webui.queue_backfill_dialog.label.this_returns_after_queuing_text_indexers_p_265b5d9b")
-                ).classes("text-xs text-slate-500")
-
-                async def submit_backfill() -> None:
-                    try:
-                        requested = int(batch_size.value or 0)
-                        result = await api.queue_text_indexers_backfill(requested)
-                    except (TypeError, ValueError):
-                        ui.notify(render_message("webui.submit_backfill.notify.enter_a_whole_number_from_1_to_500_4a71656e"), color="warning")
-                        return
-                    except ApiError as error:
-                        show_api_error(error)
-                        return
-                    dialog.close()
-                    ui.notify(
-                        render_message("webui.submit_backfill.notify.examined_drifted_components_queued_queued_d2ec2f63", drifted=result['drifted'], queued=result['queued']),
-                        color="positive",
-                    )
-                    await select_text_indexers()
-
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.queue_backfill_dialog.button.cancel_3c7e55da"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(
-                        render_message("webui.queue_backfill_dialog.button.queue_batch_59aa1eb9"), icon="playlist_add", on_click=submit_backfill,
-                    ).props("unelevated no-caps")
-            dialog.open()
-
-        def retry_failed_dialog() -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[540px] max-w-full gap-3"):
-                ui.label(render_message("webui.retry_failed_dialog.label.retry_failed_documents_f97ef116")).classes("text-xl font-semibold")
-                ui.label(
-                    render_message("webui.retry_failed_dialog.label.queue_a_bounded_retry_only_after_correctin_056e1e4e")
-                ).classes("text-sm text-slate-500")
-                batch_size = ui.number(
-                    render_message("webui.retry_failed_dialog.number.maximum_failed_documents_b3470eff"), value=100, min=1, max=500, step=1,
-                ).props("outlined").classes("w-full")
-                ui.label(
-                    render_message("webui.retry_failed_dialog.label.retained_failed_job_history_is_preserved_d_96255725")
-                ).classes("text-xs text-slate-500")
-
-                async def submit_retry() -> None:
-                    try:
-                        requested = int(batch_size.value or 0)
-                        result = await api.retry_failed_text_indexer_documents(requested)
-                    except (TypeError, ValueError):
-                        ui.notify(render_message("webui.submit_retry.notify.enter_a_whole_number_from_1_to_500_2b2ac3cd"), color="warning")
-                        return
-                    except ApiError as error:
-                        show_api_error(error)
-                        return
-                    dialog.close()
-                    ui.notify(
-                        render_message("webui.submit_retry.notify.examined_examined_failed_documents_queued_ed66c8d2", examined=result['examined'], queued=result['queued']),
-                        color="positive",
-                    )
-                    await select_text_indexers()
-
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.retry_failed_dialog.button.cancel_be73a154"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(
-                        render_message("webui.retry_failed_dialog.button.queue_retries_f4fd3f7f"), icon="replay", on_click=submit_retry,
-                    ).props("unelevated no-caps")
-            dialog.open()
-
-        async def open_diagnostic_component(record_id: int, component_id: int) -> None:
-            try:
-                record = await api.get("records", record_id)
-                await show_components(record, focused_component_id=component_id)
-            except ApiError as error:
-                show_api_error(error)
-
-        with table_container, ui.column().classes("w-full p-5 gap-4"):
-            metrics = health["metrics"]
-            queue = metrics.get("queue", {})
-            workers = metrics.get("workers", {})
-            recovery = metrics.get("recovery", {})
-
-            def backlog_age(value: Any) -> str:
-                if value is None:
-                    return render_message_plain("webui.backlog_age.empty")
-                seconds = max(0, int(value))
-                if seconds < 60:
-                    return render_message_plain("webui.backlog_age.seconds", count=seconds)
-                if seconds < 3600:
-                    return render_message_plain("webui.backlog_age.minutes", count=seconds // 60)
-                if seconds < 86400:
-                    return render_message_plain("webui.backlog_age.hours", count=seconds // 3600)
-                return render_message_plain("webui.backlog_age.days", count=seconds // 86400)
-
-            with ui.card().classes("detail-surface shadow-none p-5 w-full gap-4"):
-                with ui.row().classes("w-full items-start gap-3"):
-                    with ui.element("div").classes("governance-card-icon"):
-                        ui.icon(
-                            "health_and_safety" if health["ready_for_search"] else "warning",
-                            size="22px",
-                        )
-                    with ui.column().classes("gap-0 grow min-w-0"):
-                        ui.label(render_message("webui.select_text_indexers.label.health_58ba42bd")).classes("text-lg font-semibold")
-                        ui.label(
-                            render_message("webui.select_text_indexers.label.worker_heartbeats_indexing_queue_and_searc_2306bce9")
-                        ).classes("text-sm text-slate-500")
-                    ui.badge(
-                        render_message("webui.select_text_indexers.badge.ready_for_search_6e324bdc") if health["ready_for_search"] else render_message("webui.select_text_indexers.badge.attention_required_018ec3f4"),
-                        color="positive" if health["ready_for_search"] else "warning",
-                    ).props("outline")
-                    ui.button(
-                        render_message("webui.select_text_indexers.button.refresh_489c8018"), icon="refresh", on_click=select_text_indexers,
-                    ).props("outline dense no-caps")
-                    ui.button(
-                        render_message("webui.select_text_indexers.button.queue_backfill_batch_55344f95"), icon="playlist_add",
-                        on_click=queue_backfill_dialog,
-                    ).props("unelevated dense no-caps")
-                    ui.button(
-                        render_message("webui.select_text_indexers.button.retry_failed_d128e4bd"), icon="replay", on_click=retry_failed_dialog,
-                    ).props("outline dense no-caps").set_enabled(
-                        int(health.get("failed_documents", 0)) > 0
-                    )
-                ui.label(
-                    render_message("webui.select_text_indexers.label.api_liveness_is_reported_separately_by_hea_4471aea2")
-                ).classes("text-xs text-slate-500")
-                with ui.element("div").classes(
-                    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full"
-                ):
-                    text_indexer_metrics = (
-                        (
-                            render_message("webui.select_text_indexers.text.active_workers_92ac21cf"), workers.get("active", 0),
-                            render_message("webui.select_text_indexers.text.get_stale_registrations_a829ce04", get=workers.get('stale', 0)),
-                            "memory", int(workers.get("active", 0)) == 0,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.waiting_418a4e06"), queue.get("queued", 0),
-                            render_message("webui.select_text_indexers.text.oldest_backlog_age_660985ec", backlog_age=backlog_age(metrics.get('oldest_queued_seconds'))),
-                            "schedule", int(queue.get("queued", 0)) > 0,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.processing_c1ea7da0"), queue.get("leased", 0),
-                            render_message("webui.select_text_indexers.text.jobs_with_active_worker_leases_62e4e14b"),
-                            "sync", False,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.failed_documents_a52a6b9e"), health.get("failed_documents", 0),
-                            render_message("webui.select_text_indexers.text.get_historical_failed_jobs_get_2_unsupport_d0b683dc", get=health.get('historical_failed_jobs', 0), get_2=queue.get('unsupported', 0)),
-                            "error_outline", int(health.get("failed_documents", 0)) > 0,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.drifted_documents_d9b3b97f"), health.get("drifted_documents", 0),
-                            render_message("webui.select_text_indexers.text.missing_or_obsolete_derived_index_10be6549"),
-                            "difference", int(health.get("drifted_documents", 0)) > 0,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.stale_documents_47eeb60a"), health.get("stale_documents", 0),
-                            render_message("webui.select_text_indexers.text.published_index_is_no_longer_current_2f26941b"),
-                            "update_disabled", int(health.get("stale_documents", 0)) > 0,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.expired_leases_66660c86"), recovery.get("expired_leases", 0),
-                            render_message("webui.select_text_indexers.text.get_lease_loss_attempts_b4b9dd3e", get=recovery.get('lease_lost_attempts', 0)),
-                            "restart_alt", int(recovery.get("expired_leases", 0)) > 0,
-                        ),
-                        (
-                            render_message("webui.select_text_indexers.text.blocking_jobs_9ff16656"), health.get("blocking_jobs", 0),
-                            render_message("webui.select_text_indexers.text.observed_format_timestamp_2519c007", format_timestamp=format_timestamp(health.get('observed_at'))),
-                            "hourglass_top", int(health.get("blocking_jobs", 0)) > 0,
-                        ),
-                    )
-                    for label, value, note, icon_name, attention in text_indexer_metrics:
-                        with ui.card().classes(
-                            "shadow-none border border-slate-200 p-3 gap-1"
-                            + (" bg-amber-50" if attention else "")
-                        ):
-                            with ui.row().classes("w-full items-center gap-2"):
-                                ui.icon(
-                                    icon_name,
-                                    color="warning" if attention else "primary",
-                                )
-                                ui.label(str(value)).classes("text-2xl font-semibold tabular-nums")
-                            ui.label(label).classes("text-sm font-semibold")
-                            ui.label(note).classes("text-xs text-slate-500")
-
-            diagnostics_host = ui.element("div").classes("w-full")
-            diagnostics_page = {"offset": 0}
-            diagnostics_page_size = 10
-
-            def render_failure_diagnostics() -> None:
-                diagnostics_host.clear()
-                failure_page = diagnostics.get("failures", {})
-                failure_items = failure_page.get("items", [])
-                total_failures = int(failure_page.get("total", 0))
-                groups = diagnostics.get("failure_groups", [])
-                unsupported_formats = diagnostics.get("unsupported_formats", [])
-                with diagnostics_host, ui.card().classes(
-                    "detail-surface shadow-none p-5 w-full gap-4"
-                ):
-                    with ui.row().classes("w-full items-start gap-3"):
-                        with ui.element("div").classes("governance-card-icon"):
-                            ui.icon("troubleshoot", size="22px")
-                        with ui.column().classes("gap-0 grow min-w-0"):
-                            ui.label(render_message("webui.render_failure_diagnostics.label.failure_diagnostics_e8ffa8d8")).classes("text-lg font-semibold")
-                            ui.label(
-                                render_message("webui.render_failure_diagnostics.label.current_indexing_failures_and_unsupported_ef4bb325")
-                            ).classes("text-sm text-slate-500")
-                        ui.button(
-                            render_message("webui.render_failure_diagnostics.button.refresh_diagnostics_83e70efa"), icon="refresh",
-                            on_click=lambda: load_failure_diagnostics(
-                                diagnostics_page["offset"]
-                            ),
-                        ).props("outline dense no-caps")
-
-                    ui.label(render_message("webui.render_failure_diagnostics.label.current_failures_by_cause_and_format_6545d527")).classes(
-                        "text-sm font-semibold"
-                    )
-                    if groups:
-                        with ui.element("div").classes(
-                            "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 w-full"
-                        ):
-                            for group in groups:
-                                with ui.card().classes(
-                                    "shadow-none border border-slate-200 p-3 gap-1"
-                                ):
-                                    with ui.row().classes("w-full items-center gap-2"):
-                                        ui.badge(str(group["count"]), color="negative").props(
-                                            "outline"
-                                        )
-                                        ui.label(
-                                            str(group.get("error_code") or "unknown")
-                                        ).classes("text-sm font-semibold break-all")
-                                    ui.label(group.get("mime_type") or render_message("webui.render_failure_diagnostics.label.unknown_2bc639ca")).classes(
-                                        "text-xs font-mono text-slate-600 break-all"
-                                    )
-                                    ui.label(
-                                        render_message(
-                                            "webui.render_failure_diagnostics.label.latest_failure",
-                                            timestamp=format_timestamp(group.get("newest_failure_at")),
-                                        )
-                                    ).classes("text-xs text-slate-500")
-                    else:
-                        ui.label(render_message("webui.render_failure_diagnostics.label.no_documents_are_currently_failed_93bbc776")).classes(
-                            "text-sm text-slate-500"
-                        )
-
-                    if failure_items:
-                        ui.separator()
-                        with ui.element("div").classes("governance-card-list w-full"):
-                            for failure in failure_items:
-                                with ui.card().classes(
-                                    "shadow-none border border-slate-200 p-4 w-full gap-2"
-                                ):
-                                    with ui.row().classes("w-full items-start gap-3"):
-                                        ui.icon("error_outline", color="negative")
-                                        with ui.column().classes("gap-0 grow min-w-0"):
-                                            ui.label(
-                                                failure.get("component_name")
-                                                or render_message("webui.render_failure_diagnostics.label.digital_component_digital_component_id_fc07174c", digital_component_id=failure['digital_component_id'])
-                                            ).classes("text-sm font-semibold break-words")
-                                            ui.label(
-                                                render_message("webui.render_failure_diagnostics.label.value_value_2_434ec21b", value=failure.get('error_code') or 'unknown', value_2=failure.get('mime_type') or 'unknown')
-                                            ).classes("text-xs font-mono text-slate-600 break-all")
-                                        ui.label(
-                                            format_timestamp(failure.get("last_attempt_at"))
-                                        ).classes("text-xs text-slate-500")
-                                    if failure.get("last_error_summary"):
-                                        ui.label(failure["last_error_summary"]).classes(
-                                            "text-sm text-slate-700 break-words"
-                                        )
-                                    with ui.row().classes(
-                                        "w-full items-center gap-2 flex-wrap"
-                                    ):
-                                        if failure.get("worker_id"):
-                                            ui.badge(
-                                                render_message("webui.render_failure_diagnostics.badge.worker_worker_id_ff69e3e4", worker_id=failure['worker_id'])
-                                            ).props("outline color=blue-grey")
-                                        if failure.get("attempt_no"):
-                                            ui.badge(
-                                                render_message("webui.render_failure_diagnostics.badge.attempt_attempt_no_cdf09d73", attempt_no=failure['attempt_no'])
-                                            ).props("outline color=blue-grey")
-                                        if failure.get("can_open"):
-                                            ui.button(
-                                                failure.get("record_number")
-                                                or render_message("webui.render_failure_diagnostics.button.record_record_id_96bc8024", record_id=failure['record_id']),
-                                                icon="description",
-                                                on_click=lambda _, record_id=failure["record_id"]:
-                                                    select_record_details(record_id),
-                                            ).props("flat dense no-caps color=primary").tooltip(
-                                                failure.get("record_title") or render_message("webui.render_failure_diagnostics.tooltip.open_record_833909f2")
-                                            )
-                                            ui.button(
-                                                render_message("webui.render_failure_diagnostics.button.component_digital_component_id_831b121d", digital_component_id=failure['digital_component_id']),
-                                                icon="attachment",
-                                                on_click=lambda _, record_id=failure["record_id"],
-                                                                    component_id=failure["digital_component_id"]:
-                                                    open_diagnostic_component(
-                                                        record_id, component_id
-                                                    ),
-                                            ).props("flat dense no-caps color=primary")
-                                        else:
-                                            ui.label(
-                                                render_message("webui.render_failure_diagnostics.label.record_component_links_require_record_and_894030f7")
-                                            ).classes("text-xs text-slate-500")
-
-                        start = diagnostics_page["offset"] + 1
-                        end = min(diagnostics_page["offset"] + len(failure_items), total_failures)
-                        with ui.row().classes("w-full justify-end items-center gap-2"):
-                            ui.label(
-                                render_message("webui.render_failure_diagnostics.label.showing_start_end_of_total_failures_curren_0789126a", start=start, end=end, total_failures=total_failures)
-                            ).classes("text-sm text-slate-500")
-                            ui.button(
-                                render_message("webui.render_failure_diagnostics.button.previous_a37406c2"), icon="chevron_left",
-                                on_click=lambda: load_failure_diagnostics(
-                                    max(0, diagnostics_page["offset"] - diagnostics_page_size)
-                                ),
-                            ).props("flat dense no-caps").set_enabled(
-                                diagnostics_page["offset"] > 0
-                            )
-                            ui.button(
-                                render_message("webui.render_failure_diagnostics.button.next_856cdffc"), icon="chevron_right",
-                                on_click=lambda: load_failure_diagnostics(
-                                    diagnostics_page["offset"] + diagnostics_page_size
-                                ),
-                            ).props("flat dense no-caps").set_enabled(
-                                diagnostics_page["offset"] + diagnostics_page_size
-                                < total_failures
-                            )
-
-                    ui.separator()
-                    ui.label(render_message("webui.render_failure_diagnostics.label.unsupported_formats_currently_encountered_efac58f6")).classes(
-                        "text-sm font-semibold"
-                    )
-                    ui.label(
-                        render_message("webui.render_failure_diagnostics.label.these_documents_were_safely_classified_as_a5f6518b")
-                    ).classes("text-xs text-slate-500")
-                    if unsupported_formats:
-                        with ui.element("div").classes(
-                            "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 w-full"
-                        ):
-                            for item in unsupported_formats:
-                                with ui.row().classes(
-                                    "items-center gap-2 border border-slate-200 rounded-lg p-3"
-                                ):
-                                    ui.badge(str(item["count"]), color="orange").props("outline")
-                                    with ui.column().classes("gap-0 min-w-0"):
-                                        ui.label(item.get("mime_type") or render_message("webui.render_failure_diagnostics.label.unknown_2bc639ca")).classes(
-                                            "text-xs font-mono break-all"
-                                        )
-                                        ui.label(
-                                            render_message(
-                                                "webui.render_failure_diagnostics.label.latest_unsupported",
-                                                timestamp=format_timestamp(item.get("most_recent_at")),
-                                            )
-                                        ).classes("text-xs text-slate-500")
-                    else:
-                        ui.label(render_message("webui.render_failure_diagnostics.label.no_unsupported_formats_are_currently_recor_1390594a")).classes(
-                            "text-sm text-slate-500"
-                        )
-
-            async def load_failure_diagnostics(offset: int = 0) -> None:
-                nonlocal diagnostics
-                try:
-                    diagnostics = await api.text_indexer_diagnostics(
-                        limit=diagnostics_page_size, offset=offset,
-                    )
-                except ApiError as error:
-                    show_api_error(error)
-                    return
-                diagnostics_page["offset"] = offset
-                render_failure_diagnostics()
-
-            render_failure_diagnostics()
-
-            with ui.row().classes("w-full items-center gap-3"):
-                query = ui.input(render_message("webui.select_text_indexers.input.filter_by_name_or_external_id_3d14f34f")).props(
-                    "outlined dense clearable"
-                ).classes("grow")
-                ui.button(
-                    render_message("webui.select_text_indexers.button.add_text_indexer_fd6584b1"), icon="add", on_click=add_text_indexer_dialog,
-                ).props("unelevated no-caps")
-            results = ui.element("div").classes("governance-card-list w-full")
-            page = {"offset": 0}
-            page_size = 10
-            with ui.row().classes("w-full justify-end items-center gap-2"):
-                page_label = ui.label().classes("text-sm text-slate-500")
-                previous = ui.button(render_message("webui.select_text_indexers.button.previous_0509bae7"), icon="chevron_right" if current_direction["value"] == "rtl" else "chevron_left").props("flat dense no-caps")
-                next_button = ui.button(render_message("webui.select_text_indexers.button.next_0e31089e"), icon="chevron_left" if current_direction["value"] == "rtl" else "chevron_right").props("flat dense no-caps")
-
-            def filtered() -> list[dict[str, Any]]:
-                needle = str(query.value or "").strip().lower()
-                if not needle:
-                    return indexers
-                return [
-                    item for item in indexers
-                    if needle in item["name"].lower()
-                    or needle in item["external_id"].lower()
-                ]
-
-            def render() -> None:
-                rows = filtered()
-                if page["offset"] >= len(rows) and page["offset"]:
-                    page["offset"] = max(0, ((len(rows) - 1) // page_size) * page_size)
-                shown = rows[page["offset"]:page["offset"] + page_size]
-                results.clear()
-                with results:
-                    if not shown:
-                        with ui.card().classes("governance-empty-state shadow-none"):
-                            ui.icon("manage_search", size="34px").classes("text-slate-300")
-                            ui.label(
-                                render_message("webui.render.label.no_matching_text_indexers_064a7cfd") if indexers else render_message("webui.render.label.no_text_indexers_2719a0c9")
-                            ).classes("font-semibold")
-                            ui.label(
-                                render_message("webui.render.label.create_a_deployment_or_pool_identity_when_289c263c")
-                            ).classes("text-sm text-slate-500")
-                    for item in shown:
-                        with ui.card().classes(
-                            "governance-list-card shadow-none cursor-pointer"
-                        ).on(
-                            "click", lambda _, indexer_id=item["id"]:
-                                select_text_indexer_details(indexer_id),
-                        ):
-                            with ui.row().classes("w-full items-start gap-3 no-wrap"):
-                                with ui.element("div").classes("governance-card-icon"):
-                                    ui.icon("manage_search", size="20px")
-                                with ui.column().classes("gap-0 grow min-w-0"):
-                                    ui.label(item["name"]).classes("font-semibold")
-                                    ui.label(item["external_id"]).classes(
-                                        "text-xs text-slate-500 font-mono break-all"
-                                    )
-                                ui.badge(
-                                    localized_lifecycle_value(item["status"]),
-                                    color={"active": "positive", "suspended": "warning"}.get(
-                                        item["status"], "grey-7"
-                                    ),
-                                ).props("outline")
-                            with ui.element("div").classes("governance-list-facts"):
-                                for label, value in (
-                                    (render_message("webui.text_indexer_card.active_credentials"), str(item["active_credential_count"])),
-                                    (render_message("webui.text_indexer_card.credential_history"), str(item["credential_count"])),
-                                    (render_message("webui.text_indexer_card.last_used"), format_timestamp(item["last_used_at"]) if item.get("last_used_at") else render_message("webui.text_indexer_card.never")),
-                                ):
-                                    with ui.column().classes("gap-0 min-w-0"):
-                                        ui.label(label).classes("detail-field-label")
-                                        ui.label(value).classes("text-sm")
-                start = page["offset"] + 1 if rows else 0
-                end = min(page["offset"] + page_size, len(rows))
-                page_label.text = render_message("webui.render.text.start_end_of_row_count_b847f230", start=start, end=end, row_count=len(rows))
-                previous.set_enabled(page["offset"] > 0)
-                next_button.set_enabled(page["offset"] + page_size < len(rows))
-
-            def move(delta: int) -> None:
-                page["offset"] = max(0, page["offset"] + delta * page_size)
-                render()
-
-            query.on_value_change(lambda: (page.update(offset=0), render()))
-            previous.on("click", lambda: move(-1))
-            next_button.on("click", lambda: move(1))
-            render()
-
-    async def select_text_indexer_details(user_id: int) -> None:
-        register_navigation("text-indexer-details", f"Text indexer #{user_id}", entity_id=user_id)
-        show_authenticated_view()
-        state.update(resource="text-indexer-details", rows=[], searched=True, aggregation_detail=None)
-        search_bar.set_visibility(False)
-        aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False)
-        add_record_button.set_visibility(False)
-        guidance.text = ""
-        table_container.clear()
-        try:
-            indexer, credential_page = await asyncio.gather(
-                api.text_indexer(user_id),
-                api.text_indexer_credentials(user_id, history="all", limit=5, offset=0),
-            )
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        title.text = indexer["name"]
-        subtitle.text = render_message("webui.select_text_indexer_details.text.text_indexer_identity_and_credential_admin_49259f0e")
-        register_navigation(
-            "text-indexer-details", indexer["name"], entity_id=user_id,
-            accessible_label=f"{indexer['name']} — {indexer['external_id']}",
-        )
-
-        async def change_status(action: str) -> None:
-            try:
-                await api.set_text_indexer_status(user_id, indexer["version"], action)
-            except ApiError as error:
-                show_api_error(error)
-                return
-            ui.notify(render_message("webui.change_status.notify.text_indexer_status_updated_d7cf4113"), color="positive")
-            await select_text_indexer_details(user_id)
-
-        def credential_dialog(existing: dict[str, Any] | None = None) -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[540px] max-w-full gap-3"):
-                ui.label(render_message("webui.credential_dialog.label.rotate_api_key_dc0e85ed") if existing else render_message("webui.credential_dialog.label.generate_api_key_e9cdd1d3")).classes(
-                    "text-xl font-semibold"
-                )
-                name = ui.input(
-                    render_message("webui.credential_dialog.input.credential_name_b670464d"), value=(existing or {}).get("name", ""),
-                ).props("outlined").classes("w-full")
-                expiry = ui.input(
-                    render_message("webui.credential_dialog.input.expiry_iso_8601_222d3b9f"),
-                    value=(datetime.now(timezone.utc) + timedelta(days=90)).replace(
-                        microsecond=0
-                    ).isoformat(),
-                ).props("outlined").classes("w-full")
-                ui.input(render_message("webui.credential_dialog.input.allowed_route_d805736a"), value=render_message("webui.select_text_indexer_details.label.internal_text_indexing_api_only_ec49ffe0")).props(
-                    "outlined readonly"
-                ).classes("w-full")
-                overlap = None
-                if existing:
-                    overlap = ui.input(
-                        render_message("webui.credential_dialog.input.old_key_overlap_until_optional_maximum_7_d_eec9eb31")
-                    ).props("outlined clearable").classes("w-full")
-
-                async def submit() -> None:
-                    payload = {
-                        "name": (name.value or "").strip(),
-                        "expires_at": (expiry.value or "").strip(),
-                    }
-                    if existing and overlap and overlap.value:
-                        payload["overlap_until"] = overlap.value.strip()
-                    try:
-                        result = (
-                            await api.rotate_text_indexer_credential(
-                                user_id, existing["id"], payload,
-                            ) if existing else
-                            await api.create_text_indexer_credential(user_id, payload)
-                        )
-                    except ApiError as error:
-                        show_api_error(error)
-                        return
-                    dialog.close()
-                    reveal_text_indexer_key(
-                        result, lambda: select_text_indexer_details(user_id),
-                    )
-
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.credential_dialog.button.cancel_f4440fc5"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(
-                        render_message("webui.credential_dialog.button.rotate_key_abe27125") if existing else render_message("webui.credential_dialog.button.generate_api_key_f5d573fe"),
-                        icon="key", on_click=submit,
-                    ).props("unelevated no-caps")
-            dialog.open()
-
-        def confirm_revoke(credential: dict[str, Any]) -> None:
-            dialog = ui.dialog()
-            with dialog, ui.card().classes("w-[520px] max-w-full gap-3"):
-                ui.label(render_message("webui.confirm_revoke.label.revoke_api_key_6e1e1bba")).classes("text-xl font-semibold")
-                ui.label(
-                    render_message("webui.confirm_revoke.label.revoke_name_credential_identifier_25883f9b", name=credential['name'], credential_identifier=credential['credential_identifier'])
-                ).classes("font-medium")
-                ui.label(
-                    render_message("webui.confirm_revoke.label.affected_indexers_fail_on_their_next_reque_4add025b")
-                ).classes("text-sm text-slate-600")
-
-                async def revoke() -> None:
-                    try:
-                        await api.revoke_text_indexer_credential(user_id, credential["id"])
-                    except ApiError as error:
-                        show_api_error(error)
-                        return
-                    dialog.close()
-                    ui.notify(render_message("webui.revoke.notify.api_key_revoked_0fb47669"), color="positive")
-                    await select_text_indexer_details(user_id)
-
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.confirm_revoke.button.cancel_9fc0545b"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.confirm_revoke.button.revoke_f9d8c510"), icon="block", color="negative", on_click=revoke).props(
-                        "unelevated no-caps"
-                    )
-            dialog.open()
-
-        with table_container, ui.column().classes("w-full p-5 gap-4"):
-            with ui.card().classes("detail-surface shadow-none p-5 w-full"):
-                with ui.row().classes("w-full items-start gap-3"):
-                    with ui.element("div").classes("governance-card-icon"):
-                        ui.icon("manage_search", size="22px")
-                    with ui.column().classes("gap-0 grow"):
-                        ui.label(indexer["name"]).classes("text-xl font-semibold")
-                        ui.label(indexer["external_id"]).classes(
-                            "text-sm text-slate-500 font-mono"
-                        )
-                        with ui.row().classes("items-center gap-2 mt-1"):
-                            ui.badge(render_message("webui.select_text_indexer_details.badge.service_account_8d16f547"), color="primary").props("outline")
-                            ui.badge(render_message("webui.select_text_indexer_details.badge.non_interactive_b952cd7b"), color="blue-grey").props("outline")
-                            ui.badge(render_message("webui.select_text_indexer_details.badge.text_indexer_service_b73b4bdf"), color="indigo").props("outline")
-                    ui.badge(
-                        localized_lifecycle_value(indexer["status"]),
-                        color={"active": "positive", "suspended": "warning"}.get(
-                            indexer["status"], "grey-7"
-                        ),
-                    )
-                with ui.grid(columns=3).classes("w-full gap-4 mt-3"):
-                    for label, value in (
-                        (render_message("webui.text_indexer_details.external_id"), indexer["external_id"]),
-                        (render_message("webui.text_indexer_details.created"), format_timestamp(indexer["date_created"])),
-                        (render_message("webui.text_indexer_card.last_used"), format_timestamp(indexer["last_used_at"]) if indexer.get("last_used_at") else render_message("webui.text_indexer_card.never")),
-                    ):
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(label).classes("detail-field-label")
-                            ui.label(value).classes("font-medium break-all")
-                with ui.row().classes("w-full justify-between gap-2 flex-wrap mt-2"):
-                    ui.button(
-                        render_message("webui.select_text_indexer_details.button.back_to_text_indexers_34b66935"), icon="arrow_forward" if current_direction["value"] == "rtl" else "arrow_back",
-                        on_click=lambda: breadcrumb_back(select_text_indexers),
-                    ).props("flat no-caps")
-                    with ui.row().classes("detail-action-row gap-2"):
-                        if indexer["status"] == "active":
-                            ui.button(
-                                render_message("webui.select_text_indexer_details.button.suspend_7f5e5b10"), icon="pause_circle", on_click=lambda: change_status("suspend"),
-                            ).props("outline no-caps color=warning")
-                        elif indexer["status"] == "suspended":
-                            ui.button(
-                                render_message("webui.select_text_indexer_details.button.activate_b44c7d38"), icon="play_circle", on_click=lambda: change_status("unsuspend"),
-                            ).props("outline no-caps color=positive")
-
-            with ui.row().classes("w-full items-center"):
-                with ui.column().classes("gap-0 grow"):
-                    ui.label(render_message("webui.select_text_indexer_details.label.api_credentials_66a20b8e")).classes("text-lg font-semibold")
-                    ui.label(render_message("webui.select_text_indexer_details.label.internal_text_indexing_api_only_ec49ffe0")).classes("text-sm text-slate-500")
-                generate = ui.button(
-                    render_message("webui.select_text_indexer_details.button.generate_api_key_35bdc780"), icon="add", on_click=credential_dialog,
-                ).props("unelevated no-caps")
-                if indexer["status"] != "active":
-                    generate.disable()
-                    generate.tooltip(render_message("webui.select_text_indexer_details.tooltip.activate_this_text_indexer_before_generati_e7f349b2"))
-            credential_state = {"history": "all", "offset": 0, "page": credential_page}
-            with ui.row().classes("w-full items-end gap-3 flex-wrap"):
-                credential_filter = ui.select(
-                    {"all": render_message("webui.select_text_indexer_details.select.all_credentials_8052bb35"), "usable": render_message("webui.select_text_indexer_details.select.usable_77e6a90f"), "history": render_message("webui.select_text_indexer_details.select.revoked_or_expired_2c5b4c9f")},
-                    value="all", label=render_message("webui.select_text_indexer_details.select.show_c803b7ac"),
-                ).props("outlined dense options-dense").classes("w-52")
-                ui.label(
-                    render_message("webui.select_text_indexer_details.label.revoked_and_expired_credentials_are_retain_1b39ddda", retention_days=credential_page['retention_days'])
-                ).classes("text-xs text-slate-500 grow")
-            credential_results = ui.column().classes("w-full gap-3")
-            with ui.row().classes("w-full items-center justify-between gap-2"):
-                credential_summary = ui.label().classes("text-sm text-slate-500")
-                with ui.row().classes("gap-2"):
-                    credential_previous = ui.button(render_message("webui.select_text_indexer_details.button.previous_86972be8"), icon="chevron_right" if current_direction["value"] == "rtl" else "chevron_left").props("outline dense no-caps")
-                    credential_next = ui.button(render_message("webui.select_text_indexer_details.button.next_e284c9ef"), icon="chevron_left" if current_direction["value"] == "rtl" else "chevron_right").props("outline dense no-caps icon-right")
-
-            def render_credentials() -> None:
-                page = credential_state["page"]
-                items = page["items"]
-                credential_results.clear()
-                with credential_results:
-                    if not items:
-                        with ui.card().classes("governance-empty-state shadow-none"):
-                            ui.icon("key_off", size="34px").classes("text-slate-300")
-                            ui.label(render_message("webui.render_credentials.label.no_matching_api_credentials_b2735a7d")).classes("font-semibold")
-                    for credential in items:
-                        with ui.card().classes("governance-list-card shadow-none"):
-                            with ui.row().classes("w-full items-start gap-3 no-wrap"):
-                                with ui.element("div").classes("governance-card-icon"):
-                                    ui.icon("key", size="20px")
-                                with ui.column().classes("gap-0 grow min-w-0"):
-                                    ui.label(credential["name"]).classes("font-semibold")
-                                    ui.label(
-                                        render_message("webui.render_credentials.label.id_wti_credential_identifier_internal_text_b0627629", credential_identifier=credential['credential_identifier'])
-                                    ).classes("text-xs text-slate-500 break-all")
-                                ui.badge(
-                                    (render_message("webui.text_indexer_details.expiring") if credential["status"] == "expiring" else localized_lifecycle_value(credential["status"])),
-                                    color={"active": "positive", "expiring": "warning", "expired": "grey-7", "revoked": "negative"}.get(
-                                        credential["status"], "grey-7"
-                                    ),
-                                ).props("outline")
-                            with ui.element("div").classes("governance-list-facts"):
-                                for label, value in (
-                                    (render_message("webui.text_indexer_details.created"), format_timestamp(credential["date_created"])),
-                                    (render_message("webui.text_indexer_details.expires"), format_timestamp(credential["expires_at"])),
-                                    (render_message("webui.text_indexer_card.last_used"), format_timestamp(credential["last_used_at"]) if credential.get("last_used_at") else render_message("webui.text_indexer_card.never")),
-                                    (render_message("webui.text_indexer_details.created_by"), credential.get("created_by_name") or render_message("webui.text_indexer_details.system")),
-                                    (render_message("webui.text_indexer_details.last_worker"), credential.get("last_worker_id") or "—"),
-                                ):
-                                    with ui.column().classes("gap-0 min-w-0"):
-                                        ui.label(label).classes("detail-field-label")
-                                        ui.label(value).classes("text-sm break-all")
-                            if credential["status"] == "active":
-                                with ui.row().classes("detail-action-row w-full justify-start gap-2 border-t border-slate-100 pt-2"):
-                                    rotate = ui.button(
-                                        render_message("webui.render_credentials.button.rotate_1496c92c"), icon="sync",
-                                        on_click=lambda _, item=credential: credential_dialog(item),
-                                    ).props("outline dense no-caps")
-                                    if indexer["status"] != "active":
-                                        rotate.disable()
-                                    ui.button(
-                                        render_message("webui.render_credentials.button.revoke_4fc0db3b"), icon="block", color="negative",
-                                        on_click=lambda _, item=credential: confirm_revoke(item),
-                                    ).props("outline dense no-caps")
-                start = page["offset"] + 1 if page["total"] else 0
-                end = min(page["offset"] + len(items), page["total"])
-                credential_summary.text = render_message("webui.render_credentials.text.showing_start_end_of_total_5803a7b9", start=start, end=end, total=page['total'])
-                credential_previous.set_enabled(page["offset"] > 0)
-                credential_next.set_enabled(page["offset"] + page["limit"] < page["total"])
-
-            async def load_credentials(*, offset: int | None = None) -> None:
-                requested_offset = credential_state["offset"] if offset is None else max(0, offset)
-                try:
-                    page = await api.text_indexer_credentials(
-                        user_id, history=credential_state["history"], limit=5,
-                        offset=requested_offset,
-                    )
-                except ApiError as error:
-                    show_api_error(error)
-                    return
-                if requested_offset and not page["items"] and page["total"]:
-                    await load_credentials(offset=max(0, requested_offset - 5))
-                    return
-                credential_state.update(offset=page["offset"], page=page)
-                render_credentials()
-
-            async def filter_credentials() -> None:
-                credential_state.update(history=credential_filter.value, offset=0)
-                await load_credentials(offset=0)
-
-            credential_filter.on_value_change(filter_credentials)
-            credential_previous.on("click", lambda: load_credentials(offset=credential_state["offset"] - 5))
-            credential_next.on("click", lambda: load_credentials(offset=credential_state["offset"] + 5))
-            render_credentials()
-
-    async def select_user_details(user_id: int) -> None:
-        """Render the extensible single-user management view."""
-        principal = auth_state.get("principal")
-        token = object()
-        register_navigation("user-details", f"User #{user_id}", entity_id=user_id)
-        show_authenticated_view()
-        state.update(resource="user-details", user_details_token=token, rows=[], searched=True, aggregation_detail=None)
-        search_bar.set_visibility(False)
-        aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False)
-        add_record_button.set_visibility(False)
-        guidance.text = ""
-        table_container.clear()
-        try:
-            person, assignment_page_result, session_configuration = await asyncio.gather(
-                api.get("users", user_id), api.user_roles(user_id, limit=50, offset=0),
-                api.application_configuration(),
-            )
-            if auth_state.get("principal") is not principal or state.get("resource") != "user-details" or state.get("user_details_token") is not token:
-                return
-            # This setting is a maximum; transport/rendering windows remain bounded.
-            accept_application_configuration(session_configuration)
-            session_page_size = min(user_details_session_limit(session_configuration), 50)
-            assignments = list(assignment_page_result.get("items") or [])
-            roles = [item.get("counterpart") or {} for item in assignments]
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-            return
-        if (
-            person.get("account_type") == "service"
-            and "identity.text_indexers.administer" in set(
-                (auth_state.get("principal") or {}).get("global_privileges", [])
-            )
-        ):
-            try:
-                await api.text_indexer(user_id)
-            except ApiError as error:
-                if error.status_code != 404:
-                    raise
-            else:
-                await select_text_indexer_details(user_id)
-                return
-        person = dict(person)
-        person["name"] = (
-            (person.get("localized") or {}).get("name") or person["name"]
-        )
-        roles = [role for role in roles if role.get("id") is not None]
-        title.text = person["name"]
-        subtitle.text = render_message("webui.select_user_details.text.user_details_and_account_administration_b2c8f493")
-        register_navigation(
-            "user-details", person["name"], entity_id=user_id,
-            accessible_label=" — ".join(filter(None, (person["name"], person.get("email")))),
-        )
-        role_by_id = {item["id"]: item for item in roles}
-        can_administer_text_indexers = "identity.text_indexers.administer" in set(
-            (auth_state.get("principal") or {}).get("global_privileges", [])
-        ) and person.get("account_type") != "service"
-        service_credentials = (
-            await api.service_credentials(user_id)
-            if person.get("account_type") == "service" and can_administer_text_indexers
-            else []
-        )
-
-        async def refresh_user(_: Any = None) -> None:
-            await select_user_details(user_id)
-
-        async def change_status(action: str) -> None:
-            try:
-                if action in {"suspend", "unsuspend"}:
-                    await api.set_user_suspended(
-                        user_id, person["version"], suspended=action == "suspend",
-                    )
-                else:
-                    await api.set_active(
-                        "users", user_id, person["version"], active=action == "activate",
-                    )
-                ui.notify(render_message("webui.change_status.notify.user_action_d_c6c09142", action=action), color="positive")
-                await refresh_user()
-            except ApiError as error:
-                show_api_error(error)
-
-        async def issue_password() -> None:
-            try:
-                result = await api.issue_temporary_password(user_id)
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
-                return
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[520px] max-w-full"):
-                ui.label(render_message("webui.issue_password.label.temporary_password_issued_ac83bd55")).classes("text-xl font-semibold")
-                ui.label(result["temporary_password"]).classes(
-                    "font-mono text-lg bg-slate-100 rounded p-3 select-all"
-                )
-                ui.label(render_message("webui.issue_password.label.copy_it_now_it_will_not_be_shown_again_9f3cfc5a")).classes("text-sm text-slate-500")
-                ui.button(render_message("webui.issue_password.button.i_have_copied_it_2fc9a18e"), on_click=dialog.close).props("unelevated no-caps").classes("self-end")
-            dialog.open()
-
-        def reveal_api_key(result: dict[str, Any]) -> None:
-            api_key = result.pop("api_key")
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[680px] max-w-full"):
-                ui.label(render_message("webui.reveal_api_key.label.new_api_key_b23471a4")).classes("text-xl font-semibold")
-                with ui.row().classes("w-full items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3"):
-                    ui.icon("warning", color="warning")
-                    ui.label(render_message("webui.reveal_api_key.label.copy_and_store_this_key_now_it_will_not_be_b8730498")).classes("text-sm font-medium")
-                ui.label(api_key).classes("w-full font-mono text-sm bg-slate-100 rounded p-3 break-all select-all")
-                with ui.row().classes("w-full justify-between gap-2 flex-wrap"):
-                    ui.button(
-                        render_message("webui.reveal_api_key.button.copy_99572524"), icon="content_copy",
-                        on_click=lambda: ui.run_javascript(
-                            f"navigator.clipboard.writeText({json.dumps(api_key)}).then(() => true)", timeout=5,
-                        ),
-                    ).props("outline no-caps")
-                    ui.button(
-                        render_message("webui.reveal_api_key.button.download_credential_file_443fee8e"), icon="download",
-                        on_click=lambda: ui.run_javascript(
-                            "(() => { const b=new Blob([" + json.dumps("TEXT_INDEXER_API_KEY=" + api_key + "\n") + "],{type:'text/plain'});"
-                            "const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='wathiq-text-indexer.env';a.click();URL.revokeObjectURL(a.href);return true;})()",
-                            timeout=5,
-                        ),
-                    ).props("flat no-caps color=warning").tooltip(render_message("webui.reveal_api_key.tooltip.downloads_a_sensitive_plaintext_file_c936fa58"))
-                    async def close_reveal() -> None:
-                        nonlocal api_key
-                        api_key = ""
-                        dialog.close()
-                        await select_user_details(user_id)
-                    ui.button(render_message("webui.reveal_api_key.button.i_have_stored_it_safely_e410add0"), on_click=close_reveal).props("unelevated no-caps")
-            dialog.open()
-
-        def credential_dialog(existing: dict[str, Any] | None = None) -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[540px] max-w-full"):
-                ui.label(render_message("webui.credential_dialog.label.rotate_api_key_dc0e85ed") if existing else render_message("webui.credential_dialog.label.generate_api_key_e9cdd1d3")).classes("text-xl font-semibold")
-                name = ui.input(render_message("webui.credential_dialog.input.credential_name_b670464d"), value=(existing or {}).get("name", "")).props("outlined").classes("w-full")
-                expiry = ui.input(
-                    render_message("webui.credential_dialog.input.expiry_iso_8601_222d3b9f"),
-                    value=(datetime.now(timezone.utc) + timedelta(days=90)).replace(microsecond=0).isoformat(),
-                ).props("outlined").classes("w-full")
-                ui.input(render_message("webui.credential_dialog.input.allowed_route_d805736a"), value="Internal text-indexing API only").props("outlined readonly").classes("w-full")
-                overlap = None
-                if existing:
-                    overlap = ui.input(render_message("webui.credential_dialog.input.old_key_overlap_until_optional_maximum_7_d_eec9eb31")).props("outlined clearable").classes("w-full")
-                async def submit_credential() -> None:
-                    payload = {"name": (name.value or "").strip(), "expires_at": (expiry.value or "").strip()}
-                    if existing and overlap and overlap.value:
-                        payload["overlap_until"] = overlap.value.strip()
-                    try:
-                        result = (
-                            await api.rotate_service_credential(user_id, existing["id"], payload)
-                            if existing else await api.create_service_credential(user_id, payload)
-                        )
-                    except ApiError as error:
-                        show_api_error(error); return
-                    dialog.close()
-                    reveal_api_key(result)
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.credential_dialog.button.cancel_f4440fc5"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.credential_dialog.button.rotate_key_abe27125") if existing else render_message("webui.credential_dialog.button.generate_api_key_f5d573fe"), icon="key", on_click=submit_credential).props("unelevated no-caps")
-            dialog.open()
-
-        def confirm_revoke_credential(credential: dict[str, Any]) -> None:
-            dialog = ui.dialog()
-            with dialog, ui.card().classes("w-[520px] max-w-full"):
-                ui.label(render_message("webui.confirm_revoke_credential.label.revoke_api_key_9a9c0b6c")).classes("text-xl font-semibold")
-                ui.label(render_message("webui.confirm_revoke_credential.label.revoke_name_credential_identifier_77c5681a", name=credential['name'], credential_identifier=credential['credential_identifier'])).classes("font-medium")
-                ui.label(render_message("webui.confirm_revoke_credential.label.affected_indexer_instances_will_fail_on_th_c333a64b")).classes("text-sm text-slate-600")
-                async def revoke() -> None:
-                    try:
-                        await api.revoke_service_credential(user_id, credential["id"])
-                    except ApiError as error:
-                        show_api_error(error); return
-                    dialog.close(); ui.notify(render_message("webui.revoke.notify.api_key_revoked_0fb47669"), color="positive")
-                    await select_user_details(user_id)
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.confirm_revoke_credential.button.cancel_8c31a153"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.confirm_revoke_credential.button.revoke_2c13599b"), icon="block", color="negative", on_click=revoke).props("unelevated no-caps")
-            dialog.open()
-
-        with table_container:
-            with ui.column().classes("w-full p-5 gap-4"):
-                with ui.element("div").classes("identity-command-layout w-full"):
-                    with ui.card().classes(
-                        "detail-surface identity-command-actions shadow-none p-4 gap-3"
-                    ):
-                        ui.label(render_message("webui.select_user_details.label.user_actions_e28b2e51")).classes("aggregation-panel-heading w-full")
-                        ui.label(render_message("webui.select_user_details.label.account_and_assignments_3ec90491")).classes("record-action-group-label")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            if person.get("account_type") == "person":
-                                ui.button(render_message("webui.select_user_details.button.edit_244de988"), icon="edit", on_click=lambda: open_editor(person, on_saved=refresh_user, resource_key="users")).props("outline dense no-caps")
-                                ui.button(render_message("webui.select_user_details.button.role_assignments_adaadc55"), icon="group", on_click=lambda: show_memberships(person, for_user=True)).props("outline dense no-caps")
-                                ui.button(render_message("webui.select_user_details.button.temporary_password_f49a662a"), icon="password", on_click=issue_password).props("outline dense no-caps color=orange")
-                            elif can_administer_text_indexers:
-                                ui.button(
-                                    render_message("webui.select_user_details.button.open_text_indexer_administration_7136e2f6"), icon="manage_search",
-                                    on_click=lambda: select_text_indexer_details(user_id),
-                                ).props("outline dense no-caps")
-                        ui.label(render_message("webui.select_user_details.label.status_and_access_047cbffa")).classes("record-action-group-label")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            if person.get("account_type") == "person":
-                                if person["status"] == "inactive":
-                                    ui.button(render_message("webui.select_user_details.button.activate_98e0f841"), icon="toggle_on", on_click=lambda: change_status("activate")).props("outline dense no-caps color=positive")
-                                else:
-                                    ui.button(render_message("webui.select_user_details.button.deactivate_3a9a81d4"), icon="toggle_off", on_click=lambda: change_status("deactivate")).props("outline dense no-caps color=negative")
-                                if person["status"] == "suspended":
-                                    ui.button(render_message("webui.select_user_details.button.unsuspend_11dc5fcc"), icon="play_circle", on_click=lambda: change_status("unsuspend")).props("outline dense no-caps color=positive")
-                                else:
-                                    suspend = ui.button(render_message("webui.select_user_details.button.suspend_30cd8b2a"), icon="pause_circle", on_click=lambda: change_status("suspend")).props("outline dense no-caps color=warning")
-                                    if person["status"] != "active":
-                                        suspend.disable(); suspend.tooltip(render_message("webui.select_user_details.tooltip.activate_the_user_before_suspending_2989ce61"))
-                            else:
-                                ui.label(render_message("webui.select_user_details.label.managed_through_the_dedicated_text_indexer_0fdd7ff8")).classes("text-sm text-slate-500")
-                        ui.label(render_message("webui.select_user_details.label.audit_and_lifecycle_a0bd6725")).classes("record-action-group-label")
-                        with ui.row().classes("w-full gap-2 flex-wrap"):
-                            ui.button(render_message("webui.select_user_details.button.history_637192b2"), icon="history", on_click=lambda: show_entity_history("users", person)).props("outline dense no-caps")
-                            if person.get("account_type") == "person":
-                                ui.button(
-                                    render_message("webui.select_user_details.button.permanently_delete_6dc8484c"), icon="delete_forever", color="negative",
-                                    on_click=lambda: confirm_identity_deletion(
-                                        "users", person, label="user", on_deleted=lambda: select_entity("users"),
-                                    ),
-                                ).props("outline dense no-caps")
-                    user_metadata_panel = ui.card().classes(
-                        "detail-surface identity-command-metadata shadow-none p-5"
-                    )
-                    user_metadata_panel.__enter__()
-                    with ui.grid(columns="auto minmax(0, 1fr) auto").classes("identity-detail-header w-full items-start gap-4"):
-                        render_user_avatar(person, size="64px")
-                        with ui.column().classes("gap-1 min-w-0 break-words"):
-                            ui.label(person["name"]).classes("text-xl font-semibold")
-                            ui.label(
-                                render_message(
-                                    "webui.select_user_details.label.title_account_value_7ffc8b75",
-                                    title=localized_account_type(person["account_type"]),
-                                    value=person.get("email") or render_message("webui.select_user_details.label.no_email_address_1d665180"),
-                                )
-                            ).classes("text-sm text-slate-500")
-                            if person.get("account_type") == "service":
-                                with ui.row().classes("items-center gap-1"):
-                                    ui.badge(render_message("webui.select_user_details.badge.service_account_f2f0513b"), color="primary").props("outline")
-                                    ui.badge(render_message("webui.select_user_details.badge.non_interactive_bcf1ef6e"), color="blue-grey").props("outline")
-                        with ui.row().classes("gap-1"):
-                            ui.button(
-                                render_message("webui.select_user_details.button.back_fd96364b"), icon=None if current_direction["value"] == "rtl" else "arrow_back",
-                                on_click=lambda: breadcrumb_back(lambda: select_entity("users")),
-                            ).props("flat no-caps" + (" icon-right=arrow_forward" if current_direction["value"] == "rtl" else ""))
-                    with ui.grid(columns=3).classes("w-full gap-4 mt-3"):
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(render_message("webui.select_user_details.label.email_address_db7b1f8d")).classes("detail-field-label")
-                            ui.label(person.get("email") or render_message("webui.select_user_details.label.no_email_address_1d665180")).classes("font-medium")
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(render_message("webui.select_user_details.label.account_type_c01f9019")).classes("detail-field-label")
-                            ui.badge(localized_account_type(person["account_type"]), color="blue-grey").props("outline")
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(render_message("webui.select_user_details.label.status_50b881c8")).classes("detail-field-label")
-                            with ui.row().classes("classification-detail-title-status items-center gap-2"):
-                                ui.badge(
-                                    localized_lifecycle_value(person["status"]),
-                                    color={"active": "positive", "suspended": "warning"}.get(
-                                        person["status"], "grey-7",
-                                    ),
-                                )
-                                if person.get("date_suspended"):
-                                    ui.label(
-                                        render_message("webui.select_user_details.label.since_format_timestamp_82564a09", format_timestamp=format_timestamp(person['date_suspended']))
-                                    ).classes("text-xs text-amber-700")
-                                elif person.get("date_deactivated"):
-                                    ui.label(
-                                        render_message("webui.select_user_details.label.since_format_timestamp_82564a09", format_timestamp=format_timestamp(person['date_deactivated']))
-                                    ).classes("text-xs text-slate-500")
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(render_message("webui.select_user_details.label.external_id_839b0605")).classes("detail-field-label")
-                            ui.label(person.get("external_id") or "—").classes("font-medium")
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(render_message("webui.select_user_details.label.created_fabff4f0")).classes("detail-field-label")
-                            ui.label(format_timestamp(person.get("date_created"))).classes(
-                                "font-medium"
-                            )
-                        with ui.column().classes("gap-1 border-b border-slate-100 pb-1.5"):
-                            ui.label(render_message("webui.select_user_details.label.user_id_2afe38aa")).classes("detail-field-label")
-                            ui.label(str(person["id"])).classes("font-medium tabular-nums")
-                    user_metadata_panel.__exit__(None, None, None)
-                if person.get("account_type") == "service" and can_administer_text_indexers:
-                    with ui.row().classes("dashboard-overview-heading w-full items-center"):
-                        with ui.column().classes("gap-0 grow"):
-                            ui.label(render_message("webui.select_user_details.label.api_credentials_ba1a3b5a")).classes("text-lg font-semibold")
-                            ui.label(render_message("webui.select_user_details.label.internal_text_indexing_api_only_non_intera_4daa19fa")).classes("text-sm text-slate-500")
-                        if "identity.users.administer" in set((auth_state.get("principal") or {}).get("global_privileges", [])):
-                            generate_key = ui.button(render_message("webui.select_user_details.button.generate_api_key_ef560394"), icon="add", on_click=credential_dialog).props("unelevated no-caps")
-                            if person.get("status") != "active":
-                                generate_key.disable(); generate_key.tooltip(render_message("webui.select_user_details.tooltip.activate_the_service_account_before_genera_a079c01d"))
-                    if not service_credentials:
-                        with ui.card().classes("governance-empty-state shadow-none"):
-                            ui.icon("key_off", size="34px").classes("text-slate-300")
-                            ui.label(render_message("webui.select_user_details.label.no_api_credentials_a9b21956")).classes("font-semibold")
-                            ui.label(render_message("webui.select_user_details.label.generate_a_key_when_this_text_indexer_depl_a9bfa2d3")).classes("text-sm text-slate-500")
-                    for credential in service_credentials:
-                        with ui.card().classes("governance-list-card shadow-none"):
-                            with ui.row().classes("w-full items-start gap-3 no-wrap"):
-                                with ui.element("div").classes("governance-card-icon"):
-                                    ui.icon("key", size="20px")
-                                with ui.column().classes("gap-0 grow min-w-0"):
-                                    ui.label(credential["name"]).classes("font-semibold")
-                                    ui.label(render_message("webui.select_user_details.label.id_wti_credential_identifier_internal_text_cd88df6a", credential_identifier=credential['credential_identifier'])).classes("text-xs text-slate-500 break-all")
-                                ui.badge(credential["status"].title(), color={"active": "positive", "expiring": "warning", "expired": "grey-7", "revoked": "negative"}.get(credential["status"], "grey-7")).props("outline")
-                                if person.get("status") != "active" and credential["status"] in {"active", "expiring"}:
-                                    ui.badge(render_message("webui.select_user_details.badge.disabled_with_account_28927de6"), color="negative").props("outline")
-                            with ui.grid(columns=3).classes("w-full gap-3"):
-                                for label, value in (
-                                    ("Created", format_timestamp(credential.get("date_created"))),
-                                    ("Expires", format_timestamp(credential.get("expires_at"))),
-                                    ("Last used", format_timestamp(credential.get("last_used_at")) if credential.get("last_used_at") else "Never"),
-                                    ("Created by", credential.get("created_by_name") or "System"),
-                                    ("Last worker", credential.get("last_worker_id") or "—"),
-                                ):
-                                    with ui.column().classes("gap-0"):
-                                        ui.label(label).classes("detail-field-label")
-                                        ui.label(value).classes("text-sm")
-                            if credential["status"] == "active" and "identity.users.administer" in set((auth_state.get("principal") or {}).get("global_privileges", [])):
-                                with ui.row().classes("detail-action-row w-full justify-start gap-2 border-t border-slate-100 pt-2"):
-                                    ui.button(render_message("webui.select_user_details.button.rotate_65fa1eea"), icon="sync", on_click=lambda _, item=credential: credential_dialog(item)).props("outline dense no-caps")
-                                    ui.button(render_message("webui.select_user_details.button.revoke_fd5240c0"), icon="block", color="negative", on_click=lambda _, item=credential: confirm_revoke_credential(item)).props("outline dense no-caps")
-
-                ui.label(render_message("webui.select_user_details.label.role_assignments_f60546c5")).classes("text-lg font-semibold")
-                if not assignments:
-                    ui.label(render_message("webui.select_user_details.label.no_role_assignments_4a7fa329")).classes("text-slate-400")
-                else:
-                    now = datetime.now(timezone.utc)
-                    assignment_rows = []
-                    for item in assignments:
-                        role = role_by_id.get(item["role_id"], {})
-                        valid_from = datetime.fromisoformat(str(item["valid_from"]).replace("Z", "+00:00"))
-                        valid_until = datetime.fromisoformat(str(item["valid_until"]).replace("Z", "+00:00")) if item.get("valid_until") else None
-                        validity = "future" if valid_from > now else "expired" if valid_until and valid_until <= now else "current"
-                        assignment_rows.append({
-                            **item, "role": " — ".join(filter(None, (role.get("code"), role.get("name")))) or str(item["role_id"]),
-                            "role_status": role.get("effective_status", role.get("status", "unknown")),
-                            "validity": validity,
-                        })
-                    with ui.row().classes("w-full items-end gap-2"):
-                        assignment_search = ui.input(render_message("webui.select_user_details.input.filter_role_name_or_code_e534534c")).props("outlined dense clearable").classes("grow")
-                        assignment_status = ui.select({"all": render_message("webui.select_user_details.select.all_role_statuses_cfa1f6a9"), "active": render_message("webui.select_user_details.select.active_f7618f84"), "inactive": render_message("webui.select_user_details.select.inactive_1875b5d5")}, value="all", label=render_message("webui.select_user_details.select.role_status_d3fdf1df")).props("outlined dense options-dense").classes("w-44")
-                        assignment_validity = ui.select({"all": render_message("webui.select_user_details.select.all_validity_c7af57fc"), "current": render_message("webui.select_user_details.select.current_e6f547bc"), "future": render_message("webui.select_user_details.select.future_b677d9db"), "expired": render_message("webui.select_user_details.select.expired_2de6a536")}, value="all", label=render_message("webui.select_user_details.select.assignment_validity_df0ff7b6")).props("outlined dense options-dense").classes("w-48")
-                    assignment_results = ui.element("div").classes(
-                        "governance-card-list w-full"
-                    )
-                    assignment_page_size = 5
-                    assignment_state: dict[str, Any] = {
-                        "offset": 0, "filtered_rows": assignment_rows,
-                    }
-
-                    def confirm_remove_role_assignment(row: dict[str, Any]) -> None:
-                        dialog = ui.dialog()
-
-                        async def remove_assignment() -> None:
-                            try:
-                                await api.delete_assignment(row["id"], row["version"])
-                            except ApiError as error:
-                                show_api_error(error)
-                                return
-                            dialog.close()
-                            ui.notify(render_message("webui.remove_assignment.notify.role_assignment_removed_5584007c"), color="positive")
-                            await select_user_details(user_id)
-
-                        with dialog, ui.card().classes("w-[500px] max-w-full"):
-                            ui.label(render_message("webui.confirm_remove_role_assignment.label.remove_role_assignment_e3bcfb9e")).classes(
-                                "text-lg font-semibold"
-                            )
-                            ui.label(
-                                render_message("webui.confirm_remove_role_assignment.label.remove_name_from_role_037a277b", name=person['name'], role=row['role'])
-                            ).classes("text-sm text-slate-600")
-                            with ui.row().classes("w-full justify-end gap-2"):
-                                ui.button(render_message("webui.confirm_remove_role_assignment.button.cancel_a267a8b7"), on_click=dialog.close).props(
-                                    "flat no-caps"
-                                )
-                                ui.button(
-                                    render_message("webui.confirm_remove_role_assignment.button.remove_assignment_35684f6c"), icon="person_remove",
-                                    color="negative", on_click=remove_assignment,
-                                ).props("unelevated no-caps")
-                        dialog.open()
-
-                    def render_assignment_cards() -> None:
-                        rows = assignment_state["filtered_rows"]
-                        offset = assignment_state["offset"]
-                        page_rows = rows[offset:offset + assignment_page_size]
-                        assignment_results.clear()
-                        with assignment_results:
-                            if not rows:
-                                ui.label(render_message("webui.render_assignment_cards.label.no_role_assignments_match_these_filters_649ccfe0")).classes(
-                                    "w-full text-center text-slate-400 py-8"
-                                )
-                            for row in page_rows:
-                                card = ui.card().classes(
-                                    "governance-list-card user-role-assignment-card shadow-none"
-                                ).on(
-                                    "click",
-                                    lambda _, role_id=row["role_id"]: select_role_details(role_id),
-                                )
-                                with card:
-                                    with ui.row().classes("w-full items-start no-wrap gap-3"):
-                                        with ui.element("div").classes("governance-card-icon"):
-                                            ui.icon("badge", size="18px")
-                                        with ui.column().classes("gap-0.5 min-w-0 grow"):
-                                            ui.label(row["role"]).classes(
-                                                "text-sm font-semibold leading-tight"
-                                            )
-                                            with ui.row().classes("items-center gap-2 flex-wrap"):
-                                                ui.badge(
-                                                    localized_lifecycle_value(row["role_status"]),
-                                                    color=(
-                                                        "positive" if row["role_status"] == "active"
-                                                        else "grey-7"
-                                                    ),
-                                                ).props("outline")
-                                                ui.badge(
-                                                    localized_lifecycle_value(row["validity"]),
-                                                    color={
-                                                        "current": "primary", "future": "warning",
-                                                        "expired": "grey-7",
-                                                    }.get(row["validity"], "grey-7"),
-                                                ).props("outline")
-                                        if person.get("account_type") == "person":
-                                            remove_button = ui.button(icon="person_remove").props(
-                                                'flat round dense color=negative aria-label=' + repr(render_message("webui.render_assignment_cards.accessible_name.remove_role_assignment_4511524e"))
-                                            ).tooltip(render_message("webui.render_assignment_cards.tooltip.remove_role_assignment_5541cf2e"))
-                                            remove_button.on(
-                                                "click.stop",
-                                                lambda _, item=row: confirm_remove_role_assignment(item),
-                                            )
-                                    with ui.element("div").classes(
-                                        "governance-list-facts user-role-assignment-facts"
-                                    ):
-                                        for label, value in (
-                                            (
-                                                render_message("governance_custody.field.valid_from"),
-                                                format_timestamp(row.get("valid_from")),
-                                            ),
-                                            (
-                                                render_message("governance_custody.field.valid_until"),
-                                                format_timestamp(row.get("valid_until"))
-                                                if row.get("valid_until") else render_message("common.value.no_expiry"),
-                                            ),
-                                        ):
-                                            with ui.column().classes("gap-0 min-w-0"):
-                                                ui.label(label).classes("detail-field-label")
-                                                ui.label(value).classes("text-sm")
-                        start = offset + 1 if rows else 0
-                        end = min(offset + assignment_page_size, len(rows))
-                        assignment_page_label.text = render_message("webui.render_assignment_cards.text.start_end_of_row_count_f306a12a", start=start, end=end, row_count=len(rows))
-                        assignment_page_label.update()
-                        (
-                            assignment_previous.enable
-                            if offset > 0 else assignment_previous.disable
-                        )()
-                        (
-                            assignment_next.enable
-                            if offset + assignment_page_size < len(rows)
-                            else assignment_next.disable
-                        )()
-
-                    with ui.row().classes("w-full items-center justify-end gap-2"):
-                        assignment_page_label = ui.label().classes(
-                            "text-sm text-slate-500"
-                        )
-                        assignment_previous = ui.button(
-                            render_message("webui.select_user_details.button.previous_c3ab235e"), icon="chevron_left",
-                        ).props("flat dense no-caps")
-                        assignment_next = ui.button(
-                            render_message("webui.select_user_details.button.next_8ec4fd0d"), icon="chevron_right",
-                        ).props("flat dense no-caps")
-
-                    def previous_assignment_page() -> None:
-                        assignment_state["offset"] = max(
-                            0, assignment_state["offset"] - assignment_page_size,
-                        )
-                        render_assignment_cards()
-
-                    def next_assignment_page() -> None:
-                        assignment_state["offset"] += assignment_page_size
-                        render_assignment_cards()
-
-                    assignment_previous.on("click", previous_assignment_page)
-                    assignment_next.on("click", next_assignment_page)
-
-                    def filter_assignments() -> None:
-                        query = (assignment_search.value or "").strip().casefold()
-                        assignment_state["filtered_rows"] = [row for row in assignment_rows if (
-                            (not query or query in row["role"].casefold())
-                            and (assignment_status.value == "all" or row["role_status"] == assignment_status.value)
-                            and (assignment_validity.value == "all" or row["validity"] == assignment_validity.value)
-                        )]
-                        assignment_state["offset"] = 0
-                        render_assignment_cards()
-                    for control in (assignment_search, assignment_status, assignment_validity):
-                        control.on_value_change(filter_assignments)
-                    render_assignment_cards()
-
-                ui.label(render_message("webui.select_user_details.label.login_sessions_de5397b3")).classes("text-lg font-semibold")
-                session_state = {"offset": 0, "total": 0}
-                with ui.row().classes("w-full items-end gap-2"):
-                    session_query = ui.input(render_message("webui.select_user_details.input.filter_ip_address_or_client_64fa5df1")).props("outlined dense clearable").classes("grow")
-                    session_status = ui.select({"all": render_message("webui.select_user_details.select.all_statuses_b9224edc"), "active": render_message("webui.select_user_details.select.active_f7618f84"), "expired": render_message("webui.select_user_details.select.expired_2de6a536"), "revoked": render_message("webui.select_user_details.select.revoked_b00af086")}, value="all", label=render_message("webui.select_user_details.select.status_c70ce87f")).props("outlined dense options-dense").classes("w-40")
-                    session_sort = ui.select({"date_created": render_message("webui.select_user_details.select.signed_in_a135bd95"), "last_seen_at": render_message("webui.select_user_details.select.last_activity_5d50cd9c"), "expires_at": render_message("webui.select_user_details.select.expiry_eac3052e"), "status": render_message("webui.select_user_details.select.status_c70ce87f"), "client_ip": render_message("webui.select_user_details.select.ip_address_fa3c293f")}, value="date_created", label=render_message("webui.select_user_details.select.sort_by_1afd841f")).props("outlined dense options-dense").classes("w-40")
-                    session_direction = ui.select({True: render_message("webui.select_user_details.select.newest_descending_39a02332"), False: render_message("webui.select_user_details.select.oldest_ascending_e8d9a6e3")}, value=True, label=render_message("webui.select_user_details.select.direction_fe0bb3f8")).props("outlined dense options-dense").classes("w-48")
-                session_results = ui.element("div").classes("login-session-card-grid w-full")
-                with ui.row().classes("w-full items-center justify-end gap-2"):
-                    session_page_label = ui.label().classes("text-sm text-slate-500")
-                    session_previous = ui.button(render_message("webui.select_user_details.button.previous_c3ab235e"), icon="chevron_left").props("flat dense no-caps")
-                    session_next = ui.button(render_message("webui.select_user_details.button.next_8ec4fd0d"), icon="chevron_right").props("flat dense no-caps")
-
-                def session_client_summary(user_agent: str | None) -> tuple[str, str]:
-                    value = user_agent or render_message("webui.session_client_summary.text.unknown_client_4f0f1eaa")
-                    browser = next((
-                        name for token, name in (
-                            ("Edg/", "Microsoft Edge"), ("Chrome/", "Google Chrome"),
-                            ("Firefox/", "Mozilla Firefox"), ("Safari/", "Safari"),
-                        ) if token in value
-                    ), "Browser")
-                    platform = next((
-                        name for token, name in (
-                            ("Macintosh", "macOS"), ("Windows", "Windows"),
-                            ("Android", "Android"), ("iPhone", "iOS"), ("Linux", "Linux"),
-                        ) if token in value
-                    ), "Unknown platform")
-                    return browser, platform
-
-                def render_user_session_card(row: dict[str, Any]) -> None:
-                    browser, platform = session_client_summary(row.get("user_agent"))
-                    with ui.card().classes("login-session-card shadow-none"):
-                        with ui.row().classes("w-full items-start no-wrap gap-3"):
-                            with ui.element("div").classes("governance-card-icon"):
-                                ui.icon("devices", size="20px")
-                            with ui.column().classes("gap-0 min-w-0 grow"):
-                                ui.label(render_message("webui.render_user_session_card.label.browser_on_platform_25d1de9d", browser=browser, platform=platform)).classes(
-                                    "font-semibold leading-tight"
-                                )
-                                ui.label(row.get("client_ip") or render_message("webui.render_user_session_card.label.no_ip_address_7ed4d5af")).classes(
-                                    "text-xs text-slate-500"
-                                )
-                                if row.get("is_current"):
-                                    ui.badge(render_message("webui.render_user_session_card.badge.current_session_147b14e1"), color="primary").props(
-                                        "outline"
-                                    ).classes("mt-1")
-                            ui.badge(
-                                localized_lifecycle_value(row.get("status")),
-                                color={
-                                    "active": "positive", "revoked": "negative",
-                                    "expired": "grey-7",
-                                }.get(row.get("status"), "grey-7"),
-                            ).props("outline")
-                        with ui.grid(columns=3).classes("w-full gap-x-4 gap-y-3"):
-                            session_facts = (
-                                (render_message("webui.render_user_session_card.text.signed_in_9afb1dc2"), format_timestamp(row.get("date_created"))),
-                                (render_message("webui.render_user_session_card.text.last_activity_d589888e"), format_timestamp(row.get("last_seen_at"))),
-                                (render_message("webui.render_user_session_card.text.expires_7fe8054a"), format_timestamp(row.get("expires_at"))),
-                            )
-                            for label, value in session_facts:
-                                with ui.column().classes("gap-0 min-w-0"):
-                                    ui.label(label).classes("detail-field-label")
-                                    ui.label(value).classes("text-xs truncate w-full").tooltip(value)
-                        with ui.row().classes(
-                            "w-full items-center no-wrap border-t border-slate-100 pt-2 gap-2"
-                        ):
-                            ui.icon("devices", color="primary", size="18px")
-                            user_agent = row.get("user_agent") or render_message("webui.render_user_session_card.text.unknown_client_9a92525c")
-                            ui.label(user_agent).classes(
-                                "text-xs text-slate-500 truncate grow"
-                            ).tooltip(user_agent)
-                            if row.get("status") == "active":
-                                ui.button(
-                                    icon="logout",
-                                    on_click=lambda _, item=row: revoke_user_session_by_row(item),
-                                ).props("outline dense color=negative").classes(
-                                    "login-session-action-button"
-                                ).tooltip(render_message("webui.render_user_session_card.tooltip.force_sign_out_this_session_e9c1809a"))
-
-                async def load_session_page(*, reset: bool = False) -> None:
-                    nonlocal session_page_size
-                    if reset: session_state["offset"] = 0
-                    try:
-                        page = await api.login_sessions_page(
-                            user_id, limit=None, offset=session_state["offset"],
-                            query=session_query.value or "", session_status=session_status.value or "all",
-                            sort_by=session_sort.value or "date_created", descending=bool(session_direction.value),
-                        )
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True); return
-                    if auth_state.get("principal") is not principal or state.get("resource") != "user-details" or state.get("user_details_token") is not token:
-                        return
-                    session_page_size = page["limit"]
-                    session_state["total"] = page["total"]
-                    session_results.clear()
-                    with session_results:
-                        if not page["items"]:
-                            ui.label(render_message("webui.load_session_page.label.no_login_sessions_match_these_filters_2d61ac49")).classes(
-                                "w-full text-center text-slate-400 py-8"
-                            )
-                        for session_row in page["items"]:
-                            render_user_session_card(session_row)
-                    start = session_state["offset"] + 1 if page["total"] else 0
-                    end = min(session_state["offset"] + len(page["items"]), page["total"])
-                    session_page_label.text = render_message("webui.load_session_page.text.start_end_of_total_f25c586b", start=start, end=end, total=page['total']); session_page_label.update()
-                    (session_previous.enable if session_state["offset"] > 0 else session_previous.disable)()
-                    (session_next.enable if session_state["offset"] + session_page_size < page["total"] else session_next.disable)()
-
-                async def previous_sessions() -> None:
-                    session_state["offset"] = max(0, session_state["offset"] - session_page_size); await load_session_page()
-                async def next_sessions() -> None:
-                    session_state["offset"] += session_page_size; await load_session_page()
-                session_previous.on("click", previous_sessions); session_next.on("click", next_sessions)
-                for control in (session_query, session_status, session_sort, session_direction):
-                    control.on_value_change(lambda: load_session_page(reset=True))
-                async def revoke_user_session_by_row(row: dict[str, Any]) -> None:
-                    try:
-                        await api.revoke_session(row["id"])
-                        ui.notify(render_message("webui.revoke_user_session_by_row.notify.login_session_revoked_d6338377"), color="positive")
-                        await load_session_page()
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                await load_session_page()
-
-    async def show_organization_structure(
-        *, selection_mode: str | None = None, target_control: Any = None,
-        on_selection: Callable[..., Any] | None = None,
-        saved_audience: str | None = None,
-    ) -> None:
-        """Shared lazy organization browser for the page and selectors."""
-        selection_entity_label = {
-            "role": render_message("entity_metadata.field.role"),
-            "org_unit": render_message("entity_metadata.field.organization_unit"),
-            "user": render_message("entity_metadata.field.user"),
-            "all": render_message("messaging.field.recipient"),
-        }.get(selection_mode, "")
-        is_selector = selection_mode is not None
-        if not is_selector:
-            register_navigation("organization-browser", "Browse organization structure")
-        if is_selector:
-            dialog = ui.dialog()
-            host = dialog
-            saved_state: dict[str, Any] = {
-                "expanded": [], "selected": None, "query": "", "validity": "all",
-                "entity_type": selection_mode or "all", "status": "all", "scroll_top": 0,
-            }
-        else:
-            show_authenticated_view()
-            state.update(resource="organization-browser", rows=[], searched=True, aggregation_detail=None)
-            title.text = render_message("webui.show_organization_structure.text.browse_organization_structure_ad6087b2")
-            subtitle.text = render_message("webui.show_organization_structure.text.explore_organization_units_roles_and_assig_3f272b2f")
-            search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
-            add_button.set_visibility(False); add_record_button.set_visibility(False)
-            guidance.text = ""; table_container.clear()
-            host = table_container
-            saved_state = dict(app.storage.user.get("organization_browser_state") or {})
-            saved_state.setdefault("expanded", []); saved_state.setdefault("selected", None)
-            saved_state.setdefault("query", ""); saved_state.setdefault("validity", "all")
-            saved_state.setdefault("entity_type", "all"); saved_state.setdefault("status", "all")
-            saved_state.setdefault("scroll_top", 0)
-
-        expanded = set(saved_state["expanded"])
-        browser: dict[str, Any] = {
-            "roots": [], "root_more": False, "children": {}, "pages": {},
-            "selected": saved_state["selected"],
-            "scroll_top": saved_state.get("scroll_top", 0),
-            "pending": {}, "revision": 0, "search_revision": 0,
-            "refreshing": False,
-        }
-        tree_host: Any = None
-        summary_host: Any = None
-        search_results_host: Any = None
-        selection_confirm_button: Any = None
-
-        def browser_active() -> bool:
-            return (
-                not card_context.is_deleted
-                and (is_selector or state.get("resource") == "organization-browser")
-            )
-
-        def persist() -> None:
-            if is_selector or not browser_active():
-                return
-            app.storage.user["organization_browser_state"] = {
-                "expanded": sorted(expanded), "selected": browser["selected"],
-                "query": query_input.value or "", "validity": validity_filter.value,
-                "entity_type": entity_type_filter.value, "status": status_filter.value,
-                "scroll_top": browser.get("scroll_top", 0),
-                "root_count": len(browser["roots"]),
-                "branch_counts": {key: len(rows) for key, rows in browser["children"].items()},
-                "filters_visible": advanced_filters.visible,
-            }
-
-        def selection_label(node: dict[str, Any]) -> str:
-            if node["type"] in {"role", "org_unit"} and node.get("code"):
-                return f"{node['code']} · {node.get('name') or node['id']}"
-            return str(node.get("name") or node.get("email") or node["id"])
-
-        def organization_node_dom_id(node: dict[str, Any]) -> str:
-            assignment = f"-{node['assignment_id']}" if node.get("assignment_id") else ""
-            return f"organization-browser-node-{node['type']}-{node['id']}{assignment}"
-
-        async def select_node(node: dict[str, Any]) -> None:
-            browser["selected"] = {
-                "type": node["type"], "id": node["id"],
-                "selectable": node_selectable(node),
-                "label": selection_label(node),
-                **({"assignment_id": node.get("assignment_id"), "role_id": node.get("role_id")} if node["type"] == "user" else {}),
-            }
-            persist()
-            if not is_selector:
-                return
-            await page_client.run_javascript(
-                "document.querySelectorAll('#organization-browser-tree .organization-browser-selected')"
-                ".forEach(item => item.classList.remove('organization-browser-selected', 'bg-blue-50')); "
-                f"document.getElementById('{organization_node_dom_id(node)}')"
-                "?.classList.add('organization-browser-selected', 'bg-blue-50');"
-            )
-            if is_selector:
-                await render_summary(node)
-            if is_selector and selection_confirm_button is not None:
-                if node_selectable(node):
-                    selection_confirm_button.enable()
-                else:
-                    selection_confirm_button.disable()
-
-        async def activate_node(node: dict[str, Any]) -> None:
-            if not browser_active():
-                return
-            await select_node(node)
-            if not is_selector and browser_active():
-                await open_selected(node)
-
-        async def load_node_children(
-            node: dict[str, Any], *, append: bool = False,
-        ) -> list[dict[str, Any]]:
-            key = f"{node['type']}:{node['id']}"
-            if key in browser["children"] and not append:
-                return browser["children"][key]
-            if key in browser["pending"]:
-                return await asyncio.shield(browser["pending"][key])
-            task = asyncio.create_task(read_node_children(node, append=append))
-            browser["pending"][key] = task
-            try:
-                return await task
-            finally:
-                if browser["pending"].get(key) is task:
-                    browser["pending"].pop(key, None)
-
-        async def read_node_children(
-            node: dict[str, Any], *, append: bool = False,
-        ) -> list[dict[str, Any]]:
-            key = f"{node['type']}:{node['id']}"
-            revision = browser["revision"]
-            current = browser["children"].get(key, []) if append else []
-            page = browser["pages"].setdefault(
-                key, {"unit_offset": 0, "role_offset": 0, "user_offset": 0, "more": False},
-            )
-            if not append:
-                page.update(unit_offset=0, role_offset=0, user_offset=0, more=False)
-            if node["type"] == "org_unit":
-                result = await api.organization_children(
-                    node["id"], include_roles=selection_mode != "org_unit", limit=25,
-                    unit_offset=page["unit_offset"], role_offset=page["role_offset"],
-                    audience=saved_audience,
-                )
-                children = [{**item, "type": "org_unit"} for item in result["org_units"]]
-                if selection_mode != "org_unit":
-                    children += [{**item, "type": "role"} for item in result["roles"]]
-                page["unit_offset"] += len(result["org_units"])
-                page["role_offset"] += len(result["roles"])
-                page["more"] = bool(result.get("more_org_units") or result.get("more_roles"))
-            else:
-                page_rows = [] if selection_mode == "role" else await api.organization_role_users(
-                    node["id"], validity=validity_filter.value,
-                    limit=26, offset=page["user_offset"],
-                )
-                children = [{**item, "type": "user"} for item in page_rows[:25]]
-                page["user_offset"] += len(children)
-                page["more"] = len(page_rows) > 25
-            if not browser_active() or revision != browser["revision"]:
-                return []
-            browser["children"][key] = [*current, *children]
-            return browser["children"][key]
-
-        async def toggle_node(node: dict[str, Any]) -> None:
-            key = f"{node['type']}:{node['id']}"
-            if key in expanded:
-                expanded.remove(key)
-            else:
-                expanded.add(key)
-                if key not in browser["children"]:
-                    try:
-                        await load_node_children(node)
-                    except ApiError as error:
-                        expanded.discard(key)
-                        if browser_active() and error.status_code != 401:
-                            ui.notify(error_message(error), color="negative", close_button=True)
-            if browser_active():
-                persist(); render_tree()
-
-        def node_selectable(node: dict[str, Any]) -> bool:
-            if not is_selector or (selection_mode != "all" and node["type"] != selection_mode):
-                return not is_selector
-            status = node.get("effective_status", node.get("status"))
-            return status == "active" and (saved_audience is None or node.get("audience_selectable") is True)
-
-        def render_nodes(nodes: list[dict[str, Any]], depth: int = 0) -> None:
-            for node in nodes:
-                key = f"{node['type']}:{node['id']}"
-                can_expand = node["type"] == "org_unit" or (
-                    node["type"] == "role" and selection_mode not in {"org_unit", "role"}
-                )
-                selected = (
-                    browser["selected"]
-                    and browser["selected"].get("type") == node["type"]
-                    and browser["selected"].get("id") == node["id"]
-                    and (
-                        node["type"] != "user"
-                        or browser["selected"].get("assignment_id") == node.get("assignment_id")
-                    )
-                )
-                tree_row = ui.row().props(
-                    f"id={organization_node_dom_id(node)}"
-                ).classes(
-                    "organization-browser-node-row w-full rounded-lg py-1 px-2 hover:bg-blue-50 "
-                    + ("organization-browser-selected bg-blue-50" if selected else "")
-                ).style(f"padding-inline-start:{depth * 20 + 4}px")
-                with tree_row:
-                    with ui.element("div").classes("organization-browser-expander w-8 h-8 shrink-0 flex items-center justify-center"):
-                        if can_expand:
-                            disclosure = ui.button(
-                                icon=tree_expander_icon(key in expanded),
-                                on_click=lambda _, item=node: toggle_node(item),
-                            ).props("flat round dense size=sm color=blue-grey").classes(
-                                "organization-browser-disclosure"
-                            ).props(
-                                f'aria-expanded={str(key in expanded).lower()}'
-                            ).tooltip(selection_label(node))
-                            disclosure.props["aria-label"] = selection_label(node)
-                    ui.icon(
-                        {"org_unit": "corporate_fare", "role": "badge", "user": "person"}[node["type"]],
-                        color="primary", size="20px",
-                    ).classes("organization-browser-icon w-6 shrink-0")
-                    privileges = set(
-                        (auth_state.get("principal") or {}).get("global_privileges", [])
-                    )
-                    clickable = (
-                        node_selectable(node) if is_selector
-                        else can_open_organization_detail(node["type"], privileges)
-                    )
-                    if clickable:
-                        node_content = ui.button(
-                            on_click=lambda _, item=node: activate_node(item),
-                        ).props("flat dense no-caps align=left").classes(
-                            "organization-browser-content min-w-0 w-full text-start py-1"
-                        )
-                        node_content.props["aria-label"] = selection_label(node)
-                        node_content.tooltip(node.get("name") or selection_label(node))
-                        if is_selector:
-                            tree_row.on(
-                                "dblclick", lambda _, item=node: confirm_node_selection(item),
-                            )
-                    else:
-                        node_content = ui.column().classes(
-                            "organization-browser-content min-w-0 gap-0 py-1"
-                        )
-                    with node_content, ui.column().classes("w-full min-w-0 gap-0 items-start"):
-                        inactive = node.get("effective_status", node.get("status")) == "inactive"
-                        ui.label(node.get("name") or str(node["id"])).props("dir=auto").classes(
-                            "text-sm font-semibold max-w-full truncate "
-                            + ("text-slate-400" if inactive else "text-slate-800")
-                        )
-                        if node.get("code"):
-                            ui.label(node["code"]).props("dir=auto").classes("text-xs text-slate-400 max-w-full truncate")
-                    status_value = node.get("effective_status", node.get("status"))
-                    if node["type"] == "user":
-                        ui.badge(
-                            localized_lifecycle_value(node.get("status") or "active"),
-                            color={"active": "positive", "suspended": "warning"}.get(node.get("status"), "grey-7"),
-                        ).props("outline").classes("organization-browser-badge")
-                    elif status_value and status_value != "active":
-                        ui.badge(
-                            localized_lifecycle_value(status_value), color="grey-7",
-                        ).props("outline").classes("organization-browser-badge")
-                    if is_selector and not node_selectable(node):
-                        node_content.tooltip(
-                            render_message("webui.render_nodes.tooltip.this_item_is_visible_for_context_but_canno_b093611d")
-                            if selection_mode == "all" or node["type"] == selection_mode else render_message("webui.render_nodes.tooltip.use_this_item_to_navigate_the_hierarchy_869873c9")
-                        )
-                if key in expanded:
-                    render_nodes(browser["children"].get(key, []), depth + 1)
-                    if browser["pages"].get(key, {}).get("more"):
-                        async def load_more(item: dict[str, Any] = node) -> None:
-                            await load_node_children(item, append=True)
-                            render_tree()
-                            persist()
-                        ui.button(
-                            render_message("webui.render_collection.button.load_more_755f4879"),
-                            icon="more_horiz", on_click=load_more,
-                        ).props("flat dense no-caps").style(
-                            f"margin-inline-start:{(depth + 1) * 20 + 36}px"
-                        )
-
-        def render_tree() -> None:
-            if not browser_active():
-                return
-            tree_host.clear()
-            with tree_host:
-                if not browser["roots"]:
-                    ui.label(render_message("webui.render_tree.label.no_organization_units_found_f6a84d3c")).classes("p-4 text-slate-400")
-                render_nodes(browser["roots"])
-                if browser.get("root_more"):
-                    async def load_more_roots() -> None:
-                        if browser.get("root_loading"):
-                            return
-                        browser["root_loading"] = True
-                        revision = browser["revision"]
-                        try:
-                            page_rows = await api.organization_roots(
-                                limit=26, offset=len(browser["roots"]), audience=saved_audience,
-                            )
-                        finally:
-                            browser["root_loading"] = False
-                        if not browser_active() or revision != browser["revision"]:
-                            return
-                        browser["roots"].extend(
-                            {**item, "type": "org_unit"} for item in page_rows[:25]
-                        )
-                        browser["root_more"] = len(page_rows) > 25
-                        render_tree()
-                        persist()
-                    ui.button(
-                        render_message("webui.render_collection.button.load_more_755f4879"),
-                        icon="more_horiz", on_click=load_more_roots,
-                    ).props("flat dense no-caps").classes("self-center")
-
-        async def reveal_result(result: dict[str, Any]) -> None:
-            """Load and expand the exact ancestor path returned by search."""
-            nodes = browser["roots"]
-            parent_node: dict[str, Any] | None = None
-            target: dict[str, Any] | None = None
-            for unit_id in result.get("org_unit_path") or []:
-                target = next((item for item in nodes if item["id"] == unit_id), None)
-                while target is None and parent_node is not None and browser["pages"].get(
-                    f"org_unit:{parent_node['id']}", {},
-                ).get("more"):
-                    nodes = await load_node_children(parent_node, append=True)
-                    target = next((item for item in nodes if item["id"] == unit_id), None)
-                while target is None and parent_node is None and browser.get("root_more"):
-                    page_rows = await api.organization_roots(
-                        limit=26, offset=len(browser["roots"]), audience=saved_audience,
-                    )
-                    browser["roots"].extend(
-                        {**item, "type": "org_unit"} for item in page_rows[:25]
-                    )
-                    browser["root_more"] = len(page_rows) > 25
-                    nodes = browser["roots"]
-                    target = next((item for item in nodes if item["id"] == unit_id), None)
-                if target is None:
-                    return
-                key = f"org_unit:{unit_id}"
-                expanded.add(key)
-                nodes = await load_node_children(target)
-                parent_node = target
-            if result["type"] == "role":
-                target = next((item for item in nodes if item["type"] == "role" and item["id"] == result["id"]), None)
-                while target is None and parent_node is not None and browser["pages"].get(
-                    f"org_unit:{parent_node['id']}", {},
-                ).get("more"):
-                    nodes = await load_node_children(parent_node, append=True)
-                    target = next((item for item in nodes if item["type"] == "role" and item["id"] == result["id"]), None)
-                target = target or result
-            elif result["type"] == "user":
-                role = next((item for item in nodes if item["type"] == "role" and item["id"] == result.get("role_id")), None)
-                while role is None and parent_node is not None and browser["pages"].get(
-                    f"org_unit:{parent_node['id']}", {},
-                ).get("more"):
-                    nodes = await load_node_children(parent_node, append=True)
-                    role = next((item for item in nodes if item["type"] == "role" and item["id"] == result.get("role_id")), None)
-                if role is not None:
-                    expanded.add(f"role:{role['id']}")
-                    users = await load_node_children(role)
-                    target = next((item for item in users if item.get("assignment_id") == result.get("assignment_id")), None)
-                    while target is None and browser["pages"].get(f"role:{role['id']}", {}).get("more"):
-                        users = await load_node_children(role, append=True)
-                        target = next((item for item in users if item.get("assignment_id") == result.get("assignment_id")), None)
-                    target = target or result
-                else:
-                    target = result
-            if target is None:
-                target = result
-            render_tree()
-            await activate_node({**target, "type": result["type"]})
-            if not is_selector:
-                return
-            await ui.run_javascript(
-                "document.querySelector('#organization-browser-tree .bg-blue-50')?.scrollIntoView({block:'center'})"
-            )
-
-        async def open_selected(node: dict[str, Any]) -> None:
-            persist()
-            if not is_selector and not can_open_organization_detail(
-                node["type"], set((auth_state.get("principal") or {}).get("global_privileges", [])),
-            ):
-                return
-            if is_selector and not node_selectable(node):
-                ui.notify(render_message("webui.open_selected.notify.select_an_active_item_of_the_requested_typ_2d331b9a"), color="warning")
-                return
-            if is_selector and on_selection is not None:
-                if await on_selection(node):
-                    dialog.close()
-                return
-            if node["type"] == "user":
-                if is_selector:
-                    target_control.set_value(node["id"]); dialog.close()
-                else:
-                    await select_user_details(node["id"])
-            elif is_selector:
-                target_control.set_value(node["id"]); dialog.close()
-            else:
-                if node["type"] == "org_unit":
-                    await select_organization_unit_details(node["id"])
-                else:
-                    await select_role_details(node["id"])
-
-        async def confirm_browser_selection() -> None:
-            selected = browser.get("selected")
-            if (
-                not selected
-                or (selection_mode != "all" and selected.get("type") != selection_mode)
-                or not selected.get("selectable")
-            ):
-                ui.notify(
-                    render_message("webui.confirm_browser_selection.notify.select_an_active_replace_first_9ad73ee2", replace=selection_entity_label),
-                    color="warning",
-                )
-                return
-            if on_selection is not None:
-                if await on_selection(selected):
-                    dialog.close()
-                return
-            apply_relationship_selection(
-                target_control, selected["id"], selected["label"],
-            )
-            await asyncio.sleep(0)
-            dialog.close()
-
-        async def confirm_node_selection(node: dict[str, Any]) -> None:
-            await select_node(node)
-            await confirm_browser_selection()
-
-        async def render_summary(node: dict[str, Any]) -> None:
-            if not is_selector:
-                return
-            summary_host.clear()
-            if node["type"] in {"org_unit", "role"}:
-                item = await api.organization_summary(
-                    "org-units" if node["type"] == "org_unit" else "roles", node["id"],
-                )
-            else:
-                item = node
-            with summary_host:
-                with ui.column().classes("w-full gap-3 p-5"):
-                    with ui.row().classes("w-full items-start gap-3 no-wrap"):
-                        if node["type"] == "user":
-                            render_user_avatar(item, size="38px")
-                        else:
-                            ui.avatar(
-                                icon="corporate_fare" if node["type"] == "org_unit" else "badge",
-                                color="blue-1", text_color="primary", size="56px",
-                            )
-                        with ui.column().classes("gap-0 grow min-w-0"):
-                            ui.label(item.get("name") or render_message("webui.render_summary.label.selected_item_7ed0cfcc")).classes("text-xl font-semibold")
-                            if item.get("code"): ui.label(item["code"]).classes("text-primary")
-                            if item.get("email"): ui.label(item["email"]).classes("text-slate-500")
-                    if item.get("description"):
-                        ui.label(item["description"]).classes("text-sm text-slate-600 bg-slate-50 rounded p-3 w-full")
-                    for field_key, label, value in (
-                        ("status", entity_metadata_label("Status") if node["type"] == "user" else render_message("webui.render_governance_cards.text.effective_status_c7a1dfe1"), item.get("effective_status", item.get("status"))),
-                        ("account_type", entity_metadata_label("Account type"), item.get("account_type")),
-                        ("org_unit", entity_metadata_label("Organization unit"), item.get("org_unit_name")),
-                        ("selected_role", render_message("entity_metadata.field.role"), " — ".join(filter(None, (item.get("role_code"), item.get("role_name")))) or None),
-                        ("supervisor_role", entity_metadata_label("Supervising role"), item.get("supervisor_role_name")),
-                        ("direct_status", entity_metadata_label("Status"), item.get("status") if node["type"] != "user" else None),
-                        ("inactive_source", entity_metadata_label("Status"), (item.get("inactive_source") or {}).get("name") if isinstance(item.get("inactive_source"), dict) else None),
-                        ("child_units", render_message("webui.show_organization_structure.select.organization_units_66c328dc"), item.get("child_org_unit_count")),
-                        ("roles", render_message("webui.show_organization_structure.select.roles_2c70f24a"), item.get("role_count")),
-                        ("supervised_roles", render_message("webui.show_organization_structure.select.roles_2c70f24a"), item.get("subordinate_role_count")),
-                        ("assigned_users", render_message("webui.show_organization_structure.select.users_03e2325e"), item.get("assigned_user_count")),
-                        ("current_assignments", render_message("governance_custody.stat.current_assignments"), item.get("current_assignment_count")),
-                        ("future_assignments", render_message("webui.show_organization_structure.select.future_875190f7"), item.get("future_assignment_count")),
-                        ("expired_assignments", render_message("webui.show_organization_structure.select.expired_66c2cb88"), item.get("expired_assignment_count")),
-                        ("assignment_validity", render_message("webui.show_organization_structure.select.assignment_validity_b7656407"), item.get("assignment_validity")),
-                        ("valid_from", render_message("governance_custody.field.valid_from"), format_timestamp(item.get("valid_from")) if item.get("valid_from") else None),
-                        ("valid_until", render_message("governance_custody.field.valid_until"), format_timestamp(item.get("valid_until")) if item.get("valid_until") else None),
-                    ):
-                        if value is not None:
-                            guidance_text = None
-                            if field_key == "status" and node["type"] != "user":
-                                guidance_text = render_message("webui.render_summary.text.includes_inactivity_inherited_from_organiz_1ed32480")
-                            elif field_key == "direct_status":
-                                guidance_text = render_message("webui.render_summary.text.set_directly_on_this_item_without_consider_076d5cd7")
-                            display_value = value
-                            if field_key in {"status", "direct_status", "assignment_validity"}:
-                                display_value = localized_lifecycle_value(value)
-                            elif field_key == "account_type":
-                                display_value = localized_account_type(value)
-                            with ui.column().classes("w-full gap-0 border-b border-slate-100 py-1.5"):
-                                with ui.element("div").classes("organization-browser-summary-field w-full"):
-                                    ui.label(label).classes("organization-browser-summary-label text-xs uppercase tracking-wide text-slate-400")
-                                    ui.label(str(display_value)).classes("organization-browser-summary-value text-sm font-medium")
-                                if guidance_text:
-                                    ui.label(guidance_text).classes("w-full text-[10px] leading-3 text-slate-400")
-                    privileges = set(
-                        (auth_state.get("principal") or {}).get("global_privileges", [])
-                    )
-                    if not is_selector and can_open_organization_detail(node["type"], privileges):
-                        action_label = render_message({
-                            "org_unit": "webui.render_governance_cards.tooltip.open_organization_unit_831f72f6",
-                            "role": "webui.render_governance_cards.tooltip.open_role_5c0462a7",
-                            "user": "webui.render_governance_cards.tooltip.open_user_0dd1ba6f",
-                        }[node["type"]])
-                        ui.button(
-                            action_label, icon="open_in_new",
-                            on_click=lambda: open_selected(node),
-                        ).props("unelevated no-caps").classes("self-end")
-
-        async def run_search() -> None:
-            browser["search_revision"] += 1
-            revision = browser["search_revision"]
-            search_results_host.clear()
-            query = (query_input.value or "").strip()
-            persist()
-            if not query:
-                return
-            type_filter = selection_mode or entity_type_filter.value
-            results = await api.search_organization(
-                query, entity_type=type_filter, status=status_filter.value, audience=saved_audience,
-            )
-            if not browser_active() or revision != browser["search_revision"]:
-                return
-            with search_results_host:
-                if not results:
-                    ui.label(render_message("webui.run_search.label.no_matching_organization_units_roles_or_us_29cce504")).classes("px-2 py-3 text-slate-400")
-                for result in results:
-                    with ui.card().classes("w-full shadow-none border border-slate-200 p-0"):
-                        result_clickable = is_selector or can_open_organization_detail(
-                            result["type"], set((auth_state.get("principal") or {}).get("global_privileges", [])),
-                        )
-                        result_row = ui.button(
-                            on_click=lambda _, item=result: reveal_result(item),
-                        ).props("flat no-caps align=left").classes(
-                            "w-full text-start"
-                        )
-                        result_row.props["aria-label"] = selection_label(result)
-                        if not result_clickable:
-                            result_row.disable()
-                        if is_selector:
-                            async def confirm_search_result(item: dict[str, Any] = result) -> None:
-                                await reveal_result(item)
-                                await confirm_browser_selection()
-                            result_row.on(
-                                "dblclick", lambda _, action=confirm_search_result: action()
-                            )
-                        with result_row, ui.row(wrap=False).classes("w-full items-start gap-3"):
-                            ui.avatar(
-                                icon={"org_unit": "corporate_fare", "role": "badge", "user": "person"}[result["type"]],
-                                color="blue-1", text_color="primary", size="36px",
-                            ).classes("shrink-0")
-                            with ui.column().classes("grow min-w-0 gap-0 items-start text-start"):
-                                ui.label(result.get("name") or result.get("code")).classes("font-medium text-start")
-                                if result.get("code"):
-                                    ui.label(result["code"]).classes("text-xs text-primary text-start")
-                                if result.get("email"):
-                                    ui.label(result["email"]).classes("text-xs text-slate-500 text-start")
-                                if result.get("role_name"):
-                                    ui.label(render_message("webui.run_search.label.via_role_get_role_name_5576a5f2", get=result.get('role_code'), role_name=result['role_name'])).classes("text-xs text-slate-500 text-start")
-
-        if is_selector:
-            with dialog:
-                card_context = ui.card().classes(
-                    "w-[1100px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"
-                )
-        else:
-            with table_container:
-                card_context = ui.column().classes("organization-browser-workspace w-full p-4 gap-3")
-        with card_context:
-            if is_selector:
-                ui.label(render_message("webui.show_organization_structure.label.browse_replace_s_06870755", replace=selection_entity_label)).classes("text-xl font-semibold")
-            with ui.row().classes("w-full items-end gap-2"):
-                query_input = ui.input(render_message("webui.show_organization_structure.input.search_organization_structure_b22c915b"), value=saved_state.get("query", "")).props("outlined dense clearable").classes("grow")
-                validity_filter = ui.select(
-                    {"all": render_message("webui.show_organization_structure.select.all_assignments_1a3e1480"), "current": render_message("webui.show_organization_structure.select.current_8d79efc1"), "future": render_message("webui.show_organization_structure.select.future_875190f7"), "expired": render_message("webui.show_organization_structure.select.expired_66c2cb88")},
-                    value=saved_state.get("validity", "all"), label=render_message("webui.show_organization_structure.select.assignment_validity_b7656407"),
-                ).props("outlined dense options-dense").classes("w-48")
-                if selection_mode in {"org_unit", "role"}:
-                    validity_filter.set_visibility(False)
-                ui.button(render_message("webui.show_organization_structure.button.search_577b8b0f"), icon="search", on_click=run_search).props("flat dense no-caps")
-                query_input.on("keydown.enter", run_search)
-                filters_button = ui.button(render_message("webui.show_organization_structure.button.filters_c7ccc610"), icon="filter_list").props("flat dense no-caps")
-                async def refresh_browser() -> None:
-                    if browser["refreshing"]:
-                        return
-                    browser["refreshing"] = True
-                    try:
-                        await refresh_tree()
-                    finally:
-                        browser["refreshing"] = False
-
-                async def refresh_tree() -> None:
-                    persist()
-                    if not is_selector:
-                        saved_state.update(app.storage.user["organization_browser_state"])
-                    browser["revision"] += 1
-                    browser["pending"].clear()
-                    try:
-                        roots = await api.organization_roots(limit=26, audience=saved_audience)
-                    except ApiError as error:
-                        # The shared 401 handler has already cleared protected UI
-                        # and opened the sign-in dialog. Do not continue rendering
-                        # this page or surface a redundant event-handler traceback.
-                        if error.status_code == 401:
-                            return
-                        if browser_active():
-                            ui.notify(error_message(error), color="negative", close_button=True)
-                        return
-                    if not browser_active():
-                        return
-                    browser["children"].clear()
-                    browser["pages"].clear()
-                    browser["roots"] = [{**item, "type": "org_unit"} for item in roots[:25]]
-                    browser["root_more"] = len(roots) > 25
-                    await restore_root_pages()
-                    await restore_expanded(browser["roots"])
-                    render_tree()
-                    if is_selector and browser.get("selected"):
-                        selected = browser["selected"]
-                        try:
-                            if selected["type"] == "user" and selected.get("role_id"):
-                                candidates = await api.organization_role_users(selected["role_id"], validity="all")
-                                refreshed = next((item for item in candidates if item.get("assignment_id") == selected.get("assignment_id")), None)
-                                if refreshed: await render_summary({**refreshed, "type": "user"})
-                            elif selected["type"] != "user":
-                                refreshed = await api.organization_summary("org-units" if selected["type"] == "org_unit" else "roles", selected["id"])
-                                await render_summary({**refreshed, "type": selected["type"]})
-                        except ApiError:
-                            browser["selected"] = None; persist()
-                    if browser_active():
-                        await run_search()
-                        ui.notify(render_message("webui.refresh_browser.notify.organization_structure_refreshed_c53f2b77"), color="positive")
-                ui.button(render_message("webui.show_organization_structure.button.refresh_7f802034"), icon="refresh", on_click=refresh_browser).props("flat dense no-caps")
-            with ui.row().classes("w-full items-end gap-2 rounded bg-slate-50 p-2") as advanced_filters:
-                entity_type_filter = ui.select(
-                    {"all": render_message("webui.show_organization_structure.select.all_entity_types_aca0740b"), "org_unit": render_message("webui.show_organization_structure.select.organization_units_66c328dc"), "role": render_message("webui.show_organization_structure.select.roles_2c70f24a"), "user": render_message("webui.show_organization_structure.select.users_03e2325e")},
-                    value=selection_mode or saved_state.get("entity_type", "all"), label=render_message("webui.show_organization_structure.select.entity_type_9e2af3fa"),
-                ).props("outlined dense options-dense").classes("w-52")
-                if is_selector:
-                    entity_type_filter.disable()
-                status_filter = ui.select(
-                    {"all": render_message("webui.show_organization_structure.select.all_statuses_c7b69ce2"), "active": render_message("webui.show_organization_structure.select.active_9e0362ed"), "inactive": render_message("webui.show_organization_structure.select.inactive_926e3f6c"), "suspended": render_message("webui.show_organization_structure.select.suspended_e5b9d9f5")},
-                    value=saved_state.get("status", "all"), label=render_message("webui.show_organization_structure.select.status_5399f6fd"),
-                ).props("outlined dense options-dense").classes("w-48")
-                ui.button(render_message("webui.show_organization_structure.button.clear_269fa70e"), icon="filter_alt_off", on_click=lambda: (
-                    entity_type_filter.set_value(selection_mode or "all"),
-                    status_filter.set_value("all"), validity_filter.set_value("all"),
-                )).props("flat dense no-caps")
-            advanced_filters.set_visibility(saved_state.get("filters_visible", False))
-            filters_button.on("click", lambda: advanced_filters.set_visibility(not advanced_filters.visible))
-            search_results_host = ui.column().classes("w-full gap-0")
-            layout_direction = "flex-col"
-            browser_height = "h-[520px]" if is_selector else "h-[720px]"
-            page_layout_class = "" if is_selector else "organization-browser-page-layout"
-            with ui.row().classes(f"w-full {browser_height} gap-0 border border-slate-200 rounded-lg overflow-hidden {layout_direction} {page_layout_class}"):
-                tree_classes = (
-                    "w-full h-[340px] overflow-auto border-b"
-                    if is_selector else "organization-browser-page-tree w-full min-w-0 h-full overflow-auto"
-                )
-                tree_host = ui.column().classes(f"{tree_classes} p-2 gap-0 border-slate-200").props("id=organization-browser-tree")
-                if is_selector:
-                    summary_host = ui.column().classes("w-full h-[180px] overflow-auto min-w-0")
-            if is_selector:
-                with ui.row().classes("w-full justify-end"):
-                    ui.button(render_message("webui.show_organization_structure.button.cancel_6938b29c"), on_click=dialog.close).props("flat no-caps")
-                    selection_confirm_button = ui.button(
-                        render_message("webui.show_organization_structure.button.select_replace_cf383c4d", replace=selection_entity_label), icon="check",
-                        on_click=confirm_browser_selection,
-                    ).props("unelevated no-caps color=primary")
-                    selection_confirm_button.disable()
-        try:
-            roots = await api.organization_roots(limit=26, audience=saved_audience)
-        except ApiError as error:
-            # Session expiry and development reloads can race with a navigation
-            # click. The API client has already presented sign-in for a 401.
-            if error.status_code == 401:
-                return
-            if browser_active():
-                with tree_host:
-                    ui.label(error_message(error)).classes("text-negative p-3")
-                    ui.button(
-                        render_message("classification_browser.retry"), icon="refresh",
-                        on_click=lambda: show_organization_structure(
-                            selection_mode=selection_mode, target_control=target_control,
-                            on_selection=on_selection, saved_audience=saved_audience,
-                        ),
-                    ).props("flat no-caps")
-                if is_selector:
-                    dialog.open()
-            return
-        if not browser_active():
-            return
-        browser["roots"] = [{**item, "type": "org_unit"} for item in roots[:25]]
-        browser["root_more"] = len(roots) > 25
-        def remember_scroll(event: Any) -> None:
-            try:
-                browser["scroll_top"] = float(event.args)
-                persist()
-            except (TypeError, ValueError):
-                pass
-        tree_host.on("scroll", remember_scroll, js_handler="event => emit(event.target.scrollTop)", throttle=0.25)
-        async def change_validity() -> None:
-            for key in [key for key in browser["children"] if key.startswith("role:")]:
-                browser["children"].pop(key, None)
-            persist()
-            await restore_expanded(browser["roots"])
-            render_tree()
-        validity_filter.on_value_change(change_validity)
-        async def restore_expanded(nodes: list[dict[str, Any]]) -> None:
-            async def restore_branch(node: dict[str, Any]) -> None:
-                key = f"{node['type']}:{node['id']}"
-                if key in expanded and node["type"] != "user" and browser_active():
-                    children = await load_node_children(node)
-                    wanted = (saved_state.get("branch_counts") or {}).get(key, 0)
-                    while (browser_active() and len(children) < wanted
-                           and browser["pages"].get(key, {}).get("more")):
-                        children = await load_node_children(node, append=True)
-                    await restore_expanded(children)
-            await asyncio.gather(*(restore_branch(node) for node in nodes))
-        async def restore_root_pages() -> None:
-            while (browser_active() and browser["root_more"]
-                   and len(browser["roots"]) < saved_state.get("root_count", 0)):
-                page_rows = await api.organization_roots(
-                    limit=26, offset=len(browser["roots"]), audience=saved_audience,
-                )
-                if not browser_active():
-                    return
-                browser["roots"].extend({**item, "type": "org_unit"} for item in page_rows[:25])
-                browser["root_more"] = len(page_rows) > 25
-
-        await restore_root_pages()
-        await restore_expanded(browser["roots"])
-        if not browser_active():
-            return
-        if not is_selector and browser["selected"]:
-            selected = browser["selected"]
-            loaded_nodes = [*browser["roots"], *(
-                node for children in browser["children"].values() for node in children
-            )]
-            if not any(organization_node_dom_id(node) == organization_node_dom_id(selected)
-                       for node in loaded_nodes):
-                browser["selected"] = None
-                persist()
-        render_tree()
-        if saved_state.get("scroll_top"):
-            await ui.run_javascript(
-                f"const tree=document.getElementById('organization-browser-tree'); if(tree) tree.scrollTop={float(saved_state['scroll_top'])}"
-            )
-        if not is_selector:
-            if saved_state.get("query"):
-                await run_search()
-            return
-        if browser["selected"]:
-            selected = browser["selected"]
-            try:
-                if selected["type"] == "user":
-                    node = None
-                    if selected.get("role_id"):
-                        candidates = await api.organization_role_users(
-                            selected["role_id"], validity="all",
-                        )
-                        node = next((item for item in candidates if item.get("assignment_id") == selected.get("assignment_id")), None)
-                    if node is None:
-                        node = await api.get("users", selected["id"])
-                    node["type"] = "user"
-                else:
-                    node = await api.organization_summary(
-                        "org-units" if selected["type"] == "org_unit" else "roles", selected["id"],
-                    ); node["type"] = selected["type"]
-                await render_summary(node)
-            except ApiError:
-                browser["selected"] = None; persist()
-        else:
-            with summary_host:
-                summary_guidance = (
-                    {
-                        "org_unit": render_message("webui.show_organization_structure.text.select_an_organization_unit_to_view_its_su_9aeb165f"),
-                        "role": render_message("webui.show_organization_structure.text.select_a_role_to_view_its_summary_3925160a"),
-                        "user": render_message("webui.show_organization_structure.text.select_a_user_to_view_their_summary_6593ceaf"),
-                    }[selection_mode]
-                    if is_selector and selection_mode != "all"
-                    else render_message("webui.show_organization_structure.text.select_an_organization_unit_role_or_user_t_4b5308e8")
-                )
-                ui.label(summary_guidance).classes("p-8 text-slate-400")
-        if is_selector:
-            dialog.open()
 
     async def select_governance_custody() -> None:
         principal = auth_state.get("principal")
@@ -17796,7 +7594,7 @@ def index(q: str = "") -> None:
         page_label = render_message("privilege.search.saved_search.administrator.name")
         register_navigation(page_key, page_label)
         show_authenticated_view()
-        state.update(resource=page_key, rows=[], searched=True, aggregation_detail=None)
+        state.update(resource=page_key, rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         title.text = page_label
         subtitle.text = render_message("privilege.search.saved_search.administrator.description")
         search_bar.set_visibility(False)
@@ -17955,7 +7753,7 @@ def index(q: str = "") -> None:
         }
         register_navigation("advanced-search", render_message("navigation.item.advanced_search"))
         show_authenticated_view()
-        state.update(resource="advanced-search", rows=[], searched=False, aggregation_detail=None)
+        state.update(resource='advanced-search', rows=[], searched=False); aggregation_state.update(aggregation_detail=None)
         title.text = render_message("webui.select_advanced_search.text.advanced_search_509592d0")
         subtitle.text = render_message("webui.select_advanced_search.text.build_nested_searches_across_record_or_agg_b4682fe2")
         search_bar.set_visibility(False)
@@ -18619,107 +8417,6 @@ def index(q: str = "") -> None:
                 return
             render_builder()
 
-        async def browse_advanced_classification(target_control: Any) -> None:
-            dialog = ui.dialog()
-            content: Any = None
-
-            async def show_schemes(
-                *, offset: int = 0,
-                accumulated: list[dict[str, Any]] | None = None,
-            ) -> None:
-                page_schemes = await api.list(
-                    "classification-schemes", eligible=True,
-                    limit=26, offset=offset,
-                )
-                has_more = len(page_schemes) > 25
-                schemes = [*(accumulated or []), *page_schemes[:25]]
-                content.clear()
-                with content:
-                    ui.label(render_message("webui.show_schemes.label.choose_a_published_scheme_20d93417")).classes("text-sm text-slate-500")
-                    for scheme in schemes:
-                        with ui.card().classes("w-full shadow-none border border-slate-200 cursor-pointer p-3").on(
-                            "click", lambda _, item=scheme: show_level(item, None, [])
-                        ):
-                            ui.label(scheme["title"]).classes("font-semibold")
-                            ui.badge(scheme["code"], color="primary").props("outline")
-                    if has_more:
-                        ui.button(
-                            render_message("webui.render_collection.button.load_more_755f4879"),
-                            icon="more_horiz",
-                            on_click=lambda: show_schemes(
-                                offset=offset + 25, accumulated=schemes,
-                            ),
-                        ).props("flat dense no-caps").classes("self-center")
-
-            async def show_level(
-                scheme: dict[str, Any], parent_item: dict[str, Any] | None,
-                path: list[dict[str, Any]], *, offset: int = 0,
-                accumulated: list[dict[str, Any]] | None = None,
-            ) -> None:
-                page_rows = await api.list(
-                    "classifications", classification_scheme_id=scheme["id"],
-                    limit=26, offset=offset,
-                    **({"roots_only": True} if parent_item is None else {"parent_classification_id": parent_item["id"]}),
-                )
-                has_more = len(page_rows) > 25
-                rows = [*(accumulated or []), *page_rows[:25]]
-                rows.sort(key=lambda item: (
-                    str(item.get("code") or "").casefold(), int(item.get("id") or 0),
-                ))
-                content.clear()
-                with content:
-                    with ui.row().classes("w-full items-center gap-2"):
-                        ui.button(
-                            icon="arrow_forward" if current_direction["value"] == "rtl" else "arrow_back",
-                            on_click=show_schemes if parent_item is None else lambda: show_level(
-                                scheme, path[-1] if path else None, path[:-1],
-                            ),
-                        ).props('flat round dense aria-label=' + repr(render_message("webui.show_level.accessible_name.back_1d2eb652")))
-                        ui.label(scheme["title"]).classes("font-semibold")
-                        if parent_item:
-                            ui.badge(parent_item["code"], color="primary").props("outline")
-                    if not rows:
-                        ui.label(render_message("webui.show_level.label.this_branch_has_no_child_classifications_91eaaa60")).classes("py-6 text-slate-500")
-                    for item in rows:
-                        async def choose(selected=item) -> None:
-                            if selected["is_terminal"]:
-                                apply_relationship_selection(
-                                    target_control, selected["id"],
-                                    f"{selected['code']} · {selected['title']}",
-                                )
-                                dialog.close()
-                            else:
-                                await show_level(
-                                    scheme, selected,
-                                    [*path, parent_item] if parent_item else path,
-                                )
-                        with ui.card().classes("w-full shadow-none border border-slate-200 cursor-pointer p-3").on("click", choose):
-                            with ui.row().classes("w-full items-center gap-3"):
-                                ui.avatar(icon="label" if item["is_terminal"] else "schema", color="blue-1", text_color="primary")
-                                with ui.column().classes("grow min-w-0 gap-0"):
-                                    ui.label(item["title"]).classes("font-semibold")
-                                    ui.badge(item["code"], color="primary").props("outline")
-                                ui.icon("check_circle" if item["is_terminal"] else tree_expander_icon(False), color="primary")
-                    if has_more:
-                        ui.button(
-                            render_message("webui.render_collection.button.load_more_755f4879"),
-                            icon="more_horiz",
-                            on_click=lambda: show_level(
-                                scheme, parent_item, path,
-                                offset=offset + 25, accumulated=rows,
-                            ),
-                        ).props("flat dense no-caps").classes("self-center")
-
-            with dialog, ui.card().classes("w-[760px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"):
-                with ui.row().classes("w-full items-center"):
-                    ui.label(render_message("webui.browse_advanced_classification.label.browse_classifications_66b655c2")).classes("text-xl font-semibold")
-                    ui.space(); ui.button(icon="close", on_click=dialog.close).props("flat round")
-                content = ui.column().classes("w-full gap-2 overflow-y-auto max-h-[calc(100vh-150px)]")
-            dialog.open()
-            try:
-                await show_schemes()
-            except ApiError as error:
-                dialog.close(); ui.notify(error_message(error), color="negative", close_button=True)
 
         async def browse_advanced_relationship(field_name: str, target_control: Any) -> None:
             if field_name == "classification_id":
@@ -19251,7 +8948,7 @@ def index(q: str = "") -> None:
 
     def enter_application_settings() -> None:
         """Adapt the Settings feature to the existing shared shell."""
-        state.update(resource="application-settings", rows=[], searched=True, aggregation_detail=None)
+        state.update(resource='application-settings', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         register_navigation("application-settings", render_message("navigation.item.application_settings"))
         show_authenticated_view()
         title.text = render_message("navigation.item.application_settings")
@@ -19275,8 +8972,7 @@ def index(q: str = "") -> None:
         token=object()
         label=disposition_text("templates" if page=="disposition-templates" else "current_task" if task_id else "workspace_details" if page=="disposition-job" else "my_tasks" if page=="disposition-tasks" else "eligibility" if page=="disposition-eligibility" else "jobs")
         register_navigation(page,label,entity_id=task_id if page=="disposition-task" else identity)
-        state.update(resource=page, disposition_page_token=token, rows=[], searched=True,
-                     aggregation_detail=None, disposition_view={**dict(saved or {}),**({"task_id":task_id,"job_id":identity} if task_id else {})})
+        state.update(resource=page, disposition_page_token=token, rows=[], searched=True, disposition_view={**dict(saved or {}), **({'task_id': task_id, 'job_id': identity} if task_id else {})}); aggregation_state.update(aggregation_detail=None)
         show_authenticated_view();title.text=label;subtitle.text="";guidance.text=""
         for control in (search_bar,aggregation_mode_bar,add_button,add_record_button):control.set_visibility(False)
         table_container.clear()
@@ -19341,12 +9037,9 @@ def index(q: str = "") -> None:
             if active():
                 with table_container:ui.label(error_message(error)).classes("text-negative").props("role=alert")
 
-    async def select_relationship_types() -> None:
-        principal = auth_state.get("principal")
-        if not principal or not can_navigate("relationship-types", principal.get("global_privileges", [])):
-            return
-        token = object()
-        state.update(resource="relationship-types", relationship_page_token=token, rows=[], searched=True, aggregation_detail=None)
+    def enter_relationship_types() -> None:
+        """Adapt relationship-type administration to the existing shared shell."""
+        state.update(resource='relationship-types', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         register_navigation("relationship-types", localized_navigation["relationship-types"])
         show_authenticated_view()
         title.text = localized_navigation["relationship-types"]
@@ -19355,12 +9048,6 @@ def index(q: str = "") -> None:
         for control in (search_bar, aggregation_mode_bar, add_button, add_record_button):
             control.set_visibility(False)
         table_container.clear()
-        await relationship_administration(
-            api=api, container=table_container,
-            supported_languages=(state.get('localization') or {}).get('supported_languages', []),
-            active=lambda: auth_state.get("principal") is principal and state.get("resource") == "relationship-types" and state.get("relationship_page_token") is token,
-            on_error=error_message,
-        )
 
     async def select_messages(mailbox: str = "inbox") -> None:
         principal = auth_state.get("principal")
@@ -19370,7 +9057,7 @@ def index(q: str = "") -> None:
         if not can_navigate(key, principal.get("global_privileges", [])):
             return
         show_authenticated_view()
-        state.update(resource=key, rows=[], searched=True, aggregation_detail=None)
+        state.update(resource=key, rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
         token = object()
         state["messaging_workspace_token"] = token
         register_navigation(key, localized_navigation[key])
@@ -19488,17 +9175,14 @@ def index(q: str = "") -> None:
         entity_label = render_message(entity_navigation_keys.get(key, "navigation.item.dashboard"))
         register_navigation(key, entity_label)
         show_authenticated_view()
-        state.update(
-            resource=key, rows=[], searched=False, aggregation_detail=None,
-            lifecycle_filter="all",
-        )
+        state.update(resource=key, rows=[], searched=False, lifecycle_filter='all'); aggregation_state.update(aggregation_detail=None)
         spec = ENTITIES[key]
         title.text = entity_label
         subtitle.text = render_message("webui.select_entity.text.search_required_before_loading_results_88549c49") if spec.search_first else render_message("webui.select_entity.text.manage_current_system_entries_fcec8116")
         aggregation_mode_bar.set_visibility(key == "aggregations")
         search_bar.set_visibility(
             spec.search_first
-            and not (key == "aggregations" and state.get("aggregation_mode") == "browse")
+            and not (key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse")
         )
         guidance.text = render_message("webui.select_entity.text.large_collections_are_search_first_to_avoi_717a0f77") if spec.search_first else ""
         privileges = set(
@@ -19511,9 +9195,9 @@ def index(q: str = "") -> None:
         search_input.value = ""
         try:
             if key in {"aggregations", "records"} and not (
-                key == "aggregations" and state.get("aggregation_mode") == "browse"
+                key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse"
             ):
-                state["personal_sections_loading"][key] = True
+                personal.personal_sections_loading[key] = True
                 render_table(spec)
                 await load_rows()
 
@@ -19529,11 +9213,11 @@ def index(q: str = "") -> None:
                             set_connection_status(error.status_code != 503)
                             ui.notify(error_message(error), color="negative", close_button=True)
                     finally:
-                        state["personal_sections_loading"][resource_key] = False
+                        personal.personal_sections_loading[resource_key] = False
                     if state.get("resource") == resource_key and not (
-                        resource_key == "aggregations" and state.get("aggregation_mode") == "browse"
+                        resource_key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse"
                     ):
-                        personal_host = state["personal_section_hosts"].get(resource_key)
+                        personal_host = personal.personal_section_hosts.get(resource_key)
                         if personal_host is not None and not getattr(personal_host, "_deleted", False):
                             render_resource_personal_sections(
                                 resource_spec, container=personal_host,
@@ -19550,7 +9234,7 @@ def index(q: str = "") -> None:
                 startup_requests.append(load_recent(spec))
             if startup_requests:
                 await asyncio.gather(*startup_requests)
-            if key == "aggregations" and state.get("aggregation_mode") == "browse":
+            if key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse":
                 await select_aggregation_browser()
                 return
             render_table(spec)
@@ -19563,15 +9247,13 @@ def index(q: str = "") -> None:
         initial_scheme_id: int | None = None,
         initial_classification_id: int | None = None,
     ) -> None:
-        # Navigation can arrive while sign-in is still resolving the principal.
-        # Do not start authenticated requests or infer privileges in that gap.
-        principal = auth_state.get("principal")
-        if principal is None:
-            return
+        await classification_controller.open(initial_scheme_id, initial_classification_id)
+
+    def begin_classification_workspace() -> None:
         show_authenticated_view()
-        state.update(resource="classification-workspace", rows=[], searched=True, aggregation_detail=None)
-        token = object()
-        state["classification_workspace_token"] = token
+        state.update(resource='classification-workspace', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
+
+    def clear_classification_shell() -> None:
         search_bar.set_visibility(False)
         aggregation_mode_bar.set_visibility(False)
         add_button.set_visibility(False)
@@ -19579,1400 +9261,421 @@ def index(q: str = "") -> None:
         guidance.text = ""
         table_container.clear()
 
-        def register_classification_page(page: str, item: dict[str, Any] | None) -> None:
-            label = (
-                f"{item['code']} — {item['title']}"
-                if item and item.get("title") else
-                render_message("navigation.item.classification_schemes")
-            )
-            register_navigation(page, label, entity_id=item["id"] if item else None, dynamic_label=bool(item))
-            state["resource"] = page
-            title.text = label
-            subtitle.text = "" if item else render_message("webui.select_classification_workspace.text.build_and_govern_classification_hierarchie_1766e961")
+    def register_classification_page(page, label, item, subtitle_text) -> None:
+        register_navigation(page, label, entity_id=item["id"] if item else None, dynamic_label=bool(item))
+        state["resource"] = page
+        title.text = label
+        subtitle.text = subtitle_text
 
-        await classification_workspace(
-            api=api, container=table_container, open_editor=open_editor,
-            show_entity_history=show_entity_history, format_timestamp=format_timestamp,
-            display_value=display_value, error_message=error_message,
-            entity_metadata_label=entity_metadata_label,
-            localized_disposition_value=localized_disposition_value,
-            register_page=register_classification_page,
-            active=lambda: state.get("classification_workspace_token") is token
-            and state.get("resource") in {"classification-workspace", "classification-scheme-details", "classification-details"},
-            can_transfer="classifications.administer" in principal.get("global_privileges", []),
-            preferences=state.setdefault("classification_browser_preferences", {}),
-            direction=lambda: current_direction["value"],
-            initial_scheme_id=initial_scheme_id,
-            initial_classification_id=initial_classification_id,
-        )
+    hold_reason_dialog, open_hold_editor = build_hold_editor(
+        api=api,
+        bind_remote_people_select=bind_remote_people_select,
+        select_hold_details=lambda *args, **kwargs: select_hold_details(*args, **kwargs),
+        error_message=error_message,
+    )
 
-    async def hold_reason_dialog(title_text: str, action_label: str, action: Any) -> None:
-        dialog = ui.dialog()
-        with dialog, ui.card().classes("w-[520px] max-w-full"):
-            ui.label(title_text).classes("text-xl font-semibold")
-            reason = ui.textarea(render_message("webui.hold_reason_dialog.textarea.reason_c483e491"), validation={render_message_plain("webui.submit.notify.a_reason_is_required_2d25211d"): lambda value: bool((value or "").strip())}).props("outlined autogrow maxlength=2000").classes("w-full")
 
-            async def submit() -> None:
-                if not (reason.value or "").strip():
-                    ui.notify(render_message("webui.submit.notify.a_reason_is_required_2d25211d"), color="warning"); return
-                try:
-                    result = action(reason.value.strip())
-                    if asyncio.iscoroutine(result): await result
-                    dialog.close()
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
+    add_resource_to_hold_dialog, show_effective_holds_dialog = build_hold_resources(
+        api=api,
+        select_hold_details=lambda *args, **kwargs: select_hold_details(*args, **kwargs),
+        open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
+        hold_reason_dialog=hold_reason_dialog,
+        error_message=error_message,
+    )
 
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.hold_reason_dialog.button.cancel_c97ff9b9"), on_click=dialog.close).props("flat no-caps")
-                ui.button(action_label, icon="check", on_click=submit).props("unelevated no-caps")
-        dialog.open()
 
-    async def open_hold_editor(hold: dict[str, Any] | None = None) -> None:
-        editing = hold is not None
-        def person_label(person: dict[str, Any]) -> str:
-            return (
-                f"{(person.get('localized') or {}).get('name') or person['name']} — "
-                f"{person.get('email') or render_message('webui.select_user_details.label.no_email_address_1d665180')}"
-            )
+    def enter_holds() -> None:
+        state.update(resource="holds", rows=[], searched=True)
 
-        known_people = {
-            int(person["id"]): person_label(person)
-            for person in ([hold["owner"]] + list(hold.get("contributors", [])) if hold else [])
-        }
-        def local_datetime_value(value: str | None) -> str:
-            if not value:
-                return ""
-            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-            return parsed.astimezone().strftime("%Y-%m-%dT%H:%M")
-        initial_valid_from = local_datetime_value((hold or {}).get("valid_from"))
-        initial_valid_to = local_datetime_value((hold or {}).get("valid_to"))
-        dialog = ui.dialog()
-        with dialog, ui.card().classes("w-[760px] max-w-[95vw] max-h-[90vh] overflow-y-auto"):
-            ui.label(render_message("webui.open_hold_editor.label.edit_hold_246b8e35") if editing else render_message("webui.open_hold_editor.label.create_hold_7f858468")).classes("text-xl font-semibold")
-            with ui.grid(columns=2).classes("w-full gap-3"):
-                code = ui.input(render_message("webui.open_hold_editor.input.code_e91b9355"), value=(hold or {}).get("code", "")).props("outlined maxlength=100").classes("w-full")
-                name = ui.input(render_message("webui.open_hold_editor.input.name_fc2e95e9"), value=(hold or {}).get("name", "")).props("outlined maxlength=300").classes("w-full")
-                valid_from = ui.input(render_message("webui.open_hold_editor.input.valid_from_5618bb9a"), value=initial_valid_from).props("outlined type=datetime-local").classes("w-full")
-                valid_to = ui.input(render_message("webui.open_hold_editor.input.valid_to_exclusive_ac7e61ca"), value=initial_valid_to).props("outlined type=datetime-local").classes("w-full")
-            owner = ui.select(
-                dict(known_people), value=(hold or {}).get("owner_user_id"), label=render_message("webui.open_hold_editor.select.owner_2084c633"), with_input=True,
-            ).props("outlined use-input").classes("w-full")
-            style_person_select(owner)
-            contributors = ui.select(
-                {key: value for key, value in known_people.items() if key != owner.value},
-                value=[item["id"] for item in (hold or {}).get("contributors", [])],
-                multiple=True, label=render_message("webui.open_hold_editor.select.contributors_38f1f3e5"), with_input=True,
-            ).props("outlined use-chips use-input").classes("w-full")
-            style_person_select(contributors, multiple=True)
-            load_owner_options = bind_remote_people_select(owner)
-            load_contributor_options = bind_remote_people_select(
-                contributors,
-                excluded_ids=lambda: ({int(owner.value)} if owner.value is not None else set()),
-            )
-            description = ui.textarea(render_message("webui.open_hold_editor.textarea.description_930a66c1"), value=(hold or {}).get("description") or "").props("outlined autogrow maxlength=4000").classes("w-full")
-            preserve = ui.checkbox(render_message("webui.open_hold_editor.checkbox.preserve_resource_metadata_and_state_8a5875d3"), value=(hold or {}).get("preserve_resource_state", False))
-            ui.label(render_message("webui.open_hold_editor.label.valid_to_is_exclusive_dates_currently_use_b0942828")).classes("text-xs text-slate-500")
+    select_holds = build_holds(
+        api=api,
+        principal=lambda: auth_state.get("principal"),
+        register_navigation=register_navigation,
+        show_authenticated_view=show_authenticated_view,
+        enter_holds=enter_holds,
+        search_bar=search_bar,
+        aggregation_mode_bar=aggregation_mode_bar,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        title=title,
+        subtitle=subtitle,
+        guidance=guidance,
+        table_container=table_container,
+        select_hold_details=lambda *args, **kwargs: select_hold_details(*args, **kwargs),
+        open_hold_editor=open_hold_editor,
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        error_message=error_message,
+        format_timestamp=format_timestamp,
+    )
 
-            def iso_value(value: str, *, required: bool) -> str | None:
-                if not value:
-                    if required: raise ValueError("Valid from is required")
-                    return None
-                # A datetime-local value has no offset. Until per-user timezone
-                # preferences exist, interpret it in the application timezone.
-                parsed = datetime.fromisoformat(value)
-                local_timezone = datetime.now().astimezone().tzinfo
-                return parsed.replace(tzinfo=local_timezone).astimezone(timezone.utc).isoformat()
+    def enter_hold_details() -> None:
+        state.update(resource="hold-details", rows=[], searched=True)
 
-            async def persist(reason: str | None = None) -> None:
-                if not (code.value or "").strip() or not (name.value or "").strip() or owner.value is None:
-                    ui.notify(render_message("webui.persist.notify.code_name_owner_and_valid_from_are_require_c60f7fcf"), color="warning"); return
-                try:
-                    owner_id = int(owner.value)
-                    payload = {"code": code.value.strip(), "name": name.value.strip(), "description": (description.value or "").strip() or None,
-                               "valid_from": iso_value(valid_from.value, required=True), "valid_to": iso_value(valid_to.value, required=False),
-                               "owner_user_id": owner_id, "preserve_resource_state": bool(preserve.value)}
-                    contributor_ids = [int(value) for value in (contributors.value or []) if int(value) != owner_id]
-                    if not editing:
-                        payload["contributor_user_ids"] = contributor_ids
-                    saved = await (api.update_hold(hold["id"], hold["version"], payload, reason or "") if editing else api.create_hold(payload))
-                    if editing and contributor_ids != [item["id"] for item in hold.get("contributors", [])]:
-                        saved = await api.replace_hold_contributors(
-                            hold["id"], saved["version"], contributor_ids, reason or "",
-                        )
-                    dialog.close(); ui.notify(render_message("webui.persist.notify.hold_updated_c8aae53f") if editing else render_message("webui.persist.notify.hold_created_7d49d8f4"), color="positive")
-                    await select_hold_details(saved["id"])
-                except (ApiError, ValueError) as error:
-                    ui.notify(error_message(error) if isinstance(error, ApiError) else str(error), color="negative", close_button=True)
+    select_hold_details = build_hold_details(
+        api=api,
+        register_navigation=register_navigation,
+        show_authenticated_view=show_authenticated_view,
+        enter_hold_details=enter_hold_details,
+        search_bar=search_bar,
+        aggregation_mode_bar=aggregation_mode_bar,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        title=title,
+        subtitle=subtitle,
+        guidance=guidance,
+        table_container=table_container,
+        bind_remote_people_select=bind_remote_people_select,
+        select_holds=lambda *args, **kwargs: select_holds(*args, **kwargs),
+        hold_reason_dialog=hold_reason_dialog,
+        open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
+        select_user_details=lambda *args, **kwargs: select_user_details(*args, **kwargs),
+        select_record_details=lambda *args, **kwargs: select_record_details(*args, **kwargs),
+        open_hold_editor=open_hold_editor,
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        error_message=error_message,
+        format_timestamp=format_timestamp,
+    )
 
-            async def save() -> None:
-                if editing:
-                    await hold_reason_dialog(
-                        render_message("webui.hold_reason_dialog.update_title"),
-                        render_message("webui.hold_reason_dialog.update_action"),
-                        persist,
-                    )
-                else:
-                    await persist()
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.open_hold_editor.button.cancel_9df95680"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.open_hold_editor.button.save_hold_c7de035c"), icon="save", on_click=save).props("unelevated no-caps")
-
-            def filter_owner_from_contributors() -> None:
-                contributors.options = {
-                    key: value for key, value in dict(contributors.options).items()
-                    if key != owner.value
-                }
-                contributors.value = [
-                    value for value in (contributors.value or [])
-                    if value != owner.value
-                ]
-                contributors.update()
-                background_tasks.create(load_contributor_options())
-
-            owner.on_value_change(filter_owner_from_contributors)
-        dialog.open()
-
-    async def add_resource_to_hold_dialog(resource_type: str, resource_id: int, refresh_page: Any) -> None:
-        dialog = ui.dialog()
-        paging = {"offset": 0, "limit": 25, "total": 0}
-        known_holds: dict[int, str] = {}
-        with dialog, ui.card().classes("w-[520px] max-w-full"):
-            ui.label(render_message("webui.add_resource_to_hold_dialog.label.add_to_hold_057d6b79")).classes("text-xl font-semibold")
-            hold_query = ui.input(
-                render_message("webui.select_holds.input.search_code_or_name_79d187ac")
-            ).props("outlined dense clearable debounce=300").classes("w-full")
-            selected = ui.select({}, label=render_message("webui.add_resource_to_hold_dialog.select.hold_77a90801"), with_input=True).props("outlined use-input options-dense").classes("w-full")
-            with ui.row().classes("w-full items-center gap-2"):
-                hold_status = ui.label().classes("text-xs text-slate-500 grow")
-                previous_hold_page = ui.button(icon="chevron_left").props("flat round dense")
-                next_hold_page = ui.button(icon="chevron_right").props("flat round dense")
-            reason = ui.textarea(render_message("webui.add_resource_to_hold_dialog.textarea.reason_cd1ea4c6")).props("outlined autogrow maxlength=2000").classes("w-full")
-
-            async def load_hold_page(*, reset: bool = False) -> None:
-                if reset:
-                    paging["offset"] = 0
-                try:
-                    result = await api.holds_page(
-                        q=(hold_query.value or "").strip() or None,
-                        limit=paging["limit"], offset=paging["offset"],
-                    )
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
-                    return
-                manageable = [
-                    item for item in result["items"]
-                    if item.get("capabilities", {}).get("manage_held_items")
-                ]
-                paging["total"] = int(result["total"])
-                for item in manageable:
-                    known_holds[int(item["id"])] = f"{item['code']} — {item['name']}"
-                selected.options = dict(known_holds)
-                selected.update()
-                start = paging["offset"] + 1 if result["items"] else 0
-                end = paging["offset"] + len(result["items"])
-                hold_status.text = render_message("webui.load_hold_page.text.start_end_total_42ef8de2", start=start, end=end, total=paging['total'])
-                previous_hold_page.set_enabled(paging["offset"] > 0)
-                next_hold_page.set_enabled(end < paging["total"])
-
-            async def move_hold_page(direction: int) -> None:
-                paging["offset"] = max(0, paging["offset"] + direction * paging["limit"])
-                await load_hold_page()
-
-            hold_query.on("keydown.enter", lambda: load_hold_page(reset=True))
-            previous_hold_page.on("click", lambda: move_hold_page(-1))
-            next_hold_page.on("click", lambda: move_hold_page(1))
-            async def submit() -> None:
-                if selected.value is None or not (reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.hold_and_reason_are_required_bd688fb2"), color="warning"); return
-                try:
-                    await api.add_resource_to_hold(resource_type, resource_id, int(selected.value), reason.value.strip())
-                    dialog.close(); ui.notify(render_message("webui.submit.notify.resource_added_to_hold_363e538f"), color="positive")
-                    result = refresh_page()
-                    if asyncio.iscoroutine(result): await result
-                except ApiError as error: ui.notify(error_message(error), color="negative", close_button=True)
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(render_message("webui.add_resource_to_hold_dialog.button.cancel_b8201f0b"), on_click=dialog.close).props("flat no-caps")
-                ui.button(render_message("webui.add_resource_to_hold_dialog.button.add_25497227"), icon="add_link", on_click=submit).props("unelevated no-caps")
-        dialog.open()
-        background_tasks.create(load_hold_page(reset=True))
-
-    def show_effective_holds_dialog(
-        effective_holds: list[dict[str, Any]], resource_type: str | None = None,
-        resource_id: int | None = None, refresh_page: Any = None,
-    ) -> None:
-        dialog=ui.dialog()
-        with dialog,ui.card().classes("w-[720px] max-w-[94vw] max-h-[85vh]"):
-            with ui.row().classes("w-full items-center gap-3"):
-                ui.avatar(icon="gavel",color="amber-2",text_color="amber-9",size="44px")
-                with ui.column().classes("gap-0 grow"):
-                    ui.label(render_message("webui.show_effective_holds_dialog.label.effective_legal_holds_d0741f24")).classes("text-xl font-semibold")
-                    ui.label(render_message("webui.show_effective_holds_dialog.label.these_holds_currently_restrict_deletion_di_b25c7cfe")).classes("text-sm text-slate-600")
-            ui.separator()
-            with ui.column().classes("w-full gap-3 overflow-y-auto"):
-                for item in effective_holds:
-                    with ui.card().classes("w-full shadow-none border border-amber-200 bg-amber-50 p-4"):
-                        if item.get("code"):
-                            with ui.row().classes("w-full items-center gap-2"):
-                                ui.badge(item["code"],color="amber").props("outline")
-                                ui.label(item["name"]).classes("font-semibold text-slate-900")
-                            ui.label(render_message("webui.show_effective_holds_dialog.label.protection_source_title_902b3795", title=item['source'].title())).classes("text-sm text-slate-600")
-                            if item.get("preserve_resource_state"):
-                                ui.label(render_message("webui.show_effective_holds_dialog.label.also_preserves_metadata_and_governed_state_36554881")).classes("text-sm text-amber-900")
-                            with ui.row().classes("w-full justify-end gap-2"):
-                                async def open_this_hold(selected_id: int = item["hold_id"]) -> None:
-                                    dialog.close(); await select_hold_details(selected_id)
-                                ui.button(render_message("webui.show_effective_holds_dialog.button.open_hold_c0eed5f4"), icon="open_in_new", on_click=open_this_hold).props("flat no-caps")
-                                if item.get("is_inherited") and item.get("nearest_assigned_aggregation_id"):
-                                    async def open_source(source_id: int = item["nearest_assigned_aggregation_id"]) -> None:
-                                        dialog.close(); await open_aggregation(await api.get("aggregations", source_id))
-                                    ui.button(render_message("webui.show_effective_holds_dialog.button.open_assigning_aggregation_e0b07cd2"), icon="account_tree", on_click=open_source).props("flat no-caps")
-                                if (resource_type and resource_id is not None and item.get("is_direct")
-                                        and item.get("can_manage_held_items") and item.get("direct_assignment_version") is not None):
-                                    async def remove_this(selected: dict[str, Any] = item) -> None:
-                                        async def remove(reason: str) -> None:
-                                            await api.remove_hold_held_item(selected["hold_id"],resource_type,resource_id,selected["direct_assignment_version"],reason)
-                                            dialog.close(); ui.notify(render_message("webui.remove.notify.direct_hold_assignment_removed_bd41d0bd"),color="positive")
-                                            if refresh_page:
-                                                result=refresh_page()
-                                                if asyncio.iscoroutine(result): await result
-                                        await hold_reason_dialog("Reason for removing this direct assignment","Remove",remove)
-                                    ui.button(render_message("webui.show_effective_holds_dialog.button.remove_from_this_hold_bf33546c"),icon="link_off",color="negative",on_click=remove_this).props("flat no-caps")
-                        else:
-                            ui.label(render_message("webui.show_effective_holds_dialog.label.effective_hold_details_restricted_6e99756d")).classes("font-semibold text-amber-900")
-                            ui.label(render_message("webui.show_effective_holds_dialog.label.protection_source_title_902b3795", title=item['source'].title())).classes("text-sm text-slate-600")
-            ui.button(render_message("webui.show_effective_holds_dialog.button.close_7cfb3209"),on_click=dialog.close).props("flat no-caps").classes("self-end")
-        dialog.open()
-
-    async def select_holds() -> None:
-        register_navigation("holds", "Holds")
-        show_authenticated_view(); state.update(resource="holds", rows=[], searched=True)
-        search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False); add_record_button.set_visibility(False)
-        title.text = render_message("webui.select_holds.text.holds_06db50d5"); subtitle.text = render_message("webui.select_holds.text.legal_and_regulatory_preservation_instruct_046357c0"); guidance.text = ""
-        table_container.clear()
-        try:
-            hold_people=await api.hold_people()
-        except ApiError:
-            hold_people=[]
-        people_options={item["id"]:(item.get("localized") or {}).get("name") or item["name"] for item in hold_people}
-        owner_options={None:render_message("webui.select_holds.text.all_owners_d14f22bf")}; owner_options.update(people_options)
-        contributor_options={None:render_message("webui.select_holds.text.all_contributors_88e3d166")}; contributor_options.update(people_options)
-        privileges = set((auth_state.get("principal") or {}).get("global_privileges", []))
-        with table_container, ui.column().classes("w-full p-5 gap-4"):
-            paging = {"offset": 0, "total": 0, "limit": 25}
-            with ui.row().classes("w-full items-center"):
-                ui.label(render_message("webui.select_holds.label.filter_holds_9365e709")).classes("text-lg font-semibold text-slate-800")
-                ui.space()
-                if "holds.administer" in privileges:
-                    ui.button(
-                        render_message("webui.select_holds.button.create_hold_c7bae8dd"), icon="add", on_click=lambda: open_hold_editor(),
-                    ).props("unelevated no-caps")
-            with ui.row().classes("w-full items-end gap-3"):
-                query = ui.input(render_message("webui.select_holds.input.search_code_or_name_79d187ac")).props("outlined dense clearable debounce=300").classes("grow")
-                hold_state = ui.select({None:render_message("webui.select_holds.select.all_states_7fa05389"),"scheduled":render_message("webui.select_holds.select.scheduled_860621ba"),"active":render_message("webui.select_holds.select.active_f5bdb37b"),"expired":render_message("webui.select_holds.select.expired_99643a2d")}, value=None, label=render_message("webui.select_holds.select.state_f8c2bfbf")).props("outlined dense").classes("w-44")
-                preservation = ui.select({None:render_message("webui.select_holds.select.all_protection_e6699e77"),"false":render_message("webui.select_holds.select.core_protection_6f52e26e"),"true":render_message("webui.select_holds.select.enhanced_state_preservation_39552bdf")},value=None,label=render_message("webui.select_holds.select.protection_517995ff")).props("outlined dense").classes("w-56")
-                hold_sort = ui.select({"code":render_message("webui.select_holds.select.code_a654eddb"),"name":render_message("webui.select_holds.select.name_c9fd205f"),"state":render_message("webui.select_holds.select.state_f8c2bfbf"),"valid_from":render_message("webui.select_holds.select.valid_from_ebec3edf"),"valid_to":render_message("webui.select_holds.select.valid_until_5ebd52b4"),"owner":render_message("webui.select_holds.select.owner_26739337"),"created":render_message("webui.select_holds.select.created_04560f88"),"updated":render_message("webui.select_holds.select.updated_6ed0fc83")},value="code",label=render_message("webui.select_holds.select.sort_by_2bb66ed7")).props("outlined dense").classes("w-44")
-                refresh = ui.button(render_message("webui.select_holds.button.refresh_debf3e22"), icon="refresh").props("flat dense no-caps")
-            with ui.row().classes("w-full items-end gap-3"):
-                owner_filter=ui.select(owner_options,value=None,label=render_message("webui.select_holds.select.owner_26739337")).props("outlined dense clearable").classes("w-56")
-                contributor_filter=ui.select(contributor_options,value=None,label=render_message("webui.select_holds.select.contributor_f350f4ca")).props("outlined dense clearable").classes("w-56")
-                valid_from_filter=ui.input(render_message("webui.select_holds.input.valid_from_on_after_29c20eb9")).props("outlined dense clearable type=datetime-local").classes("w-56")
-                valid_to_filter=ui.input(render_message("webui.select_holds.input.valid_until_before_4a8c9188")).props("outlined dense clearable type=datetime-local").classes("w-56")
-            host = ui.column().classes("w-full")
-            with ui.row().classes("w-full items-center justify-between"):
-                page_status = ui.label().classes("text-sm text-slate-600")
-                with ui.row().classes("gap-1"):
-                    first_page = ui.button(render_message("webui.select_holds.button.first_8a70bfa4"),icon="first_page").props("flat no-caps")
-                    previous_page = ui.button(render_message("webui.select_holds.button.previous_1a2b68f0"),icon="chevron_left").props("flat no-caps")
-                    next_page = ui.button(render_message("webui.select_holds.button.next_4ca23c51"),icon="chevron_right").props("flat no-caps")
-                    last_page = ui.button(render_message("webui.select_holds.button.last_ddc4398f"),icon="last_page").props("flat no-caps")
-
-            async def show_list_hold_history(hold: dict[str, Any]) -> None:
-                await show_entity_history("holds", hold)
-
-            async def load(*, reset: bool = False) -> None:
-                if reset: paging["offset"] = 0
-                try:
-                    result = await api.holds_page(q=(query.value or "").strip() or None,state=hold_state.value,
-                        preserve_resource_state=(None if preservation.value is None else preservation.value=="true"),
-                        owner_user_id=owner_filter.value,contributor_user_id=contributor_filter.value,
-                        valid_from_gte=valid_from_filter.value or None,valid_to_lt=valid_to_filter.value or None,
-                        sort=hold_sort.value,limit=paging["limit"],offset=paging["offset"])
-                except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True); return
-                rows=result["items"]; paging["total"]=result["total"]
-                host.clear()
-                with host:
-                    if not rows:
-                        ui.label(render_message("webui.load.label.no_holds_are_available_47c12f52")).classes("text-slate-500 p-6")
-                        return
-                    with ui.element("div").classes("governance-card-list w-full"):
-                        for hold in rows:
-                            with ui.card().classes(
-                                "governance-list-card shadow-none " +
-                                ("hold-list-card--effective" if hold.get("is_effective") else "")
-                            ):
-                                with ui.row().classes("w-full items-start no-wrap gap-3"):
-                                    ui.avatar(icon="gavel", color="amber-1" if hold.get("is_effective") else "blue-1", text_color="amber-9" if hold.get("is_effective") else "primary", size="42px")
-                                    with ui.column().classes("gap-0 min-w-0 grow"):
-                                        ui.label(hold["name"]).classes("font-semibold text-base leading-tight")
-                                        ui.label(hold["code"]).classes("text-xs font-medium text-primary")
-                                        ui.label(hold.get("description") or render_message("webui.load.label.no_description_provided_4b47ab9c")).classes("text-xs text-slate-500 mt-1 leading-5")
-                                    hold_state_label = {
-                                        "scheduled": render_message("webui.select_holds.select.scheduled_860621ba"),
-                                        "active": render_message("webui.select_holds.select.active_f5bdb37b"),
-                                        "expired": render_message("webui.select_holds.select.expired_99643a2d"),
-                                    }.get(hold["state"], str(hold["state"] or "—"))
-                                    ui.badge(hold_state_label, color={"active":"warning","scheduled":"primary","expired":"blue-grey"}.get(hold["state"], "blue-grey")).props("outline")
-                                with ui.element("div").classes("governance-list-facts hold-list-facts w-full"):
-                                    for label, value in (
-                                        (render_message("webui.select_hold_details.label.owner_7d141da3"), (hold["owner"].get("localized") or {}).get("name") or hold["owner"]["name"]),
-                                        (render_message("webui.select_hold_details.label.contributors_008a0e27"), str(len(hold.get("contributors") or []))),
-                                        (render_message("webui.select_holds.select.valid_from_ebec3edf"), format_timestamp(hold.get("valid_from"))),
-                                        (render_message("webui.select_holds.select.valid_until_5ebd52b4"), format_timestamp(hold.get("valid_to")) if hold.get("valid_to") else render_message("common.value.no_expiry")),
-                                        (render_message("webui.select_hold_details.label.held_items_244f35b3"), str(hold.get("direct_held_item_count", 0))),
-                                    ):
-                                        with ui.column().classes("gap-0 min-w-0"):
-                                            ui.label(label).classes("detail-field-label")
-                                            ui.label(value).classes("text-sm font-medium truncate w-full").tooltip(value)
-                                with ui.row().classes("w-full justify-end gap-1"):
-                                    ui.button(icon="open_in_new", on_click=lambda _, item=hold: select_hold_details(item["id"])).props("outline dense color=primary").tooltip(render_message("webui.load.tooltip.open_hold_318634da"))
-                                    if hold.get("capabilities", {}).get("update"):
-                                        ui.button(icon="edit", on_click=lambda _, item=hold: open_hold_editor(item)).props("outline dense color=primary").tooltip(render_message("webui.load.tooltip.edit_hold_d1f52ab4"))
-                                    ui.button(icon="history", on_click=lambda _, item=hold: show_list_hold_history(item)).props("outline dense color=blue-grey").tooltip(render_message("webui.load.tooltip.hold_history_fdbfa3e8"))
-                start=paging["offset"]+1 if paging["total"] else 0; end=min(paging["offset"]+len(rows),paging["total"])
-                page_status.text=render_message("webui.load.text.showing_start_end_of_total_holds_6b398c76", start=start, end=end, total=paging['total'])
-                first_page.set_enabled(paging["offset"]>0); previous_page.set_enabled(paging["offset"]>0)
-                next_page.set_enabled(paging["offset"]+paging["limit"]<paging["total"]); last_page.set_enabled(paging["offset"]+paging["limit"]<paging["total"])
-            async def move_hold_page(delta: int) -> None:
-                paging["offset"]=max(0,paging["offset"]+delta*paging["limit"]); await load()
-            async def hold_page_edge(last: bool) -> None:
-                paging["offset"]=(max(0,(paging["total"]-1)//paging["limit"])*paging["limit"] if last else 0); await load()
-            refresh.on("click", load); query.on_value_change(lambda:load(reset=True)); hold_state.on_value_change(lambda:load(reset=True)); preservation.on_value_change(lambda:load(reset=True)); hold_sort.on_value_change(lambda:load(reset=True))
-            owner_filter.on_value_change(lambda:load(reset=True)); contributor_filter.on_value_change(lambda:load(reset=True)); valid_from_filter.on_value_change(lambda:load(reset=True)); valid_to_filter.on_value_change(lambda:load(reset=True))
-            first_page.on("click",lambda:hold_page_edge(False)); previous_page.on("click",lambda:move_hold_page(-1)); next_page.on("click",lambda:move_hold_page(1)); last_page.on("click",lambda:hold_page_edge(True))
-            await load()
-
-    async def select_hold_details(hold_id: int) -> None:
-        try:
-            hold = await api.hold(hold_id)
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True); return
-        register_navigation("hold-details", hold["name"], entity_id=hold_id, accessible_label=f"{hold['name']} — {hold['code']}")
-        show_authenticated_view(); state.update(resource="hold-details", rows=[], searched=True)
-        search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False); add_button.set_visibility(False); add_record_button.set_visibility(False)
-        localized_hold_states = {
-            "scheduled": render_message("webui.select_holds.select.scheduled_860621ba"),
-            "active": render_message("webui.select_holds.select.active_f5bdb37b"),
-            "expired": render_message("webui.select_holds.select.expired_99643a2d"),
-        }
-        localized_hold_state = localized_hold_states.get(
-            hold["state"], str(hold["state"] or "—")
-        )
-        title.text=hold["name"]; subtitle.text=render_message("webui.select_hold_details.text.code_title_fbb1087b", code=hold['code'], title=localized_hold_state); guidance.text=""; table_container.clear()
-
-        async def manage_contributors() -> None:
-            known_people = {
-                int(person["id"]): f"{(person.get('localized') or {}).get('name') or person['name']} — {person.get('email') or render_message('webui.select_user_details.label.no_email_address_1d665180')}"
-                for person in hold["contributors"]
-                if int(person["id"]) != int(hold["owner_user_id"])
-            }
-            dialog = ui.dialog()
-            with dialog, ui.card().classes("w-[620px] max-w-full"):
-                ui.label(render_message("webui.manage_contributors.label.manage_contributors_39fd431b")).classes("text-xl font-semibold")
-                selected = ui.select(known_people, value=[item["id"] for item in hold["contributors"]], multiple=True, label=render_message("webui.manage_contributors.select.active_contributors_be1212fb")).props("outlined use-chips use-input").classes("w-full")
-                style_person_select(selected, multiple=True)
-                load_contributor_options = bind_remote_people_select(
-                    selected,
-                    excluded_ids=lambda: {int(hold["owner_user_id"])},
-                )
-                reason = ui.textarea(render_message("webui.manage_contributors.textarea.reason_17ba4d8f")).props("outlined autogrow maxlength=2000").classes("w-full")
-                async def submit() -> None:
-                    if not (reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.a_reason_is_required_2d25211d"), color="warning"); return
-                    try:
-                        saved = await api.replace_hold_contributors(hold_id, hold["version"], [int(value) for value in (selected.value or [])], reason.value.strip())
-                        dialog.close(); ui.notify(render_message("webui.submit.notify.contributors_updated_0d631f65"), color="positive"); await select_hold_details(saved["id"])
-                    except ApiError as error: ui.notify(error_message(error), color="negative", close_button=True)
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.manage_contributors.button.cancel_551081d0"), on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.manage_contributors.button.save_contributors_9b6b56e2"), icon="group", on_click=submit).props("unelevated no-caps")
-
-            dialog.open()
-
-        async def delete_current_hold() -> None:
-            async def remove(reason: str) -> None:
-                await api.delete_hold(hold_id, hold["version"], reason); ui.notify(render_message("webui.remove.notify.hold_deleted_b2ed1745"), color="positive"); await select_holds()
-            await hold_reason_dialog("Reason for deleting this empty hold", "Delete hold", remove)
-
-        async def show_hold_history() -> None:
-            await show_entity_history("holds", hold)
-        with table_container, ui.column().classes("w-full p-4 gap-3"):
-            with ui.element("div").classes("hold-command-layout w-full"):
-                with ui.card().classes("detail-surface hold-command-overview shadow-none p-4 gap-3"):
-                    with ui.row().classes("w-full items-start no-wrap gap-3"):
-                        ui.avatar(icon="gavel",color="blue-1",text_color="primary",size="46px")
-                        with ui.column().classes("gap-0 grow min-w-0"):
-                            with ui.row().classes("items-center gap-2"):
-                                ui.label(hold["name"]).classes("text-xl font-semibold text-slate-900")
-                                ui.badge(localized_hold_state, color="positive" if hold["state"]=="active" else "blue-grey").props("outline")
-                            ui.label(hold["code"]).classes("text-xs font-medium tracking-wide text-slate-500")
-                            ui.label(hold.get("description") or render_message("webui.select_hold_details.label.no_description_provided_d1db5944")).classes("text-sm text-slate-600 mt-2 leading-5")
-                    with ui.element("div").classes("hold-summary-facts w-full"):
-                        for label,value in (
-                            (render_message("webui.select_holds.select.valid_from_ebec3edf"),format_timestamp(hold["valid_from"])),
-                            (render_message("webui.select_holds.select.valid_until_5ebd52b4"),format_timestamp(hold["valid_to"]) if hold.get("valid_to") else render_message("common.value.no_expiry")),
-                            (render_message("webui.select_holds.select.protection_517995ff"),(render_message("webui.select_holds.select.enhanced_state_preservation_39552bdf") if hold["preserve_resource_state"] else render_message("webui.select_holds.select.core_protection_6f52e26e"))),
-                        ):
-                            with ui.column().classes("gap-0 min-w-0"):
-                                ui.label(label).classes("detail-field-label")
-                                ui.label(value).classes("text-sm font-medium w-full").tooltip(value)
-                    with ui.column().classes("hold-people-block w-full gap-1"):
-                        ui.label(render_message("webui.select_hold_details.label.owner_7d141da3")).classes("detail-field-label")
-                        with ui.button(on_click=lambda: select_user_details(hold["owner"]["id"])).props("flat dense no-caps color=blue-grey-9").classes("hold-person-button self-start -ml-2"):
-                            render_user_avatar(hold["owner"], size="26px").style("margin-inline-end:7px !important")
-                            ui.label((hold["owner"].get("localized") or {}).get("name") or hold["owner"]["name"]).classes("text-sm")
-                        ui.label(render_message("webui.select_hold_details.label.contributors_008a0e27")).classes("detail-field-label mt-1")
-                        with ui.row().classes("hold-people-row w-full items-center gap-2 -ml-2"):
-                            if hold["contributors"]:
-                                for contributor in hold["contributors"]:
-                                    with ui.button(on_click=lambda _, user_id=contributor["id"]: select_user_details(user_id)).props("flat dense no-caps color=blue-grey-9").classes("hold-person-button gap-1"):
-                                        render_user_avatar(contributor, size="25px").style("margin-inline-end:5px !important")
-                                        ui.label((contributor.get("localized") or {}).get("name") or contributor["name"]).classes("text-sm")
-                            else:
-                                ui.label(render_message("webui.select_hold_details.label.no_contributors_assigned_401fb846")).classes("text-xs text-slate-500")
-                with ui.card().classes("detail-surface hold-command-actions shadow-none p-4 gap-3"):
-                    ui.label(render_message("webui.select_hold_details.label.hold_actions_cc65f86c")).classes("aggregation-panel-heading w-full")
-                    ui.label(render_message("webui.select_hold_details.label.manage_104ec502")).classes("aggregation-action-group-label")
-                    with ui.element("div").classes("hold-action-row w-full"):
-                        if hold["capabilities"].get("update"):
-                            ui.button(render_message("webui.select_hold_details.button.edit_hold_d034b7c2"),icon="edit",on_click=lambda:open_hold_editor(hold)).props("outline dense no-caps")
-                        if hold["capabilities"].get("manage_contributors"):
-                            ui.button(render_message("webui.select_hold_details.button.manage_contributors_866ef148"),icon="group",on_click=manage_contributors).props("outline dense no-caps")
-                    ui.label(render_message("webui.select_hold_details.label.audit_and_lifecycle_cb58ed69")).classes("aggregation-action-group-label")
-                    with ui.element("div").classes("hold-action-row w-full"):
-                        ui.button(render_message("webui.select_hold_details.button.view_history_f7d1e6af"),icon="history",on_click=show_hold_history).props("outline dense no-caps")
-                        delete_button = ui.button(render_message("webui.select_hold_details.button.delete_hold_61877bfd"),icon="delete",color="negative",on_click=delete_current_hold).props("outline dense no-caps")
-                    if hold["capabilities"].get("delete"):
-                        delete_button.tooltip(render_message("webui.select_hold_details.tooltip.delete_empty_hold_37fe4ab5"))
-                    else:
-                        delete_button.disable()
-                        delete_button.tooltip(render_message("webui.select_hold_details.tooltip.remove_all_held_items_before_deleting_this_292c752f") if hold["capability_reasons"].get("delete") == "hold_not_empty" else render_message("webui.select_hold_details.tooltip.you_are_not_authorized_to_delete_this_hold_6fd753f2"))
-            assigned_by_options={None:render_message("webui.select_hold_details.text.any_assigning_user_2e01c2df"),hold["owner"]["id"]:(hold["owner"].get("localized") or {}).get("name") or hold["owner"]["name"]}
-            assigned_by_options.update({item["id"]:(item.get("localized") or {}).get("name") or item["name"] for item in hold["contributors"]})
-            with ui.card().classes("detail-surface w-full shadow-none p-4 gap-3"):
-                ui.label(render_message("webui.select_hold_details.label.filter_held_items_480cc40c")).classes("font-semibold")
-                with ui.grid(columns=4).classes("w-full gap-3"):
-                    held_item_query=ui.input(render_message("webui.select_hold_details.input.search_held_items_1ff2e989")).props("outlined dense clearable").classes("w-full")
-                    held_item_type=ui.select({None:render_message("webui.select_hold_details.select.all_types_e15731ed"),"aggregation":render_message("webui.select_hold_details.select.aggregations_a2b082b0"),"record":render_message("webui.select_hold_details.select.records_443323d2")},value=None,label=render_message("webui.select_hold_details.select.type_228c6d86")).props("outlined dense").classes("w-full")
-                    held_item_sort=ui.select({"assigned_at":render_message("webui.select_hold_details.select.assigned_79862205"),"number":render_message("webui.select_hold_details.select.number_996300ef"),"title":render_message("webui.select_hold_details.select.title_4c1867a5"),"type":render_message("webui.select_hold_details.select.type_228c6d86"),"assigned_by":render_message("webui.select_hold_details.select.assigned_by_5b6fa5fb"),"security_level":render_message("webui.select_hold_details.select.security_level_68d98e9c")},value="assigned_at",label=render_message("webui.select_hold_details.select.sort_by_714d10c2")).props("outlined dense").classes("w-full")
-                    held_item_assigned_by=ui.select(assigned_by_options,value=None,label=render_message("webui.select_hold_details.select.assigned_by_5b6fa5fb")).props("outlined dense clearable").classes("w-full")
-                with ui.grid(columns=2).classes("w-full gap-3"):
-                    held_item_assigned_from=ui.input(render_message("webui.select_hold_details.input.assignment_date_from_4569e572")).props("outlined dense clearable type=datetime-local").classes("w-full")
-                    held_item_assigned_before=ui.input(render_message("webui.select_hold_details.input.assignment_date_before_45df0de5")).props("outlined dense clearable type=datetime-local").classes("w-full")
-                with ui.row().classes("detail-action-row w-full items-center justify-start gap-2"):
-                    held_item_refresh=ui.button(render_message("webui.select_hold_details.button.refresh_251d4756"),icon="refresh").props("flat dense no-caps")
-                    if hold["capabilities"].get("manage_held_items"):
-                        add_held_item=ui.button(render_message("webui.select_hold_details.button.add_held_items_4cfdf56b"),icon="add").props("unelevated dense no-caps")
-                        remove_selected_held_items=ui.button(render_message("webui.select_hold_details.button.remove_selected_16cdfb8a"),icon="link_off",color="negative").props("outline dense no-caps")
-            with ui.row().classes("w-full items-end justify-between pt-2"):
-                with ui.column().classes("gap-0"):
-                    ui.label(render_message("webui.select_hold_details.label.held_items_244f35b3")).classes("text-lg font-semibold text-slate-900")
-                    ui.label(render_message("webui.select_hold_details.label.records_and_aggregations_directly_assigned_bbbbae27")).classes("text-sm text-slate-500")
-            held_item_host=ui.column().classes("w-full")
-            held_item_paging={"offset":0,"total":0,"limit":25}
-            held_item_selection:dict[str,dict[str,Any]]={}
-            with ui.row().classes("w-full items-center justify-between"):
-                held_item_page_status=ui.label().classes("text-sm text-slate-600")
-                with ui.row().classes("gap-1"):
-                    held_item_first=ui.button(render_message("webui.select_hold_details.button.first_38cdd984"),icon="first_page").props("flat no-caps")
-                    held_item_previous=ui.button(render_message("webui.select_hold_details.button.previous_363a9cec"),icon="chevron_left").props("flat no-caps")
-                    held_item_next=ui.button(render_message("webui.select_hold_details.button.next_1aa535cd"),icon="chevron_right").props("flat no-caps")
-                    held_item_last=ui.button(render_message("webui.select_hold_details.button.last_6614b469"),icon="last_page").props("flat no-caps")
-
-            async def load_held_items(*,reset:bool=False) -> None:
-                if reset: held_item_paging["offset"]=0
-                result=await api.hold_held_items_page(hold_id,q=(held_item_query.value or "").strip() or None,resource_type=held_item_type.value,
-                    assigned_by_user_id=held_item_assigned_by.value,assigned_from=held_item_assigned_from.value or None,assigned_before=held_item_assigned_before.value or None,
-                    sort=held_item_sort.value,descending=held_item_sort.value=="assigned_at",limit=held_item_paging["limit"],offset=held_item_paging["offset"])
-                rows=result["items"]; held_item_paging["total"]=result["total"]
-                held_item_host.clear()
-                with held_item_host:
-                    for row in rows:
-                        row["selection_key"]=f"{row['resource_type']}:{row['resource_id']}"
-                        row["security_level_display"] = f"{row['security_level_code']} — {row['security_level_name']}"
-                        row["assigned_at_display"] = format_timestamp(row["assigned_at"])
-                        row["assigned_by_avatar"] = user_avatar({
-                            "id": row.get("assigned_by_user_id"),
-                            "name": row.get("assigned_by_name") or render_message("webui.load_held_items.value.system"),
-                        })
-                    async def open_held_item(row: dict[str, Any]) -> None:
-                        if row["resource_type"]=="aggregation": await open_aggregation(await api.get("aggregations",row["resource_id"]))
-                        else: await select_record_details(row["resource_id"])
-                    async def remove_held_item(row: dict[str, Any]) -> None:
-                        async def remove(reason: str) -> None:
-                            await api.remove_hold_held_item(hold_id,row["resource_type"],row["resource_id"],row["version"],reason); ui.notify(render_message("webui.remove.notify.held_item_removed_180da70b"),color="positive"); await select_hold_details(hold_id)
-                        await hold_reason_dialog("Reason for removing this direct assignment","Remove",remove)
-                    def update_held_item_selection(row: dict[str, Any], selected: bool) -> None:
-                        if selected:
-                            held_item_selection[row["selection_key"]] = dict(row)
-                        else:
-                            held_item_selection.pop(row["selection_key"], None)
-                    if not rows:
-                        ui.label(render_message("webui.load_held_items.label.no_held_items_match_these_filters_c28c6f92")).classes("w-full text-center text-slate-400 py-12")
-                    with ui.element("div").classes("governance-card-list w-full"):
-                        for row in rows:
-                            with ui.card().classes("governance-list-card shadow-none"):
-                                with ui.row().classes("w-full items-start no-wrap gap-3"):
-                                    if hold["capabilities"].get("manage_held_items"):
-                                        selected = ui.checkbox(value=row["selection_key"] in held_item_selection).props("dense")
-                                        selected.on_value_change(lambda event, item=row: update_held_item_selection(item, bool(event.value)))
-                                    with ui.element("div").classes("governance-card-icon mt-1"):
-                                        ui.icon("folder" if row["resource_type"] == "aggregation" else "description", size="22px")
-                                    with ui.column().classes("gap-0 min-w-0 grow"):
-                                        ui.label(row.get("title") or render_message("webui.load_held_items.label.untitled_9d476a3c")).classes("font-semibold text-base leading-tight")
-                                        ui.label(row.get("number") or "—").classes("text-xs font-medium text-primary")
-                                        ui.label(row.get("description") or render_message("webui.load_held_items.label.no_description_provided_db263706")).classes("text-xs text-slate-500 mt-1 leading-5")
-                                    ui.badge(render_message("webui.load_held_items.badge.aggregation_4d7e0b4c") if row["resource_type"] == "aggregation" else render_message("webui.load_held_items.badge.record_58fed782"), color="blue-grey").props("outline")
-                                with ui.element("div").classes("governance-list-facts w-full"):
-                                    for field, label, value in (
-                                        ("security_level", render_message("webui.load_held_items.field.security_level"), row["security_level_display"]),
-                                        ("assigned", render_message("webui.load_held_items.field.assigned"), row["assigned_at_display"]),
-                                        ("assigned_by", render_message("webui.load_held_items.field.assigned_by"), row.get("assigned_by_name") or render_message("webui.load_held_items.value.system")),
-                                        ("direct_assignment", render_message("webui.load_held_items.field.direct_assignment"), render_message("webui.load_held_items.value.yes")),
-                                    ):
-                                        with ui.column().classes("gap-0 min-w-0"):
-                                            ui.label(label).classes("detail-field-label")
-                                            if field == "assigned_by" and row.get("assigned_by_user_id"):
-                                                with ui.button(on_click=lambda _, user_id=row["assigned_by_user_id"]: select_user_details(user_id)).props("flat dense no-caps color=blue-grey-9").classes("self-start -ml-2"):
-                                                    render_user_avatar({"id":row["assigned_by_user_id"],"name":value}, size="26px").style("margin-inline-end:7px !important")
-                                                    ui.label(value).classes("text-sm")
-                                            else:
-                                                ui.label(value).classes("text-sm font-medium truncate w-full").tooltip(value)
-                                with ui.row().classes("w-full justify-end gap-1"):
-                                    ui.button(icon="open_in_new", on_click=lambda _, item=row: open_held_item(item)).props("outline dense color=primary").tooltip(render_message("webui.load_held_items.tooltip.open_resource_527a2063"))
-                                    if hold["capabilities"].get("manage_held_items"):
-                                        ui.button(icon="link_off", on_click=lambda _, item=row: remove_held_item(item)).props("outline dense color=negative").tooltip(render_message("webui.load_held_items.tooltip.remove_from_this_hold_c9ad1e53"))
-                start=held_item_paging["offset"]+1 if held_item_paging["total"] else 0; end=min(held_item_paging["offset"]+len(rows),held_item_paging["total"])
-                held_item_page_status.text=render_message("webui.load_held_items.text.showing_start_end_of_total_held_items_b7918b7e", start=start, end=end, total=held_item_paging['total'])
-                held_item_first.set_enabled(held_item_paging["offset"]>0); held_item_previous.set_enabled(held_item_paging["offset"]>0)
-                held_item_next.set_enabled(held_item_paging["offset"]+held_item_paging["limit"]<held_item_paging["total"]); held_item_last.set_enabled(held_item_paging["offset"]+held_item_paging["limit"]<held_item_paging["total"])
-            async def move_held_item_page(delta:int)->None:
-                held_item_paging["offset"]=max(0,held_item_paging["offset"]+delta*held_item_paging["limit"]); await load_held_items()
-            async def held_item_page_edge(last:bool)->None:
-                held_item_paging["offset"]=(max(0,(held_item_paging["total"]-1)//held_item_paging["limit"])*held_item_paging["limit"] if last else 0); await load_held_items()
-            async def show_add_held_item() -> None:
-                page_size = 50
-                picker = {"offset": 0, "total": 0, "selected": {}}
-                dialog=ui.dialog()
-                with dialog,ui.card().style(
-                    "width:1280px;max-width:calc(100vw - 48px)"
-                ).classes("max-h-[94vh]"):
-                    with ui.row().classes("w-full items-center justify-between no-wrap"):
-                        ui.label(render_message("webui.show_add_held_item.label.add_resources_to_hold_59f543cf")).classes("text-xl font-semibold")
-                        ui.button(icon="close", on_click=dialog.close).props(
-                            'flat round dense aria-label=' + repr(render_message("webui.show_add_held_item.button.cancel_93656897"))
-                        ).tooltip(render_message("webui.show_add_held_item.button.cancel_93656897"))
-                    ui.label(render_message("webui.show_add_held_item.label.search_the_resources_you_can_view_select_a_a096d995")).classes("text-sm text-slate-600")
-                    with ui.row().classes("w-full items-end gap-3"):
-                        candidate_query=ui.input(render_message("webui.show_add_held_item.input.search_number_title_or_description_f135a521"),placeholder=render_message("webui.show_add_held_item.input.for_example_case_2026_or_contract_83e77270")).props("outlined clearable debounce=350").classes("grow")
-                        candidate_type=ui.select({None:render_message("webui.show_add_held_item.select.aggregations_and_records_0c33d8e9"),"aggregation":render_message("webui.show_add_held_item.select.aggregations_only_e3ca93ce"),"record":render_message("webui.show_add_held_item.select.records_only_f985a7d3")},value="aggregation",label=render_message("webui.show_add_held_item.select.resource_type_186980bb")).props("outlined").classes("w-56")
-                    selection_summary=ui.label(render_message("webui.show_add_held_item.label.no_resources_selected_c1ee3075")).classes("text-sm font-medium text-primary")
-                    # Contain the paginated cards: an ordinary flex column shrinks
-                    # while its visible overflow paints behind the reason/footer.
-                    with ui.scroll_area().classes("w-full h-64 max-h-[30vh] shrink-0"):
-                        candidate_host=ui.column().classes("w-full")
-                    with ui.row().classes("w-full items-center justify-between"):
-                        page_status=ui.label().classes("text-sm text-slate-600")
-                        with ui.row().classes("gap-1"):
-                            first_page=ui.button(render_message("webui.show_add_held_item.button.first_ec1eaa60"),icon="first_page").props("flat no-caps")
-                            previous_page=ui.button(render_message("webui.show_add_held_item.button.previous_e18f5c26"),icon="chevron_left").props("flat no-caps")
-                            next_page=ui.button(render_message("webui.show_add_held_item.button.next_3c10a2c8"),icon="chevron_right").props("flat no-caps")
-                            last_page=ui.button(render_message("webui.show_add_held_item.button.last_341e2a6f"),icon="last_page").props("flat no-caps")
-                    reason=ui.textarea(render_message("webui.show_add_held_item.textarea.reason_for_adding_these_resources_3d6f886e")).props("outlined autogrow maxlength=2000").classes("w-full")
-
-                    def update_selection_summary() -> None:
-                        count=len(picker["selected"])
-                        selection_summary.text = render_message(
-                            "webui.update_selection_summary.text.selected_resource_count",
-                            count=count,
-                        )
-
-                    async def load_candidates(*, reset: bool=False) -> None:
-                        if reset: picker["offset"]=0
-                        try:
-                            result=await api.hold_held_item_candidates(
-                                hold_id,q=(candidate_query.value or "").strip() or None,
-                                resource_type=candidate_type.value,limit=page_size,offset=picker["offset"],
-                            )
-                        except ApiError as error:
-                            ui.notify(error_message(error),color="negative",close_button=True); return
-                        rows=result["items"]
-                        for row in rows: row["selection_key"]=f"{row['resource_type']}:{row['resource_id']}"
-                        picker["total"]=result["total"]
-                        candidate_host.clear()
-                        with candidate_host:
-                            if not rows:
-                                ui.label(render_message("webui.load_candidates.label.no_matching_resources_are_available_to_add_bc0471cf")).classes("text-slate-500 p-8 self-center")
-                            else:
-                                def update_candidate_selection(row: dict[str, Any], selected: bool) -> None:
-                                    if selected:
-                                        picker["selected"][row["selection_key"]] = dict(row)
-                                    else:
-                                        picker["selected"].pop(row["selection_key"], None)
-                                    update_selection_summary()
-                                with ui.element("div").classes("governance-card-list w-full"):
-                                    for row in rows:
-                                        with ui.card().classes("governance-list-card shadow-none"):
-                                            with ui.row().classes("w-full items-start no-wrap gap-3"):
-                                                selected = ui.checkbox(value=row["selection_key"] in picker["selected"]).props("dense")
-                                                selected.on_value_change(lambda event, item=row: update_candidate_selection(item, bool(event.value)))
-                                                with ui.element("div").classes("governance-card-icon mt-1"):
-                                                    ui.icon("folder" if row["resource_type"] == "aggregation" else "description", size="22px")
-                                                with ui.column().classes("gap-0 min-w-0 grow"):
-                                                    ui.label(row.get("title") or render_message("webui.load_candidates.label.untitled_9322bbb9")).classes("font-semibold leading-tight")
-                                                    ui.label(row.get("number") or "—").classes("text-xs font-medium text-primary")
-                                                    ui.label(row.get("description") or render_message("webui.load_candidates.label.no_description_provided_bf7f8283")).classes("text-xs text-slate-500 mt-1 leading-5")
-                                                ui.badge(render_message("webui.load_candidates.badge.aggregation_de7a9bf8") if row["resource_type"] == "aggregation" else render_message("webui.load_candidates.badge.record_4970f2fc"), color="blue-grey").props("outline")
-                        start=picker["offset"]+1 if result["total"] else 0
-                        end=min(picker["offset"]+len(rows),result["total"])
-                        page_status.text=render_message("webui.load_candidates.text.showing_start_end_of_total_matching_resour_e74f20c5", start=start, end=end, total=result['total'])
-                        first_page.set_enabled(picker["offset"]>0)
-                        previous_page.set_enabled(picker["offset"]>0)
-                        next_page.set_enabled(picker["offset"]+page_size<result["total"])
-                        last_page.set_enabled(picker["offset"]+page_size<result["total"])
-
-                    async def move_page(direction: int) -> None:
-                        picker["offset"]=max(0,picker["offset"]+direction*page_size)
-                        await load_candidates()
-
-                    async def move_to_edge(last: bool) -> None:
-                        picker["offset"]=(max(0,(picker["total"]-1)//page_size)*page_size if last else 0)
-                        await load_candidates()
-
-                    async def submit() -> None:
-                        if not picker["selected"]: ui.notify(render_message("webui.submit.notify.select_at_least_one_resource_69cf4456"),color="warning"); return
-                        if not(reason.value or "").strip(): ui.notify(render_message("webui.submit.notify.a_reason_is_required_2d25211d"),color="warning"); return
-                        held_items=[{"resource_type":row["resource_type"],"resource_id":row["resource_id"]} for row in picker["selected"].values()]
-                        try:
-                            result=await api.add_hold_held_items_bulk(hold_id,held_items,reason.value.strip())
-                            dialog.close(); ui.notify(render_message("webui.submit.notify.added_resources_added_to_the_hold_860b4c3c", added=result['added']),color="positive"); await select_hold_details(hold_id)
-                        except ApiError as error: ui.notify(error_message(error),color="negative",close_button=True)
-                    candidate_query.on_value_change(lambda:load_candidates(reset=True))
-                    candidate_type.on_value_change(lambda:load_candidates(reset=True))
-                    first_page.on("click",lambda:move_to_edge(False)); previous_page.on("click",lambda:move_page(-1))
-                    next_page.on("click",lambda:move_page(1)); last_page.on("click",lambda:move_to_edge(True))
-                    with ui.row().classes("w-full justify-end gap-2"):
-                        ui.button(render_message("webui.show_add_held_item.button.cancel_93656897"),on_click=dialog.close).props("flat no-caps")
-                        ui.button(render_message("webui.show_add_held_item.button.add_held_items_be6b0111"),icon="playlist_add",on_click=submit).props("unelevated no-caps")
-                    await load_candidates()
-                dialog.open()
-            held_item_refresh.on("click",load_held_items); held_item_query.on_value_change(lambda:load_held_items(reset=True)); held_item_type.on_value_change(lambda:load_held_items(reset=True)); held_item_sort.on_value_change(lambda:load_held_items(reset=True))
-            held_item_assigned_by.on_value_change(lambda:load_held_items(reset=True)); held_item_assigned_from.on_value_change(lambda:load_held_items(reset=True)); held_item_assigned_before.on_value_change(lambda:load_held_items(reset=True))
-            held_item_first.on("click",lambda:held_item_page_edge(False)); held_item_previous.on("click",lambda:move_held_item_page(-1)); held_item_next.on("click",lambda:move_held_item_page(1)); held_item_last.on("click",lambda:held_item_page_edge(True))
-            if hold["capabilities"].get("manage_held_items"): add_held_item.on("click",show_add_held_item)
-            if hold["capabilities"].get("manage_held_items"):
-                async def remove_selected() -> None:
-                    selected=list(held_item_selection.values())
-                    if not selected: ui.notify(render_message("webui.remove_selected.notify.select_one_or_more_held_items_c34cd7be"),color="warning"); return
-                    async def remove(reason:str)->None:
-                        await api.remove_hold_held_items_bulk(hold_id,[{"resource_type":row["resource_type"],"resource_id":row["resource_id"],"version":row["version"]} for row in selected],reason)
-                        held_item_selection.clear(); ui.notify(render_message("webui.remove.notify.selected_count_held_items_removed_from_nam_4794d2e9", selected_count=len(selected), name=hold['name']),color="positive"); await select_hold_details(hold_id)
-                    await hold_reason_dialog(f"Remove {len(selected)} selected held items from {hold['name']}?","Remove held items",remove)
-                remove_selected_held_items.on("click",remove_selected)
-            await load_held_items()
-
-    async def select_translation_administration(initial_key: str | None = None) -> None:
-        register_navigation("translations", render_message("navigation.item.translations"))
-        show_authenticated_view()
+    def enter_translations() -> None:
         state.update(resource="translations", rows=[], searched=True)
-        title.text = render_message("navigation.item.translations")
-        subtitle.text = render_message("localization.administration.subtitle")
-        search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
-        add_button.set_visibility(False); add_record_button.set_visibility(False); guidance.text = ""
-        table_container.clear()
-        languages = await api.localization_languages()
-        selected_tag = state.get("translation_language") or next(
-            (item["language_tag"] for item in languages if item["language_tag"].lower() != "en"),
-            languages[0]["language_tag"],
-        )
-        administration_language = {"value": selected_tag}
-        language_cards: dict[str, Any] = {}
-        # The primary pager operates on complete context groups. Individual
-        # translation keys are never split arbitrarily between main pages.
-        page = {"offset": int(state.get("translation_offset", 0)), "limit": 10, "total": 0, "key_total": 0}
-        expanded_contexts = set(state.get("translation_expanded_contexts") or [])
-        message_load = {"sequence": 0}
 
-        def set_translation_context_expanded(context_group: str, expanded: bool) -> None:
-            if expanded:
-                expanded_contexts.add(context_group)
-            else:
-                expanded_contexts.discard(context_group)
-            state["translation_expanded_contexts"] = sorted(expanded_contexts)
-
-        with table_container, ui.column().classes("w-full p-4 gap-4"):
-            with ui.card().classes("w-full shadow-none border border-slate-200 p-3 gap-3"):
-                with ui.row().classes("translation-card-toolbar w-full items-center justify-between gap-2"):
-                    with ui.row().classes("items-center gap-2"):
-                        ui.icon("language", color="primary", size="24px")
-                        ui.label(render_message("webui.select_translation_administration.label.supported_languages_0a3fd31a")).classes("text-lg font-semibold")
-                    with ui.row().classes("translation-card-actions items-center gap-1"):
-                        bulk_publish_all = ui.button(icon="done_all").props(
-                            'flat round dense aria-label=' + repr(render_message("localization.bulk.action.review_publish_all"))
-                        ).tooltip(render_message("localization.bulk.action.review_publish_all"))
-                        import_artifact = ui.button(icon="upload_file").props(
-                            'flat round dense aria-label=' + repr(render_message("localization.artifact.import.action"))
-                        ).tooltip(render_message("localization.artifact.import.action"))
-                        export_artifact = ui.button(icon="download").props(
-                            'flat round dense aria-label=' + repr(render_message("localization.artifact.export.action"))
-                        ).tooltip(render_message("localization.artifact.export.action"))
-                        add_language = ui.button(icon="add").props(
-                            'flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.add_supported_language_e7682117"))
-                        ).tooltip(render_message("webui.select_translation_administration.tooltip.add_supported_language_59cab869"))
-                with ui.row().classes("w-full gap-2 flex-wrap"):
-                    for language in languages:
-                        is_selected = language["language_tag"] == selected_tag
-                        language_card = ui.card().classes(
-                            "shadow-none border px-3 py-2 min-w-48 gap-0 cursor-pointer " +
-                            ("border-primary bg-blue-50" if is_selected else "border-slate-200")
-                        ).props(
-                            f"role=button tabindex=0 aria-pressed={'true' if is_selected else 'false'}"
-                        )
-                        language_cards[language["language_tag"]] = language_card
-                        with language_card:
-                            with ui.row().classes("items-center gap-2 no-wrap"):
-                                ui.label(language["native_name"]).classes("font-semibold")
-                                ui.badge(language["language_tag"]).props("outline")
-                                if language["is_default"]: ui.icon("home", size="16px").tooltip(render_message("webui.select_translation_administration.tooltip.system_default_9488a1a9"))
-                                if not language["is_enabled"]: ui.icon("visibility_off", color="grey").tooltip(render_message("webui.select_translation_administration.tooltip.disabled_ab08d474"))
-                            ui.label(render_message(
-                                "localization.administration.language_metadata",
-                                english_name=language["english_name"],
-                                direction=language["direction"].upper(),
-                                revision=language["catalogue_revision"],
-                            )).classes("text-xs text-slate-500")
-
-            with ui.card().classes("w-full shadow-none border border-slate-200 p-3 gap-2") as generation_card:
-                with ui.row().classes("translation-card-toolbar w-full items-center justify-between gap-2"):
-                    with ui.row().classes("translation-card-heading items-center gap-2"):
-                        ui.icon("auto_awesome", color="primary", size="20px")
-                        ui.label(render_message("localization.generation.review.title")).classes("font-semibold")
-                    with ui.row().classes("translation-card-actions items-center gap-1"):
-                        generation_bulk_publish = ui.button(icon="done_all").props(
-                            'flat round dense color=primary aria-label=' +
-                            repr(render_message("localization.bulk.action.review_publish_all"))
-                        ).tooltip(render_message("localization.bulk.action.review_publish_all"))
-                        generation_status_icon = ui.icon("hourglass_empty", color="grey", size="18px")
-                        with generation_status_icon:
-                            generation_status_tooltip = ui.tooltip(
-                                render_message("common.status.loading")
-                            )
-                generation_coverage = ui.label().classes("text-sm font-medium")
-                ui.label(render_message("localization.generation.review.guidance")).classes("text-xs text-slate-500 max-w-4xl")
-
-            with ui.card().classes(
-                "w-full shadow-none border border-blue-200 bg-blue-50 p-3 gap-1"
-            ):
-                with ui.row().classes("w-full items-start gap-2 no-wrap"):
-                    ui.icon("data_object", color="primary", size="20px")
-                    with ui.column().classes("gap-1 grow min-w-0"):
-                        ui.label(
-                            render_message("localization.placeholder_guidance.title")
-                        ).classes("text-sm font-semibold")
-                        ui.label(
-                            render_message("localization.placeholder_guidance.body")
-                        ).classes("text-xs text-slate-600 leading-5")
-                        ui.label(
-                            render_message("localization.placeholder_guidance.example")
-                        ).classes("font-mono text-xs text-blue-900")
-
-            with ui.card().classes("w-full shadow-none border border-slate-200 p-3 gap-3"):
-                with ui.row().classes("translation-filter-row w-full items-end gap-2 flex-wrap"):
-                    key_filter = ui.input(
-                        render_message("webui.select_translation_administration.input.key_16b82d81"),
-                        value=initial_key or "",
-                    ).props("outlined dense clearable debounce=350").classes("w-56")
-                    source_filter = ui.input(render_message("localization.filter.source_text")).props("outlined dense clearable debounce=350").classes("w-56")
-                    text_filter = ui.input(render_message("webui.select_translation_administration.input.translated_text_054048b6")).props("outlined dense clearable debounce=350").classes("w-56")
-                    meaning_filter = ui.input(render_message("webui.select_translation_administration.input.semantic_meaning_b8e3fe8d")).props("outlined dense clearable debounce=350").classes("w-60")
-                    status_filter = ui.select({"all":render_message("localization.filter.status.all"),"draft":render_message("localization.filter.status.draft"),"published":render_message("localization.filter.status.published")},value="all",label=render_message("webui.select_translation_administration.select.status_9d5af32b")).props("outlined dense options-dense").classes("w-40")
-                    review_filter = ui.select(
-                        {
-                            "all": render_message("localization.filter.review.all"),
-                            "reviewed": render_message("localization.filter.review.reviewed"),
-                            "unreviewed": render_message("localization.filter.review.unreviewed"),
-                        },
-                        value="all",
-                        label=render_message("localization.filter.review.label"),
-                    ).props("outlined dense options-dense").classes("w-40")
-                    origin_filter = ui.select({"all":render_message("localization.filter.origin.all"),"source_copy":render_message("localization.filter.origin.source_copy"),"manual":render_message("localization.filter.origin.manual"),"generated":render_message("localization.filter.origin.generated"),"imported":render_message("localization.filter.origin.imported")},value="all",label=render_message("webui.select_translation_administration.select.origin_8d7c0b5f")).props("outlined dense options-dense").classes("w-40")
-                    attention_filter = ui.checkbox(render_message("webui.select_translation_administration.checkbox.needs_attention_752fcdc8"), value=False).props("dense")
-                    clear_filters = ui.button(icon="filter_alt_off").props('flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.clear_all_filters_ab8e4797"))).tooltip(render_message("webui.select_translation_administration.tooltip.clear_all_filters_c724f659"))
-                result_summary = ui.label().classes("text-xs text-slate-500")
-            results = ui.column().classes("w-full gap-2")
-            with ui.row().classes("w-full items-center justify-between"):
-                previous_page = ui.button(icon="chevron_left").props('flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.previous_page_ceba2a82"))).tooltip(render_message("webui.select_translation_administration.tooltip.previous_page_626c5552"))
-                page_status = ui.label().classes("text-xs text-slate-500")
-                next_page = ui.button(icon="chevron_right").props('flat round dense aria-label=' + repr(render_message("webui.select_translation_administration.accessible_name.next_page_6ae11376"))).tooltip(render_message("webui.select_translation_administration.tooltip.next_page_4579f1d3"))
-
-        async def language_dialog() -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[560px] max-w-full gap-3"):
-                ui.label(render_message("webui.language_dialog.label.add_supported_language_5f47cbe5")).classes("text-xl font-semibold")
-                ui.label(render_message("webui.language_dialog.label.a_complete_english_source_copy_queue_will_e6ad606f")).classes("text-sm text-slate-500")
-                tag = ui.input(render_message("webui.language_dialog.input.language_tag_06f051a8")).props("outlined dense").classes("w-full")
-                english = ui.input(render_message("webui.language_dialog.input.english_name_d777670b")).props("outlined dense").classes("w-full")
-                native = ui.input(render_message("webui.language_dialog.input.native_name_b20c7ddf")).props("outlined dense").classes("w-full")
-                direction = ui.select({"ltr":render_message("localization.direction.ltr"),"rtl":render_message("localization.direction.rtl")},value="ltr",label=render_message("webui.language_dialog.select.direction_06f49582")).props("outlined dense").classes("w-full")
-                enabled = ui.checkbox(render_message("webui.language_dialog.checkbox.enabled_6349b67b"), value=True)
-                reason = ui.input(render_message("webui.language_dialog.input.change_reason_43395b30")).props("outlined dense").classes("w-full")
-                async def submit_language() -> None:
-                    if not (tag.value or "").strip() or not (english.value or "").strip() or not (native.value or "").strip() or not (reason.value or "").strip():
-                        ui.notify(render_message("webui.submit_language.notify.complete_all_required_fields_and_enter_a_c_ce2134ba"), color="warning"); return
-                    try:
-                        await api.create_localization_language({"language_tag":tag.value,"english_name":english.value,"native_name":native.value,"direction":direction.value,"is_enabled":enabled.value,"is_default":False,"formatting_config":{"locale":tag.value}},reason.value)
-                        dialog.close(); ui.notify(render_message("webui.submit_language.notify.supported_language_added_c62b373a"),color="positive"); await select_translation_administration()
-                    except ApiError as error: ui.notify(error_message(error),color="negative",close_button=True)
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(render_message("webui.language_dialog.button.cancel_8d45c1e5"),on_click=dialog.close).props("flat no-caps")
-                    ui.button(render_message("webui.language_dialog.button.add_language_bd158eeb"),icon="add",on_click=submit_language).props("unelevated no-caps")
-            dialog.open()
-
-        async def edit_translation(
-            item: dict[str, Any], *, after_persist: Callable[[], Any] | None = None,
-        ) -> None:
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[900px] max-w-full gap-3"):
-                with ui.row().classes("w-full items-start gap-2"):
-                    with ui.column().classes("gap-0 grow min-w-0"):
-                        ui.label(item["message_key"]).classes("font-mono text-sm font-semibold break-all")
-                        ui.label(
-                            render_message("webui.select_translation_administration.input.semantic_meaning_b8e3fe8d")
-                        ).classes("detail-field-label mt-2")
-                        ui.label(item["semantic_meaning"]).classes("text-sm text-slate-600 leading-5")
-                    ui.badge(item["validity"].replace("_"," ").title(),color="amber" if item["validity"]!="valid" else "positive").props("outline")
-                with ui.row().classes("w-full gap-3 items-stretch"):
-                    with ui.card().classes("shadow-none bg-slate-50 p-3 gap-2 flex-1 min-w-0"):
-                        ui.label(render_message("webui.edit_translation.label.english_source_3c72859a")).classes("detail-field-label")
-                        ui.label(item["default_text"]).classes("text-sm")
-                        ui.label(render_message("webui.edit_translation.label.rendered_example_cb005617")).classes("detail-field-label mt-2")
-                        ui.label(item["rendered_example"]).classes("text-sm")
-                    with ui.card().classes("shadow-none border border-slate-200 p-3 gap-2 flex-1 min-w-0"):
-                        ui.label(render_message("webui.edit_translation.label.translator_guidance_6f283ab4")).classes("detail-field-label")
-                        ui.label(item["translator_guidance"]).classes("text-sm")
-                        ui.label(render_message("localization.editor.grammatical_role",role=item["grammatical_role"])).classes("text-xs text-slate-500")
-                        ui.label(render_message("localization.editor.common_locations",locations=", ".join(item["common_locations"]))).classes("text-xs text-slate-500")
-                        ui.label(render_message("localization.editor.parameters",parameters=", ".join(f"{k}: {v}" for k,v in item["parameter_schema"].items()) or render_message("localization.editor.parameters.none"))).classes("text-xs text-slate-500")
-                translation = ui.textarea(render_message("webui.edit_translation.textarea.translation_f0b41724"),value=item.get("translated_text") or "").props("outlined autogrow").classes("w-full")
-                inline_error = ui.label().classes("text-sm text-negative")
-                origin = ui.select({"manual":render_message("localization.filter.origin.manual"),"generated":render_message("localization.filter.origin.generated"),"imported":render_message("localization.filter.origin.imported")},value="manual" if item.get("origin")=="source_copy" else item.get("origin") or "manual",label=render_message("webui.edit_translation.select.origin_65b2b457")).props("outlined dense options-dense").classes("w-48")
-                reviewed = ui.checkbox(render_message("webui.edit_translation.checkbox.reviewed_by_me_a4519872"),value=bool(item.get("date_reviewed")))
-                reason = ui.input(render_message("webui.edit_translation.input.change_reason_75cafd6a")).props("outlined dense").classes("w-full")
-                with ui.row().classes("w-full justify-end gap-2"):
-                    cancel = ui.button(icon="close").props('flat round aria-label=' + repr(render_message("webui.edit_translation.accessible_name.close_translation_editor_da93bee8"))).tooltip(render_message("webui.edit_translation.tooltip.close_e743eb2f"))
-                    save = ui.button(icon="save").props('flat round color=primary aria-label=' + repr(render_message("webui.edit_translation.accessible_name.save_translation_draft_99ac0e72"))).tooltip(render_message("webui.edit_translation.tooltip.save_draft_fe503c91"))
-                    publish = ui.button(icon="publish").props('unelevated round color=primary aria-label=' + repr(render_message("webui.edit_translation.accessible_name.publish_translation_c7947bff"))).tooltip(render_message("webui.edit_translation.tooltip.publish_387dcb6f"))
-                cancel.on("click",dialog.close)
-                def validate_entry() -> bool:
-                    blank=not (translation.value or "").strip(); missing_reason=not (reason.value or "").strip()
-                    inline_error.text=render_message("localization.editor.validation.translation_required") if blank else render_message("localization.editor.validation.reason_required") if missing_reason else ""
-                    save.set_enabled(not blank and not missing_reason);publish.set_enabled(not blank and not missing_reason)
-                    return not blank and not missing_reason
-                translation.on_value_change(validate_entry);reason.on_value_change(validate_entry);validate_entry()
-                async def persist(do_publish: bool) -> None:
-                    if not validate_entry(): return
-                    try:
-                        scroll_top = await page_client.run_javascript(
-                            "document.scrollingElement?.scrollTop || window.scrollY || 0"
-                        )
-                        saved=await api.update_localization_translation(item["message_key"],administration_language["value"],{"translated_text":translation.value,"origin":origin.value,"reviewed":reviewed.value,"generation_metadata":item.get("generation_metadata")},item["translation_version"],reason.value)
-                        if do_publish: await api.publish_localization_translation(item["message_key"],administration_language["value"],saved["version"],reason.value)
-                        dialog.close();ui.notify(render_message("localization.editor.notify.published") if do_publish else render_message("localization.editor.notify.saved"),color="positive");await load_messages(restore_scroll=scroll_top)
-                        if after_persist is not None:
-                            result = after_persist()
-                            if inspect.isawaitable(result):
-                                await result
-                    except ApiError as error:
-                        inline_error.text=error_message(error)
-                save.on("click",lambda:persist(False));publish.on("click",lambda:persist(True))
-            dialog.open()
-
-        async def bulk_review_publish_dialog(
-            context_group: str | None = None, *, language_tag: str | None = None,
-        ) -> None:
-            target_language = language_tag or administration_language["value"]
-            try:
-                preview = await api.preview_bulk_localization_publication(
-                    target_language, context_group or "",
-                )
-            except ApiError as error:
-                ui.notify(error_message(error),color="negative",close_button=True);return
-            dialog=ui.dialog().props("persistent")
-            with dialog,ui.card().classes("w-[680px] max-w-full gap-3"):
-                with ui.row().classes("w-full items-center gap-2"):
-                    ui.icon("done_all",color="primary",size="22px")
-                    ui.label(render_message("localization.bulk.dialog.title")).classes("text-lg font-semibold grow")
-                scope_text=(context_group if context_group else render_message("localization.bulk.scope.all"))
-                ui.label(render_message("localization.bulk.dialog.summary",count=preview["count"],scope=scope_text)).classes("text-sm")
-                ui.label(render_message("localization.bulk.dialog.guidance")).classes("text-xs text-slate-500")
-                source_copy_excluded=int(preview.get("source_copy_excluded") or 0)
-                if source_copy_excluded:
-                    ui.label(render_message(
-                        "localization.bulk.dialog.source_copies_excluded",
-                        count=source_copy_excluded,
-                    )).classes("text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3")
-                invalid=preview.get("invalid") or []
-                if invalid:
-                    with ui.card().classes("w-full shadow-none border border-red-300 bg-red-50 p-3 gap-1"):
-                        ui.label(render_message("localization.bulk.dialog.blocked",count=len(invalid))).classes("text-sm font-semibold text-negative")
-                        for problem in invalid[:20]:
-                            ui.label(render_message("webui.bulk_review_publish_dialog.label.message_key_code_19cb32db", message_key=problem['message_key'], code=problem['code'])).classes("font-mono text-xs break-all")
-                        if len(invalid)>20:
-                            ui.label(render_message("localization.bulk.dialog.more_invalid",count=len(invalid)-20)).classes("text-xs text-slate-600")
-                reason=ui.input(render_message("localization.bulk.field.change_reason")).props("outlined dense").classes("w-full")
-                inline_error=ui.label().classes("text-sm text-negative")
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(icon="close",on_click=dialog.close).props('flat round aria-label=' + repr(render_message("webui.bulk_review_publish_dialog.accessible_name.cancel_9a278e83"))).tooltip(render_message("localization.bulk.action.cancel"))
-                    confirm=ui.button(icon="publish").props('unelevated round color=primary aria-label=' + repr(render_message("webui.bulk_review_publish_dialog.accessible_name.review_and_publish_selected_translations_4a6ed1b8"))).tooltip(render_message("localization.bulk.action.confirm"))
-                def validate_bulk() -> bool:
-                    valid=bool(preview["items"]) and not invalid and bool((reason.value or "").strip())
-                    inline_error.text="" if valid or not preview["items"] else render_message("localization.bulk.validation.reason_required") if not (reason.value or "").strip() else ""
-                    confirm.set_enabled(valid)
-                    return valid
-                async def submit_bulk() -> None:
-                    if not validate_bulk():return
-                    try:
-                        result=await api.bulk_review_publish_localization(target_language,preview["items"],reason.value.strip())
-                        dialog.close();ui.notify(render_message("localization.bulk.notify.published",count=result["published"]),color="positive");await load_messages(True)
-                    except ApiError as error:
-                        inline_error.text=error_message(error)
-                reason.on_value_change(validate_bulk);confirm.on("click",submit_bulk);validate_bulk()
-            dialog.open()
-
-        async def export_artifact_dialog() -> None:
-            target_language = administration_language["value"]
-            selected_language = next(
-                item for item in languages if item["language_tag"] == target_language
-            )
-            dialog = ui.dialog().props("persistent")
-            with dialog, ui.card().classes("w-[680px] max-w-full gap-3"):
-                with ui.row().classes("w-full items-center gap-2"):
-                    ui.icon("download", color="primary", size="22px")
-                    ui.label(render_message("localization.artifact.export.title")).classes("text-lg font-semibold grow")
-                ui.label(render_message("localization.artifact.export.guidance")).classes("text-sm text-slate-600")
-                with ui.row().classes("w-full items-center gap-2"):
-                    ui.label(
-                        render_message("webui.select_translation_administration.select.language_5b6f200e")
-                    ).classes("text-sm text-slate-500")
-                    ui.label(selected_language["native_name"]).classes("font-semibold")
-                    ui.badge(target_language).props("outline")
-                include_drafts = ui.checkbox(
-                    render_message("localization.artifact.export.include_reviewed_drafts"), value=False,
-                ).props("dense")
-                summary_label = ui.label().classes("text-sm")
-                problems = ui.column().classes("w-full gap-1")
-                export_actions = ui.row().classes("w-full justify-end gap-2")
-
-                async def focus_export_problem(message_key: str) -> None:
-                    """Open one blocked row and return to the refreshed export queue."""
-                    try:
-                        data = await api.localization_messages(
-                            language_tag=target_language,
-                            key=message_key,
-                            status="all",
-                            origin="all",
-                            review_state="all",
-                            limit=200,
-                            offset=0,
-                        )
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True)
-                        return
-                    item = next(
-                        (entry for entry in data.get("items", []) if entry["message_key"] == message_key),
-                        None,
-                    )
-                    if item is None:
-                        return
-                    dialog.close()
-                    await edit_translation(
-                        item,
-                        after_persist=export_artifact_dialog,
-                    )
-
-                def render_export_problem(message_key: str, code: str | None = None) -> None:
-                    with ui.row().classes("w-full items-center gap-2 no-wrap py-1"):
-                        ui.label(message_key).classes(
-                            "font-mono text-xs break-all grow min-w-0"
-                        )
-                        if code:
-                            ui.badge(code.replace("_", " ")).props("outline color=negative")
-                        ui.button(
-                            icon="edit",
-                            on_click=lambda _, key=message_key: focus_export_problem(key),
-                        ).props(
-                            'flat round dense aria-label=' +
-                            repr(render_message("webui.load_messages.accessible_name.edit_translation_c3be8114"))
-                        ).tooltip(
-                            render_message("webui.load_messages.tooltip.edit_translation_7e06ffab")
-                        )
-
-                async def refresh_export_preview() -> None:
-                    try:
-                        preview = await api.preview_localization_export(
-                            target_language,
-                            include_reviewed_drafts=bool(include_drafts.value),
-                        )
-                    except ApiError as error:
-                        summary_label.text = error_message(error); download.disable(); return
-                    summary_label.text = render_message(
-                        "localization.artifact.export.summary",
-                        exportable=preview["exportable_keys"], active=preview["active_keys"],
-                        changed=preview["changed_from_checked_in"], drafts=preview["reviewed_draft_overrides"],
-                    )
-                    problems.clear()
-                    with problems:
-                        if preview["missing_keys"]:
-                            with ui.expansion(
-                                render_message(
-                                    "localization.artifact.export.missing",
-                                    count=len(preview["missing_keys"]),
-                                ),
-                                icon="warning_amber",
-                            ).classes("w-full border border-red-200 rounded-lg text-negative"):
-                                with ui.column().classes("w-full gap-0 px-3 pb-2 max-h-72 overflow-y-auto"):
-                                    for message_key in preview["missing_keys"]:
-                                        render_export_problem(message_key)
-                        if preview["invalid_keys"]:
-                            with ui.expansion(
-                                render_message(
-                                    "localization.artifact.export.invalid",
-                                    count=len(preview["invalid_keys"]),
-                                ),
-                                icon="error_outline",
-                            ).classes("w-full border border-red-200 rounded-lg text-negative"):
-                                with ui.column().classes("w-full gap-0 px-3 pb-2 max-h-72 overflow-y-auto"):
-                                    for problem in preview["invalid_keys"]:
-                                        render_export_problem(
-                                            problem["message_key"], problem.get("code")
-                                        )
-                    download.set_enabled(bool(preview["complete"]))
-                    bulk_review.enable()
-
-                async def download_export() -> None:
-                    try:
-                        result = await api.export_localization_artifact(
-                            target_language,
-                            include_reviewed_drafts=bool(include_drafts.value),
-                        )
-                    except ApiError as error:
-                        ui.notify(error_message(error), color="negative", close_button=True); return
-                    content = json.dumps(result["artifact"], ensure_ascii=False, indent=2).encode("utf-8")
-                    ui.download(content, result["filename"], "application/json")
-                    dialog.close()
-                    ui.notify(render_message("localization.artifact.export.ready"), color="positive")
-
-                async def open_bulk_review_from_export() -> None:
-                    dialog.close()
-                    # This is a dialog-to-dialog transition. Wait for the
-                    # export overlay to close before opening the bulk review
-                    # confirmation, otherwise the new dialog can disappear in
-                    # the same close cycle.
-                    await asyncio.sleep(0.1)
-                    await bulk_review_publish_dialog(language_tag=target_language)
-
-                with export_actions:
-                    bulk_review = ui.button(
-                        icon="done_all", on_click=open_bulk_review_from_export,
-                    ).props(
-                        'flat round aria-label=' +
-                        repr(render_message("localization.bulk.action.review_publish_all"))
-                    ).tooltip(render_message("localization.bulk.action.review_publish_all"))
-                    ui.button(icon="close", on_click=dialog.close).props("flat round").tooltip(render_message("common.action.cancel"))
-                    download = ui.button(icon="download").props(
-                        'unelevated round color=primary aria-label=' + repr(render_message("localization.artifact.export.download"))
-                    ).tooltip(render_message("localization.artifact.export.download"))
-                include_drafts.on_value_change(refresh_export_preview)
-                download.on("click", download_export)
-            dialog.open()
-            await refresh_export_preview()
-
-        async def import_artifact_dialog() -> None:
-            dialog = ui.dialog().props("persistent")
-            selected: dict[str, Any] = {"artifact": None, "preview": None, "language_tag": None}
-            with dialog, ui.card().classes("w-[720px] max-w-full gap-3"):
-                with ui.row().classes("w-full items-center gap-2"):
-                    ui.icon("upload_file", color="primary", size="22px")
-                    ui.label(render_message("localization.artifact.import.title")).classes("text-lg font-semibold grow")
-                ui.label(render_message("localization.artifact.import.guidance")).classes("text-sm text-slate-600")
-                import_language = ui.label().classes("text-sm font-semibold")
-                summary_label = ui.label(render_message("localization.artifact.import.choose_file")).classes("text-sm")
-                problems = ui.column().classes("w-full gap-1")
-                reason = ui.input(render_message("localization.bulk.field.change_reason")).props("outlined dense").classes("w-full")
-
-                def validate_import() -> None:
-                    preview = selected.get("preview") or {}
-                    confirm.set_enabled(bool(preview.get("complete") and (reason.value or "").strip()))
-
-                def uploaded(event: events.MultiUploadEventArguments) -> None:
-                    try:
-                        files = buffer_upload_batch(event)
-                        if len(files) != 1:
-                            raise ValueError("one JSON artifact is required")
-                        artifact = json.loads(files[0][0].decode("utf-8"))
-                        if not isinstance(artifact, dict):
-                            raise ValueError("artifact root must be an object")
-                        artifact_language = str(artifact.get("language_tag") or "").strip()
-                        if not artifact_language:
-                            raise ValueError("artifact language_tag is required")
-                    except (OSError, UnicodeError, ValueError, json.JSONDecodeError) as error:
-                        summary_label.text = render_message("localization.artifact.import.unreadable", error=str(error))
-                        import_language.text = ""
-                        selected.update(artifact=None, preview=None, language_tag=None); validate_import(); return
-
-                    language = next(
-                        (
-                            item for item in languages
-                            if item["language_tag"].lower() == artifact_language.lower()
-                        ),
-                        None,
-                    )
-                    import_language.text = (
-                        f"{language['native_name']} ({language['language_tag']})"
-                        if language else artifact_language
-                    )
-
-                    async def preview_import() -> None:
-                        try:
-                            preview = await api.preview_localization_import(artifact_language, artifact)
-                        except ApiError as error:
-                            summary_label.text = error_message(error); selected.update(artifact=None, preview=None, language_tag=None); validate_import(); return
-                        selected.update(artifact=artifact, preview=preview, language_tag=artifact_language)
-                        summary_label.text = render_message(
-                            "localization.artifact.import.summary",
-                            importable=preview["importable"], protected=preview["protected"],
-                            unchanged=preview["unchanged"], active=preview["active_keys"],
-                        )
-                        problems.clear()
-                        with problems:
-                            if preview["missing_keys"]:
-                                ui.label(render_message("localization.artifact.import.missing", count=len(preview["missing_keys"]))).classes("text-sm text-negative")
-                            if preview["invalid_keys"]:
-                                invalid_codes = {
-                                    item.get("code") for item in preview["invalid_keys"]
-                                }
-                                if "artifact_key_order_mismatch" in invalid_codes:
-                                    ui.label(render_message(
-                                        "localization.artifact.import.key_order_mismatch"
-                                    )).classes("text-sm text-negative")
-                                remaining_invalid = sum(
-                                    item.get("code") != "artifact_key_order_mismatch"
-                                    for item in preview["invalid_keys"]
-                                )
-                                if remaining_invalid:
-                                    ui.label(render_message(
-                                        "localization.artifact.import.invalid",
-                                        count=remaining_invalid,
-                                    )).classes("text-sm text-negative")
-                        validate_import()
-
-                    background_tasks.create(preview_import())
-
-                ui.upload(
-                    on_multi_upload=uploaded, auto_upload=True, multiple=False,
-                    label=render_message("localization.artifact.import.choose_file"),
-                ).props("accept=.json,application/json").classes("w-full")
-                with ui.row().classes("w-full justify-end gap-2"):
-                    ui.button(icon="close", on_click=dialog.close).props("flat round").tooltip(render_message("common.action.cancel"))
-                    confirm = ui.button(icon="upload_file").props(
-                        'unelevated round color=primary aria-label=' + repr(render_message("localization.artifact.import.confirm"))
-                    ).tooltip(render_message("localization.artifact.import.confirm"))
-
-                async def submit_import() -> None:
-                    validate_import()
-                    if not (selected.get("preview") or {}).get("complete") or not (reason.value or "").strip() or selected["artifact"] is None:
-                        return
-                    try:
-                        result = await api.import_localization_artifact(
-                            selected["language_tag"], selected["artifact"], reason.value.strip(),
-                        )
-                    except ApiError as error:
-                        summary_label.text = error_message(error); return
-                    dialog.close()
-                    ui.notify(render_message("localization.artifact.import.done", count=result["imported"]), color="positive")
-                    state["translation_language"] = selected["language_tag"]
-                    await select_translation_administration()
-
-                reason.on_value_change(validate_import)
-                confirm.on("click", submit_import)
-                validate_import()
-            dialog.open()
-
-        async def load_messages(reset: bool=False, restore_scroll: float | None = None) -> None:
-            if state.get("resource") != "translations" or results.is_deleted:
-                return
-            # Clear-all also runs in a background task. Resolve every label in
-            # this page's client/language context, including summary updates.
-            with table_container:
-                await load_translation_messages(reset, restore_scroll)
-
-        async def load_translation_messages(reset: bool=False, restore_scroll: float | None = None) -> None:
-            message_load["sequence"] += 1
-            request_sequence = message_load["sequence"]
-            if reset: page["offset"]=0
-            state["translation_language"]=administration_language["value"];state["translation_offset"]=page["offset"]
-            try:
-                request_params = dict(
-                    language_tag=administration_language["value"],
-                    key=strip_diagnostic_metadata(key_filter.value or ""),
-                    source_text=strip_diagnostic_metadata(source_filter.value or ""),
-                    translated_text=strip_diagnostic_metadata(text_filter.value or ""),
-                    semantic_meaning=strip_diagnostic_metadata(meaning_filter.value or ""),
-                    status=status_filter.value,origin=origin_filter.value,
-                    review_state=review_filter.value,
-                    needs_attention=True if attention_filter.value else None,
-                    limit=page["limit"],offset=page["offset"],
-                )
-                data=await api.localization_messages(**request_params)
-                # Persisted offsets from the former key-based pager do not
-                # represent valid group offsets. Filters can also shrink the
-                # available group range. Recover instead of showing no data.
-                group_total = data.get("group_total", len(data.get("context_groups", [])))
-                if group_total and not data["items"] and page["offset"]:
-                    page["offset"] = 0
-                    state["translation_offset"] = 0
-                    request_params["offset"] = 0
-                    data = await api.localization_messages(**request_params)
-                    group_total = data.get("group_total", len(data.get("context_groups", [])))
-                if request_sequence != message_load["sequence"] or state.get("resource") != "translations" or results.is_deleted:
-                    return
-                generation = await api.localization_generation_report(administration_language["value"])
-            except ApiError as error:
-                if request_sequence == message_load["sequence"] and state.get("resource") == "translations" and not results.is_deleted:
-                    ui.notify(error_message(error),color="negative",close_button=True)
-                return
-            # Debounced controls can have more than one request in flight. An
-            # older response must never replace the newest filter result.
-            if request_sequence != message_load["sequence"]:
-                return
-            if state.get("resource") != "translations" or results.is_deleted:
-                return
-            generation_coverage.text = render_message(
-                "localization.generation.review.coverage",
-                total=generation["total"], drafts=generation["drafts"],
-                reviewed=generation["reviewed"], unreviewed=generation["unreviewed"],
-                published=generation["published"], unpublished=generation["unpublished"],
-                quality=generation["quality_attention"],
-            )
-            generation_complete = generation["unpublished"] == 0 and generation["quality_attention"] == 0
-            generation_status_icon.name = "task_alt" if generation_complete else "pending_actions"
-            generation_status_icon.props(f"color={'positive' if generation_complete else 'amber-9'}")
-            generation_status_tooltip.text = (
-                render_message("localization.generation.review.status_complete")
-                if generation_complete
-                else render_message(
-                    "localization.generation.review.status_incomplete",
-                    unpublished=generation["unpublished"],
-                    quality=generation["quality_attention"],
-                )
-            )
-            generation_status_tooltip.update()
-            page["total"]=group_total;page["key_total"]=data["total"];results.clear()
-            grouped: dict[str,list[dict[str,Any]]]={}
-            for item in data["items"]: grouped.setdefault(item["context_group"],[]).append(item)
-            filters_active = bool(
-                (key_filter.value or "").strip()
-                or (source_filter.value or "").strip()
-                or (text_filter.value or "").strip()
-                or (meaning_filter.value or "").strip()
-                or status_filter.value != "all"
-                or origin_filter.value != "all"
-                or review_filter.value != "all"
-                or attention_filter.value
-            )
-            with results:
-                if not data["items"]: ui.label(render_message("webui.load_messages.label.no_translation_keys_match_these_filters_a6127ac6")).classes("w-full text-center text-sm text-slate-500 py-8")
-                for group,items in grouped.items():
-                    attention=sum(item["validity"]!="valid" for item in items)
-                    context_heading = render_message("localization.administration.context_summary",context=group,count=len(items))
-                    if attention:
-                        context_heading += " · " + render_message("localization.administration.attention_summary",count=attention)
-                    with ui.expansion(
-                        context_heading,
-                        icon="folder",
-                        # A successful search must reveal the matching keys;
-                        # requiring another click on a collapsed context made
-                        # exact matches appear to be missing.
-                        value=filters_active or group in expanded_contexts,
-                        on_value_change=lambda event, context=group: set_translation_context_expanded(
-                            context, bool(event.value)
-                        ),
-                    ).classes("w-full border border-slate-200 rounded-lg"):
-                        with ui.row().classes("w-full justify-end px-2 pt-1"):
-                            ui.button(icon="done_all",on_click=lambda _,scope=group:bulk_review_publish_dialog(scope,language_tag=administration_language["value"])).props(
-                                'flat round dense aria-label=' + repr(render_message("webui.load_messages.accessible_name.review_and_publish_generated_drafts_in_thi_b0d0e30d"))
-                            ).tooltip(render_message("localization.bulk.action.review_publish_context"))
-                        for item in items:
-                            card_classes="w-full shadow-none border p-3 gap-1 " + ("border-amber-300 bg-amber-50" if item["validity"]!="valid" else "border-slate-200")
-                            with ui.card().classes(card_classes):
-                                with ui.row().classes("w-full items-start gap-2 no-wrap"):
-                                    if item["validity"]!="valid": ui.icon("warning_amber",color="amber-9",size="18px").props(f"aria-label={item['validity'].replace('_', ' ')!r}").tooltip(item["validity"].replace("_"," ").title())
-                                    with ui.column().classes("gap-0 grow min-w-0"):
-                                        ui.label(item["message_key"]).classes("font-mono text-xs font-semibold break-all")
-                                        ui.label(item.get("translated_text") or render_message("localization.administration.no_translation")).classes("text-sm")
-                                        ui.label(item["semantic_meaning"]).classes("text-xs text-slate-500 line-clamp-2")
-                                    ui.button(icon="edit",on_click=lambda _,entry=item:edit_translation(entry)).props('flat round dense aria-label=' + repr(render_message("webui.load_messages.accessible_name.edit_translation_c3be8114"))).tooltip(render_message("webui.load_messages.tooltip.edit_translation_7e06ffab"))
-            start=page["offset"]+1 if page["total"] else 0;end=min(page["offset"]+len(grouped),page["total"])
-            result_summary.text=render_message("localization.administration.result_count",count=page["key_total"]);page_status.text=render_message("localization.administration.page_range",start=start,end=end,total=page["total"])
-            previous_page.set_enabled(page["offset"]>0);next_page.set_enabled(page["offset"]+page["limit"]<page["total"])
-            if restore_scroll is not None:
-                await page_client.run_javascript(
-                    "requestAnimationFrame(() => requestAnimationFrame(() => "
-                    f"window.scrollTo({{top: {float(restore_scroll)}, behavior: 'auto'}})))"
-                )
-
-        def clear_all() -> None:
-            key_filter.value="";source_filter.value="";text_filter.value="";meaning_filter.value="";status_filter.value="all";origin_filter.value="all";review_filter.value="all";attention_filter.value=False
-            background_tasks.create(load_messages(True))
-
-        async def select_administration_language(language_tag: str) -> None:
-            if administration_language["value"] == language_tag:
-                return
-            administration_language["value"] = language_tag
-            state["translation_language"] = language_tag
-            page["offset"] = 0
-            for tag, card in language_cards.items():
-                selected = tag == language_tag
-                card.classes(
-                    add="border-primary bg-blue-50" if selected else "border-slate-200",
-                    remove="border-slate-200" if selected else "border-primary bg-blue-50",
-                )
-                card.props(f"aria-pressed={'true' if selected else 'false'}")
-            await load_messages(True)
-
-        for control in (key_filter,source_filter,text_filter,meaning_filter,status_filter,origin_filter,review_filter,attention_filter): control.on_value_change(lambda:load_messages(True))
-        for tag, card in language_cards.items():
-            card.on("click", lambda _, language_tag=tag: select_administration_language(language_tag))
-        clear_filters.on("click",clear_all);add_language.on("click",language_dialog)
-        export_artifact.on("click", lambda: export_artifact_dialog())
-        import_artifact.on("click", import_artifact_dialog)
-        bulk_publish_all.on(
-            "click", lambda: bulk_review_publish_dialog(
-                language_tag=administration_language["value"]
-            )
-        )
-        generation_bulk_publish.on(
-            "click", lambda: bulk_review_publish_dialog(
-                language_tag=administration_language["value"]
-            )
-        )
-        async def move_translation_page(delta: int) -> None:
-            page["offset"] = max(0, page["offset"] + delta * page["limit"])
-            await load_messages()
-        previous_page.on("click",lambda:move_translation_page(-1))
-        next_page.on("click",lambda:move_translation_page(1))
-        await load_messages()
+    select_translation_administration = build_translation_administration(
+        api=api,
+        register_navigation=register_navigation,
+        show_authenticated_view=show_authenticated_view,
+        enter_translations=enter_translations,
+        current_page=lambda: state.get("resource"),
+        title=title,
+        subtitle=subtitle,
+        search_bar=search_bar,
+        aggregation_mode_bar=aggregation_mode_bar,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        guidance=guidance,
+        table_container=table_container,
+        page_client=page_client,
+        error_message=error_message,
+        buffer_upload_batch=buffer_upload_batch,
+    )
 
     guarded_page_navigation = navigation_controller.guarded_page_navigation
+
+    def accept_collection_results(rows: list[dict[str, Any]], searched: bool) -> None:
+        state["rows"] = rows
+        state["searched"] = searched
+
+    load_rows = build_collection_loader(
+        api, get_resource=lambda: state["resource"], get_query=lambda: search_input.value,
+        pages=state["collection_pages"], accept_results=accept_collection_results,
+        clear_result_state=lambda resource: state.setdefault("entity_result_states", {}).pop(resource, None),
+        decorate_for_spec=decorate_for_spec,
+        decorate_record_search_components=decorate_record_search_components,
+        page_client=page_client, set_connection_status=set_connection_status,
+        render_table=render_table, error_message=error_message,
+    )
+
+    render_administration_cards = build_administration_cards(
+        format_timestamp=format_timestamp,
+        load_rows=lambda *args, **kwargs: load_rows(*args, **kwargs),
+        localized_account_type=localized_account_type,
+        localized_lifecycle_value=localized_lifecycle_value,
+        open_editor=lambda *args, **kwargs: open_editor(*args, **kwargs),
+        pages=state["collection_pages"],
+        reset_lifecycle_filter=lambda: state.update(lifecycle_filter="all"),
+        get_rows=lambda: state["rows"],
+        select_organization_unit_details=lambda *args, **kwargs: select_organization_unit_details(*args, **kwargs),
+        select_role_details=lambda *args, **kwargs: select_role_details(*args, **kwargs),
+        select_user_details=lambda *args, **kwargs: select_user_details(*args, **kwargs),
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        show_memberships=lambda *args, **kwargs: show_memberships(*args, **kwargs),
+        show_profile_privilege_editor=lambda *args, **kwargs: show_profile_privilege_editor(*args, **kwargs),
+    )
+
+    show_memberships = build_organization_memberships(
+        add_timestamp_slots=add_timestamp_slots,
+        api=api,
+        bind_remote_relationship_select=lambda *args, **kwargs: bind_remote_relationship_select(*args, **kwargs),
+        error_message=error_message,
+        filter_membership_rows=filter_membership_rows,
+        localized_lifecycle_value=localized_lifecycle_value,
+        show_api_error=show_api_error,
+        show_organization_structure=lambda *args, **kwargs: show_organization_structure(*args, **kwargs),
+        user_avatar=user_avatar,
+    )
+
+    confirm_identity_deletion = build_organization_deletion(
+        api=api,
+        deletion_blocked_report=deletion_blocked_report,
+        deletion_identity=deletion_identity,
+        error_message=error_message,
+        show_api_error=show_api_error,
+    )
+
+    select_organization_unit_details = build_organization_units(
+        ADVANCED_SEARCH_CONTROLLED_VALUES=ADVANCED_SEARCH_CONTROLLED_VALUES,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        aggregation_mode_bar=aggregation_mode_bar,
+        api=api,
+        breadcrumb_back=breadcrumb_back,
+        confirm_identity_deletion=lambda *args, **kwargs: confirm_identity_deletion(*args, **kwargs),
+        direction=lambda: current_direction["value"],
+        enter_organization_units=enter_organization_units,
+        error_message=error_message,
+        format_file_size=format_file_size,
+        guidance=guidance,
+        localized_lifecycle_value=localized_lifecycle_value,
+        open_editor=open_editor,
+        register_navigation=register_navigation,
+        search_bar=search_bar,
+        select_entity=select_entity,
+        select_role_details=lambda *args, **kwargs: select_role_details(*args, **kwargs),
+        show_api_error=show_api_error,
+        show_authenticated_view=show_authenticated_view,
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        subtitle=subtitle,
+        table_container=table_container,
+        title=title,
+    )
+
+    select_role_details = build_organization_roles(
+        add_button=add_button,
+        add_record_button=add_record_button,
+        aggregation_mode_bar=aggregation_mode_bar,
+        api=api,
+        breadcrumb_back=breadcrumb_back,
+        confirm_identity_deletion=lambda *args, **kwargs: confirm_identity_deletion(*args, **kwargs),
+        direction=lambda: current_direction["value"],
+        enter_organization_roles=enter_organization_roles,
+        error_message=error_message,
+        get_principal=lambda: auth_state.get("principal"),
+        guidance=guidance,
+        localized_lifecycle_value=localized_lifecycle_value,
+        open_editor=open_editor,
+        register_navigation=register_navigation,
+        search_bar=search_bar,
+        select_entity=select_entity,
+        select_organization_unit_details=lambda *args, **kwargs: select_organization_unit_details(*args, **kwargs),
+        select_text_indexers=lambda: select_text_indexers(),
+        show_api_error=show_api_error,
+        show_authenticated_view=show_authenticated_view,
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        show_memberships=lambda *args, **kwargs: show_memberships(*args, **kwargs),
+        subtitle=subtitle,
+        table_container=table_container,
+        title=title,
+    )
+
+    select_user_details = build_organization_users(
+        accept_application_configuration=accept_application_configuration,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        aggregation_mode_bar=aggregation_mode_bar,
+        api=api,
+        breadcrumb_back=breadcrumb_back,
+        confirm_identity_deletion=lambda *args, **kwargs: confirm_identity_deletion(*args, **kwargs),
+        current_page=lambda: state.get("resource"),
+        direction=lambda: current_direction["value"],
+        enter_organization_users=enter_organization_users,
+        error_message=error_message,
+        format_timestamp=format_timestamp,
+        get_principal=lambda: auth_state.get("principal"),
+        guidance=guidance,
+        localized_account_type=localized_account_type,
+        localized_lifecycle_value=localized_lifecycle_value,
+        open_editor=open_editor,
+        register_navigation=register_navigation,
+        render_user_avatar=render_user_avatar,
+        search_bar=search_bar,
+        select_entity=select_entity,
+        select_role_details=lambda *args, **kwargs: select_role_details(*args, **kwargs),
+        select_text_indexer_details=lambda identity: select_text_indexer_details(identity),
+        show_api_error=show_api_error,
+        show_authenticated_view=show_authenticated_view,
+        show_entity_history=lambda *args, **kwargs: show_entity_history(*args, **kwargs),
+        show_memberships=lambda *args, **kwargs: show_memberships(*args, **kwargs),
+        subtitle=subtitle,
+        table_container=table_container,
+        title=title,
+    )
+
+    show_organization_structure = build_organization_browser(
+        add_button=add_button,
+        add_record_button=add_record_button,
+        aggregation_mode_bar=aggregation_mode_bar,
+        api=api,
+        current_page=lambda: state.get("resource"),
+        enter_organization_browser=enter_organization_browser,
+        error_message=error_message,
+        format_timestamp=format_timestamp,
+        get_principal=lambda: auth_state.get("principal"),
+        guidance=guidance,
+        localized_account_type=localized_account_type,
+        localized_lifecycle_value=localized_lifecycle_value,
+        page_client=page_client,
+        register_navigation=register_navigation,
+        render_user_avatar=render_user_avatar,
+        search_bar=search_bar,
+        select_organization_unit_details=lambda *args, **kwargs: select_organization_unit_details(*args, **kwargs),
+        select_role_details=lambda *args, **kwargs: select_role_details(*args, **kwargs),
+        select_user_details=lambda *args, **kwargs: select_user_details(*args, **kwargs),
+        show_authenticated_view=show_authenticated_view,
+        subtitle=subtitle,
+        table_container=table_container,
+        title=title,
+        tree_expander_icon=tree_expander_icon,
+    )
+
+    select_login_sessions = build_login_sessions(
+        api, table_container=table_container, enter=enter_login_sessions,
+        principal=lambda: auth_state["principal"], current_session_revoked=current_session_revoked,
+        render_user_avatar=render_user_avatar, format_timestamp=format_timestamp,
+        localized_lifecycle_value=localized_lifecycle_value, error_message=error_message,
+    )
+
+    def enter_text_indexers() -> None:
+        state.update(resource='text-indexers', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
+
+    def enter_text_indexer_details() -> None:
+        state.update(resource='text-indexer-details', rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
+
+    select_text_indexers = build_text_indexers(
+        register_navigation=register_navigation,
+        show_authenticated_view=show_authenticated_view,
+        search_bar=search_bar,
+        aggregation_mode_bar=aggregation_mode_bar,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        guidance=guidance,
+        title=title,
+        subtitle=subtitle,
+        table_container=table_container,
+        api=api,
+        error_message=error_message,
+        show_api_error=show_api_error,
+        format_timestamp=format_timestamp,
+        localized_lifecycle_value=localized_lifecycle_value,
+        enter=enter_text_indexers,
+        direction=lambda: current_direction["value"],
+        select_text_indexer_details=lambda *args, **kwargs: select_text_indexer_details(*args, **kwargs),
+        select_record_details=lambda *args, **kwargs: select_record_details(*args, **kwargs),
+        show_components=lambda *args, **kwargs: show_components(*args, **kwargs),
+    )
+
+    select_text_indexer_details = build_text_indexer_details(
+        register_navigation=register_navigation,
+        show_authenticated_view=show_authenticated_view,
+        search_bar=search_bar,
+        aggregation_mode_bar=aggregation_mode_bar,
+        add_button=add_button,
+        add_record_button=add_record_button,
+        guidance=guidance,
+        title=title,
+        subtitle=subtitle,
+        table_container=table_container,
+        api=api,
+        error_message=error_message,
+        show_api_error=show_api_error,
+        format_timestamp=format_timestamp,
+        localized_lifecycle_value=localized_lifecycle_value,
+        enter=enter_text_indexer_details,
+        direction=lambda: current_direction["value"],
+        select_text_indexers=lambda *args, **kwargs: select_text_indexers(*args, **kwargs),
+        breadcrumb_back=lambda *args, **kwargs: breadcrumb_back(*args, **kwargs),
+    )
+
+    apply_document_direction, load_localization_context = build_account_localization(
+        api=api, initial_language=initial_language, initial_direction=initial_direction,
+        set_direction=lambda value: current_direction.__setitem__("value", value),
+        drawer_toggle_button=drawer_toggle_button,
+        get_localization=lambda: state.get("localization"),
+        set_localization=lambda value: state.__setitem__("localization", value),
+        set_configuration=lambda value: state.__setitem__("application_configuration", value),
+    )
+    populate_user_menu, refresh_user_profile = build_account_profile(
+        api=api, get_principal=lambda: auth_state.get("principal"),
+        set_principal=lambda principal: auth_state.__setitem__("principal", principal),
+        drawer=drawer, mobile_navigation=mobile_navigation, header_network=header_network,
+        holds_navigation=holds_navigation, refresh_drawer_visibility=refresh_drawer_visibility,
+        synchronize_translation_inspector=synchronize_translation_inspector,
+        current_user_name=current_user_name, current_user_email=current_user_email,
+        current_user_avatar_initials=current_user_avatar_initials, current_user_avatar=current_user_avatar,
+        current_user_last_login=current_user_last_login, current_user_roles=current_user_roles,
+        format_timestamp=format_timestamp,
+    )
+    show_change_password = build_account_password(
+        api=api, get_principal=lambda: auth_state.get("principal"),
+        prepare_authenticated_workspace=lambda principal: prepare_authenticated_workspace(principal),
+        select_dashboard=lambda: select_dashboard(), sign_out=sign_out, error_message=error_message,
+    )
+    show_preferences = build_account_preferences(
+        api=api, get_localization=lambda: state.get("localization"),
+        error_message=error_message, show_api_error=show_api_error,
+    )
+
+    bind_remote_relationship_select = build_relationship_selector(api, error_message=error_message)
+    bind_resource_security_select = build_security_selector(api, error_message=error_message)
+    show_security_level_change = build_security_level_change(
+        api, bind_remote_relationship_select=bind_remote_relationship_select,
+        error_message=error_message,
+    )
+    access_control_dialogs = build_access_control_dialogs(
+        api, principal=lambda: auth_state.get("principal"), direction=lambda: current_direction["value"],
+        open_aggregation=open_aggregation, show_organization_structure=show_organization_structure,
+        bind_remote_relationship_select=bind_remote_relationship_select, error_message=error_message,
+    )
+    show_acl_editor = access_control_dialogs.show_acl_editor
+    show_access_explanation = build_access_explanation(
+        api, principal=lambda: auth_state.get("principal"), open_aggregation=open_aggregation,
+        localized_editor_entity=localized_editor_entity, error_message=error_message,
+    )
+    show_profile_privilege_editor = build_profile_privilege_editor(
+        api, select_entity=select_entity, error_message=error_message, show_api_error=show_api_error,
+    )
+    row_hydrators = build_row_hydrators(api)
+    number_controls = build_number_controls(api, show_api_error=show_api_error)
+    add_number_suggestion = number_controls.add_number_suggestion
+    show_number_conflict = number_controls.show_number_conflict
+    personal_resources = build_personal_resources(
+        api, personal, get_principal=lambda: auth_state.get("principal"),
+        get_resource=lambda: state.get("resource"),
+        accept_application_configuration=accept_application_configuration,
+        decorate_for_spec=decorate_for_spec, error_message=error_message,
+    )
+    reload_favourites = personal_resources.reload_favourites
+    favourite_state = personal_resources.favourite_state
+    toggle_favourite = personal_resources.toggle_favourite
+    favourite_button = personal_resources.favourite_button
+    load_recent = personal_resources.load_recent
+    personal_views = build_personal_resource_views(
+        api, personal, get_configuration=lambda: state["application_configuration"],
+        render_table=render_table, open_aggregation=open_aggregation,
+        show_record_details=show_record_details, load_recent=load_recent,
+        toggle_favourite=toggle_favourite, error_message=error_message,
+        format_timestamp=format_timestamp, personal_dialog_list_height=personal_dialog_list_height,
+    )
+    render_recent_section = personal_views.render_recent_section
+    render_entity_favourites_section = personal_views.render_entity_favourites_section
+    render_resource_personal_sections = personal_views.render_resource_personal_sections
+    render_compact_resource_result = build_compact_resource_view(
+        tree_expander_icon=tree_expander_icon, favourite_button=favourite_button,
+        render_safe_snippet=render_safe_snippet, preview_record_components=preview_record_components,
+        format_date=format_date, medium_label=medium_label, component_is_previewable=component_is_previewable,
+    )
+
+    browse_classification_tree, browse_advanced_classification = build_classification_pickers(
+        api, direction=lambda: current_direction["value"],
+        tree_expander_icon=tree_expander_icon, error_message=error_message,
+    )
+    relationship_types_controller = RelationshipTypesController(
+        api=api, container=table_container,
+        principal=lambda: auth_state.get("principal"),
+        selected=lambda: state.get("resource") == "relationship-types",
+        enter=enter_relationship_types,
+        supported_languages=lambda: (state.get("localization") or {}).get("supported_languages", []),
+        on_error=error_message,
+    )
+    select_relationship_types = relationship_types_controller.open
 
     application_settings_controller = ApplicationSettingsController(
         api=api, container=table_container,
@@ -20984,26 +9687,33 @@ def index(q: str = "") -> None:
         direction=lambda: current_direction["value"], on_error=error_message,
     )
 
-    async def open_inspected_translation(event: Any) -> None:
-        privileges = set(
-            (auth_state.get("principal") or {}).get("global_privileges", [])
-        )
-        if "localization.administer" not in privileges:
-            await synchronize_translation_inspector(privileges)
-            return
-        message_key = str(
-            await page_client.run_javascript(
-                "document.getElementById('translation-inspector-bridge')?.dataset.translationKey || ''",
-                timeout=5,
-            )
-            or ""
-        ).strip()
-        if not message_key:
-            return
-        user_menu.close()
-        await guarded_page_navigation(
-            lambda: select_translation_administration(initial_key=message_key)
-        )
+    audit_workspace = build_audit_workspace(
+        api=api, table_container=table_container,
+        principal=lambda: auth_state.get("principal"),
+        selected=lambda: state.get("resource") == "audit-trail",
+        enter=enter_audit_trail, error_message=error_message,
+        format_timestamp=format_timestamp, set_connection_status=set_connection_status,
+        can_open_settings=application_settings_controller.can_open,
+        open_settings=application_settings_controller.open_from_event,
+        open_destination=open_audit_entity,
+    )
+    select_audit_trail = audit_workspace.select_audit_trail
+    show_entity_history = audit_workspace.show_entity_history
+
+    classification_controller = ClassificationController(
+        api=api, container=table_container, principal=lambda: auth_state.get("principal"),
+        selected=lambda: state.get("resource") in {
+            "classification-workspace", "classification-scheme-details", "classification-details",
+        },
+        begin=begin_classification_workspace, clear=clear_classification_shell,
+        register=register_classification_page, open_editor=open_editor,
+        show_entity_history=show_entity_history, format_timestamp=format_timestamp,
+        display_value=display_value, error_message=error_message,
+        entity_metadata_label=entity_metadata_label,
+        localized_disposition_value=localized_disposition_value,
+        direction=lambda: current_direction["value"],
+    )
+
 
     inspector_bridge.on("click", open_inspected_translation)
 
@@ -21037,99 +9747,18 @@ def index(q: str = "") -> None:
     custody_navigation.on("click", lambda: guarded_page_navigation(select_governance_custody))
     holds_navigation.on("click", lambda: guarded_page_navigation(select_holds))
     change_password_menu.on("click", show_change_password)
-    async def show_preferences() -> None:
-        try:
-            preference = await api.preferences()
-            bootstrap = state.get("localization") or await api.localization_bootstrap()
-        except ApiError as error:
-            show_api_error(error); return
-        languages = {
-            item["language_tag"]: f"{item['native_name']} ({item['language_tag']})"
-            for item in bootstrap["supported_languages"]
-        }
-        dialog = ui.dialog().props("persistent")
-        with dialog, ui.card().classes("erms-preferences-dialog w-[620px] max-w-full gap-3"):
-            ui.label(render_message("preferences.heading.personal")).classes("text-xl font-semibold")
-            ui.label(render_message("preferences.guidance.personal")).classes("text-sm text-slate-500")
-            language = ui.select(
-                languages, value=preference["language_tag"],
-                label=render_message("preferences.field.language"),
-            ).props("outlined dense options-dense").classes("erms-preference-select w-full")
-            working_timezone = ui.select(
-                sorted(available_timezones()), value=preference["working_timezone"],
-                label=render_message("preferences.field.working_timezone"),
-            ).props("outlined dense options-dense use-input input-debounce=0").classes(
-                "erms-preference-select w-full"
-            )
-            ui.label(render_message("preferences.guidance.working_timezone")).classes("text-xs text-slate-500")
-            inline_error = ui.label().classes("text-sm text-negative")
-            async def save_preferences() -> None:
-                try:
-                    await api.update_preferences(
-                        language.value, working_timezone.value, preference["version"],
-                    )
-                    app.storage.user.pop("localization_context", None)
-                    app.storage.user.pop("localization_messages", None)
-                    app.storage.user.pop("localization_fallback_keys", None)
-                    app.storage.user.pop("localization_catalogue_etag", None)
-                    dialog.close()
-                    await ui.run_javascript("window.location.reload(); true", timeout=5)
-                except ApiError as error:
-                    inline_error.text = error_message(error)
-            with ui.row().classes("w-full justify-end gap-2"):
-                ui.button(
-                    icon="close", on_click=dialog.close,
-                ).props(
-                    f"flat round aria-label={render_message('preferences.action.cancel')!r}"
-                ).tooltip(
-                    render_message("common.action.cancel")
-                )
-                ui.button(
-                    icon="save", on_click=save_preferences,
-                ).props(
-                    f"unelevated round aria-label={render_message('preferences.action.save')!r}"
-                ).tooltip(
-                    render_message("common.action.save")
-                )
-        dialog.open()
     preferences_menu.on("click", show_preferences)
     sign_out_menu.on("click", sign_out)
 
-    async def refresh_user_profile() -> None:
-        if auth_state.get("principal"):
-            try:
-                populate_user_menu(await api.me())
-            except ApiError:
-                # The shared unauthorized handler presents sign-in when needed.
-                pass
 
     user_menu.on("show", refresh_user_profile)
-    async def add_for_current_context() -> None:
-        current = state.get("aggregation_detail")
-        if not current:
-            await open_editor()
-            return
+    add_for_current_context, add_record_for_current_aggregation = build_aggregation_toolbar(
+        aggregation_state=aggregation_state,
+        open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
+        open_editor=lambda *args, **kwargs: open_editor(*args, **kwargs),
+        open_record_draft_editor=lambda *args, **kwargs: open_record_draft_editor(*args, **kwargs),
+    )
 
-        async def refresh_parent(_: dict[str, Any]) -> None:
-            await open_aggregation(current)
-
-        await open_editor(
-            initial_values={"parent_aggregation_id": current["id"]},
-            locked_fields={"parent_aggregation_id"},
-            on_saved=refresh_parent, resource_key="aggregations",
-        )
-
-    async def add_record_for_current_aggregation() -> None:
-        current = state.get("aggregation_detail")
-        if current is None:
-            return
-
-        async def refresh_parent(_: dict[str, Any]) -> None:
-            await open_aggregation(current)
-
-        await open_record_draft_editor(
-            target_aggregation_id=current["id"], on_committed=refresh_parent,
-        )
 
     add_button.on("click", add_for_current_context)
     add_record_button.on("click", add_record_for_current_aggregation)
@@ -21145,87 +9774,14 @@ def index(q: str = "") -> None:
     search_input.on("clear", clear_collection_search)
     global_search_submit.on("click", lambda: run_global_search(global_search_input.value or ""))
     global_search_input.on("keydown.enter", lambda: run_global_search(global_search_input.value or ""))
-    login_dialog = ui.dialog().props("persistent")
-    with login_dialog:
-        ui.element("canvas").classes(
-            "wathiq-network-canvas wathiq-login-network"
-        ).props(
-            'aria-label=' + repr(render_message("webui.index.accessible_name.slowly_moving_connected_node_background_acc8bb9e"))
-        )
-        with ui.card().classes("wathiq-login-card").props(f"dir={initial_direction} lang={initial_language}"):
-            with ui.row().classes("w-full items-stretch no-wrap gap-0"):
-                with ui.column().classes(
-                    "wathiq-login-brand-panel shrink-0 justify-between gap-0"
-                ):
-                    with ui.column().classes("gap-6"):
-                        with ui.row().classes("items-center gap-3 no-wrap"):
-                            ui.image("/static/brand/wathiq-mark.svg?v=2").classes(
-                                "wathiq-login-mark"
-                            ).props("fit=contain alt='Wathiq mark'")
-                            ui.label(render_message("webui.index.label.wathiq_d1dfb800")).classes("wathiq-login-word")
-                        with ui.column().classes("gap-2"):
-                            ui.label(render_message("webui.index.label.your_records_your_evidence_in_order_68fc50b3")).classes(
-                                "text-2xl font-semibold leading-tight whitespace-pre-line"
-                            )
-                            ui.label(
-                                render_message("webui.index.label.secure_access_to_the_sharjah_archives_reco_bb9eea0d")
-                            ).classes("text-sm leading-5 text-slate-600")
-                    ui.label(
-                        render_message("webui.index.label.reliable_stewardship_accountable_governanc_24177911")
-                    ).classes("text-xs leading-5 text-slate-500 whitespace-pre-line")
-                with ui.column().classes("wathiq-login-form gap-3"):
-                    ui.label(render_message("webui.index.label.sign_in_01f3842a")).classes("text-2xl font-semibold")
-                    ui.label(render_message("webui.index.label.use_your_organization_credentials_to_conti_01d4d0eb")).classes(
-                        "text-sm text-slate-500 mb-2"
-                    )
-                    login_email = ui.input(render_message("webui.index.input.email_address_2569f0e9")).props(
-                        'outlined autocomplete=username input-style="direction: ltr; unicode-bidi: isolate;"'
-                    ).classes("w-full")
-                    login_password = ui.input(
-                        render_message("webui.index.input.password_f76ddde6"), password=True, password_toggle_button=True
-                    ).props('outlined autocomplete=current-password input-style="direction: ltr; unicode-bidi: isolate;"').classes("w-full")
-                    login_error = ui.label().classes(
-                        "wathiq-login-error text-negative text-sm"
-                    )
-                    login_submit = ui.button(
-                        render_message("webui.index.button.continue_to_wathiq_9cc920d0"),
-                        icon=None if initial_direction == "rtl" else "login",
-                    ).props(
-                        "unelevated no-caps"
-                    ).classes("w-full wathiq-login-submit")
-                    if initial_direction == "rtl":
-                        login_submit.props("icon-right=login")
-                    ui.label(render_message("webui.index.label.need_help_contact_your_system_administrato_9f127b23")).classes(
-                        "w-full text-center text-xs text-slate-400 mt-1"
-                    )
-
-        async def submit_login() -> None:
-            login_error.text = ""
-            try:
-                principal = await session.sign_in(
-                    login_email.value or "", login_password.value or "",
-                    user_agent=context.client.request.headers.get("user-agent"),
-                )
-                login_password.value = ""
-                login_dialog.close()
-                if principal["must_change_password"]:
-                    # Until the password is replaced, FastAPI intentionally
-                    # rejects every endpoint except /auth/me, change-password,
-                    # and logout.  Do not make ordinary application requests
-                    # (such as favourites) before showing this dialog.
-                    auth_state["principal"] = principal
-                    drawer.hide()
-                    with table_container:
-                        await show_change_password()
-                    return
-                if not await prepare_authenticated_workspace(principal):
-                    return
-                await select_dashboard()
-            except ApiError as error:
-                login_error.text = login_error_message(error)
-
-        login_submit.on("click", submit_login)
-        login_password.on("keydown.enter", submit_login)
+    login_dialog = build_sign_in(
+        session=session, initial_direction=initial_direction, initial_language=initial_language,
+        set_principal=lambda principal: auth_state.__setitem__("principal", principal),
+        drawer=drawer, table_container=table_container,
+        show_change_password=lambda: show_change_password(),
+        prepare_authenticated_workspace=lambda principal: prepare_authenticated_workspace(principal),
+        select_dashboard=lambda: select_dashboard(), login_error_message=login_error_message,
+    )
 
     async def reset_private_views() -> None:
         clear_global_search_session()
@@ -21357,81 +9913,26 @@ def index(q: str = "") -> None:
     page_client.on_disconnect(stop_message_stream)
     page_client.on_connect(start_message_stream)
 
-    async def prepare_authenticated_workspace(principal: dict[str, Any]) -> bool:
-        """Load ordinary application state only after password restrictions end."""
-        if await load_localization_context():
-            return False
-        accept_application_configuration(state["application_configuration"])
-        populate_user_menu(principal)
-        background_tasks.create(load_authenticated_client_assets())
-        background_tasks.create(start_message_stream())
-        await refresh_hold_navigation()
-        return True
 
-    async def load_login_animation() -> None:
-        """Load and start the shared login/header animation off the critical path."""
-        try:
-            # This coroutine is deliberately scheduled as a background task, so
-            # it must use the page's captured client instead of relying on
-            # NiceGUI's ambient slot/client context.
-            await page_client.run_javascript(
-                "new Promise((resolve, reject) => {"
-                "if (window.startWathiqLoginNetwork) { resolve(true); return; }"
-                "const script = document.createElement('script');"
-                "script.src = '/static/login/network-background.js?v=5';"
-                "script.onload = () => resolve(true);"
-                "script.onerror = () => reject(new Error('Login animation failed to load'));"
-                "document.head.appendChild(script);"
-                "})",
-                timeout=15,
-            )
-            await page_client.run_javascript(
-                "window.startWathiqLoginNetwork?.(); true", timeout=5,
-            )
-        except Exception:
-            return
 
-    async def initialize_authenticated_ui() -> None:
-        # Signed-out pages need the same root and portal direction as signed-in
-        # pages; localization bootstrap normally runs only after authentication.
-        await apply_document_direction(initial_language, initial_direction)
-        # The same asset drives both the sign-in background and the authenticated
-        # header. Load it for every session, including restored sessions which
-        # never display the sign-in dialog.
-        background_tasks.create(load_login_animation())
-        token = app.storage.user.get("session_token")
-        if token:
-            api.set_session_token(token)
-            try:
-                principal = await api.me()
-                if principal["must_change_password"]:
-                    auth_state["principal"] = principal
-                    drawer.hide()
-                    with table_container:
-                        await show_change_password()
-                    return
-                if not await prepare_authenticated_workspace(principal):
-                    return
-                if q.strip():
-                    navigation_controller.trail = []
-                    await run_global_search(q)
-                elif navigation_controller.trail:
-                    navigation_controller.restoring = True
-                    try:
-                        await restore_navigation_entry(navigation_controller.trail[-1])
-                    finally:
-                        navigation_controller.restoring = False
-                        render_navigation_breadcrumbs()
-                else:
-                    await select_dashboard()
-                return
-            except ApiError:
-                app.storage.user.pop("session_token", None)
-                api.set_session_token(None)
-        clear_signed_in_identity()
-        set_connection_status(True)
-        drawer.hide()
-        login_dialog.open()
+
+    prepare_authenticated_workspace, initialize_authenticated_ui = build_account_bootstrap(
+        api=api, page_client=page_client, initial_language=initial_language,
+        initial_direction=initial_direction, apply_document_direction=apply_document_direction,
+        load_localization_context=load_localization_context,
+        accept_application_configuration=accept_application_configuration,
+        get_configuration=lambda: state["application_configuration"],
+        populate_user_menu=lambda principal: populate_user_menu(principal),
+        load_authenticated_client_assets=load_authenticated_client_assets,
+        start_message_stream=start_message_stream, refresh_hold_navigation=refresh_hold_navigation,
+        set_principal=lambda principal: auth_state.__setitem__("principal", principal),
+        drawer=drawer, table_container=table_container, show_change_password=show_change_password,
+        q=q, navigation_controller=navigation_controller, run_global_search=run_global_search,
+        restore_navigation_entry=restore_navigation_entry,
+        render_navigation_breadcrumbs=render_navigation_breadcrumbs, select_dashboard=select_dashboard,
+        clear_signed_in_identity=clear_signed_in_identity, set_connection_status=set_connection_status,
+        login_dialog=login_dialog,
+    )
 
     ui.timer(0.05, initialize_authenticated_ui, once=True)
 

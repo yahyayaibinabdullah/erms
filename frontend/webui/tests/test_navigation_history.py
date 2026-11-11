@@ -35,10 +35,11 @@ def test_return_to_tree_does_not_replay_an_earlier_search():
                    and node.name == "restore_navigation_entry")
     for mode in ("browse", "search"):
         state = {}
+        aggregation_state = {}
         select_entity = AsyncMock()
         load_rows = AsyncMock()
         namespace = {
-            "Any": object, "state": state,
+            "Any": object, "state": state, "aggregation_state": aggregation_state,
             "ENTITIES": {"aggregations": SimpleNamespace(search_first=True)},
             "select_entity": select_entity, "load_rows": load_rows,
             "search_input": SimpleNamespace(value=""),
@@ -50,7 +51,7 @@ def test_return_to_tree_does_not_replay_an_earlier_search():
         for _ in range(2):
             asyncio.run(namespace["restore_navigation_entry"](entry))
         assert select_entity.await_count == 2
-        assert state["aggregation_mode"] == mode
+        assert aggregation_state["aggregation_mode"] == mode
         assert load_rows.await_count == (0 if mode == "browse" else 2)
 
 

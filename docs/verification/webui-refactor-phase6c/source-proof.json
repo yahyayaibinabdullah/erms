@@ -1,0 +1,42 @@
+{
+  "normalized_identical_moved_functions": {
+    "relationship_options": true,
+    "relationship_search_query": true,
+    "apply_relationship_selection": true,
+    "entity_metadata_label": true,
+    "medium_options": true,
+    "field_input": true,
+    "form_payload": true,
+    "bind_remote_relationship_select": true,
+    "rows_by_id": true,
+    "closure_flags": true,
+    "org_unit_context": true,
+    "add_number_suggestion": true,
+    "show_number_conflict": true,
+    "reload_favourites": true,
+    "favourite_state": true,
+    "apply_favourite_button": true,
+    "toggle_favourite": true,
+    "favourite_button": true,
+    "load_recent": true,
+    "render_recent_section": true,
+    "render_entity_favourites_section": true,
+    "render_resource_personal_sections": true,
+    "render_compact_resource_result": true,
+    "reload_governance_cards": true,
+    "move_card_page": true
+  },
+  "unchanged_direct_host_functions": 116,
+  "changed_host_functions": [
+    "decorate_for_spec",
+    "open_editor",
+    "render_table"
+  ],
+  "decoration_feature_branches_identical": true,
+  "styling_literal_multisets_identical": true,
+  "translation_editor_body_identical_after_explicit_parameters": true,
+  "changed_existing_runtime_files": [
+    "frontend/webui/app.py"
+  ],
+  "all_other_existing_runtime_files_and_catalogues_byte_identical": true
+}
