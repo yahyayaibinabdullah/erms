@@ -1,4 +1,5 @@
 """Aggregation action contracts and recorded pre-existing movement failure."""
+from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import ast,asyncio
 from pathlib import Path
 from types import SimpleNamespace
@@ -18,7 +19,7 @@ def build(name,values):
     return dict(zip(('show_reopen_aggregation','show_governed_move','show_ownership_correction'),actions))[name]
 
 def click(user,label):
-    button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+    button=next(b for b in user.find(ui.button).elements if _owner_strip_diagnostic_metadata(b.text)==label)
     button.mark(f'aggregation-action-{button.id}');user.find(marker=f'aggregation-action-{button.id}').click()
 async def settle():await asyncio.sleep(.1)
 

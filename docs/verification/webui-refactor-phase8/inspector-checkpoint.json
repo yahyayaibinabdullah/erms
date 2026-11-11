@@ -1,0 +1,163 @@
+{
+  "files": [
+    {
+      "file": "frontend/webui/translation_inspector.py",
+      "unchanged_from_starting_commit": true,
+      "sha256": "108bede8c42982959cc3529b45940026db92650515b451c64dc3e0764f205b06"
+    },
+    {
+      "file": "frontend/webui/static/translation-inspector.js",
+      "unchanged_from_starting_commit": true,
+      "sha256": "973b6fbf7073dc2fd86b7b4ca1e85162676526d72668387f4f63ad0e127f442d"
+    }
+  ],
+  "current_automated_cases": [
+    {
+      "module": "frontend.webui.tests.test_locale_services",
+      "test": "test_translation_inspector_key_encoding_is_cached",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_locale_services",
+      "test": "test_translation_inspector_skips_dom_scans_while_disabled",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_relationship_search",
+      "test": "test_security_level_options_are_plain_with_or_without_inspector[False-en-General-Level]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_relationship_search",
+      "test": "test_security_level_options_are_plain_with_or_without_inspector[False-ar-\\u0639\\u0627\\u0645-\\u0627\\u0644\\u0645\\u0633\\u062a\\u0648\\u0649]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_relationship_search",
+      "test": "test_security_level_options_are_plain_with_or_without_inspector[True-en-General-Level]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_relationship_search",
+      "test": "test_security_level_options_are_plain_with_or_without_inspector[True-ar-\\u0639\\u0627\\u0645-\\u0627\\u0644\\u0645\\u0633\\u062a\\u0648\\u0649]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_translation_inspector_catalogue_contract_is_complete",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_is_privileged_session_only_and_cleared_with_identity",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_switch_loads_the_asset_before_applying_state",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_uses_one_delegated_interaction_layer",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_retains_metadata_after_sanitizing_its_own_dom_markers",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_panel_is_movable_and_kept_inside_the_viewport",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_panel_supports_copy_and_filtered_administration_navigation",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_refreshes_persistent_brand_chrome_after_being_enabled",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_does_not_assign_keys_to_user_authored_values",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_can_always_be_disabled_from_the_user_menu",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_inspector_metadata_cannot_flash_visible_translation_keys",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_translation_administration_pages_complete_context_groups",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector",
+      "test": "test_copied_inspector_text_is_searchable_without_altering_visible_characters",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_synchronize_privilege_visibility_restore_and_failure[False-False]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_synchronize_privilege_visibility_restore_and_failure[False-True]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_synchronize_privilege_visibility_restore_and_failure[True-False]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_synchronize_privilege_visibility_restore_and_failure[True-True]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_toggle_propagates_authority_and_recovers_load_failure[False]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_toggle_propagates_authority_and_recovers_load_failure[True]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_inspect_open_obeys_privilege_key_and_navigation_guard[False-fixture.key]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_inspect_open_obeys_privilege_key_and_navigation_guard[True-]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_inspect_open_obeys_privilege_key_and_navigation_guard[True- fixture.key ]",
+      "passed": true
+    },
+    {
+      "module": "frontend.webui.tests.test_translation_inspector_behavior",
+      "test": "test_cleanup_uses_captured_client_and_existing_root_history_replacement",
+      "passed": true
+    }
+  ],
+  "prior_native_browser_evidence": "docs/webui-refactor-phase6j-verification.md; original/extracted Chrome and Edge, English and Arabic",
+  "dedicated_phase8_native_inspector_rerun": "Pending; explicitly run translations scope for Chrome and Edge on resume."
+}

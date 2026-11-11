@@ -11,22 +11,7 @@ from .saved_search_audiences import build_saved_search_audiences
 from .saved_search_administration import build_saved_search_administration
 from .advanced_search import build_advanced_search
 from .advanced_search_state import new_advanced_search_state
-from .advanced_search_model import (
-    ADVANCED_SEARCH_FIELDS,
-    ADVANCED_SEARCH_COMPONENT_FIELDS,
-    ADVANCED_SEARCH_RETENTION_FIELDS,
-    ADVANCED_SEARCH_RELATIONSHIP_FIELDS,
-    ADVANCED_SEARCH_CONTROLLED_VALUES,
-    advanced_search_field_options,
-    advanced_search_empty_value,
-    advanced_search_operators,
-    advanced_search_leaf_count,
-    advanced_search_depth,
-    advanced_search_has_positive_full_text,
-    advanced_search_has_component_field,
-    compile_advanced_search_node,
-    advanced_search_node_from_expression,
-)
+from .advanced_search_model import ADVANCED_SEARCH_CONTROLLED_VALUES
 from .global_search import build_global_search
 from .global_search_state import new_global_search_state
 from .governance_custody import build_governance_custody
@@ -38,63 +23,31 @@ from .resource_row_hydration import build_resource_row_hydration
 from .resource_collection_results import build_resource_collection_results
 from .collection_table import build_collection_table
 from .collection_navigation import build_collection_navigation
-from .resource_row_presentation import relationship_cell, decorate_relationship_rows
-from .record_presentation import RECORD_DETAIL_HEADER_CLASSES, RECORD_DETAIL_TITLE_CLASSES, RECORD_UPLOAD_WAIT_MESSAGE
-from .record_editor import record_draft_component_context
-from .record_editor import configure_record_medium
 from .collection_state import new_collection_state
 from .record_state import new_record_state
-from frontend.webui.disposition.tasks import tasks_screen
-from frontend.webui.disposition.screens import eligibility_screen, jobs_screen, job_screen, accelerate_dialog
-from frontend.webui.disposition.messages import text as disposition_text, status_label as disposition_status_label
 
-from frontend.webui.event_labels import event_label
 
-import asyncio
-import base64
-import copy
-import inspect
 import json
-from datetime import datetime, timedelta, timezone
-from html import escape as html_escape
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
-from zoneinfo import available_timezones
+from typing import Any
 
-from nicegui import app, background_tasks, context, events, ui
+from nicegui import app, background_tasks, context, ui
 
-from .aggregation_editor import (
-    lock_aggregation_close_field,
-    load_aggregation_creation_context,
-    render_aggregation_creation_controls,
-    aggregation_initial_security_level,
-    aggregation_initial_medium,
-    render_aggregation_close_help,
-    configure_aggregation_classification,
-    configure_aggregation_parent_rules,
-    prepare_aggregation_payload,
-)
-from .aggregation_presentation import CHILD_AGGREGATION_CLASSIFICATION_HELP, AGGREGATION_SUMMARY_LAYOUT_CLASSES, direct_classification_label, effective_closure
-from .relationship_select_styles import style_relationship_chip_select
 from .aggregation_state import new_aggregation_state
 from .aggregation_actions import build_aggregation_actions
 from .aggregation_selector import build_aggregation_selector
 from .aggregation_details import build_aggregation_details
 from .aggregation_browser import build_aggregation_browser
 from .aggregation_toolbar import build_aggregation_toolbar
-from .component_presentation import localized_component_status, localized_indexing_status, component_file_icon, native_preview_kind, requires_document_conversion, component_is_previewable, component_uploader
+from .component_presentation import component_is_previewable
 from .upload_buffers import buffer_upload_batch
 from .component_cards import build_component_cards
-from .component_presentation import CONVERTIBLE_PREVIEW_EXTENSIONS
 from .component_preview import build_component_preview
 from .components import build_components
 from .api_client import ApiError, ErmsApiClient
-from .relationship_select import relationship_select
 from .application_shell import build_header, build_footer, build_drawer, build_content
-from .navigation_data import (
-    NAVIGATION_TRAIL_LIMIT, NAVIGATION_VISIBLE_LIMIT,
-    append_navigation_entry, navigation_entry_identity, visible_navigation_indices,
-)
+from .navigation_data import visible_navigation_indices
 from .navigation_drawer import navigation_menu
 from .navigation_controller import NavigationController
 from .session_context import SessionContext
@@ -106,7 +59,6 @@ from .hold_resources import build_hold_resources
 from .holds import build_holds
 from .hold_details import build_hold_details
 from .hold_navigation import build_hold_navigation
-from .holds_people import style_person_select
 from .translation_administration import build_translation_administration
 from .translation_inspector import build_translation_inspector
 from .account_localization import build_account_localization
@@ -117,17 +69,8 @@ from .account_bootstrap import build_account_bootstrap
 from .account_sign_in import build_sign_in, build_login_error_message
 from .text_indexers import build_text_indexers
 from .text_indexer_details import build_text_indexer_details
-from .organization_table import (
-    organization_table_filters, organization_user_slots, organization_leading_actions, organization_membership_action, organization_user_actions, organization_lifecycle_actions, bind_organization_table_destinations, LIFECYCLE_ACTION_BUTTONS, USER_SUSPENSION_ACTION_BUTTONS,
-)
-from .organization_collection_actions import build_issue_password, build_change_suspension, build_confirm_lifecycle
-from .organization_editor import (
-    configure_designation_field, configure_role_profile_field, configure_organization_browser_field, configure_role_governance_field, organization_reason_input, organization_change_reason, protected_organization_role, read_organization_editor_row,
-)
-from .organization_collections import decorate_organization_rows
 from .identity_presentation import user_avatar, render_user_avatar, USER_AVATAR_BACKGROUND, USER_AVATAR_TEXT
 from .organization_memberships import filter_membership_rows
-from .organization_editor import inactive_org_unit_source, role_change_requires_reason
 from .organization_deletion import deletion_identity, deletion_blocked_report
 from .administration_cards import build_administration_cards
 from .organization_memberships import build_organization_memberships
@@ -139,77 +82,29 @@ from .organization_browser import build_organization_browser
 from .security_level_controls import build_security_selector, build_security_level_change
 from .access_control_dialogs import build_access_control_dialogs
 from .access_explanation_dialog import build_access_explanation
-from .security_administration import (
-    build_profile_privilege_editor, localized_profile_value, localized_privilege_name,
-    localized_privilege_description, localized_privilege_category, localized_privilege_matches_search,
-    profile_translation_only, configure_profile_field, profile_reason_input,
-    prepare_profile_update, profile_change_reason as validated_profile_change_reason,
-)
-from .entity_selectors import (relationship_options, relationship_search_query, apply_relationship_selection, build_relationship_selector)
-from .entity_translation_editor import entity_translation_editor
-from .entity_editor_controls import ENTITY_METADATA_LABEL_KEYS, entity_metadata_label, medium_options, field_input, form_payload
+from .security_administration import build_profile_privilege_editor
+from .entity_selectors import build_relationship_selector
+from .entity_editor_controls import entity_metadata_label
 from .resource_number_controls import build_number_controls
 from .collection_hydration import build_row_hydrators
-from .collection_controls import build_collection_loader, bind_collection_paging
+from .collection_controls import build_collection_loader
 from .personal_resources import PersonalResourceState, build_personal_resources
 from .personal_resource_views import build_personal_resource_views
 from .compact_resource_view import build_compact_resource_view
 from .classification_controller import ClassificationController
 from .classification_selectors import build_scheme_selector, build_classification_pickers
-from .classification_editor import (
-    load_direct_retention, retention_editor_source, configure_scheme_field,
-    prepare_retention_payload, decorate_classifications,
-    render_classification_search_prompt, scheme_action_buttons, bind_scheme_actions,
-)
-from .application_settings import disposition_warning_panel
 from .application_settings_controller import ApplicationSettingsController
-from .messaging_workspace import messaging_workspace
-from .resource_inspector import resource_inspector
-from .messaging_live import LiveMailbox, stream_events, mailbox_cursor_key
-from .notification_administration import notification_administration
-from .resource_relationships import relationship_panel
 from .relationship_types_controller import RelationshipTypesController
-from .messaging_monitor import messaging_monitor
-from .retention_timeline import render_disposition_date, render_retention_stages
-from .capabilities import (
-    capability_allowed,
-    can_add_from_collection,
-    can_edit_entity_translation,
-    can_navigate,
-    can_navigate_disposition,
-    can_open_organization_detail,
-)
-from .authorization_ui import (
-    gate_label, OPERATIONS, acl_source_label, aggregation_reference_label,
-    authorization_code_label, decision_code_label, operation_label, gate_detail, ordered_permission_catalogue,
-    privilege_help_text, privilege_matches_search, security_level_label,
-)
-from .config import (
-    api_url,
-    dashboard_favourite_item_limit,
-    dashboard_recent_days,
-    dashboard_recent_item_limit,
-    database_display_name,
-    default_root_aggregation_medium,
-    full_text_search_enabled,
-    classification_recent_selection_limit,
-    host,
-    port,
-    reload_enabled,
-    storage_secret,
-    user_details_session_limit,
-)
-from .entities import ENTITIES, EntitySpec, FieldSpec
-from .i18n_catalogue import (
-    clear_active_messages, disable_diagnostic_metadata, enable_diagnostic_metadata, render_message,
-    render_message_plain, set_active_messages, strip_diagnostic_metadata,
-)
+from .capabilities import can_navigate, can_navigate_disposition
+from .config import api_url, full_text_search_enabled, host, port, reload_enabled, storage_secret
+from .entities import ENTITIES
+from .i18n_catalogue import clear_active_messages, disable_diagnostic_metadata, render_message, render_message_plain, set_active_messages
 from .locale_services import (
     clear_locale_context, current_locale_context, format_instant, format_local_date,
     LocalizedTimezoneError,
     set_locale_context, utc_instant_to_working, working_datetime_to_utc, working_zone,
 )
-from .rtl import document_direction_script, normalize_direction
+from .rtl import normalize_direction
 
 
 app.add_static_files("/static/pdfjs", Path(__file__).with_name("static") / "pdfjs")
@@ -218,7 +113,6 @@ app.add_static_files("/static/login", Path(__file__).with_name("static") / "logi
 app.add_static_files("/static/fonts", Path(__file__).with_name("static") / "fonts")
 app.add_static_files("/static/inspector", Path(__file__).with_name("static"))
 
-CLASSIFICATION_WORKSPACE_SEARCH_FIELDS = ("code", "title", "description", "keywords")
 CLASSIFICATION_SELECTOR_SEARCH_FIELDS = ("code", "title", "description", "keywords")
 RELATIONSHIP_DISPLAY_FIELDS = frozenset({
     "aggregation_display",
@@ -230,12 +124,9 @@ RELATIONSHIP_DISPLAY_FIELDS = frozenset({
 STOP_PROPAGATION_CLICK_HANDLER = "(event) => { event.stopPropagation(); emit(); }"
 
 
-
 # Entity metadata labels live in schema descriptors because they are also used
 # by validation and API-shaping code.  Resolve them at the presentation edge so
 # every table, editor and selector receives the active locale consistently.
-
-
 
 
 def localized_lifecycle_value(value: Any) -> str:
@@ -248,14 +139,6 @@ def localized_lifecycle_value(value: Any) -> str:
         "expired": render_message("webui.select_login_sessions.select.expired_4f6360cb"),
         "revoked": render_message("webui.select_login_sessions.select.revoked_c6e031f9"),
     }.get(str(value or "").lower(), str(value or "—"))
-
-
-
-
-
-
-
-
 
 
 def localized_account_type(value: Any) -> str:
@@ -292,47 +175,15 @@ def localized_disposition_value(value: Any) -> str:
     }.get(str(value or ""), str(value or "—"))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 LAST_CUSTODIAN_TITLE = render_message("webui.module.text.this_change_can_t_be_made_yet_54b54067")
 LAST_CUSTODIAN_MESSAGE = (
     render_message("webui.module.text.this_change_would_remove_the_only_active_p_71a19f0b")
 )
 
 
-
-
-def favourite_preview(items: list[dict[str, Any]], limit: int) -> tuple[list[dict[str, Any]], bool]:
-    """Return a bounded Dashboard preview and whether more entries exist."""
-    return items[:limit], len(items) > limit
-
-
 def personal_dialog_list_height(item_count: int) -> int:
     """Return a compact list height that caps long dialogs for scrolling."""
     return min(520, max(120, item_count * 58))
-
-
-
-
-
-
 
 
 def display_value(value: Any) -> str:
@@ -341,16 +192,12 @@ def display_value(value: Any) -> str:
     return str(value)
 
 
-
-
 def medium_label(value: Any) -> str:
     return {
         "digital": render_message("advanced_search.value.digital"),
         "physical": render_message("advanced_search.value.physical"),
         "mixed": render_message("advanced_search.value.mixed"),
     }.get(str(value or "").lower(), "—")
-
-
 
 
 def review_state(value: Any) -> str | None:
@@ -370,12 +217,6 @@ def review_display(value: Any) -> str:
         if state == "Overdue" else "dashboard.review.upcoming"
     )
     return f"{localized_state} · {format_timestamp(value)}"
-
-
-
-
-
-
 
 
 def format_timestamp(value: Any) -> str:
@@ -450,25 +291,7 @@ def validation_error_message(error: ValueError) -> str:
     return str(error)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 render_component_cards = build_component_cards(format_timestamp=format_timestamp, format_file_size=format_file_size)
-
-
 
 
 def add_timestamp_slots(table: Any, column_names: list[str]) -> None:
@@ -486,8 +309,6 @@ def add_timestamp_slots(table: Any, column_names: list[str]) -> None:
               <span v-else class="text-grey-5">—</span>
             </q-td>
         """)
-
-
 
 
 def error_message(error: ApiError) -> str:
@@ -583,26 +404,6 @@ def show_api_error(error: ApiError) -> None:
     dialog.open()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def style_status_chip_select(control: Any) -> None:
     """Render controlled component statuses as compact labelled chips."""
     control.props("options-dense").classes("component-status-chip-select")
@@ -617,10 +418,6 @@ def style_status_chip_select(control: Any) -> None:
         <q-chip outline color="primary" icon="task_alt" removable
           @remove="props.removeAtIndex(props.index)" :label="props.opt.label" />
     """)
-
-
-
-
 
 
 @ui.page("/")
@@ -641,7 +438,6 @@ def index(q: str = "") -> None:
         close_menu=lambda: user_menu.close(), open_login=lambda: login_dialog.open(),
         set_connection_status=lambda connected: set_connection_status(connected),
     )
-    auth_state = session.identity
     message_live = new_message_live_state()
     cached_localization = app.storage.user.get("localization_context") or {}
     cached_messages = app.storage.user.get("localization_messages") or {}
@@ -687,7 +483,6 @@ def index(q: str = "") -> None:
         render=lambda: render_navigation_breadcrumbs(),
         notify=ui.notify, on_error=error_message,
     )
-
 
 
     bind_remote_saved_audience_select = build_saved_search_audiences(
@@ -2466,11 +2261,11 @@ def index(q: str = "") -> None:
         granted = privileges
         if granted is None:
             granted = set(
-                (auth_state.get("principal") or {}).get("global_privileges", [])
+                (session.principal or {}).get("global_privileges", [])
             )
         link_visibility = {
             key: can_navigate(key, granted)
-            and can_navigate_disposition(key, auth_state.get("principal"))
+            and can_navigate_disposition(key, session.principal)
             for _, _, key in drawer_links
         }
         for button, _, key in drawer_links:
@@ -2592,7 +2387,7 @@ def index(q: str = "") -> None:
         discard_navigation_guard=lambda: state.pop("discard_navigation_guard", None),
         enter_global_search=lambda: state.update(resource="full-text-search"),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state["resource"],
         global_search_input=global_search_input,
         global_search_state=global_search_state,
@@ -2608,17 +2403,6 @@ def index(q: str = "") -> None:
         table_container=table_container,
         title=title,
     )
-
-
-
-
-
-
-
-
-
-
-
 
 
     def reset_navigation_session() -> None:
@@ -2680,8 +2464,8 @@ def index(q: str = "") -> None:
     def render_navigation_breadcrumbs() -> None:
         breadcrumb_host.clear()
         trail = navigation_controller.trail
-        breadcrumb_host.set_visibility(bool(auth_state.get("principal") and trail))
-        if not trail or not auth_state.get("principal"):
+        breadcrumb_host.set_visibility(bool(session.principal and trail))
+        if not trail or not session.principal:
             return
         visible, hidden = visible_navigation_indices(len(trail))
         with breadcrumb_host, ui.row().classes(
@@ -2854,7 +2638,6 @@ def index(q: str = "") -> None:
         breadcrumb_host.set_visibility(False)
 
 
-
     dashboard_session_key, clear_dashboard_session, select_dashboard = build_dashboard(
         STOP_PROPAGATION_CLICK_HANDLER=STOP_PROPAGATION_CLICK_HANDLER,
         accept_application_configuration=lambda *args, **kwargs: accept_application_configuration(*args, **kwargs),
@@ -2872,7 +2655,7 @@ def index(q: str = "") -> None:
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
         get_configuration=lambda: state["application_configuration"],
         get_localization=lambda: state.get("localization"),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guidance=guidance,
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
@@ -2881,7 +2664,7 @@ def index(q: str = "") -> None:
         personal_dialog_list_height=lambda *args, **kwargs: personal_dialog_list_height(*args, **kwargs),
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
         render_table=lambda *args, **kwargs: render_table(*args, **kwargs),
-        require_principal=lambda: auth_state["principal"],
+        require_principal=lambda: session.principal,
         review_display=lambda *args, **kwargs: review_display(*args, **kwargs),
         search_bar=search_bar,
         select_classification_workspace=lambda *args, **kwargs: select_classification_workspace(*args, **kwargs),
@@ -2914,7 +2697,7 @@ def index(q: str = "") -> None:
         inspector_switch.update()
         background_tasks.create(clear_translation_inspector_session())
         disable_diagnostic_metadata(page_client.id)
-        auth_state["principal"] = None
+        session.principal = None
         state["application_configuration"] = {}
         global_search_wrap.set_visibility(False)
         current_user_name.text = render_message("webui.clear_signed_in_identity.text.not_signed_in_a1c07c9a")
@@ -2948,11 +2731,6 @@ def index(q: str = "") -> None:
             app.storage.user["localization_context"] = localization
 
 
-
-
-
-
-
     def restore_compact_result_anchor(anchor_id: str | None) -> None:
         if not anchor_id:
             return
@@ -2965,13 +2743,6 @@ def index(q: str = "") -> None:
             )
         background_tasks.create(restore())
 
-    entity_types = {
-        "aggregations": "aggregation", "records": "record",
-        "digital-components": "digital_component", "org-units": "org_unit",
-        "users": "user", "roles": "role",
-        "classification-schemes": "classification_scheme",
-        "classifications": "classification",
-    }
 
     async def open_audit_entity(entity_type: str, entity: dict[str, Any]) -> None:
         if entity_type == "aggregation":
@@ -3014,17 +2785,11 @@ def index(q: str = "") -> None:
     )
 
 
-
-
-
-
     show_reopen_aggregation, show_governed_move, show_ownership_correction = build_aggregation_actions(
         api=api,
         bind_remote_relationship_select=lambda *args, **kwargs: bind_remote_relationship_select(*args, **kwargs),
         error_message=error_message,
     )
-
-
 
 
     show_record_details, select_record_details = build_record_details(
@@ -3054,7 +2819,7 @@ def index(q: str = "") -> None:
         open_editor=lambda *args, **kwargs: open_editor(*args, **kwargs),
         open_related_resource=lambda *args, **kwargs: open_related_resource(*args, **kwargs),
         preview_record_components=lambda *args, **kwargs: preview_record_components(*args, **kwargs),
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         record_state=record_state,
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
         review_datetime_input_minimum=lambda *args, **kwargs: review_datetime_input_minimum(*args, **kwargs),
@@ -3126,7 +2891,7 @@ def index(q: str = "") -> None:
         localization=lambda: state.get("localization"),
         localized_editor_entity=lambda *args, **kwargs: localized_editor_entity(*args, **kwargs),
         open_record_draft_editor=lambda *args, **kwargs: open_record_draft_editor(*args, **kwargs),
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         render_table=lambda *args, **kwargs: render_table(*args, **kwargs),
         search_input=search_input,
         set_searched=lambda value: collection_state.__setitem__("searched", value),
@@ -3135,7 +2900,6 @@ def index(q: str = "") -> None:
         show_organization_structure=lambda *args, **kwargs: show_organization_structure(*args, **kwargs),
         validation_error_message=lambda *args, **kwargs: validation_error_message(*args, **kwargs),
     )
-
 
 
     open_aggregation = build_aggregation_details(
@@ -3163,7 +2927,7 @@ def index(q: str = "") -> None:
         medium_label=medium_label,
         open_editor=lambda *args, **kwargs: open_editor(*args, **kwargs),
         open_related_resource=lambda *args, **kwargs: open_related_resource(*args, **kwargs),
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
         render_compact_resource_result=lambda *args, **kwargs: render_compact_resource_result(*args, **kwargs),
         restore_compact_result_anchor=lambda *args, **kwargs: restore_compact_result_anchor(*args, **kwargs),
@@ -3189,10 +2953,6 @@ def index(q: str = "") -> None:
         table_container=table_container,
         title=title,
     )
-
-
-
-
 
 
     render_entity_compact_results = build_resource_collection_results(
@@ -3223,7 +2983,7 @@ def index(q: str = "") -> None:
         render_entity_compact_results=lambda *args, **kwargs: render_entity_compact_results(*args, **kwargs),
         render_recent_section=lambda *args, **kwargs: render_recent_section(*args, **kwargs),
         render_resource_personal_sections=lambda *args, **kwargs: render_resource_personal_sections(*args, **kwargs),
-        required_principal=lambda: auth_state["principal"],
+        required_principal=lambda: session.principal,
         select_organization_unit_details=lambda *args, **kwargs: select_organization_unit_details(*args, **kwargs),
         select_role_details=lambda *args, **kwargs: select_role_details(*args, **kwargs),
         select_user_details=lambda *args, **kwargs: select_user_details(*args, **kwargs),
@@ -3241,7 +3001,7 @@ def index(q: str = "") -> None:
 
     (clear_translation_inspector_session, synchronize_translation_inspector,
      toggle_translation_inspector, open_inspected_translation) = build_translation_inspector(
-        page_client=page_client, principal=lambda: auth_state.get("principal"),
+        page_client=page_client, principal=lambda: session.principal,
         brand_row=brand_row, brand_mark=brand_mark, brand_name=brand_name,
         diagnostics_separator=diagnostics_separator, diagnostics_section=diagnostics_section,
         inspector_switch=inspector_switch, user_menu=user_menu,
@@ -3250,14 +3010,12 @@ def index(q: str = "") -> None:
     )
 
 
-
-
     inspector_switch.on_value_change(toggle_translation_inspector)
 
 
     refresh_hold_navigation = build_hold_navigation(
         api=api,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         holds_navigation=holds_navigation,
         refresh_drawer_headings=refresh_drawer_headings,
     )
@@ -3318,7 +3076,7 @@ def index(q: str = "") -> None:
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
         page_client=page_client,
         personal=personal,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         render_table=lambda *args, **kwargs: render_table(*args, **kwargs),
         search_bar=search_bar,
         show_record_details=lambda *args, **kwargs: show_record_details(*args, **kwargs),
@@ -3327,18 +3085,12 @@ def index(q: str = "") -> None:
     )
 
 
-
-
-
     def enter_organization_units() -> None:
         state.update(resource='org-unit-details'); collection_state.update(rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
 
 
     def enter_organization_roles() -> None:
         state.update(resource='role-details'); collection_state.update(rows=[], searched=True); aggregation_state.update(aggregation_detail=None)
-
-
-
 
 
     def enter_organization_users() -> None:
@@ -3359,7 +3111,7 @@ def index(q: str = "") -> None:
         enter_governance_custody=lambda: state.update(resource="governance-custody"),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guidance=guidance,
         open_settings=lambda: application_settings_controller.open_from_custody(),
@@ -3386,7 +3138,7 @@ def index(q: str = "") -> None:
         localized_lifecycle_value=lambda *args, **kwargs: localized_lifecycle_value(*args, **kwargs),
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
         page_client=page_client,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
         search_bar=search_bar,
         select_classification_workspace=lambda *args, **kwargs: select_classification_workspace(*args, **kwargs),
@@ -3412,7 +3164,7 @@ def index(q: str = "") -> None:
         enter_saved_administration=lambda page: state.update(resource=page),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guidance=guidance,
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
@@ -3440,7 +3192,7 @@ def index(q: str = "") -> None:
         enter_advanced_search=lambda: state.update(resource="advanced-search"),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guidance=guidance,
         localized_editor_entity=lambda *args, **kwargs: localized_editor_entity(*args, **kwargs),
@@ -3496,7 +3248,7 @@ def index(q: str = "") -> None:
         enter_disposition=lambda page: state.update(resource=page),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guarded_page_navigation=lambda *args, **kwargs: guarded_page_navigation(*args, **kwargs),
         guidance=guidance,
@@ -3536,7 +3288,7 @@ def index(q: str = "") -> None:
         enter_messages=lambda key: state.update(resource=key),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         format_timestamp=lambda *args, **kwargs: format_timestamp(*args, **kwargs),
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guarded_page_navigation=lambda *args, **kwargs: guarded_page_navigation(*args, **kwargs),
         guidance=guidance,
@@ -3571,7 +3323,7 @@ def index(q: str = "") -> None:
         load_recent=lambda *args, **kwargs: load_recent(*args, **kwargs),
         load_rows=lambda *args, **kwargs: load_rows(*args, **kwargs),
         personal=personal,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
         reload_favourites=lambda *args, **kwargs: reload_favourites(*args, **kwargs),
         render_resource_personal_sections=lambda *args, **kwargs: render_resource_personal_sections(*args, **kwargs),
@@ -3632,7 +3384,7 @@ def index(q: str = "") -> None:
 
     select_holds = build_holds(
         api=api,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         register_navigation=register_navigation,
         show_authenticated_view=show_authenticated_view,
         enter_holds=enter_holds,
@@ -3791,7 +3543,7 @@ def index(q: str = "") -> None:
         direction=lambda: current_direction["value"],
         enter_organization_roles=enter_organization_roles,
         error_message=error_message,
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         guidance=guidance,
         localized_lifecycle_value=localized_lifecycle_value,
         open_editor=open_editor,
@@ -3822,7 +3574,7 @@ def index(q: str = "") -> None:
         enter_organization_users=enter_organization_users,
         error_message=error_message,
         format_timestamp=format_timestamp,
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         guidance=guidance,
         localized_account_type=localized_account_type,
         localized_lifecycle_value=localized_lifecycle_value,
@@ -3851,7 +3603,7 @@ def index(q: str = "") -> None:
         enter_organization_browser=enter_organization_browser,
         error_message=error_message,
         format_timestamp=format_timestamp,
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         guidance=guidance,
         localized_account_type=localized_account_type,
         localized_lifecycle_value=localized_lifecycle_value,
@@ -3871,7 +3623,7 @@ def index(q: str = "") -> None:
 
     select_login_sessions = build_login_sessions(
         api, table_container=table_container, enter=enter_login_sessions,
-        principal=lambda: auth_state["principal"], current_session_revoked=current_session_revoked,
+        principal=lambda: session.principal, current_session_revoked=current_session_revoked,
         render_user_avatar=render_user_avatar, format_timestamp=format_timestamp,
         localized_lifecycle_value=localized_lifecycle_value, error_message=error_message,
     )
@@ -3936,8 +3688,8 @@ def index(q: str = "") -> None:
         set_configuration=lambda value: state.__setitem__("application_configuration", value),
     )
     populate_user_menu, refresh_user_profile = build_account_profile(
-        api=api, get_principal=lambda: auth_state.get("principal"),
-        set_principal=lambda principal: auth_state.__setitem__("principal", principal),
+        api=api, get_principal=lambda: session.principal,
+        set_principal=session.set_principal,
         drawer=drawer, mobile_navigation=mobile_navigation, header_network=header_network,
         holds_navigation=holds_navigation, refresh_drawer_visibility=refresh_drawer_visibility,
         synchronize_translation_inspector=synchronize_translation_inspector,
@@ -3947,7 +3699,7 @@ def index(q: str = "") -> None:
         format_timestamp=format_timestamp,
     )
     show_change_password = build_account_password(
-        api=api, get_principal=lambda: auth_state.get("principal"),
+        api=api, get_principal=lambda: session.principal,
         prepare_authenticated_workspace=lambda principal: prepare_authenticated_workspace(principal),
         select_dashboard=lambda: select_dashboard(), sign_out=sign_out, error_message=error_message,
     )
@@ -3963,13 +3715,13 @@ def index(q: str = "") -> None:
         error_message=error_message,
     )
     access_control_dialogs = build_access_control_dialogs(
-        api, principal=lambda: auth_state.get("principal"), direction=lambda: current_direction["value"],
+        api, principal=lambda: session.principal, direction=lambda: current_direction["value"],
         open_aggregation=open_aggregation, show_organization_structure=show_organization_structure,
         bind_remote_relationship_select=bind_remote_relationship_select, error_message=error_message,
     )
     show_acl_editor = access_control_dialogs.show_acl_editor
     show_access_explanation = build_access_explanation(
-        api, principal=lambda: auth_state.get("principal"), open_aggregation=open_aggregation,
+        api, principal=lambda: session.principal, open_aggregation=open_aggregation,
         localized_editor_entity=localized_editor_entity, error_message=error_message,
     )
     show_profile_privilege_editor = build_profile_privilege_editor(
@@ -3980,7 +3732,7 @@ def index(q: str = "") -> None:
     add_number_suggestion = number_controls.add_number_suggestion
     show_number_conflict = number_controls.show_number_conflict
     personal_resources = build_personal_resources(
-        api, personal, get_principal=lambda: auth_state.get("principal"),
+        api, personal, get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         accept_application_configuration=accept_application_configuration,
         decorate_for_spec=decorate_for_spec, error_message=error_message,
@@ -3998,7 +3750,6 @@ def index(q: str = "") -> None:
         format_timestamp=format_timestamp, personal_dialog_list_height=personal_dialog_list_height,
     )
     render_recent_section = personal_views.render_recent_section
-    render_entity_favourites_section = personal_views.render_entity_favourites_section
     render_resource_personal_sections = personal_views.render_resource_personal_sections
     render_compact_resource_result = build_compact_resource_view(
         tree_expander_icon=tree_expander_icon, favourite_button=favourite_button,
@@ -4012,7 +3763,7 @@ def index(q: str = "") -> None:
     )
     relationship_types_controller = RelationshipTypesController(
         api=api, container=table_container,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         selected=lambda: state.get("resource") == "relationship-types",
         enter=enter_relationship_types,
         supported_languages=lambda: (state.get("localization") or {}).get("supported_languages", []),
@@ -4022,7 +3773,7 @@ def index(q: str = "") -> None:
 
     application_settings_controller = ApplicationSettingsController(
         api=api, container=table_container,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         selected=lambda: state.get("resource") == "application-settings",
         enter=enter_application_settings,
         persist_category=persist_application_settings_category,
@@ -4032,7 +3783,7 @@ def index(q: str = "") -> None:
 
     audit_workspace = build_audit_workspace(
         api=api, table_container=table_container,
-        principal=lambda: auth_state.get("principal"),
+        principal=lambda: session.principal,
         selected=lambda: state.get("resource") == "audit-trail",
         enter=enter_audit_trail, error_message=error_message,
         format_timestamp=format_timestamp, set_connection_status=set_connection_status,
@@ -4044,7 +3795,7 @@ def index(q: str = "") -> None:
     show_entity_history = audit_workspace.show_entity_history
 
     classification_controller = ClassificationController(
-        api=api, container=table_container, principal=lambda: auth_state.get("principal"),
+        api=api, container=table_container, principal=lambda: session.principal,
         selected=lambda: state.get("resource") in {
             "classification-workspace", "classification-scheme-details", "classification-details",
         },
@@ -4119,7 +3870,7 @@ def index(q: str = "") -> None:
     global_search_input.on("keydown.enter", lambda: run_global_search(global_search_input.value or ""))
     login_dialog = build_sign_in(
         session=session, initial_direction=initial_direction, initial_language=initial_language,
-        set_principal=lambda principal: auth_state.__setitem__("principal", principal),
+        set_principal=session.set_principal,
         drawer=drawer, table_container=table_container,
         show_change_password=lambda: show_change_password(),
         prepare_authenticated_workspace=lambda principal: prepare_authenticated_workspace(principal),
@@ -4147,7 +3898,7 @@ def index(q: str = "") -> None:
 
     open_live_delivery, show_message_notification, stop_message_stream, refresh_message_unread, start_message_stream = build_message_stream(
         api=api,
-        get_principal=lambda: auth_state.get("principal"),
+        get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         handle_unauthorized=lambda *args, **kwargs: handle_unauthorized(*args, **kwargs),
         message_live=message_live,
@@ -4160,13 +3911,8 @@ def index(q: str = "") -> None:
     ui.on("messaging_open", open_live_delivery)
 
 
-
-
-
     page_client.on_disconnect(stop_message_stream)
     page_client.on_connect(start_message_stream)
-
-
 
 
     prepare_authenticated_workspace, initialize_authenticated_ui = build_account_bootstrap(
@@ -4178,7 +3924,7 @@ def index(q: str = "") -> None:
         populate_user_menu=lambda principal: populate_user_menu(principal),
         load_authenticated_client_assets=load_authenticated_client_assets,
         start_message_stream=start_message_stream, refresh_hold_navigation=refresh_hold_navigation,
-        set_principal=lambda principal: auth_state.__setitem__("principal", principal),
+        set_principal=session.set_principal,
         drawer=drawer, table_container=table_container, show_change_password=show_change_password,
         q=q, navigation_controller=navigation_controller, run_global_search=run_global_search,
         restore_navigation_entry=restore_navigation_entry,

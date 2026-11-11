@@ -1,6 +1,6 @@
 # WebUI architecture and migration specification
 
-**Status:** Phases 1–7 complete for the approved local scope; Phase 8 awaits authorization
+**Status:** Phases 1–8 complete for the approved local Chrome/Edge scope
 **Date:** 11 November 2026
 
 ## 1 Purpose and scope
@@ -287,11 +287,15 @@ All Phase 6 sub-phases, including 6N–6U, are complete for the approved local
 scope. The [overall report](../docs/webui-refactor-phase6-verification.md) links
 each individual gate. The subsequently authorized Phase 7 passed its local
 functional and performance gates; see the
-[Phase 7 report](../docs/webui-refactor-phase7-verification.md). Phase 8 has not
-started and requires further authorization. At the final WebUI handoff,
+[Phase 7 report](../docs/webui-refactor-phase7-verification.md). Phase 8 is complete; see the
+[final verification report](../docs/webui-refactor-phase8-verification.md). At the final WebUI handoff,
 deliver the user-requested prioritized list of all recorded pre-existing defects
-and abnormalities, using the [working register](../docs/webui-refactor-existing-observations.md).
+and abnormalities, using the [final register](../docs/webui-refactor-existing-observations.md).
 This reporting requirement does not authorize product fixes.
+
+The user subsequently authorized Phase 8: preserve all existing functionality
+and UX, keep changes local and uncommitted, and provide final verification plus
+a prioritized list of pre-existing defects. Firefox, Safari and CI remain deferred.
 
 ## 13 Phase 7 performance acceptance
 

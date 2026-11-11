@@ -1,0 +1,1100 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="3" failures="26" skipped="0" tests="84" time="32.556" timestamp="2026-11-11T14:40:19.664752+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_cancel_or_forced_recovery[False]" time="0.027"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'forced': False, 'user': &lt;nicegui.testing.user.User object at 0x10a4e0f50&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:49: in test_password_cancel_or_forced_recovery
+    click(user,button(d,key));await settle();assert not d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a59fca0&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_cancel_or_forced_recovery[True]" time="0.011"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'forced': True, 'user': &lt;nicegui.testing.user.User object at 0x1081ec590&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:49: in test_password_cancel_or_forced_recovery
+    click(user,button(d,key));await settle();assert not d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a59fa00&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_validation_order_and_workspace_restart[False-False-False]" time="0.009"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': False, 'forced': False, 'rebuild': False, 'user': &lt;nicegui.testing.user.User object at 0x10a528a10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:60: in test_password_validation_order_and_workspace_restart
+    click(user,button(d,key));await settle();api.change_password.assert_not_awaited();assert d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a344120&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_validation_order_and_workspace_restart[False-False-True]" time="0.008"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': False, 'forced': False, 'rebuild': True, 'user': &lt;nicegui.testing.user.User object at 0x10a52b650&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:60: in test_password_validation_order_and_workspace_restart
+    click(user,button(d,key));await settle();api.change_password.assert_not_awaited();assert d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a346960&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_validation_order_and_workspace_restart[False-True-False]" time="0.010"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': True, 'forced': False, 'rebuild': False, 'user': &lt;nicegui.testing.user.User object at 0x10a5aa050&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:60: in test_password_validation_order_and_workspace_restart
+    click(user,button(d,key));await settle();api.change_password.assert_not_awaited();assert d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a347ca0&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_validation_order_and_workspace_restart[True-False-False]" time="0.008"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': False, 'forced': True, 'rebuild': False, 'user': &lt;nicegui.testing.user.User object at 0x10a537810&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:60: in test_password_validation_order_and_workspace_restart
+    click(user,button(d,key));await settle();api.change_password.assert_not_awaited();assert d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a555e00&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_validation_order_and_workspace_restart[True-False-True]" time="0.008"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': False, 'forced': True, 'rebuild': True, 'user': &lt;nicegui.testing.user.User object at 0x10a63e310&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:60: in test_password_validation_order_and_workspace_restart
+    click(user,button(d,key));await settle();api.change_password.assert_not_awaited();assert d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a644740&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_password_validation_order_and_workspace_restart[True-True-False]" time="0.009"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': True, 'forced': True, 'rebuild': False, 'user': &lt;nicegui.testing.user.User object at 0x10a6b0410&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_account_feature.py:60: in test_password_validation_order_and_workspace_restart
+    click(user,button(d,key));await settle();api.change_password.assert_not_awaited();assert d.value
+               ^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_account_feature.py:40: in button
+    def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;generator object Element.descendants at 0x10a646180&gt;
+
+&gt;   def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_account_feature.py:40: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_preferences_save_retains_version_and_clears_all_locale_storage_together[False]" time="0.269" /><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_preferences_save_retains_version_and_clears_all_locale_storage_together[True]" time="0.320" /><testcase classname="frontend.webui.interaction.tests.test_account_feature" name="test_preferences_cancel_and_failed_read_have_no_write" time="0.294" /><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[eq-current_period_years-en]" time="0.012"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'en', field = 'current_period_years', operator = 'eq'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[eq-current_period_years-ar]" time="0.010"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'ar', field = 'current_period_years', operator = 'eq'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[eq-intermediate_period_years-en]" time="0.045"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'en', field = 'intermediate_period_years', operator = 'eq'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[eq-intermediate_period_years-ar]" time="0.012"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'ar', field = 'intermediate_period_years', operator = 'eq'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'eq', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[between-current_period_years-en]" time="0.012"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'en', field = 'current_period_years', operator = 'between'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[between-current_period_years-ar]" time="0.011"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'ar', field = 'current_period_years', operator = 'between'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.current_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[between-intermediate_period_years-en]" time="0.011"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'en', field = 'intermediate_period_years', operator = 'between'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_year_controls_accept_numeric_blur_without_type_errors[between-intermediate_period_years-ar]" time="0.011"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'ar', field = 'intermediate_period_years', operator = 'between'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    @pytest.mark.parametrize('field', ['current_period_years','intermediate_period_years'])
+    @pytest.mark.parametrize('operator', ['eq','between'])
+    def test_retention_year_controls_accept_numeric_blur_without_type_errors(language,field,operator):
+        client = Client(ui.page('/retention-numeric-check'), request=None)
+        try:
+&gt;           condition = render_condition(client, language, 'effective_retention.'+field,
+                                         operator, [] if operator=='between' else None)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.intermediate_period_years', 'kind': 'structured', 'operator': 'between', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_action_set_uses_localized_multiselect_and_retains_values[en]" time="0.011"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'en'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    def test_retention_action_set_uses_localized_multiselect_and_retains_values(language):
+        client = Client(ui.page('/retention-action-check'), request=None)
+        try:
+            values=['destruction','selective_preservation']
+&gt;           render_condition(client,language,'effective_retention.final_disposition','in',values)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.final_disposition', 'kind': 'structured', 'operator': 'in', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.final_disposition', 'kind': 'structured', 'operator': 'in', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_advanced_search_retention" name="test_retention_action_set_uses_localized_multiselect_and_retains_values[ar]" time="0.044"><failure message="NameError: name 'advanced_search_field_options' is not defined">language = 'ar'
+
+    @pytest.mark.parametrize('language', ['en','ar'])
+    def test_retention_action_set_uses_localized_multiselect_and_retains_values(language):
+        client = Client(ui.page('/retention-action-check'), request=None)
+        try:
+            values=['destruction','selective_preservation']
+&gt;           render_condition(client,language,'effective_retention.final_disposition','in',values)
+
+frontend/webui/interaction/tests/test_advanced_search_retention.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_advanced_search_retention.py:27: in render_condition
+    scope['render_condition'](condition, [condition], 0)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+node = {'field': 'effective_retention.final_disposition', 'kind': 'structured', 'operator': 'in', 'type': 'condition', ...}
+parent = [{'field': 'effective_retention.final_disposition', 'kind': 'structured', 'operator': 'in', 'type': 'condition', ...}]
+index = 0
+
+&gt;   ???
+E   NameError: name 'advanced_search_field_options' is not defined
+
+&lt;retention-condition&gt;:761: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_reopen_requires_reason_preserves_version_and_handles_failure[False]" time="0.010"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': False, 'user': &lt;nicegui.testing.user.User object at 0x10a5584d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_aggregation_actions.py:33: in test_reopen_requires_reason_preserves_version_and_handles_failure
+    click(user,t('webui.show_reopen_aggregation.button.reopen_3a12b38d'));await settle();api.update.assert_not_awaited()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: in click
+    button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;set_iterator object at 0x10aa06200&gt;
+
+&gt;   button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_reopen_requires_reason_preserves_version_and_handles_failure[True]" time="0.007"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': True, 'user': &lt;nicegui.testing.user.User object at 0x10a761150&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_aggregation_actions.py:33: in test_reopen_requires_reason_preserves_version_and_handles_failure
+    click(user,t('webui.show_reopen_aggregation.button.reopen_3a12b38d'));await settle();api.update.assert_not_awaited()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: in click
+    button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;set_iterator object at 0x10a659580&gt;
+
+&gt;   button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[none]" time="0.006"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': 'none', 'user': &lt;nicegui.testing.user.User object at 0x10a708650&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_aggregation_actions.py:54: in test_ownership_correction_filters_current_owner_and_preserves_preview_gate
+    click(user,t('webui.show_ownership_correction.button.confirm_correction_3bd277b6'));await settle();api.correct_ownership.assert_not_awaited()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: in click
+    button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;set_iterator object at 0x10a0d8040&gt;
+
+&gt;   button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[options]" time="0.005" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[preview]" time="0.006"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': 'preview', 'user': &lt;nicegui.testing.user.User object at 0x10a4e1190&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_aggregation_actions.py:54: in test_ownership_correction_filters_current_owner_and_preserves_preview_gate
+    click(user,t('webui.show_ownership_correction.button.confirm_correction_3bd277b6'));await settle();api.correct_ownership.assert_not_awaited()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: in click
+    button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;set_iterator object at 0x10a5366c0&gt;
+
+&gt;   button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[write]" time="0.007"><failure message="AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'">args = ()
+kwargs = {'failure': 'write', 'user': &lt;nicegui.testing.user.User object at 0x1081ffd50&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_aggregation_actions.py:54: in test_ownership_correction_filters_current_owner_and_preserves_preview_gate
+    click(user,t('webui.show_ownership_correction.button.confirm_correction_3bd277b6'));await settle();api.correct_ownership.assert_not_awaited()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: in click
+    button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;set_iterator object at 0x10a73ea40&gt;
+
+&gt;   button=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'frontend.webui.app' has no attribute 'strip_diagnostic_metadata'
+
+frontend/webui/interaction/tests/test_aggregation_actions.py:21: AttributeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_original_governed_move_missing_name_is_preserved_until_separate_bug_approval[aggregations]" time="0.005" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_original_governed_move_missing_name_is_preserved_until_separate_bug_approval[records]" time="0.005" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_browser" name="test_titles_navigate_and_disclosures_only_expand[ltr-chevron_right]" time="0.265" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_browser" name="test_titles_navigate_and_disclosures_only_expand[rtl-chevron_left]" time="0.280" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_browser" name="test_return_reloads_pages_and_preserves_expansion" time="0.345" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_browser" name="test_abandoned_branch_response_does_not_update_browser" time="0.109" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_audit_target_opens_api_category_with_one_settings_read[DISPOSITION_GENERATED_REPORTS_CLASSIFICATION_ID-disposition]" time="0.107" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_audit_target_opens_api_category_with_one_settings_read[SMTP_HOST-email]" time="0.105" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_audit_target_opens_api_category_with_one_settings_read[REVIEW_WARNING_WINDOW_DAYS-general]" time="0.123" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_every_setting_has_visible_explanation_and_controls_and_no_secret[en]" time="0.133" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_every_setting_has_visible_explanation_and_controls_and_no_secret[ar]" time="0.106" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_reason_atomic_destinations_and_other_unsaved_category_are_preserved" time="0.205" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_conflict_keeps_form_and_password_replacement_clears_after_save" time="0.202" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_selected_ids_fetch_once_and_typeahead_starts_at_two_characters" time="0.643" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_refresh_single_request_retains_old_content_and_ignores_abandoned_response" time="0.246" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_warning_panel_does_not_grant_settings_authority" time="0.006" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_integer_input_preserves_precision_and_group_clear_is_write_only" time="0.000" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_browse_pages_each_branch_and_revalidates_stale_terminal" time="0.472" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_old_search_cannot_restore_previous_scheme_options" time="0.161" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_optional_selector_clear_is_translated_and_resets_destination_drafts[en]" time="0.443" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_optional_selector_clear_is_translated_and_resets_destination_drafts[ar]" time="0.151" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_timezone_dropdown_and_exact_integer_steppers[en]" time="0.224" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_timezone_dropdown_and_exact_integer_steppers[ar]" time="2.129" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_successful_save_has_translated_toast_but_conflict_does_not[en]" time="0.261" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_successful_save_has_translated_toast_but_conflict_does_not[ar]" time="0.284" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_missing_reason_warns_without_saving_or_losing_draft[-en]" time="0.197" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_missing_reason_warns_without_saving_or_losing_draft[-ar]" time="0.194" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_missing_reason_warns_without_saving_or_losing_draft[   -en]" time="0.209" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_missing_reason_warns_without_saving_or_losing_draft[   -ar]" time="0.211" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_integer_minimum_blocks_invalid_save_without_rewriting_existing_zero" time="0.156" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_scheme_first_browse_unlocks_both_two_character_destination_searches[en]" time="1.171" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_scheme_first_browse_unlocks_both_two_character_destination_searches[ar]" time="1.224" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_dialog_validates_recipient_uses_saved_configuration_and_preserves_drafts[en]" time="0.322" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_dialog_validates_recipient_uses_saved_configuration_and_preserves_drafts[ar]" time="0.215" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_test_reports_truthful_outcome_without_retry[failed]" time="0.187" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_test_reports_truthful_outcome_without_retry[unknown]" time="0.174" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_test_blocks_duplicates_and_ignores_abandoned_dialog_result[page]" time="0.184" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_test_blocks_duplicates_and_ignores_abandoned_dialog_result[dialog]" time="0.182" /><testcase classname="frontend.webui.interaction.tests.test_application_settings" name="test_smtp_test_api_disconnect_is_unknown_not_definite_failure" time="0.159" /><testcase classname="frontend.webui.interaction.tests.test_application_settings_audit" name="test_old_settings_events_have_shared_labels_and_guarded_open_links[True-True-en]" time="0.043" /><testcase classname="frontend.webui.interaction.tests.test_application_settings_audit" name="test_old_settings_events_have_shared_labels_and_guarded_open_links[True-True-ar]" time="0.041" /><testcase classname="frontend.webui.interaction.tests.test_application_settings_audit" name="test_old_settings_events_have_shared_labels_and_guarded_open_links[True-False-en]" time="0.041" /><testcase classname="frontend.webui.interaction.tests.test_application_settings_audit" name="test_old_settings_events_have_shared_labels_and_guarded_open_links[True-False-ar]" time="0.041" /><testcase classname="frontend.webui.interaction.tests.test_application_settings_audit" name="test_old_settings_events_have_shared_labels_and_guarded_open_links[False-True-en]" time="0.009" /><testcase classname="frontend.webui.interaction.tests.test_application_settings_audit" name="test_old_settings_events_have_shared_labels_and_guarded_open_links[False-True-ar]" time="0.008" /><testcase classname="frontend.webui.interaction.tests.test_audit_actor_select" name="test_directory_selector_bound_identity_and_abandonment[en]" time="2.634" /><testcase classname="frontend.webui.interaction.tests.test_audit_actor_select" name="test_directory_selector_bound_identity_and_abandonment[ar]" time="2.652" /><testcase classname="frontend.webui.interaction.tests.test_audit_actor_select" name="test_snapshot_actor_without_user_id_uses_exact_nullable_identity" time="0.001" /><testcase classname="frontend.webui.interaction.tests.test_audit_workspace" name="test_workspace_revisions_are_independent" time="0.026" /><testcase classname="frontend.webui.interaction.tests.test_capture_destination_controls" name="test_capture_medium_remains_digital_before_and_after_parent_selection[None]" time="0.003" /><testcase classname="frontend.webui.interaction.tests.test_capture_destination_controls" name="test_capture_medium_remains_digital_before_and_after_parent_selection[digital]" time="0.002" /><testcase classname="frontend.webui.interaction.tests.test_capture_destination_controls" name="test_capture_medium_remains_digital_before_and_after_parent_selection[mixed]" time="0.002" /><testcase classname="frontend.webui.interaction.tests.test_capture_destination_controls" name="test_destination_typeahead_is_bounded_and_does_not_preload" time="0.002" /><testcase classname="frontend.webui.interaction.tests.test_capture_destination_controls" name="test_ordinary_record_medium_remains_editable_in_mixed_parent" time="0.001" /><testcase classname="frontend.webui.interaction.tests.test_capture_preparation" name="test_preparation_shows_editable_metadata_and_blocks_creation" time="3.021"><failure message="TimeoutError">fut = &lt;Task cancelled name='Task-778' coro=&lt;Event.wait() done, defined at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:200&gt;&gt;
+timeout = 3
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout &lt;= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+&gt;                   return fut.result()
+                           ^^^^^^^^^^^^
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:500: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;asyncio.locks.Event object at 0x10d62d410 [unset]&gt;
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another coroutine calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+&gt;           await fut
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:213: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = (), kwargs = {'user': &lt;nicegui.testing.user.User object at 0x10d62c8d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_capture_preparation.py:58: in test_preparation_shows_editable_metadata_and_blocks_creation
+    ready,api=await setup(user)
+              ^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_capture_preparation.py:54: in setup
+    await asyncio.wait_for(started.wait(), 3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fut = &lt;Task cancelled name='Task-778' coro=&lt;Event.wait() done, defined at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:200&gt;&gt;
+timeout = 3
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout &lt;= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+                    return fut.result()
+                except exceptions.CancelledError as exc:
+&gt;                   raise exceptions.TimeoutError() from exc
+E                   TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:502: TimeoutError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_capture_preparation" name="test_preparation_shows_editable_metadata_and_blocks_creation" time="0.002"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase><testcase classname="frontend.webui.interaction.tests.test_capture_preparation" name="test_closed_or_abandoned_capture_discards_finished_draft[False]" time="3.009"><failure message="TimeoutError">fut = &lt;Task cancelled name='Task-792' coro=&lt;Event.wait() done, defined at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:200&gt;&gt;
+timeout = 3
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout &lt;= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+&gt;                   return fut.result()
+                           ^^^^^^^^^^^^
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:500: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;asyncio.locks.Event object at 0x10d29b550 [unset]&gt;
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another coroutine calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+&gt;           await fut
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:213: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'abandon': False, 'user': &lt;nicegui.testing.user.User object at 0x10d25bc10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_capture_preparation.py:73: in test_closed_or_abandoned_capture_discards_finished_draft
+    ready,api=await setup(user,active=lambda:current['active'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_capture_preparation.py:54: in setup
+    await asyncio.wait_for(started.wait(), 3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fut = &lt;Task cancelled name='Task-792' coro=&lt;Event.wait() done, defined at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:200&gt;&gt;
+timeout = 3
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout &lt;= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+                    return fut.result()
+                except exceptions.CancelledError as exc:
+&gt;                   raise exceptions.TimeoutError() from exc
+E                   TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:502: TimeoutError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_capture_preparation" name="test_closed_or_abandoned_capture_discards_finished_draft[False]" time="0.001"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase><testcase classname="frontend.webui.interaction.tests.test_capture_preparation" name="test_closed_or_abandoned_capture_discards_finished_draft[True]" time="3.140"><failure message="TimeoutError">fut = &lt;Task cancelled name='Task-806' coro=&lt;Event.wait() done, defined at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:200&gt;&gt;
+timeout = 3
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout &lt;= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+&gt;                   return fut.result()
+                           ^^^^^^^^^^^^
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:500: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;asyncio.locks.Event object at 0x10d281ed0 [unset]&gt;
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another coroutine calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+&gt;           await fut
+E           asyncio.exceptions.CancelledError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:213: CancelledError
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'abandon': True, 'user': &lt;nicegui.testing.user.User object at 0x10d5d5890&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_capture_preparation.py:73: in test_closed_or_abandoned_capture_discards_finished_draft
+    ready,api=await setup(user,active=lambda:current['active'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+frontend/webui/interaction/tests/test_capture_preparation.py:54: in setup
+    await asyncio.wait_for(started.wait(), 3)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fut = &lt;Task cancelled name='Task-806' coro=&lt;Event.wait() done, defined at /Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/locks.py:200&gt;&gt;
+timeout = 3
+
+    async def wait_for(fut, timeout):
+        """Wait for the single Future or coroutine to complete, with timeout.
+    
+        Coroutine will be wrapped in Task.
+    
+        Returns result of the Future or coroutine.  When a timeout occurs,
+        it cancels the task and raises TimeoutError.  To avoid the task
+        cancellation, wrap it in shield().
+    
+        If the wait is cancelled, the task is also cancelled.
+    
+        This function is a coroutine.
+        """
+        loop = events.get_running_loop()
+    
+        if timeout is None:
+            return await fut
+    
+        if timeout &lt;= 0:
+            fut = ensure_future(fut, loop=loop)
+    
+            if fut.done():
+                return fut.result()
+    
+            await _cancel_and_wait(fut, loop=loop)
+            try:
+                return fut.result()
+            except exceptions.CancelledError as exc:
+                raise exceptions.TimeoutError() from exc
+    
+        waiter = loop.create_future()
+        timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        cb = functools.partial(_release_waiter, waiter)
+    
+        fut = ensure_future(fut, loop=loop)
+        fut.add_done_callback(cb)
+    
+        try:
+            # wait until the future completes or the timeout
+            try:
+                await waiter
+            except exceptions.CancelledError:
+                if fut.done():
+                    return fut.result()
+                else:
+                    fut.remove_done_callback(cb)
+                    # We must ensure that the task is not running
+                    # after wait_for() returns.
+                    # See https://bugs.python.org/issue32751
+                    await _cancel_and_wait(fut, loop=loop)
+                    raise
+    
+            if fut.done():
+                return fut.result()
+            else:
+                fut.remove_done_callback(cb)
+                # We must ensure that the task is not running
+                # after wait_for() returns.
+                # See https://bugs.python.org/issue32751
+                await _cancel_and_wait(fut, loop=loop)
+                # In case task cancellation failed with some
+                # exception, we should re-raise it
+                # See https://bugs.python.org/issue40607
+                try:
+                    return fut.result()
+                except exceptions.CancelledError as exc:
+&gt;                   raise exceptions.TimeoutError() from exc
+E                   TimeoutError
+
+../../../.pyenv/versions/3.11.9/lib/python3.11/asyncio/tasks.py:502: TimeoutError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_capture_preparation" name="test_closed_or_abandoned_capture_discards_finished_draft[True]" time="0.002"><error message="failed on teardown with &quot;Failed: There were unexpected ERROR logs.&quot;">There were unexpected ERROR logs.</error></testcase><testcase time="0.003" /></testsuite></testsuites>

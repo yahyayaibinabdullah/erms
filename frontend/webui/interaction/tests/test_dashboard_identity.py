@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from nicegui import Client, ui
 from frontend.webui import app as webui
+from frontend.webui import dashboard as feature_owner
 from frontend.webui.i18n_catalogue import clear_active_messages, set_active_messages
 
 SOURCE = ast.parse((Path(__file__).parents[2] / 'dashboard.py').read_text())
@@ -63,7 +64,7 @@ class DashboardFixture:
         self.api=SimpleNamespace(dashboard_summary=AsyncMock(side_effect=self.fetch))
         self.host=ui.column()
         self.personal=PersonalResourceState()
-        self.scope=dict(vars(webui),state=self.state,collection_state={},aggregation_state={},personal=self.personal,auth_state=self.auth,api=self.api,
+        self.scope=dict({**vars(webui), **vars(feature_owner)},state=self.state,collection_state={},aggregation_state={},personal=self.personal,auth_state=self.auth,api=self.api,
             page_client=SimpleNamespace(id=client.id,_deleted=False,has_socket_connection=True),
             table_container=self.host,title=SimpleNamespace(text=''),subtitle=SimpleNamespace(text=''),
             guidance=SimpleNamespace(text=''),register_navigation=Mock(),show_authenticated_view=Mock(),

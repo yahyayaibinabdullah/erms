@@ -1,4 +1,5 @@
 """Exercise the actual condition renderer and NiceGUI numeric blur sanitizer."""
+from frontend.webui.advanced_search_model import compile_advanced_search_node as _owner_compile_advanced_search_node
 import ast
 import json
 from pathlib import Path
@@ -7,6 +8,7 @@ import pytest
 from nicegui import Client, ui
 
 from frontend.webui import app as webui
+from frontend.webui import advanced_search as feature_owner
 from frontend.webui.i18n_catalogue import clear_active_messages, set_active_messages
 
 ROOT = Path(__file__).parents[2]
@@ -20,7 +22,7 @@ def render_condition(client, language, field, operator, value):
                   json.loads((ROOT / 'i18n/messages.ar.generated.json').read_text())['items']}
         set_active_messages(arabic if language == 'ar' else {})
         condition = dict(type='condition', kind='structured', field=field, operator=operator, value=value)
-        scope = dict(vars(webui), workspace={'resource':'aggregations'},
+        scope = dict({**vars(webui), **vars(feature_owner)}, workspace={'resource':'aggregations'},
                      auth_state={'principal':{}}, get_principal=lambda: {}, relation_sources={},
                      render_builder=lambda: None, update_search_enabled=lambda: None)
         exec(compile(ast.Module(body=[RENDER], type_ignores=[]), '<retention-condition>', 'exec'), scope)
@@ -47,7 +49,7 @@ def test_retention_year_controls_accept_numeric_blur_without_type_errors(languag
             control.value=5
             control.sanitize()
             assert control.value==5
-        result=webui.compile_advanced_search_node(condition,'aggregations')
+        result=_owner_compile_advanced_search_node(condition,'aggregations')
         assert result['value']==([5,5] if operator=='between' else 5)
     finally:
         clear_active_messages(client.id)

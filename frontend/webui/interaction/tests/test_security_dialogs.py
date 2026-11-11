@@ -1,4 +1,5 @@
 """Security dialog contracts, exercised without network or persistent data."""
+from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import asyncio
 import copy
 from types import SimpleNamespace
@@ -78,7 +79,7 @@ def dialog(user):return max((d for d in user.find(ui.dialog).elements if d.value
 def elements(root,kind):return [e for e in root.descendants() if isinstance(e,kind)]
 def button(root,key):
     label=t(key)
-    return next(b for b in elements(root,ui.button) if host.strip_diagnostic_metadata(b.text)==label)
+    return next(b for b in elements(root,ui.button) if _owner_strip_diagnostic_metadata(b.text)==label)
 def click(user,b):
     b.mark(f'security-target-{b.id}')
     user.find(marker=f'security-target-{b.id}').click()
@@ -154,7 +155,7 @@ async def test_explanation_subject_gate_and_server_decision(user,allowed):
     d=dialog(user)
     assert len(elements(d,ui.select))==(2 if allowed else 1)
     assert api.explain_access.await_args.args[0]=={'resource_type':'record','resource_id':11,'operation':'record.view'}
-    assert t('webui.load_explanation.label.denied_c4e96002') in [host.strip_diagnostic_metadata(e.text) for e in elements(d,ui.label)]
+    assert t('webui.load_explanation.label.denied_c4e96002') in [_owner_strip_diagnostic_metadata(e.text) for e in elements(d,ui.label)]
     if allowed:
         with user:elements(d,ui.select)[-1].set_options({7:'Another user'},value=7)
         await settle()
@@ -174,7 +175,7 @@ async def test_old_explanation_response_does_not_replace_new_operation(user):
     api.explain_access.side_effect=None
     with user:op.value='record.update'
     await settle();gate.set();await settle()
-    assert t('webui.load_explanation.label.allowed_4d6e5631') not in [host.strip_diagnostic_metadata(e.text) for e in elements(d,ui.label)]
+    assert t('webui.load_explanation.label.allowed_4d6e5631') not in [_owner_strip_diagnostic_metadata(e.text) for e in elements(d,ui.label)]
 
 
 @pytest.mark.parametrize('conflict',[False,True])

@@ -1,8 +1,8 @@
 """Per-page API/identity context and existing authentication cleanup ordering.
 
 Feature caches and shell controls stay with their owners behind explicit hooks.
-The identity mapping is a temporary adapter for remaining host callbacks; new
-features use the principal and locale accessors, not that mapping.
+The principal belongs to this page context. Features read it through explicit
+callbacks; no shared identity dictionary or additional locale cache is exposed.
 """
 from collections.abc import Awaitable, Callable, MutableMapping
 from typing import Any
@@ -21,7 +21,7 @@ class SessionContext:
         set_connection_status: Callable[[bool], None],
     ) -> None:
         self.api = api
-        self.identity: dict[str, Any] = {"principal": None}
+        self.principal: dict[str, Any] | None = None
         self._storage = storage
         self._locale = locale
         self._reset_private_views = reset_private_views
@@ -31,9 +31,8 @@ class SessionContext:
         self._open_login = open_login
         self._set_connection_status = set_connection_status
 
-    @property
-    def principal(self) -> dict[str, Any] | None:
-        return self.identity.get("principal")
+    def set_principal(self, principal: dict[str, Any] | None) -> None:
+        self.principal = principal
 
     @property
     def locale(self) -> dict[str, Any]:

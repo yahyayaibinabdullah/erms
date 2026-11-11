@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock
 import pytest
 from nicegui import ui, background_tasks
 from frontend.webui import app as webapp
+from frontend.webui import record_capture as feature_owner
 from frontend.webui.api_client import ApiError
 from frontend.webui.interaction.tests import test_messaging_workspace as fixture
 
@@ -29,7 +30,7 @@ async def setup(user, outcome='success', active=None):
         await ready.wait()
         if outcome=='error':raise ApiError(409, {'code':'message_capture_pdf_nonconforming'})
         return {'id':99,'title':'Original subject','medium':'digital','security_level_id':1}
-    scope=dict(vars(webapp),api=api,
+    scope=dict({**vars(webapp), **vars(feature_owner)},api=api,
         bind_resource_security_select=lambda *a,**k:None,
         add_number_suggestion=lambda *a,**k:None,
         browse_advanced_aggregation=AsyncMock(),
@@ -101,7 +102,7 @@ async def test_dialog_opens_before_even_the_capture_manifest_returns(user):
         await preview_ready.wait()
         return {'title':'Original subject'}
     editor=AsyncMock()
-    scope=dict(vars(webapp),api=SimpleNamespace(request=request),
+    scope=dict({**vars(webapp), **vars(feature_owner)},api=SimpleNamespace(request=request),
         auth_state={'principal':principal},principal=principal,
         state={'messaging_workspace_token':'token'},token='token',mailbox='inbox',
         select_messages=AsyncMock(),open_record_draft_editor=editor)

@@ -1,0 +1,3705 @@
+{
+  "excluded": "Generated DOM IDs and focus-helper animation opacity only; all semantic properties, geometry and other indicator properties compared.",
+  "browsers": [
+    {
+      "browser": "chrome",
+      "observations": 58,
+      "differences": [
+        {
+          "baseline": {
+            "name": "category-enter",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Content and document viewing",
+            "rect": {
+              "height": 48,
+              "width": 222.4375,
+              "x": 601.953125,
+              "y": 349.734375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-category-enter.png"
+          },
+          "current": {
+            "name": "category-enter",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Content and document viewing",
+            "rect": {
+              "height": 48,
+              "width": 222.4375,
+              "x": 601.953125,
+              "y": 314.984375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-category-enter.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Test Send\nUses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.\nRecipient email address\nClose\nsend\nSend test email",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-email-open.png"
+          },
+          "current": {
+            "name": "email-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Test Send\nUses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.\nRecipient email address\nClose\nsend\nSend test email",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-email-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "Close",
+            "rect": {
+              "height": 36,
+              "width": 64.6875,
+              "x": 699.703125,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-0.png"
+          },
+          "current": {
+            "name": "email-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "Close",
+            "rect": {
+              "height": 36,
+              "width": 64.6875,
+              "x": 707.203125,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 772.390625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-1.png"
+          },
+          "current": {
+            "name": "email-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 779.890625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-2",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1686.234375,
+              "width": 1425,
+              "x": 0,
+              "y": -686
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-2.png"
+          },
+          "current": {
+            "name": "email-tab-2",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1651.484375,
+              "width": 1440,
+              "x": 0,
+              "y": -651
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-3.png"
+          },
+          "current": {
+            "name": "email-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-0.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-1.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-2",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-2.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-2",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-3.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-invalid-recipient",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 772.390625,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-invalid-recipient.png"
+          },
+          "current": {
+            "name": "email-invalid-recipient",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 779.890625,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-invalid-recipient.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "outgoing_mail\nTest Send",
+            "rect": {
+              "height": 36,
+              "width": 126.984375,
+              "x": 1127.96875,
+              "y": 861.234375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-escape-return.png"
+          },
+          "current": {
+            "name": "email-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "outgoing_mail\nTest Send",
+            "rect": {
+              "height": 36,
+              "width": 126.984375,
+              "x": 1142.96875,
+              "y": 861.484375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-escape-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "save\nSave",
+            "rect": {
+              "height": 36,
+              "width": 97.046875,
+              "x": 1270.953125,
+              "y": 861.234375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-next-tab.png"
+          },
+          "current": {
+            "name": "email-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "save\nSave",
+            "rect": {
+              "height": 36,
+              "width": 97.046875,
+              "x": 1285.953125,
+              "y": 861.484375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-next-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Browse classification schemes\nclose\nShowing 25 items, starting at 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\nPrevious\nNext",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-browse-open.png"
+          },
+          "current": {
+            "name": "browse-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Browse classification schemes\nclose\nShowing 25 items, starting at 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\nPrevious\nNext",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-browse-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 942.90625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-tab.png"
+          },
+          "current": {
+            "name": "browse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 950.40625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 457,
+              "x": 487.5,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-next-tab.png"
+          },
+          "current": {
+            "name": "browse-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 472,
+              "x": 495,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-next-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-reverse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 942.90625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          },
+          "current": {
+            "name": "browse-reverse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 950.40625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\nBrowse",
+            "rect": {
+              "height": 31.984375,
+              "width": 82.828125,
+              "x": 357,
+              "y": 525.734375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-escape-return.png"
+          },
+          "current": {
+            "name": "browse-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\nBrowse",
+            "rect": {
+              "height": 31.984375,
+              "width": 82.828125,
+              "x": 357,
+              "y": 490.984375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-escape-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "custody-return",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1746.203125,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-custody-return.png"
+          },
+          "current": {
+            "name": "custody-return",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1711.453125,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-custody-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "saved-setting",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1003.984375,
+              "width": 1425,
+              "x": 0,
+              "y": -4
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true
+          },
+          "current": {
+            "name": "saved-setting",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1003.984375,
+              "width": 1440,
+              "x": 0,
+              "y": -4
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true
+          }
+        },
+        {
+          "baseline": {
+            "name": "category-enter",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0644\u0645\u062d\u062a\u0648\u0649 \u0648\u0639\u0631\u0636 \u0627\u0644\u0648\u062b\u0627\u0626\u0642",
+            "rect": {
+              "height": 48,
+              "width": 170.34375,
+              "x": 706.640625,
+              "y": 372.484375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-category-enter.png"
+          },
+          "current": {
+            "name": "category-enter",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0644\u0645\u062d\u062a\u0648\u0649 \u0648\u0639\u0631\u0636 \u0627\u0644\u0648\u062b\u0627\u0626\u0642",
+            "rect": {
+              "height": 48,
+              "width": 170.34375,
+              "x": 721.640625,
+              "y": 372.484375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-category-enter.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u062e\u062a\u0628\u0627\u0631 \u0627\u0644\u0625\u0631\u0633\u0627\u0644\n\u064a\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631 \u0625\u0639\u062f\u0627\u062f\u0627\u062a \u062e\u0627\u062f\u0645 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0645\u062d\u0641\u0648\u0638\u0629. \u0627\u062d\u0641\u0638 \u0623\u064a \u062a\u063a\u064a\u064a\u0631\u0627\u062a \u0623\u0648\u0644\u064b\u0627\u060c \u062b\u0645 \u0623\u062f\u062e\u0644 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0630\u064a \u0633\u064a\u0633\u062a\u0642\u0628\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631.\n\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645\n\u0625\u063a\u0644\u0627\u0642\nsend\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-email-open.png"
+          },
+          "current": {
+            "name": "email-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u062e\u062a\u0628\u0627\u0631 \u0627\u0644\u0625\u0631\u0633\u0627\u0644\n\u064a\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631 \u0625\u0639\u062f\u0627\u062f\u0627\u062a \u062e\u0627\u062f\u0645 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0645\u062d\u0641\u0648\u0638\u0629. \u0627\u062d\u0641\u0638 \u0623\u064a \u062a\u063a\u064a\u064a\u0631\u0627\u062a \u0623\u0648\u0644\u064b\u0627\u060c \u062b\u0645 \u0623\u062f\u062e\u0644 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0630\u064a \u0633\u064a\u0633\u062a\u0642\u0628\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631.\n\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645\n\u0625\u063a\u0644\u0627\u0642\nsend\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-email-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "\u0625\u063a\u0644\u0627\u0642",
+            "rect": {
+              "height": 36,
+              "width": 65.96875,
+              "x": 679.140625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-0.png"
+          },
+          "current": {
+            "name": "email-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "\u0625\u063a\u0644\u0627\u0642",
+            "rect": {
+              "height": 36,
+              "width": 65.96875,
+              "x": 686.640625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 753.109375,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-1.png"
+          },
+          "current": {
+            "name": "email-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 760.609375,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-2",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-2.png"
+          },
+          "current": {
+            "name": "email-tab-2",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "\u0625\u063a\u0644\u0627\u0642",
+            "rect": {
+              "height": 36,
+              "width": 65.96875,
+              "x": 679.140625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-3.png"
+          },
+          "current": {
+            "name": "email-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "\u0625\u063a\u0644\u0627\u0642",
+            "rect": {
+              "height": 36,
+              "width": 65.96875,
+              "x": 686.640625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-0.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-1.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-2",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-2.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-2",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-3.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-invalid-recipient",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 753.109375,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-invalid-recipient.png"
+          },
+          "current": {
+            "name": "email-invalid-recipient",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 760.609375,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-invalid-recipient.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0633\u062a\u0639\u0631\u0627\u0636 \u0646\u0638\u0645 \u0627\u0644\u062a\u0635\u0646\u064a\u0641\nclose\n\u0639\u0631\u0636 25 \u0639\u0646\u0627\u0635\u0631\u060c \u0628\u062f\u0621\u0627 \u0645\u0646 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\n\u0627\u0644\u0633\u0627\u0628\u0642\n\u0627\u0644\u062a\u0627\u0644\u064a",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-browse-open.png"
+          },
+          "current": {
+            "name": "browse-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0633\u062a\u0639\u0631\u0627\u0636 \u0646\u0638\u0645 \u0627\u0644\u062a\u0635\u0646\u064a\u0641\nclose\n\u0639\u0631\u0636 25 \u0639\u0646\u0627\u0635\u0631\u060c \u0628\u062f\u0621\u0627 \u0645\u0646 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\n\u0627\u0644\u0633\u0627\u0628\u0642\n\u0627\u0644\u062a\u0627\u0644\u064a",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-browse-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 448.5,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-tab.png"
+          },
+          "current": {
+            "name": "browse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 456,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-next-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 457,
+              "x": 480.5,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-next-tab.png"
+          },
+          "current": {
+            "name": "browse-next-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 472,
+              "x": 473,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-next-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-reverse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 448.5,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          },
+          "current": {
+            "name": "browse-reverse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 456,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-escape-return",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\n\u0627\u0633\u062a\u0639\u0631\u0627\u0636",
+            "rect": {
+              "height": 31.984375,
+              "width": 93.5625,
+              "x": 974.4375,
+              "y": 548.484375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-escape-return.png"
+          },
+          "current": {
+            "name": "browse-escape-return",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\n\u0627\u0633\u062a\u0639\u0631\u0627\u0636",
+            "rect": {
+              "height": 31.984375,
+              "width": 93.5625,
+              "x": 989.4375,
+              "y": 548.484375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-escape-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "custody-return",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1768.953125,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-ar-custody-return.png"
+          },
+          "current": {
+            "name": "custody-return",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1768.953125,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-ar-custody-return.png"
+          }
+        }
+      ]
+    },
+    {
+      "browser": "edge",
+      "observations": 58,
+      "differences": [
+        {
+          "baseline": {
+            "name": "category-enter",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Content and document viewing",
+            "rect": {
+              "height": 48,
+              "width": 222.4375,
+              "x": 601.953125,
+              "y": 349.734375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-category-enter.png"
+          },
+          "current": {
+            "name": "category-enter",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Content and document viewing",
+            "rect": {
+              "height": 48,
+              "width": 222.4375,
+              "x": 601.953125,
+              "y": 314.984375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-category-enter.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Test Send\nUses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.\nRecipient email address\nClose\nsend\nSend test email",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-email-open.png"
+          },
+          "current": {
+            "name": "email-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Test Send\nUses the saved SMTP settings. Save any changes first. Enter the address that should receive the test email.\nRecipient email address\nClose\nsend\nSend test email",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-email-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "Close",
+            "rect": {
+              "height": 36,
+              "width": 64.6875,
+              "x": 699.703125,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-0.png"
+          },
+          "current": {
+            "name": "email-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "Close",
+            "rect": {
+              "height": 36,
+              "width": 64.6875,
+              "x": 707.203125,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 772.390625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-1.png"
+          },
+          "current": {
+            "name": "email-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 779.890625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-2",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1686.234375,
+              "width": 1425,
+              "x": 0,
+              "y": -686
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-2.png"
+          },
+          "current": {
+            "name": "email-tab-2",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light q-body--force-scrollbar-y q-body--prevent-scroll",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1651.484375,
+              "width": 1440,
+              "x": 0,
+              "y": -651
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-3.png"
+          },
+          "current": {
+            "name": "email-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-0.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-0",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-1.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-1",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-2",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-2.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-2",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-3.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-3",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "Recipient email address",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-en-email-reverse-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-invalid-recipient",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 772.390625,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-invalid-recipient.png"
+          },
+          "current": {
+            "name": "email-invalid-recipient",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\nSend test email",
+            "rect": {
+              "height": 36,
+              "width": 164.109375,
+              "x": 779.890625,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-invalid-recipient.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "outgoing_mail\nTest Send",
+            "rect": {
+              "height": 36,
+              "width": 126.984375,
+              "x": 1127.96875,
+              "y": 861.234375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-escape-return.png"
+          },
+          "current": {
+            "name": "email-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "outgoing_mail\nTest Send",
+            "rect": {
+              "height": 36,
+              "width": 126.984375,
+              "x": 1142.96875,
+              "y": 861.484375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-escape-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "save\nSave",
+            "rect": {
+              "height": 36,
+              "width": 97.046875,
+              "x": 1270.953125,
+              "y": 861.234375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-next-tab.png"
+          },
+          "current": {
+            "name": "email-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "save\nSave",
+            "rect": {
+              "height": 36,
+              "width": 97.046875,
+              "x": 1285.953125,
+              "y": 861.484375
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-email-next-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Browse classification schemes\nclose\nShowing 25 items, starting at 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\nPrevious\nNext",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-browse-open.png"
+          },
+          "current": {
+            "name": "browse-open",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "Browse classification schemes\nclose\nShowing 25 items, starting at 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\nPrevious\nNext",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-en-browse-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 942.90625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-tab.png"
+          },
+          "current": {
+            "name": "browse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 950.40625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 457,
+              "x": 487.5,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-next-tab.png"
+          },
+          "current": {
+            "name": "browse-next-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 472,
+              "x": 495,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-next-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-reverse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 942.90625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          },
+          "current": {
+            "name": "browse-reverse-tab",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 950.40625,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\nBrowse",
+            "rect": {
+              "height": 31.984375,
+              "width": 82.828125,
+              "x": 357,
+              "y": 525.734375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-escape-return.png"
+          },
+          "current": {
+            "name": "browse-escape-return",
+            "language": "en",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\nBrowse",
+            "rect": {
+              "height": 31.984375,
+              "width": 82.828125,
+              "x": 357,
+              "y": 490.984375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-en-browse-escape-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "custody-return",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1746.203125,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-custody-return.png"
+          },
+          "current": {
+            "name": "custody-return",
+            "language": "en",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1711.453125,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-en-custody-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "saved-setting",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1003.984375,
+              "width": 1425,
+              "x": 0,
+              "y": -4
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true
+          },
+          "current": {
+            "name": "saved-setting",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1003.984375,
+              "width": 1440,
+              "x": 0,
+              "y": -4
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true
+          }
+        },
+        {
+          "baseline": {
+            "name": "category-enter",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0644\u0645\u062d\u062a\u0648\u0649 \u0648\u0639\u0631\u0636 \u0627\u0644\u0648\u062b\u0627\u0626\u0642",
+            "rect": {
+              "height": 48,
+              "width": 170.34375,
+              "x": 706.640625,
+              "y": 372.484375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-category-enter.png"
+          },
+          "current": {
+            "name": "category-enter",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-tab relative-position self-stretch flex flex-center text-center q-tab--active q-tab--no-caps q-focusable q-hoverable cursor-pointer",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0644\u0645\u062d\u062a\u0648\u0649 \u0648\u0639\u0631\u0636 \u0627\u0644\u0648\u062b\u0627\u0626\u0642",
+            "rect": {
+              "height": 48,
+              "width": 170.34375,
+              "x": 721.640625,
+              "y": 372.484375
+            },
+            "role": "tab",
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-category-enter.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u062e\u062a\u0628\u0627\u0631 \u0627\u0644\u0625\u0631\u0633\u0627\u0644\n\u064a\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631 \u0625\u0639\u062f\u0627\u062f\u0627\u062a \u062e\u0627\u062f\u0645 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0645\u062d\u0641\u0648\u0638\u0629. \u0627\u062d\u0641\u0638 \u0623\u064a \u062a\u063a\u064a\u064a\u0631\u0627\u062a \u0623\u0648\u0644\u064b\u0627\u060c \u062b\u0645 \u0623\u062f\u062e\u0644 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0630\u064a \u0633\u064a\u0633\u062a\u0642\u0628\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631.\n\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645\n\u0625\u063a\u0644\u0627\u0642\nsend\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-email-open.png"
+          },
+          "current": {
+            "name": "email-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u062e\u062a\u0628\u0627\u0631 \u0627\u0644\u0625\u0631\u0633\u0627\u0644\n\u064a\u0633\u062a\u062e\u062f\u0645 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631 \u0625\u0639\u062f\u0627\u062f\u0627\u062a \u062e\u0627\u062f\u0645 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0645\u062d\u0641\u0648\u0638\u0629. \u0627\u062d\u0641\u0638 \u0623\u064a \u062a\u063a\u064a\u064a\u0631\u0627\u062a \u0623\u0648\u0644\u064b\u0627\u060c \u062b\u0645 \u0623\u062f\u062e\u0644 \u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0630\u064a \u0633\u064a\u0633\u062a\u0642\u0628\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631.\n\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645\n\u0625\u063a\u0644\u0627\u0642\nsend\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-email-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "\u0625\u063a\u0644\u0627\u0642",
+            "rect": {
+              "height": 36,
+              "width": 65.96875,
+              "x": 679.140625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-0.png"
+          },
+          "current": {
+            "name": "email-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "\u0625\u063a\u0644\u0627\u0642",
+            "rect": {
+              "height": 36,
+              "width": 65.96875,
+              "x": 686.640625,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 753.109375,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-1.png"
+          },
+          "current": {
+            "name": "email-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 760.609375,
+              "y": 570.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-2",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl q-body--force-scrollbar-y q-body--prevent-scroll",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1724.984375,
+              "width": 1425,
+              "x": 0,
+              "y": -725
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-2.png"
+          },
+          "current": {
+            "name": "email-tab-2",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl q-body--force-scrollbar-y q-body--prevent-scroll",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1724.984375,
+              "width": 1440,
+              "x": 0,
+              "y": -725
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-3.png"
+          },
+          "current": {
+            "name": "email-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-0.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-0",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-0.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-1.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-1",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-1.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-2",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-2.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-2",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-2.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-reverse-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 500.5,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-3.png"
+          },
+          "current": {
+            "name": "email-reverse-tab-3",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-field row no-wrap items-start q-field--outlined q-input q-field--float q-field--labeled q-field--dense q-field--focused q-field--highlighted w-full",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a \u0644\u0644\u0645\u0633\u062a\u0644\u0645",
+            "rect": {
+              "height": 40,
+              "width": 424,
+              "x": 508,
+              "y": 498.75
+            },
+            "role": null,
+            "setting": null,
+            "tag": "INPUT",
+            "visible": true,
+            "screenshot": "focus-ar-email-reverse-tab-3.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "email-invalid-recipient",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 753.109375,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-invalid-recipient.png"
+          },
+          "current": {
+            "name": "email-invalid-recipient",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(255, 255, 255) none 0px"
+            },
+            "label": "send\n\u0625\u0631\u0633\u0627\u0644 \u0631\u0633\u0627\u0644\u0629 \u0627\u0644\u0627\u062e\u062a\u0628\u0627\u0631",
+            "rect": {
+              "height": 36,
+              "width": 183.390625,
+              "x": 760.609375,
+              "y": 582.125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-email-invalid-recipient.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0633\u062a\u0639\u0631\u0627\u0636 \u0646\u0638\u0645 \u0627\u0644\u062a\u0635\u0646\u064a\u0641\nclose\n\u0639\u0631\u0636 25 \u0639\u0646\u0627\u0635\u0631\u060c \u0628\u062f\u0621\u0627 \u0645\u0646 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\n\u0627\u0644\u0633\u0627\u0628\u0642\n\u0627\u0644\u062a\u0627\u0644\u064a",
+            "rect": {
+              "height": 1000,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-browse-open.png"
+          },
+          "current": {
+            "name": "browse-open",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgba(0, 0, 0, 0)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-dialog__inner flex no-pointer-events q-dialog__inner--minimized q-dialog__inner--standard fixed-full flex-center",
+              "outline": "rgb(23, 32, 51) none 0px"
+            },
+            "label": "\u0627\u0633\u062a\u0639\u0631\u0627\u0636 \u0646\u0638\u0645 \u0627\u0644\u062a\u0635\u0646\u064a\u0641\nclose\n\u0639\u0631\u0636 25 \u0639\u0646\u0627\u0635\u0631\u060c \u0628\u062f\u0621\u0627 \u0645\u0646 1.\naccount_tree\nT01 \u00b7 Test scheme 1\naccount_tree\nT02 \u00b7 Test scheme 2\naccount_tree\nT03 \u00b7 Test scheme 3\naccount_tree\nT04 \u00b7 Test scheme 4\naccount_tree\nT05 \u00b7 Test scheme 5\naccount_tree\nT06 \u00b7 Test scheme 6\naccount_tree\nT07 \u00b7 Test scheme 7\naccount_tree\nT08 \u00b7 Test scheme 8\naccount_tree\nT09 \u00b7 Test scheme 9\naccount_tree\nT10 \u00b7 Test scheme 10\naccount_tree\nT11 \u00b7 Test scheme 11\naccount_tree\nT12 \u00b7 Test scheme 12\naccount_tree\nT13 \u00b7 Test scheme 13\naccount_tree\nT14 \u00b7 Test scheme 14\naccount_tree\nT15 \u00b7 Test scheme 15\naccount_tree\nT16 \u00b7 Test scheme 16\naccount_tree\nT17 \u00b7 Test scheme 17\naccount_tree\nT18 \u00b7 Test scheme 18\naccount_tree\nT19 \u00b7 Test scheme 19\naccount_tree\nT20 \u00b7 Test scheme 20\naccount_tree\nT21 \u00b7 Test scheme 21\naccount_tree\nT22 \u00b7 Test scheme 22\naccount_tree\nT23 \u00b7 Test scheme 23\naccount_tree\nT24 \u00b7 Test scheme 24\naccount_tree\nT25 \u00b7 Test scheme 25\n\u0627\u0644\u0633\u0627\u0628\u0642\n\u0627\u0644\u062a\u0627\u0644\u064a",
+            "rect": {
+              "height": 1000,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "DIV",
+            "visible": true,
+            "screenshot": "focus-ar-browse-open.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 448.5,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-tab.png"
+          },
+          "current": {
+            "name": "browse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 456,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-next-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 457,
+              "x": 480.5,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-next-tab.png"
+          },
+          "current": {
+            "name": "browse-next-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "T01 \u00b7 Test scheme 1",
+            "rect": {
+              "height": 36,
+              "width": 472,
+              "x": 473,
+              "y": 239.796875
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-next-tab.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-reverse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 448.5,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          },
+          "current": {
+            "name": "browse-reverse-tab",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": true,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "close",
+            "rect": {
+              "height": 33.59375,
+              "width": 33.59375,
+              "x": 456,
+              "y": 133.203125
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BUTTON",
+            "visible": true
+          }
+        },
+        {
+          "baseline": {
+            "name": "browse-escape-return",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\n\u0627\u0633\u062a\u0639\u0631\u0627\u0636",
+            "rect": {
+              "height": 31.984375,
+              "width": 93.5625,
+              "x": 974.4375,
+              "y": 548.484375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-escape-return.png"
+          },
+          "current": {
+            "name": "browse-escape-return",
+            "language": "ar",
+            "focusVisible": true,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(38, 139, 210)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "q-focus-helper",
+              "outline": "rgb(38, 139, 210) none 0px"
+            },
+            "label": "account_tree\n\u0627\u0633\u062a\u0639\u0631\u0627\u0636",
+            "rect": {
+              "height": 31.984375,
+              "width": 93.5625,
+              "x": 989.4375,
+              "y": 548.484375
+            },
+            "role": null,
+            "setting": "DISPOSITION_CLASSIFICATION_SCHEME_ID",
+            "tag": "BUTTON",
+            "visible": true,
+            "screenshot": "focus-ar-browse-escape-return.png"
+          }
+        },
+        {
+          "baseline": {
+            "name": "custody-return",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1768.953125,
+              "width": 1425,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-ar-custody-return.png"
+          },
+          "current": {
+            "name": "custody-return",
+            "language": "ar",
+            "focusVisible": false,
+            "inDialog": false,
+            "indicator": {
+              "background": "rgb(255, 255, 255)",
+              "border": "0px solid rgb(229, 231, 235)",
+              "className": "desktop no-touch body--light wathiq-rtl",
+              "outline": "rgb(23, 32, 51) none 3px"
+            },
+            "label": "",
+            "rect": {
+              "height": 1768.953125,
+              "width": 1440,
+              "x": 0,
+              "y": 0
+            },
+            "role": null,
+            "setting": null,
+            "tag": "BODY",
+            "visible": true,
+            "screenshot": "focus-ar-custody-return.png"
+          }
+        }
+      ]
+    }
+  ]
+}

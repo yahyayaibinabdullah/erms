@@ -1,4 +1,5 @@
 """Indexer administration contracts; only synthetic keys enter this mock UI."""
+from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import ast
 import asyncio
 from pathlib import Path
@@ -52,11 +53,11 @@ def button(user,key,root=None):
                 if isinstance(b,ui.dialog):return False
             return True
         candidates=[b for b in candidates if outside_dialog(b)]
-    return next(b for b in candidates if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+    return next(b for b in candidates if isinstance(b,ui.button) and _owner_strip_diagnostic_metadata(b.text)==t(key))
 def click(user,b):b.mark(f'indexer-{b.id}');user.find(marker=f'indexer-{b.id}').click()
 def dialog(user):return max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
 async def settle():await asyncio.sleep(.15)
-def field(root,label):return next(i for i in root.descendants() if isinstance(i,ui.input) and host.strip_diagnostic_metadata(i.label)==t(label))
+def field(root,label):return next(i for i in root.descendants() if isinstance(i,ui.input) and _owner_strip_diagnostic_metadata(i.label)==t(label))
 
 
 @pytest.mark.parametrize('direction',['ltr','rtl'])
@@ -168,7 +169,7 @@ async def test_credential_mutation_cancel_error_and_refresh(user,operation,failu
 async def test_diagnostics_paging_permission_and_destination_links(user,allowed):
     failure=dict(digital_component_id=9,record_id=1,record_number='REC-FIXTURE',component_name='Fixture.txt',can_open=allowed)
     api,s=await setup(user,diagnostic={'failures':{'items':[failure],'total':11}})
-    diagnostic_card=next(c for c in user.find(ui.card).elements if any(isinstance(e,ui.label) and host.strip_diagnostic_metadata(e.text)==t('webui.render_failure_diagnostics.label.failure_diagnostics_e8ffa8d8') for e in c.descendants()))
+    diagnostic_card=next(c for c in user.find(ui.card).elements if any(isinstance(e,ui.label) and _owner_strip_diagnostic_metadata(e.text)==t('webui.render_failure_diagnostics.label.failure_diagnostics_e8ffa8d8') for e in c.descendants()))
     click(user,button(user,'webui.render_failure_diagnostics.button.next_856cdffc',diagnostic_card));await settle()
     api.text_indexer_diagnostics.assert_awaited_with(limit=10,offset=10)
     if allowed:

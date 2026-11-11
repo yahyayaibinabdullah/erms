@@ -1,0 +1,779 @@
+{
+  "removed": {
+    "ADVANCED_SEARCH_FIELDS": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "ADVANCED_SEARCH_FIELDS",
+      "alias": null
+    },
+    "ADVANCED_SEARCH_COMPONENT_FIELDS": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "ADVANCED_SEARCH_COMPONENT_FIELDS",
+      "alias": null
+    },
+    "ADVANCED_SEARCH_RETENTION_FIELDS": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "ADVANCED_SEARCH_RETENTION_FIELDS",
+      "alias": null
+    },
+    "ADVANCED_SEARCH_RELATIONSHIP_FIELDS": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "ADVANCED_SEARCH_RELATIONSHIP_FIELDS",
+      "alias": null
+    },
+    "advanced_search_field_options": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_field_options",
+      "alias": null
+    },
+    "advanced_search_empty_value": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_empty_value",
+      "alias": null
+    },
+    "advanced_search_operators": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_operators",
+      "alias": null
+    },
+    "advanced_search_leaf_count": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_leaf_count",
+      "alias": null
+    },
+    "advanced_search_depth": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_depth",
+      "alias": null
+    },
+    "advanced_search_has_positive_full_text": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_has_positive_full_text",
+      "alias": null
+    },
+    "advanced_search_has_component_field": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_has_component_field",
+      "alias": null
+    },
+    "compile_advanced_search_node": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "compile_advanced_search_node",
+      "alias": null
+    },
+    "advanced_search_node_from_expression": {
+      "module": "frontend.webui.advanced_search_model",
+      "name": "advanced_search_node_from_expression",
+      "alias": null
+    },
+    "relationship_cell": {
+      "module": "frontend.webui.resource_row_presentation",
+      "name": "relationship_cell",
+      "alias": null
+    },
+    "decorate_relationship_rows": {
+      "module": "frontend.webui.resource_row_presentation",
+      "name": "decorate_relationship_rows",
+      "alias": null
+    },
+    "RECORD_DETAIL_HEADER_CLASSES": {
+      "module": "frontend.webui.record_presentation",
+      "name": "RECORD_DETAIL_HEADER_CLASSES",
+      "alias": null
+    },
+    "RECORD_DETAIL_TITLE_CLASSES": {
+      "module": "frontend.webui.record_presentation",
+      "name": "RECORD_DETAIL_TITLE_CLASSES",
+      "alias": null
+    },
+    "RECORD_UPLOAD_WAIT_MESSAGE": {
+      "module": "frontend.webui.record_presentation",
+      "name": "RECORD_UPLOAD_WAIT_MESSAGE",
+      "alias": null
+    },
+    "record_draft_component_context": {
+      "module": "frontend.webui.record_editor",
+      "name": "record_draft_component_context",
+      "alias": null
+    },
+    "configure_record_medium": {
+      "module": "frontend.webui.record_editor",
+      "name": "configure_record_medium",
+      "alias": null
+    },
+    "tasks_screen": {
+      "module": "frontend.webui.disposition.tasks",
+      "name": "tasks_screen",
+      "alias": null
+    },
+    "eligibility_screen": {
+      "module": "frontend.webui.disposition.screens",
+      "name": "eligibility_screen",
+      "alias": null
+    },
+    "jobs_screen": {
+      "module": "frontend.webui.disposition.screens",
+      "name": "jobs_screen",
+      "alias": null
+    },
+    "job_screen": {
+      "module": "frontend.webui.disposition.screens",
+      "name": "job_screen",
+      "alias": null
+    },
+    "accelerate_dialog": {
+      "module": "frontend.webui.disposition.screens",
+      "name": "accelerate_dialog",
+      "alias": null
+    },
+    "disposition_text": {
+      "module": "frontend.webui.disposition.messages",
+      "name": "text",
+      "alias": "disposition_text"
+    },
+    "disposition_status_label": {
+      "module": "frontend.webui.disposition.messages",
+      "name": "status_label",
+      "alias": "disposition_status_label"
+    },
+    "event_label": {
+      "module": "frontend.webui.event_labels",
+      "name": "event_label",
+      "alias": null
+    },
+    "asyncio": {
+      "module": null,
+      "name": "asyncio",
+      "alias": null
+    },
+    "base64": {
+      "module": null,
+      "name": "base64",
+      "alias": null
+    },
+    "copy": {
+      "module": null,
+      "name": "copy",
+      "alias": null
+    },
+    "inspect": {
+      "module": null,
+      "name": "inspect",
+      "alias": null
+    },
+    "timedelta": {
+      "module": "datetime",
+      "name": "timedelta",
+      "alias": null
+    },
+    "html_escape": {
+      "module": "html",
+      "name": "escape",
+      "alias": "html_escape"
+    },
+    "Callable": {
+      "module": "typing",
+      "name": "Callable",
+      "alias": null
+    },
+    "available_timezones": {
+      "module": "zoneinfo",
+      "name": "available_timezones",
+      "alias": null
+    },
+    "events": {
+      "module": "nicegui",
+      "name": "events",
+      "alias": null
+    },
+    "lock_aggregation_close_field": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "lock_aggregation_close_field",
+      "alias": null
+    },
+    "load_aggregation_creation_context": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "load_aggregation_creation_context",
+      "alias": null
+    },
+    "render_aggregation_creation_controls": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "render_aggregation_creation_controls",
+      "alias": null
+    },
+    "aggregation_initial_security_level": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "aggregation_initial_security_level",
+      "alias": null
+    },
+    "aggregation_initial_medium": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "aggregation_initial_medium",
+      "alias": null
+    },
+    "render_aggregation_close_help": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "render_aggregation_close_help",
+      "alias": null
+    },
+    "configure_aggregation_classification": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "configure_aggregation_classification",
+      "alias": null
+    },
+    "configure_aggregation_parent_rules": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "configure_aggregation_parent_rules",
+      "alias": null
+    },
+    "prepare_aggregation_payload": {
+      "module": "frontend.webui.aggregation_editor",
+      "name": "prepare_aggregation_payload",
+      "alias": null
+    },
+    "CHILD_AGGREGATION_CLASSIFICATION_HELP": {
+      "module": "frontend.webui.aggregation_presentation",
+      "name": "CHILD_AGGREGATION_CLASSIFICATION_HELP",
+      "alias": null
+    },
+    "AGGREGATION_SUMMARY_LAYOUT_CLASSES": {
+      "module": "frontend.webui.aggregation_presentation",
+      "name": "AGGREGATION_SUMMARY_LAYOUT_CLASSES",
+      "alias": null
+    },
+    "direct_classification_label": {
+      "module": "frontend.webui.aggregation_presentation",
+      "name": "direct_classification_label",
+      "alias": null
+    },
+    "effective_closure": {
+      "module": "frontend.webui.aggregation_presentation",
+      "name": "effective_closure",
+      "alias": null
+    },
+    "style_relationship_chip_select": {
+      "module": "frontend.webui.relationship_select_styles",
+      "name": "style_relationship_chip_select",
+      "alias": null
+    },
+    "localized_component_status": {
+      "module": "frontend.webui.component_presentation",
+      "name": "localized_component_status",
+      "alias": null
+    },
+    "localized_indexing_status": {
+      "module": "frontend.webui.component_presentation",
+      "name": "localized_indexing_status",
+      "alias": null
+    },
+    "component_file_icon": {
+      "module": "frontend.webui.component_presentation",
+      "name": "component_file_icon",
+      "alias": null
+    },
+    "native_preview_kind": {
+      "module": "frontend.webui.component_presentation",
+      "name": "native_preview_kind",
+      "alias": null
+    },
+    "requires_document_conversion": {
+      "module": "frontend.webui.component_presentation",
+      "name": "requires_document_conversion",
+      "alias": null
+    },
+    "component_uploader": {
+      "module": "frontend.webui.component_presentation",
+      "name": "component_uploader",
+      "alias": null
+    },
+    "CONVERTIBLE_PREVIEW_EXTENSIONS": {
+      "module": "frontend.webui.component_presentation",
+      "name": "CONVERTIBLE_PREVIEW_EXTENSIONS",
+      "alias": null
+    },
+    "relationship_select": {
+      "module": "frontend.webui.relationship_select",
+      "name": "relationship_select",
+      "alias": null
+    },
+    "NAVIGATION_TRAIL_LIMIT": {
+      "module": "frontend.webui.navigation_data",
+      "name": "NAVIGATION_TRAIL_LIMIT",
+      "alias": null
+    },
+    "NAVIGATION_VISIBLE_LIMIT": {
+      "module": "frontend.webui.navigation_data",
+      "name": "NAVIGATION_VISIBLE_LIMIT",
+      "alias": null
+    },
+    "append_navigation_entry": {
+      "module": "frontend.webui.navigation_data",
+      "name": "append_navigation_entry",
+      "alias": null
+    },
+    "navigation_entry_identity": {
+      "module": "frontend.webui.navigation_data",
+      "name": "navigation_entry_identity",
+      "alias": null
+    },
+    "style_person_select": {
+      "module": "frontend.webui.holds_people",
+      "name": "style_person_select",
+      "alias": null
+    },
+    "organization_table_filters": {
+      "module": "frontend.webui.organization_table",
+      "name": "organization_table_filters",
+      "alias": null
+    },
+    "organization_user_slots": {
+      "module": "frontend.webui.organization_table",
+      "name": "organization_user_slots",
+      "alias": null
+    },
+    "organization_leading_actions": {
+      "module": "frontend.webui.organization_table",
+      "name": "organization_leading_actions",
+      "alias": null
+    },
+    "organization_membership_action": {
+      "module": "frontend.webui.organization_table",
+      "name": "organization_membership_action",
+      "alias": null
+    },
+    "organization_user_actions": {
+      "module": "frontend.webui.organization_table",
+      "name": "organization_user_actions",
+      "alias": null
+    },
+    "organization_lifecycle_actions": {
+      "module": "frontend.webui.organization_table",
+      "name": "organization_lifecycle_actions",
+      "alias": null
+    },
+    "bind_organization_table_destinations": {
+      "module": "frontend.webui.organization_table",
+      "name": "bind_organization_table_destinations",
+      "alias": null
+    },
+    "LIFECYCLE_ACTION_BUTTONS": {
+      "module": "frontend.webui.organization_table",
+      "name": "LIFECYCLE_ACTION_BUTTONS",
+      "alias": null
+    },
+    "USER_SUSPENSION_ACTION_BUTTONS": {
+      "module": "frontend.webui.organization_table",
+      "name": "USER_SUSPENSION_ACTION_BUTTONS",
+      "alias": null
+    },
+    "build_issue_password": {
+      "module": "frontend.webui.organization_collection_actions",
+      "name": "build_issue_password",
+      "alias": null
+    },
+    "build_change_suspension": {
+      "module": "frontend.webui.organization_collection_actions",
+      "name": "build_change_suspension",
+      "alias": null
+    },
+    "build_confirm_lifecycle": {
+      "module": "frontend.webui.organization_collection_actions",
+      "name": "build_confirm_lifecycle",
+      "alias": null
+    },
+    "configure_designation_field": {
+      "module": "frontend.webui.organization_editor",
+      "name": "configure_designation_field",
+      "alias": null
+    },
+    "configure_role_profile_field": {
+      "module": "frontend.webui.organization_editor",
+      "name": "configure_role_profile_field",
+      "alias": null
+    },
+    "configure_organization_browser_field": {
+      "module": "frontend.webui.organization_editor",
+      "name": "configure_organization_browser_field",
+      "alias": null
+    },
+    "configure_role_governance_field": {
+      "module": "frontend.webui.organization_editor",
+      "name": "configure_role_governance_field",
+      "alias": null
+    },
+    "organization_reason_input": {
+      "module": "frontend.webui.organization_editor",
+      "name": "organization_reason_input",
+      "alias": null
+    },
+    "organization_change_reason": {
+      "module": "frontend.webui.organization_editor",
+      "name": "organization_change_reason",
+      "alias": null
+    },
+    "protected_organization_role": {
+      "module": "frontend.webui.organization_editor",
+      "name": "protected_organization_role",
+      "alias": null
+    },
+    "read_organization_editor_row": {
+      "module": "frontend.webui.organization_editor",
+      "name": "read_organization_editor_row",
+      "alias": null
+    },
+    "decorate_organization_rows": {
+      "module": "frontend.webui.organization_collections",
+      "name": "decorate_organization_rows",
+      "alias": null
+    },
+    "inactive_org_unit_source": {
+      "module": "frontend.webui.organization_editor",
+      "name": "inactive_org_unit_source",
+      "alias": null
+    },
+    "role_change_requires_reason": {
+      "module": "frontend.webui.organization_editor",
+      "name": "role_change_requires_reason",
+      "alias": null
+    },
+    "localized_profile_value": {
+      "module": "frontend.webui.security_administration",
+      "name": "localized_profile_value",
+      "alias": null
+    },
+    "localized_privilege_name": {
+      "module": "frontend.webui.security_administration",
+      "name": "localized_privilege_name",
+      "alias": null
+    },
+    "localized_privilege_description": {
+      "module": "frontend.webui.security_administration",
+      "name": "localized_privilege_description",
+      "alias": null
+    },
+    "localized_privilege_category": {
+      "module": "frontend.webui.security_administration",
+      "name": "localized_privilege_category",
+      "alias": null
+    },
+    "localized_privilege_matches_search": {
+      "module": "frontend.webui.security_administration",
+      "name": "localized_privilege_matches_search",
+      "alias": null
+    },
+    "profile_translation_only": {
+      "module": "frontend.webui.security_administration",
+      "name": "profile_translation_only",
+      "alias": null
+    },
+    "configure_profile_field": {
+      "module": "frontend.webui.security_administration",
+      "name": "configure_profile_field",
+      "alias": null
+    },
+    "profile_reason_input": {
+      "module": "frontend.webui.security_administration",
+      "name": "profile_reason_input",
+      "alias": null
+    },
+    "prepare_profile_update": {
+      "module": "frontend.webui.security_administration",
+      "name": "prepare_profile_update",
+      "alias": null
+    },
+    "validated_profile_change_reason": {
+      "module": "frontend.webui.security_administration",
+      "name": "profile_change_reason",
+      "alias": "validated_profile_change_reason"
+    },
+    "relationship_options": {
+      "module": "frontend.webui.entity_selectors",
+      "name": "relationship_options",
+      "alias": null
+    },
+    "relationship_search_query": {
+      "module": "frontend.webui.entity_selectors",
+      "name": "relationship_search_query",
+      "alias": null
+    },
+    "apply_relationship_selection": {
+      "module": "frontend.webui.entity_selectors",
+      "name": "apply_relationship_selection",
+      "alias": null
+    },
+    "entity_translation_editor": {
+      "module": "frontend.webui.entity_translation_editor",
+      "name": "entity_translation_editor",
+      "alias": null
+    },
+    "ENTITY_METADATA_LABEL_KEYS": {
+      "module": "frontend.webui.entity_editor_controls",
+      "name": "ENTITY_METADATA_LABEL_KEYS",
+      "alias": null
+    },
+    "medium_options": {
+      "module": "frontend.webui.entity_editor_controls",
+      "name": "medium_options",
+      "alias": null
+    },
+    "field_input": {
+      "module": "frontend.webui.entity_editor_controls",
+      "name": "field_input",
+      "alias": null
+    },
+    "form_payload": {
+      "module": "frontend.webui.entity_editor_controls",
+      "name": "form_payload",
+      "alias": null
+    },
+    "bind_collection_paging": {
+      "module": "frontend.webui.collection_controls",
+      "name": "bind_collection_paging",
+      "alias": null
+    },
+    "load_direct_retention": {
+      "module": "frontend.webui.classification_editor",
+      "name": "load_direct_retention",
+      "alias": null
+    },
+    "retention_editor_source": {
+      "module": "frontend.webui.classification_editor",
+      "name": "retention_editor_source",
+      "alias": null
+    },
+    "configure_scheme_field": {
+      "module": "frontend.webui.classification_editor",
+      "name": "configure_scheme_field",
+      "alias": null
+    },
+    "prepare_retention_payload": {
+      "module": "frontend.webui.classification_editor",
+      "name": "prepare_retention_payload",
+      "alias": null
+    },
+    "decorate_classifications": {
+      "module": "frontend.webui.classification_editor",
+      "name": "decorate_classifications",
+      "alias": null
+    },
+    "render_classification_search_prompt": {
+      "module": "frontend.webui.classification_editor",
+      "name": "render_classification_search_prompt",
+      "alias": null
+    },
+    "scheme_action_buttons": {
+      "module": "frontend.webui.classification_editor",
+      "name": "scheme_action_buttons",
+      "alias": null
+    },
+    "bind_scheme_actions": {
+      "module": "frontend.webui.classification_editor",
+      "name": "bind_scheme_actions",
+      "alias": null
+    },
+    "disposition_warning_panel": {
+      "module": "frontend.webui.application_settings",
+      "name": "disposition_warning_panel",
+      "alias": null
+    },
+    "messaging_workspace": {
+      "module": "frontend.webui.messaging_workspace",
+      "name": "messaging_workspace",
+      "alias": null
+    },
+    "resource_inspector": {
+      "module": "frontend.webui.resource_inspector",
+      "name": "resource_inspector",
+      "alias": null
+    },
+    "LiveMailbox": {
+      "module": "frontend.webui.messaging_live",
+      "name": "LiveMailbox",
+      "alias": null
+    },
+    "stream_events": {
+      "module": "frontend.webui.messaging_live",
+      "name": "stream_events",
+      "alias": null
+    },
+    "mailbox_cursor_key": {
+      "module": "frontend.webui.messaging_live",
+      "name": "mailbox_cursor_key",
+      "alias": null
+    },
+    "notification_administration": {
+      "module": "frontend.webui.notification_administration",
+      "name": "notification_administration",
+      "alias": null
+    },
+    "relationship_panel": {
+      "module": "frontend.webui.resource_relationships",
+      "name": "relationship_panel",
+      "alias": null
+    },
+    "messaging_monitor": {
+      "module": "frontend.webui.messaging_monitor",
+      "name": "messaging_monitor",
+      "alias": null
+    },
+    "render_disposition_date": {
+      "module": "frontend.webui.retention_timeline",
+      "name": "render_disposition_date",
+      "alias": null
+    },
+    "render_retention_stages": {
+      "module": "frontend.webui.retention_timeline",
+      "name": "render_retention_stages",
+      "alias": null
+    },
+    "capability_allowed": {
+      "module": "frontend.webui.capabilities",
+      "name": "capability_allowed",
+      "alias": null
+    },
+    "can_add_from_collection": {
+      "module": "frontend.webui.capabilities",
+      "name": "can_add_from_collection",
+      "alias": null
+    },
+    "can_edit_entity_translation": {
+      "module": "frontend.webui.capabilities",
+      "name": "can_edit_entity_translation",
+      "alias": null
+    },
+    "can_open_organization_detail": {
+      "module": "frontend.webui.capabilities",
+      "name": "can_open_organization_detail",
+      "alias": null
+    },
+    "gate_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "gate_label",
+      "alias": null
+    },
+    "OPERATIONS": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "OPERATIONS",
+      "alias": null
+    },
+    "acl_source_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "acl_source_label",
+      "alias": null
+    },
+    "aggregation_reference_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "aggregation_reference_label",
+      "alias": null
+    },
+    "authorization_code_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "authorization_code_label",
+      "alias": null
+    },
+    "decision_code_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "decision_code_label",
+      "alias": null
+    },
+    "operation_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "operation_label",
+      "alias": null
+    },
+    "gate_detail": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "gate_detail",
+      "alias": null
+    },
+    "ordered_permission_catalogue": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "ordered_permission_catalogue",
+      "alias": null
+    },
+    "privilege_help_text": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "privilege_help_text",
+      "alias": null
+    },
+    "privilege_matches_search": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "privilege_matches_search",
+      "alias": null
+    },
+    "security_level_label": {
+      "module": "frontend.webui.authorization_ui",
+      "name": "security_level_label",
+      "alias": null
+    },
+    "dashboard_favourite_item_limit": {
+      "module": "frontend.webui.config",
+      "name": "dashboard_favourite_item_limit",
+      "alias": null
+    },
+    "dashboard_recent_days": {
+      "module": "frontend.webui.config",
+      "name": "dashboard_recent_days",
+      "alias": null
+    },
+    "dashboard_recent_item_limit": {
+      "module": "frontend.webui.config",
+      "name": "dashboard_recent_item_limit",
+      "alias": null
+    },
+    "database_display_name": {
+      "module": "frontend.webui.config",
+      "name": "database_display_name",
+      "alias": null
+    },
+    "default_root_aggregation_medium": {
+      "module": "frontend.webui.config",
+      "name": "default_root_aggregation_medium",
+      "alias": null
+    },
+    "classification_recent_selection_limit": {
+      "module": "frontend.webui.config",
+      "name": "classification_recent_selection_limit",
+      "alias": null
+    },
+    "user_details_session_limit": {
+      "module": "frontend.webui.config",
+      "name": "user_details_session_limit",
+      "alias": null
+    },
+    "EntitySpec": {
+      "module": "frontend.webui.entities",
+      "name": "EntitySpec",
+      "alias": null
+    },
+    "FieldSpec": {
+      "module": "frontend.webui.entities",
+      "name": "FieldSpec",
+      "alias": null
+    },
+    "enable_diagnostic_metadata": {
+      "module": "frontend.webui.i18n_catalogue",
+      "name": "enable_diagnostic_metadata",
+      "alias": null
+    },
+    "strip_diagnostic_metadata": {
+      "module": "frontend.webui.i18n_catalogue",
+      "name": "strip_diagnostic_metadata",
+      "alias": null
+    },
+    "document_direction_script": {
+      "module": "frontend.webui.rtl",
+      "name": "document_direction_script",
+      "alias": null
+    }
+  },
+  "direct_import_test_files": [
+    "frontend/webui/tests/test_relationship_search.py",
+    "frontend/webui/tests/test_advanced_search_builder.py",
+    "frontend/webui/tests/test_entities.py",
+    "frontend/webui/interaction/tests/test_security_level_selector.py",
+    "frontend/webui/interaction/tests/test_messaging_workspace.py",
+    "frontend/webui/interaction/tests/test_application_settings.py",
+    "frontend/webui/interaction/tests/test_messaging_phase5.py",
+    "frontend/webui/interaction/tests/test_notification_administration.py"
+  ]
+}

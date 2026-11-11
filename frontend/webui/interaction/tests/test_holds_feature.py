@@ -14,9 +14,16 @@ pytestmark=pytest.mark.asyncio
 NAMES=('hold_reason_dialog','open_hold_editor','add_resource_to_hold_dialog','show_effective_holds_dialog')
 
 def build(values):
-    nodes={n.name:n for n in [n for module in (hold_editor,hold_resources) for n in ast.walk(ast.parse(Path(module.__file__).read_text()))] if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name in NAMES}
-    scope=dict(vars(host));scope.update(values)
-    exec(compile(ast.Module(body=[nodes[n] for n in NAMES],type_ignores=[]),host.__file__,'exec'),scope)
+    scope = dict(values, error_message=host.error_message)
+    reason, editor = hold_editor.build_hold_editor(**{
+        key: scope[key] for key in ('api', 'bind_remote_people_select', 'select_hold_details', 'error_message')
+    })
+    attach, effective = hold_resources.build_hold_resources(
+        api=scope['api'], select_hold_details=scope['select_hold_details'],
+        open_aggregation=scope['open_aggregation'], hold_reason_dialog=reason,
+        error_message=scope['error_message'],
+    )
+    scope.update(zip(NAMES, (reason, editor, attach, effective)))
     return scope
 
 async def setup(user):
@@ -102,11 +109,9 @@ async def test_effective_hold_authority_links_and_direct_removal(user,kind):
     click(user,buttons(reason,'check')[0]);await settle()
     api.remove_hold_held_item.assert_awaited_once_with(7,'record',11,4,'Remove reason');refresh.assert_awaited_once();assert not d.value
 
-def bind_people(values,control,**kwargs):
-    node=next(n for n in ast.walk(ast.parse(Path(holds_people.__file__).read_text())) if isinstance(n,ast.FunctionDef) and n.name=='bind_remote_people_select')
-    scope=dict(vars(host));scope.update(values)
-    exec(compile(ast.Module(body=[node],type_ignores=[]),host.__file__,'exec'),scope)
-    return scope['bind_remote_people_select'](control,**kwargs)
+def bind_people(values, control, **kwargs):
+    bind = holds_people.build_people_select(api=values['api'], error_message=host.error_message)
+    return bind(control, **kwargs)
 
 async def test_people_typeahead_retains_selection_excludes_owner_and_bounds_requests(user):
     api,v=await setup(user);api.active_people=AsyncMock(return_value={'items':[{'id':2,'name':'Owner','email':'owner@test.invalid'},{'id':3,'name':'Match','email':'match@test.invalid'}]})

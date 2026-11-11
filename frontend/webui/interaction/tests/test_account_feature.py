@@ -1,4 +1,5 @@
 """Account dialogs preserve validation, restricted sessions and preference invalidation."""
+from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import ast,asyncio
 from pathlib import Path
 from types import SimpleNamespace
@@ -37,7 +38,7 @@ async def setup(user,*,forced=False,preferences=False,read_error=False):
 
 def dialog(user):return max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
 def click(user,b):b.mark(f'account-{b.id}');user.find(marker=f'account-{b.id}').click()
-def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t(key))
+def button(d,key):return next(b for b in d.descendants() if isinstance(b,ui.button) and _owner_strip_diagnostic_metadata(b.text)==t(key))
 async def settle():await asyncio.sleep(.15)
 
 

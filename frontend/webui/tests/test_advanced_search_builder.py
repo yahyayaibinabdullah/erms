@@ -5,13 +5,15 @@ from pathlib import Path
 from frontend.webui.tests.aggregation_sources import aggregation_sources
 from frontend.webui.tests.localization_assertions import with_english_messages
 
-from frontend.webui.app import (
-    advanced_search_depth, advanced_search_has_positive_full_text,
-    advanced_search_leaf_count, advanced_search_node_from_expression,
-    advanced_search_operators, advanced_search_field_options,
-    advanced_search_empty_value, advanced_search_has_component_field,
-    compile_advanced_search_node,
-)
+from frontend.webui.advanced_search_model import advanced_search_depth
+from frontend.webui.advanced_search_model import advanced_search_has_positive_full_text
+from frontend.webui.advanced_search_model import advanced_search_leaf_count
+from frontend.webui.advanced_search_model import advanced_search_node_from_expression
+from frontend.webui.advanced_search_model import advanced_search_operators
+from frontend.webui.advanced_search_model import advanced_search_field_options
+from frontend.webui.advanced_search_model import advanced_search_empty_value
+from frontend.webui.advanced_search_model import advanced_search_has_component_field
+from frontend.webui.advanced_search_model import compile_advanced_search_node
 
 
 APP_SOURCE = with_english_messages(
@@ -379,7 +381,8 @@ def test_disposition_filter_available_only_for_governance_and_compiles_existing_
 
 
 def test_effective_retention_filters_round_trip_and_validate_typed_values():
-    from frontend.webui.app import ADVANCED_SEARCH_FIELDS, ADVANCED_SEARCH_CONTROLLED_VALUES
+    from frontend.webui.app import ADVANCED_SEARCH_CONTROLLED_VALUES
+    from frontend.webui.advanced_search_model import ADVANCED_SEARCH_FIELDS
     prefix = 'effective_retention.'
     fields = {prefix+'current_period_years', prefix+'intermediate_period_years', prefix+'final_disposition'}
     assert fields <= advanced_search_field_options('aggregations').keys()

@@ -1,3 +1,4 @@
+from frontend.webui.classification_workspace import CLASSIFICATION_WORKSPACE_SEARCH_FIELDS
 from frontend.webui import dashboard
 from frontend.webui.tests.search_sources import search_sources
 from frontend.webui.tests.record_sources import record_sources
@@ -13,53 +14,31 @@ from types import SimpleNamespace
 
 import pytest
 
-from frontend.webui.app import (
-    AGGREGATION_SUMMARY_LAYOUT_CLASSES,
-    CHILD_AGGREGATION_CLASSIFICATION_HELP,
-    CLASSIFICATION_WORKSPACE_SEARCH_FIELDS,
-    CLASSIFICATION_SELECTOR_SEARCH_FIELDS,
-    RECORD_UPLOAD_WAIT_MESSAGE,
-    RECORD_DETAIL_HEADER_CLASSES,
-    RECORD_DETAIL_TITLE_CLASSES,
-    RELATIONSHIP_DISPLAY_FIELDS,
-    LIFECYCLE_ACTION_BUTTONS,
-    LAST_CUSTODIAN_MESSAGE,
-    LAST_CUSTODIAN_TITLE,
-    NAVIGATION_TRAIL_LIMIT,
-    NAVIGATION_VISIBLE_LIMIT,
-    USER_SUSPENSION_ACTION_BUTTONS,
-    STOP_PROPAGATION_CLICK_HANDLER,
-    apply_relationship_selection,
-    buffer_upload_batch,
-    component_uploader,
-    component_file_icon,
-    component_is_previewable,
-    decorate_relationship_rows,
-    deletion_blocked_report,
-    deletion_identity,
-    direct_classification_label,
-    display_value,
-    error_message,
-    show_api_error,
-    field_input,
-    format_file_size,
-    form_payload,
-    format_timestamp,
-    filter_membership_rows,
-    index,
-    medium_label,
-    user_avatar,
-    relationship_options,
-    record_draft_component_context,
-    render_component_cards,
-    requires_document_conversion,
-    role_change_requires_reason,
-    append_navigation_entry,
-    visible_navigation_indices,
-)
+from frontend.webui.app import CLASSIFICATION_SELECTOR_SEARCH_FIELDS, RELATIONSHIP_DISPLAY_FIELDS, LAST_CUSTODIAN_MESSAGE, LAST_CUSTODIAN_TITLE, STOP_PROPAGATION_CLICK_HANDLER, buffer_upload_batch, component_is_previewable, deletion_blocked_report, deletion_identity, display_value, error_message, show_api_error, format_file_size, format_timestamp, filter_membership_rows, index, medium_label, user_avatar, render_component_cards, visible_navigation_indices
+from frontend.webui.aggregation_presentation import AGGREGATION_SUMMARY_LAYOUT_CLASSES
+from frontend.webui.aggregation_presentation import CHILD_AGGREGATION_CLASSIFICATION_HELP
+from frontend.webui.record_presentation import RECORD_UPLOAD_WAIT_MESSAGE
+from frontend.webui.record_presentation import RECORD_DETAIL_HEADER_CLASSES
+from frontend.webui.record_presentation import RECORD_DETAIL_TITLE_CLASSES
+from frontend.webui.organization_table import LIFECYCLE_ACTION_BUTTONS
+from frontend.webui.navigation_data import NAVIGATION_TRAIL_LIMIT
+from frontend.webui.navigation_data import NAVIGATION_VISIBLE_LIMIT
+from frontend.webui.organization_table import USER_SUSPENSION_ACTION_BUTTONS
+from frontend.webui.entity_selectors import apply_relationship_selection
+from frontend.webui.component_presentation import component_uploader
+from frontend.webui.component_presentation import component_file_icon
+from frontend.webui.resource_row_presentation import decorate_relationship_rows
+from frontend.webui.aggregation_presentation import direct_classification_label
+from frontend.webui.entity_editor_controls import field_input
+from frontend.webui.entity_editor_controls import form_payload
+from frontend.webui.entity_selectors import relationship_options
+from frontend.webui.record_editor import record_draft_component_context
+from frontend.webui.component_presentation import requires_document_conversion
+from frontend.webui.organization_editor import role_change_requires_reason
+from frontend.webui.navigation_data import append_navigation_entry
 from frontend.webui import application_shell
 from frontend.webui.api_client import ApiError
-from frontend.webui.app import native_preview_kind
+from frontend.webui.component_presentation import native_preview_kind
 from frontend.webui.entities import ENTITIES
 from frontend.webui.config import (
     classification_recent_selection_limit,
@@ -69,7 +48,7 @@ from frontend.webui.config import (
     dashboard_recent_item_limit,
     user_details_session_limit,
 )
-from frontend.webui.app import favourite_preview, personal_dialog_list_height
+from frontend.webui.app import personal_dialog_list_height
 from frontend.webui.tests.localization_assertions import with_english_messages
 
 from frontend.webui import component_preview, components
@@ -581,12 +560,9 @@ def test_database_display_name_is_required(monkeypatch):
         database_display_name("en")
 
 
-def test_dashboard_favourite_configuration_and_preview(monkeypatch):
+def test_dashboard_favourite_configuration(monkeypatch):
     monkeypatch.setenv("DASHBOARD_FAVOURITE_ITEM_LIMIT", "2")
     assert dashboard_favourite_item_limit({"DASHBOARD_FAVOURITE_ITEM_LIMIT":2}) == 2
-    items = [{"id": 1}, {"id": 2}, {"id": 3}]
-    assert favourite_preview(items, 2) == (items[:2], True)
-    assert favourite_preview(items[:2], 2) == (items[:2], False)
 
 
 def test_dashboard_favourite_configuration_defaults_to_five(monkeypatch):
@@ -1637,7 +1613,7 @@ def test_organization_browser_does_not_shadow_the_page_guidance_control():
 def test_organization_browser_hides_detail_links_without_destination_privilege():
     source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
     assert 'can_open_organization_detail(node["type"], privileges)' in source
-    assert '(auth_state.get("principal") or {}).get("global_privileges", [])' in source
+    assert '(session.principal or {}).get("global_privileges", [])' in source
 
 
 def test_organization_browser_localizes_statuses_summary_and_rtl_disclosures():

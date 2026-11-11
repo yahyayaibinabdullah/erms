@@ -3,7 +3,9 @@ from types import SimpleNamespace
 import pytest
 from nicegui import ui
 
-from frontend.webui.app import apply_relationship_selection, relationship_options, relationship_search_query
+from frontend.webui.entity_selectors import apply_relationship_selection
+from frontend.webui.entity_selectors import relationship_options
+from frontend.webui.entity_selectors import relationship_search_query
 from frontend.webui.i18n_catalogue import (
     disable_diagnostic_metadata, enable_diagnostic_metadata,
     render_message, set_active_messages,

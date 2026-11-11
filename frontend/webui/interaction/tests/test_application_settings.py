@@ -13,7 +13,8 @@ from nicegui import ui, background_tasks, events
 from nicegui.testing import User
 
 from frontend.webui.application_settings import settings_page, changed_rows, disposition_warning_panel, DESTINATION_KEYS
-from frontend.webui.app import relationship_options, relationship_search_query
+from frontend.webui.entity_selectors import relationship_options
+from frontend.webui.entity_selectors import relationship_search_query
 from frontend.webui.api_client import ApiError
 from frontend.webui.capabilities import can_navigate
 from frontend.webui.i18n_catalogue import render_message_plain, set_active_messages, strip_diagnostic_metadata

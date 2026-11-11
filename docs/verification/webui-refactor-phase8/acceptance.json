@@ -1,0 +1,160 @@
+{
+  "status": "complete for approved local Chrome/Edge scope",
+  "branch": "refactor-API-python-file",
+  "head": "9fdf51279e1db78597118c2df05b3467c8b7190e",
+  "git_mutations": false,
+  "suites": [
+    {
+      "evidence": "full-webui/1-unit.xml",
+      "passed": 1630,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "evidence": "full-webui/1-interaction.xml",
+      "passed": 432,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "evidence": "full-assembled/assembled.xml",
+      "passed": 74,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "native": [
+    {
+      "browser": "chrome",
+      "scope": "full",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/full-chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 42,
+      "screenshots": 27
+    },
+    {
+      "browser": "edge",
+      "scope": "full",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/full-edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 42,
+      "screenshots": 27
+    },
+    {
+      "browser": "chrome",
+      "scope": "session",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/session-chrome-resumed",
+      "version": "157.0.8103.40",
+      "groups_passed": 6,
+      "screenshots": 3
+    },
+    {
+      "browser": "edge",
+      "scope": "session",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/session-edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 6,
+      "screenshots": 3
+    },
+    {
+      "browser": "chrome",
+      "scope": "application",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/application-chrome-resumed",
+      "version": "157.0.8103.40",
+      "groups_passed": 6,
+      "screenshots": 60
+    },
+    {
+      "browser": "edge",
+      "scope": "application",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/application-edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 6,
+      "screenshots": 60
+    },
+    {
+      "browser": "chrome",
+      "scope": "keyboard",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/keyboard-chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 12,
+      "screenshots": 54
+    },
+    {
+      "browser": "edge",
+      "scope": "keyboard",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/keyboard-edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 12,
+      "screenshots": 54
+    },
+    {
+      "browser": "chrome",
+      "scope": "collections",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/collections-chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 14,
+      "screenshots": 36
+    },
+    {
+      "browser": "edge",
+      "scope": "collections",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/collections-edge",
+      "version": "157.0.4341.42",
+      "groups_passed": 14,
+      "screenshots": 36
+    },
+    {
+      "browser": "chrome",
+      "scope": "translations",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/translations-chrome",
+      "version": "157.0.8103.40",
+      "groups_passed": 11,
+      "screenshots": 12
+    },
+    {
+      "browser": "edge",
+      "scope": "translations",
+      "exit_code": 0,
+      "output": ".runtime/webui-refactor-phase8/translations-edge-diagnostic",
+      "version": "157.0.4341.42",
+      "groups_passed": 11,
+      "screenshots": 12
+    }
+  ],
+  "native_check_groups": 182,
+  "supplementary_original_comparison_runs": 8,
+  "native_screenshots": 384,
+  "performance_gate": "pass: no repeated 20% AND 100 ms breach across independent pairs",
+  "performance_samples": 1888,
+  "excluded_warmups": 144,
+  "request_comparisons": 80,
+  "changed_runtime_files": [
+    "frontend/webui/app.py",
+    "frontend/webui/session_context.py"
+  ],
+  "all_translation_keys_preserved": 4071,
+  "database_runs": 32,
+  "deferred": [
+    "Firefox",
+    "Safari",
+    "CI",
+    "production-scale performance"
+  ],
+  "live_smtp": "Not repeated; earlier accepted MailDev evidence retained. Existing MailDev/Safari/local stack left alone.",
+  "final_defect_register": "docs/webui-refactor-existing-observations.md"
+}

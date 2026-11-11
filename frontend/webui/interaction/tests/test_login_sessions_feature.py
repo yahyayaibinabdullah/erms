@@ -1,4 +1,5 @@
 """Session administration preserves paging, revocation and current-session cleanup."""
+from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock
@@ -49,7 +50,7 @@ async def setup(user,*,admin=True,current=False,status='active',identity=None):
     return api,scope
 
 
-def button(user,key):return next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==t(key))
+def button(user,key):return next(b for b in user.find(ui.button).elements if _owner_strip_diagnostic_metadata(b.text)==t(key))
 def click(user,b):b.mark(f'session-target-{b.id}');user.find(marker=f'session-target-{b.id}').click()
 async def settle():await asyncio.sleep(.1)
 
@@ -88,7 +89,7 @@ async def test_confirmed_revoke_refresh_or_current_identity_cleanup(user,current
     api.revoke_session.assert_not_awaited();api.revoke_user_sessions.assert_not_awaited()
     click(user,action);await settle()
     dialogs=[d for d in user.find(ui.dialog).elements if d.value];assert len(dialogs)==1
-    confirm=next(b for b in dialogs[0].descendants() if isinstance(b,ui.button) and host.strip_diagnostic_metadata(b.text)==t('webui.confirm_revoke.button.force_sign_out_e02eacd0'))
+    confirm=next(b for b in dialogs[0].descendants() if isinstance(b,ui.button) and _owner_strip_diagnostic_metadata(b.text)==t('webui.confirm_revoke.button.force_sign_out_e02eacd0'))
     click(user,confirm);await settle()
     if all_for_user:api.revoke_user_sessions.assert_awaited_once_with(7)
     else:api.revoke_session.assert_awaited_once_with(4)

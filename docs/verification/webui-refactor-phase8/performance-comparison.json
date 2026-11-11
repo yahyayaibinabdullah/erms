@@ -1,0 +1,1968 @@
+{
+  "threshold": {
+    "relative_percent": 20,
+    "absolute_ms": 100,
+    "operator": "and"
+  },
+  "independent_pairs": [
+    [
+      1,
+      2
+    ],
+    [
+      4,
+      3
+    ]
+  ],
+  "blocked": false,
+  "note": "Investigate every repeatable slowdown, including below-threshold findings. Cold browser load/login has one sample per independent process. A passing timing gate does not certify unmeasured workloads.",
+  "browsers": {
+    "chrome": [
+      {
+        "workflow": "classification",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 107.42750000000001,
+                "current_ms": 107.406,
+                "delta_ms": -0.021500000000003183,
+                "delta_percent": -0.02001349747504427,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 126.71470000000001,
+                "current_ms": 134.30540000000002,
+                "delta_ms": 7.590700000000012,
+                "delta_percent": 5.990386277203838,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 109.42099999999999,
+                "current_ms": 110.394,
+                "delta_ms": 0.9730000000000132,
+                "delta_percent": 0.8892260169437431,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 137.0062,
+                "current_ms": 147.9985,
+                "delta_ms": 10.9923,
+                "delta_percent": 8.023213548000017,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "p90"
+        ]
+      },
+      {
+        "workflow": "classification",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 115.1685,
+                "current_ms": 108.1175,
+                "delta_ms": -7.050999999999988,
+                "delta_percent": -6.122333797870067,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 146.0138,
+                "current_ms": 138.09580000000003,
+                "delta_ms": -7.917999999999978,
+                "delta_percent": -5.422775107558311,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 106.74600000000001,
+                "current_ms": 107.21700000000001,
+                "delta_ms": 0.47100000000000364,
+                "delta_percent": 0.44123433196560397,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 129.5788,
+                "current_ms": 131.6345,
+                "delta_ms": 2.0557000000000016,
+                "delta_percent": 1.5864477831250186,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "custody",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 89.79650000000001,
+                "current_ms": 92.8315,
+                "delta_ms": 3.0349999999999966,
+                "delta_percent": 3.379864471332397,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 94.96170000000001,
+                "current_ms": 101.6621,
+                "delta_ms": 6.700399999999988,
+                "delta_percent": 7.055897272268701,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 90.64150000000001,
+                "current_ms": 93.7295,
+                "delta_ms": 3.087999999999994,
+                "delta_percent": 3.4068279982127323,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 97.7691,
+                "current_ms": 97.959,
+                "delta_ms": 0.18990000000000862,
+                "delta_percent": 0.19423314728273924,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median",
+          "p90"
+        ]
+      },
+      {
+        "workflow": "custody",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 92.12,
+                "current_ms": 91.378,
+                "delta_ms": -0.7420000000000044,
+                "delta_percent": -0.8054711246200656,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 108.5275,
+                "current_ms": 95.649,
+                "delta_ms": -12.878500000000003,
+                "delta_percent": -11.866577595540303,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 93.347,
+                "current_ms": 85.40950000000001,
+                "delta_ms": -7.937499999999986,
+                "delta_percent": -8.503219171478447,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 118.5798,
+                "current_ms": 130.19780000000003,
+                "delta_ms": 11.618000000000023,
+                "delta_percent": 9.797621517324217,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "dashboard_fresh",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 119.142,
+                "current_ms": 125.525,
+                "delta_ms": 6.38300000000001,
+                "delta_percent": 5.357472595726117,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 146.0661,
+                "current_ms": 150.76059999999998,
+                "delta_ms": 4.694499999999977,
+                "delta_percent": 3.213955873402505,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 118.4495,
+                "current_ms": 117.1435,
+                "delta_ms": -1.3059999999999974,
+                "delta_percent": -1.1025795803274792,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 146.1008,
+                "current_ms": 157.4413,
+                "delta_ms": 11.34050000000002,
+                "delta_percent": 7.762106709887982,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "p90"
+        ]
+      },
+      {
+        "workflow": "dashboard_fresh",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 128.08350000000002,
+                "current_ms": 122.3105,
+                "delta_ms": -5.77300000000001,
+                "delta_percent": -4.507215995815238,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 144.516,
+                "current_ms": 147.0718,
+                "delta_ms": 2.555800000000005,
+                "delta_percent": 1.7685239004677717,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 122.832,
+                "current_ms": 120.3225,
+                "delta_ms": -2.5094999999999885,
+                "delta_percent": -2.0430343884329725,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 147.806,
+                "current_ms": 162.6225,
+                "delta_ms": 14.81649999999999,
+                "delta_percent": 10.024288594509013,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "p90"
+        ]
+      },
+      {
+        "workflow": "inbox",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 89.219,
+                "current_ms": 88.113,
+                "delta_ms": -1.1059999999999945,
+                "delta_percent": -1.2396462636882217,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 103.52170000000001,
+                "current_ms": 96.1887,
+                "delta_ms": -7.333000000000013,
+                "delta_percent": -7.08353900679762,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 81.6385,
+                "current_ms": 84.66900000000001,
+                "delta_ms": 3.0305000000000177,
+                "delta_percent": 3.7120966210795374,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 92.31700000000001,
+                "current_ms": 87.78370000000001,
+                "delta_ms": -4.533299999999997,
+                "delta_percent": -4.910579849865135,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "inbox",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 88.1325,
+                "current_ms": 82.0995,
+                "delta_ms": -6.032999999999987,
+                "delta_percent": -6.845374861713882,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 106.9992,
+                "current_ms": 88.9691,
+                "delta_ms": -18.030100000000004,
+                "delta_percent": -16.850686734106425,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 86.4825,
+                "current_ms": 76.896,
+                "delta_ms": -9.586500000000001,
+                "delta_percent": -11.084901569681728,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 95.9357,
+                "current_ms": 89.7618,
+                "delta_ms": -6.173900000000003,
+                "delta_percent": -6.435456248299647,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "page_to_sign_in",
+        "language": "en",
+        "samples_per_run": 1,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 982.898,
+                "current_ms": 847.247,
+                "delta_ms": -135.65100000000007,
+                "delta_percent": -13.80112687176086,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 857.427,
+                "current_ms": 938.929,
+                "delta_ms": 81.50199999999995,
+                "delta_percent": 9.50541562138817,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "parent_aggregation",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 261.8555,
+                "current_ms": 260.21500000000003,
+                "delta_ms": -1.6404999999999745,
+                "delta_percent": -0.6264905644525223,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 263.037,
+                "current_ms": 276.3521,
+                "delta_ms": 13.31510000000003,
+                "delta_percent": 5.0620635119774136,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 261.1975,
+                "current_ms": 262.32550000000003,
+                "delta_ms": 1.1280000000000427,
+                "delta_percent": 0.4318571196125701,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 261.978,
+                "current_ms": 277.24830000000003,
+                "delta_ms": 15.27030000000002,
+                "delta_percent": 5.82884822389667,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "p90"
+        ]
+      },
+      {
+        "workflow": "parent_aggregation",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 262.744,
+                "current_ms": 261.26649999999995,
+                "delta_ms": -1.4775000000000773,
+                "delta_percent": -0.5623344396066426,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 383.43980000000005,
+                "current_ms": 276.05190000000005,
+                "delta_ms": -107.3879,
+                "delta_percent": -28.006456293791093,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 252.9525,
+                "current_ms": 253.11700000000002,
+                "delta_ms": 0.1645000000000323,
+                "delta_percent": 0.06503197240589925,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 278.8147,
+                "current_ms": 261.86019999999996,
+                "delta_ms": -16.954500000000053,
+                "delta_percent": -6.080920410580952,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "record_detail",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 172.2905,
+                "current_ms": 172.7885,
+                "delta_ms": 0.49799999999999045,
+                "delta_percent": 0.28904669729322885,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 173.081,
+                "current_ms": 185.9092,
+                "delta_ms": 12.82820000000001,
+                "delta_percent": 7.411674302783096,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 172.74099999999999,
+                "current_ms": 172.054,
+                "delta_ms": -0.6869999999999834,
+                "delta_percent": -0.39770523500499794,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 188.9991,
+                "current_ms": 173.9202,
+                "delta_ms": -15.078900000000004,
+                "delta_percent": -7.978291960120447,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "record_detail",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 197.6935,
+                "current_ms": 173.61450000000002,
+                "delta_ms": -24.07899999999998,
+                "delta_percent": -12.179965451570224,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 224.1011,
+                "current_ms": 234.82340000000002,
+                "delta_ms": 10.722300000000018,
+                "delta_percent": 4.784581601785988,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 172.4785,
+                "current_ms": 172.7975,
+                "delta_ms": 0.3190000000000168,
+                "delta_percent": 0.18495058804431674,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 189.8658,
+                "current_ms": 185.837,
+                "delta_ms": -4.028800000000018,
+                "delta_percent": -2.1219197980889755,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "record_search",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 128.2945,
+                "current_ms": 128.109,
+                "delta_ms": -0.18549999999999045,
+                "delta_percent": -0.14458920686388774,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 143.1672,
+                "current_ms": 138.3971,
+                "delta_ms": -4.7701000000000136,
+                "delta_percent": -3.3318385775512915,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 136.52949999999998,
+                "current_ms": 132.07299999999998,
+                "delta_ms": -4.4565000000000055,
+                "delta_percent": -3.2641297302048318,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 139.3122,
+                "current_ms": 146.7236,
+                "delta_ms": 7.411400000000015,
+                "delta_percent": 5.319993510977513,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "record_search",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 150.6515,
+                "current_ms": 135.3505,
+                "delta_ms": -15.300999999999988,
+                "delta_percent": -10.15655336986355,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 169.0864,
+                "current_ms": 180.2196,
+                "delta_ms": 11.133200000000016,
+                "delta_percent": 6.584326119664276,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 137.0335,
+                "current_ms": 136.051,
+                "delta_ms": -0.9825000000000159,
+                "delta_percent": -0.7169779652420875,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 182.3625,
+                "current_ms": 151.2962,
+                "delta_ms": -31.066300000000012,
+                "delta_percent": -17.03546507642745,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "records",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 75.702,
+                "current_ms": 79.8825,
+                "delta_ms": 4.180499999999995,
+                "delta_percent": 5.522311167472451,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 79.2585,
+                "current_ms": 88.2221,
+                "delta_ms": 8.9636,
+                "delta_percent": 11.309323290246471,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 78.45400000000001,
+                "current_ms": 80.1765,
+                "delta_ms": 1.7224999999999966,
+                "delta_percent": 2.195554082647152,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 85.1263,
+                "current_ms": 82.65339999999999,
+                "delta_ms": -2.47290000000001,
+                "delta_percent": -2.904977662602521,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median"
+        ]
+      },
+      {
+        "workflow": "records",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 82.009,
+                "current_ms": 76.3495,
+                "delta_ms": -5.659499999999994,
+                "delta_percent": -6.901071833579234,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 87.5453,
+                "current_ms": 81.9421,
+                "delta_ms": -5.603200000000001,
+                "delta_percent": -6.400343593545286,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 79.7725,
+                "current_ms": 77.0435,
+                "delta_ms": -2.728999999999999,
+                "delta_percent": -3.4209784073458893,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 107.2699,
+                "current_ms": 80.90939999999999,
+                "delta_ms": -26.360500000000016,
+                "delta_percent": -24.573995128176694,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "settings",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 77.9915,
+                "current_ms": 83.50399999999999,
+                "delta_ms": 5.512499999999989,
+                "delta_percent": 7.0680779315694515,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 83.527,
+                "current_ms": 84.4283,
+                "delta_ms": 0.901299999999992,
+                "delta_percent": 1.079052282495471,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 78.793,
+                "current_ms": 78.44149999999999,
+                "delta_ms": -0.3515000000000157,
+                "delta_percent": -0.44610561851943153,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 94.66130000000001,
+                "current_ms": 81.3678,
+                "delta_ms": -13.293500000000009,
+                "delta_percent": -14.043225689907077,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "settings",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 78.92,
+                "current_ms": 79.6905,
+                "delta_ms": 0.7704999999999984,
+                "delta_percent": 0.9763051191079554,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 83.2897,
+                "current_ms": 85.9564,
+                "delta_ms": 2.666700000000006,
+                "delta_percent": 3.2017164187168476,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 80.5795,
+                "current_ms": 78.0145,
+                "delta_ms": -2.5649999999999977,
+                "delta_percent": -3.1831917547266957,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 86.4821,
+                "current_ms": 85.2838,
+                "delta_ms": -1.1983000000000033,
+                "delta_percent": -1.3856046511359035,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "sign_in_to_dashboard",
+        "language": "en",
+        "samples_per_run": 1,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 462.933,
+                "current_ms": 602.28,
+                "delta_ms": 139.34699999999998,
+                "delta_percent": 30.100900130256424,
+                "crosses_both_limits": true
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 461.166,
+                "current_ms": 447.902,
+                "delta_ms": -13.26400000000001,
+                "delta_percent": -2.876187750181065,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      }
+    ],
+    "edge": [
+      {
+        "workflow": "classification",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 111.5755,
+                "current_ms": 111.9745,
+                "delta_ms": 0.3990000000000009,
+                "delta_percent": 0.35760538827968585,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 127.1066,
+                "current_ms": 126.0853,
+                "delta_ms": -1.0212999999999965,
+                "delta_percent": -0.8034987954992082,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 108.907,
+                "current_ms": 114.8735,
+                "delta_ms": 5.966500000000011,
+                "delta_percent": 5.478527551029788,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 142.79590000000002,
+                "current_ms": 138.5422,
+                "delta_ms": -4.253700000000009,
+                "delta_percent": -2.9788670403001825,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median"
+        ]
+      },
+      {
+        "workflow": "classification",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 107.568,
+                "current_ms": 108.765,
+                "delta_ms": 1.1970000000000027,
+                "delta_percent": 1.1127844712182087,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 125.17280000000001,
+                "current_ms": 142.3684,
+                "delta_ms": 17.1956,
+                "delta_percent": 13.737489294798868,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 108.8665,
+                "current_ms": 105.29050000000001,
+                "delta_ms": -3.5759999999999934,
+                "delta_percent": -3.284757018917659,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 146.4795,
+                "current_ms": 131.989,
+                "delta_ms": -14.490499999999997,
+                "delta_percent": -9.892510556084638,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "custody",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 90.616,
+                "current_ms": 92.182,
+                "delta_ms": 1.5660000000000025,
+                "delta_percent": 1.7281716253200345,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 111.86580000000001,
+                "current_ms": 106.5554,
+                "delta_ms": -5.310400000000001,
+                "delta_percent": -4.747116634395857,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 86.52350000000001,
+                "current_ms": 94.435,
+                "delta_ms": 7.9114999999999895,
+                "delta_percent": 9.143758632047927,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 98.1382,
+                "current_ms": 98.8451,
+                "delta_ms": 0.7069000000000045,
+                "delta_percent": 0.7203107454589595,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median"
+        ]
+      },
+      {
+        "workflow": "custody",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 90.803,
+                "current_ms": 86.6545,
+                "delta_ms": -4.1484999999999985,
+                "delta_percent": -4.568681651487284,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 95.83630000000001,
+                "current_ms": 93.16879999999999,
+                "delta_ms": -2.667500000000018,
+                "delta_percent": -2.783392096731633,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 93.12700000000001,
+                "current_ms": 91.62049999999999,
+                "delta_ms": -1.5065000000000168,
+                "delta_percent": -1.6176833786120208,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 115.66390000000001,
+                "current_ms": 101.3972,
+                "delta_ms": -14.266700000000014,
+                "delta_percent": -12.334617802097295,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "dashboard_fresh",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 119.437,
+                "current_ms": 130.62349999999998,
+                "delta_ms": 11.186499999999981,
+                "delta_percent": 9.366025603456201,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 147.5748,
+                "current_ms": 508.77850000000007,
+                "delta_ms": 361.2037,
+                "delta_percent": 244.75974217820385,
+                "crosses_both_limits": true
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 128.238,
+                "current_ms": 130.2835,
+                "delta_ms": 2.045500000000004,
+                "delta_percent": 1.5950810212261608,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 141.1472,
+                "current_ms": 167.57410000000002,
+                "delta_ms": 26.426900000000018,
+                "delta_percent": 18.722936055408834,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median",
+          "p90"
+        ]
+      },
+      {
+        "workflow": "dashboard_fresh",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 122.497,
+                "current_ms": 130.67000000000002,
+                "delta_ms": 8.173000000000016,
+                "delta_percent": 6.672000130615456,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 154.0095,
+                "current_ms": 152.87,
+                "delta_ms": -1.1394999999999982,
+                "delta_percent": -0.7398894224057595,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 125.3555,
+                "current_ms": 131.8965,
+                "delta_ms": 6.540999999999997,
+                "delta_percent": 5.217960121414693,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 173.5602,
+                "current_ms": 159.45700000000002,
+                "delta_ms": -14.103199999999987,
+                "delta_percent": -8.12582608224696,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median"
+        ]
+      },
+      {
+        "workflow": "inbox",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 84.7025,
+                "current_ms": 82.8615,
+                "delta_ms": -1.840999999999994,
+                "delta_percent": -2.173489566423652,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 89.57780000000001,
+                "current_ms": 88.70370000000001,
+                "delta_ms": -0.8740999999999985,
+                "delta_percent": -0.975799807541599,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 87.3055,
+                "current_ms": 90.4855,
+                "delta_ms": 3.180000000000007,
+                "delta_percent": 3.6423822095973417,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 92.2867,
+                "current_ms": 101.5782,
+                "delta_ms": 9.2915,
+                "delta_percent": 10.068081316159317,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "inbox",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 79.3275,
+                "current_ms": 84.945,
+                "delta_ms": 5.617499999999993,
+                "delta_percent": 7.081403044341486,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 87.8807,
+                "current_ms": 96.62610000000001,
+                "delta_ms": 8.745400000000004,
+                "delta_percent": 9.951445539236719,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 91.1255,
+                "current_ms": 93.0185,
+                "delta_ms": 1.8930000000000007,
+                "delta_percent": 2.077354856763475,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 100.2979,
+                "current_ms": 106.4385,
+                "delta_ms": 6.140600000000006,
+                "delta_percent": 6.122361485135787,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median",
+          "p90"
+        ]
+      },
+      {
+        "workflow": "page_to_sign_in",
+        "language": "en",
+        "samples_per_run": 1,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 881.356,
+                "current_ms": 1093.563,
+                "delta_ms": 212.2070000000001,
+                "delta_percent": 24.07733084020533,
+                "crosses_both_limits": true
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 873.164,
+                "current_ms": 897.612,
+                "delta_ms": 24.44799999999998,
+                "delta_percent": 2.7999322005946166,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median"
+        ]
+      },
+      {
+        "workflow": "parent_aggregation",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 262.128,
+                "current_ms": 261.90250000000003,
+                "delta_ms": -0.22549999999995407,
+                "delta_percent": -0.08602667399131496,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 278.88309999999996,
+                "current_ms": 292.1628,
+                "delta_ms": 13.279700000000048,
+                "delta_percent": 4.761744257719471,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 262.0885,
+                "current_ms": 245.336,
+                "delta_ms": -16.752499999999998,
+                "delta_percent": -6.391924865074201,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 310.04780000000005,
+                "current_ms": 292.25840000000005,
+                "delta_ms": -17.7894,
+                "delta_percent": -5.737631423283764,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "parent_aggregation",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 261.7905,
+                "current_ms": 261.9005,
+                "delta_ms": 0.11000000000001364,
+                "delta_percent": 0.04201833145206325,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 262.6601,
+                "current_ms": 279.23319999999995,
+                "delta_ms": 16.573099999999954,
+                "delta_percent": 6.309713580402944,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 261.394,
+                "current_ms": 276.058,
+                "delta_ms": 14.663999999999987,
+                "delta_percent": 5.6099221864312065,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 279.33709999999996,
+                "current_ms": 292.9252,
+                "delta_ms": 13.588100000000054,
+                "delta_percent": 4.864409346270172,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median",
+          "p90"
+        ]
+      },
+      {
+        "workflow": "record_detail",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 173.40800000000002,
+                "current_ms": 189.535,
+                "delta_ms": 16.12699999999998,
+                "delta_percent": 9.300032293781129,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 204.1765,
+                "current_ms": 222.8889,
+                "delta_ms": 18.712400000000002,
+                "delta_percent": 9.164815735405398,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 189.34300000000002,
+                "current_ms": 188.1395,
+                "delta_ms": -1.2035000000000196,
+                "delta_percent": -0.6356189560744361,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 205.2127,
+                "current_ms": 202.9572,
+                "delta_ms": -2.255500000000012,
+                "delta_percent": -1.0991035155231679,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "record_detail",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 172.0495,
+                "current_ms": 187.99099999999999,
+                "delta_ms": 15.94149999999999,
+                "delta_percent": 9.265647386362641,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 202.93540000000002,
+                "current_ms": 204.7832,
+                "delta_ms": 1.8477999999999781,
+                "delta_percent": 0.9105360622148615,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 188.47899999999998,
+                "current_ms": 188.0335,
+                "delta_ms": -0.44549999999998136,
+                "delta_percent": -0.23636585508198865,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 235.91,
+                "current_ms": 199.9231,
+                "delta_ms": -35.98689999999999,
+                "delta_percent": -15.254503836208722,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "record_search",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 131.01850000000002,
+                "current_ms": 140.481,
+                "delta_ms": 9.462499999999977,
+                "delta_percent": 7.2222625049134095,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 173.24110000000002,
+                "current_ms": 162.4682,
+                "delta_ms": -10.772900000000021,
+                "delta_percent": -6.21844354486321,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 132.34,
+                "current_ms": 144.204,
+                "delta_ms": 11.864000000000004,
+                "delta_percent": 8.964787668127554,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 146.48420000000002,
+                "current_ms": 163.5036,
+                "delta_ms": 17.01939999999999,
+                "delta_percent": 11.618590947009977,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median"
+        ]
+      },
+      {
+        "workflow": "record_search",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 133.5705,
+                "current_ms": 148.051,
+                "delta_ms": 14.480499999999978,
+                "delta_percent": 10.841091408656835,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 155.8604,
+                "current_ms": 161.4282,
+                "delta_ms": 5.567800000000005,
+                "delta_percent": 3.5722993140015076,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 140.6165,
+                "current_ms": 151.3395,
+                "delta_ms": 10.722999999999985,
+                "delta_percent": 7.625705375969381,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 155.5247,
+                "current_ms": 171.5034,
+                "delta_ms": 15.978700000000003,
+                "delta_percent": 10.274059361631949,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "median",
+          "p90"
+        ]
+      },
+      {
+        "workflow": "records",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 80.1255,
+                "current_ms": 78.70150000000001,
+                "delta_ms": -1.4239999999999924,
+                "delta_percent": -1.7772119986770658,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 85.16619999999999,
+                "current_ms": 89.7123,
+                "delta_ms": 4.54610000000001,
+                "delta_percent": 5.337915745917994,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 82.5495,
+                "current_ms": 88.5505,
+                "delta_ms": 6.001000000000005,
+                "delta_percent": 7.2695776473509905,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 89.2428,
+                "current_ms": 91.65289999999999,
+                "delta_ms": 2.4100999999999857,
+                "delta_percent": 2.700610021200574,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "p90"
+        ]
+      },
+      {
+        "workflow": "records",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 79.8375,
+                "current_ms": 78.1925,
+                "delta_ms": -1.6450000000000102,
+                "delta_percent": -2.0604352591201005,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 103.6764,
+                "current_ms": 87.23880000000001,
+                "delta_ms": -16.43759999999999,
+                "delta_percent": -15.85471717767977,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 80.023,
+                "current_ms": 79.185,
+                "delta_ms": -0.8379999999999939,
+                "delta_percent": -1.047198930307529,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 95.13470000000001,
+                "current_ms": 90.1837,
+                "delta_ms": -4.951000000000008,
+                "delta_percent": -5.2041999396645044,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "settings",
+        "language": "ar",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 78.967,
+                "current_ms": 82.429,
+                "delta_ms": 3.4620000000000033,
+                "delta_percent": 4.384109818025255,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 83.90899999999999,
+                "current_ms": 92.08699999999999,
+                "delta_ms": 8.177999999999997,
+                "delta_percent": 9.746272747857795,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 83.12899999999999,
+                "current_ms": 78.7245,
+                "delta_ms": -4.4044999999999845,
+                "delta_percent": -5.298391656341331,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 92.0886,
+                "current_ms": 92.74210000000001,
+                "delta_ms": 0.6535000000000082,
+                "delta_percent": 0.7096426702110882,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": [
+          "p90"
+        ]
+      },
+      {
+        "workflow": "settings",
+        "language": "en",
+        "samples_per_run": 12,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 80.338,
+                "current_ms": 83.6075,
+                "delta_ms": 3.269500000000008,
+                "delta_percent": 4.069680599467261,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 86.39569999999999,
+                "current_ms": 100.2046,
+                "delta_ms": 13.808900000000008,
+                "delta_percent": 15.9833186142366,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 88.509,
+                "current_ms": 87.368,
+                "delta_ms": -1.1410000000000053,
+                "delta_percent": -1.289134438305715,
+                "crosses_both_limits": false
+              },
+              "p90": {
+                "original_ms": 118.8168,
+                "current_ms": 92.7107,
+                "delta_ms": -26.106099999999998,
+                "delta_percent": -21.971724537270823,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      },
+      {
+        "workflow": "sign_in_to_dashboard",
+        "language": "en",
+        "samples_per_run": 1,
+        "pairs": [
+          {
+            "original_sequence": 1,
+            "current_sequence": 2,
+            "metrics": {
+              "median": {
+                "original_ms": 454.471,
+                "current_ms": 447.241,
+                "delta_ms": -7.230000000000018,
+                "delta_percent": -1.5908605829634932,
+                "crosses_both_limits": false
+              }
+            }
+          },
+          {
+            "original_sequence": 4,
+            "current_sequence": 3,
+            "metrics": {
+              "median": {
+                "original_ms": 495.149,
+                "current_ms": 523.832,
+                "delta_ms": 28.682999999999993,
+                "delta_percent": 5.79280176270173,
+                "crosses_both_limits": false
+              }
+            }
+          }
+        ],
+        "blocking_metrics": [],
+        "repeatable_slower_metrics_to_investigate": []
+      }
+    ]
+  }
+}

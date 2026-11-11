@@ -1,4 +1,5 @@
 """Organization assignments and deletion rules, before and after extraction."""
+from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import inspect
 import asyncio
 from pathlib import Path
@@ -20,7 +21,7 @@ def load(name, scope):
     return factory(**{key:scope[key] for key in inspect.signature(factory).parameters})
 
 def click(user,label):
-    b=next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==label)
+    b=next(b for b in user.find(ui.button).elements if _owner_strip_diagnostic_metadata(b.text)==label)
     b.mark(f'org-dialog-{b.id}');user.find(marker=f'org-dialog-{b.id}').click()
 
 async def setup_memberships(user,for_user,status='active'):
@@ -55,7 +56,7 @@ async def test_assignment_validation_payload_refresh_and_bounded_picker(user,for
 async def test_inactive_entity_disables_new_assignment(user,for_user,status):
     api,picker,_=await setup_memberships(user,for_user,status)
     assert not picker.call_args.args[0].enabled
-    assert not next(b for b in user.find(ui.button).elements if host.strip_diagnostic_metadata(b.text)==t('webui.show_memberships.button.assign_e003b2ce')).enabled
+    assert not next(b for b in user.find(ui.button).elements if _owner_strip_diagnostic_metadata(b.text)==t('webui.show_memberships.button.assign_e003b2ce')).enabled
     api.create.assert_not_awaited()
 
 @pytest.mark.parametrize('for_user',[False,True])

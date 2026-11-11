@@ -1,0 +1,26 @@
+{
+  "all_differences_reviewed": true,
+  "paired": 384,
+  "exact_below_animated_header": 308,
+  "reviewed_nonexact": 76,
+  "review_categories": {
+    "dynamic_timestamps_and_audit_ids": 32,
+    "keyboard_notification_animation_scrollbar_fading_highlight_shading_and_antialiasing": 44
+  },
+  "inspector_and_translation_captures": {
+    "paired": 24,
+    "exact_below_animated_header": 24
+  },
+  "keyboard_focus": {
+    "observations_per_browser": 58,
+    "semantic_or_geometry_differences": 0,
+    "excluded": "Generated DOM IDs and indicator animation opacity only"
+  },
+  "historical_comparison": {
+    "paired": 384,
+    "exact": 217,
+    "finding": "Earlier reserved native scrollbar gutter absent in current environment. Fresh original code reproduces current geometry; original/current keyboard rectangles match. No application CSS or system settings changed."
+  },
+  "evidence": "visual-review/reviewed-differences.json",
+  "images": "Full original/current screenshots retained. Only animated top 72 pixels excluded from automated comparison; every other differing region reviewed."
+}

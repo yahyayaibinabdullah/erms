@@ -3,20 +3,65 @@
 The frontend is an independently deployable NiceGUI service. It communicates
 with the FastAPI service over HTTP and does not access PostgreSQL directly.
 
+## Module ownership and change workflow
+
+`app.py` is the single-page composition root: startup/static assets, the existing
+styles, shared presentation helpers, per-client construction and cross-feature
+callback wiring. Its length includes the unchanged inline stylesheet; it is not
+a second implementation of the feature screens. Keep new feature behavior in
+its owner rather than adding it back to the root. The existing `/` entry point,
+search URLs and browser-history behavior remain unchanged.
+
+| Responsibility | Owners |
+| --- | --- |
+| Session and account | `session_context.py`, `account_*`, `translation_inspector.py` |
+| Shell and navigation | `application_shell.py`, `navigation_*`; root snapshot/restore callbacks |
+| Settings and audit | `application_settings_controller.py`, `application_settings.py`, `audit_workspace.py` |
+| Shared forms and lists | `entity_editor*`, `entity_selectors.py`, `collection_*`, `resource_row_*`, `personal_resource*` |
+| Classification and relationships | `classification_*`, `relationship_types_controller.py`, `resource_relationships.py` |
+| Security and organization | `security_*`, `access_*`, `organization_*`, `login_sessions.py` |
+| Indexers and translations | `text_indexer*`, `translation_administration.py` |
+| Holds | `holds.py`, `hold_*`, `holds_people.py` |
+| Records and aggregations | `record_*`, `aggregation_*`; each has a separate state owner |
+| Components and preview | `components.py`, `component_*`, `upload_buffers.py` |
+| Search and saved queries | `global_search*`, `advanced_search*`, `saved_search_*` |
+| Dashboard, custody and disposition | `dashboard*`, `governance_custody.py`, `disposition/`, `disposition_state.py` |
+| Messaging | `messaging_*`, `message_stream.py`, `message_live_state.py` |
+
+Build controllers and mutable state inside the current page client. Share pure
+helpers, not controllers, API clients, principals or private view state. The
+session owns `principal`; root sign-in/bootstrap callbacks use `set_principal`,
+and features receive current-principal readers. Identity comparisons must retain
+object identity so an abandoned request cannot update a later session.
+
+Cross-feature callbacks are permanent dependency boundaries. Some lambdas defer
+lookup until all controllers are constructed; replacing them with an immediate
+reference can break initialization. Do not remove them merely because they look
+like wrappers. Features must not import `app.py` or receive the entire shell
+state. Keep feature state with its owner and expose narrow reads/actions.
+
+For a change, identify the owner and its callers in the refactor inventory,
+update the owner and explicit wiring together, then run focused behavior tests
+and the relevant assembled/browser journeys below. Import test dependencies
+from their actual owners rather than relying on incidental reexports from
+`app.py`. Retain cancellation, mutation freshness, permissions, English/Arabic
+behavior and the [performance contract](../../docs/webui-performance.md).
+Never replace screenshot baselines without reviewing the differences.
+
 ## Shared infrastructure boundary
 
 Shared shell construction now lives in `application_shell.py`. Its header,
 footer, drawer and content builders run inside the current NiceGUI page context
 and return explicit handles to the existing controls. They do not receive
 application state, create routes or perform API requests. `app.py` retains its
-existing control aliases and callback wiring during the incremental migration.
+existing control handles and explicit callback wiring.
 See the [Phase 5 verification report](../../docs/webui-refactor-phase5-verification.md)
 for completed local checks and the accepted, non-reproduced Edge loading observation.
 
 `navigation_controller.py` owns the per-client trail, persistence calls, registration,
 breadcrumb navigation, Back and existing discard guards. `navigation_data.py`
 contains the pure trail helpers. Feature snapshots, dispatch, localized breadcrumb
-rendering and shell updates remain explicit host callbacks during migration.
+rendering and shell updates remain explicit composition-root callbacks.
 There are no entity routes or new browser-history entries.
 
 `relationship_types_controller.py` owns relationship-type administration entry,
@@ -37,9 +82,10 @@ and `show_entity_history` handlers. See the
 The Phase 6C shared controls have explicit owners:
 
 - `collection_controls.py`: bounded collection reads, stale-response checks and
-  existing filter/paging events; the host retains feature cards and view state.
+  existing filter/paging events; `collection_state.py` owns collection view state.
 - `collection_hydration.py`: selected-row references and ancestor/closure lookups;
-  entity-specific decoration remains with the host pending its feature move.
+  entity-specific decoration belongs to the classification, organization and
+  resource hydration/presentation owners.
 - `entity_selectors.py`: bounded relationship choices, selected values and each
   control's request lifetime.
 - `entity_editor_controls.py` and `entity_translation_editor.py`: existing field
@@ -51,8 +97,8 @@ The Phase 6C shared controls have explicit owners:
   presentation, with explicit callbacks to resource/preview destinations.
 
 These modules do not import `app.py` or receive its application-state dictionary.
-The host still owns feature-specific permissions, fields, validation, writes,
-refresh rules and navigation until the corresponding approved feature step.
+Feature-specific permissions, fields, validation, writes and refresh rules now
+belong to their feature modules; the root connects their navigation callbacks.
 See the [Phase 6C verification report](../../docs/webui-refactor-phase6c-verification.md).
 
 `classification_controller.py` owns classification entry, per-client view tokens
@@ -97,14 +143,14 @@ and feature callbacks. The root retains common form/list assembly and navigation
 
 `session_context.py` supplies the existing per-page API client, identity and current
 locale, and coordinates sign-in, sign-out and unauthorized cleanup. It adds no
-cache. Its small identity mapping is a temporary host adapter; features should
-receive a principal reader rather than mutate it. Private feature-cache cleanup,
+cache. Its principal is page-local; features receive a principal reader rather
+than a shared identity dictionary. Private feature-cache cleanup,
 password/localization bootstrap and the separate live-message connection retain
 their existing owners and order. Never share a context/controller between clients.
 
 These modules do not import `app.py` or receive its large state dictionary.
-Remaining host callbacks will move with their feature owners; they are not a
-second implementation of the extracted infrastructure.
+Root callbacks connect the existing shell, navigation and feature lifecycles;
+they are not a second implementation of the extracted infrastructure.
 
 ## Application Settings pilot boundary
 
@@ -313,7 +359,10 @@ at `.runtime/webui-browser-venv`, then run:
 backend/services/api/.venv/bin/python tools/run_webui_integration.py --browser chrome
 ```
 
-Repeat with `edge`, `firefox` and `safari`. These use the installed browser
+For the approved local refactor scope, repeat with `edge`. Firefox, Safari and
+CI checks remain deferred at the user's request; do not claim they passed.
+The runner also supports `firefox` and `safari` for later authorized checks.
+These use the installed browser
 products on macOS and separate WebDriver sessions. Selenium may download the
 matching driver; browser downloads are disabled. Safari requires the user's
 approval to temporarily enable remote automation; restore its previous setting

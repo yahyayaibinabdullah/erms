@@ -9,7 +9,7 @@ from nicegui import ui
 from nicegui.testing import User
 from frontend.webui.messaging_workspace import messaging_workspace
 from frontend.webui.messaging_monitor import messaging_monitor
-from frontend.webui.app import relationship_select
+from frontend.webui.relationship_select import relationship_select
 from frontend.webui.i18n_catalogue import set_active_messages, render_message_plain
 
 pytest_plugins = ["nicegui.testing.user_plugin"]

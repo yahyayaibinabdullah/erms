@@ -4,7 +4,8 @@
 The [overall verification report](webui-refactor-phase6-verification.md) links
 all 21 individual reports and their acceptance results. The latest authorization
 through 6N–6U has been fulfilled. Work remains local and uncommitted.
-**Stop before Phases 7 and 8 until the user instructs continuation.**
+Phases 7 and 8 were subsequently authorized. Phase 7 is complete; the
+[Phase 8 report](webui-refactor-phase8-verification.md) records final cleanup and acceptance.
 
 ## Purpose and evidence
 
@@ -179,4 +180,5 @@ No product change was made. [Phase 6U verification](webui-refactor-phase6u-verif
 is complete. The subsequently authorized Phase 7 also passed its approved local
 functional and performance gates; see its
 [verification report](webui-refactor-phase7-verification.md).
-Phase 8 still requires authorization.
+Phase 8 was subsequently authorized; its final verification is recorded in the
+[Phase 8 report](webui-refactor-phase8-verification.md).

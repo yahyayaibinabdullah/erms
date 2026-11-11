@@ -32,7 +32,6 @@ def host():
              select_dashboard=AsyncMock(), user_menu=SimpleNamespace(close=calls.close_menu),
              clear_signed_in_identity=calls.clear_identity, set_connection_status=calls.connection,
              calls=calls, storage=storage, principal=principal)
-    h['set_principal'] = lambda value: h['auth_state'].__setitem__('principal',value)
     exec(compile(ast.Module(body=nodes, type_ignores=[]), '<existing lifecycle>', 'exec'), h)
     from frontend.webui.session_context import SessionContext
     h['session'] = SessionContext(
@@ -41,7 +40,7 @@ def host():
         clear_identity=h['clear_signed_in_identity'], close_menu=h['user_menu'].close,
         open_login=h['login_dialog'].open, set_connection_status=h['set_connection_status'],
     )
-    h['auth_state'] = h['session'].identity
+    h['set_principal'] = h['session'].set_principal
     h['sign_out'] = h['session'].sign_out
     h['handle_unauthorized'] = h['session'].handle_unauthorized
     return h
@@ -65,7 +64,7 @@ async def test_login_clears_private_state_and_stores_token_before_workspace(forc
     h['calls'].token.assert_called_once_with('new')
     h['calls'].search.assert_called_once(); h['calls'].dashboard.assert_called_once()
     if forced:
-        assert h['auth_state']['principal'] is h['principal']
+        assert h['session'].principal is h['principal']
         h['show_change_password'].assert_awaited_once()
         h['prepare_authenticated_workspace'].assert_not_awaited()
         h['select_dashboard'].assert_not_awaited()
@@ -123,7 +122,7 @@ def test_unauthorized_cleans_identity_even_without_storage_request_context(missi
 
 def test_context_identity_is_per_client_and_locale_follows_its_existing_owner():
     first, second = host(), host()
-    first['session'].identity['principal'] = first['principal']
+    first['session'].set_principal(first['principal'])
     assert first['session'].principal is first['principal']
     assert second['session'].principal is None
     assert first['session'].api is first['api']
