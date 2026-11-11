@@ -1,0 +1,8 @@
+{
+  "approved_relative_slowdown_percent": 20,
+  "approved_absolute_slowdown_ms": 100,
+  "blocking_rule": "Both thresholds met consistently across independent paired runs for the same workflow; investigate every repeatable slowdown.",
+  "baseline_commit": "8106e1e",
+  "baseline_description": "Phase 2 complete, before extraction, including approved aggregation visibility fix.",
+  "api_and_schema": "Same current API/schema for both UI variants; runtime API/schema unchanged since baseline."
+}

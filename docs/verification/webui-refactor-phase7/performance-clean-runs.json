@@ -1,0 +1,44 @@
+[
+  {
+    "browser": "chrome",
+    "sequence": 1,
+    "variant": "original",
+    "exit_code": 0,
+    "output": ".runtime/webui-refactor-phase7/performance-clean-chrome-1-original"
+  },
+  {
+    "browser": "chrome",
+    "sequence": 2,
+    "variant": "current",
+    "exit_code": 0,
+    "output": ".runtime/webui-refactor-phase7/performance-clean-chrome-2-current"
+  },
+  {
+    "browser": "chrome",
+    "sequence": 3,
+    "variant": "current",
+    "exit_code": 0,
+    "output": ".runtime/webui-refactor-phase7/performance-clean-chrome-3-current"
+  },
+  {
+    "browser": "chrome",
+    "sequence": 4,
+    "variant": "original",
+    "exit_code": 0,
+    "output": ".runtime/webui-refactor-phase7/performance-clean-chrome-4-original"
+  },
+  {
+    "browser": "edge",
+    "sequence": 1,
+    "variant": "original",
+    "exit_code": 0,
+    "output": ".runtime/webui-refactor-phase7/performance-clean-edge-1-original"
+  },
+  {
+    "browser": "edge",
+    "sequence": 2,
+    "variant": "current",
+    "exit_code": 1,
+    "output": ".runtime/webui-refactor-phase7/performance-clean-edge-2-current"
+  }
+]

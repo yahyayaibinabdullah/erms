@@ -26,6 +26,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.webui_test_events import EventReader
 EN = {i['message_key']:i['default_text'] for i in json.loads((ROOT/'frontend/webui/i18n/messages.en.json').read_text())}
 AR = {i['message_key']:i['translated_text'] for i in json.loads((ROOT/'frontend/webui/i18n/messages.ar.generated.json').read_text())['items']}
 PASSWORD = 'Temporary-Test-Password-123!'
@@ -45,10 +47,12 @@ def create_driver(name, output):
         options.set_capability('goog:loggingPrefs', {'browser':'ALL'})
         return webdriver.Chrome(options=options)
     if name == 'edge':
+        from selenium.webdriver.edge.service import Service
         options = webdriver.EdgeOptions()
         options.binary_location = '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge'
         options.add_argument('--headless=new')
-        return webdriver.Edge(options=options)
+        return webdriver.Edge(options=options, service=Service(
+            log_output=str(output/'driver.log'), service_args=['--log-level=WARNING']))
     if name == 'firefox':
         from selenium.webdriver.firefox.service import Service
         options = webdriver.FirefoxOptions()
@@ -62,6 +66,7 @@ class Acceptance:
     def __init__(self, driver, args):
         self.driver, self.args, self.language = driver, args, 'en'
         self.current_identity = None
+        self.event_readers = {}
         self.report = {'browser':args.browser, 'version':driver.capabilities['browserVersion'],
                        'scope':args.scope, 'maildev_enabled':bool(args.maildev_url),
                        'checks':[], 'screenshots':[], 'complete':False}
@@ -143,8 +148,9 @@ class Acceptance:
         self.driver.refresh()
         self.wait.until(lambda _:self.driver.execute_script('return !!window.__webuiTestErrors'))
     def events(self, filename='requests.jsonl'):
-        p=self.args.output/filename
-        return [json.loads(line) for line in p.read_text().splitlines()] if p.exists() else []
+        if filename not in self.event_readers:
+            self.event_readers[filename] = EventReader(self.args.output/filename)
+        return self.event_readers[filename].read()
     def settings_reads(self):
         return [e for e in self.events() if e['method']=='GET' and e['path']=='/api/v1/application-settings']
     def values(self):
@@ -509,12 +515,22 @@ with psycopg.connect(url) as c:
 
     def run(self):
         self.driver.set_window_size(1440,1100)
+        if self.args.scope == 'performance':
+            from tools.webui_browser_performance import check_performance
+            check_performance(self)
+            self.report['complete'] = True
+            return
         self.driver.get(self.args.url+'/')
         width,height=self.driver.execute_script('return [innerWidth,innerHeight]')
         outer=self.driver.get_window_size()
         self.driver.set_window_size(outer['width']+1440-width,outer['height']+1000-height)
         with self.check('real sign-in and Settings drawer caller'):
             self.login();self.settings()
+        if self.args.scope == 'application':
+            from tools.webui_browser_application import check_application
+            check_application(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'messaging':
             from tools.webui_browser_messaging import check_messaging
             check_messaging(self)
@@ -685,7 +701,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)
@@ -705,6 +721,7 @@ def main():
         if acceptance:
             (args.output/'browser-results.json').write_text(json.dumps(acceptance.report,indent=2,ensure_ascii=False)+'\n')
             acceptance.api.close()
+            for reader in acceptance.event_readers.values():reader.close()
         if driver:driver.quit()
 
 if __name__=='__main__':raise SystemExit(main())

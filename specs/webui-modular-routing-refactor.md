@@ -1,7 +1,7 @@
 # WebUI architecture and migration specification
 
-**Status:** Phases 1–6 complete for the approved local scope; Phases 7 and 8 await authorization
-**Date:** 10 November 2026
+**Status:** Phases 1–7 complete for the approved local scope; Phase 8 awaits authorization
+**Date:** 11 November 2026
 
 ## 1 Purpose and scope
 
@@ -285,7 +285,27 @@ user of both pre-existing aggregation defects in the 6M report.
 
 All Phase 6 sub-phases, including 6N–6U, are complete for the approved local
 scope. The [overall report](../docs/webui-refactor-phase6-verification.md) links
-each individual gate. Phases 7 and 8 have not started. At the final WebUI handoff,
+each individual gate. The subsequently authorized Phase 7 passed its local
+functional and performance gates; see the
+[Phase 7 report](../docs/webui-refactor-phase7-verification.md). Phase 8 has not
+started and requires further authorization. At the final WebUI handoff,
 deliver the user-requested prioritized list of all recorded pre-existing defects
 and abnormalities, using the [working register](../docs/webui-refactor-existing-observations.md).
 This reporting requirement does not authorize product fixes.
+
+## 13 Phase 7 performance acceptance
+
+On 11 November 2026 the user approved a blocking threshold of **20% and 100 ms**.
+Compare the original, pre-extraction UI with the modular UI on the same local
+machine, browsers, dependencies, API, schema and disposable fixture. Run them
+sequentially, reverse their order in an independent repeat, and retain raw
+measurements. Separate cold browser load/sign-in from warmed navigation and
+report English and Arabic separately.
+
+Investigate every repeatable slowdown. Block Phase 7 when the same workflow is
+consistently both at least 20% and at least 100 ms slower across independent
+paired runs. Report per-run medians and slower-tail timings for repeated
+workflows; a single timing spike or an overall average does not establish parity.
+This timing gate supplements the existing request-count, freshness, cancellation,
+isolation, functional and visual gates. Passing it does not authorize other UX
+changes or claim performance equivalence for unmeasured workloads.

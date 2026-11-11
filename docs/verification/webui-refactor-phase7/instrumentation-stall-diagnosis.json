@@ -1,0 +1,319 @@
+{
+  "status": "Observed test-instrumentation bottleneck; application timing acceptance requires complete corrected reruns.",
+  "observations": [
+    {
+      "variant": "original",
+      "process": "ui",
+      "sample_count": 1329,
+      "samples_inside_test_log_open": 239,
+      "example_stack": [
+        {
+          "function": "open",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/pathlib.py",
+          "line": 1044
+        },
+        {
+          "function": "record",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 120
+        },
+        {
+          "function": "observed_request",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 125
+        },
+        {
+          "function": "observed",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-refactor-phase7/diagnostic-hooks.py",
+          "line": 37
+        },
+        {
+          "function": "governance_custody",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-refactor-phase7/original-ui/frontend/webui/api_client.py",
+          "line": 734
+        },
+        {
+          "function": "select_governance_custody",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-refactor-phase7/original-ui/frontend/webui/app.py",
+          "line": 17284
+        },
+        {
+          "function": "guarded_page_navigation",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-refactor-phase7/original-ui/frontend/webui/app.py",
+          "line": 21263
+        },
+        {
+          "function": "wait_for_result",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/events.py",
+          "line": 439
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/runners.py",
+          "line": 118
+        },
+        {
+          "function": "asyncio_run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/_compat.py",
+          "line": 30
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/server.py",
+          "line": 86
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/server.py",
+          "line": 36
+        }
+      ],
+      "max_recorded_gc_ms": 155.92545829713345,
+      "evidence": ".runtime/webui-refactor-phase7/diagnostic-chrome-original/ui-process-samples.jsonl"
+    },
+    {
+      "variant": "original",
+      "process": "api",
+      "sample_count": 1295,
+      "samples_inside_test_log_open": 51,
+      "example_stack": [
+        {
+          "function": "open",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/pathlib.py",
+          "line": 1044
+        },
+        {
+          "function": "__call__",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 27
+        },
+        {
+          "function": "__call__",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py",
+          "line": 63
+        },
+        {
+          "function": "run_asgi",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py",
+          "line": 422
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/runners.py",
+          "line": 118
+        },
+        {
+          "function": "asyncio_run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/_compat.py",
+          "line": 30
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/server.py",
+          "line": 86
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/main.py",
+          "line": 632
+        },
+        {
+          "function": "main",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 160
+        },
+        {
+          "function": "<module>",
+          "file": "<string>",
+          "line": 1
+        }
+      ],
+      "max_recorded_gc_ms": 75.20370837301016,
+      "evidence": ".runtime/webui-refactor-phase7/diagnostic-chrome-original/api-process-samples.jsonl"
+    },
+    {
+      "variant": "current",
+      "process": "ui",
+      "sample_count": 1228,
+      "samples_inside_test_log_open": 197,
+      "example_stack": [
+        {
+          "function": "open",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/pathlib.py",
+          "line": 1044
+        },
+        {
+          "function": "record",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 120
+        },
+        {
+          "function": "observed_request",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 125
+        },
+        {
+          "function": "observed",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-refactor-phase7/diagnostic-hooks.py",
+          "line": 37
+        },
+        {
+          "function": "application_settings",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/api_client.py",
+          "line": 741
+        },
+        {
+          "function": "load",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/application_settings.py",
+          "line": 533
+        },
+        {
+          "function": "settings_page",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/application_settings.py",
+          "line": 566
+        },
+        {
+          "function": "open",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/application_settings_controller.py",
+          "line": 72
+        },
+        {
+          "function": "guarded_page_navigation",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/navigation_controller.py",
+          "line": 123
+        },
+        {
+          "function": "open_from_drawer",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/application_settings_controller.py",
+          "line": 84
+        },
+        {
+          "function": "wait_for_result",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/nicegui/events.py",
+          "line": 439
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/runners.py",
+          "line": 118
+        }
+      ],
+      "max_recorded_gc_ms": 104.81787472963333,
+      "evidence": ".runtime/webui-refactor-phase7/diagnostic-chrome-current/ui-process-samples.jsonl"
+    },
+    {
+      "variant": "current",
+      "process": "api",
+      "sample_count": 1328,
+      "samples_inside_test_log_open": 79,
+      "example_stack": [
+        {
+          "function": "open",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/pathlib.py",
+          "line": 1044
+        },
+        {
+          "function": "__call__",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 27
+        },
+        {
+          "function": "__call__",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py",
+          "line": 63
+        },
+        {
+          "function": "run_asgi",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py",
+          "line": 422
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/.pyenv/versions/3.11.9/lib/python3.11/asyncio/runners.py",
+          "line": 118
+        },
+        {
+          "function": "asyncio_run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/_compat.py",
+          "line": 30
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/server.py",
+          "line": 86
+        },
+        {
+          "function": "run",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/frontend/webui/.venv/lib/python3.11/site-packages/uvicorn/main.py",
+          "line": 632
+        },
+        {
+          "function": "main",
+          "file": "/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_server.py",
+          "line": 160
+        },
+        {
+          "function": "<module>",
+          "file": "<string>",
+          "line": 1
+        }
+      ],
+      "max_recorded_gc_ms": 63.809458166360855,
+      "evidence": ".runtime/webui-refactor-phase7/diagnostic-chrome-current/api-process-samples.jsonl"
+    }
+  ],
+  "isolated_io_probe": [
+    {
+      "mode": "reopen",
+      "sample_count": 120,
+      "write_ms": {
+        "median": 0.045354943722486496,
+        "maximum": 0.4630414769053459
+      },
+      "read_ms": {
+        "median": 1.1209161020815372,
+        "maximum": 440.6217923387885
+      }
+    },
+    {
+      "mode": "persistent",
+      "sample_count": 120,
+      "write_ms": {
+        "median": 0.012666452676057816,
+        "maximum": 0.048957765102386475
+      },
+      "read_ms": {
+        "median": 0.005709007382392883,
+        "maximum": 0.016291625797748566
+      }
+    },
+    {
+      "mode": "persistent",
+      "sample_count": 120,
+      "write_ms": {
+        "median": 0.010062474757432938,
+        "maximum": 0.042916275560855865
+      },
+      "read_ms": {
+        "median": 0.0047907233238220215,
+        "maximum": 0.013916753232479095
+      }
+    },
+    {
+      "mode": "reopen",
+      "sample_count": 120,
+      "write_ms": {
+        "median": 0.143478624522686,
+        "maximum": 3.016958013176918
+      },
+      "read_ms": {
+        "median": 1.548541709780693,
+        "maximum": 216.61370806396008
+      }
+    }
+  ],
+  "cause_observed": "Both API and UI event loops were repeatedly sampled inside Path.open calls made by disposable test logging. The driver also reopened and reparsed complete logs on every readiness poll.",
+  "correction": "Test-only persistent append handles with row flushing and incremental readers that retain partial lines. Application code, data, thresholds and UI actions are unchanged.",
+  "initial_results": "Keep performance-comparison.json, including all threshold breaches. Do not treat contaminated timings as proof of application speed or silently discard them.",
+  "remaining_gate": "Repeat the entire ABBA protocol with the corrected harness, then review every repeatable slowdown."
+}

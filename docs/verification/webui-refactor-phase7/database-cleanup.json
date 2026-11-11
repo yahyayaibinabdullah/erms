@@ -1,0 +1,521 @@
+{
+  "created_runs": 64,
+  "unique_names": true,
+  "all_cleanup_confirmed": true,
+  "independent_catalogue_audit": true,
+  "remaining_databases": [],
+  "runs": [
+    {
+      "run": "aggregation-repeat-1",
+      "database": "erms_webui_test_64dbc6d18e3a462ca5c85aa8d5e6be73",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "aggregation-repeat-2",
+      "database": "erms_webui_test_785ee996c9a243829a6938cb93afe8d3",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "aggregations-chrome",
+      "database": "erms_webui_test_c02c3b9a005542e2b4ae8b7743b108fc",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "aggregations-edge",
+      "database": "erms_webui_test_723ce6de53ae4a8680ae54098d38ce9e",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-chrome",
+      "database": "erms_webui_test_9728364659964cd1b53f2efeb3aa1171",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-chrome-confirmed",
+      "database": "erms_webui_test_7e83a1f5660845ba901dee9de43f0fc0",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-chrome-final",
+      "database": "erms_webui_test_3838c97b3eef43f984bdd8859f24e2ef",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-chrome-resumed",
+      "database": "erms_webui_test_9c0967526c494b959ea3be04c5b44424",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-chrome-v2",
+      "database": "erms_webui_test_c83b6196b839417786733817c57cf24a",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-edge",
+      "database": "erms_webui_test_7e0723b8e91a48bb8744e1abd8e9324b",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-edge-final",
+      "database": "erms_webui_test_43fd0eb5561948fdb5db0d96b495cc2f",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-edge-resumed",
+      "database": "erms_webui_test_96ca5e13beea457c97c01bc15301d157",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "application-edge-v2",
+      "database": "erms_webui_test_1b568dd96d2c403e98ad0c94790fe6d6",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "components-chrome",
+      "database": "erms_webui_test_1c4d1918b6ce4df4b2a529c46fee6138",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "components-chrome-resumed",
+      "database": "erms_webui_test_92e4341c04864295a43442e297da12e6",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "components-edge",
+      "database": "erms_webui_test_8e943c5531f44792b36c29c986da4ac4",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "components-edge-resumed",
+      "database": "erms_webui_test_d4424e0b55eb4c02b8b7b558e31aece9",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "dashboard-chrome",
+      "database": "erms_webui_test_5bcd0472f62b4e259c2da8b6558d689e",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "dashboard-edge",
+      "database": "erms_webui_test_de579edda97f42f28c98d71b1b4f7e1e",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "diagnostic-chrome-current",
+      "database": "erms_webui_test_ba506314f51a4c30bcfb04bcc7637f63",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "diagnostic-chrome-original",
+      "database": "erms_webui_test_53d1ff06671c4abdacd17ee38fdc9262",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-assembled",
+      "database": "erms_webui_test_150c9b042fc441a1b900be20208ceeea",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-chrome",
+      "database": "erms_webui_test_89a04ca290b7497ea249e4260e18a330",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-chrome-final",
+      "database": "erms_webui_test_f0efb0a2d1a74e21975a8bd8ff2b7030",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-chrome-resumed",
+      "database": "erms_webui_test_67321ada0fea44cdbfd7b719e520ee70",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-chrome-verified",
+      "database": "erms_webui_test_04646332c51448229ab3b46d822c55de",
+      "database_dropped": true,
+      "test_exit_code": null,
+      "interrupted": true,
+      "recovered_cleanup": true
+    },
+    {
+      "run": "full-edge",
+      "database": "erms_webui_test_6d8070d432bd4d2aabf9d7884648b81d",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-edge-resumed",
+      "database": "erms_webui_test_7f5be87ed5c94d2082c79caf2c180f70",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "full-edge-verified",
+      "database": "erms_webui_test_1ae15276ea9c4778bda8f5bf9a25858a",
+      "database_dropped": true,
+      "test_exit_code": null,
+      "interrupted": true,
+      "recovered_cleanup": true
+    },
+    {
+      "run": "governance-custody-chrome",
+      "database": "erms_webui_test_fc4ba5f35bce4b108bcfc7ec6e72cf68",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "governance-custody-edge",
+      "database": "erms_webui_test_02362f97cf934d9ebd318f83a579e7dc",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "keyboard-chrome",
+      "database": "erms_webui_test_20568c31f99140ed8228dc3e53fa4264",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "keyboard-chrome-final",
+      "database": "erms_webui_test_17f644eb4aec4733949cae97540e86da",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "keyboard-chrome-resumed",
+      "database": "erms_webui_test_34bd61060c5e4d9289c67c046bd3824e",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "keyboard-edge",
+      "database": "erms_webui_test_00afd4350477451aa7d090a3094340a1",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "keyboard-edge-final",
+      "database": "erms_webui_test_a8ed0d7af9ae45048550ce6b448dbcd1",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "keyboard-edge-resumed",
+      "database": "erms_webui_test_a74fab5a43c943e5a7c7426fc23b51a1",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-chrome-1-original",
+      "database": "erms_webui_test_12e43e3fc9ad4070a7de50fd263b7924",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-chrome-2-current",
+      "database": "erms_webui_test_a2f0ab6da5ea42c885db0505e332c808",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-chrome-3-current",
+      "database": "erms_webui_test_6041da10bbb741caa99acba7b7ceec65",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-chrome-4-original",
+      "database": "erms_webui_test_152d35899aa14b2f9bf73a238369a45f",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-chrome-1-original",
+      "database": "erms_webui_test_e2394f501a714d47a9e9dd002c10a68b",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-chrome-2-current",
+      "database": "erms_webui_test_1d69a8239c244123bdc677f2798b1b03",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-chrome-3-current",
+      "database": "erms_webui_test_85d82bbd5a0a44ffb321ecfa796b2402",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-chrome-4-original",
+      "database": "erms_webui_test_c6a7bcae741a4a2d925bbce2e7880ff2",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-edge-1-original",
+      "database": "erms_webui_test_952af747098643269e4e39f12ef61d4d",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-edge-2-current",
+      "database": "erms_webui_test_be01d266562648f9ae664ed1e6c0e347",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-edge-2-current-retry",
+      "database": "erms_webui_test_bb19ab3a043f44c68da5e851f749c676",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-edge-3-current",
+      "database": "erms_webui_test_f7abd247e9f040658f73e626699eedea",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-clean-edge-4-original",
+      "database": "erms_webui_test_d337704362954461a84f300e0898a571",
+      "database_dropped": true,
+      "test_exit_code": null,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-edge-1-original",
+      "database": "erms_webui_test_2c3b0d51e5bb4c9a96a94a3d084ff170",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-edge-2-current",
+      "database": "erms_webui_test_6151ed20e5694b95ae3de2d2fbfe9eb8",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-edge-3-current",
+      "database": "erms_webui_test_734b99c1121d4bd288c1f5aef6059790",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-edge-4-original",
+      "database": "erms_webui_test_804adc66d83f4d8e976fbcf70b7ad782",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-edge-4-original-retry",
+      "database": "erms_webui_test_80564ad9b3d840b596f76b480911e63b",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-pinned-edge-1-original",
+      "database": "erms_webui_test_45f2c3f0985d4c78b6ec5eeb4ca68241",
+      "database_dropped": true,
+      "test_exit_code": 1,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-pinned-v2-edge-1-original",
+      "database": "erms_webui_test_6d5e83d628244cf3b18f565e3ad1acdc",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-pinned-v2-edge-2-current",
+      "database": "erms_webui_test_b8168a379386477ab051b8295702108c",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-pinned-v2-edge-3-current",
+      "database": "erms_webui_test_9d394eddcf6f4d328b86cb157e6ef251",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "performance-pinned-v2-edge-4-original",
+      "database": "erms_webui_test_56a295fe0b524a2a87acf69c718b3da8",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "records-chrome",
+      "database": "erms_webui_test_13a7cfd940af4b46ac88f42f247a9dd3",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "records-edge",
+      "database": "erms_webui_test_f51a96ab7cf74dd29027ca6543e8826c",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "session-chrome",
+      "database": "erms_webui_test_60fd1fb322834c05b961a9e7008a25f4",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    },
+    {
+      "run": "session-edge",
+      "database": "erms_webui_test_a38d2b4062dd46d2a823737346e8539a",
+      "database_dropped": true,
+      "test_exit_code": 0,
+      "interrupted": false,
+      "recovered_cleanup": false
+    }
+  ]
+}

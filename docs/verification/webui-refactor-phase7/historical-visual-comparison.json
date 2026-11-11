@@ -1,0 +1,813 @@
+{
+  "reference": "Phase 3 full-browser acceptance; retains comparisons rather than replacing a baseline.",
+  "paired": 54,
+  "exact_below_header": 46,
+  "reviewed_nonexact": 8,
+  "header": "Animated 72px header excluded from automated comparison; full images retained and representative complete pairs inspected.",
+  "rows": [
+    {
+      "browser": "chrome",
+      "image": "aggregation-restored-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/aggregation-restored-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/aggregation-restored-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "relationship-types-table-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/relationship-types-table-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/relationship-types-table-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "search-empty-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/search-empty-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/search-empty-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "email-validation-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/email-validation-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/email-validation-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        953,
+        406,
+        1056,
+        428
+      ],
+      "different_pixels": 926,
+      "review": "Historical full run used --maildev: its English SMTP transport test populated SMTP_SENDER_EMAIL before Arabic. Phase 7 leaves MailDev alone and does not populate that field. Only its background floating label differs; dialog and remaining pixels match."
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-loading-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-loading-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-loading-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "aggregation-restored-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/aggregation-restored-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/aggregation-restored-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "relationship-types-table-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/relationship-types-table-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/relationship-types-table-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "search-empty-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/search-empty-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/search-empty-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "email-validation-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/email-validation-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/email-validation-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-general-ar-repeat.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-general-ar-repeat.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-general-ar-repeat.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-loading-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-loading-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-loading-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "unsaved-confirmation-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/unsaved-confirmation-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/unsaved-confirmation-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        150,
+        327,
+        283,
+        340
+      ],
+      "different_pixels": 902,
+      "review": "Saved-search updated date/time changed between runs; the only difference is the timestamp text."
+    },
+    {
+      "browser": "chrome",
+      "image": "records-table-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/records-table-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/records-table-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-error-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-error-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-error-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "scheme-browser-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/scheme-browser-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/scheme-browser-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "email-busy-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/email-busy-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/email-busy-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "classification-browser-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/classification-browser-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/classification-browser-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-general-en-repeat.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-general-en-repeat.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-general-en-repeat.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-general-en-first.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-general-en-first.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-general-en-first.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "unsaved-confirmation-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/unsaved-confirmation-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/unsaved-confirmation-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        1209,
+        328,
+        1322,
+        338
+      ],
+      "different_pixels": 801,
+      "review": "Saved-search updated date/time changed between runs; the only difference is the timestamp text."
+    },
+    {
+      "browser": "chrome",
+      "image": "records-table-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/records-table-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/records-table-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "restricted-dashboard.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/restricted-dashboard.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/restricted-dashboard.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-error-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-error-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-error-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "scheme-browser-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/scheme-browser-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/scheme-browser-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "settings-general-ar-first.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/settings-general-ar-first.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/settings-general-ar-first.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "chrome",
+      "image": "email-busy-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/email-busy-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/email-busy-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        953,
+        406,
+        1056,
+        428
+      ],
+      "different_pixels": 926,
+      "review": "Historical full run used --maildev: its English SMTP transport test populated SMTP_SENDER_EMAIL before Arabic. Phase 7 leaves MailDev alone and does not populate that field. Only its background floating label differs; dialog and remaining pixels match."
+    },
+    {
+      "browser": "chrome",
+      "image": "classification-browser-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/chrome/classification-browser-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-chrome-resumed/classification-browser-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "aggregation-restored-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/aggregation-restored-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/aggregation-restored-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "relationship-types-table-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/relationship-types-table-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/relationship-types-table-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "search-empty-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/search-empty-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/search-empty-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "email-validation-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/email-validation-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/email-validation-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        953,
+        406,
+        1056,
+        428
+      ],
+      "different_pixels": 926,
+      "review": "Historical full run used --maildev: its English SMTP transport test populated SMTP_SENDER_EMAIL before Arabic. Phase 7 leaves MailDev alone and does not populate that field. Only its background floating label differs; dialog and remaining pixels match."
+    },
+    {
+      "browser": "edge",
+      "image": "settings-loading-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-loading-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-loading-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "aggregation-restored-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/aggregation-restored-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/aggregation-restored-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "relationship-types-table-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/relationship-types-table-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/relationship-types-table-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "search-empty-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/search-empty-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/search-empty-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "email-validation-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/email-validation-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/email-validation-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-general-ar-repeat.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-general-ar-repeat.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-general-ar-repeat.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-loading-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-loading-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-loading-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "unsaved-confirmation-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/unsaved-confirmation-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/unsaved-confirmation-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        151,
+        327,
+        283,
+        340
+      ],
+      "different_pixels": 886,
+      "review": "Saved-search updated date/time changed between runs; the only difference is the timestamp text."
+    },
+    {
+      "browser": "edge",
+      "image": "records-table-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/records-table-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/records-table-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-error-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-error-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-error-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "scheme-browser-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/scheme-browser-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/scheme-browser-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "email-busy-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/email-busy-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/email-busy-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "classification-browser-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/classification-browser-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/classification-browser-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-general-en-repeat.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-general-en-repeat.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-general-en-repeat.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-general-en-first.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-general-en-first.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-general-en-first.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "unsaved-confirmation-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/unsaved-confirmation-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/unsaved-confirmation-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        1209,
+        328,
+        1322,
+        338
+      ],
+      "different_pixels": 784,
+      "review": "Saved-search updated date/time changed between runs; the only difference is the timestamp text."
+    },
+    {
+      "browser": "edge",
+      "image": "records-table-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/records-table-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/records-table-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "restricted-dashboard.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/restricted-dashboard.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/restricted-dashboard.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-error-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-error-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-error-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "scheme-browser-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/scheme-browser-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/scheme-browser-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "settings-general-ar-first.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/settings-general-ar-first.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/settings-general-ar-first.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    },
+    {
+      "browser": "edge",
+      "image": "email-busy-ar.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/email-busy-ar.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/email-busy-ar.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": [
+        953,
+        406,
+        1056,
+        428
+      ],
+      "different_pixels": 926,
+      "review": "Historical full run used --maildev: its English SMTP transport test populated SMTP_SENDER_EMAIL before Arabic. Phase 7 leaves MailDev alone and does not populate that field. Only its background floating label differs; dialog and remaining pixels match."
+    },
+    {
+      "browser": "edge",
+      "image": "classification-browser-en.png",
+      "original": "docs/verification/webui-refactor-phase3/browsers/edge/classification-browser-en.png",
+      "current": ".runtime/webui-refactor-phase7/full-edge-resumed/classification-browser-en.png",
+      "compared_region": [
+        0,
+        72,
+        1440,
+        1000
+      ],
+      "difference_bbox_relative_to_region": null,
+      "different_pixels": 0
+    }
+  ]
+}

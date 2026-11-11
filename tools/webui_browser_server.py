@@ -9,12 +9,21 @@ import json
 import os
 from pathlib import Path
 import time
+from tools.webui_test_events import EventWriter
 
 class ObservedAPI:
     def __init__(self, app, directory):
         self.app, self.directory = app, Path(directory)
+        self.started_events = EventWriter(self.directory / 'requests-started.jsonl')
+        self.finished_events = EventWriter(self.directory / 'requests.jsonl')
 
     async def __call__(self, scope, receive, send):
+        if scope['type'] == 'lifespan':
+            try:
+                return await self.app(scope, receive, send)
+            finally:
+                self.started_events.close()
+                self.finished_events.close()
         if scope['type'] != 'http':
             return await self.app(scope, receive, send)
         started = time.monotonic()
@@ -24,8 +33,7 @@ class ObservedAPI:
         matched = instruction.get('path') == scope['path'] and instruction.get('method', 'GET') == scope['method']
         entry = dict(method=scope['method'], path=scope['path'], query=scope['query_string'].decode(),
                      controlled=matched)
-        with (self.directory / 'requests-started.jsonl').open('a') as file:
-            file.write(json.dumps(entry) + '\n')
+        self.started_events.append(entry)
 
         async def observed(message):
             nonlocal status
@@ -52,8 +60,7 @@ class ObservedAPI:
             await self.app(scope, receive, observed)
         finally:
             entry.update(status=status, milliseconds=round(1000*(time.monotonic()-started),2))
-            with (self.directory / 'requests.jsonl').open('a') as file:
-                file.write(json.dumps(entry) + '\n')
+            self.finished_events.append(entry)
 
 
 ERROR_CAPTURE = b'''<script>
@@ -110,15 +117,14 @@ def install_client_diagnostics(directory):
     import traceback
     from frontend.webui.api_client import ErmsApiClient
 
-    target = Path(directory) / 'ui-client-events.jsonl'
+    events = EventWriter(Path(directory) / 'ui-client-events.jsonl')
     request = ErmsApiClient.request
     cancel = ErmsApiClient.cancel_pending_reads
     close = ErmsApiClient.close
 
     def record(client, event, **fields):
         row = dict(client=id(client), event=event, monotonic=time.monotonic(), **fields)
-        with target.open('a') as file:
-            file.write(json.dumps(row) + '\n')
+        events.append(row)
 
     @functools.wraps(request)
     async def observed_request(client, method, path, **kwargs):

@@ -4,13 +4,15 @@ def check_navigation(page):
         page.settings()
         page.tab('disposition')
         page.drawer('dashboard')
+        page.wait.until(lambda _:page.t('navigation.item.dashboard') in page.one('.erms-breadcrumb-row [aria-current=page]').text)
+        page.one('.dashboard-overview-primary')
         label=page.t('navigation.item.application_settings')
         def crumbs():
             return [button for button in page.visible('button.max-w-52') if label in button.text]
         page.wait.until(lambda _:crumbs())
         # The latest Settings breadcrumb is the visit immediately before this
         # Dashboard; earlier Settings visits may also remain in the trail.
-        page.activate(crumbs()[-1])
+        page.wait.until(lambda _:page.activate(crumbs()[-1]) or True)
         page.wait.until(lambda _: page.t('settings.category.disposition') in
                         page.one('[role=tab][aria-selected=true]').text)
         page.tab('general')

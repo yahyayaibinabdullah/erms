@@ -26,15 +26,31 @@ reliability/accessibility investigation; **P3** is a lower-impact warning or tes
 | Priority | Observation and certainty | Evidence | Recommended next action |
 | --- | --- | --- | --- |
 | P2 | The email-dialog keyboard boundary does not always wrap focus; Arabic Chrome/Edge differ and some runs put focus on the page body. Preserved baseline behavior, not an accessibility certification. | [Phase 2](webui-refactor-phase2-verification.md), keyboard results. | Review accessible focus containment and restoration across supported browsers. |
+| P2 | Some accessible labels remain English in Arabic, including breadcrumb overflow and favourite controls. | [Phase 1](webui-refactor-phase1-baseline.md), original English/Arabic inspection. | Audit translated accessible names and screen-reader behavior separately; preserve current wording during this refactor. |
 | P2 | Initial Phase 5 Edge custody-loading timeout did not recur in twelve subsequent checks. Cause and whether it was an original defect are unproven; the user explicitly accepted this recorded exception. | [Phase 5](webui-refactor-phase5-verification.md). | Retain diagnostics and investigate on recurrence; do not label it fixed. |
-| P2 | One 6O aggregation-child save succeeded but two parent-refresh reads were cancelled. The exact trigger was not captured; original focused and subsequent full suites passed. Original-defect status is unproven. | [6O](webui-refactor-phase6o-verification.md); cancellation diagnostics retained. | Revisit in Phase 7 and capture cancellation ownership if it recurs. |
+| P2 | One 6O aggregation-child save succeeded but two parent-refresh reads were cancelled. The exact trigger was not captured; original focused and subsequent full suites passed. Phase 7's full assembled suite and two independent focused reruns also passed without recurrence. Original-defect status is unproven. | [6O](webui-refactor-phase6o-verification.md); cancellation diagnostics retained. [Phase 7](webui-refactor-phase7-verification.md) records the passing full suite and two independent focused reruns. | Retain cancellation-ownership diagnostics and investigate on recurrence; do not label it fixed. |
 | P2 | An initial Edge record baseline showed an English subtitle in Arabic. Original/extracted reruns matched in Arabic. | [6N](webui-refactor-phase6n-verification.md). | Check localization readiness on repetition; preserve language/identity isolation. |
 | P3 | One extracted Chrome record run performed an extra old-label security search and selected-ID resolution; unchanged rerun request counts matched the original. | [6N](webui-refactor-phase6n-verification.md). | Monitor selector echo/debounce readiness and redundant reads. |
 | P3 | Native resizing can emit `ResizeObserver loop completed with undelivered notifications.` Drawer restoration also depends on transition timing; stable original/extracted geometry matched. | [Phase 5](webui-refactor-phase5-verification.md). | Investigate resize events separately; retain stable geometry and direction checks. |
 | P3 | One Chrome translation session disconnected before its first check; later runs passed. Cause/application attribution is unproven. | [6J](webui-refactor-phase6j-verification.md). | Retain raw diagnostics and investigate only with a repeatable trigger or new evidence. |
+| P2 | A Phase 7 repeated-navigation benchmark on the original UI in Edge stopped while opening a record: the effective-holds read raised `ApiError` before appearing in the API request log, leaving the details incomplete. The transport cause and production relevance are unproven. | [Phase 7 investigation](webui-refactor-phase7-verification.md); failed original run retained. | Capture the underlying transport exception and verify recovery; do not attribute this original-run observation to extraction or silently fix it. |
+| P2 | One Phase 7 Edge timing run lost its WebDriver session when the browser closed the renderer connection. The last API calls succeeded; application attribution and the cause remain unproven. | [Phase 7 investigation](webui-refactor-phase7-verification.md); failed run and subsequent driver diagnostics retained. | Investigate on recurrence with driver diagnostics; do not label the disconnect fixed or infer its cause from a passing rerun. |
 
 ## Test abnormalities addressed or still being recorded
 
+- Phase 7 timing instrumentation repeatedly opened log files on the measured
+  event loops and reread whole logs while polling. Stack samples and a direct
+  I/O probe showed substantial test-only stalls. Persistent append handles and
+  incremental readers replace that instrumentation; safety tests cover flushing,
+  incomplete lines and cleanup. Initial timing results remain recorded and the
+  complete comparison passed after repeating it with corrected instrumentation.
+  No application code was changed.
+- Phase 7 Edge diagnostics initially enabled verbose WebDriver command logging,
+  adding substantial I/O. Those runs are excluded from performance acceptance.
+  The final comparison pins one existing driver binary and warning-only logging.
+  Browser version stayed unchanged; a different automatic driver selection was
+  observed, but it is not established as the cause of the earlier disconnect.
+  A first pinning wrapper failed during setup and was corrected before testing.
 - Phase 1 T1–T5 identified stale structural/permission assertions, UI-context
   isolation and asynchronous locator/readiness problems. [Phase 2](webui-refactor-phase2-verification.md)
   records their test corrections and passing replacement evidence.

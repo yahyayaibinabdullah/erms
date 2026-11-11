@@ -176,4 +176,7 @@ Phase 6T is complete: [disposition verification](webui-refactor-phase6t-verifica
 The preview fixture B2 is repaired. Phase 6U reproduced the footer retry observation
 as a test helper race and corrected its fixed wait, with delayed-response evidence.
 No product change was made. [Phase 6U verification](webui-refactor-phase6u-verification.md)
-is complete; Phases 7 and 8 remain outside the current authorization.
+is complete. The subsequently authorized Phase 7 also passed its approved local
+functional and performance gates; see its
+[verification report](webui-refactor-phase7-verification.md).
+Phase 8 still requires authorization.

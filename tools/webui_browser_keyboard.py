@@ -148,13 +148,17 @@ def check_keyboard(page):
         observe(page,'browse-escape-return',screenshot=True)
 
     with page.check('Breadcrumb, custody and audit navigation focus baseline'):
-        page.drawer('dashboard');page.settings();page.tab('general')
+        page.drawer('dashboard')
+        page.wait.until(lambda _:page.t('navigation.item.dashboard') in page.one('.erms-breadcrumb-row [aria-current=page]').text)
+        page.settings();page.tab('general')
         observe(page,'drawer-return',screenshot=True)
         page.drawer('dashboard')
+        page.wait.until(lambda _:page.t('navigation.item.dashboard') in page.one('.erms-breadcrumb-row [aria-current=page]').text)
+        page.one('.dashboard-overview-primary')
         label=page.t('navigation.item.application_settings')
         crumbs=lambda:[e for e in page.visible('button.max-w-52') if label in e.text]
         page.wait.until(lambda _:crumbs())
-        crumbs()[-1].send_keys(Keys.ENTER)
+        page.wait.until(lambda _:crumbs()[-1].send_keys(Keys.ENTER) or True)
         page.field(window)
         observe(page,'breadcrumb-return',screenshot=True)
         press(page,Keys.TAB)

@@ -118,3 +118,24 @@ def test_client_diagnostics_preserve_read_cancellation(tmp_path, monkeypatch):
     events = list(map(json.loads, (tmp_path / 'ui-client-events.jsonl').read_text().splitlines()))
     assert any(e['event'] == 'cancel-reads' and e['pending'] == 1 for e in events)
     assert any(e['event'] == 'request-error' and e['error_type'] == 'CancelledError' for e in events)
+
+
+def test_api_request_logging_reuses_handles_and_closes_on_shutdown(tmp_path, monkeypatch):
+    from pathlib import Path
+    async def app(scope,receive,send):
+        if scope['type']=='http':
+            await send({'type':'http.response.start','status':200,'headers':[]})
+            await send({'type':'http.response.body','body':b'ok'})
+    observed=ObservedAPI(app,tmp_path)
+    original=Path.open
+    def no_reopening(self,*args,**kwargs):
+        if self.parent==tmp_path and args and args[0]=='a':
+            raise AssertionError('Request logging reopened an existing stream')
+        return original(self,*args,**kwargs)
+    monkeypatch.setattr(Path,'open',no_reopening)
+    for _ in range(3):
+        exchange(observed,{'type':'http','method':'GET','path':'/test','query_string':b''})
+    assert len((tmp_path/'requests-started.jsonl').read_text().splitlines())==3
+    assert len((tmp_path/'requests.jsonl').read_text().splitlines())==3
+    exchange(observed,{'type':'lifespan'})
+    assert observed.started_events.file.closed and observed.finished_events.file.closed

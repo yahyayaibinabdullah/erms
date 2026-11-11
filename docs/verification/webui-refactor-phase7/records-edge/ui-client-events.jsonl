@@ -1,0 +1,338 @@
+{"client": 4405480912, "event": "cancel-reads", "monotonic": 4276467.650058458, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "_invoke_callback", "initialize_authenticated_ui", "clear_signed_in_identity"]}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276470.625952708, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "_invoke_callback", "initialize_authenticated_ui", "clear_signed_in_identity"]}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276480.246849708, "pending": 0, "callers": ["run", "run", "asyncio_run", "run", "wait_for_result", "submit_login", "sign_in", "set_session_token"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276480.247716125, "method": "GET", "path": "/api/v1/i18n/bootstrap"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276480.274016416, "method": "GET", "path": "/api/v1/i18n/bootstrap"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276480.312706708, "pending": 0, "callers": ["run", "wait_for_result", "submit_login", "select_dashboard", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276480.318105541, "method": "GET", "path": "/api/v1/dashboard/summary"}
+{"client": 4405481424, "event": "cancel-reads", "monotonic": 4276480.321372041, "pending": 0, "callers": ["run", "run", "run", "run", "asyncio_run", "run", "start_message_stream", "set_session_token"]}
+{"client": 4405481424, "event": "request-start", "monotonic": 4276480.366239833, "method": "GET", "path": "/api/v1/messages/catch-up"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276482.025235375, "method": "GET", "path": "/api/v1/dashboard/summary"}
+{"client": 4405481424, "event": "request-finish", "monotonic": 4276482.061551, "method": "GET", "path": "/api/v1/messages/catch-up"}
+{"client": 4405481424, "event": "request-start", "monotonic": 4276482.072677291, "method": "GET", "path": "/api/v1/messages/unread-count"}
+{"client": 4405481424, "event": "request-finish", "monotonic": 4276482.112053083, "method": "GET", "path": "/api/v1/messages/unread-count"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276482.364108166, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "wait_for_result", "open_from_drawer", "guarded_page_navigation"]}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276482.375530875, "pending": 0, "callers": ["wait_for_result", "open_from_drawer", "guarded_page_navigation", "open", "enter_application_settings", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276482.385322375, "method": "GET", "path": "/api/v1/application-settings"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276482.473760875, "method": "GET", "path": "/api/v1/application-settings"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276483.028947333, "pending": 0, "callers": ["run", "run", "run", "run", "asyncio_run", "run", "wait_for_result", "guarded_page_navigation"]}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276483.030927125, "pending": 0, "callers": ["run", "wait_for_result", "guarded_page_navigation", "select_entity", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276483.041767208, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276483.050411666, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276483.091256833, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276483.1008265, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276484.584570791, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276484.604525291, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276484.607214625, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276484.631929916, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276484.634380666, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276484.649438333, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276484.654202125, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276484.688600125, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276484.699477833, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276484.714907416, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276487.225791666, "pending": 0, "callers": ["wait_for_result", "open_result", "show_record_details", "select_record_details", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.227566333, "method": "GET", "path": "/api/v1/records/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276487.259030208, "method": "GET", "path": "/api/v1/records/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.263381875, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276487.283163416, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.290370291, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276487.317213083, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.317784875, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.3244135, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.331571416, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276487.337812916, "method": "GET", "path": "/api/v1/records/1/effective-holds"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276487.389158041, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276487.397828708, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276487.403742375, "method": "GET", "path": "/api/v1/records/1/effective-holds"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276488.032203666, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276488.037351916, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276488.056332166, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276488.061094083, "pending": 0, "callers": ["wait_for_result", "open_result", "show_record_details", "select_record_details", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276488.072278, "method": "GET", "path": "/api/v1/relationships/record/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276488.109876125, "method": "GET", "path": "/api/v1/relationships/record/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276488.116172666, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276488.123707, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276488.17910825, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276488.272159416, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276488.286751541, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276488.317077916, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276491.870062458, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276491.972999625, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276491.985558958, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276492.08205525, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276492.088650833, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276492.105422166, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276492.109255375, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276492.12912725, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276492.143285166, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276492.194564833, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.348766291, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.380884833, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276495.386205708, "pending": 0, "callers": ["run", "wait_for_result", "open_containing_aggregation", "open_aggregation", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.390934875, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.42930425, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.437165958, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.443120583, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.451929166, "method": "GET", "path": "/api/v1/aggregations/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.457557375, "method": "GET", "path": "/api/v1/aggregations/1/effective-holds"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.468273208, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.525248125, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.579529791, "method": "GET", "path": "/api/v1/aggregations/1/capabilities"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.594732708, "method": "GET", "path": "/api/v1/aggregations/1/effective-holds"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.6017755, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.609397833, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.620361875, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.671096583, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.684035375, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.758167041, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.762793875, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.794921875, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.801714208, "method": "GET", "path": "/api/v1/aggregations/1/effective-retention-rule"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.866056333, "method": "GET", "path": "/api/v1/aggregations/1/effective-retention-rule"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.869044291, "method": "GET", "path": "/api/v1/aggregations/1/retention-rule"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.888095291, "method": "GET", "path": "/api/v1/aggregations/1/retention-rule"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.892900458, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.912369875, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276495.924366375, "method": "GET", "path": "/api/v1/relationships/aggregation/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276495.953517791, "method": "GET", "path": "/api/v1/relationships/aggregation/1"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276498.757225541, "pending": 0, "callers": ["run", "run", "run", "run", "asyncio_run", "run", "wait_for_result", "guarded_page_navigation"]}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276498.757777, "pending": 0, "callers": ["run", "wait_for_result", "guarded_page_navigation", "select_entity", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276498.766613791, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276498.770707208, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276498.807937791, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276498.810523416, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276498.818017125, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276498.838402833, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276498.841387833, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276498.856649291, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.607092375, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.6289375, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.629321583, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.6433335, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276500.755394708, "pending": 0, "callers": ["run", "wait_for_result", "open_result", "open_aggregation", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.760235625, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.781191083, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.78513825, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.789191083, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.792064916, "method": "GET", "path": "/api/v1/aggregations/2/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.797313833, "method": "GET", "path": "/api/v1/aggregations/2/effective-holds"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.864458583, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.903460125, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.90372525, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.907436375, "method": "GET", "path": "/api/v1/aggregations/2/effective-holds"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.921606833, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.925548541, "method": "GET", "path": "/api/v1/aggregations/2/capabilities"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.928406, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.946346375, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.948937875, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.963540333, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276500.974109166, "method": "GET", "path": "/api/v1/aggregations/2/effective-retention-rule"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276500.998669291, "method": "GET", "path": "/api/v1/aggregations/2/effective-retention-rule"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.001148375, "method": "GET", "path": "/api/v1/aggregations/2/retention-rule"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.018927333, "method": "GET", "path": "/api/v1/aggregations/2/retention-rule"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.021324916, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.037793166, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.046730625, "method": "GET", "path": "/api/v1/relationships/aggregation/2"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.062815541, "method": "GET", "path": "/api/v1/relationships/aggregation/2"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.686595916, "method": "POST", "path": "/api/v1/record-drafts"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.709630041, "method": "POST", "path": "/api/v1/record-drafts"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.71000075, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.715577666, "method": "GET", "path": "/api/v1/creation-role-options"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.738159125, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.747212125, "method": "GET", "path": "/api/v1/creation-role-options"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.750709125, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.76493925, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.772211583, "method": "GET", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276501.775039333, "method": "GET", "path": "/api/v1/security-levels/page"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.808180708, "method": "GET", "path": "/api/v1/security-levels/page"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276501.816112, "method": "GET", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276509.816705375, "method": "PATCH", "path": "/api/v1/record-drafts/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276509.892269166, "method": "PATCH", "path": "/api/v1/record-drafts/1"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276509.9204615, "method": "GET", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276509.958529333, "method": "GET", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276509.966652, "method": "POST", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276510.012123875, "method": "POST", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276510.014630166, "method": "GET", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276510.028957458, "method": "GET", "path": "/api/v1/record-drafts/1/components"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276519.547132125, "method": "GET", "path": "/api/v1/record-drafts/1/components/1/rendition"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276519.586474583, "method": "GET", "path": "/api/v1/record-drafts/1/components/1/rendition"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276522.599485083, "method": "DELETE", "path": "/api/v1/record-drafts/1"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276522.624336375, "method": "DELETE", "path": "/api/v1/record-drafts/1"}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276523.19434275, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "wait_for_result", "open_from_drawer", "guarded_page_navigation"]}
+{"client": 4411905552, "event": "cancel-reads", "monotonic": 4276523.196095958, "pending": 0, "callers": ["wait_for_result", "open_from_drawer", "guarded_page_navigation", "open", "enter_application_settings", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276523.20333875, "method": "GET", "path": "/api/v1/application-settings"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276526.29552825, "method": "GET", "path": "/api/v1/application-settings"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276526.830296791, "method": "GET", "path": "/api/v1/auth/me"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276526.877042166, "method": "GET", "path": "/api/v1/auth/me"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276527.378113291, "method": "GET", "path": "/api/v1/preferences"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276527.391077041, "method": "GET", "path": "/api/v1/preferences"}
+{"client": 4411905552, "event": "request-start", "monotonic": 4276528.233517833, "method": "PUT", "path": "/api/v1/preferences"}
+{"client": 4411905552, "event": "request-finish", "monotonic": 4276528.251652833, "method": "PUT", "path": "/api/v1/preferences"}
+{"client": 4416306576, "event": "cancel-reads", "monotonic": 4276528.54037975, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "_invoke_callback", "initialize_authenticated_ui", "set_session_token"]}
+{"client": 4416306576, "event": "request-start", "monotonic": 4276528.552390416, "method": "GET", "path": "/api/v1/auth/me"}
+{"client": 4416306576, "event": "request-finish", "monotonic": 4276528.597112458, "method": "GET", "path": "/api/v1/auth/me"}
+{"client": 4416306576, "event": "request-start", "monotonic": 4276528.600374625, "method": "GET", "path": "/api/v1/i18n/bootstrap"}
+{"client": 4416306576, "event": "request-finish", "monotonic": 4276528.613146708, "method": "GET", "path": "/api/v1/i18n/bootstrap"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276528.995519666, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "_invoke_callback", "initialize_authenticated_ui", "set_session_token"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276528.99608375, "method": "GET", "path": "/api/v1/auth/me"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276529.0287095, "method": "GET", "path": "/api/v1/auth/me"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276529.033120208, "method": "GET", "path": "/api/v1/i18n/bootstrap"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276529.046744166, "method": "GET", "path": "/api/v1/i18n/bootstrap"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276529.05222, "pending": 0, "callers": ["initialize_authenticated_ui", "restore_navigation_entry", "restore", "open", "enter_application_settings", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276529.056157041, "method": "GET", "path": "/api/v1/application-settings"}
+{"client": 4417978896, "event": "cancel-reads", "monotonic": 4276529.059670541, "pending": 0, "callers": ["run", "run", "run", "run", "asyncio_run", "run", "start_message_stream", "set_session_token"]}
+{"client": 4417978896, "event": "request-start", "monotonic": 4276529.09057225, "method": "GET", "path": "/api/v1/messages/catch-up"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276529.097159625, "method": "GET", "path": "/api/v1/application-settings"}
+{"client": 4417978896, "event": "request-finish", "monotonic": 4276529.202747833, "method": "GET", "path": "/api/v1/messages/catch-up"}
+{"client": 4417978896, "event": "request-start", "monotonic": 4276529.22057275, "method": "GET", "path": "/api/v1/messages/unread-count"}
+{"client": 4417978896, "event": "request-finish", "monotonic": 4276529.23780925, "method": "GET", "path": "/api/v1/messages/unread-count"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276529.445475083, "pending": 0, "callers": ["run", "run", "run", "run", "asyncio_run", "run", "wait_for_result", "guarded_page_navigation"]}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276529.448891916, "pending": 0, "callers": ["run", "wait_for_result", "guarded_page_navigation", "select_entity", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276529.45702175, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276529.461180791, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276529.485086125, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276529.491988125, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276531.035673208, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276531.058560041, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276531.058856, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276531.092233916, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276531.099484375, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276531.114146625, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276531.114738583, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276531.146247083, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276531.15019825, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276531.17097, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4405481424, "event": "cancel-reads", "monotonic": 4276531.298128708, "pending": 0, "callers": ["run", "run", "run", "asyncio_run", "run", "delete_content", "safe_invoke", "stop_message_stream"]}
+{"client": 4411905552, "event": "close", "monotonic": 4276531.299817916}
+{"client": 4405481424, "event": "close", "monotonic": 4276531.302347666}
+{"client": 4416306576, "event": "close", "monotonic": 4276531.74937925}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276533.700774875, "pending": 0, "callers": ["wait_for_result", "open_result", "show_record_details", "select_record_details", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.703095416, "method": "GET", "path": "/api/v1/records/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.728933333, "method": "GET", "path": "/api/v1/records/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.73583925, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.766919583, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.773355916, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.796349291, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.804166416, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.80992575, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.816501291, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.822237625, "method": "GET", "path": "/api/v1/records/1/effective-holds"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.865659166, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.869177875, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.872622458, "method": "GET", "path": "/api/v1/records/1/effective-holds"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.900271875, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.902880333, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.913727291, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276533.917546583, "pending": 0, "callers": ["wait_for_result", "open_result", "show_record_details", "select_record_details", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.925966916, "method": "GET", "path": "/api/v1/relationships/record/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.954346833, "method": "GET", "path": "/api/v1/relationships/record/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.955209083, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276533.958044583, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.979870625, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276533.989234333, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276534.00015975, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276534.017261458, "method": "POST", "path": "/api/v1/digital-components/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276537.347057166, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276537.391272791, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276537.391653708, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276537.468767208, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276537.469611125, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276537.512176875, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276537.534767791, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276537.592151875, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276537.622304708, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276537.694773083, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.212495375, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.246583208, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276541.253619833, "pending": 0, "callers": ["run", "wait_for_result", "open_containing_aggregation", "open_aggregation", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.26236425, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.294351416, "method": "GET", "path": "/api/v1/aggregations/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.317068291, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.3300935, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.335996041, "method": "GET", "path": "/api/v1/aggregations/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.340436958, "method": "GET", "path": "/api/v1/aggregations/1/effective-holds"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.345062125, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.388139666, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.41237, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.432654541, "method": "GET", "path": "/api/v1/aggregations/1/capabilities"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.438029416, "method": "GET", "path": "/api/v1/aggregations/1/effective-holds"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.444156791, "method": "GET", "path": "/api/v1/aggregations/1/effective-closure"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.448460125, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.477643625, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.4849295, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.51850475, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.525249333, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.572112125, "method": "GET", "path": "/api/v1/records/1/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.578210625, "method": "GET", "path": "/api/v1/aggregations/1/effective-retention-rule"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.611602916, "method": "GET", "path": "/api/v1/aggregations/1/effective-retention-rule"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.616953333, "method": "GET", "path": "/api/v1/aggregations/1/retention-rule"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.639074333, "method": "GET", "path": "/api/v1/aggregations/1/retention-rule"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.663945708, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.682848291, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276541.691061041, "method": "GET", "path": "/api/v1/relationships/aggregation/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276541.719859458, "method": "GET", "path": "/api/v1/relationships/aggregation/1"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276544.512832791, "pending": 0, "callers": ["run", "run", "run", "run", "asyncio_run", "run", "wait_for_result", "guarded_page_navigation"]}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276544.514785916, "pending": 0, "callers": ["run", "wait_for_result", "guarded_page_navigation", "select_entity", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276544.529692291, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276544.535120375, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276544.559612041, "method": "GET", "path": "/api/v1/favourites"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276544.571972291, "method": "GET", "path": "/api/v1/auth/me/recent-activity"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276544.575269666, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276544.601503333, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276544.604062708, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276544.621214583, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276546.619408583, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276546.643095791, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276546.643471541, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276546.66676475, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4419873040, "event": "cancel-reads", "monotonic": 4276546.782715166, "pending": 0, "callers": ["run", "wait_for_result", "open_result", "open_aggregation", "<lambda>", "register_navigation", "<lambda>", "prepare_navigation"]}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276546.789096166, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.189646166, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.196180416, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.202208708, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.214760666, "method": "GET", "path": "/api/v1/aggregations/2/capabilities"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.220691333, "method": "GET", "path": "/api/v1/aggregations/2/effective-holds"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.227987583, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.520157166, "method": "GET", "path": "/api/v1/org-units/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.523756375, "method": "GET", "path": "/api/v1/security-levels/1"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.55197275, "method": "GET", "path": "/api/v1/aggregations/2/capabilities"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.569804875, "method": "GET", "path": "/api/v1/aggregations/2/effective-holds"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.59332875, "method": "GET", "path": "/api/v1/aggregations/2/effective-closure"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.614802708, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.651507916, "method": "POST", "path": "/api/v1/aggregations/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.748936458, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.766957666, "method": "POST", "path": "/api/v1/records/search"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.770244583, "method": "GET", "path": "/api/v1/aggregations/2/effective-retention-rule"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.789679458, "method": "GET", "path": "/api/v1/aggregations/2/effective-retention-rule"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.811407166, "method": "GET", "path": "/api/v1/aggregations/2/retention-rule"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.825894958, "method": "GET", "path": "/api/v1/aggregations/2/retention-rule"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.830545166, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.841325333, "method": "GET", "path": "/api/v1/classifications/1/path"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276547.852075666, "method": "GET", "path": "/api/v1/relationships/aggregation/2"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276547.871122875, "method": "GET", "path": "/api/v1/relationships/aggregation/2"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276548.696098708, "method": "POST", "path": "/api/v1/record-drafts"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276548.712440166, "method": "POST", "path": "/api/v1/record-drafts"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276548.718934541, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276548.724071833, "method": "GET", "path": "/api/v1/creation-role-options"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276548.748431541, "method": "GET", "path": "/api/v1/security-levels"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276548.757643333, "method": "GET", "path": "/api/v1/creation-role-options"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276548.773416458, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276548.790826041, "method": "GET", "path": "/api/v1/aggregations/2"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276548.799918, "method": "GET", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276548.803410833, "method": "GET", "path": "/api/v1/security-levels/page"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276548.838124666, "method": "GET", "path": "/api/v1/security-levels/page"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276548.848383291, "method": "GET", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276556.95724025, "method": "PATCH", "path": "/api/v1/record-drafts/2"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276556.990811291, "method": "PATCH", "path": "/api/v1/record-drafts/2"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276557.305660291, "method": "GET", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276557.328365, "method": "GET", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276557.329004208, "method": "POST", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276557.362083416, "method": "POST", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276557.3647185, "method": "GET", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276557.385040958, "method": "GET", "path": "/api/v1/record-drafts/2/components"}
+{"client": 4405480912, "event": "close", "monotonic": 4276561.695612541}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276567.1948935, "method": "GET", "path": "/api/v1/record-drafts/2/components/2/rendition"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276567.23374825, "method": "GET", "path": "/api/v1/record-drafts/2/components/2/rendition"}
+{"client": 4419873040, "event": "request-start", "monotonic": 4276570.228145791, "method": "DELETE", "path": "/api/v1/record-drafts/2"}
+{"client": 4419873040, "event": "request-finish", "monotonic": 4276570.244499375, "method": "DELETE", "path": "/api/v1/record-drafts/2"}
