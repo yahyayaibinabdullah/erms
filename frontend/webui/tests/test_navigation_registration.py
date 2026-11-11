@@ -21,6 +21,7 @@ def host():
          'breadcrumb_message_keys': {'records': 'navigation.item.records'},
          'append_navigation_entry': append_navigation_entry, 'persist_navigation_trail': calls.persist,
          'render_navigation_breadcrumbs': calls.render, 'calls': calls}
+    h['global_search_state'] = h['state']
     exec(compile(ast.Module(body=[node], type_ignores=[]), '<host presentation>', 'exec'), h)
     from frontend.webui.navigation_controller import NavigationController
     h['controller'] = NavigationController(

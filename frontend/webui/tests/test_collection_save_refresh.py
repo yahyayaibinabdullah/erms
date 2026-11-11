@@ -14,7 +14,7 @@ from frontend.webui.entities import ENTITIES
 from frontend.webui.tests.shared_controls_fixture import collection_loader
 from frontend.webui.i18n_catalogue import render_message, strip_diagnostic_metadata
 
-TREE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+TREE = ast.parse((Path(__file__).parents[1] / 'entity_editor.py').read_text())
 EDITOR = next(n for n in ast.walk(TREE) if isinstance(n, ast.AsyncFunctionDef) and n.name == 'open_editor')
 SAVE = next(n for n in ast.walk(EDITOR) if isinstance(n, ast.AsyncFunctionDef) and n.name == 'save')
 
@@ -46,7 +46,7 @@ def test_save_requeries_the_selected_bounded_page(action, sort, query, offset, a
             return dict(items=deepcopy(ordered[offset:offset+25]), total=len(ordered))
         async def decorate(spec, data):return data
         rendered = []
-        scope = dict(Any=Any, Callable=Callable, ApiError=ApiError, ENTITIES=ENTITIES, state=state,
+        scope = dict(Any=Any, Callable=Callable, ApiError=ApiError, ENTITIES=ENTITIES, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value),
                      spec=ENTITIES['roles'], row=deepcopy(row), controls={}, creating=action=='create',
                      translation_only=action=='translation', on_saved=None, editor_entity='role',
                      prepare_entity_translation_update=(lambda: ('ar', {'name': name}, 'Correct name')) if action=='translation' else None,
@@ -82,7 +82,7 @@ def test_save_finished_after_navigation_keeps_the_new_page():
             # The user navigates while the save request is in flight.
             state.update(resource='org-units',rows=destination_rows)
             return {'id':2,'name':'New role','version':1}
-        scope = dict(ApiError=ApiError, state=state, spec=ENTITIES['roles'],
+        scope = dict(ApiError=ApiError, state=state, current_resource=lambda: state["resource"], set_searched=lambda value: state.__setitem__("searched", value), spec=ENTITIES['roles'],
                      creating=True, translation_only=False, on_saved=None,
                      prepare_entity_translation_update=None, controls={},
                      form_payload=lambda *a, **k:{'name':'New role'},

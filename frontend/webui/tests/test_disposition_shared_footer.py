@@ -3,16 +3,24 @@ import asyncio
 from copy import deepcopy
 import inspect
 import pytest
-from nicegui import ui,core
+from nicegui import ui,core,background_tasks
+from unittest.mock import patch
 from frontend.webui.api_client import ApiError
 from frontend.webui.disposition.messages import text
 from frontend.webui.tests.test_disposition_tasks import host,Api,form,view
 
 
 async def click(button):
-    result=next(iter(button._event_listeners.values())).handler(None)
+    # NiceGUI dispatch returns None and schedules its async callback. Await that
+    # callback itself: a fixed sleep can assert while Save is still busy.
+    scheduled=[]
+    create=background_tasks.create
+    def record(coroutine,**kwargs):
+        task=create(coroutine,**kwargs);scheduled.append(task);return task
+    with patch('nicegui.events.background_tasks.create',side_effect=record):
+        result=next(iter(button._event_listeners.values())).handler(None)
     if inspect.isawaitable(result):await result
-    await asyncio.sleep(.02)
+    if scheduled:await asyncio.wait_for(asyncio.gather(*scheduled),3)
 
 
 @pytest.mark.asyncio
@@ -36,9 +44,15 @@ async def test_review_comments_count_and_disclosure_are_local(host,monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_comment_save_failure_visible_in_footer_and_retry_uses_same_id(host,monkeypatch):
+@pytest.mark.parametrize('refresh_delay',[0,.05])
+async def test_comment_save_failure_visible_in_footer_and_retry_uses_same_id(host,monkeypatch,refresh_delay):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
     f,api,_=await form(host);f.comments.value='Keep this work'
+    original_page=api.disposition_page
+    async def delayed_page(*args,**kwargs):
+        await asyncio.sleep(refresh_delay)
+        return await original_page(*args,**kwargs)
+    api.disposition_page=delayed_page
     with host:
         f.draft_controls.show_review()
         dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
@@ -46,7 +60,10 @@ async def test_comment_save_failure_visible_in_footer_and_retry_uses_same_id(hos
         api.error=ApiError(409,{'code':'disposition_stale_task'});await click(save)
         assert dialog.value and f.draft_controls.feedback.text==f.feedback.text and f.feedback.text
         api.error=None;await click(save)
-        assert not dialog.value and not f.draft_controls.save.enabled
+        assert not dialog.value and not f.draft_controls.save.enabled, {
+            'busy':f.busy,'alive':f.alive(),'actions':f.actions,'feedback':f.feedback.text,
+            'writes':len(api.writes),'dirty':f.dirty(),'dialog_open':dialog.value,
+            'save_enabled':f.draft_controls.save.enabled}
         assert api.writes[0][1]['command_id']==api.writes[1][1]['command_id']
         assert all(w[1]['changes']==[] for w in api.writes)
 

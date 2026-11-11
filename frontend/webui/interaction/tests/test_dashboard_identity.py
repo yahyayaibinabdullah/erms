@@ -13,10 +13,18 @@ from nicegui import Client, ui
 from frontend.webui import app as webui
 from frontend.webui.i18n_catalogue import clear_active_messages, set_active_messages
 
-SOURCE = ast.parse((Path(__file__).parents[2] / 'app.py').read_text())
+SOURCE = ast.parse((Path(__file__).parents[2] / 'dashboard.py').read_text())
 
 
 def load(name, scope):
+    state=scope['state']
+    scope.update(dashboard_state=state,
+        get_principal=lambda:scope.get('auth_state',{}).get('principal'),
+        require_principal=lambda:scope['auth_state']['principal'],
+        get_localization=lambda:state.get('localization'),
+        get_resource=lambda:state.get('resource'),
+        enter_dashboard=lambda:state.update(resource='dashboard'),
+        get_configuration=lambda:state['application_configuration'])
     node = next(n for n in ast.walk(SOURCE)
                 if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name==name)
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<dashboard-identity>','exec'),scope)
@@ -55,7 +63,7 @@ class DashboardFixture:
         self.api=SimpleNamespace(dashboard_summary=AsyncMock(side_effect=self.fetch))
         self.host=ui.column()
         self.personal=PersonalResourceState()
-        self.scope=dict(vars(webui),state=self.state,aggregation_state={},personal=self.personal,auth_state=self.auth,api=self.api,
+        self.scope=dict(vars(webui),state=self.state,collection_state={},aggregation_state={},personal=self.personal,auth_state=self.auth,api=self.api,
             page_client=SimpleNamespace(id=client.id,_deleted=False,has_socket_connection=True),
             table_container=self.host,title=SimpleNamespace(text=''),subtitle=SimpleNamespace(text=''),
             guidance=SimpleNamespace(text=''),register_navigation=Mock(),show_authenticated_view=Mock(),

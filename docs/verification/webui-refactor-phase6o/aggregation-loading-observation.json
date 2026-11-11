@@ -1,0 +1,205 @@
+{
+  "initial_failure": [
+    {
+      "test": "test_aggregation_child_metadata_location_vital_review_close_and_reopen",
+      "message": "TimeoutError"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/i18n/bootstrap",
+      "outcome": "ok",
+      "milliseconds": 38.24
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/dashboard/summary",
+      "outcome": "cancelled",
+      "milliseconds": 40.58
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/favourites",
+      "outcome": "ok",
+      "milliseconds": 158.57
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me/recent-activity",
+      "outcome": "ok",
+      "milliseconds": 162.12
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/messages/catch-up",
+      "outcome": "ok",
+      "milliseconds": 23.89
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/messages/unread-count",
+      "outcome": "ok",
+      "milliseconds": 6.55
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/aggregations/search",
+      "outcome": "ok",
+      "milliseconds": 39.68
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1/effective-closure",
+      "outcome": "ok",
+      "milliseconds": 41.05
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1",
+      "outcome": "ok",
+      "milliseconds": 22.95
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/org-units/1",
+      "outcome": "ok",
+      "milliseconds": 42.53
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/security-levels/1",
+      "outcome": "ok",
+      "milliseconds": 50.08
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1/effective-holds",
+      "outcome": "ok",
+      "milliseconds": 57.2
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1/effective-closure",
+      "outcome": "ok",
+      "milliseconds": 69.95
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1/capabilities",
+      "outcome": "ok",
+      "milliseconds": 72.47
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/aggregations/search",
+      "outcome": "ok",
+      "milliseconds": 11.12
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/records/search",
+      "outcome": "ok",
+      "milliseconds": 110.81
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/records/1/capabilities",
+      "outcome": "ok",
+      "milliseconds": 66.06
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1/effective-retention-rule",
+      "outcome": "ok",
+      "milliseconds": 20.29
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1/retention-rule",
+      "outcome": "ok",
+      "milliseconds": 9.92
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/classifications/1/path",
+      "outcome": "ok",
+      "milliseconds": 7.2
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/relationships/aggregation/1",
+      "outcome": "ok",
+      "milliseconds": 12.74
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/application-configuration",
+      "outcome": "ok",
+      "milliseconds": 16.28
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/creation-role-options",
+      "outcome": "ok",
+      "milliseconds": 16.95
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1",
+      "outcome": "ok",
+      "milliseconds": 14.65
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/security-levels",
+      "outcome": "ok",
+      "milliseconds": 9.5
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/security-levels/page",
+      "outcome": "ok",
+      "milliseconds": 22.79
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/aggregations",
+      "outcome": "ok",
+      "milliseconds": 91.74
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me/recent-activity",
+      "outcome": "ok",
+      "milliseconds": 9.25
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/2",
+      "outcome": "ok",
+      "milliseconds": 11.79
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/2/effective-closure",
+      "outcome": "ok",
+      "milliseconds": 10.18
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1",
+      "outcome": "cancelled",
+      "milliseconds": 126.34
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/aggregations/1",
+      "outcome": "cancelled",
+      "milliseconds": 1.72
+    }
+  ],
+  "investigation": "Child save succeeded. Two parent GET requests were cancelled and the test timed out waiting for the refreshed controls. No API failure or application exception was recorded. The exact cancellation trigger was not captured on that run.",
+  "source_evidence": "Phase 6O moves only Security Operations. Source reconstruction confirms all other 104 host functions and all pre-existing feature modules are unchanged. The timed-out test does not visit Security Operations.",
+  "follow_up": "Added test-only cancellation stack/count diagnostics. Pre-6O focused test passed; all 66 extracted assembled tests passed with the diagnostics. No application change or relaxed assertion. Retain this non-reproduced observation for Phase 7."
+}

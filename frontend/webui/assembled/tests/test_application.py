@@ -11,6 +11,7 @@ from pathlib import Path
 import re
 import shlex
 import time
+import traceback
 
 import pytest
 from nicegui import app, ui
@@ -71,6 +72,7 @@ async def assembled(user: User, monkeypatch, request):
     user.api_requests = requests
     user.api_failures = []
     user.pending_requests = 0
+    cancellations = []
     original = webui.ErmsApiClient
 
     def record_client(*args, **kwargs):
@@ -96,6 +98,15 @@ async def assembled(user: User, monkeypatch, request):
                 user.pending_requests -= 1
 
         client.request = observed
+        cancel_reads = client.cancel_pending_reads
+        def observed_cancellation():
+            cancellations.append({
+                'pending_reads': sum(not task.done() for task in client._inflight_reads.values()),
+                'stack': [{'file': Path(frame.filename).name, 'function': frame.name, 'line': frame.lineno}
+                          for frame in traceback.extract_stack(limit=10)[:-1]],
+            })
+            cancel_reads()
+        client.cancel_pending_reads = observed_cancellation
         clients.append(client)
         return client
 
@@ -148,7 +159,7 @@ async def assembled(user: User, monkeypatch, request):
         if xml_path:
             evidence = {'test': request.node.nodeid,
                         'milliseconds': round((time.monotonic() - started) * 1000, 2),
-                        'requests': requests}
+                        'requests': requests, 'cancellations': cancellations}
             with Path(xml_path).with_suffix('.requests.jsonl').open('a') as log:
                 log.write(json.dumps(evidence) + '\n')
 

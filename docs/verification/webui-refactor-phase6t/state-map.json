@@ -1,0 +1,25 @@
+{
+  "owners": [
+    {
+      "name": "disposition_state",
+      "description": "Per-client disposition saved view and current page ownership token.",
+      "keys": [
+        "disposition_view",
+        "disposition_page_token"
+      ]
+    }
+  ],
+  "initial": {
+    "disposition_state": {}
+  },
+  "updates": [
+    {
+      "original": "state.update(resource=page, disposition_page_token=token)",
+      "split": "state.update(resource=page); disposition_state.update(disposition_page_token=token)"
+    },
+    {
+      "original": "state.update(disposition_view={**dict(saved or {}), **({'task_id': task_id, 'job_id': identity} if task_id else {})})",
+      "split": "disposition_state.update(disposition_view={**dict(saved or {}), **({'task_id': task_id, 'job_id': identity} if task_id else {})})"
+    }
+  ]
+}

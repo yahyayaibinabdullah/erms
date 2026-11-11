@@ -1,0 +1,18 @@
+{
+  "owners": [
+    {
+      "name": "dashboard_state",
+      "description": "Per-client dashboard snapshot, identity/language cache key and refresh ownership.",
+      "keys": [
+        "dashboard_session_revision",
+        "dashboard_summary_cache",
+        "dashboard_summary_cache_key",
+        "dashboard_view_token"
+      ]
+    }
+  ],
+  "initial": {
+    "dashboard_state": {}
+  },
+  "updates": []
+}

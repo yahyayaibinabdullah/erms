@@ -13,7 +13,7 @@ from frontend.webui.interaction.tests import test_messaging_workspace as fixture
 
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
-TREE = ast.parse((Path(__file__).parents[2] / 'app.py').read_text())
+TREE = ast.parse((Path(__file__).parents[2] / 'record_capture.py').read_text())
 
 async def setup(user, outcome='success', active=None):
     ready=asyncio.Event()
@@ -105,7 +105,8 @@ async def test_dialog_opens_before_even_the_capture_manifest_returns(user):
         auth_state={'principal':principal},principal=principal,
         state={'messaging_workspace_token':'token'},token='token',mailbox='inbox',
         select_messages=AsyncMock(),open_record_draft_editor=editor)
-    node=next(n for n in ast.walk(TREE) if isinstance(n,ast.AsyncFunctionDef) and n.name=='capture_message')
+    scope.update(get_principal=lambda:scope['auth_state'].get('principal'),messaging_state=scope['state'])
+    node=next(n for n in ast.walk(ast.parse((Path(__file__).parents[2] / 'messaging_controller.py').read_text())) if isinstance(n,ast.AsyncFunctionDef) and n.name=='capture_message')
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<capture>','exec'),scope)
     @ui.page('/')
     def page():

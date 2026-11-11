@@ -15,7 +15,7 @@ from frontend.webui.i18n_catalogue import render_message, strip_diagnostic_metad
 
 
 def save_scope(*, creating=False, values=None, rule=None, translation=None, failure=None):
-    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
+    tree=ast.parse((Path(__file__).parents[1]/'entity_editor.py').read_text())
     editor=next(n for n in ast.walk(tree) if isinstance(n,ast.AsyncFunctionDef) and n.name=='open_editor')
     save=next(n for n in ast.walk(editor) if isinstance(n,ast.AsyncFunctionDef) and n.name=='save')
     row={'id':7,'version':3,'classification_scheme_id':2,'title':'Original'}

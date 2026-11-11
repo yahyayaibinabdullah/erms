@@ -1,3 +1,4 @@
+from frontend.webui.tests.record_sources import record_sources
 import hashlib
 from frontend.webui.tests.organization_sources import organization_sources
 import json
@@ -9,7 +10,7 @@ from frontend.webui.entities import ENTITIES
 from frontend.webui.i18n_catalogue import load_english_manifest
 
 ROOT = Path(__file__).resolve().parents[3]
-APP = (ROOT / "frontend/webui/app.py").read_text() + organization_sources()
+APP = (ROOT / "frontend/webui/app.py").read_text() + organization_sources() + record_sources()
 ACL = (ROOT / "frontend/webui/access_control_dialogs.py").read_text()
 EXPLANATION = (ROOT / "frontend/webui/access_explanation_dialog.py").read_text()
 

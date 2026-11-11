@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pytest
 from nicegui import Client, ui
 
-SOURCE = Path(__file__).parents[2] / 'app.py'
+SOURCE = Path(__file__).parents[2] / 'record_capture.py'
 TREE = ast.parse(SOURCE.read_text())
 
 

@@ -1,0 +1,34 @@
+{
+  "function": "select_security_operations",
+  "lines": 369,
+  "closure": [
+    "register_navigation",
+    "show_authenticated_view",
+    "state",
+    "collection_state",
+    "title",
+    "subtitle",
+    "search_bar",
+    "aggregation_mode_bar",
+    "add_button",
+    "add_record_button",
+    "guidance",
+    "table_container",
+    "auth_state",
+    "select_record_details",
+    "select_user_details",
+    "select_classification_workspace",
+    "select_organization_unit_details",
+    "api",
+    "page_client",
+    "select_role_details",
+    "open_aggregation"
+  ],
+  "state_access": [
+    "auth_state.get('principal')",
+    "collection_state.update(rows=[], searched=True)",
+    "state.get('resource')",
+    "state.update(resource='security-operations')"
+  ],
+  "feature_state": "Period and dates, visible event rows, page offset and controls are per workspace invocation; no root-owned feature cache."
+}

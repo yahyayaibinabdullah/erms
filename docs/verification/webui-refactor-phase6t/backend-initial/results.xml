@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="11" skipped="0" tests="277" time="1023.343" timestamp="2026-11-11T08:50:39.009840+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-standard-direct]" time="8.782" /><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-standard-inherited]" time="5.446" /><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-standard-none]" time="5.697" /><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-simplified-none]" time="4.201" /><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-records_manager_only-none]" time="4.703" /><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-direct]" time="5.592"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x105d77090&gt;
+route = 'standard', file_admin = 'direct', medium = 'digital'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-inherited]" time="6.920"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1067af690&gt;
+route = 'standard', file_admin = 'inherited', medium = 'digital'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-none]" time="5.171"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106b2d290&gt;
+route = 'standard', file_admin = 'none', medium = 'digital'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-simplified-none]" time="5.317"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10689cf50&gt;
+route = 'simplified', file_admin = 'none', medium = 'digital'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-records_manager_only-none]" time="5.488"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106ceaf10&gt;
+route = 'records_manager_only', file_admin = 'none', medium = 'digital'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-direct]" time="8.665"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106ce8910&gt;
+route = 'standard', file_admin = 'direct', medium = 'mixed'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-inherited]" time="5.070"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106e4cd90&gt;
+route = 'standard', file_admin = 'inherited', medium = 'mixed'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-none]" time="5.191"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106ae9190&gt;
+route = 'standard', file_admin = 'none', medium = 'mixed'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-simplified-none]" time="5.805"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106aa6b90&gt;
+route = 'simplified', file_admin = 'none', medium = 'mixed'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_integrated" name="test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-records_manager_only-none]" time="6.105"><failure message="AssertionError: assert 'active' == 'completed'&#10;  &#10;  - completed&#10;  + active">client = &lt;starlette.testclient.TestClient object at 0x106737550&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106c52050&gt;
+route = 'records_manager_only', file_admin = 'none', medium = 'mixed'
+
+    @pytest.mark.parametrize('route,file_admin', [
+        ('standard', 'direct'), ('standard', 'inherited'), ('standard', 'none'),
+        ('simplified', 'none'), ('records_manager_only', 'none'),
+    ])
+    @pytest.mark.parametrize('medium', ['physical', 'digital', 'mixed'])
+    def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(client, monkeypatch, route, file_admin, medium):
+        monkeypatch.setattr(fixtures, 'ready', lambda c: make_unit(c, medium))
+        with db() as c:
+            job, root, um, fa, mgr = seeded(c, route, fa=file_admin != 'none')
+            if file_admin == 'inherited':
+                # The owner inherits its File Administrator from its parent; its
+                # own Unit Manager remains the nearest designated reviewer.
+                parent = c.execute("INSERT INTO org_units(code,name) VALUES(%s,'Inherited review ancestor') RETURNING id", (uuid4().hex,)).fetchone()['id']
+                c.execute('UPDATE org_units SET parent_org_unit_id=%s,file_administrator_role_id=NULL WHERE id=1', (parent,))
+                ancestor_role = fixtures.role(c, 'ancestor-file-admin', owner=parent)
+                c.execute('UPDATE org_units SET file_administrator_role_id=%s WHERE id=%s', (ancestor_role, parent))
+            configure(c)
+            destination(c)
+            smtp(c)
+            acting = mgr if route == 'records_manager_only' else officer(c)
+            proposal = create(c, root, 'local_retention_override', {
+                'current_period_years': 6, 'intermediate_period_years': 0,
+                'final_disposition': 'destruction', 'instructions': None,
+            })
+            saved = save(c, job, acting=acting, changes=[proposal], review_notes='Partial draft', note_version=0, overall_reason='')
+            pid = saved['changes'][0]['id']
+            save(c, job, acting=acting, changes=[{
+                'action': 'revise', 'proposal_id': pid, 'expected_version': 1,
+                'target_version': version(c, root), 'proposed_values': proposal['proposed_values'],
+                'reason': 'Clarify the approved retention review',
+            }])
+            stage = task(c, job['id'])['workflow_stage']
+            # A later global route change must not rewrite this job's route.
+            fixtures.set_route(c, 'simplified' if route != 'simplified' else 'standard')
+            c.commit()
+        # New connection models navigation/restart: Save neither approves nor
+        # executes the proposal, and a partially written overall reason persists.
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['workflow_stage'] == stage
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 5
+            assert c.execute('SELECT proposal_state,version FROM disposition_review_proposals WHERE id=%s', (pid,)).fetchone() == {'proposal_state': 'active', 'version': 2}
+            if route != 'records_manager_only':
+                for cycle in range(2):
+                    reach_manager(c, job, route)
+                    decide(c, job, 'rejected', f'Internal correction {cycle + 1}')
+                    assert task(c, job['id'])['workflow_stage'] == 'officer_correction'
+            request_ids = []
+            for cycle in range(3):
+                reach_manager(c, job, route)
+                result = approve(c, job, mgr, **({'overall_reason': 'Review complete membership'} if route == 'records_manager_only' else {}))
+                generated = generate(c, job, mgr, result['round_id'])
+                request_ids.append(generated['request_document_id'])
+                if cycle &lt; 2:
+                    decision(c, job, outcome='rejected', notes=f'External correction {cycle + 1}', acting=acting)
+            assert len(set(request_ids)) == 3
+            assert c.execute('SELECT review_route FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['review_route'] == route
+            assert c.execute("SELECT count(*) n FROM disposition_review_proposals WHERE job_id=%s AND proposal_state='executed'", (job['id'],)).fetchone()['n'] &gt;= 1
+            assert c.execute('SELECT current_period_years FROM aggregation_retention_rules WHERE aggregation_id=%s', (root,)).fetchone()['current_period_years'] == 6
+            enqueue(c, job, request_ids[-1], acting)
+            c.commit()
+        sent = []
+        def transport(settings, message):
+            sent.append((settings['recipient'], list(message.iter_attachments())[0].get_payload(decode=True)))
+            return 'smtp_accepted', None, 250, 'INTEGRATED_FIXTURE'
+        assert email.process_one(db, transport=transport)
+        with db() as c:
+            actor(c)
+            decision(c, job, number='INTEGRATED/' + uuid4().hex[:9], acting=acting)
+            if medium != 'digital':
+                report(c, job, mgr)
+                claim(c, job)
+    
+                c.commit()
+                actor(c)
+                confirmation(c, job, mgr, ref='PHYSICAL/' + uuid4().hex[:10])
+                c.commit()
+                actor(c)
+            if medium != 'physical':
+                claim(c, job)
+    
+                request(c, job, mgr)
+        if medium != 'physical':
+            assert destruction.process_one(db)
+            assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+&gt;           assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'
+E           AssertionError: assert 'active' == 'completed'
+E             
+E             - completed
+E             + active
+
+backend/services/api/tests/test_disposition_integrated.py:131: AssertionError</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_capture_route_direct_preparation_and_saved_route_round[standard-unit_manager_review]" time="2.763" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_capture_route_direct_preparation_and_saved_route_round[simplified-records_manager_review]" time="2.894" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_nearest_configured_ancestor_and_source_unit_no_role_grant" time="3.664" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_explicit_unusable_file_admin_blocks_without_fallback[inactive]" time="8.118" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_explicit_unusable_file_admin_blocks_without_fallback[no_assignee]" time="5.803" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_explicit_unusable_file_admin_blocks_without_fallback[hidden]" time="5.269" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_task_only_reviewer_can_claim_but_cannot_create_or_terminate[file_administrator_review]" time="6.932" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_task_only_reviewer_can_claim_but_cannot_create_or_terminate[unit_manager_review]" time="4.458" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_release_reassign_role_loss_preserves_prior_claim_history" time="3.133" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_correction_resolves_saved_route_again_and_owner_locked_after_empty" time="5.075" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_manager_only_no_officer_or_review_queues_and_immutable_route" time="4.311" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_simultaneous_claims_have_one_winner_and_exact_retry" time="2.903" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_same_person_officer_and_manager_actions_require_independent_current_roles" time="3.487" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round[inactive_user]" time="2.301" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round[inactive_role]" time="5.870" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round[expired]" time="3.553" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round[profile_privilege]" time="3.169" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round[designation]" time="2.819" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_eligibility_loss_blocks_work_and_returns_queue_without_changing_round[clearance]" time="2.955" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_task_api_reason_version_current_auth_and_no_generic_completion" time="2.781" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_selector_follows_saved_job_route_after_global_policy_change" time="2.931" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_limited_reviewer_can_read_job_members_and_history_without_management" time="2.641" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_manager_only_combined_round_boundary_locks_owner_and_external_correction" time="2.359" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_authorized_management_can_return_and_retarget_obsolete_queue" time="2.298" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_shared_claims_across_separate_manager_roles_still_have_one_claimant" time="2.424" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_personal_inbox_moves_claimed_work_without_removing_job_management[file_administrator_review]" time="2.801" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_personal_inbox_moves_claimed_work_without_removing_job_management[unit_manager_review]" time="2.849" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_personal_inbox_moves_claimed_work_without_removing_job_management[records_manager_review]" time="2.716" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_personal_inbox_direct_assignments_and_server_totals" time="2.443" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_current_task_index_and_real_inbox_pagination_on_representative_history" time="3.229" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_unit_manager_requires_own_units_usable_designated_role_before_entering_stage[missing-False]" time="2.260" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_unit_manager_requires_own_units_usable_designated_role_before_entering_stage[missing-True]" time="2.052" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_unit_manager_requires_own_units_usable_designated_role_before_entering_stage[inactive-False]" time="2.293" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_unit_manager_requires_own_units_usable_designated_role_before_entering_stage[inactive-True]" time="2.121" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_unit_manager_requires_own_units_usable_designated_role_before_entering_stage[unassigned-False]" time="2.641" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_unit_manager_requires_own_units_usable_designated_role_before_entering_stage[unassigned-True]" time="2.169" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_shared_job_projection_keeps_all_common_job_types_and_scopes_preparer_flag[destruction]" time="2.225" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_shared_job_projection_keeps_all_common_job_types_and_scopes_preparer_flag[permanent_transfer]" time="2.214" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_shared_job_projection_keeps_all_common_job_types_and_scopes_preparer_flag[selective_transfer]" time="2.651" /><testcase classname="backend.services.api.tests.test_disposition_workflow" name="test_shared_job_projection_keeps_all_common_job_types_and_scopes_preparer_flag[local_archives]" time="2.862" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_all_types_save_atomically_without_resource_membership_or_stage_changes" time="7.629" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad0]" time="5.586" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad1]" time="3.604" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad2]" time="8.386" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad3]" time="5.279" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad4]" time="4.760" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad5]" time="3.334" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad6]" time="2.765" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_invalid_type_payload_rolls_back_the_complete_save[bad7]" time="2.674" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_all_proposal_reasons_and_submission_comments_optional" time="3.729" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_submit_saved_proposals_round_reason_claim_and_stage_decisions[standard]" time="2.937" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_submit_saved_proposals_round_reason_claim_and_stage_decisions[simplified]" time="3.776" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_successor_and_reviewers_revise_others_preserve_original_and_closed_history" time="9.098" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_marked_removal_blocks_approval_and_resubmission_until_actual_officer_removal" time="4.008" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_multiple_relationship_removal_proposals_save_atomically_and_defer_removal" time="2.433" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_blank_rejection_comments_rejected_even_with_marked_removal" time="3.283" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_proposal_and_workspace_names_use_saved_entity_translations[en-False]" time="3.484" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_proposal_and_workspace_names_use_saved_entity_translations[ar-True]" time="2.336" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_proposal_and_workspace_names_use_saved_entity_translations[ar-AE-True]" time="2.305" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_proposal_and_workspace_names_use_saved_entity_translations[fr-False]" time="2.487" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_submission_confirmation_names_actual_shared_queues[standard-True]" time="4.309" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_submission_confirmation_names_actual_shared_queues[standard-False]" time="5.014" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_submission_confirmation_names_actual_shared_queues[simplified-False]" time="5.904" /><testcase classname="backend.services.api.tests.test_disposition_review" name="test_hidden_related_resource_preserves_readable_proposal_target_before_claim" time="7.608" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_atomic_empty_approval_executes_vital_and_preserves_original_proposer[standard]" time="4.118" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_atomic_empty_approval_executes_vital_and_preserves_original_proposer[simplified]" time="3.878" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_atomic_empty_approval_executes_vital_and_preserves_original_proposer[records_manager_only]" time="5.699" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_governance_type_executes_as_one_plan_and_keeps_selected_holds" time="7.762" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_underlying_privilege_is_checked_before_any_resource_write[make_vital-aggregation.vital_status.change]" time="3.246" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_underlying_privilege_is_checked_before_any_resource_write[blocking_security-aggregation.security_level.change]" time="5.929" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_underlying_privilege_is_checked_before_any_resource_write[create_aggregation_relationship-relationships.link]" time="5.347" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_underlying_privilege_is_checked_before_any_resource_write[remove_aggregation_relationship-relationships.link]" time="6.263" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_underlying_privilege_is_checked_before_any_resource_write[remove_record_relationship-relationships.link]" time="3.664" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_every_underlying_privilege_is_checked_before_any_resource_write[local_retention_override-classifications.administer]" time="5.866" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_hold_visibility_does_not_grant_hold_management" time="6.132" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_cascading_old_links_reach_a_stable_result_and_record_causal_proposals" time="6.845" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_independent_existing_blockers_do_not_automatically_remove_units_on_approval[False]" time="3.793" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_independent_existing_blockers_do_not_automatically_remove_units_on_approval[True]" time="4.495" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_retention_override_removal_keeps_recalculated_full_unit_status[destruction-1]" time="4.409" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_retention_override_removal_keeps_recalculated_full_unit_status[retain_as_local_archives-5]" time="3.231" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_retention_override_removal_keeps_recalculated_full_unit_status[transfer_to_external_archive-3]" time="2.343" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_new_link_and_other_protection_cascade_together" time="3.170" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_whole_approval_rolls_back_after_a_late_resource_failure" time="3.189" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_approval_tokens_bind_every_current_member_and_complete_proposal_set[target]" time="3.587" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_approval_tokens_bind_every_current_member_and_complete_proposal_set[proposal]" time="2.382" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_conflicting_complete_set_is_rejected_without_silent_omission" time="2.397" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_different_manager_executes_with_own_identity_and_reason_fallback" time="3.614" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_missing_claim_inactive_assignment_and_wrong_role_cannot_approve" time="1.873" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_report_uses_frozen_execution_and_retry_does_not_reexecute" time="8.083" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_actual_http_commits_approval_even_when_report_fails_then_retry_stores_once" time="5.574" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_stale_or_hidden_relationships_fail_the_complete_plan_without_exposing_endpoints[external_version]" time="1.789" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_stale_or_hidden_relationships_fail_the_complete_plan_without_exposing_endpoints[missing_link]" time="1.932" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_stale_or_hidden_relationships_fail_the_complete_plan_without_exposing_endpoints[hidden_endpoint]" time="1.535" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_preview_checksums_are_identical_across_session_timezones" time="1.791" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_manager_only_empty_result_can_start_another_round_without_replaying_executed_work" time="1.638" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_unclaimed_new_external_link_removes_only_the_proposal_affected_unit" time="1.635" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_concurrent_approval_has_one_execution_and_the_stale_caller_cannot_repeat_it" time="2.086" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_manager_only_nonempty_approved_job_requires_a_new_open_task_for_membership_changes" time="1.841" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_manager_only_report_uses_actual_manager_duty_label" time="4.565" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_immutable_effects_approval_and_bounded_effect_projection" time="1.779" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_report_failure_audit_is_surfaced_if_it_cannot_be_written" time="1.384" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_committed_execution_report_can_be_retried_after_job_termination" time="5.776" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_symmetric_links_cannot_create_duplicate_or_create_remove_conflicts[False]" time="1.741" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_symmetric_links_cannot_create_duplicate_or_create_remove_conflicts[True]" time="2.131" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_combined_reason_and_removal_marks_block_approval_without_advancing[records_manager_only-Complete preparation-True-disposition_marked_removals_require_correction]" time="1.944" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_combined_reason_and_removal_marks_block_approval_without_advancing[simplified-None-True-disposition_marked_removals_require_rejection]" time="1.785" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_duplicate_vital_proposal_is_rejected_before_single_effect_approval" time="2.138" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_new_inactive_hold_does_not_make_an_independent_blocker_a_proposal_removal" time="1.735" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_current_review_comments_recorded_with_approval_without_rewriting_submission[standard]" time="2.036" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_current_review_comments_recorded_with_approval_without_rewriting_submission[simplified]" time="1.818" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_current_review_comments_recorded_with_approval_without_rewriting_submission[records_manager_only]" time="1.970" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_report_lists_reviewed_roots_even_after_proposal_removes_all_members" time="2.360" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_report_omits_unaffected_roots_but_keeps_cascading_removals" time="3.039" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_report_with_no_executed_proposals_has_no_affected_roots" time="2.111" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback[-standard]" time="2.055" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback[-simplified]" time="2.247" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback[-records_manager_only]" time="2.084" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback[ \n\t-standard]" time="2.119" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback[ \n\t-simplified]" time="2.172" /><testcase classname="backend.services.api.tests.test_disposition_approval" name="test_blank_comments_allow_approval_but_execution_has_explicit_audit_fallback[ \n\t-records_manager_only]" time="2.058" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_exact_approved_groups_round_and_direct_task[standard]" time="2.175" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_exact_approved_groups_round_and_direct_task[simplified]" time="2.475" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_exact_approved_groups_round_and_direct_task[records_manager_only]" time="3.141" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_received_approval_keeps_exact_number_and_governed_letter[A]" time="2.725" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_received_approval_keeps_exact_number_and_governed_letter[\u0631\u0642\u0645/\u0625\u062a\u0644\u0627\u0641 #\u0661]" time="3.094" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_received_approval_keeps_exact_number_and_governed_letter[  A/1  ]" time="3.209" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_received_approval_keeps_exact_number_and_governed_letter[12345678901234567890]" time="3.880" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_invalid_number_never_creates_evidence_or_consumes_task[]" time="9.938" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_invalid_number_never_creates_evidence_or_consumes_task[   ]" time="7.969" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_invalid_number_never_creates_evidence_or_consumes_task[123456789012345678901]" time="10.964" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_external_rejection_preserves_form_and_repeats_saved_route[standard]" time="6.617" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_external_rejection_preserves_form_and_repeats_saved_route[simplified]" time="4.753" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_external_rejection_preserves_form_and_repeats_saved_route[records_manager_only]" time="5.334" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_changed_approved_facts_block_approval_and_renew_complete_review" time="7.714" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_protective_blocker_preserves_approval_but_never_destroys_content" time="7.937" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_excludes_applied_removals_and_separates_local_sources" time="7.382" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_exact_external_retry_returns_one_letter_decision_number_and_correction_task" time="8.707" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_duplicate_number_after_termination_rolls_back_every_new_evidence_row" time="4.648" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_late_external_failure_rolls_back_letter_number_task_and_event" time="3.605" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_failure_does_not_create_document_or_task_and_retry_never_reexecutes" time="3.442" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_http_approval_generates_request_and_received_rejection_is_atomic_and_retryable" time="3.301" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_requires_current_actual_manager_and_decision_requires_assigned_preparer" time="2.126" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_generation_rechecks_post_render_fact_changes_and_rolls_back_document" time="2.817" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_large_request_groups_and_actual_pdf_paginate_without_losing_final_group" time="8.554" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_concurrent_received_decisions_have_one_winner_and_one_letter" time="2.161" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_history_redacts_notes_when_letter_becomes_hidden" time="2.230" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_current_approval_uses_semantic_facts_across_timezones" time="2.393" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_request_grouping_is_bounded_in_work_and_does_not_combine_different_local_rules" time="1.930" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_retained_request_does_not_regenerate_after_settings_or_template_changes" time="2.778" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_external_decisions_and_number_claims_are_immutable_outside_their_operation" time="3.185" /><testcase classname="backend.services.api.tests.test_disposition_external" name="test_received_decision_is_projected_read_only_after_task_completion" time="3.099" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_routes_all_hierarchy_and_report_versions_keep_snapshots" time="4.234" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_release_gate_missing_confirmation_and_exact_retry" time="4.197" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_physical_task_reassignment_leaves_managers_inbox_but_keeps_job_management" time="2.575" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_routing_uses_every_item_not_just_roots[digital-digital_destruction]" time="3.718" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_routing_uses_every_item_not_just_roots[physical-physical_destruction]" time="2.674" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_routing_uses_every_item_not_just_roots[mixed-physical_destruction]" time="2.669" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_routing_uses_every_item_not_just_roots[physical_descendant-physical_destruction]" time="2.617" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_routing_uses_every_item_not_just_roots[physical_record-physical_destruction]" time="3.163" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_prework_check_rechecks_blockers_even_on_retried_check[vital]" time="3.660" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_prework_check_rechecks_blockers_even_on_retried_check[aggregation_link]" time="4.113" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_prework_check_rechecks_blockers_even_on_retried_check[record_link]" time="3.333" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_confirmation_correction_preserves_original_and_later_failure_rolls_everything_back" time="6.086" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_duplicate_reference_is_global_and_does_not_save_second_evidence" time="5.537" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_concurrent_relationship_commit_is_seen_before_authorizing_work" time="3.566" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_location_change_during_render_rejects_stale_report_without_record" time="2.926" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_deep_hierarchy_counts_are_nonrecursive_and_nonoverlapping" time="2.324" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_every_eligible_manager_queue_receives_one_task_and_confirm_closes_siblings" time="3.865" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_report_and_certificate_use_different_current_governed_destinations" time="4.416" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_http_operational_release_and_missing_file_never_save_evidence" time="4.133" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_real_inherited_locations_and_report_totals_are_frozen" time="3.116" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_current_holds_and_security_block_before_offline_work[hold]" time="3.883" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_current_holds_and_security_block_before_offline_work[record_hold]" time="3.360" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_current_holds_and_security_block_before_offline_work[security]" time="2.949" /><testcase classname="backend.services.api.tests.test_disposition_physical" name="test_confirmation_requires_real_manager_and_own_claim" time="4.044" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_request_gate_confirmation_exact_retry_and_single_run" time="3.203" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_pending_digital_work_hides_conflicting_controls_and_failure_restores_them[queued]" time="3.699" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_pending_digital_work_hides_conflicting_controls_and_failure_restores_them[running]" time="3.530" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_manifest_has_proof_only_and_crashed_claim_requires_explicit_retry" time="2.395" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_destruction_tables_reject_ordinary_writes" time="1.836" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_real_storage_all_versions_ocr_indexes_and_evidence_isolation" time="1.896" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_owned_files_cleanup_ack_blocks_erasure_until_real_cleanup" time="2.589" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_complete_unit_real_erasure_minimal_retained_proof_and_pending_job" time="3.719" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_worker_failure_rolls_back_storage_and_hides_raw_error_then_retry" time="2.716" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_authority_loss_after_queue_preserves_content_and_safe_failure" time="2.843" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_current_hold_stops_before_irreversible_boundary_and_explicit_retry" time="4.196" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_partial_job_retry_skips_succeeded_unit_and_retains_same_job_links" time="4.804" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_terminal_rows_and_events_reject_mutation_outside_erasure" time="3.224" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_actual_process_death_before_commit_rolls_back_and_requires_retry" time="4.579" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_actual_scratch_owner_death_removes_real_bytes_before_cleanup_ack" time="3.717" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_retained_routes_require_disposition_or_audit_and_current_resource_access" time="4.050" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_worker_rechecks_new_relationship_after_request" time="2.430" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_progress_outcome_notifications_are_attributed_and_not_repeated" time="3.671" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_two_live_workers_cannot_claim_same_unit" time="3.950" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_native_rendition_owns_working_copy_until_response_finishes" time="3.489" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_scratch_recovery_does_not_delete_live_converter_children" time="1.582" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_current_vital_and_clearance_changes_block_execution[vital]" time="2.767" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_current_vital_and_clearance_changes_block_execution[security]" time="3.343" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_concurrent_hold_committed_while_worker_waits_is_visible[hold]" time="3.135" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_concurrent_hold_committed_while_worker_waits_is_visible[vital]" time="3.139" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_concurrent_hold_committed_while_worker_waits_is_visible[security]" time="2.517" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_concurrent_hold_committed_while_worker_waits_is_visible[relationship]" time="3.072" /><testcase classname="backend.services.api.tests.test_disposition_destruction" name="test_released_task_after_queue_requires_current_manager_claim" time="2.466" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_latest_root_order_ties_closed_child_wrong_classification_and_digital_certificate" time="1.724" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_missing_destination_warns_and_rechecks_without_substitution" time="1.488" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_correction_append_preserves_original_confirmation_and_retry_is_exact" time="2.121" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_changed_destination_warning_and_stale_preview_keeps_earlier_record" time="2.051" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_governed_record_component_link_history_and_outcome_rollback_together" time="1.979" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_generated_documents_cannot_be_corrected" time="2.289" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_only_assigned_officer_or_manager_role_can_correct_and_retries_recheck_assignment" time="1.793" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_staging_is_invisible_bounded_and_removed_after_failure" time="1.567" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_http_upload_correction_preview_download_and_reason_warning" time="2.525" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_current_authorization_hides_document_rows_and_destination_names" time="2.243" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_concurrent_closure_blocks_stale_save_and_rolls_back_governed_rows" time="2.254" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_concurrent_grouped_settings_change_never_mixes_scheme_and_destination" time="2.506" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_evidence_cannot_be_admitted_into_its_own_destroyed_unit" time="2.008" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_content_set_and_segment_mutations_cannot_remove_original_upload" time="2.270" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_manager_can_correct_in_later_task_and_previous_record_redacts_history" time="9.133" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_task_recipient_can_preview_without_management_but_cannot_correct[False]" time="2.242" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_task_recipient_can_preview_without_management_but_cannot_correct[True]" time="2.105"><failure message="psycopg.errors.RaiseException: disposition_unit_manager_required&#10;CONTEXT:  PL/pgSQL function disposition_private.require_progress(bigint) line 7 at RAISE&#10;SQL statement &quot;SELECT disposition_private.require_progress(job.id)&quot;&#10;PL/pgSQL function disposition_private.guard_workflow() line 89 at PERFORM">queued = True
+
+    @pytest.mark.parametrize('queued',[False,True])
+    def test_task_recipient_can_preview_without_management_but_cannot_correct(queued):
+        from backend.services.api.tests.test_disposition_foundation import make_task
+        with db() as c:
+            with c.transaction(force_rollback=True):
+                job,dest=fixture(c);old=seed_document(c,job)
+&gt;               make_task(c,job['id'],role=1 if queued else None,user=None if queued else 1)
+
+backend/services/api/tests/test_disposition_artifacts.py:342: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/services/api/tests/test_disposition_foundation.py:286: in make_task
+    return command(c,'review_submit' if role is not None else 'job_create',apply)['id']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/services/api/tests/test_disposition_foundation.py:34: in command
+    return execute_command(c, command_id=key or uuid4(), operation=operation,
+backend/services/api/disposition/commands.py:40: in execute_command
+    result = apply(connection)
+             ^^^^^^^^^^^^^^^^^
+backend/services/api/tests/test_disposition_foundation.py:281: in apply
+    c.execute("UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s AND task_state IN ('open','claimed')",(job,))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;psycopg.Connection [BAD] at 0x107313990&gt;
+query = "UPDATE disposition_tasks SET task_state='cancelled' WHERE job_id=%s AND task_state IN ('open','claimed')"
+params = (1,)
+
+    def execute(
+        self,
+        query: Query,
+        params: Params | None = None,
+        *,
+        prepare: bool | None = None,
+        binary: bool = False,
+    ) -&gt; Cursor[Row]:
+        """Execute a query and return a cursor to read its results."""
+        try:
+            cur = self.cursor()
+            if binary:
+                cur.format = BINARY
+    
+            if isinstance(query, Template):
+                if params is not None:
+                    raise TypeError(
+                        "'execute()' with string template query doesn't support parameters"
+                    )
+                return cur.execute(query, prepare=prepare)
+            else:
+                return cur.execute(query, params, prepare=prepare)
+        except e._NO_TRACEBACK as ex:
+&gt;           raise ex.with_traceback(None)
+E           psycopg.errors.RaiseException: disposition_unit_manager_required
+E           CONTEXT:  PL/pgSQL function disposition_private.require_progress(bigint) line 7 at RAISE
+E           SQL statement "SELECT disposition_private.require_progress(job.id)"
+E           PL/pgSQL function disposition_private.guard_workflow() line 89 at PERFORM
+
+backend/services/api/.venv/lib/python3.11/site-packages/psycopg/connection.py:300: RaiseException</failure></testcase><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_document_sorting_is_server_bounded_and_whitelisted" time="2.549" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_initial_artifact_retry_binds_bytes_type_and_provenance" time="1.651" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_report_destination_is_separate_and_certificate_requires_completion" time="2.790" /><testcase classname="backend.services.api.tests.test_disposition_artifacts" name="test_http_stale_job_version_returns_conflict_and_leaves_original_only" time="2.975" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_terminate_physical_preserves_scope_and_sets_full_unit_partial" time="2.818" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_individual_resolution_selected_status_then_matching_job[2]" time="3.450" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_individual_resolution_selected_status_then_matching_job[3]" time="2.786" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_individual_resolution_selected_status_then_matching_job[4]" time="3.059" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_individual_resolution_selected_status_then_matching_job[5]" time="2.943" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_mixed_termination_preserves_completed_partial_untouched_and_actual_executor" time="5.536" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_bulk_resolution_exact_retry_linked_events_excludes_final_and_eligible" time="2.989" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_late_bulk_failure_rolls_back_every_unit_and_event" time="3.494" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_stale_bulk_preview_confirmation_and_required_reason_are_atomic" time="2.998" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_recovered_new_job_skips_already_destroyed_physical_scope" time="2.532" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_post_physical_correction_requires_termination[reopen]" time="2.700" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_post_physical_correction_requires_termination[rule]" time="2.551" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_post_physical_correction_requires_termination[membership]" time="3.315" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_no_direct_partial_resolution_or_content_removal" time="2.951" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_current_hold_allows_safe_termination_resolution_but_blocks_readmission" time="3.268" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_bulk_hidden_scope_authorization_failure_has_no_effect" time="3.010" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_existing_completed_unit_keeps_exact_final_metadata_when_job_terminates" time="3.117" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_http_bulk_requires_preview_count_confirmation_reason_and_current_actor" time="2.696" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_concurrent_resolutions_have_one_winner" time="2.993" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_retained_content_cannot_be_deleted_and_historical_links_remain" time="3.355" /><testcase classname="backend.services.api.tests.test_disposition_recovery" name="test_recovery_event_hides_preserved_identifiers_when_descendant_is_hidden" time="2.891" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_saved_certificate_waits_for_explicit_final_task_completion" time="4.099" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_certificate_failure_retains_erasure_and_retry_saves_once" time="4.432" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_physical_only_completes_with_original_evidence" time="3.161" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_storage_or_completion_failure_is_atomic_after_erasure" time="3.832" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_missing_destination_and_current_authority_rechecked_after_render" time="3.571" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_two_workers_save_once_and_interrupted_claim_requires_retry" time="3.587" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_mixed_job_completes_all_units_with_one_certificate" time="4.163" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_real_certificate_pdf_has_final_facts_and_embedded_changa" time="6.852" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_completion_notification_is_current_authorized_and_deduplicated" time="4.075" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_concise_certificate_keeps_proof_without_repeating_approved_aggregation_listing" time="3.528" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_certificate_participants_follow_completed_route[standard-True-True]" time="5.510" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_certificate_participants_follow_completed_route[records_manager_only-False-False]" time="3.638" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_certificate_officer_unit_comes_from_completed_acting_role_not_job_owner" time="4.063" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_final_task_completion_without_download_or_email" time="5.171" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_final_task_rechecks_actor_and_stale_version" time="4.617" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_upgrade_reopens_only_jobs_with_outstanding_final_task" time="4.929" /><testcase classname="backend.services.api.tests.test_disposition_completion" name="test_certificate_preview_permission_is_distinct_from_download" time="5.322" /></testsuite></testsuites>

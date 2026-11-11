@@ -63,7 +63,7 @@ def main():
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -80,12 +80,12 @@ def main():
     output = (args.output or ROOT / '.runtime/webui-integration' / uuid4().hex).resolve()
     output.mkdir(parents=True, exist_ok=False)
     if args.browser:
-        sources = list((ROOT / 'frontend/webui').glob('*.py')) + [
+        sources = list((ROOT / 'frontend/webui').glob('*.py')) + list((ROOT / 'frontend/webui/disposition').glob('*.py')) + [
             ROOT / 'frontend/webui/i18n/messages.en.json',
             ROOT / 'frontend/webui/i18n/messages.ar.generated.json',
             *[ROOT / 'tools' / filename for filename in (
                 'run_webui_integration.py', 'check_webui_browser.py',
-                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_classification.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_aggregations.py', 'webui_browser_server.py',
+                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_classification.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_aggregations.py', 'webui_browser_records.py', 'webui_browser_security_operations.py', 'webui_browser_governance_custody.py', 'webui_browser_global_search.py', 'webui_browser_advanced_search.py', 'webui_browser_dashboard.py', 'webui_browser_disposition.py', 'webui_browser_messaging.py', 'seed_webui_disposition.py', 'webui_browser_server.py',
                 'seed_webui_regression.py')],
         ]
         (output / 'source-environment.json').write_text(json.dumps({
@@ -164,6 +164,8 @@ def main():
             if args.fixed_fixture:
                 seed_command = 'from tools.seed_webui_regression import seed; seed(browser=True)'
                 environment['DATABASE_DISPLAY_NAME'] = 'WebUI regression fixture'
+            if args.browser_scope == 'disposition':
+                seed_command += '; from tools.seed_webui_disposition import seed as seed_disposition; seed_disposition()'
             result['fixture'] = 'fixed-v1' if args.fixed_fixture else ('settings-preview' if args.preview else 'assembled-v1')
             seed = start('seed', [sys.executable, '-c', seed_command])
             if seed.wait(timeout=300):

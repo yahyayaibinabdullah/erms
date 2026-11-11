@@ -1,0 +1,102 @@
+{
+  "global_search_payload": {
+    "lines": 13,
+    "state_keys": [
+      "search_diagnostics_enabled"
+    ]
+  },
+  "render_safe_snippet": {
+    "lines": 26,
+    "state_keys": []
+  },
+  "copy_diagnostic_json": {
+    "lines": 7,
+    "state_keys": []
+  },
+  "render_search_diagnostics": {
+    "lines": 29,
+    "state_keys": [
+      "search_diagnostics_accepted",
+      "search_diagnostics_enabled",
+      "search_diagnostics_sent"
+    ]
+  },
+  "render_global_search_results": {
+    "lines": 124,
+    "state_keys": [
+      "global_search_cursor",
+      "global_search_error",
+      "global_search_expanded_results",
+      "global_search_filter",
+      "global_search_items",
+      "global_search_loading",
+      "global_search_page",
+      "global_search_page_size",
+      "global_search_pending",
+      "global_search_query",
+      "global_search_return_anchor",
+      "search_diagnostics_accepted",
+      "search_diagnostics_enabled",
+      "search_diagnostics_sent"
+    ]
+  },
+  "change_global_search_page": {
+    "lines": 23,
+    "state_keys": [
+      "global_search_cursor",
+      "global_search_filter",
+      "global_search_items",
+      "global_search_page",
+      "global_search_page_size",
+      "global_search_query"
+    ]
+  },
+  "remember_global_result": {
+    "lines": 2,
+    "state_keys": [
+      "global_search_return_anchor"
+    ]
+  },
+  "set_global_result_expansion": {
+    "lines": 4,
+    "state_keys": [
+      "global_search_expanded_results"
+    ]
+  },
+  "open_global_record_from_result": {
+    "lines": 3,
+    "state_keys": []
+  },
+  "open_global_aggregation_from_result": {
+    "lines": 3,
+    "state_keys": []
+  },
+  "open_global_record": {
+    "lines": 3,
+    "state_keys": []
+  },
+  "open_global_aggregation": {
+    "lines": 3,
+    "state_keys": []
+  },
+  "run_global_search": {
+    "lines": 87,
+    "state_keys": [
+      "global_search_cursor",
+      "global_search_error",
+      "global_search_items",
+      "global_search_loading",
+      "global_search_pending",
+      "global_search_revision",
+      "search_diagnostics_accepted",
+      "search_diagnostics_enabled",
+      "search_diagnostics_sent"
+    ]
+  },
+  "clear_global_search_session": {
+    "lines": 8,
+    "state_keys": [
+      "global_search_revision"
+    ]
+  }
+}

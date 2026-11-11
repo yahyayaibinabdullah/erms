@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-SOURCE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+SOURCE = ast.parse((Path(__file__).parents[1] / 'advanced_search.py').read_text())
 
 
 def callbacks(*names, **scope):

@@ -1,3 +1,5 @@
+from frontend.webui.tests.search_sources import search_sources
+from frontend.webui.tests.record_sources import record_sources
 import pytest
 from pathlib import Path
 from frontend.webui.tests.aggregation_sources import aggregation_sources
@@ -13,7 +15,7 @@ from frontend.webui.app import (
 
 
 APP_SOURCE = with_english_messages(
-    (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8") + aggregation_sources()
+    (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8") + aggregation_sources() + record_sources() + search_sources()
 )
 
 
@@ -107,10 +109,10 @@ def test_component_guidance_is_contextual_to_component_conditions():
 
 
 def test_advanced_search_restores_the_workspace_across_result_drill_down():
-    assert 'restored_workspace = state.get("advanced_search_workspace")' in APP_SOURCE
+    assert 'restored_workspace = advanced_search_state.get("advanced_search_workspace")' in APP_SOURCE
     assert 'workspace["last_result"] = copy.deepcopy(result)' in APP_SOURCE
-    assert 'state["advanced_search_workspace"] = copy.deepcopy(workspace)' in APP_SOURCE
-    assert APP_SOURCE.count('state.pop("discard_navigation_guard", None)') >= 4
+    assert 'advanced_search_state["advanced_search_workspace"] = copy.deepcopy(workspace)' in APP_SOURCE
+    assert APP_SOURCE.count('state.pop("discard_navigation_guard", None)') + APP_SOURCE.count("discard_navigation_guard()") >= 4
     assert 'render_results(workspace["last_result"])' in APP_SOURCE
     assert 'workspace["return_anchor"] = f"compact-result-records-{int(identifier)}"' in APP_SOURCE
     assert 'workspace["return_anchor"] = f"compact-result-aggregations-{int(identifier)}"' in APP_SOURCE

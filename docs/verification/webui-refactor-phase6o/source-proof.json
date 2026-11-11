@@ -1,0 +1,11 @@
+{
+  "moved_functions_reconstructed": [
+    "select_security_operations"
+  ],
+  "other_functions_reconstructed": 104,
+  "existing_runtime_changes": [
+    "frontend/webui/app.py"
+  ],
+  "ownership": "Period, request inputs and event pagination remain local to each workspace invocation; narrow principal/page callbacks preserve lifecycle checks.",
+  "catalogue_bytes_unchanged": true
+}

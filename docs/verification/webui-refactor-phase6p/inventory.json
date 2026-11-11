@@ -1,0 +1,33 @@
+{
+  "function": "select_governance_custody",
+  "lines": 424,
+  "closure": [
+    "auth_state",
+    "state",
+    "register_navigation",
+    "show_authenticated_view",
+    "collection_state",
+    "title",
+    "subtitle",
+    "search_bar",
+    "aggregation_mode_bar",
+    "add_button",
+    "add_record_button",
+    "guidance",
+    "table_container",
+    "api",
+    "select_governance_custody",
+    "application_settings_controller",
+    "select_role_details",
+    "select_user_details",
+    "select_entity"
+  ],
+  "state_access": [
+    "auth_state.get('principal')",
+    "collection_state.update(rows=[], searched=True)",
+    "state.get('custody_page_token')",
+    "state.get('resource')",
+    "state.update(resource='governance-custody', custody_page_token=token)"
+  ],
+  "feature_state": "custody_page_token has no readers or writers outside this function; move its owner into the per-client factory. Pagers remain local to each displayed report."
+}

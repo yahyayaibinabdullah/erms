@@ -1,0 +1,26 @@
+{
+  "moved_functions_reconstructed": [
+    "global_search_payload",
+    "render_safe_snippet",
+    "copy_diagnostic_json",
+    "render_search_diagnostics",
+    "render_global_search_results",
+    "change_global_search_page",
+    "remember_global_result",
+    "set_global_result_expansion",
+    "open_global_record_from_result",
+    "open_global_aggregation_from_result",
+    "open_global_record",
+    "open_global_aggregation",
+    "run_global_search",
+    "clear_global_search_session"
+  ],
+  "other_functions_reconstructed": 89,
+  "existing_runtime_changes": [
+    "frontend/webui/app.py"
+  ],
+  "state_owners": [
+    "global_search_state"
+  ],
+  "catalogue_bytes_unchanged": true
+}

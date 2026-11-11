@@ -1,3 +1,4 @@
+from frontend.webui.tests.record_sources import record_sources
 from frontend.webui.tests.account_sources import account_sources, account_function
 from datetime import date, datetime, timedelta, timezone
 import inspect
@@ -167,7 +168,7 @@ def test_explicit_timezone_formatting_covers_offsets_locale_and_calendar_dates()
 
 
 def test_authenticated_catalogue_uses_revision_scoped_session_cache():
-    source = (inspect.getsource(index) + account_sources())
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     assert 'previous.get("effective_language") == bootstrap["effective_language"]' in source
     assert 'previous.get("catalogue_revision") == bootstrap["catalogue_revision"]' in source
     assert 'messages = session_messages' in source
@@ -177,7 +178,7 @@ def test_authenticated_catalogue_uses_revision_scoped_session_cache():
 
 
 def test_catalogue_revision_refresh_does_not_force_a_full_page_reload():
-    source = (inspect.getsource(index) + account_sources())
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     rebuild = source[source.index("needs_rebuild = ("):source.index("return needs_rebuild")]
     assert "catalogue_revision" not in rebuild
     assert 'previous.get("effective_language", initial_language)' in rebuild
@@ -185,7 +186,7 @@ def test_catalogue_revision_refresh_does_not_force_a_full_page_reload():
 
 
 def test_dashboard_startup_defers_optional_assets_and_avoids_duplicate_favourites_call():
-    source = (inspect.getsource(index) + account_sources())
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     workspace_setup = account_function("prepare_authenticated_workspace")
     assert "background_tasks.create(load_authenticated_client_assets())" in workspace_setup
     initialization = account_function("initialize_authenticated_ui")
@@ -201,19 +202,16 @@ def test_dashboard_startup_defers_optional_assets_and_avoids_duplicate_favourite
 
 
 def test_dashboard_navigation_renders_cached_data_then_refreshes_in_background():
-    source = (inspect.getsource(index) + account_sources())
-    dashboard = source[
-        source.index("async def select_dashboard()"):
-        source.index("def enter_audit_trail(")
-    ]
-    assert 'state["dashboard_summary_cache"] = summary' in dashboard
+    from frontend.webui import dashboard as dashboard_module
+    dashboard = inspect.getsource(dashboard_module)
+    assert 'dashboard_state["dashboard_summary_cache"] = summary' in dashboard
     assert "await load_dashboard(summary_override=cached_summary)" in dashboard
     assert "background_tasks.create(load_dashboard(refresh_only=True))" in dashboard
     assert "on_click=lambda: load_dashboard(refresh_only=True)" in dashboard
 
 
 def test_entity_page_startup_parallelizes_requests_and_bounds_relationship_resolution():
-    source = (inspect.getsource(index) + account_sources())
+    source = ((inspect.getsource(index) + record_sources()) + account_sources())
     assert "await asyncio.gather(*startup_requests)" in source
     from frontend.webui import personal_resources, collection_hydration
     personal_source = inspect.getsource(personal_resources)
@@ -226,7 +224,7 @@ def test_entity_page_startup_parallelizes_requests_and_bounds_relationship_resol
 
 def test_navigation_and_translation_administration_route_visible_copy_through_catalogue():
     from frontend.webui import application_shell, translation_administration
-    source = (inspect.getsource(index) + account_sources()) + inspect.getsource(application_shell) + inspect.getsource(translation_administration)
+    source = ((inspect.getsource(index) + record_sources()) + account_sources()) + inspect.getsource(application_shell) + inspect.getsource(translation_administration)
     for key in (
         "navigation.section.records",
         "navigation.section.organization",

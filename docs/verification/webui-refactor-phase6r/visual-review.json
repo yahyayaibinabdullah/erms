@@ -1,0 +1,19 @@
+{
+  "chrome": {
+    "accepted": true,
+    "pairs": 14,
+    "exact": 13,
+    "exception": {
+      "file": "advanced-results-en.png",
+      "pixels": 10,
+      "max_channel_difference": 3,
+      "observed_cause": "Rounded control-border antialiasing. Eight pixels at the Direction selector left corners and two at the right edge of saved-search action buttons; geometry, text and content match."
+    }
+  },
+  "edge": {
+    "accepted": true,
+    "pairs": 14,
+    "exact": 14
+  },
+  "comparison": "All pixels below the animated 72px header; no content or CSS masks. Original/extracted full images were inspected; request and focus comparisons match."
+}

@@ -9,7 +9,7 @@ HOLDS_API = Path(__file__).parents[3] / "backend" / "services" / "api" / "holds.
 
 def hold_sources():
     return "\n".join(APP.with_name(name+".py").read_text() for name in
-        ("app", "hold_editor", "hold_resources", "holds", "hold_details", "hold_navigation", "holds_people", "aggregation_details"))
+        ("app", "hold_editor", "hold_resources", "holds", "hold_details", "hold_navigation", "holds_people", "aggregation_details", "record_details", "entity_editor"))
 
 
 def test_holds_workspace_and_navigation_are_wired():
@@ -48,7 +48,9 @@ def test_holds_workspace_and_navigation_are_wired():
     assert 'control._props["display-value"]' not in source
     assert '"hold-held-item-filter-primary w-full"' in source
     assert 'with ui.grid(columns=4).classes("w-full gap-3")' in source
-    assert 'with ui.row().classes("w-full items-center justify-end gap-2")' in source
+    # Scope this contract to the hold filter actions. The former whole-host
+    # search accidentally matched the unrelated custody pager's layout.
+    assert 'with ui.row().classes("detail-action-row w-full items-center justify-start gap-2")' in APP.with_name('hold_details.py').read_text()
     assert '"width:1280px;max-width:calc(100vw - 48px)"' in source
     assert 'update_held_item_selection(row: dict[str, Any], selected: bool)' in source
     assert 'update_candidate_selection(row: dict[str, Any], selected: bool)' in source

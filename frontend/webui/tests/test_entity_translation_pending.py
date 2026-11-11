@@ -30,7 +30,7 @@ def test_user_administration_includes_entity_translation_permission():
     assert can_edit_entity_translation('users', ['identity.users.administer'])
     assert not can_edit_entity_translation('users', ['localization.administer'])
     assert not can_edit_entity_translation('users', ['role.modify_metadata'])
-    tree=ast.parse((Path(__file__).parents[1]/'app.py').read_text())
+    tree=ast.parse((Path(__file__).parents[1]/'entity_editor.py').read_text())
     block=next(node for node in ast.walk(tree) if isinstance(node,ast.If)
                and 'translation_edit_allowed' in ast.unparse(node.test)
                and 'multilingual_fields' in ast.unparse(node.test))

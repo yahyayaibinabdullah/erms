@@ -10,7 +10,7 @@ from frontend.webui import app as webui
 from frontend.webui.i18n_catalogue import clear_active_messages, set_active_messages
 
 ROOT = Path(__file__).parents[2]
-RENDER = next(node for node in ast.walk(ast.parse((ROOT / 'app.py').read_text()))
+RENDER = next(node for node in ast.walk(ast.parse((ROOT / 'advanced_search.py').read_text()))
               if isinstance(node, ast.FunctionDef) and node.name == 'render_condition')
 
 
@@ -21,7 +21,7 @@ def render_condition(client, language, field, operator, value):
         set_active_messages(arabic if language == 'ar' else {})
         condition = dict(type='condition', kind='structured', field=field, operator=operator, value=value)
         scope = dict(vars(webui), workspace={'resource':'aggregations'},
-                     auth_state={'principal':{}}, relation_sources={},
+                     auth_state={'principal':{}}, get_principal=lambda: {}, relation_sources={},
                      render_builder=lambda: None, update_search_enabled=lambda: None)
         exec(compile(ast.Module(body=[RENDER], type_ignores=[]), '<retention-condition>', 'exec'), scope)
         scope['render_condition'](condition, [condition], 0)

@@ -1,6 +1,6 @@
 # WebUI architecture and migration specification
 
-**Status:** Phases 1–5 and 6A–6M complete for the approved local scope; stopped pending approval for 6N
+**Status:** Phases 1–6 complete for the approved local scope; Phases 7 and 8 await authorization
 **Date:** 10 November 2026
 
 ## 1 Purpose and scope
@@ -268,8 +268,10 @@ The original approval stop before 6F was superseded below.
 On 11 November 2026 the user authorized continuing through all remaining Phase 6
 sub-phases (6F–6U), retaining per-row acceptance and reporting. Individual
 approval stops were lifted by that instruction. The user's later instruction
-supersedes it: **complete 6M, then stop for explicit approval before continuing.**
-No product changes or Git mutations are authorized by either instruction.
+initially required stopping after 6M. The latest instruction authorizes **6N
+through 6U**, retaining all verification gates. No product changes or Git
+mutations are authorized. At completion of the whole WebUI refactor, remind the
+user of both pre-existing aggregation defects in the 6M report.
 
 6F–6M are complete for the approved local scope; see the individual reports for
 [login sessions](../docs/webui-refactor-phase6f-verification.md),
@@ -280,3 +282,10 @@ No product changes or Git mutations are authorized by either instruction.
 [legal holds](../docs/webui-refactor-phase6k-verification.md) and
 [digital components/preview](../docs/webui-refactor-phase6l-verification.md) and
 [aggregations](../docs/webui-refactor-phase6m-verification.md).
+
+All Phase 6 sub-phases, including 6N–6U, are complete for the approved local
+scope. The [overall report](../docs/webui-refactor-phase6-verification.md) links
+each individual gate. Phases 7 and 8 have not started. At the final WebUI handoff,
+deliver the user-requested prioritized list of all recorded pre-existing defects
+and abnormalities, using the [working register](../docs/webui-refactor-existing-observations.md).
+This reporting requirement does not authorize product fixes.

@@ -9,10 +9,18 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 from frontend.webui.api_client import ApiError
 
-SOURCE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+SOURCE = ast.parse((Path(__file__).parents[1] / 'dashboard.py').read_text())
 
 
 def load(name, scope):
+    state=scope['state']
+    scope.update(dashboard_state=state,
+        get_principal=lambda:scope.get('auth_state',{}).get('principal'),
+        require_principal=lambda:scope['auth_state']['principal'],
+        get_localization=lambda:state.get('localization'),
+        get_resource=lambda:state.get('resource'),
+        enter_dashboard=lambda:state.update(resource='dashboard'),
+        get_configuration=lambda:state['application_configuration'])
     node = next(n for n in ast.walk(SOURCE)
                 if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == name)
     exec(compile(ast.Module(body=[node], type_ignores=[]), '<dashboard-callback>', 'exec'), scope)
@@ -36,7 +44,7 @@ def test_dashboard_clear_invalidates_snapshot_and_session_even_for_same_account(
 def test_dashboard_key_is_identity_language_timezone_and_session_scoped(field,value):
     state = {'localization':{'effective_language':'en','working_timezone':'UTC'}}
     auth = {'principal':{'user':{'id':1}}}
-    key = load('dashboard_session_key', dict(state=state,auth_state=auth,Any=Any))
+    key = load('dashboard_session_key', dict(state=state,collection_state=state,auth_state=auth,Any=Any))
     before = key()
     if field == 'user': auth['principal']['user']['id'] = value
     elif field == 'revision': state['dashboard_session_revision'] = value
@@ -65,7 +73,7 @@ async def test_old_dashboard_response_cannot_repopulate_cache_or_update_another_
         await release.wait()
         if outcome == 'error': raise ApiError(503,'old request failed')
         return {'private':'user A'}
-    scope = dict(state=state,auth_state=auth,Any=Any,ApiError=ApiError,
+    scope = dict(state=state,collection_state=state,auth_state=auth,Any=Any,ApiError=ApiError,
                  dashboard_principal=principal,dashboard_view_token=token,
                  dashboard_content=host,page_client=client,
                  dashboard_load_state={'running':False},dashboard_refresh_controls={'button':button},

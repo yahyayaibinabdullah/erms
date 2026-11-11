@@ -1,0 +1,191 @@
+{
+  "initial_total": 277,
+  "initial_failures": 11,
+  "unchanged_cases_passed": 241,
+  "rerun_cases_passed": 36,
+  "all_original_cases_verified": true,
+  "current_contract": "specs/destruction-process.md final certificate task; canonical standard-route reviewer rules",
+  "replacement_evidence": [
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-standard-direct]",
+      "original_passed": true,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-standard-inherited]",
+      "original_passed": true,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-standard-none]",
+      "original_passed": true,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-simplified-none]",
+      "original_passed": true,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[physical-records_manager_only-none]",
+      "original_passed": true,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-direct]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-inherited]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-standard-none]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-simplified-none]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[digital-records_manager_only-none]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-direct]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-inherited]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-standard-none]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-simplified-none]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_integrated.test_complete_journey_repeated_corrections_saved_policy_and_final_evidence[mixed-records_manager_only-none]",
+      "original_passed": false,
+      "verified_by": "backend-integrated-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_latest_root_order_ties_closed_child_wrong_classification_and_digital_certificate",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_missing_destination_warns_and_rechecks_without_substitution",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_correction_append_preserves_original_confirmation_and_retry_is_exact",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_changed_destination_warning_and_stale_preview_keeps_earlier_record",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_governed_record_component_link_history_and_outcome_rollback_together",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_generated_documents_cannot_be_corrected",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_only_assigned_officer_or_manager_role_can_correct_and_retries_recheck_assignment",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_staging_is_invisible_bounded_and_removed_after_failure",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_http_upload_correction_preview_download_and_reason_warning",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_current_authorization_hides_document_rows_and_destination_names",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_concurrent_closure_blocks_stale_save_and_rolls_back_governed_rows",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_concurrent_grouped_settings_change_never_mixes_scheme_and_destination",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_evidence_cannot_be_admitted_into_its_own_destroyed_unit",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_content_set_and_segment_mutations_cannot_remove_original_upload",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_manager_can_correct_in_later_task_and_previous_record_redacts_history",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_task_recipient_can_preview_without_management_but_cannot_correct[False]",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_task_recipient_can_preview_without_management_but_cannot_correct[True]",
+      "original_passed": false,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_document_sorting_is_server_bounded_and_whitelisted",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_initial_artifact_retry_binds_bytes_type_and_provenance",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_report_destination_is_separate_and_certificate_requires_completion",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    },
+    {
+      "test": "backend.services.api.tests.test_disposition_artifacts.test_http_stale_job_version_returns_conflict_and_leaves_original_only",
+      "original_passed": true,
+      "verified_by": "backend-artifacts-current.xml"
+    }
+  ],
+  "application_api_or_schema_changes": false
+}

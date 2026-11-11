@@ -1,0 +1,49 @@
+[
+  {
+    "module": "security_operations",
+    "factory": "build_security_operations",
+    "functions": [
+      "select_security_operations"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "aggregation_mode_bar",
+      "api",
+      "enter_security_operations",
+      "format_timestamp",
+      "get_resource",
+      "guidance",
+      "localized_lifecycle_value",
+      "open_aggregation",
+      "page_client",
+      "principal",
+      "register_navigation",
+      "search_bar",
+      "select_classification_workspace",
+      "select_organization_unit_details",
+      "select_record_details",
+      "select_role_details",
+      "select_user_details",
+      "show_api_error",
+      "show_authenticated_view",
+      "subtitle",
+      "table_container",
+      "title"
+    ],
+    "replacements": [
+      [
+        "state.update(resource='security-operations'); collection_state.update(rows=[], searched=True)",
+        "enter_security_operations()"
+      ],
+      [
+        "auth_state.get(\"principal\")",
+        "principal()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ]
+    ]
+  }
+]

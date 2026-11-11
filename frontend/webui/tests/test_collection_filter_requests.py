@@ -25,7 +25,7 @@ def test_collection_filter_request_is_valid(resource, fields, query, results_onl
     api.search_request = AsyncMock(return_value={'items': [], 'total': 0})
     page = dict(query=query, sort='name', limit=25, offset=0, status='all', account_type='all')
     state = dict(resource=resource, collection_pages={resource: page})
-    scope = dict(ENTITIES=ENTITIES, state=state, api=api, Any=Any, Callable=Callable,
+    scope = dict(ENTITIES=ENTITIES, state=state, collection_state=state, api=api, Any=Any, Callable=Callable,
                  decorate_for_spec=AsyncMock(return_value=[]),
                  set_connection_status=Mock(), render_table=Mock())
     scope['load_rows'] = collection_loader(scope)
@@ -66,7 +66,7 @@ def test_collection_ignores_stale_and_abandoned_filter_responses():
         page = dict(query='e', sort='name', limit=25, offset=0, status='all')
         state = dict(resource='roles', collection_pages={'roles': page}, rows=[])
         callback = Mock()
-        scope = dict(ENTITIES=ENTITIES, state=state, api=api, Any=Any, Callable=Callable,
+        scope = dict(ENTITIES=ENTITIES, state=state, collection_state=state, api=api, Any=Any, Callable=Callable,
                      decorate_for_spec=decorate, set_connection_status=Mock(), render_table=Mock())
         scope['load_rows'] = collection_loader(scope)
         old = asyncio.create_task(scope['load_rows'](on_loaded=callback))
@@ -102,7 +102,7 @@ def test_clear_search_discards_pending_results_and_resets_result_controls(resour
         search_input = Mock(value='سجل')
         state = dict(resource=resource, searched=True, rows=[{'id': 1}],
                      entity_result_states={resource: {'filter': 'old', 'page': 3}})
-        scope = dict(ENTITIES=ENTITIES, state=state, api=Mock(search=search),
+        scope = dict(ENTITIES=ENTITIES, state=state, collection_state=state, api=Mock(search=search),
                      Any=Any, Callable=Callable, search_input=search_input,
                      decorate_for_spec=decorate, set_connection_status=Mock(),
                      render_table=Mock(), page_client=SimpleNamespace(_deleted=False))

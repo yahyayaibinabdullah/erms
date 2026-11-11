@@ -1,14 +1,10 @@
 # WebUI refactor: approved Phase 6 sequence
 
-**Status:** Sequence approved. [6A](webui-refactor-phase6a-verification.md),
-[6B](webui-refactor-phase6b-verification.md),
-[6C](webui-refactor-phase6c-verification.md) and
-[6D](webui-refactor-phase6d-verification.md) are complete for the approved local scope.
-[6E](webui-refactor-phase6e-verification.md) (Security configuration and access controls) is complete for the approved local scope.
-On 11 November 2026 the user authorized continuation through 6F–6U without
-individual approval stops. Every row still requires its own acceptance checks
-and verification report. [6F](webui-refactor-phase6f-verification.md) is complete; [6G](webui-refactor-phase6g-verification.md) is complete; [6H](webui-refactor-phase6h-verification.md) is complete; [6I](webui-refactor-phase6i-verification.md) is complete; [6J](webui-refactor-phase6j-verification.md) is complete; [6K](webui-refactor-phase6k-verification.md) is complete; [6L](webui-refactor-phase6l-verification.md) is complete; [6M](webui-refactor-phase6m-verification.md) is complete.
-**Current boundary: stop after 6M; 6N–6U await explicit user approval.**
+**Status:** All approved sub-phases **6A–6U are complete for the local scope**.
+The [overall verification report](webui-refactor-phase6-verification.md) links
+all 21 individual reports and their acceptance results. The latest authorization
+through 6N–6U has been fulfilled. Work remains local and uncommitted.
+**Stop before Phases 7 and 8 until the user instructs continuation.**
 
 ## Purpose and evidence
 
@@ -120,10 +116,9 @@ report cleanup. Chrome and Edge remain the local scope; Firefox, Safari and CI
 remain deferred. Synthetic email uses the established local MailDev arrangement.
 No persistent application database is a test target.
 
-The Phase 1 disposition-preview failure B2 is still recorded as unfixed in the
-Phase 2 report. Before 6T, verify and repair the test fixture as necessary to meet
-existing reviewer rules, then establish the lifecycle baseline. Do not weaken
-application validation or treat a broken fixture as passing coverage.
+The Phase 1 disposition-preview failure B2 was reproduced and its fixture repaired
+in 6T to meet existing reviewer rules. Lifecycle coverage passes without weakening
+application validation; the original failure remains recorded in its report.
 
 The non-reproduced Phase 5 Edge timeout remains an accepted observation with an
 unknown cause. Its acceptance is not permission to ignore future failures; retain
@@ -134,11 +129,9 @@ the diagnostic logging and investigate any recurrence.
 The user initially required approval before each sub-phase. On 11 November 2026
 the user authorized all remaining Phase 6 sub-phases and requested an individual
 verification report for each, followed by an overall summary. The user's latest
-instruction supersedes that continuation: **finish 6M, then stop and wait for
-explicit approval before proceeding to 6N or later.** Preliminary record/capture
-test preparation is parked in the ignored runtime directory; no 6N runtime
-extraction has been performed. Every acceptance gate and product/Git boundary
-still applies. The planning
+instruction authorizes resuming at **6N and continuing through 6U**. This
+supersedes the intervening stop after 6M. Every acceptance gate and product/Git
+boundary still applies. The planning
 review itself started no implementation or test sessions. Application Settings is
 already extracted and is regression-tested as a caller/destination, not migrated again.
 All inventoried feature families are assigned above, including dialogs and
@@ -149,3 +142,38 @@ No functionality, UI, UX, wording, translation, API, public URL or browser-histo
 change is authorized. Any discovered product defect requires separate approval.
 Keep work local and uncommitted on the user's existing branch. Phases 7 and 8
 remain application-wide verification and cleanup/final acceptance respectively.
+
+## Reminder at completion of the whole WebUI refactor
+
+At the user's request, the final WebUI refactoring handoff (after Phases 7 and 8,
+not merely Phase 6) must remind them about the two pre-existing defects recorded
+in the [6M report](webui-refactor-phase6m-verification.md): governed movement fails
+because `compatible_aggregations` is undefined, and an empty contained-record
+filter removes its own filter control until reload. These remain outside the
+refactor's product-change authorization.
+
+Phase 7 must revisit the non-reproduced aggregation refresh cancellation recorded
+in the [6O report](webui-refactor-phase6o-verification.md). Test-only cancellation
+diagnostics are retained; no product fix or relaxed acceptance check was made.
+
+The pre-existing bare-condition saved-query rendering observation in the
+[6R report](webui-refactor-phase6r-verification.md) is also retained for Phase 7
+review. Original and extracted behavior match; no product fix is authorized.
+
+Phase 6S is complete: [dashboard verification](webui-refactor-phase6s-verification.md).
+The original/extracted dashboard favourite-removal notification failure is
+recorded there for Phase 7 review; the successful removal and existing error are
+preserved. No product fix is included.
+
+At the end of the complete WebUI refactoring, the user also requires a prioritized
+list of every recorded pre-existing defect and abnormality. Consolidate findings
+from all phase reports, distinguish reproducible defects from unexplained or
+non-reproduced observations, link evidence, and recommend the next action for
+each. Include the two aggregation defects already requested as a reminder.
+This reporting requirement does not authorize product fixes during refactoring.
+
+Phase 6T is complete: [disposition verification](webui-refactor-phase6t-verification.md).
+The preview fixture B2 is repaired. Phase 6U reproduced the footer retry observation
+as a test helper race and corrected its fixed wait, with delayed-response evidence.
+No product change was made. [Phase 6U verification](webui-refactor-phase6u-verification.md)
+is complete; Phases 7 and 8 remain outside the current authorization.

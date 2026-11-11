@@ -126,6 +126,23 @@ def test_complete_journey_repeated_corrections_saved_policy_and_final_evidence(c
     if medium != 'physical':
         assert destruction.process_one(db)
         assert completion.process_one(db)
+        with db() as c:
+            actor(c)
+            # Current contract: storing or downloading the certificate keeps
+            # the job active; only the explicit final task completes it.
+            assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'active'
+            final_task = task(c, job['id'])
+            assert final_task['task_type'] == 'certificate_download' and final_task['task_state'] == 'claimed'
+            certificate = c.execute("SELECT id FROM disposition_job_documents WHERE job_id=%s AND document_type='digital_destruction_certificate'", (job['id'],)).fetchone()['id']
+        response = client.get(f"/api/v1/disposition/jobs/{job['id']}/documents/{certificate}/content")
+        assert response.status_code == 200
+        with db() as c:
+            actor(c)
+            assert task(c, job['id'])['task_state'] == 'claimed'
+            completion.complete_task(c, job_id=job['id'], task_id=final_task['id'], task_version=final_task['version'],
+                                     expected_version=job_version(c, job['id']), acting_role_id=mgr, command_id=uuid4())
+            # Sending the exact saved certificate is a separate optional action.
+            enqueue(c, job, certificate, mgr)
     with db() as c:
         actor(c)
         assert c.execute('SELECT lifecycle_state FROM disposition_jobs WHERE id=%s', (job['id'],)).fetchone()['lifecycle_state'] == 'completed'

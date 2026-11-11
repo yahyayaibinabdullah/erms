@@ -1,0 +1,59 @@
+[
+  {
+    "module": "governance_custody",
+    "factory": "build_governance_custody",
+    "functions": [
+      "select_governance_custody"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "aggregation_mode_bar",
+      "api",
+      "can_open_settings",
+      "clear_collection",
+      "enter_governance_custody",
+      "error_message",
+      "format_timestamp",
+      "get_principal",
+      "get_resource",
+      "guidance",
+      "open_settings",
+      "register_navigation",
+      "search_bar",
+      "select_entity",
+      "select_role_details",
+      "select_user_details",
+      "show_authenticated_view",
+      "subtitle",
+      "table_container",
+      "title"
+    ],
+    "replacements": [
+      [
+        "state.update(resource='governance-custody', custody_page_token=token); collection_state.update(rows=[], searched=True)",
+        "enter_governance_custody(); custody_state['custody_page_token'] = token; clear_collection()"
+      ],
+      [
+        "auth_state.get(\"principal\")",
+        "get_principal()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ],
+      [
+        "state.get(\"custody_page_token\")",
+        "custody_state.get(\"custody_page_token\")"
+      ],
+      [
+        "application_settings_controller.can_open()",
+        "can_open_settings()"
+      ],
+      [
+        "application_settings_controller.open_from_custody",
+        "open_settings"
+      ]
+    ]
+  }
+]

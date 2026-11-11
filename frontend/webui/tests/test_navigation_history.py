@@ -39,7 +39,7 @@ def test_return_to_tree_does_not_replay_an_earlier_search():
         select_entity = AsyncMock()
         load_rows = AsyncMock()
         namespace = {
-            "Any": object, "state": state, "aggregation_state": aggregation_state,
+            "Any": object, "state": state, "collection_state": state, "aggregation_state": aggregation_state,
             "ENTITIES": {"aggregations": SimpleNamespace(search_first=True)},
             "select_entity": select_entity, "load_rows": load_rows,
             "search_input": SimpleNamespace(value=""),

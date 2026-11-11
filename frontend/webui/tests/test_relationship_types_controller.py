@@ -27,7 +27,7 @@ def host(monkeypatch):
         assert state['resource'] == 'relationship-types'
         assert state['rows'] == [] and state['searched'] and aggregation_state['aggregation_detail'] is None
         h.calls.append('register')
-    ns = dict(auth_state=identity, state=state, aggregation_state=aggregation_state, can_navigate=can_navigate,
+    ns = dict(auth_state=identity, state=state, collection_state=state, aggregation_state=aggregation_state, can_navigate=can_navigate,
               register_navigation=register, localized_navigation={'relationship-types': 'Relationship types'},
               show_authenticated_view=lambda: h.calls.append('show'),
               title=SimpleNamespace(text='old'), subtitle=SimpleNamespace(text='old'), guidance=SimpleNamespace(text='old'),

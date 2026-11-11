@@ -1,3 +1,5 @@
+from frontend.webui.tests.search_sources import search_sources
+from frontend.webui.tests.record_sources import record_sources
 from pathlib import Path
 from frontend.webui.tests.organization_sources import organization_sources
 from frontend.webui.tests.localization_assertions import with_english_messages
@@ -15,7 +17,7 @@ LOCAL_STACK = Path(__file__).parents[3] / "run-local-stack.sh"
 
 
 def test_global_search_header_results_and_safe_snippets_are_present():
-    source = with_english_messages(APP.read_text() + APP.with_name("application_shell.py").read_text() + APP.with_name("compact_resource_view.py").read_text())
+    source = with_english_messages((APP.read_text() + record_sources() + search_sources() + APP.with_name("global_search.py").read_text() + APP.with_name("global_search_state.py").read_text()) + APP.with_name("application_shell.py").read_text() + APP.with_name("compact_resource_view.py").read_text())
     assert 'placeholder="Search records, files and aggregations"' in source
     assert 'global_search_input.on("keydown.enter"' in source
     assert 'classes("erms-global-search-wrap no-wrap")' in source
@@ -54,13 +56,13 @@ def test_global_search_header_results_and_safe_snippets_are_present():
     assert 'global_search_expanded_results' in source
     assert 'initially_expanded=(' in source
     assert 'restore_compact_result_anchor(' in source
-    assert source.count('state.pop("discard_navigation_guard", None)') >= 7
+    assert source.count('state.pop("discard_navigation_guard", None)') + source.count("discard_navigation_guard()") >= 7
 
 
 def test_diagnostics_are_privileged_opt_in_transient_and_failure_aware():
-    source = with_english_messages(APP.read_text() + organization_sources() + indexer_sources())
+    source = with_english_messages((APP.read_text() + record_sources() + search_sources() + APP.with_name("global_search.py").read_text() + APP.with_name("global_search_state.py").read_text()) + organization_sources() + indexer_sources())
     assert '"search.query.debug" in set(' in source
-    assert '"search_diagnostics_enabled": False' in source
+    assert "'search_diagnostics_enabled': False" in source
     assert 'Diagnostics will apply to the next explicit search.' in source
     assert '"debug"] = True' in source
     assert 'Unavailable — the API did not accept or return this diagnostic request.' in source
@@ -68,7 +70,7 @@ def test_diagnostics_are_privileged_opt_in_transient_and_failure_aware():
 
 
 def test_service_credentials_are_service_only_and_one_time_reveal_is_transient():
-    source = with_english_messages(APP.read_text() + organization_sources() + indexer_sources())
+    source = with_english_messages((APP.read_text() + record_sources() + search_sources() + APP.with_name("global_search.py").read_text() + APP.with_name("global_search_state.py").read_text()) + organization_sources() + indexer_sources())
     assert 'if person.get("account_type") == "service"' in source
     assert 'ui.badge("Non-interactive"' in source
     assert 'ui.label("API credentials")' in source
@@ -79,7 +81,7 @@ def test_service_credentials_are_service_only_and_one_time_reveal_is_transient()
 
 
 def test_text_indexer_health_and_bounded_backfill_are_administered_in_the_ui():
-    source = with_english_messages(APP.read_text() + organization_sources() + indexer_sources())
+    source = with_english_messages((APP.read_text() + record_sources() + search_sources() + APP.with_name("global_search.py").read_text() + APP.with_name("global_search_state.py").read_text()) + organization_sources() + indexer_sources())
     client = CLIENT.read_text()
     assert 'api.text_indexers_health()' in source
     assert 'ui.label("Health")' in source
@@ -124,7 +126,7 @@ def test_local_stack_uses_a_unique_default_worker_identity_per_invocation():
 
 
 def test_builtin_roles_are_visible_read_only_and_link_to_text_indexers():
-    source = with_english_messages(APP.read_text() + organization_sources() + indexer_sources())
+    source = with_english_messages((APP.read_text() + record_sources() + search_sources() + APP.with_name("global_search.py").read_text() + APP.with_name("global_search_state.py").read_text()) + organization_sources() + indexer_sources())
     assert 'include_system=True if spec.key == "roles" else None' in APP.with_name("collection_controls.py").read_text()
     assert 'ui.badge("Built-in · read-only"' in source
     assert "Built-in roles are provisioned by the platform and cannot be edited" in source
@@ -142,7 +144,7 @@ def test_builtin_roles_are_visible_read_only_and_link_to_text_indexers():
 
 
 def test_text_indexer_credentials_are_server_paginated_with_retention_guidance():
-    source = with_english_messages(APP.read_text() + organization_sources() + indexer_sources())
+    source = with_english_messages((APP.read_text() + record_sources() + search_sources() + APP.with_name("global_search.py").read_text() + APP.with_name("global_search_state.py").read_text()) + organization_sources() + indexer_sources())
     client = CLIENT.read_text()
     assert "api.text_indexer_credentials" in source
     assert '"All credentials"' in source

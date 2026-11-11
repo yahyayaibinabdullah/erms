@@ -1,0 +1,153 @@
+{
+  "owners": [
+    {
+      "name": "record_state",
+      "keys": [
+        "record_detail_id",
+        "record_detail_return_resource",
+        "record_detail_return_aggregation"
+      ],
+      "description": "Per-client record detail identity and existing return context."
+    },
+    {
+      "name": "collection_state",
+      "keys": [
+        "rows",
+        "searched",
+        "lifecycle_filter",
+        "account_type_filter",
+        "entity_result_states",
+        "collection_pages"
+      ],
+      "description": "Shared per-client bounded collection results, filters, paging and result anchors."
+    }
+  ],
+  "initial": {
+    "record_state": {},
+    "collection_state": {
+      "rows": "[]",
+      "searched": "False",
+      "lifecycle_filter": "'all'",
+      "entity_result_states": "{}",
+      "collection_pages": "{}"
+    }
+  },
+  "updates": [
+    {
+      "original": "state.update(resource='dashboard', rows=[], searched=False)",
+      "split": "state.update(resource='dashboard'); collection_state.update(rows=[], searched=False)"
+    },
+    {
+      "original": "state.update(global_search_revision=state.get('global_search_revision', 0) + 1, global_search_query='', global_search_items=[], global_search_cursor=None, global_search_filter='all', global_search_page=1, global_search_return_anchor=None, global_search_expanded_results=set(), global_search_loading=False, global_search_error=None, global_search_pending=False, search_diagnostics_enabled=False, search_diagnostics_sent=None, search_diagnostics_accepted=None, search_diagnostics_error=None, entity_result_states={})",
+      "split": "state.update(global_search_revision=state.get('global_search_revision', 0) + 1, global_search_query='', global_search_items=[], global_search_cursor=None, global_search_filter='all', global_search_page=1, global_search_return_anchor=None, global_search_expanded_results=set(), global_search_loading=False, global_search_error=None, global_search_pending=False, search_diagnostics_enabled=False, search_diagnostics_sent=None, search_diagnostics_accepted=None, search_diagnostics_error=None); collection_state.update(entity_result_states={})"
+    },
+    {
+      "original": "state.update(resource='record-details', record_detail_id=record_id, rows=[], searched=True)",
+      "split": "state.update(resource='record-details'); record_state.update(record_detail_id=record_id); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='login-sessions', rows=[], searched=True)",
+      "split": "state.update(resource='login-sessions'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='dashboard', rows=[], searched=True)",
+      "split": "state.update(resource='dashboard'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='audit-trail', rows=[], searched=True)",
+      "split": "state.update(resource='audit-trail'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='org-unit-details', rows=[], searched=True)",
+      "split": "state.update(resource='org-unit-details'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='role-details', rows=[], searched=True)",
+      "split": "state.update(resource='role-details'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='user-details', rows=[], searched=True)",
+      "split": "state.update(resource='user-details'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='organization-browser', rows=[], searched=True)",
+      "split": "state.update(resource='organization-browser'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='governance-custody', custody_page_token=token, rows=[], searched=True)",
+      "split": "state.update(resource='governance-custody', custody_page_token=token); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='security-operations', rows=[], searched=True)",
+      "split": "state.update(resource='security-operations'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource=page_key, rows=[], searched=True)",
+      "split": "state.update(resource=page_key); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='advanced-search', rows=[], searched=False)",
+      "split": "state.update(resource='advanced-search'); collection_state.update(rows=[], searched=False)"
+    },
+    {
+      "original": "state.update(resource='application-settings', rows=[], searched=True)",
+      "split": "state.update(resource='application-settings'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource=page, disposition_page_token=token, rows=[], searched=True, disposition_view={**dict(saved or {}), **({'task_id': task_id, 'job_id': identity} if task_id else {})})",
+      "split": "state.update(resource=page, disposition_page_token=token); collection_state.update(rows=[], searched=True); state.update(disposition_view={**dict(saved or {}), **({'task_id': task_id, 'job_id': identity} if task_id else {})})"
+    },
+    {
+      "original": "state.update(resource='relationship-types', rows=[], searched=True)",
+      "split": "state.update(resource='relationship-types'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource=key, rows=[], searched=True)",
+      "split": "state.update(resource=key); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource=key, rows=[], searched=False, lifecycle_filter='all')",
+      "split": "state.update(resource=key); collection_state.update(rows=[], searched=False, lifecycle_filter='all')"
+    },
+    {
+      "original": "state.update(resource='classification-workspace', rows=[], searched=True)",
+      "split": "state.update(resource='classification-workspace'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='holds', rows=[], searched=True)",
+      "split": "state.update(resource='holds'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='hold-details', rows=[], searched=True)",
+      "split": "state.update(resource='hold-details'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='translations', rows=[], searched=True)",
+      "split": "state.update(resource='translations'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='text-indexers', rows=[], searched=True)",
+      "split": "state.update(resource='text-indexers'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(resource='text-indexer-details', rows=[], searched=True)",
+      "split": "state.update(resource='text-indexer-details'); collection_state.update(rows=[], searched=True)"
+    },
+    {
+      "original": "state.update(lifecycle_filter='all')",
+      "split": "collection_state.update(lifecycle_filter='all')"
+    },
+    {
+      "original": "state.update(lifecycle_filter='all')",
+      "split": "collection_state.update(lifecycle_filter='all')"
+    },
+    {
+      "original": "state.update(rows=rows)",
+      "split": "collection_state.update(rows=rows)"
+    },
+    {
+      "original": "state.update(rows=rows)",
+      "split": "collection_state.update(rows=rows)"
+    }
+  ]
+}

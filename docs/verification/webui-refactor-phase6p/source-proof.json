@@ -1,0 +1,11 @@
+{
+  "moved_functions_reconstructed": [
+    "select_governance_custody"
+  ],
+  "other_functions_reconstructed": 103,
+  "existing_runtime_changes": [
+    "frontend/webui/app.py"
+  ],
+  "ownership": "Custody refresh token is private to each per-client factory; report pagers remain private to each render. Narrow principal/page and Settings callbacks preserve lifecycle checks.",
+  "catalogue_bytes_unchanged": true
+}

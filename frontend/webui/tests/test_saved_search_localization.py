@@ -15,7 +15,7 @@ def test_saved_search_refresh_uses_owning_page_catalogue():
     root = Path(__file__).parents[1]
     arabic = {item['message_key']: item['translated_text'] for item in
               json.loads((root / 'i18n/messages.ar.generated.json').read_text())['items']}
-    function = next(node for node in ast.walk(ast.parse((root / 'app.py').read_text()))
+    function = next(node for node in ast.walk(ast.parse((root / 'advanced_search.py').read_text()))
                     if isinstance(node, ast.FunctionDef) and node.name == 'refresh_saved_actions')
     client = Client(ui.page('/saved-search-localization-test'), request=None)
     try:

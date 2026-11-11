@@ -515,6 +515,46 @@ with psycopg.connect(url) as c:
         self.driver.set_window_size(outer['width']+1440-width,outer['height']+1000-height)
         with self.check('real sign-in and Settings drawer caller'):
             self.login();self.settings()
+        if self.args.scope == 'messaging':
+            from tools.webui_browser_messaging import check_messaging
+            check_messaging(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'disposition':
+            from tools.webui_browser_disposition import check_disposition
+            check_disposition(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'dashboard':
+            from tools.webui_browser_dashboard import check_dashboard
+            check_dashboard(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'advanced-search':
+            from tools.webui_browser_advanced_search import check_advanced_search
+            check_advanced_search(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'global-search':
+            from tools.webui_browser_global_search import check_global_search
+            check_global_search(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'governance-custody':
+            from tools.webui_browser_governance_custody import check_governance_custody
+            check_governance_custody(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'security-operations':
+            from tools.webui_browser_security_operations import check_security_operations
+            check_security_operations(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'records':
+            from tools.webui_browser_records import check_records
+            check_records(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'aggregations':
             from tools.webui_browser_aggregations import check_aggregations
             check_aggregations(self)
@@ -645,7 +685,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

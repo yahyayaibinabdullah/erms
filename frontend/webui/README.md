@@ -402,4 +402,26 @@ recorded in [Phase 6L verification](../../docs/webui-refactor-phase6l-verificati
 Aggregation browsing, detail/actions, state, selection and editor hooks are owned
 by the `aggregation_*` modules. See
 [Phase 6M verification](../../docs/webui-refactor-phase6m-verification.md).
-The refactor stops after 6M pending the user's approval for 6N.
+
+
+Phase 6A–6U is complete for the local scope. See the
+[overall verification report](../../docs/webui-refactor-phase6-verification.md)
+for each feature's tests and evidence. Phases 7 and 8 await further authorization.
+
+The final feature owners are:
+
+- `record_*`, `collection_*`, `entity_editor.py` and `resource_*`: records, capture
+  and the remaining shared collection responsibilities (6N).
+- `security_operations.py` and `governance_custody.py`: operational workspaces (6O–6P).
+- `global_search*`, `advanced_search*`, `saved_search_audiences.py` and
+  `saved_search_administration.py`: search state and controllers (6Q–6R).
+- `dashboard.py` and `dashboard_state.py`: overview, refresh and per-client cache (6S).
+- `disposition/controller.py` and `disposition_state.py`: existing disposition
+  screens, saved views and navigation guards (6T).
+- `messaging_controller.py`, `message_stream.py`, `messaging_state.py` and
+  `message_live_state.py`: messaging destinations and live-client ownership (6U).
+
+The root supplies explicit callbacks between these owners. Existing renderer
+modules, URLs, browser history and UI behavior remain unchanged. The
+[working defect register](../../docs/webui-refactor-existing-observations.md)
+tracks preserved issues for the final refactoring handoff.

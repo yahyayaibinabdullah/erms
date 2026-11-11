@@ -1,0 +1,25 @@
+{
+  "moved_functions_reconstructed": [
+    "show_record_details",
+    "select_record_details",
+    "open_record_draft_editor",
+    "open_editor",
+    "decorate_for_spec",
+    "decorate_record_search_components",
+    "render_entity_compact_results",
+    "render_table",
+    "select_entity",
+    "relationship_cell",
+    "decorate_relationship_rows",
+    "record_draft_component_context"
+  ],
+  "editor_blocks_reconstructed": [
+    "configure_record_medium"
+  ],
+  "other_functions_reconstructed": 105,
+  "existing_runtime_changes": [
+    "frontend/webui/app.py"
+  ],
+  "state_change": "Record detail and shared bounded collection state have independent per-client owners; narrow callbacks preserve shared access order.",
+  "catalogue_and_inspector_bytes_unchanged": true
+}

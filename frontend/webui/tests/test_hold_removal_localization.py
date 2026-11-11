@@ -12,7 +12,7 @@ def test_record_and_aggregation_hold_removal_dialogs_use_arabic():
     root = Path(__file__).parents[1]
     arabic = {i['message_key']: i['translated_text'] for i in
               json.loads((root / 'i18n/messages.ar.generated.json').read_text())['items']}
-    tree = ast.parse((root / 'app.py').read_text() + '\n' + (root / 'aggregation_details.py').read_text())
+    tree = ast.parse((root / 'record_details.py').read_text() + '\n' + (root / 'aggregation_details.py').read_text())
     set_active_messages(arabic)
     try:
         for name in ('remove_record_from_all_holds', 'remove_aggregation_from_all_holds'):

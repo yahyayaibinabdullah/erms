@@ -28,6 +28,7 @@ pytestmark = pytest.mark.asyncio
 
 def application_audit_callback(namespace):
     namespace["aggregation_state"] = {}
+    namespace["collection_state"] = {}
     tree = ast.parse((Path(__file__).parents[2] / "app.py").read_text())
     navigation = NavigationController(
         stored=[], write_trail=Mock(), prepare=Mock(), snapshot=Mock(), label_key=Mock(),
@@ -49,7 +50,8 @@ def application_audit_callback(namespace):
         can_open_settings=lambda:False,open_settings=AsyncMock(),open_destination=AsyncMock(),
     )
     namespace['select_audit_trail']=workspace.select_audit_trail
-    monitor = next(n for n in ast.walk(tree) if isinstance(n, ast.Call)
+    controller = ast.parse((Path(__file__).parents[2] / "messaging_controller.py").read_text())
+    monitor = next(n for n in ast.walk(controller) if isinstance(n, ast.Call)
                    and isinstance(n.func, ast.Name) and n.func.id == "messaging_monitor")
     callback = next(k.value for k in monitor.keywords if k.arg == "open_audit")
     return eval(compile(ast.Expression(callback), "app.py", "eval"), namespace)

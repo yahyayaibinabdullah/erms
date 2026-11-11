@@ -1,0 +1,222 @@
+[
+  {
+    "function": "show_record_details",
+    "lines": 3,
+    "closure": [
+      "select_record_details"
+    ],
+    "state_access": []
+  },
+  {
+    "function": "select_record_details",
+    "lines": 437,
+    "closure": [
+      "auth_state",
+      "state",
+      "register_navigation",
+      "aggregation_state",
+      "show_authenticated_view",
+      "search_bar",
+      "aggregation_mode_bar",
+      "add_button",
+      "add_record_button",
+      "guidance",
+      "table_container",
+      "api",
+      "decorate_for_spec",
+      "title",
+      "subtitle",
+      "favourite_button",
+      "current_direction",
+      "open_related_resource",
+      "bind_remote_relationship_select",
+      "browse_advanced_aggregation",
+      "show_components",
+      "open_aggregation",
+      "hold_reason_dialog",
+      "show_acl_editor",
+      "show_governed_move",
+      "load_recent",
+      "select_record_details",
+      "preview_record_components",
+      "add_resource_to_hold_dialog",
+      "show_security_level_change",
+      "select_entity",
+      "breadcrumb_back",
+      "open_editor",
+      "show_access_explanation",
+      "show_effective_holds_dialog",
+      "show_entity_history"
+    ],
+    "state_access": [
+      "auth_state.get('principal')",
+      "state.get('relationship_page_token')",
+      "state.get('resource')",
+      "state.update(resource='record-details', record_detail_id=record_id, rows=[], searched=True)",
+      "state['record_detail_return_aggregation']",
+      "state['record_detail_return_resource']",
+      "state['relationship_page_token']"
+    ]
+  },
+  {
+    "function": "open_record_draft_editor",
+    "lines": 504,
+    "closure": [
+      "api",
+      "bind_remote_relationship_select",
+      "add_number_suggestion",
+      "bind_resource_security_select",
+      "preview_record_components",
+      "show_number_conflict",
+      "browse_advanced_aggregation",
+      "render_table",
+      "load_recent",
+      "state"
+    ],
+    "state_access": [
+      "state['searched']"
+    ]
+  },
+  {
+    "function": "open_editor",
+    "lines": 422,
+    "closure": [
+      "state",
+      "api",
+      "auth_state",
+      "open_record_draft_editor",
+      "accept_application_configuration",
+      "bind_remote_relationship_select",
+      "add_number_suggestion",
+      "bind_resource_security_select",
+      "show_organization_structure",
+      "browse_classification_tree",
+      "load_recent",
+      "load_rows",
+      "show_number_conflict",
+      "search_input",
+      "render_table"
+    ],
+    "state_access": [
+      "auth_state.get('principal')",
+      "state.get('localization')",
+      "state['resource']",
+      "state['searched']"
+    ]
+  },
+  {
+    "function": "decorate_for_spec",
+    "lines": 56,
+    "closure": [
+      "row_hydrators"
+    ],
+    "state_access": []
+  },
+  {
+    "function": "decorate_record_search_components",
+    "lines": 23,
+    "closure": [
+      "api"
+    ],
+    "state_access": []
+  },
+  {
+    "function": "render_entity_compact_results",
+    "lines": 98,
+    "closure": [
+      "state",
+      "open_aggregation",
+      "render_compact_resource_result",
+      "restore_compact_result_anchor",
+      "show_record_details"
+    ],
+    "state_access": [
+      "state.setdefault('entity_result_states', {})",
+      "state['rows']"
+    ]
+  },
+  {
+    "function": "render_table",
+    "lines": 362,
+    "closure": [
+      "table_container",
+      "guidance",
+      "state",
+      "subtitle",
+      "render_resource_personal_sections",
+      "render_recent_section",
+      "render_entity_compact_results",
+      "render_administration_cards",
+      "favourite_state",
+      "select_organization_unit_details",
+      "select_role_details",
+      "api",
+      "current_session_revoked",
+      "decorate_for_spec",
+      "render_table",
+      "open_aggregation",
+      "load_recent",
+      "show_reopen_aggregation",
+      "auth_state",
+      "load_rows",
+      "select_user_details",
+      "open_editor",
+      "show_record_details",
+      "show_memberships",
+      "show_entity_history",
+      "show_profile_privilege_editor",
+      "toggle_favourite",
+      "reload_favourites",
+      "show_components"
+    ],
+    "state_access": [
+      "auth_state['principal']",
+      "state.get('account_type_filter', 'all')",
+      "state.get('lifecycle_filter', 'all')",
+      "state.update(lifecycle_filter='all')",
+      "state.update(rows=rows)",
+      "state['account_type_filter']",
+      "state['lifecycle_filter']",
+      "state['rows']",
+      "state['searched']"
+    ]
+  },
+  {
+    "function": "select_entity",
+    "lines": 86,
+    "closure": [
+      "register_navigation",
+      "show_authenticated_view",
+      "state",
+      "aggregation_state",
+      "title",
+      "subtitle",
+      "aggregation_mode_bar",
+      "search_bar",
+      "guidance",
+      "auth_state",
+      "add_button",
+      "add_record_button",
+      "search_input",
+      "personal",
+      "render_table",
+      "load_rows",
+      "reload_favourites",
+      "load_recent",
+      "select_aggregation_browser",
+      "set_connection_status",
+      "render_resource_personal_sections"
+    ],
+    "state_access": [
+      "auth_state.get('principal')",
+      "state.get('resource')",
+      "state.update(resource=key, rows=[], searched=False, lifecycle_filter='all')"
+    ]
+  },
+  {
+    "function": "record_draft_component_context",
+    "lines": 9,
+    "closure": [],
+    "state_access": []
+  }
+]

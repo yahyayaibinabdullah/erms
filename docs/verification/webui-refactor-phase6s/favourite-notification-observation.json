@@ -1,0 +1,28 @@
+{
+  "original_and_extracted_match": true,
+  "mutation_succeeds": true,
+  "notification_fails": true,
+  "runtime_fix_included": false,
+  "runs": {
+    "before-chrome-v3": {
+      "function": "remove_dashboard_favourite",
+      "error": "RuntimeError: The parent element this slot belongs to has been deleted.",
+      "count": 2
+    },
+    "before-edge-v3": {
+      "function": "remove_dashboard_favourite",
+      "error": "RuntimeError: The parent element this slot belongs to has been deleted.",
+      "count": 2
+    },
+    "after-chrome": {
+      "function": "remove_dashboard_favourite",
+      "error": "RuntimeError: The parent element this slot belongs to has been deleted.",
+      "count": 2
+    },
+    "after-edge": {
+      "function": "remove_dashboard_favourite",
+      "error": "RuntimeError: The parent element this slot belongs to has been deleted.",
+      "count": 2
+    }
+  }
+}

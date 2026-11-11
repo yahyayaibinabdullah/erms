@@ -1,0 +1,298 @@
+[
+  {
+    "module": "record_details",
+    "factory": "build_record_details",
+    "functions": [
+      "show_record_details",
+      "select_record_details"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "add_resource_to_hold_dialog",
+      "aggregation_mode_bar",
+      "api",
+      "bind_remote_relationship_select",
+      "breadcrumb_back",
+      "browse_advanced_aggregation",
+      "clear_collection",
+      "current_direction",
+      "decorate_for_spec",
+      "enter_record_details",
+      "error_message",
+      "favourite_button",
+      "format_timestamp",
+      "get_aggregation_detail",
+      "get_relationship_page_token",
+      "get_resource",
+      "guidance",
+      "hold_reason_dialog",
+      "load_recent",
+      "medium_label",
+      "open_aggregation",
+      "open_editor",
+      "open_related_resource",
+      "preview_record_components",
+      "principal",
+      "record_state",
+      "register_navigation",
+      "review_datetime_input_minimum",
+      "review_datetime_input_value",
+      "review_datetime_payload",
+      "review_display",
+      "search_bar",
+      "select_entity",
+      "set_relationship_page_token",
+      "show_access_explanation",
+      "show_acl_editor",
+      "show_authenticated_view",
+      "show_components",
+      "show_effective_holds_dialog",
+      "show_entity_history",
+      "show_governed_move",
+      "show_security_level_change",
+      "subtitle",
+      "table_container",
+      "title"
+    ],
+    "replacements": [
+      [
+        "auth_state.get(\"principal\")",
+        "principal()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ],
+      [
+        "aggregation_state.get(\"aggregation_detail\")",
+        "get_aggregation_detail()"
+      ],
+      [
+        "state[\"relationship_page_token\"] = relationship_token",
+        "set_relationship_page_token(relationship_token)"
+      ],
+      [
+        "state.get(\"relationship_page_token\")",
+        "get_relationship_page_token()"
+      ],
+      [
+        "state.update(resource='record-details')",
+        "enter_record_details()"
+      ],
+      [
+        "collection_state.update(rows=[], searched=True)",
+        "clear_collection()"
+      ]
+    ]
+  },
+  {
+    "module": "record_capture",
+    "factory": "build_record_capture",
+    "functions": [
+      "open_record_draft_editor"
+    ],
+    "dependencies": [
+      "add_number_suggestion",
+      "api",
+      "bind_remote_relationship_select",
+      "bind_resource_security_select",
+      "browse_advanced_aggregation",
+      "error_message",
+      "load_recent",
+      "preview_record_components",
+      "render_component_cards",
+      "render_table",
+      "set_searched",
+      "show_number_conflict",
+      "validation_error_message"
+    ],
+    "replacements": [
+      [
+        "collection_state[\"searched\"] = False",
+        "set_searched(False)"
+      ]
+    ]
+  },
+  {
+    "module": "entity_editor",
+    "factory": "build_entity_editor",
+    "functions": [
+      "open_editor"
+    ],
+    "dependencies": [
+      "CLASSIFICATION_SELECTOR_SEARCH_FIELDS",
+      "accept_application_configuration",
+      "add_number_suggestion",
+      "api",
+      "bind_remote_relationship_select",
+      "bind_resource_security_select",
+      "browse_classification_tree",
+      "clear_medium_error",
+      "current_resource",
+      "error_message",
+      "highlight_medium_error",
+      "load_recent",
+      "load_rows",
+      "localization",
+      "localized_editor_entity",
+      "open_record_draft_editor",
+      "principal",
+      "render_table",
+      "search_input",
+      "set_searched",
+      "show_api_error",
+      "show_number_conflict",
+      "show_organization_structure",
+      "validation_error_message"
+    ],
+    "replacements": [
+      [
+        "auth_state.get(\"principal\")",
+        "principal()"
+      ],
+      [
+        "state[\"resource\"]",
+        "current_resource()"
+      ],
+      [
+        "state.get(\"localization\")",
+        "localization()"
+      ],
+      [
+        "collection_state[\"searched\"] = False",
+        "set_searched(False)"
+      ]
+    ]
+  },
+  {
+    "module": "resource_row_hydration",
+    "factory": "build_resource_row_hydration",
+    "functions": [
+      "decorate_for_spec",
+      "decorate_record_search_components"
+    ],
+    "dependencies": [
+      "api",
+      "get_row_hydrators",
+      "medium_label",
+      "review_display"
+    ],
+    "replacements": [
+      [
+        "row_hydrators.",
+        "get_row_hydrators()."
+      ]
+    ]
+  },
+  {
+    "module": "resource_collection_results",
+    "factory": "build_resource_collection_results",
+    "functions": [
+      "render_entity_compact_results"
+    ],
+    "dependencies": [
+      "collection_state",
+      "open_aggregation",
+      "render_compact_resource_result",
+      "restore_compact_result_anchor",
+      "show_record_details"
+    ],
+    "replacements": []
+  },
+  {
+    "module": "collection_table",
+    "factory": "build_collection_table",
+    "functions": [
+      "render_table"
+    ],
+    "dependencies": [
+      "RELATIONSHIP_DISPLAY_FIELDS",
+      "add_timestamp_slots",
+      "api",
+      "collection_state",
+      "current_session_revoked",
+      "decorate_for_spec",
+      "error_message",
+      "favourite_state",
+      "format_timestamp",
+      "guidance",
+      "load_recent",
+      "load_rows",
+      "open_aggregation",
+      "open_editor",
+      "reload_favourites",
+      "render_administration_cards",
+      "render_entity_compact_results",
+      "render_recent_section",
+      "render_resource_personal_sections",
+      "required_principal",
+      "select_organization_unit_details",
+      "select_role_details",
+      "select_user_details",
+      "show_api_error",
+      "show_components",
+      "show_entity_history",
+      "show_memberships",
+      "show_profile_privilege_editor",
+      "show_record_details",
+      "show_reopen_aggregation",
+      "subtitle",
+      "table_container",
+      "toggle_favourite"
+    ],
+    "replacements": [
+      [
+        "auth_state[\"principal\"]",
+        "required_principal()"
+      ]
+    ]
+  },
+  {
+    "module": "collection_navigation",
+    "factory": "build_collection_navigation",
+    "functions": [
+      "select_entity"
+    ],
+    "dependencies": [
+      "add_button",
+      "add_record_button",
+      "aggregation_mode_bar",
+      "aggregation_state",
+      "collection_state",
+      "error_message",
+      "get_resource",
+      "guidance",
+      "load_recent",
+      "load_rows",
+      "personal",
+      "principal",
+      "register_navigation",
+      "reload_favourites",
+      "render_resource_personal_sections",
+      "render_table",
+      "search_bar",
+      "search_input",
+      "select_aggregation_browser",
+      "set_connection_status",
+      "set_resource",
+      "show_authenticated_view",
+      "subtitle",
+      "title"
+    ],
+    "replacements": [
+      [
+        "auth_state.get(\"principal\")",
+        "principal()"
+      ],
+      [
+        "state.get(\"resource\")",
+        "get_resource()"
+      ],
+      [
+        "state.update(resource=key)",
+        "set_resource(key)"
+      ]
+    ]
+  }
+]

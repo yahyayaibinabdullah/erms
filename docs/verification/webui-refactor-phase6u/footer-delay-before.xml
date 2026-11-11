@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="0.906" timestamp="2026-11-11T09:25:09.640543+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.tests.test_disposition_shared_footer" name="test_comment_save_failure_visible_in_footer_and_retry_uses_same_id[en-0]" time="0.087" /><testcase classname="frontend.webui.tests.test_disposition_shared_footer" name="test_comment_save_failure_visible_in_footer_and_retry_uses_same_id[en-0.05]" time="0.063"><failure message="AssertionError: {'actions': {'propose', 'save', 'submit'}, 'alive': True, 'busy': True, 'dialog_open': True, ...}&#10;assert (not True)&#10; +  where True = &lt;nicegui.elements.dialog.Dialog object at 0x1095a7010&gt;.value">host = &lt;nicegui.elements.column.Column object at 0x108ae6690&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x108ae63d0&gt;
+refresh_delay = 0.05
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('refresh_delay',[0,.05])
+    async def test_comment_save_failure_visible_in_footer_and_retry_uses_same_id(host,monkeypatch,refresh_delay):
+        monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+        f,api,_=await form(host);f.comments.value='Keep this work'
+        original_page=api.disposition_page
+        async def delayed_page(*args,**kwargs):
+            await asyncio.sleep(refresh_delay)
+            return await original_page(*args,**kwargs)
+        api.disposition_page=delayed_page
+        with host:
+            f.draft_controls.show_review()
+            dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+            save=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('save_changes'))
+            api.error=ApiError(409,{'code':'disposition_stale_task'});await click(save)
+            assert dialog.value and f.draft_controls.feedback.text==f.feedback.text and f.feedback.text
+            api.error=None;await click(save)
+&gt;           assert not dialog.value and not f.draft_controls.save.enabled, {
+                'busy':f.busy,'alive':f.alive(),'actions':f.actions,'feedback':f.feedback.text,
+                'writes':len(api.writes),'dirty':f.dirty(),'dialog_open':dialog.value,
+                'save_enabled':f.draft_controls.save.enabled}
+E           AssertionError: {'actions': {'propose', 'save', 'submit'}, 'alive': True, 'busy': True, 'dialog_open': True, ...}
+E           assert (not True)
+E            +  where True = &lt;nicegui.elements.dialog.Dialog object at 0x1095a7010&gt;.value
+
+frontend/webui/tests/test_disposition_shared_footer.py:55: AssertionError</failure></testcase><testcase classname="frontend.webui.tests.test_disposition_shared_footer" name="test_comment_save_failure_visible_in_footer_and_retry_uses_same_id[ar-0]" time="0.055" /><testcase classname="frontend.webui.tests.test_disposition_shared_footer" name="test_comment_save_failure_visible_in_footer_and_retry_uses_same_id[ar-0.05]" time="0.055"><failure message="AssertionError: {'actions': {'propose', 'save', 'submit'}, 'alive': True, 'busy': True, 'dialog_open': True, ...}&#10;assert (not True)&#10; +  where True = &lt;nicegui.elements.dialog.Dialog object at 0x108e4a0d0&gt;.value">host = &lt;nicegui.elements.column.Column object at 0x1067af090&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1067aef50&gt;
+refresh_delay = 0.05
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('refresh_delay',[0,.05])
+    async def test_comment_save_failure_visible_in_footer_and_retry_uses_same_id(host,monkeypatch,refresh_delay):
+        monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**k:None)
+        f,api,_=await form(host);f.comments.value='Keep this work'
+        original_page=api.disposition_page
+        async def delayed_page(*args,**kwargs):
+            await asyncio.sleep(refresh_delay)
+            return await original_page(*args,**kwargs)
+        api.disposition_page=delayed_page
+        with host:
+            f.draft_controls.show_review()
+            dialog=next(e for e in host.descendants() if isinstance(e,ui.dialog) and e.value)
+            save=next(e for e in dialog.descendants() if isinstance(e,ui.button) and e.text==text('save_changes'))
+            api.error=ApiError(409,{'code':'disposition_stale_task'});await click(save)
+            assert dialog.value and f.draft_controls.feedback.text==f.feedback.text and f.feedback.text
+            api.error=None;await click(save)
+&gt;           assert not dialog.value and not f.draft_controls.save.enabled, {
+                'busy':f.busy,'alive':f.alive(),'actions':f.actions,'feedback':f.feedback.text,
+                'writes':len(api.writes),'dirty':f.dirty(),'dialog_open':dialog.value,
+                'save_enabled':f.draft_controls.save.enabled}
+E           AssertionError: {'actions': {'propose', 'save', 'submit'}, 'alive': True, 'busy': True, 'dialog_open': True, ...}
+E           assert (not True)
+E            +  where True = &lt;nicegui.elements.dialog.Dialog object at 0x108e4a0d0&gt;.value
+
+frontend/webui/tests/test_disposition_shared_footer.py:55: AssertionError</failure></testcase></testsuite></testsuites>

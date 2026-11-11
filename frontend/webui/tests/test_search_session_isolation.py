@@ -7,10 +7,19 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
-SOURCE = ast.parse((Path(__file__).parents[1] / 'app.py').read_text())
+SOURCE = ast.parse('\n'.join((Path(__file__).parents[1] / name).read_text() for name in ('app.py','global_search.py','advanced_search.py')))
 
 
 def load(name, namespace):
+    state=namespace['state']
+    namespace.update(global_search_state=state, advanced_search_state=state,
+        get_principal=lambda:namespace.get('auth_state',{}).get('principal'),
+        get_resource=lambda:state.get('resource'),
+        enter_global_search=lambda:state.update(resource='full-text-search'),
+        discard_navigation_guard=lambda:state.pop('discard_navigation_guard',None),
+        clear_advanced_workspace=lambda:state.pop('advanced_search_workspace',None),
+        invalidate_advanced_session=lambda:state.__setitem__('advanced_search_session_revision',state.get('advanced_search_session_revision',0)+1),
+        clear_collection_results=lambda:namespace['collection_state'].update(entity_result_states={}))
     node = next(n for n in ast.walk(SOURCE)
                 if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name == name)
     exec(compile(ast.Module(body=[node], type_ignores=[]), 'app.py', 'exec'), namespace)
@@ -21,7 +30,7 @@ def test_logout_discards_query_results_and_diagnostics():
     state = dict(global_search_revision=4, global_search_query='private query',
                  global_search_items=[{'record': {'id': 42}}], search_diagnostics_sent={'private': True})
     control = SimpleNamespace(value='private query', update=lambda: None)
-    load('clear_global_search_session', {'state': state, 'global_search_input': control})()
+    load('clear_global_search_session', {'state': state, 'collection_state': state, 'global_search_input': control})()
     assert control.value == state['global_search_query'] == ''
     assert state['global_search_items'] == []
     assert state['search_diagnostics_sent'] is None
@@ -40,7 +49,7 @@ def test_old_search_response_cannot_repopulate_new_session():
             await release.wait()
             return {'items': [{'type': 'aggregation', 'id': 42}]}
         control = SimpleNamespace(value='private query', update=lambda: None)
-        namespace = dict(state=state, auth_state=principal, Any=Any, json=json, asyncio=asyncio,
+        namespace = dict(state=state,collection_state=state, auth_state=principal, Any=Any, json=json, asyncio=asyncio,
                          global_search_input=control, ApiError=RuntimeError,
                          global_search_payload=lambda *a, **k: {},
                          render_message=lambda *a: '', show_authenticated_view=lambda: None,
@@ -69,7 +78,7 @@ def test_advanced_workspace_is_cleared_and_old_callbacks_cannot_restore_it():
              'advanced_search_workspace': {'root': {'value': 'private'},
              'last_result': {'items': [{'id': 42}]}, 'saved': {'id': 7}}}
     principal = {'principal': {'user': {'id': 1}}}
-    namespace = dict(state=state, auth_state=principal, copy=copy,
+    namespace = dict(state=state,collection_state=state, auth_state=principal, copy=copy,
                      search_principal=principal['principal'], search_session_revision=0,
                      workspace=copy.deepcopy(state['advanced_search_workspace']),
                      global_search_input=SimpleNamespace(value='', update=lambda: None))
@@ -115,7 +124,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
             def __exit__(self, *args): pass
         workspace = dict(root={}, resource='records' if outcome == 'component_details' else 'aggregations', sort_field='id', sort_direction='asc',
                          limit=25, offset=0, saved=None)
-        ns = dict(state=state, auth_state=principal, search_principal=principal['principal'],
+        ns = dict(state=state,collection_state=state, auth_state=principal, search_principal=principal['principal'],
                   search_session_revision=0, workspace=workspace, copy=copy, Any=Any,
                   asyncio=asyncio, ApiError=RuntimeError, results_host=Host(),
                   validate_builder=lambda: ({'field': 'title', 'operator': 'contains_ci', 'value': 'private'}, None),
@@ -158,7 +167,7 @@ def test_criteria_changes_reset_later_page_before_persisting(change):
     ]}
     workspace = {'root': root, 'offset': 75, 'sort_field': 'id'}
     state = {'advanced_search_workspace': copy.deepcopy(workspace)}
-    persist = load('persist_workspace', dict(state=state, workspace=workspace, copy=copy,
+    persist = load('persist_workspace', dict(state=state,collection_state=state, workspace=workspace, copy=copy,
                                             search_session_is_current=lambda: True))
     if change == 'value': root['children'][0]['value'] = 'new'
     elif change == 'operator': root['children'][0]['operator'] = 'eq'
@@ -173,3 +182,24 @@ def test_criteria_changes_reset_later_page_before_persisting(change):
     workspace['offset'] = 25
     persist()
     assert state['advanced_search_workspace']['offset'] == 25
+
+
+def test_global_search_state_factory_keeps_clients_independent():
+    from frontend.webui.global_search_state import new_global_search_state
+    first, second = new_global_search_state(' private '), new_global_search_state()
+    first['global_search_items'].append({'type': 'record', 'record': {'id': 7}})
+    first['global_search_expanded_results'].add('records:7')
+    first['search_diagnostics_sent'] = {'query': 'private'}
+    assert first['global_search_query'] == 'private'
+    assert second['global_search_query'] == ''
+    assert second['global_search_items'] == []
+    assert second['global_search_expanded_results'] == set()
+    assert second['search_diagnostics_sent'] is None
+
+
+def test_advanced_workspace_owner_is_private_to_each_client():
+    from frontend.webui.advanced_search_state import new_advanced_search_state
+    first, second = new_advanced_search_state(), new_advanced_search_state()
+    first.update(advanced_search_workspace={'root': {'value': 'private'}},
+                 admin_saved_search_id=17, advanced_search_session_revision=2)
+    assert second == {}
