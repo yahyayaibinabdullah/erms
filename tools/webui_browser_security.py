@@ -10,6 +10,14 @@ def check_security(page):
     def close(key):
         page.click(page.t(key),dialog())
         page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
+    def verify_contextual_acl():
+        for key in (
+            'webui.show_acl_editor.text.access_control_list_d8401318',
+            'authorization.oversight.managers',
+            'authorization.oversight.file_administrator',
+        ):
+            label = page.t(key)
+            page.wait.until(lambda _: label in plain(dialog().text), f'Missing ACL dialog text: {label}')
     def focus(name):
         d=dialog();controls=[e for e in d.find_elements('css selector','input:not([type=checkbox]),textarea') if e.is_displayed() and e.is_enabled()]
         page.activate(controls[0]);time.sleep(.5);controls[0].send_keys(Keys.TAB);time.sleep(.3)
@@ -30,7 +38,7 @@ def check_security(page):
             field.send_keys('record.view');time.sleep(.3);capture('profile-filter')
             close('webui.show_profile_privilege_editor.button.cancel_d03380ff')
             page.errors()
-        with page.check('record access, explanation and security-level dialogs'):
+        with page.check('record access with contextual ACL entries, explanation and security-level dialogs'):
             page.drawer('records')
             page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),'TEST-REC')
             page.click(page.t('webui.index.button.search_4d02b714'),page.one('.erms-card'))
@@ -43,10 +51,11 @@ def check_security(page):
                 ('record-level','webui.select_record_details.button.security_level_2f483a84','webui.show_security_level_change.button.cancel_d37961e9'),
             ]:
                 page.click(page.t(entry));dialog()
+                if scene == 'record-acl': verify_contextual_acl()
                 if scene.endswith('explanation'):page.see(page.t('webui.load_explanation.label.decision_gates_1847ec0e'))
                 focus(scene);capture(scene);close(cancel)
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
-        with page.check('aggregation resource/default ACLs and inherited access'):
+        with page.check('aggregation access with contextual ACL entries and default ACLs'):
             page.one('button.detail-linked-entity').click()
             page.see(page.t('webui.open_aggregation.label.aggregation_overview_bb8398e3'))
             for scene,entry,cancel in [
@@ -55,6 +64,7 @@ def check_security(page):
                 ('aggregation-level','webui.open_aggregation.button.security_level_5d0b4408','webui.show_security_level_change.button.cancel_d37961e9'),
             ]:
                 page.click(page.t(entry));dialog()
+                if scene == 'aggregation-acl': verify_contextual_acl()
                 if scene.endswith('explanation'):page.see(page.t('webui.load_explanation.label.decision_gates_1847ec0e'))
                 capture(scene);close(cancel)
             page.activate(page.one('.q-expansion-item .q-item__label',page.t('webui.open_aggregation.expansion.advanced_2d1fcc81')))

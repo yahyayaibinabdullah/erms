@@ -1,14 +1,33 @@
 # WebUI refactoring — existing defects and observations
 
-This register collects all defects and abnormalities recorded during the WebUI
-refactor, in recommended investigation/fix order. Phase 8 final acceptance is
-recorded separately in the [verification report](webui-refactor-phase8-verification.md). Entries below distinguish established
-original defects from observations whose cause or original status is unproven.
-No open entry is authorized for a product fix as part of this refactor.
+This register collects defects and abnormalities recorded during and after the
+WebUI refactor. Entries distinguish original defects, confirmed refactor
+regressions and observations whose cause or original status is unproven.
+Phase 8 acceptance and the ACL follow-up are recorded in the
+[verification report](webui-refactor-phase8-verification.md). No open entry is
+authorized for a product fix as part of this refactor.
 
 Priority means recommended order for investigation/fixing, not an agreed delivery
 schedule: **P1** blocks an existing workflow; **P2** impairs use or warrants
 reliability/accessibility investigation; **P3** is a lower-impact warning or test issue.
+
+## Confirmed refactor regression
+
+**P1 — Access dialog fails to open with contextual ACL entries. Fixed and
+verified locally on 12 November 2026.** Phase 6E introduced a variable name
+collision. The ACL renderer called a row dictionary in place of the callback
+that reads the signed-in user. This blocked the existing Access workflow for
+records and aggregations whose ACL editor showed contextual entries. The fix
+renames the row variable and preserves the organization browsing privilege
+check.
+
+Chrome and Edge passed all eight combinations of record or aggregation and
+English or Arabic. Each dialog showed both contextual entry types. The
+follow-up audit reviewed 150 WebUI Python files against the pre-refactor source
+and found no other instance of the same bug. All 1,631 unit tests and 579
+interaction tests passed. The fix and regression coverage remain local and
+uncommitted.
+[Verification and evidence](webui-refactor-phase8-verification.md#post-phase-8-acl-regression-and-shadowing-audit)
 
 ## Reproduced original product defects
 

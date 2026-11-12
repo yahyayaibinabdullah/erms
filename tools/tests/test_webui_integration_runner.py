@@ -77,7 +77,10 @@ def test_owned_database_cleanup_and_failures_are_reported(tmp_path, monkeypatch,
     owned_services = []
 
     def start(command, **kwargs):
-        if any('seed(dict(os.environ))' in part or 'seed(browser=True)' in part for part in command) or not (preview or browser):
+        if any(
+            'seed(dict(os.environ))' in part or part.startswith('from tools.seed_webui_regression import seed;')
+            for part in command
+        ) or not (preview or browser):
             return FailedSeed()
         service = Browser() if 'tools/check_webui_browser.py' in command else Service()
         owned_services.append(service)

@@ -148,6 +148,45 @@ async def test_blank_role_validation_and_cancel_do_not_write(user):
     assert not d.value
 
 
+@pytest.mark.parametrize('principal_type,label_key', [
+    ('owning_and_higher_level_unit_managers', 'authorization.oversight.managers'),
+    ('effective_file_administrator', 'authorization.oversight.file_administrator'),
+])
+@pytest.mark.parametrize('can_browse_organization', [False, True])
+async def test_record_acl_opens_with_contextual_principal(
+    user, principal_type, label_key, can_browse_organization,
+):
+    privileges = ['organization.browse'] if can_browse_organization else []
+    api, feature, _ = await setup(user, privileges=privileges)
+    api.acl['override_acl'] = [
+        {'principal_type': principal_type, 'role_id': None, 'permission_codes': ['record.view']},
+    ]
+
+    with user:
+        await feature.show_acl_editor('records', 11)
+
+    acl_dialog = dialog(user)
+    assert t(label_key) in [
+        _owner_strip_diagnostic_metadata(label.text)
+        for label in elements(acl_dialog, ui.label)
+    ]
+    show_roles = [
+        control for control in elements(acl_dialog, ui.button)
+        if _owner_strip_diagnostic_metadata(control.text) == t('authorization.oversight.show_roles')
+    ]
+    assert len(show_roles) == int(can_browse_organization)
+    if can_browse_organization:
+        click(user, show_roles[0])
+        await settle()
+        api.request.assert_awaited_once_with(
+            'GET', '/api/v1/records/11/acl-contextual-principals',
+            params={'principal_type': principal_type, 'limit': 25, 'offset': 0},
+        )
+    else:
+        api.request.assert_not_awaited()
+    api.replace_resource_acl.assert_not_awaited()
+
+
 @pytest.mark.parametrize('allowed',[False,True])
 async def test_explanation_subject_gate_and_server_decision(user,allowed):
     api,feature,_=await setup(user,privileges=['authorization.explain'] if allowed else [])

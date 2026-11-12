@@ -15,7 +15,7 @@ def disposable_url():
     return url
 
 
-def seed(*, browser=False):
+def seed(*, browser=False, contextual_acls=False):
     url = disposable_url()
     from backend.services.api.authentication import hash_password
     with psycopg.connect(url) as connection:
@@ -36,6 +36,12 @@ def seed(*, browser=False):
         scheme = connection.execute("SELECT id FROM classification_schemes WHERE code='T01'").fetchone()[0]
         terminal = connection.execute("INSERT INTO classifications(classification_scheme_id,code,title,is_terminal,date_created) VALUES(%s,'TERM','Test terminal',true,%s) RETURNING id", (scheme, BASELINE_TIME)).fetchone()[0]
         connection.execute("INSERT INTO classification_retention_rules(classification_id,current_period_years,intermediate_period_years,final_disposition) VALUES(%s,5,0,'destruction')", (terminal,))
+        if contextual_acls:
+            # Use the normal creation trigger to populate both contextual principals.
+            creator = connection.execute(
+                "SELECT id FROM roles WHERE org_unit_id=%s AND code='admin'", (unit,),
+            ).fetchone()[0]
+            connection.execute("SELECT set_config('app.creator_acl_role_id', %s, true)", (str(creator),))
         aggregation = connection.execute("INSERT INTO aggregations(aggregation_number,title,classification_id,owning_org_unit_id,medium,date_created,date_opened) VALUES('TEST-AGG','Test aggregation',%s,%s,'physical',%s,%s) RETURNING id", (terminal, unit, BASELINE_TIME, BASELINE_TIME)).fetchone()[0]
         connection.execute("INSERT INTO records(aggregation_id,record_number,title,medium,date_created,date_originated) VALUES(%s,'TEST-REC','Test record','physical',%s,%s)", (aggregation, BASELINE_TIME, BASELINE_TIME))
         if browser:

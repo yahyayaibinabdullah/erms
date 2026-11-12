@@ -362,10 +362,10 @@ def build_access_control_dialogs(
                                         render_message("webui.render_principals.label.no_principals_are_present_add_a_role_every_a101b46b")
                                     ).classes("m-5 text-sm text-slate-500")
 
-                                for index, principal in enumerate(principals):
-                                    selected = set(principal.get("permission_codes", []))
+                                for index, acl_principal in enumerate(principals):
+                                    selected = set(acl_principal.get("permission_codes", []))
                                     row_controls: dict[str, Any] = {}
-                                    permission_controls[id(principal)] = row_controls
+                                    permission_controls[id(acl_principal)] = row_controls
                                     with ui.row().classes(
                                         "w-full gap-0 no-wrap border-b border-slate-100 last:border-b-0 hover:bg-blue-50/30"
                                     ).style("flex-direction: row"):
@@ -377,35 +377,35 @@ def build_access_control_dialogs(
                                                     {
                                                         "everyone": "groups",
                                                         "org_unit_members": "corporate_fare",
-                                                    }.get(principal["principal_type"], "badge"),
+                                                    }.get(acl_principal["principal_type"], "badge"),
                                                     color="primary", size="20px",
                                                 )
-                                                if principal["principal_type"] == "everyone":
+                                                if acl_principal["principal_type"] == "everyone":
                                                     with ui.column().classes("gap-0 grow min-w-0"):
                                                         ui.label(render_message("webui.render_principals.label.everyone_8d69f084")).classes("font-semibold")
                                                         ui.label(render_message("webui.render_principals.label.all_authenticated_users_fb3e7d95")).classes("text-xs text-slate-500")
-                                                elif principal["principal_type"] == "org_unit_members":
+                                                elif acl_principal["principal_type"] == "org_unit_members":
                                                     with ui.column().classes("gap-0 grow min-w-0"):
                                                         ui.label(render_message("webui.render_principals.label.all_org_unit_members_53d5b79a")).classes("font-semibold")
                                                         ui.label(
                                                             render_message("webui.render_principals.label.everyone_currently_working_in_owner_name_271a9a37", owner_name=owner_name)
                                                         ).classes("text-xs text-slate-500")
-                                                elif principal["principal_type"] in {"owning_and_higher_level_unit_managers", "effective_file_administrator"}:
+                                                elif acl_principal["principal_type"] in {"owning_and_higher_level_unit_managers", "effective_file_administrator"}:
                                                     with ui.column().classes("gap-0 grow min-w-0"):
                                                         ui.label(
                                                             render_message("authorization.oversight.managers")
-                                                            if principal["principal_type"] == "owning_and_higher_level_unit_managers"
+                                                            if acl_principal["principal_type"] == "owning_and_higher_level_unit_managers"
                                                             else render_message("authorization.oversight.file_administrator")
                                                         ).classes("font-semibold")
                                                         ui.label(render_message("authorization.oversight.dynamic", owner_name=owner_name)).classes("text-xs text-slate-500")
                                                         if "organization.browse" in (principal() or {}).get("global_privileges", []):
                                                             ui.button(
                                                                 render_message("authorization.oversight.show_roles"),
-                                                                on_click=lambda _, kind=principal["principal_type"]: show_contextual_acl_roles(resource, entity_id, kind),
+                                                                on_click=lambda _, kind=acl_principal["principal_type"]: show_contextual_acl_roles(resource, entity_id, kind),
                                                             ).props("flat dense no-caps")
                                                 else:
                                                     role_picker = ui.select(
-                                                        role_options, value=principal.get("role_id"),
+                                                        role_options, value=acl_principal.get("role_id"),
                                                     ).props(
                                                         "dense outlined options-dense use-input input-debounce=0"
                                                     ).classes("grow min-w-0")
@@ -416,7 +416,7 @@ def build_access_control_dialogs(
                                                         label_fields=("code", "name"),
                                                     )
                                                     role_picker.on_value_change(
-                                                        lambda event, item=principal: item.update(role_id=event.value)
+                                                        lambda event, item=acl_principal: item.update(role_id=event.value)
                                                     )
                                                     editor_controls.append(role_picker)
                                                     browse_role_button = ui.button(
@@ -444,7 +444,7 @@ def build_access_control_dialogs(
                                                 editor_controls.append(checkbox)
 
                                                 def update_permission(
-                                                    event: Any, item=principal, permission=code,
+                                                    event: Any, item=acl_principal, permission=code,
                                                 ) -> None:
                                                     current = set(item.get("permission_codes", []))
                                                     if bool(event.value):

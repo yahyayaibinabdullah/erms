@@ -162,7 +162,10 @@ def main():
             seed_command = ('import os; from tools.preview_application_settings import seed; seed(dict(os.environ))'
                             if args.preview else 'from tools.seed_webui_regression import seed; seed()')
             if args.fixed_fixture:
-                seed_command = 'from tools.seed_webui_regression import seed; seed(browser=True)'
+                seed_command = (
+                    'from tools.seed_webui_regression import seed; '
+                    f'seed(browser=True, contextual_acls={args.browser_scope == "security"})'
+                )
                 environment['DATABASE_DISPLAY_NAME'] = 'WebUI regression fixture'
             if args.browser_scope in {'disposition', 'application'}:
                 seed_command += '; from tools.seed_webui_disposition import seed as seed_disposition; seed_disposition()'

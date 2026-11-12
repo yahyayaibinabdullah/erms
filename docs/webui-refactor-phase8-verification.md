@@ -10,7 +10,7 @@ The starting branch was `refactor-API-python-file`, HEAD
 `9fdf51279e1db78597118c2df05b3467c8b7190e`, with a clean working tree. No branch,
 commit, history, remote or worktree operation is part of this phase.
 
-Only two application runtime files change:
+Phase 8 changed two application runtime files:
 
 - `app.py`: remove 153 unused imports left after extraction, a duplicated
   classification search-field constant, an unused audit entity-type mapping,
@@ -111,10 +111,65 @@ prioritized register, rather than silently repaired during cleanup.
 ## Final handoff and scope
 
 The [defect and observation register](webui-refactor-existing-observations.md)
-is finalized for this handoff. It distinguishes original defects, existing
-UX limitations, unresolved observations and corrected test issues. Product fixes
-require separate approval. The separately approved Phase 2 aggregation-panel
-visibility correction remains the sole approved product fix in this refactor.
+distinguishes original defects, refactor regressions, existing UX limitations,
+unresolved observations and corrected test issues. The Phase 2 aggregation panel
+visibility correction was the only product fix included at the original Phase 8
+handoff.
+
+## Post-Phase 8 ACL regression and shadowing audit
+
+**Fixed and verified locally on 12 November 2026.** Clicking **Access** on a
+record loaded its access control list (ACL) successfully, then failed before
+opening the dialog. Phase 6E introduced the regression when it extracted the
+dialog from `app.py`. The extracted renderer used `principal` for both an ACL
+row and the callback that reads the signed-in user. When the renderer checked
+the user's organization browsing privilege for a contextual row, it called the
+row dictionary and raised a `TypeError`. The pre-extraction code in `40bf384`
+read the user from session state. The collision appears in `839b770`.
+[Phase 6E report](webui-refactor-phase6e-verification.md)
+
+The fix renames the ACL row variable to `acl_principal` so the privilege check
+calls the signed-in user callback. The original tests covered opening the editor
+and loading contextual roles separately. Four new cases reproduced the crash
+before the fix and passed afterward. They cover both contextual entry types with
+and without the organization browsing privilege. The focused run passed all
+**30 tests**. [ACL editor](../frontend/webui/access_control_dialogs.py) ·
+[Interaction tests](../frontend/webui/interaction/tests/test_security_dialogs.py)
+
+The browser fixture now creates a record and an aggregation with both contextual
+entries, **Owning and Higher-Level Unit Managers** and **Effective File
+Administrator**. The test opens each dialog via **Access** and checks that both
+entries appear in the selected language. All **eight browser, language and
+resource combinations** passed.
+
+| Browser | Record, English | Record, Arabic | Aggregation, English | Aggregation, Arabic |
+| --- | --- | --- | --- | --- |
+| Chrome 157.0.8103.51 | Pass | Pass | Pass | Pass |
+| Edge 157.0.4341.46 | Pass | Pass | Pass | Pass |
+
+The two security journeys passed **18 check groups** and captured **40
+screenshots**. No browser or API errors were recorded, and the checks did not
+write ACL permissions. Both disposable databases were removed.
+[Browser regression test](../tools/webui_browser_security.py) ·
+[Local Chrome results](../.runtime/contextual-acl-browser/chrome-verified/browser-results.json) ·
+[Local Edge results](../.runtime/contextual-acl-browser/edge-verified/browser-results.json)
+
+The follow-up audit scanned **150 WebUI Python files** for local variables that
+hide callables in dialogs and callbacks. It checked direct calls, callbacks
+passed by reference and calls through objects, then reviewed matches against
+the pre-refactor source at `3a4481d`. The scan detected the known ACL collision
+in the committed source and confirmed it was gone in the working copy. The
+review found no other defects of the same kind and required no further code
+changes. The subsequent WebUI suites passed **1,631 unit tests** and **579
+interaction tests**. These totals are separate from the original Phase 8
+acceptance totals. The ACL fix and verification updates remain local and
+uncommitted.
+[Local audit output](../.runtime/webui-shadow-audit/) ·
+[Local unit results](../.runtime/retire-scheme-table/shadow-audit-unit/tests.xml) ·
+[Local interaction results](../.runtime/retire-scheme-table/shadow-audit-interaction/tests.xml)
+
+The linked local results and raw captures are in the gitignored `.runtime`
+directory.
 
 ## Checkpoint and resumption — 11 November 2026
 
@@ -209,6 +264,6 @@ review or deployment configuration is required.
 
 Firefox, Safari, CI and production-scale performance remain deferred by the agreed
 scope. Live SMTP was not repeated in Phase 8; earlier MailDev evidence is retained.
-The persistent local stack, MailDev and Safari were left alone. Local acceptance
-finds no new regression in the verified scope; it does not prove every possible
-workflow/data/permission combination or certify absence of existing defects.
+The persistent local stack, MailDev and Safari were left alone during Phase 8
+verification. The acceptance results cover the workflows and data combinations
+exercised by the recorded tests.
