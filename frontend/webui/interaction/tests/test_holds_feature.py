@@ -93,6 +93,30 @@ async def test_resource_attachment_bounded_selection_reason_gate_and_refresh(use
     click(user,submit);await settle();api.add_resource_to_hold.assert_awaited_once_with('record',11,7,'Fixture reason')
     assert refresh.await_count==int(not failure) and d.value==failure
 
+async def test_add_to_hold_pages_the_submitted_query_and_retains_selection(user):
+    api, v = await setup(user)
+    with user:
+        await v['add_resource_to_hold_dialog']('record', 11, AsyncMock())
+    await settle()
+    dialog = opened(user)
+    field = next(e for e in dialog.descendants() if isinstance(e, ui.input) and not isinstance(e, ui.textarea))
+    select = next(e for e in dialog.descendants() if isinstance(e, ui.select))
+    enter = next(listener.handler for listener in field._event_listeners.values() if listener.type == 'keydown.enter')
+    with user:
+        select.value = 7
+        field.value = 'Fixture'
+        await enter()
+        field.value = 'Pending'
+    click(user, buttons(dialog, 'chevron_right')[0])
+    await settle()
+    api.holds_page.assert_awaited_with(q='Fixture', limit=25, offset=25)
+    assert field.value == 'Pending' and select.value == 7
+    with user:
+        await enter()
+    api.holds_page.assert_awaited_with(q='Pending', limit=25, offset=0)
+    assert select.value == 7
+    api.add_resource_to_hold.assert_not_awaited()
+
 @pytest.mark.parametrize('kind',['direct','inherited','restricted'])
 async def test_effective_hold_authority_links_and_direct_removal(user,kind):
     api,v=await setup(user);refresh=AsyncMock()

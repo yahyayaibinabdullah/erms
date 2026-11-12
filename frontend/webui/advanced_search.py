@@ -16,7 +16,6 @@ from .advanced_search_model import advanced_search_node_from_expression
 from .advanced_search_model import advanced_search_operators
 import asyncio
 from .advanced_search_model import compile_advanced_search_node
-from .component_presentation import component_is_previewable
 import copy
 from frontend.webui.disposition.messages import text as disposition_text
 import json
@@ -90,6 +89,8 @@ def build_advanced_search(
             "search_name": "", "search_category": None, "search_description": "",
             "category_suggestions": [],
             "last_result": None,
+            "execution": None,
+            "execution_revision": 0,
             "expanded_results": [],
         }
         restored_workspace = advanced_search_state.get("advanced_search_workspace")
@@ -180,12 +181,6 @@ def build_advanced_search(
         def persist_workspace() -> None:
             # A callback from a discarded identity must never restore its cache.
             if search_session_is_current():
-                previous = advanced_search_state.get("advanced_search_workspace")
-                if isinstance(previous, dict) and any(
-                    previous.get(key) != workspace.get(key)
-                    for key in ("root", "resource", "sort_field", "sort_direction", "max_results")
-                ):
-                    workspace["offset"] = 0
                 advanced_search_state["advanced_search_workspace"] = copy.deepcopy(workspace)
 
         def set_advanced_result_expansion(identifier: int, expanded: bool) -> None:
@@ -300,7 +295,7 @@ def build_advanced_search(
             else:
                 builder_host.props(add="inert aria-disabled=true")
                 builder_host.classes(add="pointer-events-none opacity-70")
-            search_advanced.set_enabled(can_execute and structurally_valid)
+            search_advanced.set_enabled(can_execute and structurally_valid and not workspace["busy"])
             # Navigation restoration can refresh controls outside their page slot.
             # Resolve the catalogue through the button's owning client.
             with save_button:
@@ -339,7 +334,8 @@ def build_advanced_search(
             # navigation restore cards belonging to the previous target/query.
             workspace.update(
                 offset=0, total=0, searched=False, last_result=None,
-                expanded_results=[], record_component_details={}, record_capabilities={},
+                execution=None, execution_revision=workspace["execution_revision"] + 1, busy=False,
+                expanded_results=[], record_capabilities={},
             )
             workspace.pop("return_anchor", None)
             status_label.text = ""
@@ -517,7 +513,9 @@ def build_advanced_search(
             administrator = False
             with ui.dialog() as dialog, ui.card().classes("w-[900px] max-w-full max-h-[90vh] p-5 gap-4"):
                 ui.label(render_message("webui.open_saved_search_dialog.label.open_saved_search_306aeadf")).classes("text-lg font-semibold")
-                filters: dict[str, Any] = {"offset": 0, "limit": 25}
+                filters: dict[str, Any] = {
+                    "offset": 0, "limit": 25, "total": 0, "scope": "all", "criteria": {}, "loading": False,
+                }
                 with ui.row().classes("w-full gap-3 items-end flex-wrap"):
                     query_control = ui.input(render_message("webui.open_saved_search_dialog.input.search_saved_searches_3352fa10")).props("outlined dense clearable").classes("grow min-w-64")
                     filter_button = ui.button(render_message("webui.open_saved_search_dialog.button.filters_d413e321"), icon="tune").props("outline dense no-caps aria-expanded=false")
@@ -563,21 +561,26 @@ def build_advanced_search(
                 saved_page_request = {"revision": 0}
                 dialog.on("hide", lambda: saved_page_request.update(revision=saved_page_request["revision"] + 1))
 
-                async def load_saved_page() -> None:
+                async def load_saved_page(
+                    *, offset: int = 0, scope: str | None = None, criteria: dict[str, Any] | None = None,
+                ) -> None:
+                    if list_host.is_deleted or not search_view_is_current():
+                        return
+                    scope = filters["scope"] if scope is None else scope
+                    criteria = filters["criteria"] if criteria is None else criteria
                     saved_page_request["revision"] += 1
                     revision = saved_page_request["revision"]
-                    params: dict[str, Any] = {"limit": 25, "offset": filters["offset"]}
-                    administrative_all = administrator and scope_control.value == "all"
+                    filters["loading"] = True
+                    def request_is_current() -> bool:
+                        return revision == saved_page_request["revision"] and not list_host.is_deleted and search_view_is_current()
+                    params = {**criteria, "limit": filters["limit"], "offset": offset}
+                    administrative_all = administrator and scope == "all"
                     if not administrative_all:
-                        params["scope"] = scope_control.value
-                    if query_control.value: params["q"] = str(query_control.value).strip()
-                    if resource_control.value: params["resource_type"] = resource_control.value
-                    if category_filter.value: params["category"] = str(category_filter.value).strip()
-                    if administrative_all:
-                        for key, control in (("owner_user_id", owner_filter), ("role_id", role_filter), ("org_unit_id", unit_filter), ("max_results_min", minimum_filter), ("max_results_max", maximum_filter), ("updated_from", updated_from), ("updated_before", updated_before)):
-                            if control.value not in (None, ""): params[key] = control.value
+                        params["scope"] = scope
                     try:
                         page = await (api.saved_search_administration(**params) if administrative_all else api.saved_searches(**params))
+                        if not request_is_current():
+                            return
                         # Resolve only this page's audience IDs, in bounded parallel batches.
                         audience_names: dict[str, dict[int, str]] = {"roles": {}, "org-units": {}}
                         lookups = []
@@ -593,13 +596,17 @@ def build_advanced_search(
                                 name = (target.get("localized") or {}).get("name") or target["name"]
                                 audience_names[kind][int(target["id"])] = f"{target['code']} — {name}"
                     except ApiError as error:
-                        if revision != saved_page_request["revision"] or not search_view_is_current():
+                        if not request_is_current():
                             return
                         list_host.clear()
                         with list_host: ui.label(error_message(error)).classes("text-negative")
                         return
-                    if revision != saved_page_request["revision"] or not search_view_is_current():
+                    finally:
+                        if revision == saved_page_request["revision"]:
+                            filters["loading"] = False
+                    if not request_is_current():
                         return
+                    filters.update(offset=page["offset"], total=page["total"], scope=scope, criteria=criteria)
                     list_host.clear()
                     categories = {item.get("category") for item in page["items"] if item.get("category")}
                     workspace["category_suggestions"] = sorted({
@@ -645,19 +652,32 @@ def build_advanced_search(
                     previous.set_enabled(page["offset"] > 0)
                     following.set_enabled(page["offset"] + page["limit"] < page["total"])
                 async def apply_page_filters() -> None:
-                    filters["offset"] = 0; await load_saved_page()
+                    criteria = {
+                        key: value for key, value in (
+                            ("q", str(query_control.value or "").strip()),
+                            ("resource_type", resource_control.value),
+                            ("category", str(category_filter.value or "").strip()),
+                        ) if value
+                    }
+                    if administrator and scope_control.value == "all":
+                        for key, control in (("owner_user_id", owner_filter), ("role_id", role_filter), ("org_unit_id", unit_filter), ("max_results_min", minimum_filter), ("max_results_max", maximum_filter), ("updated_from", updated_from), ("updated_before", updated_before)):
+                            if control.value not in (None, ""): criteria[key] = control.value
+                    await load_saved_page(scope=scope_control.value, criteria=criteria)
                 def toggle_filters() -> None:
                     visible = not advanced_filters.visible
                     advanced_filters.set_visibility(visible)
                     filter_button.props(f"aria-expanded={'true' if visible else 'false'}")
                 async def change_page(delta: int) -> None:
-                    filters["offset"] = max(0, filters["offset"] + delta); await load_saved_page()
+                    offset = filters["offset"] + delta
+                    if not filters["loading"] and 0 <= offset < filters["total"]:
+                        await load_saved_page(offset=offset)
                 filter_button.on("click", toggle_filters)
                 apply_filters.on("click", apply_page_filters)
                 query_control.on("keydown.enter", apply_page_filters)
                 if scope_control is not None:
-                    scope_control.on_value_change(apply_page_filters)
-                previous.on("click", lambda: change_page(-25)); following.on("click", lambda: change_page(25))
+                    scope_control.on_value_change(lambda event: load_saved_page(scope=event.value))
+                previous.on("click", lambda: change_page(-filters["limit"]))
+                following.on("click", lambda: change_page(filters["limit"]))
                 await load_saved_page()
             dialog.open()
 
@@ -973,14 +993,47 @@ def build_advanced_search(
             sort_field.value = workspace["sort_field"]
             sort_field.update()
 
-        async def execute_search() -> None:
-            if not search_view_is_current():
+        async def execute_search(*, page_offset: int | None = None) -> None:
+            if not search_view_is_current() or workspace.get("busy"):
                 return
-            expression, error = validate_builder()
-            if error:
-                show_validation(error)
-                validation_summary.run_method("focus")
+            if page_offset is None:
+                expression, error = validate_builder()
+                if error:
+                    show_validation(error)
+                    validation_summary.run_method("focus")
+                    return
+                maximum = max(1, min(5000, int(max_results.value or 1000)))
+                request = {
+                    "where": copy.deepcopy(expression),
+                    "sort": [{"field": workspace["sort_field"], "direction": workspace["sort_direction"]}],
+                    "limit": workspace["limit"],
+                }
+                if advanced_search_has_positive_full_text(workspace["root"]):
+                    request["include"] = ["full_text_matches"]
+                saved = workspace.get("saved")
+                if saved is not None and is_dirty():
+                    saved = None
+                execution = {
+                    "resource": workspace["resource"], "request": request,
+                    "max_results": maximum,
+                    "saved_id": int(saved["id"]) if saved else None,
+                    "saved_version": saved["version"] if saved else None,
+                }
+                page_offset = 0
+            else:
+                execution = workspace.get("execution")
+            if execution is None:
                 return
+
+            revision = workspace.get("execution_revision", 0)
+            def execution_is_current() -> bool:
+                return search_view_is_current() and workspace.get("execution_revision", 0) == revision
+
+            request = execution["request"]
+            maximum = execution["max_results"]
+            payload = {**request, "limit": min(request["limit"], maximum - page_offset), "offset": page_offset}
+            resource = execution["resource"]
+            saved_id = execution["saved_id"]
             workspace.update(busy=True, error=None)
             search_advanced.disable()
             status_label.text = render_message("webui.execute_search.text.searching_ec84eae6")
@@ -988,59 +1041,42 @@ def build_advanced_search(
             with results_host:
                 ui.spinner(size="lg").classes("self-center")
             try:
-                maximum = max(1, min(5000, int(max_results.value or 1000)))
-                workspace["max_results"] = maximum
-                remaining = maximum - workspace["offset"]
-                if remaining <= 0:
-                    workspace["offset"] = 0
-                    remaining = maximum
-                payload = {
-                    "where": expression,
-                    "sort": [{"field": workspace["sort_field"], "direction": workspace["sort_direction"]}],
-                    "limit": min(workspace["limit"], remaining), "offset": workspace["offset"],
-                }
-                if advanced_search_has_positive_full_text(workspace["root"]):
-                    payload["include"] = ["full_text_matches"]
-                saved = workspace.get("saved")
-                if saved is not None and not is_dirty():
+                if saved_id is not None:
                     result = await api.execute_saved_search(
-                        int(saved["id"]), {"limit": payload["limit"], "offset": payload["offset"]},
+                        saved_id, {"limit": payload["limit"], "offset": page_offset},
                     )
                 else:
-                    result = await api.search_request(workspace["resource"], payload)
-                if not search_view_is_current():
+                    result = await api.search_request(resource, payload)
+                if not execution_is_current():
                     return
-                workspace["record_component_details"] = {}
+                if saved_id is not None and result["saved_search"]["version"] != execution["saved_version"]:
+                    if workspace["last_result"] is not None:
+                        render_results(workspace["last_result"])
+                    else:
+                        results_host.clear()
+                        status_label.text = ""
+                    await show_stale_saved_search(saved_id)
+                    return
                 workspace["record_capabilities"] = {}
-                if workspace["resource"] == "records":
-                    async def load_matching_component_details(
-                        record_item: dict[str, Any],
-                    ) -> tuple[int, dict[str, Any], list[dict[str, Any]]]:
+                if resource == "records":
+                    async def load_record_capabilities(record_item: dict[str, Any]) -> dict[str, Any]:
                         try:
-                            record_id = int(record_item["id"])
-                            capabilities, components = await asyncio.gather(
-                                api.resource_capabilities("records", record_id),
-                                api.component_page(record_id, limit=25),
-                            )
-                            return record_id, capabilities, components["items"]
+                            return await api.resource_capabilities("records", int(record_item["id"]))
                         except ApiError:
-                            return int(record_item["id"]), {}, []
-                    component_contexts = await asyncio.gather(*(
-                        load_matching_component_details(record_item) for record_item in result.get("items", [])
+                            return {}
+                    result_items = result["items"]
+                    record_capabilities = await asyncio.gather(*(
+                        load_record_capabilities(record_item) for record_item in result_items
                     ))
-                    if not search_view_is_current():
+                    if not execution_is_current():
                         return
-                    workspace["record_component_details"] = {
-                        record_id: components for record_id, _, components in component_contexts
-                    }
                     workspace["record_capabilities"] = {
-                        record_id: capabilities for record_id, capabilities, _ in component_contexts
+                        int(item["id"]): capabilities for item, capabilities in zip(result_items, record_capabilities)
                     }
-                workspace["total"] = min(int(result["total"]), maximum)
-                workspace["searched"] = True
+                workspace.update(execution=execution, offset=page_offset, total=min(int(result["total"]), maximum), searched=True)
                 render_results(result)
             except ApiError as api_error:
-                if not search_view_is_current():
+                if not execution_is_current():
                     return
                 results_host.clear()
                 with results_host, ui.card().classes("w-full border border-red-200 bg-red-50 p-4 shadow-none"):
@@ -1048,9 +1084,9 @@ def build_advanced_search(
                     ui.label(error_message(api_error)).classes("text-sm text-red-700")
                 status_label.text = render_message("webui.execute_search.text.search_failed_e44b669e")
             finally:
-                workspace["busy"] = False
-                if search_view_is_current():
-                    search_advanced.enable()
+                if execution_is_current():
+                    workspace["busy"] = False
+                    refresh_saved_actions()
                     persist_workspace()
 
         def render_results(result: dict[str, Any]) -> None:
@@ -1084,15 +1120,12 @@ def build_advanced_search(
                 return
             with results_host:
                 with ui.column().classes("compact-result-list w-full gap-0"):
-                    uses_full_text = advanced_search_has_positive_full_text(workspace["root"])
+                    executed_request = workspace["execution"]["request"]
+                    uses_full_text = "full_text_matches" in executed_request.get("include", [])
                     for item in items:
                         search_meta = item.get("_search") or {}
-                        authorized_component_details = {
-                            int(component["id"]): component
-                            for component in workspace.get("record_component_details", {}).get(int(item["id"]), [])
-                        }
                         matching_components = [
-                            {**authorized_component_details.get(int(component["id"]), {}), **component}
+                            component
                             for component in search_meta.get("matching_components", [])
                             if component.get("id") is not None
                         ]
@@ -1100,23 +1133,19 @@ def build_advanced_search(
                             int(item["id"]), {}
                         )
                         if workspace["resource"] == "records":
-                            displayed_components = (
-                                matching_components if uses_full_text
-                                else list(authorized_component_details.values())
-                            )
+                            component_count = int(record_capabilities.get("component_count", 0))
                             render_compact_resource_result(
                                 "records", item,
                                 on_open=lambda selected: open_advanced_record(int(selected["id"]),selected.get("disposition_status")),
-                                components=displayed_components,
+                                components=matching_components if uses_full_text else None,
+                                component_total=component_count,
                                 metadata_matched=bool(search_meta.get("metadata_matched")),
                                 content_matched=bool(matching_components),
                                 show_medium=True,
-                                can_preview=bool(
-                                    record_capabilities.get("view_component")
-                                    and any(component_is_previewable(component) for component in authorized_component_details.values())
-                                ),
+                                can_preview=bool(record_capabilities.get("has_previewable_component")),
                                 can_expand_components=bool(
-                                    record_capabilities.get("list_components") and displayed_components
+                                    record_capabilities.get("list_components")
+                                    and (matching_components if uses_full_text else component_count)
                                 ),
                                 components_are_matches=uses_full_text,
                                 initially_expanded=int(item["id"]) in set(
@@ -1191,7 +1220,8 @@ def build_advanced_search(
 
         def reset_search(*, clear_metadata: bool = False) -> None:
             workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=25, max_results=1000, offset=0, total=0, searched=False, last_result=None)
-            workspace.update(expanded_results=[], record_component_details={}, record_capabilities={})
+            workspace.update(execution=None, execution_revision=workspace["execution_revision"] + 1, busy=False)
+            workspace.update(expanded_results=[], record_capabilities={})
             workspace.pop("return_anchor", None)
             if clear_metadata:
                 workspace.update(
@@ -1216,10 +1246,18 @@ def build_advanced_search(
             if await confirm_discard_changes("start a new search"):
                 reset_search(clear_metadata=True)
 
-        async def move_page(offset: int) -> None:
-            workspace["offset"] = max(0, min(offset, max(0, workspace["total"] - 1)))
-            workspace["offset"] = (workspace["offset"] // workspace["limit"]) * workspace["limit"]
-            await execute_search()
+        async def move_page(direction: str) -> None:
+            if workspace["execution"] is None:
+                return
+            limit = workspace["execution"]["request"]["limit"]
+            offset = {
+                "first": 0, "previous": workspace["offset"] - limit,
+                "next": workspace["offset"] + limit, "last": workspace["total"] - 1,
+            }[direction]
+            offset = max(0, min(offset, workspace["total"] - 1))
+            offset = (offset // limit) * limit
+            if offset != workspace["offset"]:
+                await execute_search(page_offset=offset)
 
         target.on_value_change(change_target)
         max_results.on_value_change(lambda event: (
@@ -1228,8 +1266,8 @@ def build_advanced_search(
         ))
         sort_field.on_value_change(lambda event: (workspace.__setitem__("sort_field", event.value), persist_workspace()))
         sort_direction.on_value_change(lambda event: (workspace.__setitem__("sort_direction", event.value), persist_workspace()))
-        page_size.on_value_change(lambda event: (workspace.update(limit=int(event.value), offset=0), persist_workspace()))
-        search_advanced.on("click", execute_search)
+        page_size.on_value_change(lambda event: (workspace.update(limit=int(event.value)), persist_workspace()))
+        search_advanced.on("click", lambda: execute_search())
         reset_advanced.on("click", reset_search)
         new_button.on("click", start_new_search)
         open_button.on("click", open_saved_search_dialog)
@@ -1239,10 +1277,10 @@ def build_advanced_search(
         )
         save_as_button.on("click", lambda: save_search(save_as=True))
         delete_button.on("click", delete_saved_search)
-        first_page.on("click", lambda: move_page(0))
-        previous_page.on("click", lambda: move_page(workspace["offset"] - workspace["limit"]))
-        next_page.on("click", lambda: move_page(workspace["offset"] + workspace["limit"]))
-        last_page.on("click", lambda: move_page(max(0, workspace["total"] - 1)))
+        first_page.on("click", lambda: move_page("first"))
+        previous_page.on("click", lambda: move_page("previous"))
+        next_page.on("click", lambda: move_page("next"))
+        last_page.on("click", lambda: move_page("last"))
         administered_search_id = advanced_search_state.pop("admin_saved_search_id", None)
         if administered_search_id is not None:
             try:
@@ -1255,7 +1293,7 @@ def build_advanced_search(
         if workspace.get("baseline") is None:
             workspace["baseline"] = current_saved_signature()
         refresh_saved_actions()
-        if workspace.get("searched") and isinstance(workspace.get("last_result"), dict):
+        if workspace["execution"] is not None and isinstance(workspace.get("last_result"), dict):
             render_results(workspace["last_result"])
         persist_workspace()
 

@@ -23,7 +23,7 @@ def collection_loader(scope):
         get_query=lambda:getattr(scope.get('search_input'),'value',''),
         pages=state.setdefault('collection_pages',{}),
         accept_results=lambda rows,searched:state.update(rows=rows,searched=searched),
-        clear_result_state=lambda resource:state.setdefault('entity_result_states',{}).pop(resource,None),
+        compact_states=state.setdefault('entity_result_states',{}),
         decorate_for_spec=scope['decorate_for_spec'],
         decorate_record_search_components=scope.get('decorate_record_search_components'),
         page_client=scope.get('page_client'),set_connection_status=scope['set_connection_status'],

@@ -32,8 +32,9 @@ def build_organization_users(
         guidance.text = ""
         table_container.clear()
         try:
+            assignment_page_size = 5
             person, assignment_page_result, session_configuration = await asyncio.gather(
-                api.get("users", user_id), api.user_roles(user_id, limit=50, offset=0),
+                api.get("users", user_id), api.user_roles(user_id, limit=assignment_page_size, offset=0),
                 api.application_configuration(),
             )
             if get_principal() is not principal or current_page() != "user-details" or view_token is not token:
@@ -42,7 +43,6 @@ def build_organization_users(
             accept_application_configuration(session_configuration)
             session_page_size = min(user_details_session_limit(session_configuration), 50)
             assignments = list(assignment_page_result.get("items") or [])
-            roles = [item.get("counterpart") or {} for item in assignments]
         except ApiError as error:
             ui.notify(error_message(error), color="negative", close_button=True)
             return
@@ -64,14 +64,12 @@ def build_organization_users(
         person["name"] = (
             (person.get("localized") or {}).get("name") or person["name"]
         )
-        roles = [role for role in roles if role.get("id") is not None]
         title.text = person["name"]
         subtitle.text = render_message("webui.select_user_details.text.user_details_and_account_administration_b2c8f493")
         register_navigation(
             "user-details", person["name"], entity_id=user_id,
             accessible_label=" — ".join(filter(None, (person["name"], person.get("email")))),
         )
-        role_by_id = {item["id"]: item for item in roles}
         can_administer_text_indexers = "identity.text_indexers.administer" in set(
             (get_principal() or {}).get("global_privileges", [])
         ) and person.get("account_type") != "service"
@@ -344,28 +342,16 @@ def build_organization_users(
                 if not assignments:
                     ui.label(render_message("webui.select_user_details.label.no_role_assignments_4a7fa329")).classes("text-slate-400")
                 else:
-                    now = datetime.now(timezone.utc)
-                    assignment_rows = []
-                    for item in assignments:
-                        role = role_by_id.get(item["role_id"], {})
-                        valid_from = datetime.fromisoformat(str(item["valid_from"]).replace("Z", "+00:00"))
-                        valid_until = datetime.fromisoformat(str(item["valid_until"]).replace("Z", "+00:00")) if item.get("valid_until") else None
-                        validity = "future" if valid_from > now else "expired" if valid_until and valid_until <= now else "current"
-                        assignment_rows.append({
-                            **item, "role": " — ".join(filter(None, (role.get("code"), role.get("name")))) or str(item["role_id"]),
-                            "role_status": role.get("effective_status", role.get("status", "unknown")),
-                            "validity": validity,
-                        })
                     with ui.row().classes("w-full items-end gap-2"):
-                        assignment_search = ui.input(render_message("webui.select_user_details.input.filter_role_name_or_code_e534534c")).props("outlined dense clearable").classes("grow")
+                        assignment_search = ui.input(render_message("webui.select_user_details.input.filter_role_name_or_code_e534534c")).props("outlined dense clearable debounce=250").classes("grow")
                         assignment_status = ui.select({"all": render_message("webui.select_user_details.select.all_role_statuses_cfa1f6a9"), "active": render_message("webui.select_user_details.select.active_f7618f84"), "inactive": render_message("webui.select_user_details.select.inactive_1875b5d5")}, value="all", label=render_message("webui.select_user_details.select.role_status_d3fdf1df")).props("outlined dense options-dense").classes("w-44")
                         assignment_validity = ui.select({"all": render_message("webui.select_user_details.select.all_validity_c7af57fc"), "current": render_message("webui.select_user_details.select.current_e6f547bc"), "future": render_message("webui.select_user_details.select.future_b677d9db"), "expired": render_message("webui.select_user_details.select.expired_2de6a536")}, value="all", label=render_message("webui.select_user_details.select.assignment_validity_df0ff7b6")).props("outlined dense options-dense").classes("w-48")
                     assignment_results = ui.element("div").classes(
                         "governance-card-list w-full"
                     )
-                    assignment_page_size = 5
                     assignment_state: dict[str, Any] = {
-                        "offset": 0, "filtered_rows": assignment_rows,
+                        "offset": 0, "total": assignment_page_result["total"],
+                        "items": assignments, "criteria": {}, "revision": 0, "loading": False,
                     }
 
                     def confirm_remove_role_assignment(row: dict[str, Any]) -> None:
@@ -399,12 +385,23 @@ def build_organization_users(
                         dialog.open()
 
                     def render_assignment_cards() -> None:
-                        rows = assignment_state["filtered_rows"]
                         offset = assignment_state["offset"]
-                        page_rows = rows[offset:offset + assignment_page_size]
+                        total = assignment_state["total"]
+                        now = datetime.now(timezone.utc)
+                        page_rows = []
+                        for item in assignment_state["items"]:
+                            role = item.get("counterpart") or {}
+                            valid_from = datetime.fromisoformat(str(item["valid_from"]).replace("Z", "+00:00"))
+                            valid_until = datetime.fromisoformat(str(item["valid_until"]).replace("Z", "+00:00")) if item.get("valid_until") else None
+                            validity = "future" if valid_from > now else "expired" if valid_until and valid_until <= now else "current"
+                            page_rows.append({
+                                **item, "role": " — ".join(filter(None, (role.get("code"), role.get("name")))) or str(item["role_id"]),
+                                "role_status": role.get("effective_status", role.get("status", "unknown")),
+                                "validity": validity,
+                            })
                         assignment_results.clear()
                         with assignment_results:
-                            if not rows:
+                            if not page_rows:
                                 ui.label(render_message("webui.render_assignment_cards.label.no_role_assignments_match_these_filters_649ccfe0")).classes(
                                     "w-full text-center text-slate-400 py-8"
                                 )
@@ -463,9 +460,9 @@ def build_organization_users(
                                             with ui.column().classes("gap-0 min-w-0"):
                                                 ui.label(label).classes("detail-field-label")
                                                 ui.label(value).classes("text-sm")
-                        start = offset + 1 if rows else 0
-                        end = min(offset + assignment_page_size, len(rows))
-                        assignment_page_label.text = render_message("webui.render_assignment_cards.text.start_end_of_row_count_f306a12a", start=start, end=end, row_count=len(rows))
+                        start = offset + 1 if page_rows else 0
+                        end = offset + len(page_rows) if page_rows else 0
+                        assignment_page_label.text = render_message("webui.render_assignment_cards.text.start_end_of_row_count_f306a12a", start=start, end=end, row_count=total)
                         assignment_page_label.update()
                         (
                             assignment_previous.enable
@@ -473,7 +470,7 @@ def build_organization_users(
                         )()
                         (
                             assignment_next.enable
-                            if offset + assignment_page_size < len(rows)
+                            if offset + assignment_page_size < total
                             else assignment_next.disable
                         )()
 
@@ -488,28 +485,50 @@ def build_organization_users(
                             render_message("webui.select_user_details.button.next_8ec4fd0d"), icon="chevron_right",
                         ).props("flat dense no-caps")
 
-                    def previous_assignment_page() -> None:
-                        assignment_state["offset"] = max(
-                            0, assignment_state["offset"] - assignment_page_size,
-                        )
-                        render_assignment_cards()
+                    async def load_assignments(offset: int, criteria: dict) -> None:
+                        assignment_state["revision"] += 1
+                        revision = assignment_state["revision"]
+                        assignment_state["loading"] = True
 
-                    def next_assignment_page() -> None:
-                        assignment_state["offset"] += assignment_page_size
-                        render_assignment_cards()
+                        def current() -> bool:
+                            return (revision == assignment_state["revision"] and view_token is token
+                                    and get_principal() is principal and not assignment_results.is_deleted
+                                    and current_page() == "user-details")
 
-                    assignment_previous.on("click", previous_assignment_page)
-                    assignment_next.on("click", next_assignment_page)
+                        try:
+                            result = await api.user_roles(user_id, limit=assignment_page_size, offset=offset, **criteria)
+                            if current() and not result["items"] and offset:
+                                offset = max(0, (int(result["total"]) - 1) // assignment_page_size * assignment_page_size)
+                                result = await api.user_roles(user_id, limit=assignment_page_size, offset=offset, **criteria)
+                        except ApiError as error:
+                            if current():
+                                show_api_error(error)
+                            return
+                        finally:
+                            if revision == assignment_state["revision"]:
+                                assignment_state["loading"] = False
+                        if current():
+                            assignment_state.update(offset=offset, total=result["total"],
+                                                    items=result["items"], criteria=criteria)
+                            render_assignment_cards()
 
-                    def filter_assignments() -> None:
-                        query = (assignment_search.value or "").strip().casefold()
-                        assignment_state["filtered_rows"] = [row for row in assignment_rows if (
-                            (not query or query in row["role"].casefold())
-                            and (assignment_status.value == "all" or row["role_status"] == assignment_status.value)
-                            and (assignment_validity.value == "all" or row["validity"] == assignment_validity.value)
-                        )]
-                        assignment_state["offset"] = 0
-                        render_assignment_cards()
+                    async def move_assignment_page(delta: int) -> None:
+                        offset = assignment_state["offset"] + delta * assignment_page_size
+                        if not assignment_state["loading"] and 0 <= offset < assignment_state["total"]:
+                            await load_assignments(offset, assignment_state["criteria"])
+
+                    assignment_previous.on("click", lambda: move_assignment_page(-1))
+                    assignment_next.on("click", lambda: move_assignment_page(1))
+
+                    async def filter_assignments() -> None:
+                        criteria = {}
+                        if query := (assignment_search.value or "").strip():
+                            criteria["display_q"] = query
+                        if assignment_status.value != "all":
+                            criteria["role_status"] = assignment_status.value
+                        if assignment_validity.value != "all":
+                            criteria["validity"] = assignment_validity.value
+                        await load_assignments(0, criteria)
                     for control in (assignment_search, assignment_status, assignment_validity):
                         control.on_value_change(filter_assignments)
                     render_assignment_cards()

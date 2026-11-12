@@ -1,18 +1,22 @@
 """Search state must not survive an authentication boundary (no database needed)."""
 import ast
 import asyncio
+from contextlib import nullcontext
+import copy
 import json
 import pytest
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+from unittest.mock import AsyncMock, Mock
+from frontend.webui.global_search_state import new_global_search_state
 
 SOURCE = ast.parse('\n'.join((Path(__file__).parents[1] / name).read_text() for name in ('app.py','global_search.py','advanced_search.py')))
 
 
 def load(name, namespace):
     state=namespace['state']
-    namespace.update(global_search_state=state, advanced_search_state=state,
+    namespace.update(global_search_state=state, advanced_search_state=state, new_global_search_state=new_global_search_state,
         get_principal=lambda:namespace.get('auth_state',{}).get('principal'),
         get_resource=lambda:state.get('resource'),
         enter_global_search=lambda:state.update(resource='full-text-search'),
@@ -27,20 +31,23 @@ def load(name, namespace):
 
 
 def test_logout_discards_query_results_and_diagnostics():
-    state = dict(global_search_revision=4, global_search_query='private query',
-                 global_search_items=[{'record': {'id': 42}}], search_diagnostics_sent={'private': True})
+    state = new_global_search_state('private query')
+    state.update(global_search_revision=4, search_diagnostics_sent={'private': True},
+                 global_search_streams={'record': ([{'record': {'id': 42}}], 'private cursor')},
+                 global_search_totals={'records': 1, 'aggregations': 0})
     control = SimpleNamespace(value='private query', update=lambda: None)
     load('clear_global_search_session', {'state': state, 'collection_state': state, 'global_search_input': control})()
     assert control.value == state['global_search_query'] == ''
-    assert state['global_search_items'] == []
+    assert state['global_search_streams'] == {}
+    assert state['global_search_totals'] is None
     assert state['search_diagnostics_sent'] is None
     assert state['global_search_revision'] == 5
 
 
 def test_old_search_response_cannot_repopulate_new_session():
     async def scenario():
-        state = dict(resource='full-text-search', global_search_revision=0,
-                     search_diagnostics_enabled=False, global_search_items=[])
+        state = new_global_search_state('private query')
+        state.update(resource='full-text-search', global_search_revision=0)
         principal = {'principal': {'id': 1}}
         started, release = asyncio.Event(), asyncio.Event()
         renders = []
@@ -66,7 +73,7 @@ def test_old_search_response_cannot_repopulate_new_session():
         principal['principal'] = {'id': 2}
         release.set()
         await task
-        assert state['global_search_items'] == []
+        assert state['global_search_streams'] == {}
         assert state['global_search_query'] == ''
         assert len(renders) == 1  # only the original loading render
     asyncio.run(scenario())
@@ -159,7 +166,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
 
 
 @pytest.mark.parametrize('change', ['value', 'operator', 'add', 'remove', 'group', 'full_text', 'sort'])
-def test_criteria_changes_reset_later_page_before_persisting(change):
+def test_draft_edits_preserve_the_displayed_page_when_persisted(change):
     import copy
     root = {'type': 'group', 'operator': 'and', 'children': [
         {'type': 'condition', 'kind': 'structured', 'field': 'title', 'operator': 'contains_ci', 'value': 'old'},
@@ -177,22 +184,70 @@ def test_criteria_changes_reset_later_page_before_persisting(change):
     elif change == 'full_text': root['children'][1]['query'] = 'new'
     else: workspace['sort_field'] = 'title'
     persist()
-    assert workspace['offset'] == state['advanced_search_workspace']['offset'] == 0
-    # Normal pagination for unchanged criteria must still work.
-    workspace['offset'] = 25
-    persist()
-    assert state['advanced_search_workspace']['offset'] == 25
+    assert workspace['offset'] == state['advanced_search_workspace']['offset'] == 75
+    assert state['advanced_search_workspace']['root'] == root
+    assert state['advanced_search_workspace']['sort_field'] == workspace['sort_field']
+
+
+def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
+    from frontend.webui.advanced_search_model import compile_advanced_search_node
+
+    async def scenario():
+        condition = {'type': 'condition', 'kind': 'structured', 'field': 'title',
+                     'operator': 'contains_ci', 'value': 'original'}
+        dates = {'type': 'condition', 'kind': 'structured', 'field': 'date_opened',
+                 'operator': 'between', 'value': ['2026-01-01', '2026-12-31']}
+        workspace = dict(root={'type': 'group', 'operator': 'and', 'children': [condition, dates]},
+                         resource='aggregations', sort_field='id', sort_direction='asc', limit=25)
+        maximum = SimpleNamespace(value=62)
+        search_request = AsyncMock(return_value={'items': [], 'total': 80})
+        host = nullcontext()
+        host.clear = Mock()
+        namespace = dict(
+            state={}, workspace=workspace, search_view_is_current=lambda: True, copy=copy,
+            validate_builder=lambda: (compile_advanced_search_node(workspace['root'], 'aggregations'), None),
+            advanced_search_has_positive_full_text=lambda root: False,
+            api=SimpleNamespace(search_request=search_request), max_results=maximum,
+            search_advanced=Mock(), ui=Mock(), results_host=host, status_label=SimpleNamespace(),
+            render_message=lambda key: key, render_results=Mock(), refresh_saved_actions=Mock(),
+            persist_workspace=Mock(), ApiError=RuntimeError,
+        )
+        execute = load('execute_search', namespace)
+        move_page = load('move_page', namespace)
+        await execute()
+        original = copy.deepcopy(search_request.await_args.args[1])
+        assert original['where']['and'][0]['value'] == 'original'
+        condition['value'] = 'draft'
+        dates['value'][0] = '2026-06-01'
+        workspace.update(sort_field='title', sort_direction='desc', limit=100)
+        maximum.value = 5
+        for direction, offset, limit in (
+            ('next', 25, 25), ('last', 50, 12), ('previous', 25, 25), ('first', 0, 25),
+        ):
+            await move_page(direction)
+            assert workspace['offset'] == offset
+            assert search_request.await_args.args == ('aggregations', {**original, 'offset': offset, 'limit': limit})
+        assert search_request.await_count == 5
+        await move_page('next')
+        await execute()
+        submitted = search_request.await_args.args[1]
+        assert workspace['offset'] == submitted['offset'] == 0
+        assert submitted['where']['and'][0]['value'] == 'draft'
+        assert submitted['where']['and'][1]['value'][0] == '2026-06-01'
+        assert submitted['sort'] == [{'field': 'title', 'direction': 'desc'}]
+        assert submitted['limit'] == 5
+    asyncio.run(scenario())
 
 
 def test_global_search_state_factory_keeps_clients_independent():
     from frontend.webui.global_search_state import new_global_search_state
     first, second = new_global_search_state(' private '), new_global_search_state()
-    first['global_search_items'].append({'type': 'record', 'record': {'id': 7}})
+    first['global_search_streams']['record'] = ([{'type': 'record', 'record': {'id': 7}}], 'cursor')
     first['global_search_expanded_results'].add('records:7')
     first['search_diagnostics_sent'] = {'query': 'private'}
     assert first['global_search_query'] == 'private'
     assert second['global_search_query'] == ''
-    assert second['global_search_items'] == []
+    assert second['global_search_streams'] == {}
     assert second['global_search_expanded_results'] == set()
     assert second['search_diagnostics_sent'] is None
 

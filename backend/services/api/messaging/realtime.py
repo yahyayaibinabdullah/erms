@@ -18,6 +18,7 @@ import psycopg
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
 from starlette.responses import StreamingResponse
 
+from ..operation_policy import operation_policy
 from ..authentication import SESSION_COOKIE, hash_secret
 from ..config import integer_environment
 from ..database import database_url, pool
@@ -351,6 +352,7 @@ class BoundedStream(StreamingResponse):
 
 
 @router.get("/stream/sse")
+@operation_policy("relationship_scoped")
 async def sse_stream(request: Request):
     token = credentials(request)
     user = await asyncio.to_thread(authenticate, token)

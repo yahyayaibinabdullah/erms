@@ -851,6 +851,37 @@ async def test_blockers_dialog_shows_partial_relationships_pagination_and_inline
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize('holds_has_more', [False, True])
+async def test_blockers_hold_notice_depends_on_overflow_flag(host, holds_has_more):
+    from frontend.webui.disposition.screens import blockers_dialog
+
+    holds = [{'code': f'H-{n}', 'name': 'Fixture hold'} for n in range(1, 26)]
+
+    async def request(path, **params):
+        return {
+            'items': [{
+                'resource_kind': 'record', 'resource_id': 2, 'resource_label': 'Fixture record',
+                'redacted': False, 'is_vital': False, 'security_blocked': False,
+                'legal_hold': True, 'holds': holds, 'holds_has_more': holds_has_more,
+            }],
+            'relationships_block_final': False, 'has_more': False,
+        }
+
+    with host:
+        await blockers_dialog(
+            api=SimpleNamespace(disposition_page=request),
+            root={'id': 1, 'aggregation_number': 'ROOT-1', 'title': 'Readable root'},
+            active=lambda: True, on_error=str, open_resource=None,
+        )
+        dialog = next(e for e in host.descendants() if isinstance(e, ui.dialog) and e.value)
+        labels = [e.text for e in dialog.descendants() if isinstance(e, ui.label)]
+        assert [label for label in labels if label.endswith('Fixture hold')] == [
+            f'{hold["code"]} · {hold["name"]}' for hold in holds
+        ]
+        assert (text('blockers_holds_more') in labels) == holds_has_more
+
+
+@pytest.mark.asyncio
 async def test_removal_picker_disables_saved_queued_and_restricted_rows_and_links_details(host,monkeypatch):
     monkeypatch.setattr(core,'loop',asyncio.get_running_loop());monkeypatch.setattr(ui,'notify',lambda *a,**kw:None)
     api=Api();original=api.disposition_page;reads=[]

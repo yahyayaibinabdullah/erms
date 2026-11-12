@@ -1,8 +1,20 @@
 """Saved-query restoration, sharing controls, unsaved guard and administration."""
 import subprocess
 import json
+from urllib.parse import parse_qs
 from selenium.webdriver.common.keys import Keys
 from tools.check_webui_browser import plain
+
+
+def saved_search_dialog(page):
+    card = page.one('.q-dialog__inner > .q-card')
+    # Wait for the dialog's scale transition before targeting a button inside it.
+    page.wait.until(lambda _: page.driver.execute_script('''
+        const dialog = arguments[0].parentElement;
+        return ![...dialog.classList].some(name => name.endsWith('-enter-active')) &&
+               !dialog.getAnimations().some(animation => animation.playState === 'running');
+    ''', card))
+    return card
 
 
 def check_advanced_search(page):
@@ -31,7 +43,7 @@ with psycopg.connect(url) as c:
         if language=='ar':page.settings();page.language_change('ar')
         with page.check('saved search opens, executes and retains sharing controls'):
             page.drawer('advanced_search');page.one('.advanced-search-page');url=page.driver.current_url;history=page.driver.execute_script('return history.length')
-            click('webui.select_advanced_search.button.open_saved_search_8bef667f');d=dialog();page.see('Browser saved query');capture('saved-list')
+            click('webui.select_advanced_search.button.open_saved_search_8bef667f');d=saved_search_dialog(page);page.see('Browser saved query');capture('saved-list')
             click('webui.load_saved_page.button.open_2606a7e0',d);closed();page.wait.until(lambda _:page.field(page.t(value)).get_attribute('value')=='Test')
             field=page.field(page.t(value));page.activate(field);field.send_keys(Keys.TAB);active=page.driver.switch_to.active_element
             assert active.text=='cancel' and active.get_attribute('role')=='button';active.send_keys(Keys.TAB);active=page.driver.switch_to.active_element
@@ -55,7 +67,7 @@ with psycopg.connect(url) as c:
         return response.json()
     def open_named(name):
         click('webui.select_advanced_search.button.open_saved_search_8bef667f')
-        d=dialog()
+        d=saved_search_dialog(page)
         card=page.wait.until(lambda _:next((c for c in page.visible('.q-card',d)
             if any(plain(label.text)==name for label in c.find_elements('css selector','.font-semibold'))),False))
         click('webui.load_saved_page.button.open_2606a7e0',card);closed()
@@ -113,4 +125,123 @@ with psycopg.connect(url) as c:
                     'saved_execution_matches_api':True,'edited_value_retained':True,
                     'before_version':saved['version'],'after_version':updated['version']})
                 page.settings()
+    response=page.api.post('/api/v1/aggregations/search',json={
+        'where':{'field':'aggregation_number','operator':'eq','value':'TEST-AGG'},'limit':1,
+    })
+    response.raise_for_status()
+    classification_id=response.json()['items'][0]['classification_id']
+    fixture_ids=[]
+    for i in range(27):
+        response=page.api.post('/api/v1/aggregations',json={
+            'aggregation_number':f'PAGEGUARD-{i:02}','title':f'Pageguard fixture {i:02}',
+            'classification_id':classification_id,'medium':'physical','date_opened':'2026-01-01T00:00:00Z',
+        })
+        response.raise_for_status()
+        fixture_ids.append(response.json()['id'])
+    response=page.api.post('/api/v1/saved-searches',json={
+        'name':'Pagination draft fixture','audience_mode':'private',
+        'definition':{'schema_version':1,'resource_type':'aggregation','max_results':1000,'request':{
+            'where':{'field':'title','operator':'contains_ci','value':'Pageguard fixture'},
+            'sort':[{'field':'id','direction':'asc'}],'limit':25,'offset':0,
+        }},
+    })
+    response.raise_for_status()
+    paging_query_id=response.json()['id']
+    for language in ('en','ar'):
+        if page.language!=language:
+            page.settings();page.language_change(language)
+        with page.check('advanced paging keeps the submitted saved query until Search is clicked'):
+            page.drawer('advanced_search');page.one('.advanced-search-page')
+            open_named('Pagination draft fixture')
+            search='webui.select_advanced_search.button.search_97989f23'
+            next_page='webui.select_advanced_search.accessible_name.next_page_d75b42e2'
+            click(search,page.one('.advanced-search-submit-row'))
+            page.wait.until(lambda _:result_ids('aggregations')==fixture_ids[:25])
+            page.fill(page.t(value),'Pageguard fixture 26')
+            started=len(page.events())
+            click(next_page)
+            page.wait.until(lambda _:result_ids('aggregations')==fixture_ids[25:])
+            requests=page.events()[started:]
+            assert [e['path'] for e in requests if e['method']=='POST']==[
+                f'/api/v1/saved-searches/{paging_query_id}/execute',
+            ]
+            assert page.field(page.t(value)).get_attribute('value')=='Pageguard fixture 26'
+            capture('pending-criteria-page-two')
+            started=len(page.events())
+            click(search,page.one('.advanced-search-submit-row'))
+            page.wait.until(lambda _:result_ids('aggregations')==fixture_ids[-1:])
+            assert [e['path'] for e in page.events()[started:] if e['method']=='POST']==['/api/v1/aggregations/search']
+            assert not page.button(page.t(next_page)).is_enabled()
+            click('webui.select_advanced_search.button.reset_507afbb7',page.one('.advanced-search-submit-row'))
+            page.errors()
+    check_saved_search_list_paging(page)
     assert not [e for e in page.events() if e['status'] is None or e['status']>=400]
+
+
+def check_saved_search_list_paging(page):
+    for index in range(27):
+        response=page.api.post('/api/v1/saved-searches',json={
+            'name':f'SavedPickerFixture {index:02}','audience_mode':'private',
+            'definition':{'schema_version':1,'resource_type':'record','max_results':1000,'request':{
+                'where':{'field':'title','operator':'contains_ci','value':'Test'},
+                'sort':[{'field':'id','direction':'asc'}],'limit':25,'offset':0,
+            }},
+        })
+        response.raise_for_status()
+    query='SavedPickerFixture'
+    draft='SavedPickerFixture 26'
+    path='/api/v1/saved-searches'
+    for language in ('en','ar'):
+        if page.language!=language:
+            page.settings();page.language_change(language)
+        label=page.t('webui.open_saved_search_dialog.input.search_saved_searches_3352fa10')
+        next_label=page.t('webui.open_saved_search_dialog.button.next_ba38d6aa')
+        previous_label=page.t('webui.open_saved_search_dialog.button.previous_f6a88eee')
+        apply_label=page.t('webui.open_saved_search_dialog.button.apply_filters_63a71659')
+        range_text=page.t('webui.load_saved_page.text.start_value_of_total_eed8d817')
+
+        def check_read(action, *, endpoint, term, offset, scope=None):
+            started=len(page.events())
+            action()
+            def reads():
+                return [e for e in page.events()[started:] if e['path']==endpoint and e['method']=='GET']
+            page.wait.until(lambda _:bool(reads()))
+            end,total=(1,1) if term==draft else (27 if offset else 25,27)
+            page.see(range_text.format(start=offset+1,value=end,total=total))
+            result=reads()
+            assert len(result)==1 and result[0]['status']==200
+            params=parse_qs(result[0]['query'])
+            assert params['q']==[term] and params['offset']==[str(offset)] and params['limit']==['25']
+            if scope:
+                assert params['scope']==[scope]
+
+        with page.check('saved-search chooser pages the applied query until Enter'):
+            page.drawer('advanced_search');page.one('.advanced-search-page')
+            page.click(page.t('webui.select_advanced_search.button.open_saved_search_8bef667f'))
+            dialog=saved_search_dialog(page)
+            page.fill(label,query)
+            check_read(lambda:page.field(label).send_keys(Keys.ENTER),endpoint=path,term=query,offset=0,scope='all')
+            page.fill(label,draft)
+            check_read(lambda:page.click(next_label,dialog),endpoint=path,term=query,offset=25,scope='all')
+            assert page.field(label).get_attribute('value')==draft
+            page.capture('saved-chooser-pending-filter-'+language)
+            mine=page.one('[role=tab]',page.t('webui.open_saved_search_dialog.tab.mine_74806472'),scope=dialog)
+            check_read(lambda:page.activate(mine),endpoint=path,term=query,offset=0,scope='owned')
+            assert page.field(label).get_attribute('value')==draft
+            check_read(lambda:page.field(label).send_keys(Keys.ENTER),endpoint=path,term=draft,offset=0,scope='owned')
+            assert not page.button(next_label,dialog).is_enabled()
+            page.field(label).send_keys(Keys.ESCAPE)
+            page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
+
+        with page.check('saved-search administration pages the applied query until Apply'):
+            page.click(page.t('privilege.search.saved_search.administrator.name'))
+            endpoint=path+'/administration'
+            page.fill(label,query)
+            check_read(lambda:page.click(apply_label),endpoint=endpoint,term=query,offset=0)
+            page.fill(label,draft)
+            check_read(lambda:page.click(next_label),endpoint=endpoint,term=query,offset=25)
+            assert page.field(label).get_attribute('value')==draft
+            page.capture('saved-administration-pending-filter-'+language)
+            check_read(lambda:page.click(apply_label),endpoint=endpoint,term=draft,offset=0)
+            assert not page.button(previous_label).is_enabled()
+            page.errors()

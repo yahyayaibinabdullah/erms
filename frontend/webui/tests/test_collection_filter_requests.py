@@ -93,16 +93,16 @@ def test_clear_search_discards_pending_results_and_resets_result_controls(resour
                  and n.name == 'clear_collection_search']
     async def run():
         started, release = asyncio.Event(), asyncio.Event()
-        async def search(*args):
+        async def search(*args, **kwargs):
             started.set()
             await release.wait()
-            return [{'id': 408}]
+            return {'items': [{'id': 408}], 'total': 1}
         async def decorate(spec, rows):
             return rows
         search_input = Mock(value='سجل')
         state = dict(resource=resource, searched=True, rows=[{'id': 1}],
                      entity_result_states={resource: {'filter': 'old', 'page': 3}})
-        scope = dict(ENTITIES=ENTITIES, state=state, collection_state=state, api=Mock(search=search),
+        scope = dict(ENTITIES=ENTITIES, state=state, collection_state=state, api=Mock(search_request=search),
                      Any=Any, Callable=Callable, search_input=search_input,
                      decorate_for_spec=decorate, set_connection_status=Mock(),
                      render_table=Mock(), page_client=SimpleNamespace(_deleted=False))
@@ -118,4 +118,54 @@ def test_clear_search_discards_pending_results_and_resets_result_controls(resour
         assert search_input.value == ''
         search_input.run_method.assert_called_once_with('focus')
         scope['render_table'].assert_called_once_with(ENTITIES[resource])
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize('resource', ['aggregations', 'records'])
+def test_compact_search_requests_only_visible_page_and_keeps_submitted_query(resource):
+    async def run():
+        api = Mock(search_request=AsyncMock(return_value={'items': [{'id': 103}], 'total': 103}))
+        search = Mock(value='Submitted')
+        state = {'resource': resource}
+        decorate = AsyncMock(side_effect=lambda spec, rows: rows)
+        decorate_components = AsyncMock(side_effect=lambda rows: rows)
+        loader = collection_loader(dict(
+            state=state, search_input=search, api=api, decorate_for_spec=decorate,
+            decorate_record_search_components=decorate_components,
+            set_connection_status=Mock(), render_table=Mock(),
+        ))
+        await loader()
+        result = state['entity_result_states'][resource]
+        assert result['total'] == 103
+        search.value = 'Draft'
+        await loader(compact_state={**result, 'page': 11})
+        args, kwargs = api.search_request.call_args
+        assert args[0] == resource
+        request = SearchRequest.model_validate(args[1])
+        assert (request.limit, request.offset) == (10, 100)
+        assert all(condition.value == 'Submitted' for condition in request.where.or_)
+        assert kwargs == {'display_filter': ''}
+        assert state['entity_result_states'][resource]['page'] == 11
+        assert state['rows'] == [{'id': 103}]
+        assert decorate_components.await_count == (2 if resource == 'records' else 0)
+    asyncio.run(run())
+
+
+def test_dashboard_scope_is_kept_when_unclassified_roots_are_paged_or_refreshed():
+    async def run():
+        api = Mock(search_request=AsyncMock(return_value={'items': [], 'total': 111}))
+        state = {'resource': 'aggregations'}
+        loader = collection_loader(dict(
+            state=state, search_input=Mock(value='Draft'), api=api,
+            decorate_for_spec=AsyncMock(return_value=[]),
+            set_connection_status=Mock(), render_table=Mock(),
+        ))
+        await loader(compact_state={'query': '', 'unclassified_roots': True, 'page': 11})
+        await loader(repeat_search=True)
+        assert api.search_request.await_count == 2
+        for call in api.search_request.await_args_list:
+            request = SearchRequest.model_validate(call.args[1])
+            assert (request.limit, request.offset) == (10, 100)
+            assert {leaf.field for leaf in request.where.and_} == {'parent_aggregation_id', 'classification_id'}
+            assert all(leaf.operator == 'is_null' for leaf in request.where.and_)
     asyncio.run(run())

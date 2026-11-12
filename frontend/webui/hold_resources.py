@@ -12,7 +12,7 @@ def build_hold_resources(
 ):
     async def add_resource_to_hold_dialog(resource_type: str, resource_id: int, refresh_page: Any) -> None:
         dialog = ui.dialog()
-        paging = {"offset": 0, "limit": 25, "total": 0}
+        paging = {"offset": 0, "limit": 25, "total": 0, "query": None, "revision": 0, "loading": False}
         known_holds: dict[int, str] = {}
         with dialog, ui.card().classes("w-[520px] max-w-full"):
             ui.label(render_message("webui.add_resource_to_hold_dialog.label.add_to_hold_057d6b79")).classes("text-xl font-semibold")
@@ -26,22 +26,30 @@ def build_hold_resources(
                 next_hold_page = ui.button(icon="chevron_right").props("flat round dense")
             reason = ui.textarea(render_message("webui.add_resource_to_hold_dialog.textarea.reason_cd1ea4c6")).props("outlined autogrow maxlength=2000").classes("w-full")
 
-            async def load_hold_page(*, reset: bool = False) -> None:
-                if reset:
-                    paging["offset"] = 0
+            async def load_hold_page(offset: int, query: str | None) -> None:
+                if dialog.is_deleted or not dialog.value:
+                    return
+                paging["revision"] += 1
+                revision = paging["revision"]
+                paging["loading"] = True
+                def request_is_current() -> bool:
+                    return revision == paging["revision"] and not dialog.is_deleted and dialog.value
                 try:
-                    result = await api.holds_page(
-                        q=(hold_query.value or "").strip() or None,
-                        limit=paging["limit"], offset=paging["offset"],
-                    )
+                    result = await api.holds_page(q=query, limit=paging["limit"], offset=offset)
                 except ApiError as error:
-                    ui.notify(error_message(error), color="negative", close_button=True)
+                    if request_is_current():
+                        ui.notify(error_message(error), color="negative", close_button=True)
+                    return
+                finally:
+                    if revision == paging["revision"]:
+                        paging["loading"] = False
+                if not request_is_current():
                     return
                 manageable = [
                     item for item in result["items"]
                     if item.get("capabilities", {}).get("manage_held_items")
                 ]
-                paging["total"] = int(result["total"])
+                paging.update(offset=offset, query=query, total=int(result["total"]))
                 for item in manageable:
                     known_holds[int(item["id"])] = f"{item['code']} — {item['name']}"
                 selected.options = dict(known_holds)
@@ -53,10 +61,14 @@ def build_hold_resources(
                 next_hold_page.set_enabled(end < paging["total"])
 
             async def move_hold_page(direction: int) -> None:
-                paging["offset"] = max(0, paging["offset"] + direction * paging["limit"])
-                await load_hold_page()
+                offset = paging["offset"] + direction * paging["limit"]
+                if not paging["loading"] and 0 <= offset < paging["total"]:
+                    await load_hold_page(offset, paging["query"])
 
-            hold_query.on("keydown.enter", lambda: load_hold_page(reset=True))
+            async def submit_hold_filter() -> None:
+                await load_hold_page(0, (hold_query.value or "").strip() or None)
+
+            hold_query.on("keydown.enter", submit_hold_filter)
             previous_hold_page.on("click", lambda: move_hold_page(-1))
             next_hold_page.on("click", lambda: move_hold_page(1))
             async def submit() -> None:
@@ -71,7 +83,7 @@ def build_hold_resources(
                 ui.button(render_message("webui.add_resource_to_hold_dialog.button.cancel_b8201f0b"), on_click=dialog.close).props("flat no-caps")
                 ui.button(render_message("webui.add_resource_to_hold_dialog.button.add_25497227"), icon="add_link", on_click=submit).props("unelevated no-caps")
         dialog.open()
-        background_tasks.create(load_hold_page(reset=True))
+        background_tasks.create(load_hold_page(0, None))
 
 
     def show_effective_holds_dialog(

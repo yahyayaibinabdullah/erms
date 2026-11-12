@@ -16,10 +16,10 @@ def _grant_phase3_privileges() -> None:
         )
 
 
-def _upload(client, record: dict, name: str = "approved-budget.txt") -> dict:
+def _upload(client, record: dict, name: str = "approved-budget.txt", *, order: int = 1) -> dict:
     response = client.post(
         f"/api/v1/records/{record['id']}/digital-components/upload",
-        data={"component_order": 1},
+        data={"component_order": order},
         files={"file": (name,b"approved budget expenditure evidence","text/plain")},
     )
     assert response.status_code == 201, response.text
@@ -64,10 +64,41 @@ def test_full_text_grammar_ranking_attribution_and_debug(client, record):
     assert result["items"][0]["_search"]["matching_components"][0]["id"]==component["id"]
     assert "⟦" in result["items"][0]["_search"]["matching_components"][0]["snippet"]
     assert result["items"][0]["_search"]["matching_components"][0]["leaf_ids"]==["fts_1"]
+    match = result["items"][0]["_search"]["matching_components"][0]
+    assert (match["mime_type"], match["content_status"]) == ("text/plain", "available")
     assert result["_debug"]["received_request"]==payload
     assert result["_debug"]["canonical_query"]["sort"][-1]=={"field":"id","direction":"asc"}
     serialized=str(result["_debug"]).lower()
     assert all(secret not in serialized for secret in ("select ","cookie","authorization","password","lease_token"))
+
+
+def test_preview_pages_count_only_supported_available_components_and_find_the_selected_page(client, record):
+    _grant_phase3_privileges()
+    with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        connection.execute(
+            """INSERT INTO digital_components(record_id,component_order,file_name,mime_type,
+                                              size_in_bytes,checksum_algo,checksum_value)
+               SELECT %s,i,'pending.pdf','application/pdf',0,'sha256','pending'
+                 FROM generate_series(1,51) i""",
+            (record["id"],),
+        )
+    first = _upload(client, record, "first.TXT", order=52)
+    second = _upload(client, record, "second.txt", order=90)
+    unsupported = _upload(client, record, ".txt", order=99)
+    path = f"/api/v1/records/{record['id']}"
+    capabilities = client.get(f"{path}/capabilities").json()["capabilities"]
+    assert capabilities["component_count"] == 54
+    assert capabilities["has_previewable_component"] is True
+    page_url = f"{path}/digital-components/previewable"
+    page = client.get(page_url, params={"limit": 1})
+    assert page.status_code == 200, page.text
+    assert page.json() == {"items": [first], "total": 2, "offset": 0, "limit": 1, "returned": 1}
+    focused = client.get(page_url, params={"limit": 1, "selected_component_id": second["id"]})
+    assert focused.status_code == 200, focused.text
+    assert focused.json() == {"items": [second], "total": 2, "offset": 1, "limit": 1, "returned": 1}
+    assert client.get(page_url, params={"limit": 1, "offset": 1}).json() == focused.json()
+    assert client.get(page_url, params={"selected_component_id": unsupported["id"]}).status_code == 404
+    assert client.get(page_url, params={"limit": 101}).status_code == 422
 
 
 def test_full_text_validation_and_non_indexable_queries(client, record):
@@ -126,9 +157,15 @@ def test_global_search_requires_matching_branches_and_returns_opaque_cursor_cont
     first=client.post("/api/v1/full-text-search",json=payload)
     assert first.status_code==200,first.text
     body=first.json(); assert len(body["items"])==1 and body["next_cursor"]
+    assert "totals" not in body
     assert set(body["index_freshness"])=={"has_pending_content"}
+    counted=client.post("/api/v1/full-text-search",json={**payload,"include_totals":True})
+    assert counted.status_code==200,counted.text
+    assert counted.json()["totals"]=={"records":1,"aggregations":1}
+    assert counted.json()["next_cursor"]==body["next_cursor"]
     second=client.post("/api/v1/full-text-search",json={**payload,"cursor":body["next_cursor"]})
     assert second.status_code==200 and len(second.json()["items"])==1
+    assert "totals" not in second.json()
     for item in body["items"] + second.json()["items"]:
         resource = item[item["type"]]
         assert isinstance(resource["security_level_id"], int)
@@ -189,6 +226,18 @@ def test_sys_admin_privilege_does_not_bypass_resource_acl_or_disclose_search(cli
         "where":{"full_text":{"query":"approved budget"}},"include":["full_text_matches"],
     })
     assert search.status_code==200 and search.json()["items"]==[] and search.json()["total"]==0
+    global_search=client.post("/api/v1/full-text-search",json={
+        "record_where":{"full_text":{"query":"approved budget"}},
+        "aggregation_where":{"full_text":{"query":"root aggregation"}},
+        "result_types":["records","aggregations"],
+        "include_totals":True,
+    })
+    assert global_search.status_code==200,global_search.text
+    assert global_search.json()["items"]==[]
+    assert global_search.json()["totals"]=={"records":0,"aggregations":0}
+    preview_page = client.get(f"/api/v1/records/{record['id']}/digital-components/previewable")
+    assert preview_page.status_code in {403,404}
+    assert component["file_name"] not in preview_page.text
     reindex=client.post(f"/api/v1/digital-components/{component['id']}/reindex")
     assert reindex.status_code in {403,404}
 

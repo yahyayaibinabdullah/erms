@@ -4,6 +4,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Query, Request
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .authentication import Principal, principal_from_request
 from .database import get_connection
 from .schemas import DashboardReviewItem, DashboardSummaryRead
@@ -23,6 +24,7 @@ REVIEW_WINDOW_END_SQL = """CASE WHEN %s::bigint > (DATE '294276-12-31'-CURRENT_D
 
 
 @router.get("/reviews", response_model=list[DashboardReviewItem])
+@operation_policy("authenticated_only")
 def dashboard_reviews(
     state: Literal["overdue", "upcoming"] = Query(...),
     limit: int = Query(500, ge=1, le=500),
@@ -242,6 +244,7 @@ def _resource_metrics(connection: Connection, review_window_days: int, review_pr
 
 
 @router.get("/summary", response_model=DashboardSummaryRead)
+@operation_policy("authenticated_only")
 def dashboard_summary(
     request: Request,
     recent_limit: int | None = Query(None, ge=1, le=50),

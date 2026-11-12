@@ -16,12 +16,15 @@ def check_aggregations(page):
     def capture(name,target=None):page.capture('aggregations-'+name+'-'+page.language,target=target)
     def record_rows():return page.visible('.compact-result-item')
     def child_rows():return page.visible('.aggregation-child-preview')
-    def filter_records(value):
-        label=page.t('webui.open_aggregation.input.filter_records_d5ad0981')
-        page.fill(label,value)
-        field=page.field(label);page.activate(field)
+    def record_filter_label():
+        return page.t('webui.open_aggregation.input.filter_records_d5ad0981')
+    def submit_record_filter():
+        field=page.field(record_filter_label());page.activate(field)
         time.sleep(.4)  # Existing input debounce before the Enter-triggered request.
         field.send_keys(Keys.ENTER)
+    def filter_records(value):
+        page.fill(record_filter_label(),value)
+        submit_record_filter()
     def expect_empty_filter(value):
         empty=page.t('webui.render_contained_records.label.no_records_match_this_filter_1041b4b7')
         page.see(empty)
@@ -80,6 +83,28 @@ def check_aggregations(page):
                 'second_empty_query':True,'clear_recovers_without_reload':True,
                 'record_paging_restored':True,'child_page_preserved':True})
             page.driver.refresh();page.wait.until(lambda _:len(record_rows())==10 and len(child_rows())==25)
+        with page.check('contained-record paging and return preserve the submitted filter and pending draft'):
+            filter_records('Record fixture')
+            page.see(page.t('webui.open_aggregation.label.record_count_records_ca93489a').format(record_count=12))
+            page.fill(record_filter_label(),'REC-11')
+            time.sleep(.4)
+            page_number(page.visible('.q-pagination')[1],2)
+            def second_page():
+                rows=record_rows()
+                return len(rows)==2 and 'REC-11' in rows[0].text and 'REC-12' in rows[1].text
+            page.wait.until(lambda _:second_page())
+            assert page.field(record_filter_label()).get_attribute('value')=='REC-11'
+            capture('records-pending-filter',page.one('.compact-result-list'))
+            page.activate(page.one('button[aria-label="Open record"]',scope=record_rows()[1]))
+            page.see(page.t('webui.render_component_section.label.this_is_a_physical_record_5a1bd071'))
+            page.activate(page.one('button.detail-linked-entity'))
+            page.wait.until(lambda _:second_page())
+            assert page.field(record_filter_label()).get_attribute('value')=='REC-11'
+            submit_record_filter()
+            page.wait.until(lambda _:len(record_rows())==1 and 'REC-11' in record_rows()[0].text)
+            assert len(page.visible('.q-pagination'))==1
+            filter_records('')
+            page.wait.until(lambda _:len(record_rows())==10 and len(page.visible('.q-pagination'))==2)
         with page.check('aggregation metadata keyboard focus and unchanged action dialogs'):
             click('webui.open_aggregation.button.edit_metadata_3ee4d255');d=dialog()
             title=page.field(page.t('entity_metadata.field.title')+' *');page.activate(title);title.send_keys(Keys.TAB)

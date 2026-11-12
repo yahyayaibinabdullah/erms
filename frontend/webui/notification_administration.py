@@ -95,7 +95,7 @@ async def notification_administration(
     *, api, container, relationship_select, bind_relationship, format_timestamp, active
 ):
     base = "/api/v1/notification-administration"
-    state = {"revision": 0, "cursor": "", "previous": [], "next": None}
+    state = {"revision": 0, "cursor": "", "previous": [], "next": None, "query": "", "loading": False}
     with container:
         with ui.column().classes("w-full gap-3 p-3"):
             with ui.row().classes(
@@ -105,7 +105,7 @@ async def notification_administration(
                     ui.input(text("search")).props("outlined dense").classes("grow")
                 )
                 ui.button(
-                    text("search"), icon="search", on_click=lambda: load(True)
+                    text("search"), icon="search", on_click=lambda: load(True, query=search.value or "")
                 ).props("no-caps")
             progress = ui.label("").props("role=status")
             results = ui.column().classes(
@@ -141,26 +141,27 @@ async def notification_administration(
         progress.text = text(key)
 
     async def page(forward):
+        if state["loading"] or (forward and not state["next"]) or (not forward and not state["previous"]):
+            return
         if forward:
-            state["previous"].append(state["cursor"])
-            state["cursor"] = state["next"]
-        elif state["previous"]:
-            state["cursor"] = state["previous"].pop()
-        await load()
+            await load(position=(state["next"], [*state["previous"], state["cursor"]]))
+        else:
+            await load(position=(state["previous"][-1], state["previous"][:-1]))
 
-    async def load(reset=False):
+    async def load(reset=False, *, position=None, query=None):
         state["revision"] += 1
         revision = state["revision"]
-        if reset:
-            state.update(cursor="", previous=[])
+        state["loading"] = True
+        cursor, history = ("", []) if reset else position or (state["cursor"], state["previous"])
+        query = state["query"] if query is None else query
         progress.text = text("loading")
         try:
             response = await request(
                 "GET",
                 "/producers",
                 params={
-                    "q": search.value or "",
-                    "after": state["cursor"] or "",
+                    "q": query,
+                    "after": cursor or "",
                     "limit": 25,
                 },
             )
@@ -170,8 +171,12 @@ async def notification_administration(
             if current(revision):
                 failure(error)
             return
+        finally:
+            if state["revision"] == revision:
+                state["loading"] = False
         if not current(revision):
             return
+        state.update(cursor=cursor, previous=history, query=query)
         details.clear()
         results.set_visibility(True)
         paging.set_visibility(True)

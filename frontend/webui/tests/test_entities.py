@@ -14,7 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from frontend.webui.app import CLASSIFICATION_SELECTOR_SEARCH_FIELDS, RELATIONSHIP_DISPLAY_FIELDS, LAST_CUSTODIAN_MESSAGE, LAST_CUSTODIAN_TITLE, STOP_PROPAGATION_CLICK_HANDLER, buffer_upload_batch, component_is_previewable, deletion_blocked_report, deletion_identity, display_value, error_message, show_api_error, format_file_size, format_timestamp, filter_membership_rows, index, medium_label, user_avatar, render_component_cards, visible_navigation_indices
+from frontend.webui.app import CLASSIFICATION_SELECTOR_SEARCH_FIELDS, RELATIONSHIP_DISPLAY_FIELDS, LAST_CUSTODIAN_MESSAGE, LAST_CUSTODIAN_TITLE, STOP_PROPAGATION_CLICK_HANDLER, buffer_upload_batch, component_is_previewable, deletion_blocked_report, deletion_identity, display_value, error_message, show_api_error, format_file_size, format_timestamp, index, medium_label, user_avatar, render_component_cards, visible_navigation_indices
 from frontend.webui.aggregation_presentation import AGGREGATION_SUMMARY_LAYOUT_CLASSES
 from frontend.webui.aggregation_presentation import CHILD_AGGREGATION_CLASSIFICATION_HELP
 from frontend.webui.record_presentation import RECORD_UPLOAD_WAIT_MESSAGE
@@ -577,27 +577,6 @@ def test_user_details_session_limit_defaults_to_five_and_is_configurable(monkeyp
     assert user_details_session_limit({"USER_DETAILS_SESSION_LIMIT":8}) == 8
 
 
-def test_membership_filters_identity_status_and_overlapping_validity():
-    rows = [
-        {
-            "id": 1, "counterpart_search": "Alya Al-Salman alya@example.test",
-            "counterpart_status": "active", "valid_from": "2026-01-01T00:00:00Z",
-            "valid_until": None,
-        },
-        {
-            "id": 2, "counterpart_search": "Sami Jari sami@example.test",
-            "counterpart_status": "suspended", "valid_from": "2025-01-01T00:00:00Z",
-            "valid_until": "2025-12-31T23:59:59Z",
-        },
-    ]
-    assert [row["id"] for row in filter_membership_rows(rows, query="alya")] == [1]
-    assert [row["id"] for row in filter_membership_rows(rows, query="SAMI@EXAMPLE")] == [2]
-    assert [row["id"] for row in filter_membership_rows(rows, status="suspended")] == [2]
-    assert [row["id"] for row in filter_membership_rows(
-        rows, valid_from="2026-06-01", valid_until="2026-06-30",
-    )] == [1]
-
-
 def test_user_avatar_is_stable_and_uses_best_effort_initials():
     user = {"id": 42, "name": "Sami Mali Jibtou Jari", "email": "sami@example.test"}
     first = user_avatar(user)
@@ -744,7 +723,8 @@ def test_saved_search_audiences_and_memberships_use_bounded_enriched_pages():
     assert 'if len(term) < 2:' in source
     assert 'api.saved_search_audience_options(\n                    audience_kind, query=term, limit=25, offset=offset,' in source
     assert 'await api.saved_search_audience_options()' not in source
-    assert 'api.user_roles(\n                        entity["id"], limit=assignment_page["limit"]' in source
+    assert 'reader = api.user_roles if for_user else api.role_users' in source
+    assert 'await reader(entity["id"], offset=offset, **params)' in source
     assert 'counterpart = assignment.get("counterpart") or {}' in source
     assert 'counterpart_rows = await asyncio.gather' not in source
 
@@ -886,7 +866,6 @@ def test_scalar_display_columns_are_not_rendered_as_relationship_links():
         "org_unit_display",
         "parent_org_unit_display",
         "profile_display",
-        "scheme_display",
     }
     scalar_fields = {
         "medium_display", "vital_display", "review_display", "location_display",
@@ -1065,12 +1044,12 @@ def test_application_shell_is_flat_and_uses_one_background():
 def test_aggregation_records_use_compact_authorized_expandable_rows():
     source = with_english_messages(((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources())))
     assert 'load_record_result_context(' in source
-    assert 'record["_components"] = components if record_capabilities.get("list_components") else []' in source
+    assert 'record["_component_count"] = int(record_capabilities.get("component_count", 0))' in source
     assert 'record["_can_preview"] = bool(' in source
-    assert 'record_capabilities.get("view_component")' in source
+    assert 'record_capabilities.get("has_previewable_component")' in source
     assert 'render_compact_resource_result(' in source
-    assert 'components=record.get("_components", [])' in source
-    assert 'can_expand_components=bool(record.get("_can_expand_components"))' in source
+    assert 'component_total=record["_component_count"]' in source
+    assert 'can_expand_components=bool(record["_component_count"])' in source
     assert '"Search code, name, or parent unit"' in source
     assert '"Search code, name, or organization unit"' in source
     assert '"Search name or email"' in source
@@ -1392,8 +1371,8 @@ def test_login_session_statuses_and_security_operations_use_compact_cards():
     assert '"expired": "grey-7",' in source
     assert ').props("outline")' in source
     assert 'security_event_host = ui.element("div").classes(' in source
-    assert 'def render_security_event_cards()' in source
-    assert 'page_rows = event_rows[offset:offset + 10]' in source
+    assert 'def render_security_event_cards(items: list[dict[str, Any]])' in source
+    assert 'await api.security_events(' in source
     assert 'ui.label("No recent security events in this period.")' in source
     assert 'f"Technical code: {row[\'decision_code\']}"' in source
     assert '"Open role", icon="open_in_new"' not in source

@@ -245,6 +245,7 @@ async def test_existing_job_assignee_search_and_selected_hydration_use_saved_rou
 @pytest.mark.asyncio
 @pytest.mark.parametrize('language',['en','ar'])
 async def test_eligibility_acceleration_labels_and_refresh_use_only_current_page(host,language,monkeypatch):
+    from nicegui import core
     import json
     from pathlib import Path
     from copy import deepcopy
@@ -255,6 +256,7 @@ async def test_eligibility_acceleration_labels_and_refresh_use_only_current_page
     def capture_page(**kwargs):
         page=PageTable(**kwargs);pages.append(page);return page
     monkeypatch.setattr(screens,'PageTable',capture_page)
+    monkeypatch.setattr(core,'loop',asyncio.get_running_loop())
     catalogue=Path(__file__).resolve().parents[1]/'i18n'
     entries=json.loads((catalogue/'messages.en.json').read_text()) if language=='en' else json.loads((catalogue/'messages.ar.generated.json').read_text())['items']
     base=dict(id=1,redacted=False,selectable=True,aggregation_number='1141/DEMO/001/2026',title='Meetings',disposition_status=2,final_disposition='destruction',calculated_disposition_at='2031-10-22T05:33:00Z',date_closed='2026-10-22T05:33:00Z',owner='Records',owning_org_unit_id=1,rule_source='classification',rule_source_label='1141',vital=False,security=False,held=False,blocked=False,days_overdue=0,job_id=None)
@@ -292,9 +294,12 @@ async def test_eligibility_acceleration_labels_and_refresh_use_only_current_page
         rows[0]['acceleration']=None
         await pages[0].load()
         assert table.rows[0]['acceleration_label'] is None and len(calls)==3
-        assert calls[-1][1]['active_job']=='true'
+        assert calls[-1][1]['active_job']=='false'
         membership_filter.value=''
-        await pages[0].load()
+        apply = next(e for e in host.descendants() if isinstance(e,ui.button) and e.props.get('icon')=='filter_alt')
+        handler = next(listener.handler for listener in apply._event_listeners.values() if listener.type=='click')
+        handler(None)
+        await asyncio.sleep(0)
         assert calls[-1][1]['active_job']=='all'
         set_active_messages({});clear_active_messages(host.client.id)
 
@@ -465,3 +470,40 @@ async def test_create_requires_preparer_before_posting_any_job(host,monkeypatch,
     assert collected[0]() is None and preparer.error==text('preparer_required')
     preparer.set_options({8:'Officer'},value=8)
     assert collected[0]()['assigned_user_id']==8
+
+
+@pytest.mark.asyncio
+async def test_disposition_jobs_page_retains_submitted_filters_and_remembered_view(host, monkeypatch):
+    from frontend.webui.disposition import screens
+    from frontend.webui.disposition.messages import text
+
+    pages, calls, remembered = [], [], []
+
+    def capture(**kwargs):
+        page = PageTable(**kwargs)
+        pages.append(page)
+        return page
+
+    async def request(path, **params):
+        if path == 'context':
+            return {'roles': []}
+        calls.append(params)
+        return {'items': [], 'total': 53}
+
+    monkeypatch.setattr(screens, 'PageTable', capture)
+    with host:
+        await jobs_screen(
+            api=SimpleNamespace(disposition_page=request), container=host, active=lambda: True,
+            on_error=str, bind_remote=lambda *a, **k: None, open_job=lambda *a: None,
+            saved={'query': 'Submitted', 'owner': 'Submitted owner'}, remember=remembered.append,
+        )
+        controls = {e.label: e for e in host.descendants() if isinstance(e, ui.input)}
+        controls[text('search')].value = 'Draft'
+        controls[text('owner')].value = 'Draft owner'
+        await pages[0].move(1)
+        assert (calls[-1]['query'], calls[-1]['owner'], calls[-1]['offset']) == ('Submitted', 'Submitted owner', 25)
+        assert remembered[-1]['query'] == 'Submitted'
+        handler = next(event.handler for event in controls[text('search')]._event_listeners.values()
+                       if event.type == 'keydown.enter')
+        await handler()
+        assert (calls[-1]['query'], calls[-1]['owner'], calls[-1]['offset']) == ('Draft', 'Draft owner', 0)

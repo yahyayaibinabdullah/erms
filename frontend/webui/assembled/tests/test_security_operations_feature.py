@@ -44,3 +44,15 @@ async def test_security_operations_is_hidden_and_api_denied_for_viewer(assembled
     for method in ('security_summary','security_reconciliation'):
         with pytest.raises(ApiError) as error:await getattr(user.api_clients[0],method)()
         assert error.value.status_code==403
+    with pytest.raises(ApiError) as error:
+        await user.api_clients[0].security_events(
+            start_at='2030-01-01T00:00:00Z', end_at='2030-01-02T00:00:00Z',
+            limit=10, offset=100,
+        )
+    assert error.value.status_code == 403
+    with pytest.raises(ApiError) as error:
+        await user.api_clients[0].security_denial_groups(
+            start_at='2030-01-01T00:00:00Z', end_at='2030-01-02T00:00:00Z',
+            limit=11, offset=50,
+        )
+    assert error.value.status_code == 403

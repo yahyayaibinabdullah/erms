@@ -60,6 +60,11 @@ def build_organization_browser(
             "pending": {}, "revision": 0, "search_revision": 0,
             "refreshing": False,
         }
+        search_size = 25
+        search_page = {
+            "query": saved_state["query"], "entity_type": selection_mode or saved_state["entity_type"],
+            "status": saved_state["status"], "offset": 0,
+        }
         tree_host: Any = None
         summary_host: Any = None
         search_results_host: Any = None
@@ -76,8 +81,9 @@ def build_organization_browser(
                 return
             app.storage.user["organization_browser_state"] = {
                 "expanded": sorted(expanded), "selected": browser["selected"],
-                "query": query_input.value or "", "validity": validity_filter.value,
-                "entity_type": entity_type_filter.value, "status": status_filter.value,
+                "query": search_page["query"], "validity": validity_filter.value,
+                "entity_type": search_page["entity_type"], "status": search_page["status"],
+                "search_offset": search_page["offset"],
                 "scroll_top": browser.get("scroll_top", 0),
                 "root_count": len(browser["roots"]),
                 "branch_counts": {key: len(rows) for key, rows in browser["children"].items()},
@@ -520,23 +526,57 @@ def build_organization_browser(
                         ).props("unelevated no-caps").classes("self-end")
 
         async def run_search() -> None:
+            search_page.update(
+                query=(query_input.value or "").strip(),
+                entity_type=selection_mode or entity_type_filter.value,
+                status=status_filter.value, offset=0,
+            )
+            await load_search_page(0)
+
+        async def load_search_page(offset: int) -> None:
             browser["search_revision"] += 1
             revision = browser["search_revision"]
-            search_results_host.clear()
-            query = (query_input.value or "").strip()
-            persist()
+            query = search_page["query"]
             if not query:
+                search_results_host.clear()
+                search_pager.set_visibility(False)
+                persist()
                 return
-            type_filter = selection_mode or entity_type_filter.value
-            results = await api.search_organization(
-                query, entity_type=type_filter, status=status_filter.value, audience=saved_audience,
-            )
-            if not browser_active() or revision != browser["search_revision"]:
+
+            def current_search() -> bool:
+                return browser_active() and revision == browser["search_revision"]
+
+            search_previous.disable()
+            search_next.disable()
+            params = {
+                "entity_type": search_page["entity_type"], "status": search_page["status"],
+                "audience": saved_audience, "limit": search_size + 1,
+            }
+            try:
+                results = await api.search_organization(query, offset=offset, **params)
+                if current_search() and offset and not results:
+                    offset = 0
+                    results = await api.search_organization(query, offset=offset, **params)
+            except ApiError as error:
+                if current_search():
+                    search_pager.set_visibility(False)
+                    search_results_host.clear()
+                    if error.status_code != 401:
+                        ui.notify(error_message(error), color="negative", close_button=True)
                 return
+            if not current_search():
+                return
+            search_page["offset"] = offset
+            has_more = len(results) > search_size
+            search_previous.set_enabled(offset > 0)
+            search_next.set_enabled(has_more)
+            search_pager.set_visibility(offset > 0 or has_more)
+            persist()
+            search_results_host.clear()
             with search_results_host:
                 if not results:
                     ui.label(render_message("webui.run_search.label.no_matching_organization_units_roles_or_us_29cce504")).classes("px-2 py-3 text-slate-400")
-                for result in results:
+                for result in results[:search_size]:
                     with ui.card().classes("w-full shadow-none border border-slate-200 p-0"):
                         result_clickable = is_selector or can_open_organization_detail(
                             result["type"], set((get_principal() or {}).get("global_privileges", [])),
@@ -660,7 +700,17 @@ def build_organization_browser(
                 )).props("flat dense no-caps")
             advanced_filters.set_visibility(saved_state.get("filters_visible", False))
             filters_button.on("click", lambda: advanced_filters.set_visibility(not advanced_filters.visible))
-            search_results_host = ui.column().classes("w-full gap-0")
+            search_results_host = ui.column().classes("organization-search-results w-full gap-0")
+            with ui.row().classes("organization-search-pager w-full justify-end gap-2") as search_pager:
+                search_previous = ui.button(
+                    render_message("relationships.ui.previous"),
+                    on_click=lambda: load_search_page(max(0, search_page["offset"] - search_size)),
+                ).classes("organization-search-previous").props("flat dense no-caps")
+                search_next = ui.button(
+                    render_message("relationships.ui.next"),
+                    on_click=lambda: load_search_page(search_page["offset"] + search_size),
+                ).classes("organization-search-next").props("flat dense no-caps")
+            search_pager.set_visibility(False)
             layout_direction = "flex-col"
             browser_height = "h-[520px]" if is_selector else "h-[720px]"
             page_layout_class = "" if is_selector else "organization-browser-page-layout"
@@ -760,7 +810,7 @@ def build_organization_browser(
             )
         if not is_selector:
             if saved_state.get("query"):
-                await run_search()
+                await load_search_page(max(0, int(saved_state.get("search_offset") or 0)))
             return
         if browser["selected"]:
             selected = browser["selected"]

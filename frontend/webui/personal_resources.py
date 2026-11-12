@@ -131,11 +131,6 @@ def build_personal_resources(api: Any, personal: PersonalResourceState, *,
             personal.recent_updated = []
             personal.recent_activity = []
             return
-        if spec.key == "classifications":
-            personal.recent_created = []
-            personal.recent_updated = []
-            personal.recent_activity = []
-            return
         if spec.key in {"aggregations", "records"}:
             activity = await api.recent_resource_activity(spec.key, limit=50)
             decorated = await decorate_for_spec(spec, activity)

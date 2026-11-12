@@ -318,26 +318,70 @@ def build_audit_workspace(
                         ).props("flat round dense color=blue-grey").tooltip(render_message("webui.render_event_timeline.tooltip.view_audit_details_74f728b6"))
 
     async def show_entity_history(resource: str, entity: dict[str, Any]) -> None:
+        page_size = 25
         try:
-            history = await api.history(resource, entity["id"])
+            history = await api.history(resource, entity["id"], limit=page_size + 1, offset=0)
         except ApiError as error:
             ui.notify(error_message(error), color="negative", close_button=True)
             return
         name = entity.get("title") or entity.get("name") or entity.get("file_name") or render_message("webui.show_entity_history.text.id_56b4dfc9", id=entity['id'])
         dialog = ui.dialog()
-        for event in history:
-            event["_current_entity"] = entity
-            event["_origin_dialog"] = dialog
+        offset = 0
+        has_next = False
+        loading = False
         with dialog, ui.card().classes("p-0 max-h-[calc(100vh-32px)]").style("width: 820px; max-width: calc(100vw - 32px)"):
             with ui.row().classes("w-full items-center px-5 py-4 border-b"):
                 ui.avatar(icon="manage_history", color="blue-1", text_color="primary")
                 with ui.column().classes("gap-0 grow min-w-0"):
                     ui.label(render_message("webui.show_entity_history.label.event_history_670b1156")).classes("text-xl font-semibold")
                     ui.label(name).classes("text-sm text-slate-500 line-clamp-1")
-                ui.badge(str(len(history)), color="primary").props("outline")
+                event_range = ui.badge(color="primary").classes("entity-history-range").props("outline dir=ltr")
                 ui.button(icon="close", on_click=dialog.close).props("flat round")
+            with ui.row().classes("entity-history-pager w-full justify-end px-5 gap-2") as pager:
+                previous = ui.button(render_message("relationships.ui.previous")).classes("entity-history-previous").props("flat dense no-caps")
+                following = ui.button(render_message("relationships.ui.next")).classes("entity-history-next").props("flat dense no-caps")
             timeline = ui.column().classes("w-full gap-2 px-5 pb-5 overflow-y-auto")
-            render_event_timeline(history, timeline)
+
+        def update_controls() -> None:
+            pager.set_visibility(offset > 0 or has_next)
+            previous.set_enabled(not loading and offset > 0)
+            following.set_enabled(not loading and has_next)
+
+        def render_page(rows: list[dict[str, Any]]) -> None:
+            nonlocal has_next
+            has_next = len(rows) > page_size
+            events = [{**event, "_current_entity": entity, "_origin_dialog": dialog}
+                      for event in rows[:page_size]]
+            event_range.text = (
+                f"{offset + 1}–{offset + len(events)}" if events and (offset or has_next)
+                else str(len(events))
+            )
+            render_event_timeline(events, timeline)
+            update_controls()
+
+        async def move_page(delta: int) -> None:
+            nonlocal offset, loading
+            target = offset + delta * page_size
+            if loading or not dialog.value or target < 0 or (delta > 0 and not has_next):
+                return
+            loading = True
+            update_controls()
+            try:
+                rows = await api.history(resource, entity["id"], limit=page_size + 1, offset=target)
+                if dialog.value and not dialog.is_deleted:
+                    offset = target
+                    render_page(rows)
+            except ApiError as error:
+                if dialog.value and not dialog.is_deleted:
+                    ui.notify(error_message(error), color="negative", close_button=True)
+            finally:
+                loading = False
+                if dialog.value and not dialog.is_deleted:
+                    update_controls()
+
+        previous.on_click(lambda: move_page(-1))
+        following.on_click(lambda: move_page(1))
+        render_page(history)
         dialog.open()
 
     async def select_audit_trail(*, initial_entity_type: str | None = None) -> None:
@@ -396,7 +440,7 @@ def build_audit_workspace(
                 result_cap_notice.set_visibility(False)
                 results_container = ui.column().classes("w-full gap-2")
 
-        page = {"offset": 0, "size": 50, "total": 0}
+        page = {"offset": 0, "size": 50, "total": 0, "where": None, "loading": False}
 
         actor_search, selected_actor, reset_actor = bind_audit_actor_select(
             actor_identity_filter, actor_suggestion_status, api=api,
@@ -433,12 +477,7 @@ def build_audit_workspace(
                     close_button=True,
                 )
 
-        async def load_audit_events() -> None:
-            if not audit_page_is_current():
-                return
-            page["revision"] = page.get("revision", 0) + 1
-            request_revision = page["revision"]
-            refresh_button.props("loading disable")
+        def read_audit_filters() -> dict[str, Any] | None:
             conditions: list[dict[str, Any]] = []
             for field, operator, value in (
                 ("entity_type", "eq", type_filter.value),
@@ -461,19 +500,28 @@ def build_audit_workspace(
                     {"field": field, "operator": "contains_ci", "value": actor_identity}
                     for field in ("actor_name", "actor_email")
                 ]})
+            if not conditions:
+                return None
+            return conditions[0] if len(conditions) == 1 else {"and": conditions}
+
+        async def load_audit_events(offset: int, where: dict[str, Any] | None) -> None:
+            if not audit_page_is_current() or results_container.is_deleted or page["loading"]:
+                return
+            page["loading"] = True
+            refresh_button.props("loading disable")
             payload: dict[str, Any] = {
                 "sort": [{"field": "occurred_at", "direction": "desc"}, {"field": "id", "direction": "desc"}],
-                "limit": page["size"], "offset": page["offset"],
+                "limit": page["size"], "offset": offset,
             }
-            if conditions:
-                payload["where"] = conditions[0] if len(conditions) == 1 else {"and": conditions}
+            if where is not None:
+                payload["where"] = where
             try:
                 response = await api.search_request("event-history", payload)
-                if not audit_page_is_current() or page["revision"] != request_revision:
+                if not audit_page_is_current() or results_container.is_deleted:
                     return
                 events_list = response["items"]
                 hydrate_historical_audit_identities(events_list)
-                page["total"] = response["total"]
+                page.update(offset=offset, where=where, total=response["total"])
                 result_cap_notice.set_visibility(bool(response.get("truncated")))
                 if response.get("truncated"):
                     result_cap_notice.text = render_message("audit.filter.results_capped", limit=response["result_cap"])
@@ -491,26 +539,27 @@ def build_audit_workspace(
                 render_event_timeline(events_list, results_container)
                 set_connection_status(True)
             except ApiError as error:
-                if audit_page_is_current() and page["revision"] == request_revision:
+                if audit_page_is_current() and not results_container.is_deleted:
                     ui.notify(error_message(error), color="negative", close_button=True)
             finally:
-                if audit_page_is_current() and page["revision"] == request_revision:
+                page["loading"] = False
+                if audit_page_is_current() and not results_container.is_deleted:
                     refresh_button.props(remove="loading disable")
 
         async def apply_filters() -> None:
-            page["offset"] = 0
-            await load_audit_events()
+            await load_audit_events(0, read_audit_filters())
 
         async def previous_page() -> None:
-            page["offset"] = max(0, page["offset"] - page["size"])
-            await load_audit_events()
+            if page["offset"] > 0:
+                await load_audit_events(max(0, page["offset"] - page["size"]), page["where"])
 
         async def next_page() -> None:
             if page["offset"] + page["size"] < page["total"]:
-                page["offset"] += page["size"]
-                await load_audit_events()
+                await load_audit_events(page["offset"] + page["size"], page["where"])
 
         async def reset_filters() -> None:
+            if page["loading"]:
+                return
             for control in (operation_filter, source_filter, actor_filter,
                             from_filter, until_filter,
                             entity_id_filter, correlation_filter):
@@ -523,7 +572,7 @@ def build_audit_workspace(
         refresh_button.on("click", apply_filters)
         previous_button.on("click", previous_page)
         next_button.on("click", next_page)
-        await load_audit_events()
+        await apply_filters()
 
     return AuditWorkspace(
         select_audit_trail=select_audit_trail, show_entity_history=show_entity_history,

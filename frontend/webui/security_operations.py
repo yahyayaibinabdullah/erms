@@ -1,5 +1,6 @@
 """Security oversight periods, event signals, reconciliation and destination links."""
 from __future__ import annotations
+import asyncio
 from typing import Any
 from .api_client import ApiError
 from nicegui import background_tasks
@@ -9,6 +10,9 @@ from frontend.webui.event_labels import event_label
 from .i18n_catalogue import render_message
 from .identity_presentation import render_user_avatar
 from nicegui import ui
+
+SECURITY_EVENT_PAGE_SIZE = 10
+DENIAL_GROUP_PAGE_SIZE = 10
 
 def build_security_operations(
     *, add_button, add_record_button, aggregation_mode_bar, api, enter_security_operations, format_timestamp, get_resource, guidance, localized_lifecycle_value, open_aggregation, page_client, principal, register_navigation, search_bar, select_classification_workspace, select_organization_unit_details, select_record_details, select_role_details, select_user_details, show_api_error, show_authenticated_view, subtitle, table_container, title,
@@ -21,7 +25,9 @@ def build_security_operations(
         search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
         add_button.set_visibility(False); add_record_button.set_visibility(False); guidance.text = ""
         table_container.clear()
-        privileges = set((principal() or {}).get("global_privileges", []))
+        current_principal = principal()
+        privileges = set((current_principal or {}).get("global_privileges", []))
+        load_revision = 0
         with table_container, ui.column().classes("w-full p-5 gap-5"):
             with ui.row().classes("w-full items-center gap-3"):
                 ui.icon("monitor_heart", color="primary", size="30px")
@@ -41,6 +47,13 @@ def build_security_operations(
             custom_range.set_visibility(False)
             content = ui.column().classes("w-full gap-5")
 
+        def view_is_current() -> bool:
+            return (
+                get_resource() == "security-operations"
+                and not content.is_deleted
+                and principal() is current_principal
+            )
+
         def custom_iso(value: str | None, *, end: bool) -> str | None:
             if not value:
                 return None
@@ -56,6 +69,7 @@ def build_security_operations(
                 await render_security_operations()
 
         async def render_security_operations() -> None:
+            nonlocal load_revision
             # Resolve explanations in the current session language, never at import time.
             security_event_help = {
                 "AUTHORIZATION_DENIED": render_message("webui.module.text.an_operation_was_refused_because_one_or_mo_8a8c328d"),
@@ -79,22 +93,32 @@ def build_security_operations(
             )
             mode = period.value or "24h"
             hours = {"24h": 24, "week": 24 * 7, "month": 24 * 30}.get(mode, 24)
-            if mode == "custom" and (not range_start.value or not range_end.value):
+            start_date = range_start.value if mode == "custom" else None
+            end_date = range_end.value if mode == "custom" else None
+            if mode == "custom" and (not start_date or not end_date):
                 ui.notify(render_message("webui.load_security_operations.notify.select_both_dates_for_the_custom_range_c8117eee"), color="warning")
                 return
-            summary = await api.security_summary(
+            load_revision += 1
+            revision = load_revision
+            summary_request = api.security_summary(
                 hours=hours,
-                start_at=custom_iso(range_start.value, end=False) if mode == "custom" else None,
-                end_at=custom_iso(range_end.value, end=True) if mode == "custom" else None,
+                start_at=custom_iso(start_date, end=False),
+                end_at=custom_iso(end_date, end=True),
+                recent_event_limit=SECURITY_EVENT_PAGE_SIZE,
+                denial_group_limit=DENIAL_GROUP_PAGE_SIZE + 1,
             )
             reconciliation = None
             if "authorization.administer" in privileges:
-                reconciliation = await api.security_reconciliation()
-            if get_resource() != "security-operations" or period.value != mode:
+                summary, reconciliation = await asyncio.gather(
+                    summary_request, api.security_reconciliation(),
+                )
+            else:
+                summary = await summary_request
+            if not view_is_current() or revision != load_revision or period.value != mode:
                 return
             window_title.text = {
                 "24h": render_message("webui.load_security_operations.text.last_24_hours_42c47f2c"), "week": render_message("webui.load_security_operations.text.last_week_0f602f5d"), "month": render_message("webui.load_security_operations.text.last_month_1df4669b"),
-                "custom": render_message("webui.load_security_operations.text.value_through_value_2_8da1ebd6", value=range_start.value, value_2=range_end.value),
+                "custom": render_message("webui.load_security_operations.text.value_through_value_2_8da1ebd6", value=start_date, value_2=end_date),
             }[mode]
             content.clear()
             with content:
@@ -171,14 +195,11 @@ def build_security_operations(
                 ui.label(
                     render_message("webui.load_security_operations.label.the_most_recent_security_related_events_in_649bc0ac")
                 ).classes("text-sm text-slate-500 -mt-4")
-                event_rows = [{
-                    **item,
-                    "actor": item.get("actor_name") or item.get("actor_email") or item.get("actor_type"),
-                    "when": format_timestamp(item["occurred_at"]),
-                    "signal": event_label(item["operation"]),
-                    "decision": decision_code_label(item.get("decision_code")),
-                } for item in summary.get("recent_events", [])]
-                security_event_page = {"offset": 0}
+                # The history view redacts protected details while retaining the event
+                # rows, so the summary already has the total for this same window.
+                event_total = summary["total_security_events"]
+                event_offset = 0
+                event_page_loading = False
                 security_event_host = ui.element("div").classes(
                     "governance-card-list w-full"
                 )
@@ -225,9 +246,14 @@ def build_security_operations(
                         else:
                             show_api_error(error)
 
-                def render_security_event_cards() -> None:
-                    offset = security_event_page["offset"]
-                    page_rows = event_rows[offset:offset + 10]
+                def render_security_event_cards(items: list[dict[str, Any]]) -> None:
+                    page_rows = [{
+                        **item,
+                        "actor": item.get("actor_name") or item.get("actor_email") or item.get("actor_type"),
+                        "when": format_timestamp(item["occurred_at"]),
+                        "signal": event_label(item["operation"]),
+                        "decision": decision_code_label(item.get("decision_code")),
+                    } for item in items]
                     security_event_host.clear()
                     with security_event_host:
                         if not page_rows:
@@ -312,47 +338,118 @@ def build_security_operations(
                                             decision_label.tooltip(
                                                 render_message("webui.render_security_event_cards.tooltip.technical_code_decision_code_f5bc7779", decision_code=row['decision_code'])
                                             )
-                    start = offset + 1 if event_rows else 0
-                    end = min(offset + 10, len(event_rows))
+                    start = event_offset + 1 if page_rows else 0
+                    end = event_offset + len(page_rows)
                     security_event_page_label.text = (
-                        render_message("webui.render_security_event_cards.text.start_end_of_event_row_count_7e8f78d3", start=start, end=end, event_row_count=len(event_rows))
+                        render_message("webui.render_security_event_cards.text.start_end_of_event_row_count_7e8f78d3", start=start, end=end, event_row_count=event_total)
                     )
                     security_event_page_label.update()
-                    (
-                        security_event_previous.enable
-                        if offset > 0 else security_event_previous.disable
-                    )()
-                    (
-                        security_event_next.enable
-                        if offset + 10 < len(event_rows)
-                        else security_event_next.disable
-                    )()
 
-                def previous_security_events() -> None:
-                    security_event_page["offset"] = max(
-                        0, security_event_page["offset"] - 10,
+                def update_security_event_controls() -> None:
+                    security_event_previous.set_enabled(not event_page_loading and event_offset > 0)
+                    security_event_next.set_enabled(
+                        not event_page_loading and event_offset + SECURITY_EVENT_PAGE_SIZE < event_total,
                     )
-                    render_security_event_cards()
 
-                def next_security_events() -> None:
-                    security_event_page["offset"] += 10
-                    render_security_event_cards()
+                def event_page_is_current() -> bool:
+                    return view_is_current() and not security_event_host.is_deleted
+
+                async def load_security_event_page(offset: int) -> None:
+                    nonlocal event_offset, event_page_loading
+                    if event_page_loading or not event_page_is_current() or not 0 <= offset < event_total:
+                        return
+                    event_page_loading = True
+                    update_security_event_controls()
+                    try:
+                        items = await api.security_events(
+                            start_at=summary["window_start"], end_at=summary["window_end"],
+                            limit=SECURITY_EVENT_PAGE_SIZE, offset=offset,
+                        )
+                        if event_page_is_current():
+                            event_offset = offset
+                            render_security_event_cards(items)
+                    except ApiError as error:
+                        if event_page_is_current():
+                            show_api_error(error)
+                    finally:
+                        event_page_loading = False
+                        if event_page_is_current():
+                            update_security_event_controls()
+
+                async def previous_security_events() -> None:
+                    await load_security_event_page(event_offset - SECURITY_EVENT_PAGE_SIZE)
+
+                async def next_security_events() -> None:
+                    await load_security_event_page(event_offset + SECURITY_EVENT_PAGE_SIZE)
 
                 security_event_previous.on("click", previous_security_events)
                 security_event_next.on("click", next_security_events)
-                render_security_event_cards()
+                render_security_event_cards(summary["recent_events"])
+                update_security_event_controls()
 
                 ui.label(render_message("webui.load_security_operations.label.denial_monitoring_9ac48ee1")).classes("text-lg font-semibold mt-2")
                 ui.label(authorization_denial_help).classes("text-sm text-slate-500 -mt-4")
-                if not summary["denial_groups"]:
-                    ui.label(render_message("webui.load_security_operations.label.no_authorization_denials_occurred_in_this_3d7c10a2")).classes("text-sm text-positive")
-                for item in summary["denial_groups"]:
-                    with ui.card().classes("w-full shadow-none border border-slate-200 p-4 gap-1"):
-                        with ui.row().classes("w-full items-center gap-3"):
-                            ui.label(item["decision_code"].replace("_", " ").title()).classes("font-medium")
-                            ui.label(item["required_privilege"]).classes("grow text-sm text-slate-500")
-                            ui.badge(str(item["count"]), color="negative").props("outline")
-                        ui.label(render_message("webui.load_security_operations.label.review_the_recent_events_above_or_open_the_dfa372aa")).classes("text-sm text-slate-500")
+                denial_host = ui.column().classes("security-denial-groups w-full")
+                with ui.row().classes("w-full items-center justify-end gap-2") as denial_pager:
+                    denial_previous = ui.button(
+                        render_message("relationships.ui.previous"),
+                    ).classes("security-denial-previous").props("flat dense no-caps")
+                    denial_next = ui.button(
+                        render_message("relationships.ui.next"),
+                    ).classes("security-denial-next").props("flat dense no-caps")
+                denial_offset = 0
+                denial_more = False
+                denial_loading = False
+
+                def update_denial_controls() -> None:
+                    denial_pager.set_visibility(denial_offset > 0 or denial_more)
+                    denial_previous.set_enabled(not denial_loading and denial_offset > 0)
+                    denial_next.set_enabled(not denial_loading and denial_more)
+
+                def render_denial_page(items: list[dict[str, Any]]) -> None:
+                    nonlocal denial_more
+                    denial_more = len(items) > DENIAL_GROUP_PAGE_SIZE
+                    denial_host.clear()
+                    with denial_host:
+                        if not items:
+                            ui.label(render_message("webui.load_security_operations.label.no_authorization_denials_occurred_in_this_3d7c10a2")).classes("text-sm text-positive")
+                        for item in items[:DENIAL_GROUP_PAGE_SIZE]:
+                            with ui.row().classes("security-denial-group w-full items-center gap-3 border-b border-slate-100 py-3"):
+                                ui.label(item["decision_code"].replace("_", " ").title()).classes("font-medium")
+                                ui.label(item["required_privilege"]).classes("grow text-sm text-slate-500")
+                                ui.badge(str(item["count"]), color="negative").props("outline")
+                            ui.label(render_message("webui.load_security_operations.label.review_the_recent_events_above_or_open_the_dfa372aa")).classes("text-sm text-slate-500")
+                    update_denial_controls()
+
+                def denial_page_is_current() -> bool:
+                    return view_is_current() and not denial_host.is_deleted
+
+                async def move_denial_page(delta: int) -> None:
+                    nonlocal denial_offset, denial_loading
+                    offset = denial_offset + delta * DENIAL_GROUP_PAGE_SIZE
+                    if denial_loading or not denial_page_is_current() or offset < 0 or (delta > 0 and not denial_more):
+                        return
+                    denial_loading = True
+                    update_denial_controls()
+                    try:
+                        items = await api.security_denial_groups(
+                            start_at=summary["window_start"], end_at=summary["window_end"],
+                            limit=DENIAL_GROUP_PAGE_SIZE + 1, offset=offset,
+                        )
+                        if denial_page_is_current():
+                            denial_offset = offset
+                            render_denial_page(items)
+                    except ApiError as error:
+                        if denial_page_is_current():
+                            show_api_error(error)
+                    finally:
+                        denial_loading = False
+                        if denial_page_is_current():
+                            update_denial_controls()
+
+                denial_previous.on_click(lambda: move_denial_page(-1))
+                denial_next.on_click(lambda: move_denial_page(1))
+                render_denial_page(summary["denial_groups"])
 
                 if reconciliation is not None:
                     ui.separator()

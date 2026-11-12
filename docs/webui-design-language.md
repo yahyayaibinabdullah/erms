@@ -695,6 +695,9 @@ unreadable cells.
   search may be expensive or semantically meaningful.
 - Distinguish server search from filtering rows already loaded.
 - Keep related filters in one wrapping row and align their lower edges.
+- When a screen uses Search or Apply, page through the last submitted query.
+  Keep draft edits in the controls and keep the controls visible for zero
+  results. See the [server pagination contract](webui-performance.md#paginated-results-and-submitted-filters).
 - Show a concise result count/range.
 - Use deterministic sort tie-breakers so pagination does not reorder items.
 - Keep page-size choices bounded and consistent with comparable screens.

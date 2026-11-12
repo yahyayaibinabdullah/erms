@@ -2,19 +2,22 @@
 from __future__ import annotations
 from typing import Any, Callable
 from nicegui import ui
+from .api_client import ApiError
 from .i18n_catalogue import render_message
 from .disposition.messages import text as disposition_text, status_label as disposition_status_label
 from .personal_resources import STOP_PROPAGATION_CLICK_HANDLER
 
 def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_button: Callable,
     render_safe_snippet: Callable, preview_record_components: Callable,
-    format_date: Callable, medium_label: Callable, component_is_previewable: Callable):
+    format_date: Callable, medium_label: Callable, component_is_previewable: Callable,
+    api, direction: Callable, error_message: Callable):
     def render_compact_resource_result(
         resource: str,
         item: dict[str, Any],
         *,
         on_open: Any,
         components: list[dict[str, Any]] | None = None,
+        component_total: int = 0,
         metadata_matched: bool = False,
         content_matched: bool = False,
         show_medium: bool = False,
@@ -30,6 +33,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
         number = item.get("record_number" if is_record else "aggregation_number") or render_message("webui.render_compact_resource_result.text.id_8f7a97fe", id=item['id'])
         date_value = item.get("date_originated" if is_record else "date_opened")
         component_rows = list(components or []) if is_record and can_expand_components else []
+        component_count = (len(component_rows) if components_are_matches else component_total) if can_expand_components else 0
         result_id = f"compact-result-{resource}-{int(item['id'])}"
         with ui.column().classes("compact-result-item gap-0").props(f"id={result_id}"):
             with ui.row().classes("compact-result-row w-full items-center no-wrap"):
@@ -78,14 +82,14 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                 with ui.row().classes("compact-result-actions items-center no-wrap"):
                     component_host = None
                     expand_button = None
-                    if component_rows:
+                    if component_count:
                         expand_button = ui.button(icon=tree_expander_icon(False)).props(
                             'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.show_digital_components_08467816"))
                         )
-                        ui.badge(str(len(component_rows)), color="warning").props(
+                        component_badge = ui.badge(str(component_count), color="warning").props(
                             "outline"
                         ).classes("compact-result-component-badge").tooltip(
-                            render_message("webui.render_compact_resource_result.tooltip.component_row_count_value_digital_componen_6ee517ef", component_row_count=len(component_rows), value='matching ' if components_are_matches else '', value_2='s' if len(component_rows) != 1 else '')
+                            render_message("webui.render_compact_resource_result.tooltip.component_row_count_value_digital_componen_6ee517ef", component_row_count=component_count, value='matching ' if components_are_matches else '', value_2='s' if component_count != 1 else '')
                         )
                     if can_favourite:
                         favourite_button(resource, int(item["id"]))
@@ -101,11 +105,16 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                         ).props(
                             f"flat round dense color=primary aria-label='Open {'record' if is_record else 'aggregation'}'"
                         ).tooltip(render_message("webui.render_compact_resource_result.tooltip.open_record_3e4dcd53") if is_record else render_message("webui.render_compact_resource_result.tooltip.open_aggregation_2f0f3e73"))
-            if component_rows:
+            if component_count:
                 component_host = ui.column().classes("compact-result-components w-full gap-0")
                 component_host.set_visibility(initially_expanded)
-                with component_host:
-                    for component in component_rows:
+                page_size = 25
+                loaded = components_are_matches
+                loading = False
+
+                def render_component_page(rows, *, offset=0, total=0):
+                    component_host.clear()
+                    for component in rows:
                         with ui.row().classes("compact-result-component w-full items-center no-wrap gap-2"):
                             ui.icon("attach_file", size="17px").classes("text-slate-500 shrink-0")
                             with ui.column().classes("gap-0 grow min-w-0"):
@@ -115,7 +124,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                                 if component.get("snippet"):
                                     with ui.row().classes("compact-result-snippet w-full text-xs text-slate-500 no-wrap"):
                                         render_safe_snippet(component.get("snippet"), compact=True)
-                            if component_is_previewable(component):
+                            if can_preview and component_is_previewable(component):
                                 ui.button(
                                     icon="visibility",
                                     on_click=lambda _, selected=item, component_id=int(component["id"]):
@@ -123,6 +132,55 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                                 ).props(
                                     'flat round dense color=primary aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.preview_digital_component_f8b12cac"))
                                 ).tooltip(render_message("webui.render_compact_resource_result.tooltip.preview_digital_component_71925875"))
+                    if total > page_size:
+                        rtl = direction() == "rtl"
+                        with ui.row().classes("w-full items-center justify-center gap-2"):
+                            previous = ui.button(
+                                icon="chevron_right" if rtl else "chevron_left",
+                                on_click=lambda: load_component_page(offset - page_size),
+                            ).props(
+                                'flat round dense aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.previous_page_2ba84275"))
+                            )
+                            ui.badge(f"{offset + 1}–{offset + len(rows)} / {total}", color="blue-grey").props("outline")
+                            next_page = ui.button(
+                                icon="chevron_left" if rtl else "chevron_right",
+                                on_click=lambda: load_component_page(offset + page_size),
+                            ).props(
+                                'flat round dense aria-label=' + repr(render_message("webui.render_entity_compact_results.accessible_name.next_page_66adc3fc"))
+                            )
+                            previous.set_enabled(offset > 0)
+                            next_page.set_enabled(offset + len(rows) < total)
+
+                async def load_component_page(offset=0):
+                    nonlocal loaded, loading
+                    if loading or component_host.is_deleted:
+                        return
+                    loading = True
+                    try:
+                        result = await api.component_page(int(item["id"]), limit=page_size, offset=offset)
+                        total = int(result["total"])
+                        if not result["items"] and total and offset:
+                            offset = (total - 1) // page_size * page_size
+                            result = await api.component_page(int(item["id"]), limit=page_size, offset=offset)
+                    except ApiError as error:
+                        if not component_host.is_deleted:
+                            ui.notify(error_message(error), color="negative", close_button=True)
+                        return
+                    finally:
+                        loading = False
+                    if component_host.is_deleted:
+                        return
+                    loaded = True
+                    component_badge.set_text(str(result["total"]))
+                    with component_host:
+                        render_component_page(result["items"], offset=offset, total=int(result["total"]))
+
+                if components_are_matches:
+                    with component_host:
+                        render_component_page(component_rows)
+                elif initially_expanded:
+                    with component_host:
+                        ui.timer(0, load_component_page, once=True)
 
                 expanded = {"value": initially_expanded}
                 if initially_expanded:
@@ -130,7 +188,7 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                     expand_button.props('icon=expand_more aria-label=' + repr(render_message("webui.render_compact_resource_result.accessible_name.hide_digital_components_53390064")))
                     expand_button.update()
 
-                def toggle_components() -> None:
+                async def toggle_components() -> None:
                     expanded["value"] = not expanded["value"]
                     component_host.set_visibility(expanded["value"])
                     expand_button.props(remove="icon aria-label")
@@ -141,6 +199,8 @@ def build_compact_resource_view(*, tree_expander_icon: Callable, favourite_butto
                     expand_button.update()
                     if on_expansion_changed is not None:
                         on_expansion_changed(expanded["value"])
+                    if expanded["value"] and not loaded:
+                        await load_component_page()
 
                 expand_button.on("click", toggle_components, js_handler=STOP_PROPAGATION_CLICK_HANDLER)
 

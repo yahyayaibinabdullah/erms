@@ -1,4 +1,5 @@
 """Legal-hold list/dialog parity with bounded synthetic fixtures."""
+import time
 from urllib.parse import parse_qs
 from selenium.webdriver.common.keys import Keys
 
@@ -15,7 +16,10 @@ def check_holds(page):
     def enter():page.drawer('holds');page.one('main .governance-card-list')
     def cards():return page.visible('main .governance-list-card')
     def type_query(key,value):
-        field=page.field(page.t(key));page.activate(field);field.send_keys(Keys.COMMAND,'a',Keys.NULL);field.send_keys(value or Keys.BACKSPACE);field.send_keys(Keys.TAB)
+        field = page.field(page.t(key))
+        page.select_field_text(field)
+        field.send_keys(value or Keys.BACKSPACE)
+        field.send_keys(Keys.TAB)
     for language in ('en','ar'):
         if language=='ar':page.settings();page.language_change('ar')
         with page.check('hold list paging, states, repeated navigation and unchanged root history'):
@@ -51,6 +55,41 @@ def check_holds(page):
             type_query('webui.show_add_held_item.input.search_number_title_or_description_f135a521','no-resource-match')
             page.wait.until(lambda _:not page.visible('.governance-list-card',d));capture('candidate-empty')
             page.activate(icon('close',d));closed();page.errors()
+        with page.check('Add to Hold pages the submitted query until Enter'):
+            page.drawer('records')
+            page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),'TEST-REC')
+            page.click(page.t('webui.index.button.search_4d02b714'),page.one('.erms-card'))
+            page.activate(page.one('button[aria-label="Open record"]',scope=page.one('.compact-result-item')))
+            page.click(page.t('webui.select_record_details.button.add_to_hold_e811b460'))
+            d=dialog()
+            label=page.t('webui.select_holds.input.search_code_or_name_79d187ac')
+            range_text=page.t('webui.load_hold_page.text.start_end_total_42ef8de2')
+            page.see(range_text.format(start=1,end=25,total=27))
+            def check_read(action, *, query, offset, end, total):
+                started=len(page.events())
+                action()
+                def reads():
+                    return [e for e in page.events()[started:] if e['path']=='/api/v1/holds' and e['method']=='GET']
+                page.wait.until(lambda _:bool(reads()))
+                page.see(range_text.format(start=offset+1,end=end,total=total))
+                result=reads()
+                assert len(result)==1 and result[0]['status']==200
+                params=parse_qs(result[0]['query'])
+                assert params['q']==[query] and params['offset']==[str(offset)] and params['limit']==['25']
+            def submit_filter():
+                field=page.field(label);page.activate(field);field.send_keys(Keys.ENTER)
+            query='Hold fixture'
+            page.fill(label,query);time.sleep(.4)  # Existing 300 ms input debounce.
+            check_read(submit_filter,query=query,offset=0,end=25,total=27)
+            draft='HOLD26'
+            page.fill(label,draft);time.sleep(.4)
+            check_read(lambda:page.activate(icon('chevron_right',d)),query=query,offset=25,end=27,total=27)
+            assert page.field(label).get_attribute('value')==draft
+            capture('add-to-hold-pending-filter')
+            check_read(submit_filter,query=draft,offset=0,end=1,total=1)
+            assert not icon('chevron_left',d).is_enabled()
+            page.click(page.t('webui.add_resource_to_hold_dialog.button.cancel_b8201f0b'),d)
+            closed();page.errors()
     searches=[e for e in page.events() if e['path']=='/api/v1/holds' and e['method']=='GET']
     assert searches and all(parse_qs(e['query']).get('limit') in (['25'],['1']) for e in searches)
     writes=[e for e in page.events() if e['path'].startswith('/api/v1/holds') and e['method'] in {'POST','PATCH','PUT','DELETE'}]

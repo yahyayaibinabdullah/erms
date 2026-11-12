@@ -29,6 +29,11 @@ with psycopg.connect(url) as c:
         page.wait.until(lambda _:not page.visible('[role=status] .q-spinner') and (page.visible('.compact-result-item') or page.t('webui.render_global_search_results.label.no_results_found_ab1c85dc') in page.text()))
     def next_page():
         old=page.visible('.compact-result-item')[0];page.click(page.t('webui.render_global_search_results.accessible_name.next_page_c45c7218'));page.wait.until(EC.staleness_of(old));page.wait.until(lambda _:page.visible('.compact-result-item'))
+    def requests():
+        return sum(e['path']=='/api/v1/full-text-search' for e in page.events())
+    def totals():
+        for kind,count in [('all',29),('records',2),('aggregations',27)]:
+            page.button(page.t(f'global_search.filter.{kind}').format(count=count))
     def capture(name):page.capture('global-'+name+'-'+page.language)
     for language in ('en','ar'):
         if language=='ar':
@@ -41,14 +46,22 @@ with psycopg.connect(url) as c:
             assert active.text=='cancel' and active.get_attribute('role')=='button';active.send_keys(Keys.TAB);active=page.driver.switch_to.active_element
             assert active.tag_name=='button' and plain(active.get_attribute('aria-label'))==page.t('webui.index.accessible_name.submit_global_search_d3d1329e')
             page.report.setdefault('focus',[]).append({'language':language,'sequence':['query','clear','submit']})
+            totals()
+            count=requests()
             assert len(page.visible('.compact-result-item'))==10;capture('first')
-            next_page();assert len(page.visible('.compact-result-item'))==10;capture('second')
-            next_page();assert len(page.visible('.compact-result-item'))==5;capture('third-cached')
-            next_page();assert len(page.visible('.compact-result-item'))==9;capture('third-loaded')
+            next_page();assert len(page.visible('.compact-result-item'))==10;assert requests()==count+1;totals();capture('second')
+            next_page();assert len(page.visible('.compact-result-item'))==9;assert requests()==count+2;totals();capture('third')
+            previous=page.t('webui.render_global_search_results.accessible_name.previous_page_571d7f79')
+            page.click(previous);page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10)
+            assert requests()==count+2
             page.click(page.t('global_search.filter.records').format(count=2));page.wait.until(lambda _:len(page.visible('.compact-result-item'))==2);capture('records')
+            totals()
+            assert not page.button(page.t('webui.render_global_search_results.accessible_name.next_page_c45c7218')).is_enabled()
+            assert requests()==count+2  # All pages already contained both records.
             page.one('button[aria-label="Open record"]',scope=page.visible('.compact-result-item')[0]).click();page.one('.component-list');capture('record')
             label=page.t('webui.run_global_search.text.search_results_ecc13a7a')
             crumbs=[b for b in page.visible('button.max-w-52') if label in plain(b.text)];assert crumbs;page.activate(crumbs[-1]);page.wait.until(lambda _:len(page.visible('.compact-result-item'))==2);capture('return')
+            assert requests()==count+2
             assert page.driver.current_url.endswith('/?q=Quasararchive') and page.driver.execute_script('return history.length')==history
         with page.check('existing query URL reload and empty search'):
             page.reload();page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10);capture('reload')

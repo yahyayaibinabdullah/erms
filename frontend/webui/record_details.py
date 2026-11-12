@@ -6,7 +6,6 @@ from .entities import ENTITIES
 from .record_presentation import RECORD_DETAIL_HEADER_CLASSES
 from .record_presentation import RECORD_DETAIL_TITLE_CLASSES
 import asyncio
-from .component_presentation import component_is_previewable
 from frontend.webui.disposition.messages import status_label as disposition_status_label
 from frontend.webui.disposition.messages import text as disposition_text
 from .resource_relationships import relationship_panel
@@ -47,10 +46,6 @@ def build_record_details(
                 api.get("org-units", record["owning_org_unit_id"]),
                 api.resource_capabilities("records", record_id),
                 api.effective_holds("record", record_id),
-            )
-            record_components = (
-                (await api.component_page(record_id, limit=25))["items"]
-                if capabilities.get("list_components") else []
             )
             location_source_ids = {
                 record.get("effective_assigned_location_source_aggregation_id"),
@@ -196,8 +191,7 @@ def build_record_details(
                     ui.label(render_message("webui.select_record_details.label.record_details_4a7ba94d")).classes("font-semibold")
                 record_preview_available = (
                     record.get("medium") != "physical"
-                    and capabilities.get("view_component")
-                    and any(component_is_previewable(item) for item in record_components)
+                    and capabilities.get("has_previewable_component")
                 )
                 with ui.grid(columns="auto minmax(0, 1fr) auto").classes(
                     f"record-detail-identity-header w-full {RECORD_DETAIL_HEADER_CLASSES} gap-3 px-5 py-5"

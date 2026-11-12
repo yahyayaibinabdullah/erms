@@ -1,5 +1,6 @@
 """Audit workspace baselines on disposable real-browser/API stacks."""
 import subprocess
+from urllib.parse import parse_qs
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -25,6 +26,12 @@ with psycopg.connect(url) as c:
    'Synthetic audit baseline',%s)""",(900000+i,i,record,'66666666-6666-4666-8666-666666666666',
    Jsonb({'record_number':'TEST-REC','title':'Previous title'}),Jsonb({'record_number':'TEST-REC','title':f'Audit fixture {i:02}'}),
    Jsonb({'reference_snapshots':{'before':{'title':{'name':'Previous title'}},'after':{'title':{'name':f'Audit fixture {i:02}'}}}})))
+ c.execute("""INSERT INTO event_history(id,occurred_at,transaction_id,entity_type,entity_id,operation,
+               actor_name,actor_type,source)
+               SELECT 920000+i,'2029-01-01 12:00:00+00'::timestamptz,6002,'record',%s,
+                      'ACCESS_EXPLANATION_VIEWED','Record history fixture ' || lpad(i::text,3,'0'),
+                      'automated_process','seeding'
+                 FROM generate_series(0,202) i""", (record,))
 '''], check=True, timeout=30)
     def key(s): return page.t('webui.select_audit_trail.' + s)
     correlation = lambda: key('input.correlation_id_e6872415')
@@ -72,6 +79,21 @@ with psycopg.connect(url) as c:
             replace_results(lambda:page.click(page.t('audit.filter.clear')))
             page.wait.until(lambda _:page.field(correlation()).get_attribute('value')=='')
             filtered()
+        with page.check('audit paging keeps the applied correlation filter until Apply'):
+            draft='77777777-7777-4777-8777-777777777777'
+            page.fill(correlation(),draft)
+            started=len(page.events())
+            replace_results(lambda:page.click(key('button.next_4982f418')))
+            page.see('Audit fixture 04')
+            assert len(page.visible('.audit-event'))==5
+            assert page.field(correlation()).get_attribute('value')==draft
+            reads=[e for e in page.events()[started:] if e['path']=='/api/v1/event-history/search']
+            assert len(reads)==1 and reads[0]['status']==200
+            capture('second-page-pending-filter')
+            replace_results(lambda:page.click(apply()))
+            page.see(page.t('webui.render_event_timeline.label.no_matching_events_bd2c227e'))
+            assert not page.button(key('button.previous_928715e5')).is_enabled()
+            filtered()
         with page.check('audit details preserve snapshots, collapsed technical section and current-record link'):
             detail();page.see('Previous title');page.see('Historical actor')
             capture('detail')
@@ -84,6 +106,30 @@ with psycopg.connect(url) as c:
             page.see(history_label);page.see('Audit fixture 54')
             capture('entity-history')
             detail();capture('nested-detail');close();close()
+        with page.check('record Event History pages past the former 200-event cutoff'):
+            start = len(page.events())
+            page.click(page.t('webui.select_record_details.button.event_history_89d2205e'))
+            page.see(page.t('webui.show_entity_history.label.event_history_670b1156'))
+            page.see('Audit fixture 54')
+            for offset in range(25, 251, 25):
+                old = page.visible('.audit-event')[0]
+                page.activate(page.one('.entity-history-next'))
+                page.wait.until(EC.staleness_of(old))
+                page.wait.until(lambda _: page.visible('.audit-event'))
+            page.see('Record history fixture 000')
+            assert not page.one('.entity-history-next').is_enabled()
+            badge = page.one('.entity-history-range')
+            assert badge.text.startswith('251–')
+            assert page.driver.execute_script('return getComputedStyle(arguments[0]).direction', badge) == 'ltr'
+            capture('history-past-200')
+            page.activate(page.one('.entity-history-previous'))
+            page.see('Record history fixture 031')
+            reads = [e for e in page.events()[start:] if e['path'].endswith('/history')]
+            assert all(e['status'] == 200 for e in reads)
+            assert [parse_qs(e['query']) for e in reads] == [
+                {'limit': ['26'], 'offset': [str(offset)]} for offset in [*range(0, 251, 25), 225]
+            ]
+            close()
         with page.check('audit empty search, read errors, abandoned responses and restoration'):
             page.drawer('audit_trail');loaded()
             page.fill(correlation(),'77777777-7777-4777-8777-777777777777');page.click(apply())

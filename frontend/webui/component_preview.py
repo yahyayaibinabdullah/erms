@@ -27,7 +27,6 @@ def build_component_preview(*, api, error_message):
             (dict(item) for item in staged_components or [] if component_is_previewable(item, staged=True)),
             key=lambda item: item.get("component_order", 0),
         ) if draft_id is not None else []
-        supported = lambda item: component_is_previewable(item, staged=draft_id is not None)
         try:
             if draft_id is not None:
                 # Reuse the mounted editor's metadata; every rendition request
@@ -39,24 +38,18 @@ def build_component_preview(*, api, error_message):
                 components = {"items": staged_rows[preview_page["offset"]:preview_page["offset"]+preview_page["limit"]], "total": len(staged_rows)}
             else:
                 capabilities = await api.resource_capabilities("records", record["id"])
-                if initial_component_id is not None:
-                    initial_component = await api.get("digital-components", initial_component_id)
-                    preview_page["offset"] = (
-                        (int(initial_component["component_order"]) - 1) // preview_page["limit"]
-                    ) * preview_page["limit"]
-                components = await api.component_page(
-                    record["id"], limit=preview_page["limit"], offset=preview_page["offset"],
-                )
+                components = {"items": [], "total": 0}
+                if capabilities.get("list_components") and capabilities.get("view_component"):
+                    components = await api.previewable_component_page(
+                        record["id"], limit=preview_page["limit"], selected_component_id=initial_component_id,
+                    )
+                    preview_page["offset"] = components["offset"]
         except ApiError as error:
             if source_active is None or source_active():ui.notify(error_message(error), color="negative", close_button=True)
             return
         if source_active is not None and not source_active():return
         preview_page["total"] = int(components["total"])
-        components = components["items"]
-        previewable = sorted(
-            (item for item in components if supported(item)),
-            key=lambda item: item.get("component_order", 0),
-        )
+        previewable = components["items"]
         if not capabilities.get("view_component") or not previewable:
             ui.notify(render_message("webui.preview_record_components.notify.no_previewable_digital_components_are_avai_8160d774"), color="warning")
             return
@@ -112,28 +105,40 @@ def build_component_preview(*, api, error_message):
         switcher_host: Any = None
         toolbar_host: Any = None
         content_host: Any = None
+        page_loading = False
 
         async def load_preview_page(direction: int) -> None:
-            nonlocal previewable
+            nonlocal previewable, page_loading
+            if page_loading or viewer_state["closed"]:
+                return
+            page_loading = True
             target_offset = max(
                 0,
                 int(preview_page["offset"]) + direction * int(preview_page["limit"]),
             )
             try:
-                result = {"items": staged_rows[target_offset:target_offset+preview_page["limit"]], "total": len(staged_rows)} if draft_id is not None else await api.component_page(
-                    record["id"], limit=int(preview_page["limit"]), offset=target_offset,
-                )
+                if draft_id is not None:
+                    result = {
+                        "items": staged_rows[target_offset:target_offset+preview_page["limit"]],
+                        "total": len(staged_rows), "offset": target_offset,
+                    }
+                else:
+                    result = await api.previewable_component_page(
+                        record["id"], limit=preview_page["limit"], offset=target_offset,
+                    )
             except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
+                if not viewer_state["closed"] and (source_active is None or source_active()):
+                    ui.notify(error_message(error), color="negative", close_button=True)
                 return
-            candidates = sorted(
-                (item for item in result["items"] if supported(item)),
-                key=lambda item: item.get("component_order", 0),
-            )
+            finally:
+                page_loading = False
+            if viewer_state["closed"] or (source_active is not None and not source_active()):
+                return
+            candidates = result["items"]
             if not candidates:
                 ui.notify(render_message("webui.preview_record_components.notify.no_previewable_digital_components_are_avai_8160d774"), color="warning")
                 return
-            preview_page.update(offset=target_offset, total=int(result["total"]))
+            preview_page.update(offset=result["offset"], total=int(result["total"]))
             previewable = candidates
             await select_component(previewable[0])
 
@@ -145,10 +150,12 @@ def build_component_preview(*, api, error_message):
                 if item["id"] == active_id
             )
             active_component = viewer_state["component"]
+            total = preview_page["total"]
+            first_index = preview_page["offset"] + 1
             with switcher_host:
                 with ui.row().classes("component-switcher-bar w-full items-center no-wrap gap-3"):
                     ui.label(
-                        render_message("webui.render_switcher.label.previewable_count_digital_component_value_6b9458a3", previewable_count=len(previewable), value='s' if current_locale_context()[0].split('-')[0]=='en' and len(previewable) != 1 else '')
+                        render_message("webui.render_switcher.label.previewable_count_digital_component_value_6b9458a3", previewable_count=total, value='s' if current_locale_context()[0].split('-')[0]=='en' and total != 1 else '')
                     ).classes("component-switcher-summary")
                     ui.element("div").classes("component-switcher-divider")
                     with ui.row().classes("component-switcher-file items-center no-wrap gap-3"):
@@ -162,12 +169,12 @@ def build_component_preview(*, api, error_message):
                             active_component.get("file_name") or render_message("webui.render_switcher.tooltip.unnamed_file_1e7c23b2")
                         )
                         ui.label(
-                            render_message("webui.render_switcher.label.active_index_of_previewable_count_8114d6d6", active_index=active_index, previewable_count=len(previewable))
+                            render_message("webui.render_switcher.label.active_index_of_previewable_count_8114d6d6", active_index=preview_page["offset"] + active_index, previewable_count=total)
                         ).classes("component-switcher-position")
                     with ui.row().classes(
                         "component-switcher-scroll items-center no-wrap gap-2"
                     ):
-                        for index, item in enumerate(previewable, start=1):
+                        for index, item in enumerate(previewable, start=first_index):
                             active = item["id"] == active_id
                             button = ui.button(
                                 str(index),

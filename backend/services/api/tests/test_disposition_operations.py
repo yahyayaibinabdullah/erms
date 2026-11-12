@@ -6,6 +6,7 @@ from backend.services.api.tests.test_disposition_approval import manager,reach_m
 from backend.services.api.tests.test_disposition_review import db,task,save,create
 from backend.services.api.tests.test_disposition_membership import actor
 from backend.services.api.tests.test_disposition_artifacts import configure,root as destination_root
+from backend.services.api.tests.test_global_privilege_enforcement import _account, _bearer
 from tools.preview_disposition import preview_pdf
 
 
@@ -177,6 +178,81 @@ def test_http_acceptance_does_not_call_renderer_and_status_survives_new_client_r
     assert client.post(url,json=payload,headers=headers).json()==response.json()
     status=client.get(f"/api/v1/disposition/jobs/{job['id']}/operation-progress")
     assert status.status_code==200 and status.json()==response.json()
+
+
+def test_http_operation_progress_and_document_retry_enforce_job_and_task_access(client, monkeypatch):
+    manager_headers = _bearer(client.cookies["erms_session"])
+    client.cookies.clear()
+    outsider_token, _, _ = _account(client, privileges=(), suffix="progress-outsider")
+    client.cookies.clear()
+    reader_token, reader_id, reader_role = _account(client, privileges=(), suffix="progress-reader")
+    client.cookies.clear()
+    other_manager_token, other_manager_id, _ = _account(client, privileges=(), suffix="progress-other-manager")
+
+    with db() as connection:
+        actor(connection)
+        job, _, manager_role, args, _ = queued(connection, route="standard", empty=True)
+        connection.commit()
+
+    def unavailable_renderer(*args):
+        raise RuntimeError("Renderer unavailable")
+
+    monkeypatch.setattr(documents.engine, "render", unavailable_renderer)
+    assert operations.process_one(db)
+
+    with db() as connection:
+        actor(connection)
+        past_role = connection.execute(
+            """SELECT destination_role_id FROM disposition_tasks
+               WHERE job_id=%s AND workflow_stage='unit_manager_review'""", (job["id"],),
+        ).fetchone()["destination_role_id"]
+        # Give the reader a completed task's role with the reader's existing
+        # unprivileged profile. The task association gives workspace access.
+        connection.execute(
+            """UPDATE roles SET profile_id=(SELECT profile_id FROM roles WHERE id=%s)
+               WHERE id=%s""", (reader_role, past_role),
+        )
+        connection.execute(
+            "INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s),(%s,%s)",
+            (reader_id, past_role, other_manager_id, manager_role),
+        )
+        connection.commit()
+
+    progress = f"/api/v1/disposition/jobs/{job['id']}/operation-progress"
+    retry = f"/api/v1/disposition/jobs/{job['id']}/retry-approval-documents"
+    payload = {"command_id": str(uuid4()), "acting_role_id": manager_role}
+    client.cookies.clear()
+    assert client.get(progress).status_code == 401
+    assert client.post(retry, json=payload).status_code == 401
+
+    outsider = _bearer(outsider_token)
+    assert client.get(progress, headers=outsider).status_code == 404
+    assert client.post(retry, json=payload, headers=outsider).status_code == 404
+
+    manager_status = client.get(progress, headers=manager_headers)
+    assert manager_status.status_code == 200, manager_status.text
+    failed = manager_status.json()
+    assert failed["operation_id"] == str(args["command_id"])
+    assert failed["state"] == "failed" and failed["approval_committed"]
+
+    reader = _bearer(reader_token)
+    reader_status = client.get(progress, headers=reader)
+    assert reader_status.status_code == 200, reader_status.text
+    assert reader_status.json() == failed
+    denied = client.post(retry, json=payload, headers=reader)
+    assert denied.status_code == 403, denied.text
+    assert denied.json()["detail"]["code"] == "disposition_manager_role_required"
+
+    other_manager = _bearer(other_manager_token)
+    denied = client.post(retry, json=payload, headers=other_manager)
+    assert denied.status_code == 403, denied.text
+    assert denied.json()["detail"]["code"] == "disposition_task_claim_required"
+    assert client.get(progress, headers=manager_headers).json() == failed
+
+    accepted = client.post(retry, json=payload, headers=manager_headers)
+    assert accepted.status_code == 202, accepted.text
+    assert accepted.json()["operation_id"] == failed["operation_id"]
+    assert accepted.json()["state"] == "queued" and accepted.json()["phase"] == "documents"
 
 
 def test_two_workers_cannot_duplicate_processing_and_task_stays_open_during_render(client,monkeypatch):

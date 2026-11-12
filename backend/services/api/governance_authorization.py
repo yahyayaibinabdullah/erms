@@ -8,6 +8,7 @@ from psycopg import Connection
 from psycopg.types.json import Jsonb
 from pydantic import BaseModel
 
+from .operation_policy import operation_policy
 from .authorization_policy import (
     AuthorizationRequest, ResourceAcl, authorize, load_user_policy_context,
     policy_context_from_request, require_authorization_admin,
@@ -241,6 +242,7 @@ def _integrity_gate(
 
 
 @router.post("/explain", response_model=AccessExplanationRead)
+@operation_policy("resource_scoped", "authorization.explain")
 def explain_access(
     payload: AccessExplanationRequest, request: Request,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -328,6 +330,7 @@ def explain_access(
 
 
 @router.get("/explainable-users", response_model=list[ExplainableUserRead], dependencies=[Depends(require_authorization_explain)])
+@operation_policy("authenticated_only")
 def explainable_users(
     request: Request,
     q: str = Query("", max_length=120),

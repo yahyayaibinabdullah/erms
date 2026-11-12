@@ -468,8 +468,10 @@ application process.
 Results use offset/limit pagination because a single advanced search targets
 one existing resource endpoint. The initial page size is 25; allowed choices
 are 25, 50, and 100. The UI provides First, Previous, Next, and Last controls
-and displays **Showing X–Y of Z**. Changing criteria, target, sort, or page size
-returns to offset `0`.
+and displays **Showing X–Y of Z**. Page controls use the criteria, sort, result
+cap, and page size of the last execution. Editing those controls leaves the
+displayed results and current page in place. Submitting with **Search** starts
+at offset `0`. Changing the target clears the current execution.
 
 For a saved search, `offset + limit` may not exceed its `max_results`. The final
 page is shortened when necessary. The API may report that more authorized

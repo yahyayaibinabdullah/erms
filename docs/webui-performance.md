@@ -250,12 +250,35 @@ resolve a parent label, effective closure, or inherited status. Use direct ID
 reads, walk only the selected ancestor chain, or expose a narrow authorized API
 such as `aggregations/{id}/effective-closure`.
 
-Non-search-first administration listings use true server pagination. Search,
-status, account type, sort, page size, and offset belong in the API request.
-Page totals come from the server. Client-side pagination is permitted only
-after the server has returned a deliberately complete finite result. Primary
-record/aggregation search-result limits are governed separately by each search
-screen's result contract and must still avoid an unbounded download.
+### Paginated results and submitted filters
+
+Apply authorization and filters to the full matching set on the server. Sort
+the result using a stable order with a unique tie-breaker, then select a bounded
+page using an offset or cursor. Compute displayed counts from the same
+authorized query, including per-tab counts when a result view has type tabs.
+If the screen only needs to know whether another page exists, a look-ahead row
+can supply that signal.
+
+Keep the last submitted filters and sort in the view's applied query. When a
+screen has Search or Apply, editing the controls leaves that query in use until
+submission. Previous and Next reuse it and change only the page. A new search
+or applied filter set starts on the first page. Keep the filter controls
+available when a query returns zero rows. Preserve each screen's existing
+submission and refresh behavior.
+
+A page-size limit bounds one response. A capped first batch of 50 or 100 rows
+cannot support pagination over the full match set. This applies to searches,
+assignments, dashboard drill-downs and event lists. Use client-side pagination
+only for deliberately complete finite data. An approved limit on the entire
+result set, such as a preview, belongs in the screen's result contract.
+
+Regression coverage for a paging fix should verify that the last submitted
+query survives draft edits and that a known match beyond the old cap appears
+on a later page. Check the displayed range and enabled controls at the final
+page. Where totals are shown, verify that they reflect the full filtered set
+from the first page. For example, Recent security events with 103 matches
+shows 1–10 of 103 first and reaches events 101–103 on the last page.
+Role Assignments with 51 matches must reach assignment 51.
 
 Dashboard complete-review lists use true server pagination: 25 visible rows
 plus one look-ahead row to determine whether another page exists. Do not loop

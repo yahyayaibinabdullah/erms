@@ -1659,6 +1659,11 @@ Offset pagination is not used for deep global-search pages. The response has a
 bounded page size; total counts are optional and, if returned, count only
 authorized results.
 
+An initial request may set `include_totals` to `true`. The response then
+includes `totals`, keyed by the requested resource types, for all authorized
+matches before the page limit. Cursor requests omit totals. The option does
+not change the query fingerprint or result ordering.
+
 ### 10.4 Global result shape
 
 ```json
@@ -1947,10 +1952,11 @@ unsupported or unavailable components retain a disabled icon with explanatory
 guidance.
 
 Aggregation results use the same surface and rhythm with a distinct type icon
-and open-aggregation action. Type tabs filter the already submitted query; they
-are not required for search execution. At mobile widths actions use the
-established row/card navigation behavior, component matches stack vertically,
-and no horizontal scrolling is required.
+and open-aggregation action. Type tabs filter the already submitted query. The
+tab counts come from the initial response and stay fixed while paging. Each
+tab uses its own cursor so Next requests one page for that tab. At mobile
+widths actions use the established row/card navigation behavior, component
+matches stack vertically, and no horizontal scrolling is required.
 
 The rendered design must be compared in a live browser with the current Wathiq
 header, search-first pages, record cards/tables, empty states, buttons, and

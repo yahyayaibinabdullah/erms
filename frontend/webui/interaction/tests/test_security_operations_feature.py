@@ -26,10 +26,17 @@ def callback(name,scope):
     exec(compile(ast.Module(body=[node],type_ignores=[]),'<security-operations>','exec'),scope)
     return scope[name]
 
-def summary(events=None):return dict(total_security_events=0,total_denials=0,event_counts=[],recent_events=events or [],denial_groups=[],full_privilege_roles=[])
+def summary(events=None):
+    return dict(total_security_events=len(events or []),total_denials=0,event_counts=[],
+                recent_events=(events or [])[:10],denial_groups=[],full_privilege_roles=[],
+                window_start='2026-01-01T00:00:00Z',window_end='2026-01-02T00:00:00Z')
 
 async def setup(user,privileges=(),events=None):
-    api=SimpleNamespace(security_summary=AsyncMock(return_value=summary(events)),security_reconciliation=AsyncMock(return_value={'hierarchy_violation_count':0,'findings':[]}))
+    async def event_page(*, start_at, end_at, limit, offset):
+        return (events or [])[offset:offset + limit]
+    api=SimpleNamespace(security_summary=AsyncMock(return_value=summary(events)),
+                        security_events=AsyncMock(side_effect=event_page),
+                        security_reconciliation=AsyncMock(return_value={'hierarchy_violation_count':0,'findings':[]}))
     scope=dict(vars(host),api=api,state={},collection_state={},auth_state={'principal':{'global_privileges':list(privileges)}},register_navigation=Mock(),show_authenticated_view=Mock())
     for name in ['open_aggregation','select_record_details','select_organization_unit_details','select_role_details','select_user_details','select_classification_workspace']:scope[name]=AsyncMock()
     @ui.page('/security-contract')
@@ -48,7 +55,9 @@ def click(user,key):user.find(t(key)).click()
 @pytest.mark.parametrize('admin',[False,True])
 async def test_periods_custom_validation_and_permission_scoped_reconciliation(user,admin):
     h=await setup(user,['authorization.administer'] if admin else [])
-    h['api'].security_summary.assert_awaited_once_with(hours=24,start_at=None,end_at=None)
+    h['api'].security_summary.assert_awaited_once_with(
+        hours=24,start_at=None,end_at=None,recent_event_limit=10,denial_group_limit=11,
+    )
     assert h['api'].security_reconciliation.await_count==int(admin)
     control=next(iter(user.find(ui.select).elements))
     with user:control.value='week'
@@ -85,7 +94,41 @@ async def test_recent_event_paging_redaction_and_target_navigation(user):
     redacted=next(e for e in user.find(ui.label).elements if e.text=='Event target 0');assert not redacted._event_listeners
     user.find('Event target 1').click();await settle();h['select_record_details'].assert_awaited_once_with(1)
     click(user,'webui.load_security_operations.button.next_1b5d6dc7');await settle();await user.should_see('Event target 10');await user.should_not_see('Event target 0')
+    h['api'].security_events.assert_awaited_once_with(
+        start_at='2026-01-01T00:00:00Z', end_at='2026-01-02T00:00:00Z', limit=10, offset=10,
+    )
     click(user,'webui.load_security_operations.button.previous_49e3a635');await settle();await user.should_see('Event target 0')
+    assert h['api'].security_summary.await_count == 1
+
+
+@pytest.mark.parametrize('boundary', ['navigation', 'refresh', 'identity'])
+async def test_abandoned_event_page_does_not_replace_current_view(user, boundary):
+    events = [dict(operation='AUTHENTICATION_FAILED', occurred_at='2026-01-01',
+                   entity_label=f'Event target {i}', entity_type='record', entity_id=i)
+              for i in range(11)]
+    h = await setup(user, events=events)
+    started = asyncio.Event()
+    release = asyncio.Event()
+
+    async def delayed(**kwargs):
+        started.set()
+        await release.wait()
+        return events[10:]
+
+    h['api'].security_events.side_effect = delayed
+    click(user, 'webui.load_security_operations.button.next_1b5d6dc7')
+    await asyncio.wait_for(started.wait(), 3)
+    if boundary == 'navigation':
+        h['state']['resource'] = 'records'
+    elif boundary == 'identity':
+        h['auth_state']['principal'] = {'global_privileges': []}
+    else:
+        h['api'].security_summary.return_value = summary([])
+        click(user, 'webui.select_security_operations.button.refresh_aa2c487e')
+        await user.should_see(t('webui.render_security_event_cards.label.no_recent_security_events_in_this_period_6d8fd436'))
+    release.set()
+    await settle()
+    await user.should_not_see('Event target 10')
 
 @pytest.mark.parametrize('kind,target,args,kwargs',[
  ('aggregation','open_aggregation',({'id':7,'classification_scheme_id':3},),{}),('record','select_record_details',(7,),{}),

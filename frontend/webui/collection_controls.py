@@ -10,9 +10,29 @@ from .api_client import ApiError
 from .entities import COLLECTION_ENTITIES
 
 
+def compact_search_payload(spec, view: dict) -> dict:
+    number = "record_number" if spec.key == "records" else "aggregation_number"
+    date = "date_originated" if spec.key == "records" else "date_opened"
+    sort = {"number": number, "title": "title", "date": date, "medium": "medium"}
+    page_size = view["page_size"]
+    where = {"and": [
+        {"field": "parent_aggregation_id", "operator": "is_null"},
+        {"field": "classification_id", "operator": "is_null"},
+    ]} if view.get("unclassified_roots") else {"or": [
+            {"field": field, "operator": "contains_ci", "value": view["query"]}
+            for field in spec.search_fields
+    ]}
+    return {
+        "where": where,
+        "sort": [{"field": sort[view["sort"]], "direction": "asc"}],
+        "limit": page_size,
+        "offset": (view["page"] - 1) * page_size,
+    }
+
+
 def build_collection_loader(
     api: Any, *, get_resource: Callable[[], str], get_query: Callable,
-    pages: dict, accept_results: Callable, clear_result_state: Callable,
+    pages: dict, compact_states: dict, accept_results: Callable,
     decorate_for_spec: Callable, decorate_record_search_components: Callable,
     page_client: Any, set_connection_status: Callable, render_table: Callable,
     error_message: Callable,
@@ -21,6 +41,7 @@ def build_collection_loader(
     async def load_rows(
         *, repeat_search: bool = False, on_loaded: Callable[[], None] | None = None,
         is_current: Callable[[], bool] | None = None,
+        compact_state: dict | None = None,
     ) -> None:
         spec = COLLECTION_ENTITIES[get_resource()]
         nonlocal request_revision
@@ -32,23 +53,41 @@ def build_collection_loader(
                     and request_revision == revision
                     and (is_current is None or is_current()))
         try:
-            if spec.search_first:
-                query = (get_query() or "").strip()
-                if not query and not repeat_search:
-                    accept_results([], False)
-                    clear_result_state(spec.key)
-                elif query:
-                    rows = await api.search(spec.key, query, spec.search_fields)
+            if spec.key in {"aggregations", "records"}:
+                previous = compact_states.get(spec.key, {})
+                view = {"filter": "", "sort": "number", "page": 1, "page_size": 10,
+                        **previous, **(compact_state or {})}
+                if compact_state is None and (not repeat_search or not previous):
+                    view.update(query=(get_query() or "").strip(), page=1, unclassified_roots=False)
+                if not view.get("query") and not view.get("unclassified_roots"):
+                    if not repeat_search:
+                        compact_states.pop(spec.key, None)
+                        accept_results([], False)
+                else:
+                    payload = compact_search_payload(spec, view)
+                    result = await api.search_request(spec.key, payload, display_filter=view["filter"].strip())
                     if not request_is_current():
                         return
-                    decorated_rows = await decorate_for_spec(spec, rows)
-                    decorated_rows = (
-                        await decorate_record_search_components(decorated_rows)
-                        if spec.key == "records" else decorated_rows
-                    )
+                    total = int(result["total"])
+                    last_page = max(1, (total + view["page_size"] - 1) // view["page_size"])
+                    if view["page"] > last_page:
+                        view["page"] = last_page
+                        if total:
+                            result = await api.search_request(
+                                spec.key, compact_search_payload(spec, view), display_filter=view["filter"].strip(),
+                            )
+                            if not request_is_current():
+                                return
+                    decorated = await decorate_for_spec(spec, result["items"])
+                    if not request_is_current():
+                        return
+                    if spec.key == "records":
+                        decorated = await decorate_record_search_components(decorated)
                     if not request_is_current() or getattr(page_client, "_deleted", False):
                         return
-                    accept_results(decorated_rows, True)
+                    view["total"] = int(result["total"])
+                    compact_states[spec.key] = view
+                    accept_results(decorated, True)
             else:
                 page = pages.setdefault(spec.key, {
                     "offset": 0, "limit": 25, "total": 0, "query": "",

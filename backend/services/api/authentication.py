@@ -13,6 +13,7 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .config import boolean_environment
 from .application_settings import cache as settings_cache
 from .database import get_connection
@@ -268,6 +269,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["authentication"])
 
 
 @router.post("/login", response_model=PrincipalRead)
+@operation_policy("public")
 def login(payload: LoginRequest, request: Request, response: Response, connection: Connection = Depends(get_connection, scope="function")):
     settings = settings_cache.for_connection(connection)
     generic = HTTPException(status_code=401, detail="invalid email or password")
@@ -400,6 +402,7 @@ def principal_response(principal: Principal, connection: Connection) -> dict[str
 
 
 @router.get("/me", response_model=PrincipalRead)
+@operation_policy("authenticated_only")
 def me(
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -408,6 +411,7 @@ def me(
 
 
 @router.get("/me/recent-activity", response_model=list[SelfRecentActivityRead])
+@operation_policy("authenticated_only")
 def my_recent_activity(
     limit: int = Query(6, ge=1, le=50),
     since: datetime | None = None,
@@ -498,6 +502,7 @@ def my_recent_activity(
 
 
 @router.post("/logout", status_code=204)
+@operation_policy("authenticated_only")
 def logout(response: Response, principal: Principal = Depends(principal_from_request), connection: Connection = Depends(get_connection, scope="function")):
     session = connection.execute(
         """UPDATE login_sessions SET revoked_at=CURRENT_TIMESTAMP, revoked_by=%s
@@ -519,6 +524,7 @@ def logout(response: Response, principal: Principal = Depends(principal_from_req
 
 
 @router.post("/change-password", status_code=204)
+@operation_policy("authenticated_only")
 def change_password(payload: ChangePasswordRequest, request: Request, principal: Principal = Depends(principal_from_request), connection: Connection = Depends(get_connection, scope="function")):
     settings = settings_cache.for_connection(connection)
     credential = connection.execute(
@@ -671,6 +677,7 @@ def page_sessions(
 
 
 @router.delete("/sessions/{session_id}", status_code=204)
+@operation_policy("authenticated_only")
 def revoke_session(session_id: int, request: Request, principal: Principal = Depends(principal_from_request), connection: Connection = Depends(get_connection, scope="function")):
     target = connection.execute("SELECT user_id FROM login_sessions WHERE id=%s", (session_id,)).fetchone()
     if not target:

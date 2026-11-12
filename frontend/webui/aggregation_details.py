@@ -6,7 +6,6 @@ from .api_client import ApiError
 from .entities import ENTITIES
 from frontend.webui.disposition.screens import accelerate_dialog
 import asyncio
-from .component_presentation import component_is_previewable
 from .locale_services import current_locale_context
 from datetime import datetime
 from .aggregation_presentation import direct_classification_label
@@ -92,33 +91,18 @@ def build_aggregation_details(
             record_total = int(record_page_result["total"])
             async def load_record_result_context(
                 record: dict[str, Any],
-            ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-                if record.get("medium") == "physical":
-                    try:
-                        return await api.resource_capabilities("records", record["id"]), []
-                    except ApiError:
-                        return {}, []
+            ) -> dict[str, Any]:
                 try:
-                    record_capabilities, components = await asyncio.gather(
-                        api.resource_capabilities("records", record["id"]),
-                        api.component_page(record["id"], limit=25),
-                    )
+                    return await api.resource_capabilities("records", record["id"])
                 except ApiError:
-                    return {}, []
-                return record_capabilities, components["items"]
+                    return {}
 
             record_contexts = await asyncio.gather(*[
                 load_record_result_context(record) for record in records
             ])
-            for record, (record_capabilities, components) in zip(records, record_contexts):
-                record["_components"] = components if record_capabilities.get("list_components") else []
-                record["_can_expand_components"] = bool(
-                    record_capabilities.get("list_components") and record["_components"]
-                )
-                record["_can_preview"] = bool(
-                    record_capabilities.get("view_component")
-                    and any(component_is_previewable(item) for item in record["_components"])
-                )
+            for record, record_capabilities in zip(records, record_contexts):
+                record["_component_count"] = int(record_capabilities.get("component_count", 0))
+                record["_can_preview"] = bool(record_capabilities.get("has_previewable_component"))
                 record["on_effective_hold"] = bool(
                     record.get("on_effective_hold")
                     or record_capabilities.get("is_on_effective_hold")
@@ -915,7 +899,7 @@ def build_aggregation_details(
                         contained_record_filter = ui.input(
                             render_message("webui.open_aggregation.input.filter_records_d5ad0981"),
                             placeholder=render_message("webui.open_aggregation.input.number_title_or_date_6fab14e9"),
-                            value=str(child_return.get("filter") or ""),
+                            value=str(child_return.get("filter_draft", record_query)),
                         ).props("outlined dense clearable debounce=250").classes("w-80 max-w-full")
                         ui.space()
                         ui.label(render_message("webui.open_aggregation.label.record_count_records_ca93489a", record_count=record_total)).classes("text-sm text-slate-500")
@@ -929,7 +913,8 @@ def build_aggregation_details(
                         aggregation_state["aggregation_child_return"] = {
                             "aggregation_id": int(current["id"]),
                             "page": int(contained_record_page.value or 1),
-                            "filter": str(contained_record_filter.value or ""),
+                            "filter": record_query,
+                            "filter_draft": str(contained_record_filter.value or ""),
                             "anchor": f"compact-result-records-{int(record['id'])}",
                             "expanded_records": sorted(expanded_child_records),
                         }
@@ -956,24 +941,35 @@ def build_aggregation_details(
                                     render_compact_resource_result(
                                         "records", record,
                                         on_open=open_contained_record,
-                                        components=record.get("_components", []),
+                                        component_total=record["_component_count"],
                                         can_preview=bool(record.get("_can_preview")),
-                                        can_expand_components=bool(record.get("_can_expand_components")),
+                                        can_expand_components=bool(record["_component_count"]),
                                         initially_expanded=int(record["id"]) in expanded_child_records,
                                         on_expansion_changed=lambda expanded, identifier=int(record["id"]):
                                             set_child_record_expansion(identifier, expanded),
                                     )
 
-                    async def reload_contained_records(*, reset: bool = False) -> None:
+                    records_loading = False
+
+                    async def reload_contained_records(*, submit_filter: bool = False) -> None:
+                        nonlocal records_loading
+                        if records_loading or contained_record_page.is_deleted:
+                            return
+                        records_loading = True
+                        draft = str(contained_record_filter.value or "")
                         aggregation_state["aggregation_child_return"] = {
                             "aggregation_id": int(current["id"]),
-                            "page": 1 if reset else int(contained_record_page.value or 1),
-                            "filter": str(contained_record_filter.value or ""),
+                            "page": 1 if submit_filter else int(contained_record_page.value or 1),
+                            "filter": draft.strip() if submit_filter else record_query,
+                            "filter_draft": draft,
                             "expanded_records": sorted(expanded_child_records),
                         }
-                        await open_aggregation(current)
+                        try:
+                            await open_aggregation(current)
+                        finally:
+                            records_loading = False
 
-                    contained_record_filter.on("keydown.enter", lambda: reload_contained_records(reset=True))
+                    contained_record_filter.on("keydown.enter", lambda: reload_contained_records(submit_filter=True))
                     contained_record_page.on_value_change(lambda _: reload_contained_records())
                     render_contained_records()
                     restore_compact_result_anchor(child_return.get("anchor"))

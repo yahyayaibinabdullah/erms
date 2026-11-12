@@ -533,6 +533,7 @@ def require_global_privilege(privilege: str) -> Callable[[Request], Authorizatio
         return decision
 
     dependency.__name__ = f"require_{privilege.replace('.', '_')}"
+    setattr(dependency, "__erms_global_privilege__", privilege)
     return dependency
 
 

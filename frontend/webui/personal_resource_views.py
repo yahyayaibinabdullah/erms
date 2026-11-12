@@ -11,67 +11,13 @@ from .personal_resources import PersonalResourceState, STOP_PROPAGATION_CLICK_HA
 
 @dataclass(frozen=True)
 class PersonalResourceViews:
-    render_recent_section: Callable
     render_entity_favourites_section: Callable
     render_resource_personal_sections: Callable
 
 def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
     get_configuration: Callable, render_table: Callable, open_aggregation: Callable,
-    show_record_details: Callable, load_recent: Callable, toggle_favourite: Callable,
+    show_record_details: Callable, toggle_favourite: Callable,
     error_message: Callable, format_timestamp: Callable, personal_dialog_list_height: Callable):
-    def render_recent_section(spec: EntitySpec) -> None:
-        refresh_control: dict[str, Any] = {}
-
-        async def refresh_recent() -> None:
-            refresh_control["button"].props("loading disable")
-            try:
-                await load_recent(spec)
-                ui.notify(render_message("webui.refresh_recent.notify.recent_items_refreshed_066b66f6"), color="positive")
-                render_table(spec)
-            except ApiError as error:
-                refresh_control["button"].props(remove="loading disable")
-                ui.notify(error_message(error), color="negative", close_button=True)
-
-        with ui.row().classes("w-full items-center px-5 pt-5"):
-            ui.label(render_message("webui.render_recent_section.label.start_where_you_left_off_e8cad0b7")).classes("text-lg font-semibold")
-            ui.space()
-            refresh_control["button"] = ui.button(
-                render_message("webui.render_recent_section.button.refresh_a8985428"), icon="refresh", on_click=refresh_recent,
-            ).props("flat dense no-caps color=primary").tooltip(
-                render_message("webui.render_recent_section.tooltip.reload_recently_created_and_updated_items_51826227")
-            )
-        with ui.row().classes("w-full px-5 pb-5 gap-6 items-start"):
-            for heading, rows, icon, color in (
-                ("Recently created", personal.recent_created, "add_circle", "positive"),
-                ("Recently updated", personal.recent_updated, "history", "primary"),
-            ):
-                with ui.column().classes("grow gap-2 min-w-[320px]"):
-                    with ui.row().classes("translation-card-heading items-center gap-2"):
-                        ui.icon(icon, color=color)
-                        ui.label(heading).classes("font-semibold text-slate-700")
-                    if not rows:
-                        ui.label(render_message("webui.render_recent_section.label.nothing_here_yet_16a950c9")).classes("text-sm text-slate-400 py-3")
-                    for item in rows:
-                        click_handler = (
-                            (lambda _, entry=item: open_aggregation(entry))
-                            if spec.key == "aggregations"
-                            else (lambda _, entry=item: show_record_details(entry))
-                        )
-                        with ui.card().classes("recent-card cursor-pointer w-full px-3 py-2 shadow-none").on("click", click_handler):
-                            with ui.row().classes("items-center no-wrap w-full gap-2"):
-                                ui.avatar(
-                                    icon="folder" if spec.key == "aggregations" else "description",
-                                    color="blue-1",
-                                    text_color="primary",
-                                    size="32px",
-                                )
-                                with ui.column().classes("gap-0 grow"):
-                                    ui.label(item["title"]).classes("text-sm font-semibold line-clamp-1")
-                                    number = item.get("aggregation_number") or item.get("record_number")
-                                    ui.label(number).classes("text-xs text-slate-400 leading-tight")
-                                ui.icon("chevron_right", size="18px").classes("text-slate-300")
-
-
     def render_entity_favourites_section(spec: EntitySpec) -> None:
         preview_host = ui.column().classes("w-full px-5 pt-5")
         limit = dashboard_favourite_item_limit(get_configuration())
@@ -386,5 +332,5 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
                 for item in recent_items[:limit]:
                     render_recent_item(item)
 
-    return PersonalResourceViews(render_recent_section, render_entity_favourites_section, render_resource_personal_sections)
+    return PersonalResourceViews(render_entity_favourites_section, render_resource_personal_sections)
 

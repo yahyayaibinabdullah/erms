@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from psycopg import Connection
 from psycopg.types.json import Jsonb
 
+from .operation_policy import operation_policy
 from .database import get_connection
 from .resource_authorization import (
     require_component_operation, require_global, require_resource_operation,
@@ -101,6 +102,7 @@ def _queue(connection: Connection, component: dict, trigger: str) -> tuple[str, 
 
 
 @router.post("/api/v1/digital-components/{component_id}/reindex", status_code=status.HTTP_202_ACCEPTED)
+@operation_policy("resource_scoped", "record.component.reindex", "record.component.view")
 def reindex_component(component_id: int, connection: Connection = Depends(get_connection, scope="function")):
     component, _ = _authorize_component_reindex(connection, component_id)
     disposition, job_id, content = _queue(connection, component, "manual_component")
@@ -119,6 +121,7 @@ def reindex_component(component_id: int, connection: Connection = Depends(get_co
 
 
 @router.post("/api/v1/records/{record_id}/reindex", status_code=status.HTTP_202_ACCEPTED)
+@operation_policy("resource_scoped", "record.component.reindex", "record.component.view")
 def reindex_record(record_id: int, connection: Connection = Depends(get_connection, scope="function")):
     _authorize_record_reindex(connection, record_id)
     # Locking the component snapshot prevents concurrent replacement from being silently folded into this batch.
@@ -160,6 +163,7 @@ def reindex_record(record_id: int, connection: Connection = Depends(get_connecti
 
 
 @router.get("/api/v1/content-indexing/attempts/{attempt_id}")
+@operation_policy("resource_scoped", "record.component.view", "record.component.view")
 def indexing_attempt_status(attempt_id: int, connection: Connection = Depends(get_connection, scope="function")):
     row = connection.execute(
         """SELECT job.id AS attempt_id,job.digital_component_id,job.record_id,job.status,
@@ -178,6 +182,7 @@ def indexing_attempt_status(attempt_id: int, connection: Connection = Depends(ge
 
 
 @router.get("/api/v1/digital-components/{component_id}/indexing-status")
+@operation_policy("resource_scoped", "record.component.view", "record.component.view")
 def component_indexing_status(component_id: int, connection: Connection = Depends(get_connection, scope="function")):
     for privilege in ("record.view", "record.component.view"):
         require_global(connection, privilege)
@@ -194,6 +199,7 @@ def component_indexing_status(component_id: int, connection: Connection = Depend
 
 
 @router.get("/api/v1/content-indexing/batches/{batch_id}")
+@operation_policy("resource_scoped", "record.component.view", "record.component.view")
 def indexing_batch_status(batch_id: UUID, connection: Connection = Depends(get_connection, scope="function")):
     batch = connection.execute(
         """SELECT * FROM content_indexing_batches

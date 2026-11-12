@@ -7728,6 +7728,20 @@
     "is_html": false
   },
   {
+    "message_key": "disposition.ui.blockers_holds_more",
+    "context_group": "disposition.ui",
+    "default_text": "Additional legal holds are not shown.",
+    "semantic_meaning": "More legal holds apply to this resource than the dialog lists.",
+    "common_locations": [
+      "Current blockers dialog"
+    ],
+    "translator_guidance": "Use the legal hold terminology. The notice follows a limited list of hold names for one resource.",
+    "grammatical_role": "status notice",
+    "parameter_schema": {},
+    "rendered_example": "Additional legal holds are not shown.",
+    "is_html": false
+  },
+  {
     "message_key": "disposition.ui.blockers_retry",
     "context_group": "disposition.ui",
     "default_text": "Retry loading blockers",
@@ -41293,20 +41307,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.refresh_recent.notify.recent_items_refreshed_066b66f6",
-    "context_group": "webui.refresh_recent",
-    "default_text": "Recent items refreshed",
-    "semantic_meaning": "Notification message in the refresh recent workflow.",
-    "common_locations": [
-      "WebUI: refresh recent"
-    ],
-    "translator_guidance": "Translate as a concise notification message; preserve the intent used in this workflow.",
-    "grammatical_role": "notification message",
-    "parameter_schema": {},
-    "rendered_example": "Recent items refreshed",
-    "is_html": false
-  },
-  {
     "message_key": "webui.refresh_saved_actions.text.save_search_76b8ff5b",
     "context_group": "webui.refresh_saved_actions",
     "default_text": "Save search",
@@ -45584,62 +45584,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.render_recent_section.button.refresh_a8985428",
-    "context_group": "webui.render_recent_section",
-    "default_text": "Refresh",
-    "semantic_meaning": "Action label in the render recent section workflow.",
-    "common_locations": [
-      "WebUI: render recent section"
-    ],
-    "translator_guidance": "Translate as a concise action label; preserve the intent used in this workflow.",
-    "grammatical_role": "action label",
-    "parameter_schema": {},
-    "rendered_example": "Refresh",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.render_recent_section.label.nothing_here_yet_16a950c9",
-    "context_group": "webui.render_recent_section",
-    "default_text": "Nothing here yet",
-    "semantic_meaning": "Interface text in the render recent section workflow.",
-    "common_locations": [
-      "WebUI: render recent section"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Nothing here yet",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.render_recent_section.label.start_where_you_left_off_e8cad0b7",
-    "context_group": "webui.render_recent_section",
-    "default_text": "Start where you left off",
-    "semantic_meaning": "Interface text in the render recent section workflow.",
-    "common_locations": [
-      "WebUI: render recent section"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Start where you left off",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.render_recent_section.tooltip.reload_recently_created_and_updated_items_51826227",
-    "context_group": "webui.render_recent_section",
-    "default_text": "Reload recently created and updated items",
-    "semantic_meaning": "Action guidance in the render recent section workflow.",
-    "common_locations": [
-      "WebUI: render recent section"
-    ],
-    "translator_guidance": "Translate as a concise action guidance; preserve the intent used in this workflow.",
-    "grammatical_role": "action guidance",
-    "parameter_schema": {},
-    "rendered_example": "Reload recently created and updated items",
-    "is_html": false
-  },
-  {
     "message_key": "webui.render_resource_personal_sections.button.view_all_a52a6926",
     "context_group": "webui.render_resource_personal_sections",
     "default_text": "View all",
@@ -46704,34 +46648,6 @@
     "grammatical_role": "field label",
     "parameter_schema": {},
     "rendered_example": "Type to filter this table",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.render_table.label.partial_matching_is_automatic_wildcard_cha_6cff96d6",
-    "context_group": "webui.render_table",
-    "default_text": "Partial matching is automatic; wildcard characters are not required.",
-    "semantic_meaning": "Interface text in the render table workflow.",
-    "common_locations": [
-      "WebUI: render table"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Partial matching is automatic; wildcard characters are not required.",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.render_table.label.search_classifications_by_code_title_descr_30044cab",
-    "context_group": "webui.render_table",
-    "default_text": "Search classifications by code, title, description, or keywords.",
-    "semantic_meaning": "Interface text in the render table workflow.",
-    "common_locations": [
-      "WebUI: render table"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "Search classifications by code, title, description, or keywords.",
     "is_html": false
   },
   {

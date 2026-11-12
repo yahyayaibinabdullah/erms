@@ -237,7 +237,7 @@ def test_saved_search_dialog_never_uses_system_inventory():
     advanced_search = APP_SOURCE[APP_SOURCE.index("async def select_advanced_search"):]
     dialog = advanced_search[advanced_search.index("async def open_saved_search_dialog"):]
     assert "administrator = False" in dialog
-    assert 'administrative_all = administrator and scope_control.value == "all"' in dialog
+    assert 'administrative_all = administrator and scope == "all"' in dialog
     assert 'api.saved_search_administration(**params) if administrative_all' in dialog
     assert 'ui.button("Administration"' not in advanced_search
     assert 'Saved-search administration' not in dialog
@@ -264,9 +264,7 @@ def test_advanced_search_uses_clearable_catalogues_and_classification_aggregatio
 def test_record_component_attributions_open_the_governed_viewer():
     assert "Preview digital component" in APP_SOURCE
     assert 'preview_record_components(selected, component_id)' in COMPACT_SOURCE
-    assert 'workspace["record_component_details"] = {' in APP_SOURCE
     assert 'for component in search_meta.get("matching_components", [])' in APP_SOURCE
-    assert '{**authorized_component_details.get(int(component["id"]), {}), **component}' in APP_SOURCE
     assert 'workspace["record_capabilities"] = {' in APP_SOURCE
 
 
@@ -320,12 +318,10 @@ def test_each_advanced_search_preview_is_attributed_to_its_component():
         APP_SOURCE.index("def render_results(result:"):
         APP_SOURCE.index("async def open_advanced_record")
     ]
-    assert 'displayed_components = (' in result_renderer
-    assert 'matching_components if uses_full_text' in result_renderer
-    assert 'else list(authorized_component_details.values())' in result_renderer
-    assert 'components=displayed_components' in result_renderer
-    assert 'record_capabilities.get("list_components") and displayed_components' in result_renderer
-    assert 'record_capabilities.get("view_component")' in result_renderer
+    assert 'components=matching_components if uses_full_text else None' in result_renderer
+    assert 'component_total=component_count' in result_renderer
+    assert 'record_capabilities.get("list_components")' in result_renderer
+    assert 'record_capabilities.get("has_previewable_component")' in result_renderer
 
 
 def test_advanced_results_include_medium_and_component_indicators_without_parent_link():

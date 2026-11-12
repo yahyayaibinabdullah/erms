@@ -6,6 +6,7 @@ No localized or identity-specific data is cached here.
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends
 from psycopg import Connection
+from .operation_policy import operation_policy
 from .application_settings import cache
 from .application_settings_registry import REGISTRY
 
@@ -31,6 +32,7 @@ router = APIRouter(tags=['application configuration'])
 
 
 @router.get('/api/v1/application-configuration',response_model=dict[str, object])
+@operation_policy("authenticated_only")
 def effective_configuration(principal:Principal=Depends(principal_from_request),
                             connection:Connection=Depends(get_connection,scope='function')):
     """One bounded response for a page/dialog that needs effective defaults."""

@@ -1565,6 +1565,7 @@ class GlobalSearchRequest(ApiModel):
     result_types: list[Literal["records", "aggregations"]] = Field(min_length=1, max_length=2)
     limit: int = Field(default=25, ge=1, le=100)
     cursor: str | None = Field(default=None, max_length=2000)
+    include_totals: bool = False
     debug: bool = False
 
     @model_validator(mode="after")

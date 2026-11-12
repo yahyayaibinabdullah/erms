@@ -134,11 +134,26 @@ def build_login_sessions(
                         if can_revoke_all:
                             ui.button(icon="person_off", on_click=lambda _, item=row: confirm_revoke(item, all_for_user=True)).props("outline dense color=negative").classes("login-session-action-button").tooltip(render_message("webui.render_session_card.tooltip.force_sign_out_all_sessions_for_this_user_27a3671e"))
 
-        async def load_sessions(*, reset: bool = False) -> None:
-            if page_state["loading"]:
+        def read_session_filters() -> dict[str, Any]:
+            return {
+                "query": (session_filter.value or "").strip(),
+                "session_status": status_filter.value or "all",
+                "sort_by": sort_filter.value or "date_created",
+                "descending": bool(direction_filter.value),
+                "date_field": timestamp_field.value or "date_created",
+                "from_timestamp": from_filter.value or None,
+                "until_timestamp": until_filter.value or None,
+            }
+
+        applied_filters = read_session_filters()
+
+        async def load_sessions(*, offset: int | None = None, filters: dict[str, Any] | None = None) -> None:
+            nonlocal applied_filters
+            if page_state["loading"] or outer.is_deleted:
                 return
-            if reset:
-                page_state["offset"] = 0
+            offset = page_state["offset"] if offset is None else offset
+            filters = applied_filters if filters is None else filters
+            limit = int(rows_per_page.value)
             page_state["loading"] = True
             results.clear()
             empty_state.set_visibility(False)
@@ -146,27 +161,23 @@ def build_login_sessions(
                 for _ in range(4):
                     ui.skeleton(type="rect").classes("h-48 rounded-xl")
             try:
-                page = await api.login_sessions_page(
-                    user_id, limit=int(rows_per_page.value), offset=page_state["offset"],
-                    query=(session_filter.value or "").strip(),
-                    session_status=status_filter.value or "all",
-                    sort_by=sort_filter.value or "date_created",
-                    descending=bool(direction_filter.value),
-                    date_field=timestamp_field.value or "date_created",
-                    from_timestamp=from_filter.value or None,
-                    until_timestamp=until_filter.value or None,
-                )
+                page = await api.login_sessions_page(user_id, limit=limit, offset=offset, **filters)
+                if outer.is_deleted:
+                    return
+                if offset and offset >= page["total"]:
+                    offset = max(0, ((page["total"] - 1) // limit) * limit)
+                    page = await api.login_sessions_page(user_id, limit=limit, offset=offset, **filters)
+                    if outer.is_deleted:
+                        return
             except ApiError as error:
-                ui.notify(error_message(error), color="negative")
+                if not outer.is_deleted:
+                    ui.notify(error_message(error), color="negative")
                 return
             finally:
                 page_state["loading"] = False
             rows = page.get("items", [])
-            page_state.update(total=int(page.get("total", 0)), active=int(page.get("active", 0)))
-            if page_state["offset"] >= page_state["total"] and page_state["offset"]:
-                page_state["offset"] = max(0, ((page_state["total"] - 1) // int(rows_per_page.value)) * int(rows_per_page.value))
-                await load_sessions()
-                return
+            applied_filters = filters
+            page_state.update(offset=offset, total=int(page.get("total", 0)), active=int(page.get("active", 0)))
             results.clear()
             can_revoke_all = "identity.sessions.administer" in set(principal().get("global_privileges", []))
             with results:
@@ -182,23 +193,27 @@ def build_login_sessions(
             first_page.set_enabled(not at_start); previous_page.set_enabled(not at_start)
             next_page.set_enabled(not at_end); last_page.set_enabled(not at_end)
 
+        async def apply_session_filters() -> None:
+            await load_sessions(offset=0, filters=read_session_filters())
+
         async def clear_session_filters() -> None:
+            if page_state["loading"]:
+                return
             session_filter.value = ""; status_filter.value = "all"; sort_filter.value = "date_created"
             timestamp_field.value = "date_created"; from_filter.value = ""; until_filter.value = ""; direction_filter.value = True
             for control in (session_filter, status_filter, sort_filter, timestamp_field, from_filter, until_filter, direction_filter):
                 control.update()
-            await load_sessions(reset=True)
+            await apply_session_filters()
 
         with filter_actions:
             ui.button(render_message("webui.select_login_sessions.button.clear_7925d8e0"), icon="filter_alt_off", on_click=clear_session_filters).props("flat dense no-caps")
-            ui.button(render_message("webui.select_login_sessions.button.apply_filters_fc2322aa"), icon="filter_alt", on_click=lambda: load_sessions(reset=True)).props("unelevated dense no-caps")
+            ui.button(render_message("webui.select_login_sessions.button.apply_filters_fc2322aa"), icon="filter_alt", on_click=apply_session_filters).props("unelevated dense no-caps")
         refresh_button.on("click", load_sessions)
-        session_filter.on("keydown.enter", lambda: load_sessions(reset=True))
-        rows_per_page.on_value_change(lambda: load_sessions(reset=True))
+        session_filter.on("keydown.enter", apply_session_filters)
+        rows_per_page.on_value_change(lambda: load_sessions(offset=0))
 
         async def go_to_offset(offset: int) -> None:
-            page_state["offset"] = max(0, offset)
-            await load_sessions()
+            await load_sessions(offset=max(0, offset))
 
         first_page.on("click", lambda: go_to_offset(0))
         previous_page.on("click", lambda: go_to_offset(page_state["offset"] - int(rows_per_page.value)))

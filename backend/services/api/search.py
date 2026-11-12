@@ -689,7 +689,8 @@ def _attribution(connection: Connection, resource: str, item: dict, leaves: list
         if component_source in sources and resource in {"records","digital_components"}:
             if resource=="records":
                 file_rows=connection.execute(
-                    """SELECT component.id,component.file_name FROM digital_components component
+                    """SELECT component.id,component.file_name,component.mime_type,component.content_status
+                         FROM digital_components component
                         WHERE component.record_id=%s AND component.content_status='available'
                           AND current_user_can_record_component_operation(component.record_id,'record.component.view','record.component.view')
                           AND to_tsvector('pg_catalog.simple',coalesce(component.file_name,''))
@@ -698,11 +699,11 @@ def _attribution(connection: Connection, resource: str, item: dict, leaves: list
                 ).fetchall()
                 for row in file_rows:
                     if row["id"] not in components and len(components)<3:
-                        components[row["id"]]={"id":row["id"],"file_name":row["file_name"],
+                        components[row["id"]]={**row,
                                                "snippet":None,"leaf_ids":[leaf_id],
                                                "match_count_is_capped":len(file_rows)>3}
             rows = connection.execute(
-                """SELECT component.id,component.file_name,
+                """SELECT component.id,component.file_name,component.mime_type,component.content_status,
                           ts_rank_cd(chunk.search_vector,websearch_to_tsquery(chunk.text_search_config,%s)) AS score,
                           ts_headline(chunk.text_search_config,chunk.extracted_text,
                               websearch_to_tsquery(chunk.text_search_config,%s),
@@ -722,6 +723,7 @@ def _attribution(connection: Connection, resource: str, item: dict, leaves: list
             for row in rows:
                 if row["id"] not in components and len(components) < 3:
                     components[row["id"]] = {"id":row["id"],"file_name":row["file_name"],
+                                              "mime_type":row["mime_type"],"content_status":row["content_status"],
                                               "snippet":row["snippet"],"leaf_ids":[leaf_id],
                                               "match_count_is_capped":len(rows)>=12}
                 elif row["id"] in components and leaf_id not in components[row["id"]]["leaf_ids"]:
@@ -818,6 +820,7 @@ def search_rows(
     eligible_classifications: bool = False,
     record_creation: bool = False,
     digital_only: bool = False,
+    display_filter: str | None = None,
 ) -> dict[str, Any]:
     settings = settings_cache.for_connection(connection)
     audit_cap = settings["AUDIT_TRAIL_SEARCH_RESULT_LIMIT"]
@@ -875,6 +878,15 @@ def search_rows(
                 parameters.extend(candidate[1])
     if visibility is not None:
         clauses.append(visibility)
+    if display_filter:
+        columns = (
+            sql.SQL("resource.record_number, resource.title, resource.medium, "
+                    "parent.aggregation_number, parent.title")
+            if table == "records" else
+            sql.SQL("resource.aggregation_number, resource.title, resource.medium")
+        )
+        clauses.append(sql.SQL("concat_ws(' ', {}) ILIKE %s ESCAPE '\\'").format(columns))
+        parameters.append(f"%{_escape_like(display_filter)}%")
     where_clause = (
         sql.SQL(" WHERE ") + sql.SQL(" AND ").join(clauses)
         if clauses else sql.SQL("")
@@ -902,6 +914,11 @@ def search_rows(
         "records": "authorized_records_for_search",
     }.get(table, table))
     source = _search_from(table_identifier, table, request.where)
+    if display_filter and table == "records":
+        source += sql.SQL(
+            " LEFT JOIN aggregations parent ON parent.id = resource.aggregation_id "
+            "AND current_user_can_view_aggregation(parent.id)"
+        )
     count_query = sql.SQL("SELECT count(*) AS total FROM {}{}").format(
         source, where_clause
     )
@@ -926,6 +943,8 @@ def search_rows(
         if field == "_relevance":
             return relevance
         canonical = sql.SQL("resource.{}").format(sql.Identifier(field))
+        if display_filter is not None and fields[field].type is FieldType.TEXT:
+            return sql.SQL("lower({})").format(canonical)
         if field != "name" or not language_candidates or table not in {
             "org_units", "roles", "users",
         }:
@@ -1026,7 +1045,7 @@ def _cursor_decode(value: str) -> dict[str, Any]:
 
 def _global_branch(
     connection: Connection,resource: str,expression: SearchExpression,
-    limit: int,after: dict[str,Any] | None,
+    limit: int,after: dict[str,Any] | None, *, include_total: bool = False,
 ) -> list[dict[str,Any]]:
     leaves=_full_text_leaves(expression)
     if not leaves:
@@ -1051,10 +1070,11 @@ def _global_branch(
         else:
             outer=sql.SQL("WHERE score<%s OR (score=%s AND id>%s)")
             outer_parameters=[after["score"],after["score"],after["id"]]
+    total_column = sql.SQL(",count(*) OVER () AS match_total") if include_total else sql.SQL("")
     query=sql.SQL(
-        "WITH matched AS (SELECT resource.*,({})::double precision AS score FROM {} "
+        "WITH matched AS (SELECT resource.*,({})::double precision AS score{} FROM {} "
         "WHERE ({}) AND ({})) SELECT * FROM matched {} ORDER BY score DESC,id ASC LIMIT %s"
-    ).format(relevance,_search_from(table,resource,expression),visibility,clause,outer)
+    ).format(relevance,total_column,_search_from(table,resource,expression),visibility,clause,outer)
     return list(connection.execute(
         query,[*relevance_parameters,*clause_parameters,*outer_parameters,limit+1],
     ).fetchall())
@@ -1072,6 +1092,7 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
     received=request.model_dump(mode="json",by_alias=True,exclude_unset=True,exclude_none=True)
     canonical=request.model_dump(mode="json",by_alias=True,exclude_none=True)
     canonical.pop("cursor",None); canonical.pop("debug",None)
+    canonical.pop("include_totals", None)
     canonical["result_types"]=sorted(canonical["result_types"])
     if request.record_where is not None:
         canonical["record_where"]=_canonical_request("records",SearchRequest(where=request.record_where))["where"]
@@ -1082,8 +1103,11 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
     if after and after["fingerprint"]!=fingerprint:
         raise _invalid("global-search cursor does not belong to this query")
     merged=[]
+    totals: dict[str, int] | None = {} if request.include_totals and after is None else None
     if request.record_where is not None:
-        branch=_global_branch(connection,"records",request.record_where,request.limit,after)
+        branch=_global_branch(connection,"records",request.record_where,request.limit,after,include_total=totals is not None)
+        if totals is not None:
+            totals["records"] = branch[0]["match_total"] if branch else 0
         leaves=_full_text_leaves(request.record_where)
         for record in branch:
             score=record.pop("score")
@@ -1105,7 +1129,9 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
                 "matching_components":search["matching_components"],"score":search["relevance"],
                 "_id":record["id"]})
     if request.aggregation_where is not None:
-        branch=_global_branch(connection,"aggregations",request.aggregation_where,request.limit,after)
+        branch=_global_branch(connection,"aggregations",request.aggregation_where,request.limit,after,include_total=totals is not None)
+        if totals is not None:
+            totals["aggregations"] = branch[0]["match_total"] if branch else 0
         leaves=_full_text_leaves(request.aggregation_where)
         for aggregation in branch:
             score=aggregation.pop("score")
@@ -1149,6 +1175,8 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
     ).fetchone()["value"]
     result={"items":page,"next_cursor":next_cursor,
             "index_freshness":{"has_pending_content":pending}}
+    if totals is not None:
+        result["totals"] = totals
     if request.debug:
-        result["_debug"]=_debug(connection,"/api/v1/full-text-search",received,canonical)
+        result["_debug"]=_debug(connection,"/api/v1/full-text-search",received,{**canonical, "include_totals": totals is not None})
     return result

@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .content_storage import ContentLocation, configured_storage
 from .database import get_connection
 from .service_authentication import ServicePrincipal
@@ -134,6 +135,7 @@ def _operation_response(
 
 
 @router.post("/jobs/claim")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def claim_jobs(
     payload: ClaimRequest, principal: ServicePrincipal = Depends(_principal),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -239,6 +241,7 @@ def claim_jobs(
 
 
 @router.post("/jobs/{job_id}/heartbeat")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def heartbeat(job_id: int, payload: HeartbeatRequest, principal: ServicePrincipal = Depends(_principal), connection: Connection = Depends(get_connection, scope="function")):
     _lease(connection, job_id, payload, lock=True)
     connection.execute(
@@ -255,6 +258,7 @@ def heartbeat(job_id: int, payload: HeartbeatRequest, principal: ServicePrincipa
 
 
 @router.get("/jobs/{job_id}/content")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def job_content(
     job_id: int, request: Request, worker_id: str = Header(alias="X-Worker-ID"),
     lease_token: UUID = Header(alias="X-Lease-Token"),
@@ -299,6 +303,7 @@ def job_content(
 
 
 @router.put("/jobs/{job_id}/chunks/{chunk_no}")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def put_chunk(job_id: int, chunk_no: int, payload: ChunkRequest, principal: ServicePrincipal = Depends(_principal), connection: Connection = Depends(get_connection, scope="function")):
     if chunk_no<0: raise HTTPException(status_code=422,detail="chunk number must be non-negative")
     _lease(connection,job_id,payload,lock=True)
@@ -327,6 +332,7 @@ def put_chunk(job_id: int, chunk_no: int, payload: ChunkRequest, principal: Serv
 
 
 @router.post("/jobs/{job_id}/complete")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def complete_job(job_id: int, payload: CompleteRequest, principal: ServicePrincipal = Depends(_principal), connection: Connection = Depends(get_connection, scope="function")):
     _lease(connection,job_id,payload,allow_terminal=True)
     prior=_operation_response(connection,job_id,payload.lease_generation,"complete",payload.idempotency_key)
@@ -385,6 +391,7 @@ def complete_job(job_id: int, payload: CompleteRequest, principal: ServicePrinci
 
 
 @router.post("/jobs/{job_id}/fail")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def fail_job(job_id: int, payload: FailRequest, principal: ServicePrincipal = Depends(_principal), connection: Connection = Depends(get_connection, scope="function")):
     _lease(connection,job_id,payload,allow_terminal=True)
     prior=_operation_response(connection,job_id,payload.lease_generation,"fail",payload.idempotency_key)
@@ -417,6 +424,7 @@ def fail_job(job_id: int, payload: FailRequest, principal: ServicePrincipal = De
 
 
 @router.get("/workers/{worker_id}")
+@operation_policy("service_lease_scoped", "content.index.execute")
 def worker_status(worker_id: str, principal: ServicePrincipal = Depends(_principal), connection: Connection = Depends(get_connection, scope="function")):
     row=connection.execute(
         """SELECT worker_id,contract_version,extractor_version,extraction_config_version,
@@ -433,6 +441,7 @@ class ProcessingCopyRequest(LeaseRequest):
 
 
 @router.post('/jobs/{job_id}/processing-copy')
+@operation_policy("service_lease_scoped", "content.index.execute")
 def register_copy(job_id:int,payload:ProcessingCopyRequest,principal:ServicePrincipal=Depends(_principal),connection:Connection=Depends(get_connection,scope='function')):
     connection.execute('SELECT pg_advisory_xact_lock(7357,1)')
     job=_lease(connection,job_id,payload,lock=True)
@@ -442,6 +451,7 @@ def register_copy(job_id:int,payload:ProcessingCopyRequest,principal:ServicePrin
 
 
 @router.delete('/processing-copies/{token}')
+@operation_policy("service_lease_scoped", "content.index.execute")
 def acknowledge_copy(token:UUID,worker_id:str=Query(min_length=1,max_length=200),principal:ServicePrincipal=Depends(_principal),connection:Connection=Depends(get_connection,scope='function')):
     # Cleanup receipts remain valid after lease expiry, but only for their
     # authenticated service owner and exact worker/token. No deletion authority.

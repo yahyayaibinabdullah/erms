@@ -828,3 +828,35 @@ async def test_everyone_selection_exclusivity_and_removal(user: User, language):
     await asyncio.sleep(.1)
     assert buttons[0].enabled and buttons[1].enabled
     assert not any('/recipients/everyone' in c[1] for c in api.calls if len(c)>1)
+
+
+async def test_outbox_pages_keep_the_submitted_subject_until_search(user: User):
+    api = Api()
+    original = api.request
+    queries = []
+
+    async def request(method, path, **kwargs):
+        if path == '/api/v1/messages/outbox':
+            queries.append(kwargs['params'])
+            return {'items': [], 'has_more': True, 'next_cursor': 'page-two'}
+        return await original(method, path, **kwargs)
+
+    api.request = request
+    await setup(user, mailbox='outbox', api=api)
+    label = 'Search subject'
+    field = next(control for control in user.find(ui.input).elements if control.label == label)
+    field.value = 'Submitted'
+    user.find(kind=ui.button, content=label).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'q': 'Submitted'}
+    field.value = 'Draft'
+    user.find('Next', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'cursor': 'page-two', 'q': 'Submitted'}
+    user.find('Previous', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'q': 'Submitted'}
+    assert field.value == 'Draft'
+    user.find(kind=ui.button, content=label).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'limit': 25, 'q': 'Draft'}

@@ -2,7 +2,6 @@
 from __future__ import annotations
 from typing import Any
 from .api_client import ApiError
-from .entities import ENTITIES
 import asyncio
 from nicegui import background_tasks
 from .config import dashboard_favourite_item_limit
@@ -12,7 +11,7 @@ from .i18n_catalogue import render_message
 from nicegui import ui
 
 def build_dashboard(
-    *, STOP_PROPAGATION_CLICK_HANDLER, accept_application_configuration, add_button, add_record_button, aggregation_mode_bar, aggregation_state, api, collection_state, dashboard_state, decorate_for_spec, enter_dashboard, error_message, format_file_size, format_timestamp, get_configuration, get_localization, get_principal, get_resource, guidance, open_aggregation, page_client, personal, personal_dialog_list_height, register_navigation, render_table, require_principal, review_display, search_bar, select_classification_workspace, select_entity, select_holds, select_organization_unit_details, set_connection_status, show_authenticated_view, show_record_details, subtitle, table_container, title,
+    *, STOP_PROPAGATION_CLICK_HANDLER, accept_application_configuration, add_button, add_record_button, aggregation_mode_bar, aggregation_state, api, collection_state, dashboard_state, enter_dashboard, error_message, format_file_size, format_timestamp, get_configuration, get_localization, get_principal, get_resource, guidance, load_rows, open_aggregation, page_client, personal, personal_dialog_list_height, register_navigation, require_principal, review_display, search_bar, select_aggregation_search, select_classification_workspace, select_entity, select_holds, select_organization_unit_details, set_connection_status, show_authenticated_view, show_record_details, subtitle, table_container, title,
 ):
     def dashboard_session_key() -> tuple[Any, ...] | None:
         principal = get_principal()
@@ -118,29 +117,13 @@ def build_dashboard(
                 ui.notify(error_message(error), color="negative", close_button=True)
 
         async def show_unclassified_roots() -> None:
+            if not dashboard_session_is_current():
+                return
+            aggregation_state["aggregation_mode"] = "search"
             await select_entity("aggregations")
-            try:
-                # The API evaluates this against the true stored parent before
-                # response redaction; a concealed parent is not a root.
-                result = await api.search_request("aggregations", {
-                    "where": {"and": [
-                        {"field": "parent_aggregation_id", "operator": "is_null"},
-                        {"field": "classification_id", "operator": "is_null"},
-                    ]},
-                    "sort": [{"field": "date_created", "direction": "desc"}],
-                    "limit": 100,
-                })
-                collection_state["rows"] = await decorate_for_spec(
-                    ENTITIES["aggregations"], result["items"],
-                )
-                collection_state["searched"] = True
-                subtitle.text = render_message("webui.show_unclassified_roots.text.root_aggregations_missing_a_governing_clas_b4fc46cb")
-                guidance.text = (
-                    render_message("webui.show_unclassified_roots.text.showing_row_count_of_total_unclassified_ro_823f8b47", row_count=len(collection_state['rows']), total=result['total'])
-                )
-                render_table(ENTITIES["aggregations"])
-            except ApiError as error:
-                ui.notify(error_message(error), color="negative", close_button=True)
+            if get_resource() == "aggregations" and dashboard_key == dashboard_session_key():
+                await select_aggregation_search()
+                await load_rows(compact_state={"unclassified_roots": True, "query": "", "page": 1})
 
         async def show_all_reviews(review_kind: str) -> None:
             if not dashboard_view_is_current():

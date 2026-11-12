@@ -20,6 +20,7 @@ from psycopg import Connection
 from psycopg.types.json import Jsonb
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
+from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .authentication import Principal, principal_from_request
 from .authorization_policy import require_global_privilege
@@ -579,6 +580,7 @@ def _expected_preference_version(if_match: str | None) -> int:
 
 
 @router.get("/preferences", response_model=PreferenceRead)
+@operation_policy("authenticated_only")
 def get_preferences(
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -587,6 +589,7 @@ def get_preferences(
 
 
 @router.put("/preferences", response_model=PreferenceRead)
+@operation_policy("authenticated_only")
 def update_preferences(
     payload: PreferenceUpdate,
     if_match: str | None = Header(default=None, alias="If-Match"),
@@ -627,6 +630,7 @@ def update_preferences(
 
 
 @router.get("/i18n/bootstrap", response_model=BootstrapRead)
+@operation_policy("authenticated_only")
 def bootstrap(
     response: Response,
     principal: Principal = Depends(principal_from_request),
@@ -740,6 +744,7 @@ def localization_readiness(connection: Connection) -> dict[str, Any]:
 
 
 @router.get("/i18n/catalogues/{language_tag}", response_model=None)
+@operation_policy("authenticated_only")
 def catalogue(
     language_tag: str,
     request: Request,

@@ -49,30 +49,3 @@ def prepare_retention_payload(payload, *, creating):
         payload.pop("classification_scheme_id", None)
 
     return rule_payload
-
-
-async def decorate_classifications(rows, *, rows_by_id, relationship_cell):
-    schemes_by_id = await rows_by_id(
-        "classification-schemes",
-        {item.get("classification_scheme_id") for item in rows},
-    )
-    return [{
-        **item,
-        "type_display": {
-            "name": "Terminal" if item.get("is_terminal") else "Branch",
-            "code": "Assignable" if item.get("is_terminal") else "Hierarchy",
-        },
-        "scheme_display": relationship_cell(
-            schemes_by_id.get(item.get("classification_scheme_id"))
-        ),
-    } for item in rows]
-
-
-
-def render_classification_search_prompt():
-    with ui.column().classes("w-full items-center py-12 gap-2 text-slate-500"):
-        ui.icon("manage_search", size="42px").classes("text-primary")
-        ui.label(
-            render_message("webui.render_table.label.search_classifications_by_code_title_descr_30044cab")
-        ).classes("font-medium")
-        ui.label(render_message("webui.render_table.label.partial_matching_is_automatic_wildcard_cha_6cff96d6")).classes("text-xs")

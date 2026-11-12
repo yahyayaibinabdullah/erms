@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "3b826a689a02f5dad680f918f41e0f1e548186dfec4b1cc870099d3c9bc284a5",
+  "catalogue_sha256": "842ff0fa5cdcfef8e609f54b0d17c596c0aec6125c859e8e744e12f70f1c062c",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261110071750",
   "generated_at": "2026-11-10T07:17:50.721352+04:00",
@@ -6709,6 +6709,17 @@
         "source_status": "published",
         "date_reviewed": "2026-10-26T07:45:55.318926+00:00",
         "date_published": "2026-10-26T07:45:55.318926+00:00"
+      }
+    },
+    {
+      "message_key": "disposition.ui.blockers_holds_more",
+      "translated_text": "توجد تعليقات قنونية إضافية غير معروضة.",
+      "quality_flags": [],
+      "generation_metadata": {
+        "generator": "OpenAI Codex",
+        "batch_id": "blockers-hold-overflow-notice",
+        "prompt_version": "contextual-ui-draft-v1",
+        "catalogue_sha256": "842ff0fa5cdcfef8e609f54b0d17c596c0aec6125c859e8e744e12f70f1c062c"
       }
     },
     {
@@ -34456,18 +34467,6 @@
       }
     },
     {
-      "message_key": "webui.refresh_recent.notify.recent_items_refreshed_066b66f6",
-      "translated_text": "حُدّثت العناصر الأخيرة",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
       "message_key": "webui.refresh_saved_actions.text.save_search_76b8ff5b",
       "translated_text": "حفظ البحث",
       "quality_flags": [],
@@ -38020,54 +38019,6 @@
       }
     },
     {
-      "message_key": "webui.render_recent_section.button.refresh_a8985428",
-      "translated_text": "تحديث",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
-      "message_key": "webui.render_recent_section.label.nothing_here_yet_16a950c9",
-      "translated_text": "لا يوجد شيء هنا بعد",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
-      "message_key": "webui.render_recent_section.label.start_where_you_left_off_e8cad0b7",
-      "translated_text": "تابع من حيث توقفت",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
-      "message_key": "webui.render_recent_section.tooltip.reload_recently_created_and_updated_items_51826227",
-      "translated_text": "إعادة تحميل العناصر المنشأة والمحدّثة حديثًا",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
       "message_key": "webui.render_resource_personal_sections.button.view_all_a52a6926",
       "translated_text": "عرض الكل",
       "quality_flags": [],
@@ -38934,30 +38885,6 @@
     {
       "message_key": "webui.render_table.input.type_to_filter_this_table_c56c09a2",
       "translated_text": "اكتب لتصفية هذا الجدول",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
-      "message_key": "webui.render_table.label.partial_matching_is_automatic_wildcard_cha_6cff96d6",
-      "translated_text": "تتم المطابقة الجزئية تلقائيًا؛ ولا يلزم استخدام أحرف البدل.",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
-      "message_key": "webui.render_table.label.search_classifications_by_code_title_descr_30044cab",
-      "translated_text": "ابحث في التصنيفات حسب الرمز أو العنوان أو الوصف أو الكلمات المفتاحية.",
       "quality_flags": [],
       "provenance": {
         "kind": "admin_catalogue_export",

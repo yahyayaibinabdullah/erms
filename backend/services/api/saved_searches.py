@@ -10,6 +10,7 @@ from psycopg.types.json import Jsonb
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 from typing_extensions import Annotated
 
+from .operation_policy import operation_policy
 from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .database import get_connection
@@ -276,6 +277,7 @@ def _replace_audience(connection: Connection, saved_search_id: int, payload: Sav
 
 
 @router.get("")
+@operation_policy("relationship_scoped")
 def list_saved_searches(
     request: Request,
     scope: Literal["all", "owned", "shared_with_me"] = "all",
@@ -330,6 +332,7 @@ def audience_eligibility_sql(audience_kind: str, *, administrator: bool) -> str:
 
 
 @router.get("/audience-options/{audience_kind}")
+@operation_policy("relationship_scoped")
 def audience_options(
     audience_kind: Literal["roles", "org-units"],
     request: Request,
@@ -453,11 +456,13 @@ def create_saved_search(payload: SavedSearchWrite, request: Request, connection:
 
 
 @router.get("/{saved_search_id}")
+@operation_policy("relationship_scoped")
 def get_saved_search(saved_search_id: int, request: Request, connection: Connection = Depends(get_connection, scope="function")):
     return _serialize(connection, _get(connection, saved_search_id), preferred_language(connection, request))
 
 
 @router.post("/{saved_search_id}/execute")
+@operation_policy("relationship_scoped")
 def execute_saved_search(
     saved_search_id: int, payload: SavedSearchExecution,
     connection: Connection = Depends(get_connection, scope="function"),
@@ -512,6 +517,7 @@ def execute_saved_search(
 
 
 @router.put("/{saved_search_id}")
+@operation_policy("relationship_scoped")
 def update_saved_search(
     saved_search_id: int, payload: SavedSearchWrite, request: Request,
     version: int = Depends(expected_version),
@@ -555,6 +561,7 @@ def update_saved_search(
 
 
 @router.delete("/{saved_search_id}", status_code=status.HTTP_204_NO_CONTENT)
+@operation_policy("relationship_scoped")
 def delete_saved_search(
     saved_search_id: int, request: Request, version: int = Depends(expected_version),
     connection: Connection = Depends(get_connection, scope="function"),

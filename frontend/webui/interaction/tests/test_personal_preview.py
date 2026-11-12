@@ -26,7 +26,7 @@ def test_configured_preview_limit_keeps_complete_list_reachable(language, resour
             views = build_personal_resource_views(
                 api, personal, get_configuration=lambda: {'DASHBOARD_FAVOURITE_ITEM_LIMIT': 2},
                 render_table=Mock(), open_aggregation=AsyncMock(), show_record_details=AsyncMock(),
-                load_recent=AsyncMock(), toggle_favourite=AsyncMock(), error_message=str,
+                toggle_favourite=AsyncMock(), error_message=str,
                 format_timestamp=str, personal_dialog_list_height=lambda count: 300,
             )
             views.render_resource_personal_sections(ENTITIES[resource])

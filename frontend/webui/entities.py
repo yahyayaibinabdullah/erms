@@ -43,7 +43,7 @@ ENTITIES = {
     ),
     "classifications": EntitySpec(
         "classifications", "Classifications", "classification",
-        (("code", "Code"), ("title", "Title"), ("type_display", "Type"), ("scheme_display", "Scheme")),
+        (),
         (
             FieldSpec("classification_scheme_id", "Classification scheme", "lookup", True, "classification-schemes", ("code", "title")),
             FieldSpec("parent_classification_id", "Parent classification", "lookup", False, "classifications", ("code", "title")),
@@ -56,7 +56,7 @@ ENTITIES = {
             FieldSpec("final_disposition", "Final disposition", "disposition"),
             FieldSpec("instructions", "Retention and disposal instructions", "textarea"),
         ),
-        True, ("code", "title", "description", "keywords"),
+        search_fields=("code", "title", "description", "keywords"),
     ),
     "org-units": EntitySpec(
         "org-units", "Organization units", "organization unit",

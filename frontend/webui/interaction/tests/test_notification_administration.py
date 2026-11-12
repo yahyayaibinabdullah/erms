@@ -223,3 +223,31 @@ async def test_recipient_rules_have_localized_labels_and_stable_values(user: Use
     controls = list(user.find(ui.select).elements)
     selected = next(control for control in controls if control.value == mode)
     assert selected.options == {mode:label}
+
+
+async def test_producer_pager_uses_last_submitted_query(user, monkeypatch):
+    original = Api.request
+    queries = []
+
+    async def request(self, method, path, **kwargs):
+        if path.endswith('/producers'):
+            queries.append(kwargs['params'])
+            return {'items': [], 'next_cursor': 'producer-25'}
+        return await original(self, method, path, **kwargs)
+
+    monkeypatch.setattr(Api, 'request', request)
+    await setup(user)
+    search = render_message_plain('messaging.admin.search')
+    field = next(control for control in user.find(ui.input).elements if control.label == search)
+    field.value = 'Submitted'
+    user.find(kind=ui.button, content=search).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'q': 'Submitted', 'after': '', 'limit': 25}
+    field.value = 'Draft'
+    user.find('Next', kind=ui.button).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'q': 'Submitted', 'after': 'producer-25', 'limit': 25}
+    assert field.value == 'Draft'
+    user.find(kind=ui.button, content=search).click()
+    await asyncio.sleep(.05)
+    assert queries[-1] == {'q': 'Draft', 'after': '', 'limit': 25}

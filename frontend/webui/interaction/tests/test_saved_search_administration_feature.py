@@ -42,6 +42,30 @@ async def test_admin_paging_and_edit_destination_keep_selected_identity(user):
     button=next(e for e in user.client.elements.values() if isinstance(e,ui.button) and e.props.get('icon')=='edit');button.mark('edit-row');user.find(marker='edit-row').click();await asyncio.sleep(.1)
     assert h['state']['admin_saved_search_id']==25;h['select_advanced_search'].assert_awaited_once_with()
 
+async def test_admin_paging_preserves_applied_name_and_owner(user):
+    h = await setup(user)
+    fetch = h['api'].saved_search_administration
+    name = next(i for i in user.find(ui.input).elements
+                if i.label == t('webui.open_saved_search_dialog.input.search_saved_searches_3352fa10'))
+    owner = next(i for i in user.find(ui.input).elements if i.label == t('saved_search.administration.filter.owner'))
+    apply = 'webui.open_saved_search_dialog.button.apply_filters_63a71659'
+    with user:
+        name.value = 'Saved'
+        owner.value = 'Owner'
+    user.find(t(apply)).click()
+    await asyncio.sleep(.1)
+    fetch.assert_awaited_with(q='Saved', owner_q='Owner', limit=25, offset=0)
+    with user:
+        name.value = 'Draft'
+        owner.value = 'Another'
+    user.find(t('webui.open_saved_search_dialog.button.next_ba38d6aa')).click()
+    await user.should_see('Saved 25')
+    fetch.assert_awaited_with(q='Saved', owner_q='Owner', limit=25, offset=25)
+    assert (name.value, owner.value) == ('Draft', 'Another')
+    user.find(t(apply)).click()
+    await user.should_see('Saved 00')
+    fetch.assert_awaited_with(q='Draft', owner_q='Another', limit=25, offset=0)
+
 @pytest.mark.parametrize('outcome',['navigation','newer','error'])
 async def test_admin_late_and_failed_filter_responses(user,outcome):
     h=await setup(user);started=asyncio.Event();release=asyncio.Event()

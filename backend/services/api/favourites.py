@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from psycopg import Connection
 
+from .operation_policy import operation_policy
 from .authentication import Principal, principal_from_request
 from .database import get_connection
 from .schemas import FavouritesPageRead
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/api/v1/favourites", tags=["favourites"])
 
 
 @router.get("", response_model=FavouritesPageRead)
+@operation_policy("authenticated_only")
 def list_favourites(
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
@@ -87,6 +89,7 @@ def _remove_favourite(
 
 
 @router.put("/aggregations/{aggregation_id}", status_code=status.HTTP_204_NO_CONTENT)
+@operation_policy("authenticated_only")
 def favourite_aggregation(
     aggregation_id: int,
     principal: Principal = Depends(principal_from_request),
@@ -101,6 +104,7 @@ def favourite_aggregation(
 
 
 @router.delete("/aggregations/{aggregation_id}", status_code=status.HTTP_204_NO_CONTENT)
+@operation_policy("authenticated_only")
 def unfavourite_aggregation(
     aggregation_id: int,
     principal: Principal = Depends(principal_from_request),
@@ -114,6 +118,7 @@ def unfavourite_aggregation(
 
 
 @router.put("/records/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
+@operation_policy("authenticated_only")
 def favourite_record(
     record_id: int,
     principal: Principal = Depends(principal_from_request),
@@ -127,6 +132,7 @@ def favourite_record(
 
 
 @router.delete("/records/{record_id}", status_code=status.HTTP_204_NO_CONTENT)
+@operation_policy("authenticated_only")
 def unfavourite_record(
     record_id: int,
     principal: Principal = Depends(principal_from_request),

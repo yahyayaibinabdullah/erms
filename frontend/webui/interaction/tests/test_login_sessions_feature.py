@@ -73,6 +73,35 @@ async def test_entry_filters_and_paging_contract(user,identity):
     assert field.value==''
 
 
+async def test_paging_refresh_and_page_size_keep_applied_session_filters(user):
+    api, _ = await setup(user)
+    page = api.login_sessions_page
+    prefix = 'webui.select_login_sessions.'
+    field = next(i for i in user.find(ui.input).elements if i.label == t(prefix+'input.user_or_client_e41c0521'))
+    status = next(i for i in user.find(ui.select).elements if i.label == t(prefix+'select.status_de37c9ef'))
+    per_page = next(i for i in user.find(ui.select).elements if i.label == t(prefix+'select.per_page_a942866a'))
+
+    with user:
+        field.value = 'applied'
+    click(user, button(user, prefix+'button.apply_filters_fc2322aa')); await settle()
+    applied = page.await_args.kwargs
+    assert applied['query'] == 'applied' and applied['offset'] == 0
+    with user:
+        field.value = 'draft'
+        status.value = 'expired'
+    click(user, button(user, prefix+'button.next_b09718d5')); await settle()
+    page.assert_awaited_with(None, **{**applied, 'offset': 20})
+    assert field.value == 'draft' and status.value == 'expired'
+    click(user, button(user, prefix+'button.refresh_85d6e787')); await settle()
+    page.assert_awaited_with(None, **{**applied, 'offset': 20})
+    with user:
+        per_page.value = 50
+    await settle()
+    page.assert_awaited_with(None, **{**applied, 'limit': 50})
+    click(user, button(user, prefix+'button.apply_filters_fc2322aa')); await settle()
+    page.assert_awaited_with(None, **{**applied, 'query': 'draft', 'session_status': 'expired', 'limit': 50})
+
+
 @pytest.mark.parametrize('admin,status,actions',[(True,'active',2),(False,'active',1),(True,'expired',0),(True,'revoked',0)])
 async def test_revoke_buttons_follow_existing_privilege_and_status_rules(user,admin,status,actions):
     api,s=await setup(user,admin=admin,status=status)

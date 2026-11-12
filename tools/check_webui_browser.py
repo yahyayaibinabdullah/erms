@@ -107,14 +107,26 @@ class Acceptance:
             fields=[e for e in self.visible('.q-field') if any(plain(l.text)==label for l in e.find_elements(By.CSS_SELECTOR,'.q-field__label'))]
             return fields[0].find_element(By.CSS_SELECTOR,'input,textarea') if len(fields)==1 else False
         return self.wait.until(found,f'Missing field: {label}')
-    def fill(self,label,value):
-        field=self.field(label);self.activate(field)
-        # Replace the selection without an intermediate empty numeric value;
-        # that value is normalized by the existing controlled number component.
+    def select_field_text(self, field):
+        self.activate(field)
         if self.args.browser == 'safari':
             ActionChains(self.driver).key_down(Keys.COMMAND).send_keys('a').key_up(Keys.COMMAND).perform()
         else:
             field.send_keys(Keys.COMMAND, 'a', Keys.NULL)
+            # Headless Chromium can miss the shortcut. Restore the selection
+            # before sending native keys so input events still reach NiceGUI.
+            self.driver.execute_script('''
+                const field = arguments[0];
+                if (field.selectionStart !== null &&
+                    (field.selectionStart !== 0 || field.selectionEnd !== field.value.length)) {
+                    field.select();
+                }
+            ''', field)
+    def fill(self,label,value):
+        field=self.field(label)
+        # Replace the selection without an intermediate empty numeric value;
+        # that value is normalized by the existing controlled number component.
+        self.select_field_text(field)
         if self.args.browser == 'safari':
             field.send_keys(str(value))
         else:
@@ -635,6 +647,11 @@ with psycopg.connect(url) as c:
             check_classification(self)
             self.report['complete'] = True
             return
+        if self.args.scope == 'collection-paging':
+            from tools.webui_browser_collection_paging import check_collection_paging
+            check_collection_paging(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'collections':
             from tools.webui_browser_collections import check_collections
             check_collections(self)
@@ -711,7 +728,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections', 'collection-paging','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

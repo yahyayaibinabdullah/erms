@@ -11,7 +11,7 @@ import pytest
 from nicegui import ui
 from frontend.webui.advanced_search import build_advanced_search
 from frontend.webui.advanced_search_model import compile_advanced_search_node
-from frontend.webui.i18n_catalogue import set_active_messages
+from frontend.webui.i18n_catalogue import render_message_plain as t, set_active_messages
 
 pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
@@ -37,7 +37,7 @@ async def test_reopen_canonical_definition_is_editable_clean_and_semantically_pr
     principal={'user':{'id':1},'global_privileges':['record.view','aggregation.view','search.saved_search.save']}
     state={'admin_saved_search_id':7}
     api=SimpleNamespace(saved_search=AsyncMock(return_value=saved),
-        execute_saved_search=AsyncMock(return_value={'items':[],'total':0}),
+        execute_saved_search=AsyncMock(return_value={'items':[],'total':0,'saved_search':{'version':3}}),
         search_request=AsyncMock(return_value={'items':[],'total':0}),
         update_saved_search=AsyncMock())
     deps={name:Mock() for name in inspect.signature(build_advanced_search).parameters}
@@ -89,3 +89,51 @@ async def test_reopen_canonical_definition_is_editable_clean_and_semantically_pr
         assert state['advanced_search_workspace']['saved']['version']==4
         with user:
             assert await deps['set_navigation_guard'].call_args.args[0]('leave') is True
+
+
+async def test_saved_search_chooser_pages_applied_filters_and_scope_changes_only_scope(user):
+    async def fetch(**params):
+        items = [
+            {'id': i, 'name': f'Picker {i:02}', 'owner_user_id': 1, 'resource_type': 'record',
+             'date_updated': '2026-01-01', 'audience_mode': 'private', 'definition': {'max_results': 1000}}
+            for i in range(params['offset'], min(26, params['offset'] + params['limit']))
+        ]
+        return {'items': items, 'total': 26, 'offset': params['offset'], 'limit': params['limit']}
+
+    api = SimpleNamespace(saved_searches=AsyncMock(side_effect=fetch), saved_search_administration=AsyncMock())
+    principal = {'user': {'id': 1}, 'global_privileges': ['record.view']}
+    deps = {name: Mock() for name in inspect.signature(build_advanced_search).parameters}
+    deps.update(api=api, advanced_search_state={}, collection_state={}, aggregation_state={},
+                get_principal=lambda: principal,
+                get_resource=lambda: 'advanced-search', error_message=str,
+                format_timestamp=lambda _: 'Fixed date', localized_editor_entity=lambda _, key: key)
+    @ui.page('/saved-chooser-applied-filters')
+    async def screen():
+        for name in ('title', 'subtitle', 'guidance'):
+            deps[name] = ui.label('')
+        for name in ('search_bar', 'aggregation_mode_bar', 'add_button', 'add_record_button', 'table_container'):
+            deps[name] = ui.column()
+        await build_advanced_search(**deps)()
+    await user.open('/saved-chooser-applied-filters')
+    user.find(t('webui.select_advanced_search.button.open_saved_search_8bef667f')).click()
+    await user.should_see('Picker 00')
+    dialog = next(d for d in user.find(ui.dialog).elements if d.value)
+    field = next(e for e in dialog.descendants() if isinstance(e, ui.input)
+                 and e.label == t('webui.open_saved_search_dialog.input.search_saved_searches_3352fa10'))
+    enter = next(listener.handler for listener in field._event_listeners.values() if listener.type == 'keydown.enter')
+    with user:
+        field.value = 'Picker'
+        await enter()
+        field.value = 'Draft'
+    user.find(t('webui.open_saved_search_dialog.button.next_ba38d6aa')).click()
+    await user.should_see('Picker 25')
+    api.saved_searches.assert_awaited_with(scope='all', q='Picker', limit=25, offset=25)
+    assert field.value == 'Draft'
+    with user:
+        next(e for e in dialog.descendants() if isinstance(e, ui.tabs)).value = 'owned'
+    await user.should_see('Picker 00')
+    api.saved_searches.assert_awaited_with(scope='owned', q='Picker', limit=25, offset=0)
+    with user:
+        await enter()
+    api.saved_searches.assert_awaited_with(scope='owned', q='Draft', limit=25, offset=0)
+    api.saved_search_administration.assert_not_awaited()

@@ -594,6 +594,7 @@ DISPOSITION_MESSAGE_KEYS = {
  'blocker_source': 'disposition.ui.blocker_source',
  'blocker_target': 'disposition.ui.blocker_target',
  'blockers_empty_all': 'disposition.ui.blockers_empty_all',
+ 'blockers_holds_more': 'disposition.ui.blockers_holds_more',
  'blockers_retry': 'disposition.ui.blockers_retry',
  'disposition_proposal_duplicate': 'disposition.ui.disposition_proposal_duplicate',
  'removal_already_proposed': 'disposition.ui.removal_already_proposed',

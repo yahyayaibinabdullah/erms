@@ -5,19 +5,19 @@ from pathlib import Path
 APP_PATH = Path(__file__).parents[1] / "app.py"
 
 
-def test_retired_scheme_page_is_not_a_collection_or_restorable_destination():
-    """The resource remains editable, but no longer defines a collection page."""
+def test_retired_classification_tables_are_not_restorable_destinations():
+    """Both resources remain editable through the Classification workspace."""
     import asyncio
     from unittest.mock import AsyncMock
     import pytest
     from frontend.webui.api_client import ApiError
     from frontend.webui.entities import COLLECTION_ENTITIES, ENTITIES
 
-    assert 'classification-schemes' in ENTITIES
-    assert ENTITIES['classification-schemes'].fields
-    assert not ENTITIES['classification-schemes'].columns
-    assert 'classification-schemes' not in COLLECTION_ENTITIES
-    assert set(COLLECTION_ENTITIES) == set(ENTITIES) - {'classification-schemes'}
+    retired = {'classification-schemes', 'classifications'}
+    for resource in retired:
+        assert ENTITIES[resource].fields
+        assert not ENTITIES[resource].columns
+    assert set(COLLECTION_ENTITIES) == set(ENTITIES) - retired
 
     restore = next(node for node in ast.walk(ast.parse(APP_PATH.read_text()))
                    if isinstance(node, ast.AsyncFunctionDef)
@@ -28,9 +28,10 @@ def test_retired_scheme_page_is_not_a_collection_or_restorable_destination():
                      ApiError=ApiError, select_entity=select,
                      select_classification_workspace=workspace)
     exec(compile(ast.Module(body=[restore], type_ignores=[]), str(APP_PATH), 'exec'), namespace)
-    with pytest.raises(ApiError) as error:
-        asyncio.run(namespace['restore_navigation_entry']({'page': 'classification-schemes', 'state': {}}))
-    assert error.value.status_code == 404
+    for page in retired:
+        with pytest.raises(ApiError) as error:
+            asyncio.run(namespace['restore_navigation_entry']({'page': page, 'state': {}}))
+        assert error.value.status_code == 404
     select.assert_not_awaited()
     workspace.assert_not_awaited()
     for entry, expected in [

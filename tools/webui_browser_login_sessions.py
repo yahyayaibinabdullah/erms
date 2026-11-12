@@ -1,5 +1,6 @@
 """Login-session administration on disposable Chrome/Edge stacks."""
 import subprocess,time
+from urllib.parse import parse_qs
 from selenium.webdriver.common.keys import Keys
 from tools.check_webui_browser import plain
 
@@ -20,12 +21,16 @@ with psycopg.connect(url) as c:
 '''],check=True,timeout=30)
     def capture(name):page.capture('login-sessions-'+name+'-'+page.language)
     def filter_query(query):
+        started=len(page.events())
         field=page.field(page.t('webui.select_login_sessions.input.user_or_client_e41c0521'))
         page.activate(field);field.send_keys(Keys.COMMAND,'a',Keys.NULL);field.send_keys(query,Keys.ENTER)
+        page.wait.until(lambda _:any(e['path']=='/api/v1/auth/sessions/page'
+            and parse_qs(e['query']).get('query')==[query] for e in page.events()[started:]))
     for language in ('en','ar'):
         if language=='ar':page.settings();page.language_change('ar')
         with page.check('session filters, server paging and keyboard focus'):
             page.drawer('login_sessions');page.one('.login-session-card-grid')
+            page.wait.until(lambda _:bool(page.visible('.login-session-card')))
             filter_query('Phase6F');page.wait.until(lambda _:len(page.visible('.login-session-card'))==20)
             capture('page-one')
             page.click(page.t('webui.select_login_sessions.button.last_5cfe5c95'))
@@ -36,6 +41,28 @@ with psycopg.connect(url) as c:
             target=page.driver.switch_to.active_element
             assert target.tag_name!='body'
             page.report.setdefault('login_sessions_focus',[]).append({'language':language,'tag':target.tag_name,'type':target.get_attribute('type'),'label':target.get_attribute('aria-label')})
+        with page.check('session paging and Refresh keep the applied query until Apply'):
+            label=page.t('webui.select_login_sessions.input.user_or_client_e41c0521')
+            draft='Phase6F active'
+            page.fill(label,draft)
+            def check_read(button_key, *, count, query, offset):
+                started=len(page.events())
+                page.click(page.t('webui.select_login_sessions.'+button_key))
+                def reads():
+                    return [e for e in page.events()[started:] if e['path']=='/api/v1/auth/sessions/page']
+                page.wait.until(lambda _:bool(reads()))
+                page.wait.until(lambda _:len(page.visible('.login-session-card'))==count)
+                result=reads()
+                assert len(result)==1 and result[0]['status']==200
+                params=parse_qs(result[0]['query'])
+                assert params['query']==[query] and params['offset']==[str(offset)]
+                assert page.field(label).get_attribute('value')==draft
+            check_read('button.previous_6631329f',count=20,query='Phase6F',offset=0)
+            check_read('button.next_b09718d5',count=6,query='Phase6F',offset=20)
+            check_read('button.refresh_85d6e787',count=6,query='Phase6F',offset=20)
+            capture('page-two-pending-filter')
+            check_read('button.apply_filters_fc2322aa',count=1,query=draft,offset=0)
+            assert not page.button(page.t('webui.select_login_sessions.button.previous_6631329f')).is_enabled()
         with page.check('revocation cancellation, empty state and navigation'):
             filter_query('Phase6F active');page.wait.until(lambda _:len(page.visible('.login-session-card'))==1)
             card=page.one('.login-session-card');page.activate(next(b for b in card.find_elements('css selector','button') if b.text.strip()=='logout'))

@@ -4,14 +4,9 @@ from pathlib import Path
 from typing import Any
 from html import escape as html_escape
 from nicegui import ui
+from backend.services.component_formats import CONVERTIBLE_EXTENSIONS as CONVERTIBLE_PREVIEW_EXTENSIONS
+from backend.services.component_formats import native_preview_kind
 from .i18n_catalogue import render_message
-
-CONVERTIBLE_PREVIEW_EXTENSIONS = {
-    ".doc", ".docx", ".odt", ".rtf",
-    ".xls", ".xlsx", ".ods", ".csv",
-    ".ppt", ".pptx", ".odp",
-    ".md", ".msg", ".eml", ".html", ".txt", ".xml",
-}
 
 
 def localized_component_status(value: Any) -> str:
@@ -54,17 +49,6 @@ def component_file_icon(mime_type: str | None) -> str:
     if "word" in value or "document" in value or value.startswith("text/"):
         return "description"
     return "description"
-
-
-def native_preview_kind(mime_type: str | None) -> str | None:
-    value = (mime_type or "").lower()
-    if value in {"image/jpeg", "image/png", "image/gif", "image/webp", "image/bmp", "image/avif"}:
-        return "image"
-    if value.startswith("audio/"):
-        return "audio"
-    if value.startswith("video/"):
-        return "video"
-    return None
 
 
 def requires_document_conversion(component: dict[str, Any]) -> bool:

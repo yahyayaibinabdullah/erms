@@ -2,13 +2,18 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from psycopg import Connection
 
 from .authorization_admin import CUSTODY_PRIVILEGE_CODES
 from .authorization_policy import require_authorization_admin, require_audit_view
 from .database import get_connection
-from .schemas import SecurityOperationsSummaryRead, SecurityReconciliationRead
+from .schemas import (
+    SecurityDenialGroupRead,
+    SecurityEventDetailRead,
+    SecurityOperationsSummaryRead,
+    SecurityReconciliationRead,
+)
 
 
 router = APIRouter(prefix="/api/v1/security-operations", tags=["security operations"])
@@ -26,36 +31,15 @@ SECURITY_OPERATIONS = (
 )
 
 
-@router.get("/summary", response_model=SecurityOperationsSummaryRead, dependencies=[Depends(require_audit_view)])
-def security_summary(
-    hours: int = Query(24, ge=1, le=24 * 90),
-    start_at: datetime | None = Query(None),
-    end_at: datetime | None = Query(None),
-    connection: Connection = Depends(get_connection, scope="function"),
-):
-    """Return aggregate security signals without protected snapshots or request content."""
-    generated_at = datetime.now(timezone.utc)
-    end = end_at or generated_at
-    since = start_at or (end - timedelta(hours=hours))
-    if end <= since or end - since > timedelta(days=366):
-        from fastapi import HTTPException
+def _validate_window(since: datetime, end: datetime) -> None:
+    if (since.tzinfo is None) != (end.tzinfo is None) or end <= since or end - since > timedelta(days=366):
         raise HTTPException(status_code=422, detail="invalid security-operations date range")
-    rows = list(connection.execute(
-        """SELECT operation,count(*)::int AS count,max(occurred_at) AS last_seen_at
-           FROM event_history WHERE occurred_at >= %s AND occurred_at <= %s AND operation=ANY(%s)
-           GROUP BY operation ORDER BY count(*) DESC,operation""",
-        (since, end, list(SECURITY_OPERATIONS)),
-    ).fetchall())
-    denials = list(connection.execute(
-        """SELECT coalesce(metadata->>'decision_code','unspecified') AS decision_code,
-                  coalesce(metadata->>'required_privilege','unspecified') AS required_privilege,
-                  count(*)::int AS count,max(occurred_at) AS last_seen_at
-           FROM event_history
-           WHERE occurred_at >= %s AND occurred_at <= %s AND operation='AUTHORIZATION_DENIED'
-           GROUP BY 1,2 ORDER BY count(*) DESC,1,2 LIMIT 50""",
-        (since, end),
-    ).fetchall())
-    recent_events = list(connection.execute(
+
+
+def _recent_security_events(
+    connection: Connection, since: datetime, end: datetime, *, limit: int, offset: int = 0,
+) -> list[dict]:
+    return list(connection.execute(
         """SELECT event.id,event.occurred_at,event.operation,event.actor_user_id,
                   event.actor_name,event.actor_email,event.actor_type,event.entity_type,event.entity_id,
                   CASE
@@ -84,7 +68,11 @@ def security_summary(
                   nullif(event.metadata->>'decision_code','') AS decision_code,
                   nullif(event.metadata->>'required_privilege','') AS required_privilege,
                   coalesce((event.metadata->>'redacted')::boolean,false) AS redacted
-             FROM authorized_event_history event
+             FROM (
+                 SELECT * FROM authorized_event_history
+                  WHERE occurred_at >= %s AND occurred_at <= %s AND operation=ANY(%s)
+                  ORDER BY occurred_at DESC,id DESC LIMIT %s OFFSET %s
+             ) event
              LEFT JOIN aggregations aggregation ON event.entity_type='aggregation'
                   AND aggregation.id=event.entity_id AND current_user_can_view_aggregation(aggregation.id)
              LEFT JOIN records record ON event.entity_type='record'
@@ -99,11 +87,73 @@ def security_summary(
                   AND scheme.id=event.entity_id
              LEFT JOIN security_levels security_level ON event.entity_type='security_level'
                   AND security_level.id=event.entity_id
-            WHERE event.occurred_at >= %s AND event.occurred_at <= %s
-              AND event.operation=ANY(%s)
-            ORDER BY event.occurred_at DESC,event.id DESC LIMIT 100""",
+            ORDER BY event.occurred_at DESC,event.id DESC""",
+        (since, end, list(SECURITY_OPERATIONS), limit, offset),
+    ).fetchall())
+
+
+@router.get("/events", response_model=list[SecurityEventDetailRead], dependencies=[Depends(require_audit_view)])
+def security_events(
+    start_at: datetime = Query(...),
+    end_at: datetime = Query(...),
+    limit: int = Query(10, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    """Page through the security events in an already selected window."""
+    _validate_window(start_at, end_at)
+    return _recent_security_events(connection, start_at, end_at, limit=limit, offset=offset)
+
+
+def _denial_groups(
+    connection: Connection, since: datetime, end: datetime, *, limit: int, offset: int = 0,
+) -> list[dict]:
+    return list(connection.execute(
+        """SELECT coalesce(metadata->>'decision_code','unspecified') AS decision_code,
+                  coalesce(metadata->>'required_privilege','unspecified') AS required_privilege,
+                  count(*)::int AS count,max(occurred_at) AS last_seen_at
+             FROM event_history
+            WHERE occurred_at >= %s AND occurred_at <= %s AND operation='AUTHORIZATION_DENIED'
+            GROUP BY 1,2 ORDER BY count(*) DESC,1,2 LIMIT %s OFFSET %s""",
+        (since, end, limit, offset),
+    ).fetchall())
+
+
+@router.get("/denial-groups", response_model=list[SecurityDenialGroupRead], dependencies=[Depends(require_audit_view)])
+def security_denial_groups(
+    start_at: datetime = Query(...),
+    end_at: datetime = Query(...),
+    limit: int = Query(10, ge=1, le=50),
+    offset: int = Query(0, ge=0),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    """Page through sanitized denial groups in the selected security window."""
+    _validate_window(start_at, end_at)
+    return _denial_groups(connection, start_at, end_at, limit=limit, offset=offset)
+
+
+@router.get("/summary", response_model=SecurityOperationsSummaryRead, dependencies=[Depends(require_audit_view)])
+def security_summary(
+    hours: int = Query(24, ge=1, le=24 * 90),
+    start_at: datetime | None = Query(None),
+    end_at: datetime | None = Query(None),
+    recent_event_limit: int = Query(100, ge=1, le=100),
+    denial_group_limit: int = Query(50, ge=1, le=50),
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    """Return aggregate security signals without protected snapshots or request content."""
+    generated_at = datetime.now(timezone.utc)
+    end = end_at or generated_at
+    since = start_at or (end - timedelta(hours=hours))
+    _validate_window(since, end)
+    rows = list(connection.execute(
+        """SELECT operation,count(*)::int AS count,max(occurred_at) AS last_seen_at
+           FROM event_history WHERE occurred_at >= %s AND occurred_at <= %s AND operation=ANY(%s)
+           GROUP BY operation ORDER BY count(*) DESC,operation""",
         (since, end, list(SECURITY_OPERATIONS)),
     ).fetchall())
+    denials = _denial_groups(connection, since, end, limit=denial_group_limit)
+    recent_events = _recent_security_events(connection, since, end, limit=recent_event_limit)
     full_privilege_roles = list(connection.execute(
         """SELECT role.id,role.code,role.name,role.status,
                   profile.code AS profile_code,profile.name AS profile_name,
@@ -122,7 +172,7 @@ def security_summary(
         "generated_at": generated_at, "event_counts": rows, "denial_groups": denials,
         "recent_events": recent_events, "full_privilege_roles": full_privilege_roles,
         "total_security_events": sum(row["count"] for row in rows),
-        "total_denials": sum(row["count"] for row in denials),
+        "total_denials": next((row["count"] for row in rows if row["operation"] == "AUTHORIZATION_DENIED"), 0),
     }
 
 

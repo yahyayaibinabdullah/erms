@@ -54,6 +54,19 @@
   features. Do not declare a phase or feature complete while an approved
   requirement lacks implementation or verification evidence.
 
+## API route authorization
+
+- Declare the access rule where the route is defined. A route governed solely
+  by one `require_global_privilege` dependency derives its policy from that
+  dependency. Use `@operation_policy` next to the route for other policies,
+  including resource and workflow access.
+- Generate the registry with `PYTHONPATH=. backend/services/api/.venv/bin/python
+  tools/generate_policy_inventory.py`. The JSON is generated output. See
+  [the API policy guide](docs/api-policy-inventory.md).
+- For new or changed protected routes, test allowed and denied requests through
+  the API. When access is scoped, include a signed-in caller who lacks access
+  to the specific resource or workflow.
+
 ## Environment variable templates
 
 - Any change to `.env.example` must reconcile local `.env` handling and all
@@ -164,6 +177,15 @@
   roles, organization units, classifications, aggregations, records, or holds.
   Use true server pagination or a bounded type-ahead selector. A client-side
   pagination control over a 100/500-row download is not pagination.
+- Apply authorization, submitted filters and deterministic sorting on the server
+  before selecting each page. A page-size limit applies to one response.
+  Every matching row must remain reachable unless the screen's approved
+  contract explicitly limits the full result set.
+- For filters with Search or Apply, keep draft inputs separate from the last
+  submitted query. Paging uses the submitted query and changes only the page.
+  A new submission starts at the first page. Regression tests must exercise
+  paging with edited but unsubmitted controls and reach results beyond any
+  cap being removed. See [the pagination contract](docs/webui-performance.md#paginated-results-and-submitted-filters).
 - Relationship controls must use bounded remote search, retain selected values,
   and fetch individual selected IDs when needed. Hierarchy views must page each
   branch independently; never download a complete hierarchy to calculate one

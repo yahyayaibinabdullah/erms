@@ -12,13 +12,12 @@ from .organization_table import organization_membership_action
 from .organization_table import organization_table_filters
 from .organization_table import organization_user_actions
 from .organization_table import organization_user_slots
-from .classification_editor import render_classification_search_prompt
 from .entities import COLLECTION_ENTITIES
 from .i18n_catalogue import render_message
 from nicegui import ui
 
 def build_collection_table(
-    *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_recent_section, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
+    *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
 ):
     def render_table(spec: EntitySpec) -> None:
         if spec.key not in COLLECTION_ENTITIES:
@@ -33,16 +32,12 @@ def build_collection_table(
                 subtitle.text = "" if collection_state["searched"] else render_message(
                     "webui.select_entity.text.search_required_before_loading_results_88549c49"
                 )
+                if collection_state.get("entity_result_states", {}).get(spec.key, {}).get("unclassified_roots"):
+                    subtitle.text = render_message("webui.show_unclassified_roots.text.root_aggregations_missing_a_governing_clas_b4fc46cb")
         table_container.clear()
         with table_container:
             if spec.key in {"aggregations", "records"} and spec.search_first and not collection_state["searched"]:
                 render_resource_personal_sections(spec)
-                return
-            if spec.search_first and not collection_state["searched"]:
-                if spec.key == "classifications":
-                    render_classification_search_prompt()
-                    return
-                render_recent_section(spec)
                 return
             if spec.key in {"aggregations", "records"}:
                 render_entity_compact_results(spec)
@@ -79,8 +74,6 @@ def build_collection_table(
             localized_metadata_fields = (
                 {"name", "description"}
                 if spec.key in {"org-units", "roles", "users", "security-levels"}
-                else {"title", "description"}
-                if spec.key == "classifications"
                 else set()
             )
             for row in visible_rows:
@@ -219,23 +212,12 @@ def build_collection_table(
             for key, _ in spec.columns:
                 if not key.endswith("_display"):
                     continue
-                if key == "type_display":
-                    table.add_slot("body-cell-type_display", """
-                        <q-td :props="props">
-                          <div class="row items-center no-wrap q-gutter-sm">
-                            <q-avatar size="30px" color="blue-1" text-color="primary" :icon="props.row.is_terminal ? 'label' : 'schema'" />
-                            <span class="text-weight-medium">{{ props.row.is_terminal ? 'Terminal' : 'Branch' }}</span>
-                          </div>
-                        </q-td>
-                    """)
-                    continue
                 if key not in RELATIONSHIP_DISPLAY_FIELDS:
                     continue
                 relationship_icon = {
                     "parent_org_unit_display": "corporate_fare",
                     "org_unit_display": "corporate_fare",
                     "aggregation_display": "folder",
-                    "scheme_display": "account_tree",
                     "profile_display": "admin_panel_settings",
                 }.get(key, "link")
                 relationship_template = """

@@ -37,14 +37,13 @@ def test_global_search_header_results_and_safe_snippets_are_present():
     assert 'ui.html(' not in source[source.index("def render_safe_snippet("):source.index("async def copy_diagnostic_json(")]
     assert 'await api.full_text_search(payload)' in source
     assert 'async def full_text_search(' in CLIENT.read_text()
-    assert 'result_item["authorized_component_details"] = component_details.get' in source
+    assert 'result_item["record_capabilities"] = capabilities' in source
     assert 'for component in item.get("matching_components", [])' in source
-    assert '{**authorized_component_details.get(int(component["id"]), {}), **component}' in source
     assert 'preview_record_components(selected, component_id)' in source
     assert "Preview digital component" in source
     assert 'can_expand_components=bool(' in source
     assert 'record_capabilities.get("list_components") and matching_components' in source
-    assert 'record_capabilities.get("view_component")' in source
+    assert 'record_capabilities.get("has_previewable_component")' in source
     assert 'metadata_matched=bool(item.get("matched_record_metadata"))' in source
     assert 'content_matched=bool(matching_components)' in source
     assert 'classes("compact-result-component-badge")' in source

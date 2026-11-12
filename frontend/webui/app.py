@@ -70,7 +70,6 @@ from .account_sign_in import build_sign_in, build_login_error_message
 from .text_indexers import build_text_indexers
 from .text_indexer_details import build_text_indexer_details
 from .identity_presentation import user_avatar, render_user_avatar, USER_AVATAR_BACKGROUND, USER_AVATAR_TEXT
-from .organization_memberships import filter_membership_rows
 from .organization_deletion import deletion_identity, deletion_blocked_report
 from .administration_cards import build_administration_cards
 from .organization_memberships import build_organization_memberships
@@ -119,7 +118,6 @@ RELATIONSHIP_DISPLAY_FIELDS = frozenset({
     "org_unit_display",
     "parent_org_unit_display",
     "profile_display",
-    "scheme_display",
 })
 STOP_PROPAGATION_CLICK_HANDLER = "(event) => { event.stopPropagation(); emit(); }"
 
@@ -2382,7 +2380,7 @@ def index(q: str = "") -> None:
         aggregation_mode_bar=aggregation_mode_bar,
         api=api,
         clear_advanced_workspace=lambda: advanced_search_state.pop("advanced_search_workspace", None),
-        clear_collection_results=lambda: collection_state.update(entity_result_states={}),
+        clear_collection_results=lambda: collection_state.setdefault("entity_result_states", {}).clear(),
         discard_navigation_guard=lambda: state.pop("discard_navigation_guard", None),
         enter_global_search=lambda: state.update(resource="full-text-search"),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
@@ -2526,9 +2524,13 @@ def index(q: str = "") -> None:
         elif page == "full-text-search":
             query = str(saved.get("global_search_query") or global_search_state.get("global_search_query") or "")
             if query:
-                if global_search_state.get("global_search_items") and global_search_state.get("global_search_query") == query:
+                selected = saved.get("global_search_filter") or "all"
+                if selected in global_search_state["global_search_streams"] and global_search_state.get("global_search_query") == query:
+                    global_search_state["global_search_revision"] = global_search_state.get("global_search_revision", 0) + 1
+                    global_search_state["global_search_loading"] = False
+                    global_search_state["global_search_error"] = None
                     global_search_state["global_search_page"] = int(saved.get("global_search_page") or 1)
-                    global_search_state["global_search_filter"] = saved.get("global_search_filter") or "all"
+                    global_search_state["global_search_filter"] = selected
                     global_search_state["global_search_return_anchor"] = saved.get("global_search_return_anchor")
                     global_search_state["global_search_expanded_results"] = set(
                         saved.get("global_search_expanded_results") or []
@@ -2555,12 +2557,6 @@ def index(q: str = "") -> None:
         elif page == "advanced-search":
             await select_advanced_search()
         elif page in COLLECTION_ENTITIES:
-            if saved.get("entity_result_state"):
-                restored_result_state = dict(saved["entity_result_state"])
-                restored_result_state["expanded_results"] = set(
-                    restored_result_state.get("expanded_results") or []
-                )
-                collection_state.setdefault("entity_result_states", {})[page] = restored_result_state
             if page == "aggregations":
                 aggregation_state["aggregation_mode"] = saved.get("aggregation_mode", "search")
             await select_entity(page)
@@ -2570,8 +2566,16 @@ def index(q: str = "") -> None:
                 return
             search_input.value = saved.get("search_text", "")
             collection_state["lifecycle_filter"] = saved.get("lifecycle_filter", "all")
-            if saved.get("searched") and search_input.value and ENTITIES[page].search_first:
-                await load_rows()
+            if saved.get("searched") and ENTITIES[page].search_first:
+                restored_result_state = dict(saved.get("entity_result_state") or {})
+                if page in {"aggregations", "records"} and (
+                    restored_result_state.get("query") or restored_result_state.get("unclassified_roots") or search_input.value
+                ):
+                    restored_result_state.setdefault("query", search_input.value)
+                    restored_result_state["expanded_results"] = set(restored_result_state.get("expanded_results") or [])
+                    await load_rows(compact_state=restored_result_state)
+                elif search_input.value:
+                    await load_rows()
             elif collection_state["lifecycle_filter"] != "all" and page in {"org-units", "roles", "users"}:
                 render_table(ENTITIES[page])
         elif page == "classification-workspace":
@@ -2646,7 +2650,6 @@ def index(q: str = "") -> None:
         api=api,
         collection_state=collection_state,
         dashboard_state=dashboard_state,
-        decorate_for_spec=lambda *args, **kwargs: decorate_for_spec(*args, **kwargs),
         enter_dashboard=lambda: state.update(resource="dashboard"),
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         format_file_size=lambda *args, **kwargs: format_file_size(*args, **kwargs),
@@ -2656,15 +2659,16 @@ def index(q: str = "") -> None:
         get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         guidance=guidance,
+        load_rows=lambda **kwargs: load_rows(**kwargs),
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
         page_client=page_client,
         personal=personal,
         personal_dialog_list_height=lambda *args, **kwargs: personal_dialog_list_height(*args, **kwargs),
         register_navigation=lambda *args, **kwargs: register_navigation(*args, **kwargs),
-        render_table=lambda *args, **kwargs: render_table(*args, **kwargs),
         require_principal=lambda: session.principal,
         review_display=lambda *args, **kwargs: review_display(*args, **kwargs),
         search_bar=search_bar,
+        select_aggregation_search=lambda: select_aggregation_search(),
         select_classification_workspace=lambda *args, **kwargs: select_classification_workspace(*args, **kwargs),
         select_entity=lambda *args, **kwargs: select_entity(*args, **kwargs),
         select_holds=lambda *args, **kwargs: select_holds(*args, **kwargs),
@@ -2955,6 +2959,8 @@ def index(q: str = "") -> None:
 
     render_entity_compact_results = build_resource_collection_results(
         collection_state=collection_state,
+        guidance=guidance,
+        load_rows=lambda **kwargs: load_rows(**kwargs),
         open_aggregation=lambda *args, **kwargs: open_aggregation(*args, **kwargs),
         render_compact_resource_result=lambda *args, **kwargs: render_compact_resource_result(*args, **kwargs),
         restore_compact_result_anchor=lambda *args, **kwargs: restore_compact_result_anchor(*args, **kwargs),
@@ -2978,7 +2984,6 @@ def index(q: str = "") -> None:
         reload_favourites=lambda *args, **kwargs: reload_favourites(*args, **kwargs),
         render_administration_cards=lambda *args, **kwargs: render_administration_cards(*args, **kwargs),
         render_entity_compact_results=lambda *args, **kwargs: render_entity_compact_results(*args, **kwargs),
-        render_recent_section=lambda *args, **kwargs: render_recent_section(*args, **kwargs),
         render_resource_personal_sections=lambda *args, **kwargs: render_resource_personal_sections(*args, **kwargs),
         required_principal=lambda: session.principal,
         select_organization_unit_details=lambda *args, **kwargs: select_organization_unit_details(*args, **kwargs),
@@ -3458,7 +3463,7 @@ def index(q: str = "") -> None:
     load_rows = build_collection_loader(
         api, get_resource=lambda: state["resource"], get_query=lambda: search_input.value,
         pages=collection_state["collection_pages"], accept_results=accept_collection_results,
-        clear_result_state=lambda resource: collection_state.setdefault("entity_result_states", {}).pop(resource, None),
+        compact_states=collection_state.setdefault("entity_result_states", {}),
         decorate_for_spec=decorate_for_spec,
         decorate_record_search_components=decorate_record_search_components,
         page_client=page_client, set_connection_status=set_connection_status,
@@ -3487,7 +3492,6 @@ def index(q: str = "") -> None:
         api=api,
         bind_remote_relationship_select=lambda *args, **kwargs: bind_remote_relationship_select(*args, **kwargs),
         error_message=error_message,
-        filter_membership_rows=filter_membership_rows,
         localized_lifecycle_value=localized_lifecycle_value,
         show_api_error=show_api_error,
         show_organization_structure=lambda *args, **kwargs: show_organization_structure(*args, **kwargs),
@@ -3741,16 +3745,16 @@ def index(q: str = "") -> None:
     personal_views = build_personal_resource_views(
         api, personal, get_configuration=lambda: state["application_configuration"],
         render_table=render_table, open_aggregation=open_aggregation,
-        show_record_details=show_record_details, load_recent=load_recent,
+        show_record_details=show_record_details,
         toggle_favourite=toggle_favourite, error_message=error_message,
         format_timestamp=format_timestamp, personal_dialog_list_height=personal_dialog_list_height,
     )
-    render_recent_section = personal_views.render_recent_section
     render_resource_personal_sections = personal_views.render_resource_personal_sections
     render_compact_resource_result = build_compact_resource_view(
         tree_expander_icon=tree_expander_icon, favourite_button=favourite_button,
         render_safe_snippet=render_safe_snippet, preview_record_components=preview_record_components,
         format_date=format_date, medium_label=medium_label, component_is_previewable=component_is_previewable,
+        api=api, direction=lambda: current_direction["value"], error_message=error_message,
     )
 
     browse_classification_tree, browse_advanced_classification = build_classification_pickers(

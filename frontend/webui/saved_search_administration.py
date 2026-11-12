@@ -26,7 +26,7 @@ def build_saved_search_administration(
         add_record_button.set_visibility(False)
         guidance.text = ""
         table_container.clear()
-        page = {"offset": 0, "limit": 25, "total": 0, "revision": 0}
+        page = {"offset": 0, "limit": 25, "total": 0, "revision": 0, "criteria": {}, "loading": False}
 
         with table_container, ui.column().classes("w-full gap-4 p-4"):
             with ui.card().classes("w-full shadow-none border border-slate-200 p-4 gap-3"):
@@ -84,23 +84,26 @@ def build_saved_search_administration(
                 confirm.on("click", remove)
             dialog.open()
 
-        async def load_page() -> None:
+        async def load_page(*, offset: int | None = None, criteria: dict[str, Any] | None = None) -> None:
+            if list_host.is_deleted or get_resource() != page_key:
+                return
+            offset = page["offset"] if offset is None else offset
+            criteria = page["criteria"] if criteria is None else criteria
             page["revision"] += 1
             revision = page["revision"]
-            params: dict[str, Any] = {"limit": page["limit"], "offset": page["offset"]}
-            if str(name_filter.value or "").strip(): params["q"] = str(name_filter.value).strip()
-            if str(owner_filter.value or "").strip(): params["owner_q"] = str(owner_filter.value).strip()
-            if created_from.value: params["created_from"] = created_from.value
-            if created_before.value: params["created_before"] = created_before.value
+            page["loading"] = True
             try:
-                result = await api.saved_search_administration(**params)
+                result = await api.saved_search_administration(limit=page["limit"], offset=offset, **criteria)
             except ApiError as error:
-                if revision != page["revision"] or get_resource() != page_key: return
+                if revision != page["revision"] or list_host.is_deleted or get_resource() != page_key: return
                 list_host.clear()
                 with list_host: ui.label(error_message(error)).classes("text-negative")
                 return
-            if revision != page["revision"] or get_resource() != page_key: return
-            page["total"] = int(result["total"])
+            finally:
+                if revision == page["revision"]:
+                    page["loading"] = False
+            if revision != page["revision"] or list_host.is_deleted or get_resource() != page_key: return
+            page.update(offset=offset, criteria=criteria, total=int(result["total"]))
             list_host.clear()
             with list_host:
                 if not result["items"]:
@@ -124,11 +127,19 @@ def build_saved_search_administration(
             following.set_enabled(page["offset"] + page["limit"] < page["total"])
 
         async def apply_page_filters() -> None:
-            page["offset"] = 0
-            await load_page()
+            criteria = {
+                key: value for key, value in (
+                    ("q", str(name_filter.value or "").strip()),
+                    ("owner_q", str(owner_filter.value or "").strip()),
+                    ("created_from", created_from.value),
+                    ("created_before", created_before.value),
+                ) if value
+            }
+            await load_page(offset=0, criteria=criteria)
         async def move_page(delta: int) -> None:
-            page["offset"] = max(0, page["offset"] + delta)
-            await load_page()
+            offset = page["offset"] + delta
+            if not page["loading"] and 0 <= offset < page["total"]:
+                await load_page(offset=offset)
         apply_filters.on("click", apply_page_filters)
         name_filter.on("keydown.enter", apply_page_filters)
         owner_filter.on("keydown.enter", apply_page_filters)

@@ -1,27 +1,23 @@
 """Shared record and aggregation compact result paging, expansions and anchors."""
 from __future__ import annotations
 from typing import Any
-from .component_presentation import component_is_previewable
+from .entities import EntitySpec
 from .i18n_catalogue import render_message
 from nicegui import ui
 
 def build_resource_collection_results(
-    *, collection_state, open_aggregation, render_compact_resource_result, restore_compact_result_anchor, show_record_details,
+    *, collection_state, guidance, load_rows, open_aggregation, render_compact_resource_result, restore_compact_result_anchor, show_record_details,
 ):
     def render_entity_compact_results(spec: EntitySpec) -> None:
         resource = spec.key
-        result_state = collection_state.setdefault("entity_result_states", {}).setdefault(resource, {
-            "filter": "", "sort": "number", "page": 1, "page_size": 10,
-            "expanded_results": set(), "return_anchor": None,
-        })
+        result_state = collection_state["entity_result_states"][resource]
         result_state["expanded_results"] = set(result_state.get("expanded_results") or [])
-        number_field = "aggregation_number" if resource == "aggregations" else "record_number"
 
         ui.separator().classes("erms-results-divider")
         with ui.row().classes("w-full items-center px-5 pt-2 gap-2"):
             ui.icon("search", color="primary")
             ui.label(render_message("webui.render_entity_compact_results.label.search_results_66d40806")).classes("text-lg font-semibold")
-            ui.badge(str(len(collection_state["rows"])), color="blue-grey").props("outline")
+            count = ui.badge(str(result_state["total"]), color="blue-grey").props("outline")
 
         controls = ui.row().classes("w-full items-end gap-3 px-5 pt-2 flex-wrap")
         with controls:
@@ -54,25 +50,18 @@ def build_resource_collection_results(
                 await show_record_details(item)
 
         def render_results() -> None:
-            query = str(filter_control.value or "").strip().casefold()
-            result_state.update(filter=str(filter_control.value or ""), sort=sort_control.value,
-                                page_size=int(page_size_control.value or 10))
-            rows = list(collection_state["rows"])
-            if query:
-                rows = [row for row in rows if query in " ".join(str(value or "") for value in (
-                    row.get(number_field), row.get("title"), row.get("medium"),
-                    (row.get("aggregation_display") or {}).get("code"),
-                    (row.get("aggregation_display") or {}).get("name"),
-                )).casefold()]
-            sort_field = {"number": number_field, "title": "title", "date": "date_originated" if resource == "records" else "date_opened", "medium": "medium"}[sort_control.value]
-            rows.sort(key=lambda row: str(row.get(sort_field) or "").casefold())
-            page_size = int(page_size_control.value or 10)
-            page_count = max(1, (len(rows) + page_size - 1) // page_size)
-            result_state["page"] = min(max(1, int(result_state.get("page", 1))), page_count)
+            nonlocal result_state
+            result_state = collection_state["entity_result_states"][resource]
+            total = result_state["total"]
+            page_size = result_state["page_size"]
+            page_count = max(1, (total + page_size - 1) // page_size)
             page_number = result_state["page"]
             start = (page_number - 1) * page_size
-            page_rows = rows[start:start + page_size]
-            summary.text = render_message("webui.render_results.text.showing_value_value_2_of_row_count_results_3d5b1825", value=start + 1 if page_rows else 0, value_2=start + len(page_rows), row_count=len(rows))
+            page_rows = collection_state["rows"]
+            count.text = str(total)
+            if result_state.get("unclassified_roots"):
+                guidance.text = render_message("webui.show_unclassified_roots.text.showing_row_count_of_total_unclassified_ro_823f8b47", row_count=len(page_rows), total=total)
+            summary.text = render_message("webui.render_results.text.showing_value_value_2_of_row_count_results_3d5b1825", value=start + 1 if page_rows else 0, value_2=start + len(page_rows), row_count=total)
             page_label.text = render_message("webui.render_results.text.page_page_number_of_page_count_1680e7c0", page_number=page_number, page_count=page_count)
             first.set_enabled(page_number > 1); previous.set_enabled(page_number > 1)
             next_button.set_enabled(page_number < page_count); last.set_enabled(page_number < page_count)
@@ -82,12 +71,11 @@ def build_resource_collection_results(
                     ui.label(render_message("webui.render_results.label.no_matching_results_e67e2811")).classes("w-full text-center text-slate-500 py-8")
                 for item in page_rows:
                     capabilities = item.get("_record_capabilities") or {}
-                    components = item.get("_components") or []
                     render_compact_resource_result(
                         resource, item, on_open=open_result,
-                        components=components, show_medium=True,
-                        can_preview=bool(resource == "records" and capabilities.get("view_component") and any(component_is_previewable(component) for component in components)),
-                        can_expand_components=bool(resource == "records" and capabilities.get("list_components") and components),
+                        component_total=int(capabilities.get("component_count", 0)), show_medium=True,
+                        can_preview=bool(capabilities.get("has_previewable_component")),
+                        can_expand_components=bool(capabilities.get("list_components")),
                         initially_expanded=f"{resource}:{int(item['id'])}" in result_state["expanded_results"],
                         on_expansion_changed=lambda expanded, identifier=int(item["id"]): (
                             result_state["expanded_results"].add(f"{resource}:{identifier}") if expanded
@@ -96,15 +84,38 @@ def build_resource_collection_results(
                     )
             restore_compact_result_anchor(result_state.pop("return_anchor", None))
 
-        def set_page(page_number: int) -> None:
-            result_state["page"] = page_number
-            render_results()
+        request_revision = 0
+        pending_revision = None
 
-        filter_control.on_value_change(lambda _: (result_state.__setitem__("page", 1), render_results()))
-        sort_control.on_value_change(lambda _: (result_state.__setitem__("page", 1), render_results()))
-        page_size_control.on_value_change(lambda _: (result_state.__setitem__("page", 1), render_results()))
-        first.on("click", lambda: set_page(1)); previous.on("click", lambda: set_page(result_state["page"] - 1))
-        next_button.on("click", lambda: set_page(result_state["page"] + 1)); last.on("click", lambda: set_page(10**9))
+        async def load_page(page_number: int, **changes) -> None:
+            nonlocal request_revision, pending_revision
+            if host.is_deleted or (pending_revision is not None and not changes):
+                return
+            request_revision += 1
+            revision = pending_revision = request_revision
+            try:
+                await load_rows(
+                    compact_state={**result_state, **changes, "page": page_number},
+                    on_loaded=render_results, is_current=lambda: not host.is_deleted,
+                )
+            finally:
+                if pending_revision == revision:
+                    pending_revision = None
+
+        def set_page(page_number: int):
+            return load_page(max(1, page_number))
+
+        async def change_controls() -> None:
+            await load_page(1, filter=str(filter_control.value or ""),
+                            sort=sort_control.value, page_size=int(page_size_control.value or 10))
+
+        filter_control.on_value_change(change_controls)
+        sort_control.on_value_change(change_controls)
+        page_size_control.on_value_change(change_controls)
+        first.on("click", lambda: set_page(1))
+        previous.on("click", lambda: set_page(result_state["page"] - 1))
+        next_button.on("click", lambda: set_page(result_state["page"] + 1))
+        last.on("click", lambda: set_page((result_state["total"] + result_state["page_size"] - 1) // result_state["page_size"]))
         render_results()
 
 
