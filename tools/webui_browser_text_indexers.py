@@ -25,11 +25,6 @@ with psycopg.connect(url) as c:
     def cancel(key):
         click(key,page.one('.q-dialog__inner > .q-card'))
         page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
-    def errors(count):
-        found=page.driver.execute_script('return window.__webuiTestErrors || []')
-        assert found==[{'kind':'error','message':'TypeError: u.match is not a function'}]*count,found
-        page.report.setdefault('existing_pagination_icon_errors',[]).append({'language':page.language,'errors':found})
-        page.driver.execute_script('window.__webuiTestErrors=[]')
     for language in ('en','ar'):
         if language=='ar':page.settings();page.language_change('ar')
         with page.check('indexer list filter, operational dialogs and cancelled writes'):
@@ -50,7 +45,7 @@ with psycopg.connect(url) as c:
         with page.check('indexer details, credential metadata and keyboard cancellation'):
             page.activate(page.one('.governance-list-card'))
             page.see(page.t('webui.select_text_indexer_details.label.api_credentials_66a20b8e'))
-            page.see('Fixture key');capture('detail');errors(1)
+            page.see('Fixture key');capture('detail');page.errors()
             click('webui.select_text_indexer_details.button.generate_api_key_35bdc780')
             d=page.one('.q-dialog__inner > .q-card')
             expiryfield=page.field(page.t('webui.credential_dialog.input.expiry_iso_8601_222d3b9f'))

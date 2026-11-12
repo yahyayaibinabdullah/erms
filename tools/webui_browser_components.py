@@ -3,6 +3,7 @@ import base64
 import subprocess
 from pathlib import Path
 from selenium.webdriver.common.keys import Keys
+from tools.check_webui_browser import plain
 
 
 def fixture_pdf():
@@ -24,7 +25,7 @@ def check_components(page):
     response=page.api.post('/api/v1/aggregations',json={'aggregation_number':'COMP-AGG','title':'Component fixture','classification_id':parent['classification_id'],'medium':'digital'});response.raise_for_status();aggregation=response.json()
     def icon(name,scope=None):return page.wait.until(lambda _:next((b for b in page.visible('button',scope) if any(i.text==name for i in b.find_elements('css selector','.q-icon'))),False))
     def cards():return page.visible('.component-card')
-    def capture(name):page.capture('components-'+name+'-'+page.language,target=page.one('.component-list') if name in {'empty','cards','reordered'} else None)
+    def capture(name):page.capture('components-'+name+'-'+page.language,target=page.one('.component-list') if name in {'empty','cards','reordered','removed','removed-last'} else None)
     def enter(number):
         page.drawer('records');page.wait.until(lambda _:len(page.visible('.dashboard-personal-panel'))==2)
         page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),number)
@@ -68,12 +69,28 @@ with psycopg.connect(url) as c:
             assert page.visible('.component-filename')[0].text=='image.png'
             result=page.api.post('/api/v1/digital-components/search',json={'where':{'field':'record_id','operator':'eq','value':record['id']},'limit':25,'offset':0});result.raise_for_status()
             assert result.json()['total']==1
-            # Baseline defect: optimistic card replacement deletes the callback's
-            # slot, so its subsequent success notification raises before refresh.
-            # Preserve it in this refactor; API deletion itself must complete.
-            log=Path(page.args.output)/'webui.log'
-            page.wait.until(lambda _:log.read_text().count('RuntimeError: The parent element this slot belongs to has been deleted.') >= (1 if language=='en' else 2))
-            page.report.setdefault('existing_deleted_slot_errors',[]).append({'language':language,'operation':'component removal','message':'The parent element this slot belongs to has been deleted.'})
-            page.settings();enter(number);page.wait.until(lambda _:len(cards())==1)
-            assert page.visible('.component-filename')[0].text=='image.png'
+            page.see(page.t('webui.remove_component.notify.digital_component_removed_3af94a83'))
+            # The optimistic redraw retains the old total; only the automatic API
+            # refresh can update this pager to the authoritative remaining count.
+            page.wait.until(lambda _:any(plain(e.text)=='1–1 / 1' for e in page.visible('.component-grid .q-badge')))
+            deletion_events=page.events()[started:]
+            assert len([e for e in deletion_events if e['method']=='DELETE'])==1
+            capture('removed')
+            started=len(page.events());page.activate(icon('delete_outline',cards()[0]))
+            page.see(page.t('webui.remove_component.notify.digital_component_removed_3af94a83'))
+            page.wait.until(lambda _:not cards() and any(e['method']=='DELETE' and e['status']==204 for e in page.events()[started:]))
+            page.wait.until(lambda _:any(e['method']=='POST' and e['path']=='/api/v1/digital-components/search' and e['status']==200 for e in page.events()[started:]))
+            page.see(page.t('webui.render_current_components.label.no_digital_components_have_been_uploaded_y_3f61a29a'))
+            assert not page.visible('.component-grid button')
+            assert len([e for e in page.events()[started:] if e['method']=='DELETE'])==1
+            capture('removed-last')
+            page.report.setdefault('deletion_refresh',[]).append({'language':language,
+                'localized_success_notification':True,'remaining_count_refreshed':True,
+                'last_component_refreshed':True,'one_delete_per_click':True})
+            result=page.api.post('/api/v1/digital-components/search',json={'where':{'field':'record_id','operator':'eq','value':record['id']},'limit':25,'offset':0});result.raise_for_status()
+            assert result.json()['total']==0
+            page.settings();enter(number);page.wait.until(lambda _:not cards())
+            page.see(page.t('webui.render_current_components.label.no_digital_components_have_been_uploaded_y_3f61a29a'))
             page.errors()
+    assert 'RuntimeError: The parent element this slot belongs to has been deleted.' not in (Path(page.args.output)/'webui.log').read_text()
+    assert not [e for e in page.events() if e['status'] is None or e['status']>=400]

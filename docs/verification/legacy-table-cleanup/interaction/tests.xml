@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="33" time="8.835" timestamp="2026-11-12T06:05:24.599189+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[False-False-aggregations]" time="0.027"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label [text=Large collections ar...]&#10;    Label [text=Search required befo...]&#10;    Column">args = ()
+kwargs = {'arabic': False, 'resource': 'aggregations', 'searched': False, 'user': &lt;nicegui.testing.user.User object at 0x1091c2010&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1091c2010&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label [text=Large collections ar...]
+E                   Label [text=Search required befo...]
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[False-False-records]" time="0.008"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label [text=Large collections ar...]&#10;    Label [text=Search required befo...]&#10;    Column">args = ()
+kwargs = {'arabic': False, 'resource': 'records', 'searched': False, 'user': &lt;nicegui.testing.user.User object at 0x1091f9b10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1091f9b10&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label [text=Large collections ar...]
+E                   Label [text=Search required befo...]
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[False-True-aggregations]" time="0.006"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label&#10;    Label&#10;    Column">args = ()
+kwargs = {'arabic': False, 'resource': 'aggregations', 'searched': True, 'user': &lt;nicegui.testing.user.User object at 0x1091ed0d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1091ed0d0&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label
+E                   Label
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[False-True-records]" time="0.005"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label&#10;    Label&#10;    Column">args = ()
+kwargs = {'arabic': False, 'resource': 'records', 'searched': True, 'user': &lt;nicegui.testing.user.User object at 0x1092ea390&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1092ea390&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label
+E                   Label
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[True-False-aggregations]" time="0.005"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label [text=Large collections ar...]&#10;    Label [text=يجب إجراء بحث قبل تح...]&#10;    Column">args = ()
+kwargs = {'arabic': True, 'resource': 'aggregations', 'searched': False, 'user': &lt;nicegui.testing.user.User object at 0x1092b3750&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1092b3750&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label [text=Large collections ar...]
+E                   Label [text=يجب إجراء بحث قبل تح...]
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[True-False-records]" time="0.006"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label [text=Large collections ar...]&#10;    Label [text=يجب إجراء بحث قبل تح...]&#10;    Column">args = ()
+kwargs = {'arabic': True, 'resource': 'records', 'searched': False, 'user': &lt;nicegui.testing.user.User object at 0x1092f7750&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x1092f7750&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label [text=Large collections ar...]
+E                   Label [text=يجب إجراء بحث قبل تح...]
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[True-True-aggregations]" time="0.005"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label&#10;    Label&#10;    Column">args = ()
+kwargs = {'arabic': True, 'resource': 'aggregations', 'searched': True, 'user': &lt;nicegui.testing.user.User object at 0x109336f90&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x109336f90&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label
+E                   Label
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_dispatch" name="test_resource_refresh_keeps_compact_results_and_personal_sections[True-True-records]" time="0.006"><failure message="AssertionError: expected to find at least one element of type Table on the page:&#10;q-layout&#10; q-page-container&#10;  q-page&#10;   div&#10;    Label&#10;    Label&#10;    Column">args = ()
+kwargs = {'arabic': True, 'resource': 'records', 'searched': True, 'user': &lt;nicegui.testing.user.User object at 0x109305ed0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_collection_dispatch.py:49: in test_resource_refresh_keeps_compact_results_and_personal_sections
+    assert not user.find(ui.table).elements
+               ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;nicegui.testing.user.User object at 0x109305ed0&gt;
+target = &lt;class 'nicegui.elements.table.Table'&gt;
+
+    def find(self,
+             target: Union[str, Type[T], None] = None,
+             *,
+             kind: Optional[Type[T]] = None,
+             marker: Union[str, List[str], None] = None,
+             content: Union[str, List[str], None] = None,
+             ) -&gt; UserInteraction[T]:
+        """Select elements for interaction."""
+        with self._client:
+            elements = self._gather_elements(target, kind, marker, content)
+            if not elements:
+&gt;               raise AssertionError('expected to find at least one ' +
+                                     self._build_error_message(target, kind, marker, content))
+E               AssertionError: expected to find at least one element of type Table on the page:
+E               q-layout
+E                q-page-container
+E                 q-page
+E                  div
+E                   Label
+E                   Label
+E                   Column
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user.py:217: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_collection_refresh_localization" name="test_background_refresh_keeps_page_language_without_inherited_context[True-aggregations]" time="0.007" /><testcase classname="frontend.webui.interaction.tests.test_collection_refresh_localization" name="test_background_refresh_keeps_page_language_without_inherited_context[True-records]" time="0.007" /><testcase classname="frontend.webui.interaction.tests.test_collection_refresh_localization" name="test_background_refresh_keeps_page_language_without_inherited_context[False-aggregations]" time="0.007" /><testcase classname="frontend.webui.interaction.tests.test_collection_refresh_localization" name="test_background_refresh_keeps_page_language_without_inherited_context[False-records]" time="0.007" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_reopen_requires_reason_preserves_version_and_handles_failure[False]" time="0.207" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_reopen_requires_reason_preserves_version_and_handles_failure[True]" time="0.213" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[none]" time="0.362" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[options]" time="0.016" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[preview]" time="0.317" /><testcase classname="frontend.webui.interaction.tests.test_aggregation_actions" name="test_ownership_correction_filters_current_owner_and_preserves_preview_gate[write]" time="0.326" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_node_navigation_retains_fields_timeline_and_direct_inactivity" time="0.237" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_scheme_and_each_branch_page_independently" time="0.255" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_creation_context_and_terminal_has_no_child_action" time="0.199" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_abandoned_branch_response_does_not_render" time="0.131" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_return_refreshes_changed_metadata_and_rtl_expanders" time="0.234" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_search_is_scoped_and_paged_without_loading_the_hierarchy" time="0.142" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_node_keeps_code_and_full_accessible_title_with_tooltip" time="0.022" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_details_group_commands_beside_summary_and_keep_back_in_summary[False]" time="0.158" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_details_group_commands_beside_summary_and_keep_back_in_summary[True]" time="0.161" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_transfer_placement_and_permission[False-ltr]" time="2.146" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_transfer_placement_and_permission[False-rtl]" time="2.137" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_transfer_placement_and_permission[True-ltr]" time="0.075" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_transfer_placement_and_permission[True-rtl]" time="0.006" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_transfer_hidden_without_administer" time="0.129" /><testcase classname="frontend.webui.interaction.tests.test_classification_workspace" name="test_import_refresh_preserves_sort_filter_and_loaded_pages" time="0.184" /></testsuite></testsuites>

@@ -200,7 +200,7 @@ def build_text_indexer_details(
                 credential_summary = ui.label().classes("text-sm text-slate-500")
                 with ui.row().classes("gap-2"):
                     credential_previous = ui.button(render_message("webui.select_text_indexer_details.button.previous_86972be8"), icon="chevron_right" if direction() == "rtl" else "chevron_left").props("outline dense no-caps")
-                    credential_next = ui.button(render_message("webui.select_text_indexer_details.button.next_e284c9ef"), icon="chevron_left" if direction() == "rtl" else "chevron_right").props("outline dense no-caps icon-right")
+                    credential_next = ui.button(render_message("webui.select_text_indexer_details.button.next_e284c9ef"), icon="chevron_left" if direction() == "rtl" else "chevron_right").props("outline dense no-caps")
 
             def render_credentials() -> None:
                 page = credential_state["page"]

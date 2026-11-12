@@ -169,14 +169,17 @@ def build_components(*, api, error_message, show_entity_history, preview_record_
             previous_rows = list(current_rows)
             current_rows[:] = [item for item in current_rows if item["id"] != component["id"]]
             render_current_components()
-            try:
-                await api.delete_component(component["id"], component["version"])
-                ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
-                await refresh_components()
-            except ApiError as error:
-                current_rows[:] = previous_rows
-                render_current_components()
-                ui.notify(error_message(error), color="negative")
+            # The optimistic redraw deletes the clicked card's event slot.
+            # Keep feedback and refresh in the surviving, language-scoped host.
+            with component_area:
+                try:
+                    await api.delete_component(component["id"], component["version"])
+                    ui.notify(render_message("webui.remove_component.notify.digital_component_removed_3af94a83"), color="positive")
+                    await refresh_components()
+                except ApiError as error:
+                    current_rows[:] = previous_rows
+                    render_current_components()
+                    ui.notify(error_message(error), color="negative")
 
         component_refresh["fn"] = refresh_components
 

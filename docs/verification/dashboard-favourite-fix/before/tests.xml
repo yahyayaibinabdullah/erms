@@ -1,0 +1,1297 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="32" skipped="0" tests="32" time="1.574" timestamp="2026-11-12T00:21:08.975511+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-records-en]" time="0.008"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x113111010&gt;
+language = 'en', resource = 'records', in_dialog = False, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x112f57510&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-records-ar]" time="0.020"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x113110910&gt;
+language = 'ar', resource = 'records', in_dialog = False, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x112f56750&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-aggregations-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x113143310&gt;
+language = 'en', resource = 'aggregations', in_dialog = False
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1131aa390&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-False-aggregations-ar]" time="0.042"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x112f42350&gt;
+language = 'ar', resource = 'aggregations', in_dialog = False
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1131ee5c0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-records-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1134b5710&gt;
+language = 'en', resource = 'records', in_dialog = True, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113315b20&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-records-ar]" time="0.018"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x113123310&gt;
+language = 'ar', resource = 'records', in_dialog = True, outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113364720&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-aggregations-en]" time="0.008"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1131ea010&gt;
+language = 'en', resource = 'aggregations', in_dialog = True
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113382d90&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[success-True-aggregations-ar]" time="0.049"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11357ec10&gt;
+language = 'ar', resource = 'aggregations', in_dialog = True
+outcome = 'success'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113648ea0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-records-en]" time="0.010"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11368cb90&gt;
+language = 'en', resource = 'records', in_dialog = False, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113614590&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-records-ar]" time="0.023"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1131eaf10&gt;
+language = 'ar', resource = 'records', in_dialog = False, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1135b3a10&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-aggregations-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11312fd10&gt;
+language = 'en', resource = 'aggregations', in_dialog = False
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113583470&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-False-aggregations-ar]" time="0.024"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x113123110&gt;
+language = 'ar', resource = 'aggregations', in_dialog = False
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1134db920&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-records-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1135702d0&gt;
+language = 'en', resource = 'records', in_dialog = True, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1134a6020&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-records-ar]" time="0.017"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1134f9450&gt;
+language = 'ar', resource = 'records', in_dialog = True, outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x11342c770&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-aggregations-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1134c9810&gt;
+language = 'en', resource = 'aggregations', in_dialog = True
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1133ee930&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[last_item-True-aggregations-ar]" time="0.017"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1131eb950&gt;
+language = 'ar', resource = 'aggregations', in_dialog = True
+outcome = 'last_item'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1133818f0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-records-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11363dd50&gt;
+language = 'en', resource = 'records', in_dialog = False, outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1131efab0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-records-ar]" time="0.017"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1135f8750&gt;
+language = 'ar', resource = 'records', in_dialog = False, outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x112f57ab0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-aggregations-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11368af50&gt;
+language = 'en', resource = 'aggregations', in_dialog = False
+outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1136dda80&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-False-aggregations-ar]" time="0.021"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11311b3d0&gt;
+language = 'ar', resource = 'aggregations', in_dialog = False
+outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1133142c0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-records-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x113118c50&gt;
+language = 'en', resource = 'records', in_dialog = True, outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1131a9a80&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-records-ar]" time="0.016"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11374d590&gt;
+language = 'ar', resource = 'records', in_dialog = True, outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1135091c0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-aggregations-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x112f51d10&gt;
+language = 'en', resource = 'aggregations', in_dialog = True
+outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x11364b010&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[rejected-True-aggregations-ar]" time="0.016"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1135fb210&gt;
+language = 'ar', resource = 'aggregations', in_dialog = True
+outcome = 'rejected'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1134a76a0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-records-en]" time="0.006"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11357de90&gt;
+language = 'en', resource = 'records', in_dialog = False, outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1135e09a0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-records-ar]" time="0.016"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1131eb390&gt;
+language = 'ar', resource = 'records', in_dialog = False, outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113615a30&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-aggregations-en]" time="0.007"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1134c2150&gt;
+language = 'en', resource = 'aggregations', in_dialog = False
+outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1134daa70&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-False-aggregations-ar]" time="0.017"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1136a5690&gt;
+language = 'ar', resource = 'aggregations', in_dialog = False
+outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113343420&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-records-en]" time="0.008"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1134b6a90&gt;
+language = 'en', resource = 'records', in_dialog = True, outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113382160&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-records-ar]" time="0.077"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11341f0d0&gt;
+language = 'ar', resource = 'records', in_dialog = True, outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1137923e0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-aggregations-en]" time="0.011"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11367f110&gt;
+language = 'en', resource = 'aggregations', in_dialog = True
+outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x1137e8fe0&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_dashboard_favourites" name="test_favourite_removal_feedback_cache_and_view_ownership[abandoned-True-aggregations-ar]" time="0.024"><failure message="KeyError: 'decorate_for_spec'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11363fd90&gt;
+language = 'ar', resource = 'aggregations', in_dialog = True
+outcome = 'abandoned'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['records', 'aggregations'])
+    @pytest.mark.parametrize('in_dialog', [False, True])
+    @pytest.mark.parametrize('outcome', ['success', 'last_item', 'rejected', 'abandoned'])
+    async def test_favourite_removal_feedback_cache_and_view_ownership(monkeypatch, language, resource, in_dialog, outcome):
+        client = Client(ui.page('/dashboard-favourite-regression'), request=None)
+        fixture = None
+        notifications = []
+        try:
+            with client:
+                messages = {r['message_key']: r['translated_text'] for r in json.loads(
+                    (Path(__file__).parents[2] / 'i18n/messages.ar.generated.json').read_text())['items']} if language == 'ar' else {}
+                set_active_messages(messages)
+                fixture = DashboardFixture(client)
+                fixture.state['localization']['effective_language'] = language
+                data = summary(2)
+                data['favourites'][resource] = [
+                    {'id': i, 'title': f'Favourite {i}', 'record_number': f'R-{i}',
+                     'aggregation_number': f'A-{i}'}
+                    for i in range(1, 2 if outcome == 'last_item' else 3)]
+                fixture.api.dashboard_summary = AsyncMock(return_value=copy.deepcopy(data))
+                fixture.api.unfavourite = AsyncMock()
+                monkeypatch.setattr(dashboard, 'background_tasks', fixture.scope['background_tasks'])
+&gt;               _, _, select = dashboard.build_dashboard(**{
+                    name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+.0 = &lt;odict_iterator object at 0x113c12020&gt;
+
+    _, _, select = dashboard.build_dashboard(**{
+&gt;       name: fixture.scope[name] for name in inspect.signature(dashboard.build_dashboard).parameters})
+              ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'decorate_for_spec'
+
+frontend/webui/interaction/tests/test_dashboard_favourites.py:53: KeyError</failure></testcase></testsuite></testsuites>

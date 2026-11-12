@@ -1,0 +1,155 @@
+{
+  "browser": "edge",
+  "version": "157.0.4341.46",
+  "scope": "pagination",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 11481.89
+    },
+    {
+      "name": "security_levels icons, four paging actions and empty boundary",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 41048.07
+    },
+    {
+      "name": "profiles icons, four paging actions and empty boundary",
+      "language": "en",
+      "status": "fail",
+      "error": "Message: stale element reference: stale element not found in the current frame\n  (Session info: MicrosoftEdge=157.0.4341.46); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#staleelementreferenceexception\nStacktrace:\n0   msedgedriver                        0x0000000102c2c884 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 5008572\n1   msedgedriver                        0x00000001024e1b9c msedgedriver + 269212\n2   msedgedriver                        0x00000001024e77cc msedgedriver + 292812\n3   msedgedriver                        0x00000001024e9c14 msedgedriver + 302100\n4   msedgedriver                        0x00000001024e9ccc msedgedriver + 302284\n5   msedgedriver                        0x000000010252bed8 msedgedriver + 573144\n6   msedgedriver                        0x000000010252be18 msedgedriver + 572952\n7   msedgedriver                        0x000000010252bf48 msedgedriver + 573256\n8   msedgedriver                        0x0000000102524de8 msedgedriver + 544232\n9   msedgedriver                        0x0000000102521ed4 msedgedriver + 532180\n10  msedgedriver                        0x0000000102567610 msedgedriver + 816656\n11  msedgedriver                        0x0000000102520b08 msedgedriver + 527112\n12  msedgedriver                        0x000000010260657c msedgedriver + 1467772\n13  msedgedriver                        0x00000001026088a8 msedgedriver + 1476776\n14  msedgedriver                        0x0000000102c00444 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4827260\n15  msedgedriver                        0x0000000102c0bd08 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4874560\n16  msedgedriver                        0x0000000102bf9864 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4799644\n17  msedgedriver                        0x0000000102c21fc4 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4965372\n18  msedgedriver                        0x0000000102c220d0 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4965640\n19  msedgedriver                        0x0000000102c2c568 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 5007776\n20  libsystem_pthread.dylib             0x0000000192327c08 _pthread_start + 132\n21  libsystem_pthread.dylib             0x0000000192322b7c thread_start + 4\n",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 190, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_pagination.py\", line 71, in check_pagination\n    page.fill(page.t('webui.render_table.input.'+filter_key),'PAGINATIONFIX-')\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 122, in fill\n    field.send_keys(character)\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/webelement.py\", line 272, in send_keys\n    self._execute(\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/webelement.py\", line 505, in _execute\n    return self._parent.execute(command, params)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/webdriver.py\", line 566, in execute\n    self.error_handler.check_response(response)\n  File \"/Users/yahyayai/Offline-Documents/code/erms/.runtime/webui-browser-venv/lib/python3.11/site-packages/selenium/webdriver/remote/errorhandler.py\", line 234, in check_response\n    raise exception_class(message, screen, stacktrace)\nselenium.common.exceptions.StaleElementReferenceException: Message: stale element reference: stale element not found in the current frame\n  (Session info: MicrosoftEdge=157.0.4341.46); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#staleelementreferenceexception\nStacktrace:\n0   msedgedriver                        0x0000000102c2c884 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 5008572\n1   msedgedriver                        0x00000001024e1b9c msedgedriver + 269212\n2   msedgedriver                        0x00000001024e77cc msedgedriver + 292812\n3   msedgedriver                        0x00000001024e9c14 msedgedriver + 302100\n4   msedgedriver                        0x00000001024e9ccc msedgedriver + 302284\n5   msedgedriver                        0x000000010252bed8 msedgedriver + 573144\n6   msedgedriver                        0x000000010252be18 msedgedriver + 572952\n7   msedgedriver                        0x000000010252bf48 msedgedriver + 573256\n8   msedgedriver                        0x0000000102524de8 msedgedriver + 544232\n9   msedgedriver                        0x0000000102521ed4 msedgedriver + 532180\n10  msedgedriver                        0x0000000102567610 msedgedriver + 816656\n11  msedgedriver                        0x0000000102520b08 msedgedriver + 527112\n12  msedgedriver                        0x000000010260657c msedgedriver + 1467772\n13  msedgedriver                        0x00000001026088a8 msedgedriver + 1476776\n14  msedgedriver                        0x0000000102c00444 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4827260\n15  msedgedriver                        0x0000000102c0bd08 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4874560\n16  msedgedriver                        0x0000000102bf9864 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4799644\n17  msedgedriver                        0x0000000102c21fc4 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4965372\n18  msedgedriver                        0x0000000102c220d0 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 4965640\n19  msedgedriver                        0x0000000102c2c568 __crubit_thunk_3b7060de5b04864c__uRNvNtCs56ojWEWzMFk_u16web_upackage_urust6parser23parse_umagic_uand_uversion + 5007776\n20  libsystem_pthread.dylib             0x0000000192327c08 _pthread_start + 132\n21  libsystem_pthread.dylib             0x0000000192322b7c thread_start + 4\n\n",
+      "recent_native_clicks": [
+        {
+          "id": "c157",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c158",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c161",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c98",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c108",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c788",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c801",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c802",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c800",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c799",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c788",
+          "tag": "INPUT"
+        },
+        {
+          "id": "c110",
+          "tag": "BUTTON"
+        },
+        {
+          "id": "c4470",
+          "tag": "INPUT"
+        }
+      ],
+      "milliseconds": 2977.8
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "pagination-security_levels-first-en.png",
+      "sha256": "7202cd8a45f05ca4db9dae0bc7c7632dc9537d082dc936e7ae15d2a0b28e0652",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "pagination-security_levels-last-en.png",
+      "sha256": "68125f9485553efa0d7c43aeab51c21c7060cc4b8c77e583a2c9b3fc27a382fd",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-3.png",
+      "sha256": "03d2a1b24ebcf2f9a5a2f3bec56b17950ba73987a96cf5f2d5cb1de99f0ffbd4",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "driver_version": "Microsoft Edge WebDriver 157.0.4341.46 (a0c6bd61d7884b3c402a34c67d05100107a9e5e4)",
+  "driver_sha256": "f09f31289357de192274551f5bb7395e8e4ed40afedfee3aa9e928ca4bc9506a",
+  "browser_errors": [],
+  "pagination": [
+    {
+      "language": "en",
+      "consumer": "security_levels",
+      "offsets": [
+        0,
+        25,
+        50,
+        25,
+        0
+      ],
+      "icons_valid": true,
+      "keyboard": true,
+      "empty_boundary": true
+    }
+  ]
+}

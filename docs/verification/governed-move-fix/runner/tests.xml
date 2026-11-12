@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.131" timestamp="2026-11-11T19:56:19.865859+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="" name="tools.tests.test_webui_integration_runner" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/yahyayai/Offline-Documents/code/erms/tools/tests/test_webui_integration_runner.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.pyenv/versions/3.11.9/lib/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/tests/test_webui_integration_runner.py:6: in &lt;module&gt;
+    from psycopg.conninfo import conninfo_to_dict
+E   ModuleNotFoundError: No module named 'psycopg'</error></testcase></testsuite></testsuites>

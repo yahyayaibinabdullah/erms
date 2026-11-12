@@ -49,3 +49,68 @@ with psycopg.connect(url) as c:
             page.one('.advanced-search-page');page.wait.until(lambda _:page.field(page.t(value)).get_attribute('value')=='Test');capture('administration-open')
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
             page.errors();page.settings()
+
+    def read_saved(identifier):
+        response=page.api.get(f'/api/v1/saved-searches/{identifier}');response.raise_for_status()
+        return response.json()
+    def open_named(name):
+        click('webui.select_advanced_search.button.open_saved_search_8bef667f')
+        d=dialog()
+        card=page.wait.until(lambda _:next((c for c in page.visible('.q-card',d)
+            if any(plain(label.text)==name for label in c.find_elements('css selector','.font-semibold'))),False))
+        click('webui.load_saved_page.button.open_2606a7e0',card);closed()
+    def expected_results(identifier):
+        response=page.api.post(f'/api/v1/saved-searches/{identifier}/execute',json={'limit':25,'offset':0})
+        response.raise_for_status();return response.json()
+    def result_ids(resource):
+        prefix=f'compact-result-{resource}-'
+        return [int(e.get_attribute('id').removeprefix(prefix)) for e in page.visible('.compact-result-item')]
+
+    for language in ('en','ar'):
+        if page.language!=language:page.settings();page.language_change(language)
+        for resource in ('records','aggregations'):
+            with page.check(f'bare-condition {resource} reopen, clean execution, edit, save and reopen'):
+                name=f'Bare {resource} {language}'
+                leaf={'field':'title','operator':'contains_ci','value':'Test'}
+                request={'name':name,'category':'Regression','description':'Bare-condition regression fixture',
+                    'audience_mode':'private','role_ids':[],'org_unit_ids':[],
+                    'definition':{'schema_version':1,'resource_type':resource[:-1],'max_results':1000,
+                        'request':{'where':leaf,'sort':[{'field':'id','direction':'asc'}],'limit':25,'offset':0}}}
+                response=page.api.post('/api/v1/saved-searches',json=request);response.raise_for_status();saved=response.json()
+                identifier=saved['id'];assert saved['definition']['request']['where']==leaf
+                expected=expected_results(identifier);assert expected['items']
+                page.drawer('advanced_search');page.one('.advanced-search-page');open_named(name)
+                page.wait.until(lambda _:page.field(page.t(value)).get_attribute('value')=='Test')
+                assert read_saved(identifier)['definition']==saved['definition']
+                assert read_saved(identifier)['version']==saved['version']
+                capture(f'bare-{resource}-opened')
+                # Merely opening the saved query must not create a discard prompt.
+                page.drawer('dashboard');page.one('.dashboard-overview-primary')
+                assert not page.visible('.q-dialog__inner > .q-card')
+                page.drawer('advanced_search');page.one('.advanced-search-page')
+                started=len(page.events())
+                click('webui.select_advanced_search.button.search_97989f23',page.one('.advanced-search-submit-row'))
+                page.wait.until(lambda _:result_ids(resource)==[item['id'] for item in expected['items']])
+                assert any(e['path']==f'/api/v1/saved-searches/{identifier}/execute' and e['status']==200 for e in page.events()[started:])
+                edited=expected['items'][0]['title'];assert edited!='Test'
+                page.fill(page.t(value),edited)
+                click('webui.refresh_saved_actions.text.update_saved_search_31788e51')
+                page.wait.until(lambda _:read_saved(identifier)['version']>saved['version'])
+                page.wait.until(lambda _:page.button(page.t('webui.refresh_saved_actions.text.update_saved_search_31788e51')).is_enabled())
+                updated=read_saved(identifier)
+                assert updated['definition']['request']['where']=={'and':[dict(leaf,value=edited)]}
+                assert updated['definition']['resource_type']==saved['definition']['resource_type']
+                assert updated['definition']['max_results']==saved['definition']['max_results']
+                assert updated['audience_mode']==saved['audience_mode'] and updated['owner_user_id']==saved['owner_user_id']
+                open_named(name)
+                page.wait.until(lambda _:page.field(page.t(value)).get_attribute('value')==edited)
+                expected=expected_results(identifier)
+                click('webui.select_advanced_search.button.search_97989f23',page.one('.advanced-search-submit-row'))
+                page.wait.until(lambda _:result_ids(resource)==[item['id'] for item in expected['items']])
+                capture(f'bare-{resource}-saved-reopened');page.errors()
+                page.report.setdefault('bare_condition_reopening',[]).append({'resource':resource,'language':language,
+                    'stored_definition_unchanged_on_open':True,'clean_navigation':True,
+                    'saved_execution_matches_api':True,'edited_value_retained':True,
+                    'before_version':saved['version'],'after_version':updated['version']})
+                page.settings()
+    assert not [e for e in page.events() if e['status'] is None or e['status']>=400]

@@ -1,0 +1,49 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/check_configuration_authority.py"
+    ],
+    "exit_code": 0,
+    "stdout": "Configuration authority valid: 122 settings, exactly one owner each.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "tools/sync_api_env_template.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "All 36 API environment settings are documented in the deployment template.\nAPI environment templates agree.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "frontend/webui/.venv/bin/python",
+      "frontend/webui/scripts/check_i18n_catalogue.py"
+    ],
+    "exit_code": 0,
+    "stdout": "Internationalization catalogue references are complete and current.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "frontend/webui/.venv/bin/python",
+      "frontend/webui/scripts/check_approved_arabic_terminology.py"
+    ],
+    "exit_code": 0,
+    "stdout": "Approved Arabic terminology verified across 966 contextual uses of all 35 glossary mappings.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "backend/services/api/.venv/bin/python",
+      "-c",
+      "from backend.services.api.tests.test_localization_catalogue import test_generated_arabic_artifact_is_complete_contextual_and_placeholder_safe as artifact, test_approved_arabic_terminology_matches_the_specification as terminology; artifact(); terminology(); print(\"Existing artifact and terminology validation functions passed; no database fixtures invoked.\")"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Users/yahyayai/Offline-Documents/code/erms/backend/services/api/tests/test_localization_catalogue.py\", line 9, in <module>\n    from backend.services.api.localization import ARABIC_TERMINOLOGY, synchronize_generated_arabic_drafts\n  File \"/Users/yahyayai/Offline-Documents/code/erms/backend/services/api/localization.py\", line 24, in <module>\n    from .authentication import Principal, principal_from_request\n  File \"/Users/yahyayai/Offline-Documents/code/erms/backend/services/api/authentication.py\", line 18, in <module>\n    from .database import get_connection\n  File \"/Users/yahyayai/Offline-Documents/code/erms/backend/services/api/database.py\", line 32, in <module>\n    conninfo=database_url(),\n             ^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/backend/services/api/database.py\", line 26, in database_url\n    return required_environment(\"DATABASE_URL\")\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/yahyayai/Offline-Documents/code/erms/backend/services/api/config.py\", line 19, in required_environment\n    raise RuntimeError(f\"{name} is required\")\nRuntimeError: DATABASE_URL is required\n"
+  }
+]

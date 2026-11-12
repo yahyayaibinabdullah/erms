@@ -1,0 +1,12 @@
+{
+  "status": "Separate pre-existing display defect, not changed by this repair",
+  "evidence": "chrome-selector-attempt/failure-4.png",
+  "also_observed": "edge-selector-attempt/failure-4.png",
+  "expected_record_number": "TEST-REC",
+  "displayed_number": "TEST-AGG",
+  "existing_head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "source": "frontend/webui/dashboard.py",
+  "line": 189,
+  "expression": "item.get(\"aggregation_number\") or item.get(\"record_number\")",
+  "scope": "Established before this fix; not independently rerun against the pre-refactor monolith"
+}

@@ -407,6 +407,12 @@ The `--browser-scope audit` checks audit filters/paging, historical details,
 record history, Settings/monitor links, native focus, restricted access, errors,
 abandoned reads and restoration in English and Arabic. Its synthetic history
 is seeded only into the runner's disposable database. It sends no email.
+The `--browser-scope governed-moves` checks aggregation and record moves in
+English and Arabic, including empty-search recovery, cancellation, reason gates,
+real placement changes, ACL inheritance/override preservation and reload. Run it
+with `--browser chrome` or `--browser edge`; it uses only a fresh disposable
+database and does not send email.
+
 The current refactor acceptance scope is Chrome and Edge only; Firefox, Safari
 and CI remain deferred by the user.
 
@@ -474,3 +480,13 @@ The root supplies explicit callbacks between these owners. Existing renderer
 modules, URLs, browser history and UI behavior remain unchanged. The
 [working defect register](../../docs/webui-refactor-existing-observations.md)
 tracks preserved issues for the final refactoring handoff.
+
+The [legacy-table caller audit](../../docs/legacy-table-cleanup-verification.md)
+removes only the unreachable aggregation Open/Reopen table actions. Keep the
+classification-scheme fallback until its persisted-navigation callers have been
+handled explicitly; current menus using the dedicated workspace do not prove
+that the fallback is unused.
+Its [refresh callback repair](../../docs/classification-scheme-refresh-fix-verification.md)
+preserves saved navigation, reloads the bounded table after scheme actions and
+ignores results belonging to a deleted view. The disposable `legacy-schemes`
+browser scope verifies this path in English and Arabic.

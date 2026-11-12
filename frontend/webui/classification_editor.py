@@ -101,13 +101,14 @@ def bind_scheme_actions(table, *, api, refresh, error_message):
             ui.notify(error_message(error), color="negative", close_button=True)
     async def change_scheme_lifecycle(event) -> None:
         row = event.args
+        action_id = "reactivate" if row.get("date_deactivated") else "deactivate"
         action = render_message("webui.change_scheme_lifecycle.text.reactivate_ef9784c4") if row.get("date_deactivated") else render_message("webui.change_scheme_lifecycle.text.deactivate_871a64d1")
         try:
             await api.request(
-                "POST", f"/api/v1/classification-schemes/{row['id']}/{action}",
+                "POST", f"/api/v1/classification-schemes/{row['id']}/{action_id}",
                 headers={
                     "If-Match": str(row["version"]),
-                    "X-Change-Reason": f"{action.title()} from classification administration",
+                    "X-Change-Reason": f"{action_id.title()} from classification administration",
                 },
             )
             ui.notify(render_message("webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda", action=action), color="positive")

@@ -1,0 +1,74 @@
+{
+  "status": "Contained-record empty-filter recovery fixed and locally verified",
+  "date": "2026-11-11",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "unit": 163,
+    "interaction": 4
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.40",
+      "checks": 7,
+      "screenshots": 26,
+      "empty_filter_recovery": [
+        {
+          "language": "en",
+          "filter_retained": true,
+          "changed_query_recovers": true,
+          "filtered_record_return": true,
+          "second_empty_query": true,
+          "clear_recovers_without_reload": true,
+          "record_paging_restored": true,
+          "child_page_preserved": true
+        },
+        {
+          "language": "ar",
+          "filter_retained": true,
+          "changed_query_recovers": true,
+          "filtered_record_return": true,
+          "second_empty_query": true,
+          "clear_recovers_without_reload": true,
+          "record_paging_restored": true,
+          "child_page_preserved": true
+        }
+      ],
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    },
+    "edge": {
+      "version": "157.0.4341.42",
+      "checks": 7,
+      "screenshots": 26,
+      "empty_filter_recovery": [
+        {
+          "language": "en",
+          "filter_retained": true,
+          "changed_query_recovers": true,
+          "filtered_record_return": true,
+          "second_empty_query": true,
+          "clear_recovers_without_reload": true,
+          "record_paging_restored": true,
+          "child_page_preserved": true
+        },
+        {
+          "language": "ar",
+          "filter_retained": true,
+          "changed_query_recovers": true,
+          "filtered_record_return": true,
+          "second_empty_query": true,
+          "clear_recovers_without_reload": true,
+          "record_paging_restored": true,
+          "child_page_preserved": true
+        }
+      ],
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    }
+  },
+  "pre_fix": "Chrome reproduces missing filtered-empty state; excluded from passing acceptance",
+  "disposable_databases_removed": 3,
+  "catalogues_unchanged": true
+}

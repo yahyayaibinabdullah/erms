@@ -541,6 +541,11 @@ with psycopg.connect(url) as c:
             check_disposition(self)
             self.report['complete'] = True
             return
+        if self.args.scope == 'pagination':
+            from tools.webui_browser_pagination import check_pagination
+            check_pagination(self)
+            self.report['complete'] = True
+            return
         if self.args.scope == 'dashboard':
             from tools.webui_browser_dashboard import check_dashboard
             check_dashboard(self)
@@ -569,6 +574,11 @@ with psycopg.connect(url) as c:
         if self.args.scope == 'records':
             from tools.webui_browser_records import check_records
             check_records(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'governed-moves':
+            from tools.webui_browser_governed_moves import check_governed_moves
+            check_governed_moves(self)
             self.report['complete'] = True
             return
         if self.args.scope == 'aggregations':
@@ -618,6 +628,11 @@ with psycopg.connect(url) as c:
         if self.args.scope == 'security':
             from tools.webui_browser_security import check_security
             check_security(self)
+            self.report['complete'] = True
+            return
+        if self.args.scope == 'legacy-schemes':
+            from tools.webui_browser_legacy_schemes import check_legacy_schemes
+            check_legacy_schemes(self)
             self.report['complete'] = True
             return
         if self.args.scope == 'classification':
@@ -701,7 +716,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification', 'legacy-schemes','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

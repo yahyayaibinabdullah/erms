@@ -5,6 +5,24 @@ from pathlib import Path
 APP_PATH = Path(__file__).parents[1] / "app.py"
 
 
+def test_saved_generic_scheme_entry_still_dispatches_to_collection():
+    """A persisted entity entry prevents treating its fallback as unused."""
+    import asyncio
+    from types import SimpleNamespace
+    from unittest.mock import AsyncMock
+    from frontend.webui.entities import ENTITIES
+
+    restore = next(node for node in ast.walk(ast.parse(APP_PATH.read_text()))
+                   if isinstance(node, ast.AsyncFunctionDef)
+                   and node.name == 'restore_navigation_entry')
+    select = AsyncMock()
+    namespace = dict(Any=object, ENTITIES=ENTITIES, collection_state={},
+                     select_entity=select, search_input=SimpleNamespace(value=''))
+    exec(compile(ast.Module(body=[restore], type_ignores=[]), str(APP_PATH), 'exec'), namespace)
+    asyncio.run(namespace['restore_navigation_entry']({'page': 'classification-schemes', 'state': {}}))
+    select.assert_awaited_once_with('classification-schemes')
+
+
 def test_security_administration_pages_can_be_restored_from_navigation_history():
     tree = ast.parse(APP_PATH.read_text(encoding="utf-8"))
     restore = next(

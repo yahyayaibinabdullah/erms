@@ -1,0 +1,73 @@
+{
+  "status": "Component deletion notification and refresh fixed and locally verified",
+  "date": "2026-11-11",
+  "branch": "refactor-API-python-file",
+  "head": "3a0cd0042af4f69a36a0e0130f7010abb839215c",
+  "git_mutations": false,
+  "tests": {
+    "unit": 170,
+    "interaction": 27
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.40",
+      "checks": 7,
+      "screenshots": 16,
+      "deletion_refresh": [
+        {
+          "language": "en",
+          "localized_success_notification": true,
+          "remaining_count_refreshed": true,
+          "last_component_refreshed": true,
+          "one_delete_per_click": true
+        },
+        {
+          "language": "ar",
+          "localized_success_notification": true,
+          "remaining_count_refreshed": true,
+          "last_component_refreshed": true,
+          "one_delete_per_click": true
+        }
+      ],
+      "successful_deletions": 4,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    },
+    "edge-final": {
+      "version": "157.0.4341.46",
+      "checks": 7,
+      "screenshots": 16,
+      "deletion_refresh": [
+        {
+          "language": "en",
+          "localized_success_notification": true,
+          "remaining_count_refreshed": true,
+          "last_component_refreshed": true,
+          "one_delete_per_click": true
+        },
+        {
+          "language": "ar",
+          "localized_success_notification": true,
+          "remaining_count_refreshed": true,
+          "last_component_refreshed": true,
+          "one_delete_per_click": true
+        }
+      ],
+      "successful_deletions": 4,
+      "source_files_matched": 186,
+      "unexpected_errors": 0
+    }
+  },
+  "pre_fix": "All 16 new context-sensitive cases reproduced the deleted-slot failure",
+  "disposable_databases_removed": 3,
+  "catalogues_unchanged": true,
+  "excluded_attempts": {
+    "before": "Incorrectly awaited a synchronous test event wrapper; corrected",
+    "before-corrected": "Expected failing regression evidence",
+    "edge": "Installed patch version differed from prior snapshot; stopped before journeys and reran with verified installed version and matching cached driver"
+  },
+  "test_source_sha256": {
+    "frontend/webui/interaction/tests/test_components_feature.py": "77422ba824ced7478d7634c6261bb2cf71fb69b581457afa34b5d3c146f22a89",
+    "tools/webui_browser_components.py": "6dff900ee35fe645141dc6d61ab2d0a5aba67a0cbfcf06c453541c15ca8ebabe"
+  }
+}

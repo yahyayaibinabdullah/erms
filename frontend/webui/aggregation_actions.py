@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import Any, Callable
 from .api_client import ApiError
-from .i18n_catalogue import render_message
+from .i18n_catalogue import render_message, render_message_plain
 from .relationship_select_styles import style_relationship_chip_select
 from nicegui import ui
 
@@ -54,11 +54,21 @@ def build_aggregation_actions(
         preview_host: Any = None
         preview_state: dict[str, Any] = {}
         with dialog, ui.card().classes("w-[680px] max-w-full gap-4"):
-            ui.label(render_message("webui.show_governed_move.label.move_rstrip_d9d67912", rstrip=resource.rstrip('s'))).classes("text-xl font-semibold")
+            resource_name = render_message_plain(
+                "dashboard.resource.aggregation" if resource == "aggregations" else "dashboard.resource.record"
+            ).lower()
+            ui.label(render_message("webui.show_governed_move.label.move_rstrip_d9d67912", rstrip=resource_name)).classes("text-xl font-semibold")
             destination = ui.select({}, label=render_message("webui.show_governed_move.select.destination_aggregation_622d5aa3"), with_input=True).props(
                 "outlined options-dense use-input input-debounce=0"
             ).classes("w-full")
             style_relationship_chip_select(destination, "aggregation_id")
+            ui.label(
+                render_message("webui.show_governed_move.label.only_destinations_compatible_with_this_res_70f37c56")
+            ).classes("text-xs leading-5 text-slate-500 -mt-2")
+            no_destinations = ui.label(
+                render_message("webui.show_governed_move.label.no_compatible_destination_aggregation_is_c_7999f980")
+            ).classes("text-sm text-amber-800")
+            no_destinations.set_visibility(False)
             bind_remote_relationship_select(
                 destination, "aggregations", ("aggregation_number", "title"),
                 ("aggregation_number", "title"),
@@ -68,15 +78,12 @@ def build_aggregation_actions(
                     if resource == "aggregations"
                     else row.get("medium", "mixed") in {"mixed", item.get("medium", "mixed")}
                 ),
+                # An empty bounded search must not prevent another query.
+                on_options_resolved=lambda options: no_destinations.set_visibility(
+                    not options and destination.value is None
+                ),
+                active=lambda: dialog.value,
             )
-            ui.label(
-                render_message("webui.show_governed_move.label.only_destinations_compatible_with_this_res_70f37c56")
-            ).classes("text-xs leading-5 text-slate-500 -mt-2")
-            if not compatible_aggregations:
-                ui.label(
-                    render_message("webui.show_governed_move.label.no_compatible_destination_aggregation_is_c_7999f980")
-                ).classes("text-sm text-amber-800")
-                destination.disable()
             keep_access = ui.checkbox(render_message("webui.show_governed_move.checkbox.keep_current_effective_access_as_a_local_o_896dc413"))
             reason = ui.textarea(render_message("webui.show_governed_move.textarea.reason_bfc77d50"), placeholder=render_message("webui.show_governed_move.textarea.required_5352a893")).props(
                 "outlined autogrow"
@@ -105,7 +112,7 @@ def build_aggregation_actions(
                     if resource == "aggregations":
                         impact = preview.get("affected_subtree", {})
                         ui.label(
-                            render_message("webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8", get=impact.get('aggregation_count', 0), get_2=impact.get('record_count', 0))
+                            render_message("webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8", get=impact.get('affected_aggregation_count', 0), get_2=impact.get('affected_record_count', 0))
                         ).classes("text-sm text-slate-600")
                     if preview.get("ownership_changes"):
                         ui.label(

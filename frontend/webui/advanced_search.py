@@ -326,6 +326,10 @@ def build_advanced_search(
             workspace["root"] = advanced_search_node_from_expression(request.get("where") or {
                 "field": "title", "operator": "contains_ci", "value": "",
             })
+            # Canonical API expressions may be a single condition; the visual
+            # builder requires an outer group. A one-child AND preserves meaning.
+            if workspace["root"].get("type") == "condition":
+                workspace["root"] = {"type": "group", "operator": "and", "children": [workspace["root"]]}
             visible_sort = next((item for item in request.get("sort", []) if item["field"] != "id"), None)
             workspace["sort_field"] = (visible_sort or {"field": "id"})["field"]
             workspace["sort_direction"] = (visible_sort or {"direction": "asc"})["direction"]

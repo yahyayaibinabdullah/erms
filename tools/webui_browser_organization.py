@@ -29,10 +29,7 @@ with psycopg.connect(url) as c:
                 page.drawer(resource);page.wait.until(lambda _:bool(page.visible('.governance-list-card')))
                 query(filter_value);page.wait.until(lambda _:len(page.visible('.governance-list-card'))==1)
                 page.activate(page.one('.governance-card-list'));capture(resource+'-list')
-                errors=page.driver.execute_script('return window.__webuiTestErrors || []')
-                assert errors==[{'kind':'error','message':'TypeError: u.match is not a function'}]*4,errors
-                page.report.setdefault('existing_pagination_icon_errors',[]).append({'language':language,'resource':resource,'errors':errors})
-                page.driver.execute_script('window.__webuiTestErrors=[]')
+                page.errors()
                 icon(page.one('.governance-list-card'),'open_in_new')
                 page.one('.identity-command-layout')
                 capture(resource+'-detail')

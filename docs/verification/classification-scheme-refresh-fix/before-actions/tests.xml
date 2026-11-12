@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="4" time="0.250" timestamp="2026-11-12T06:38:23.181893+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[False-en]" time="0.089" /><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[False-ar]" time="0.019"><failure message="AssertionError: assert 'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}">args = ()
+kwargs = {'custom_page': False, 'language': 'ar', 'user': &lt;nicegui.testing.user.User object at 0x110476bd0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:122: in test_publish_deactivate_reactivate_refresh_versions_and_keep_page
+    await act(user, action)
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:110: in act
+    await callback(events.GenericEventArguments(sender=current, client=user.client, args=dict(current.rows[0])))
+&lt;before-actions&gt;:106: in change_scheme_lifecycle
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;test_scheme_table_refresh.Api object at 0x107f75990&gt;, method = 'POST'
+path = '/api/v1/classification-schemes/7/إلغاء التفعيل'
+kwargs = {'headers': {'If-Match': '4', 'X-Change-Reason': 'إلغاء التفعيل from classification administration'}}
+action = 'إلغاء التفعيل', @py_assert2 = {'deactivate', 'publish', 'reactivate'}
+@py_assert1 = False
+@py_format4 = "'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}"
+@py_format6 = "assert 'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}"
+
+    async def request(self, method, path, **kwargs):
+        self.writes.append((method, path, kwargs))
+        if self.hold == 'mutation':
+            self.started.set()
+            await self.release.wait()
+        if self.failure == 'mutation':
+            raise ApiError(409, 'Version conflict')
+        action = path.rsplit('/', 1)[1]
+&gt;       assert action in {'publish', 'deactivate', 'reactivate'}
+E       AssertionError: assert 'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}
+
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:42: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[True-en]" time="0.009" /><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[True-ar]" time="0.022"><failure message="AssertionError: assert 'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}">args = ()
+kwargs = {'custom_page': True, 'language': 'ar', 'user': &lt;nicegui.testing.user.User object at 0x1107273d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:122: in test_publish_deactivate_reactivate_refresh_versions_and_keep_page
+    await act(user, action)
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:110: in act
+    await callback(events.GenericEventArguments(sender=current, client=user.client, args=dict(current.rows[0])))
+&lt;before-actions&gt;:106: in change_scheme_lifecycle
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;test_scheme_table_refresh.Api object at 0x110796d90&gt;, method = 'POST'
+path = '/api/v1/classification-schemes/7/إلغاء التفعيل'
+kwargs = {'headers': {'If-Match': '4', 'X-Change-Reason': 'إلغاء التفعيل from classification administration'}}
+action = 'إلغاء التفعيل', @py_assert2 = {'deactivate', 'publish', 'reactivate'}
+@py_assert1 = False
+@py_format4 = "'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}"
+@py_format6 = "assert 'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}"
+
+    async def request(self, method, path, **kwargs):
+        self.writes.append((method, path, kwargs))
+        if self.hold == 'mutation':
+            self.started.set()
+            await self.release.wait()
+        if self.failure == 'mutation':
+            raise ApiError(409, 'Version conflict')
+        action = path.rsplit('/', 1)[1]
+&gt;       assert action in {'publish', 'deactivate', 'reactivate'}
+E       AssertionError: assert 'إلغاء التفعيل' in {'deactivate', 'publish', 'reactivate'}
+
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:42: AssertionError</failure></testcase></testsuite></testsuites>

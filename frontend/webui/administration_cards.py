@@ -80,8 +80,8 @@ def build_administration_cards(
             ui.space()
             card_first = ui.button(render_message("webui.render_table.button.first_6e0613a1"), icon="first_page").props("flat dense no-caps")
             card_previous = ui.button(render_message("webui.render_table.button.previous_ff5ac91d"), icon="chevron_left").props("flat dense no-caps")
-            card_next = ui.button(render_message("webui.render_table.button.next_7c669a6d"), icon="chevron_right").props("flat dense no-caps icon-right")
-            card_last = ui.button(render_message("webui.render_table.button.last_cb5252cb"), icon="last_page").props("flat dense no-caps icon-right")
+            card_next = ui.button(render_message("webui.render_table.button.next_7c669a6d"), icon="chevron_right").props("flat dense no-caps")
+            card_last = ui.button(render_message("webui.render_table.button.last_cb5252cb"), icon="last_page").props("flat dense no-caps")
 
         def render_governance_cards(*, reset: bool = False) -> None:
             rows = list(get_rows())

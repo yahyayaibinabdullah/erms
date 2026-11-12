@@ -12,20 +12,16 @@ reliability/accessibility investigation; **P3** is a lower-impact warning or tes
 
 ## Reproduced original product defects
 
-| Priority | Finding and user impact | Evidence | Recommended next action |
-| --- | --- | --- | --- |
-| P1 | Governed Move for aggregations and records references undefined `compatible_aggregations`; the dialog raises `NameError` before opening. | [6M](webui-refactor-phase6m-verification.md) confirms committed and pre-refactor copies. | Repair the destination lookup separately; verify permissions, bounded selectors and both move lifecycles. |
-| P2 | A contained-record filter returning zero results removes its own filter control. Reload restores the unfiltered aggregation. | Original/extracted browser journeys in [6M](webui-refactor-phase6m-verification.md). | Preserve the filter and an empty-result state; test clearing/changing the query in both languages. |
-| P2 | Removing a digital component succeeds, then its success notification uses a deleted UI slot. The error prevents the automatic refresh; reopening shows the saved result. | Original/extracted Chrome and Edge in [6L](webui-refactor-phase6l-verification.md). | Notify from a surviving UI context and verify refresh, cancellation and duplicate-click behavior. |
-| P2 | Reopening a synthetic saved search containing a bare condition raises `ValueError: Invalid value: contains_ci`. Normal UI-created queries have an outer Boolean group. | Original/extracted check in [6R](webui-refactor-phase6r-verification.md). | Confirm supported saved-definition shapes; make the builder handle every supported shape without changing query semantics. |
-| P2 | Dashboard favourite removal succeeds, but its confirmation notification raises a deleted-slot error after removing the row. | Both languages and both browsers, original/extracted, in [6S](webui-refactor-phase6s-verification.md). | Use a surviving notification context; retain successful removal and cache freshness. Review alongside component deletion. |
-| P2 | Administration pagination passes Boolean `icon-right` to an icon renderer expecting a string, producing `TypeError: u.match is not a function`. | [6C](webui-refactor-phase6c-verification.md), with affected later consumers recorded in 6E–6G. | Correct the prop type and verify all affected pagers, icons and keyboard actions. |
-| P3 | Legacy generic-table refresh callbacks reference undefined `card_host` (and a card-render callback outside its valid path). No failure was observed in the verified navigation flows; the 6N report records these as unreachable fallbacks. | [6N](webui-refactor-phase6n-verification.md); `collection_table.py` retains the feature renderer unchanged in Phase 8. | Audit supported callers before removing the dormant branches or repairing them. This is not an observed active-screen regression. |
+The previously listed generic-table callback defect has now been repaired under
+separate authorization; see the corrected section below. The legacy presentation
+and pagination limitations remain listed separately.
 
 ## Existing UX limitations and unresolved observations
 
 | Priority | Observation and certainty | Evidence | Recommended next action |
 | --- | --- | --- | --- |
+| P2 | The restored legacy scheme table has client pagination over its bounded server page, without equivalent server-page controls. The dedicated workspace remains the complete menu destination. This old-view completeness limitation is preserved by the callback repair. | [Scheme refresh report](classification-scheme-refresh-fix-verification.md); `collection_table.py` and `collection_controls.py`. | Review legacy paging or explicitly approve how old navigation should reach the current workspace; do not silently redirect saved navigation. |
+| P3 | The restored legacy scheme table uses the default “Dashboard” heading and retains English action tooltips/date formatting in Arabic. These existing display quirks are unchanged. | [Scheme refresh report and captures](classification-scheme-refresh-fix-verification.md). | Review old-view labels and date localization separately. |
 | P2 | The email-dialog keyboard boundary does not always wrap focus; Arabic Chrome/Edge differ and some runs put focus on the page body. Preserved baseline behavior, not an accessibility certification. | [Phase 2](webui-refactor-phase2-verification.md), keyboard results. | Review accessible focus containment and restoration across supported browsers. |
 | P2 | Some accessible labels remain English in Arabic, including breadcrumb overflow and favourite controls. | [Phase 1](webui-refactor-phase1-baseline.md), original English/Arabic inspection. | Audit translated accessible names and screen-reader behavior separately; preserve current wording during this refactor. |
 | P3 | An audit-event Settings link selects the correct category but does not automatically focus the target field. This is recorded baseline behavior, not a new regression. | [Phase 2](webui-refactor-phase2-verification.md), caller coverage. | Review whether a separate UX change should add target-field focus; preserve existing behavior until approved. |
@@ -115,7 +111,79 @@ reliability/accessibility investigation; **P3** is a lower-impact warning or tes
   protection. Native draft deletion/restoration and existing mailbox-restore
   cases retain that coverage; application rules are unchanged.
 
-## Separately approved and corrected product defect
+## Separately approved and corrected product defects
+
+Classification-scheme refresh P3: the user separately approved repairing the
+remaining legacy callback while preserving saved navigation. It now reloads the
+bounded table using its actual lifetime, with no read/repaint after navigation.
+The related invalid default sort and translated lifecycle API path are also
+corrected. Chrome and Edge passed publication, deactivation and reactivation
+through restored legacy navigation in English and Arabic; 115 focused tests
+passed. Changes remain local and uncommitted; see the
+[verification report](classification-scheme-refresh-fix-verification.md).
+
+Administration pagination icon P2: the user separately approved repairing the
+Boolean `icon-right` defect. Five invalid prop tokens were removed from the shared
+administration, login-session and text-indexer credential pagers, preserving the
+existing valid icons and paging behavior. All seven consumers passed Chrome and
+Edge checks in English and Arabic; 101 focused tests passed. Maintained browser
+journeys now reject the old error. Changes remain local and uncommitted; see the
+[verification report](pagination-icon-fix-verification.md).
+
+Favourite identity labels P2 and View all close-on-removal P3: the user separately
+approved both fixes. Rows now use the correct resource-specific number; the dialog
+is attached to the dashboard container and stays open through removal, including
+its empty state. Chrome and Edge passed records and aggregations in English and
+Arabic, with 64 focused tests passing. The changes remain local and uncommitted;
+see the [verification report](dashboard-favourite-details-fix-verification.md).
+
+Dashboard favourite-removal notification P2: the user separately approved this
+repair. The success notification now uses the surviving favourites container
+after the originating row is deleted. Chrome and Edge passed records and
+aggregations in English and Arabic, through both dashboard and View all actions;
+64 focused tests passed. Cached state, updated counts and empty states are verified.
+The label and dialog-lifecycle issues were subsequently corrected in the approved
+follow-up above. The notification fix
+is local and uncommitted; see the
+[verification report](dashboard-favourite-fix-verification.md).
+
+Saved-search reopening P2: the user separately approved repairing standalone
+condition loading. The shared loader supplies the builder's required outer AND
+group without changing query meaning or modifying the stored definition on open.
+Chrome and Edge passed records and aggregations in English and Arabic, including
+execution, clean navigation, editing, saving and reopening; 100 focused tests
+passed. The first Chrome attempt timed out at the Arabic picker; a diagnostic
+rerun passed without application changes, and the unproven timeout is retained
+separately. The fix remains local and uncommitted; see the
+[verification report](saved-search-reopening-fix-verification.md).
+
+Digital-component deletion P2: the user separately approved repairing the
+deleted-slot notification and blocked refresh. Feedback and refresh now use the
+surviving component container, including error feedback after rollback. Chrome
+and Edge passed in English and Arabic, with eight successful deletions in total;
+197 focused tests passed. Immediate deletion, wording and layout are preserved.
+The fix remains local and uncommitted; see the
+[verification report](component-deletion-fix-verification.md).
+
+Contained-record filter P2: the user separately approved keeping the filter
+available after a zero-result query. A one-line rendering condition now shows
+the existing filtered-empty state, allowing users to change or clear the query
+and press Enter without reloading. Chrome and Edge passed in English and Arabic,
+including paging and record-return recovery; 167 focused tests also passed.
+The genuinely empty aggregation display is preserved. The fix remains local and
+uncommitted; see the [verification report](contained-record-filter-fix-verification.md).
+
+Governed Move P1: the user approved repairing the undefined
+`compatible_aggregations` reference after the refactor. Both dialogs now open and
+use recoverable bounded destination search. Chrome and Edge passed aggregation and
+record moves in English and Arabic, with 219 focused tests passing. The change is
+local and uncommitted. See the [fix report](governed-move-fix-verification.md).
+
+Governed Move P2/P3 follow-up: the user separately approved correcting the subtree
+counts and Arabic titles. The UI now reads the existing API count fields and uses
+the existing translated singular resource names. These two display defects are
+corrected locally; see the [follow-up verification report](governed-move-details-fix-verification.md)
+for test evidence and final browser status. Catalogue wording and provenance are unchanged.
 
 Phase 1 B1: aggregation reload/restoration left the containing details panel
 hidden. The user explicitly approved its separate one-line visibility correction.

@@ -79,16 +79,7 @@ with psycopg.connect(url) as connection:
                 page.wait.until(lambda _: field.get_attribute('value') == '')
                 field.send_keys(Keys.TAB)
                 page.wait.until(lambda _: page.visible('.governance-list-card'))
-                # The untouched pre-6C app supplies Boolean icon-right to Next/Last.
-                # Quasar QIcon expects a string, producing two errors per render;
-                # entry renders the empty view and then the loaded view. Preserve
-                # this separately recorded baseline defect; reject any other error.
-                errors = page.driver.execute_script('return window.__webuiTestErrors || []')
-                page.report.setdefault('existing_pagination_icon_errors', []).append({
-                    'language': language, 'resource': resource, 'errors': errors,
-                })
-                assert errors == [{'kind': 'error', 'message': 'TypeError: u.match is not a function'}] * 4, errors
-                page.driver.execute_script('window.__webuiTestErrors=[]')
+                page.errors()
 
         with page.check('record compact results, favourites, personal panels and parent navigation'):
             page.drawer('records')

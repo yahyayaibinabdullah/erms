@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="4" time="0.242" timestamp="2026-11-12T06:38:08.982372+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[False-en]" time="0.079"><failure message="NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope">args = ()
+kwargs = {'custom_page': False, 'language': 'en', 'user': &lt;nicegui.testing.user.User object at 0x109c37e10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:122: in test_publish_deactivate_reactivate_refresh_versions_and_keep_page
+    await act(user, action)
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:110: in act
+    await callback(events.GenericEventArguments(sender=current, client=user.client, args=dict(current.rows[0])))
+frontend/webui/classification_editor.py:99: in publish_scheme
+    await refresh()
+          ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+&gt;   ???
+E   NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope
+
+&lt;before-callback&gt;:321: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[False-ar]" time="0.027"><failure message="NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope">args = ()
+kwargs = {'custom_page': False, 'language': 'ar', 'user': &lt;nicegui.testing.user.User object at 0x109c0cad0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:122: in test_publish_deactivate_reactivate_refresh_versions_and_keep_page
+    await act(user, action)
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:110: in act
+    await callback(events.GenericEventArguments(sender=current, client=user.client, args=dict(current.rows[0])))
+frontend/webui/classification_editor.py:99: in publish_scheme
+    await refresh()
+          ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+&gt;   ???
+E   NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope
+
+&lt;before-callback&gt;:321: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[True-en]" time="0.009"><failure message="NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope">args = ()
+kwargs = {'custom_page': True, 'language': 'en', 'user': &lt;nicegui.testing.user.User object at 0x10a5899d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:122: in test_publish_deactivate_reactivate_refresh_versions_and_keep_page
+    await act(user, action)
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:110: in act
+    await callback(events.GenericEventArguments(sender=current, client=user.client, args=dict(current.rows[0])))
+frontend/webui/classification_editor.py:99: in publish_scheme
+    await refresh()
+          ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+&gt;   ???
+E   NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope
+
+&lt;before-callback&gt;:321: NameError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_scheme_table_refresh" name="test_publish_deactivate_reactivate_refresh_versions_and_keep_page[True-ar]" time="0.017"><failure message="NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope">args = ()
+kwargs = {'custom_page': True, 'language': 'ar', 'user': &lt;nicegui.testing.user.User object at 0x10a5f4f90&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:122: in test_publish_deactivate_reactivate_refresh_versions_and_keep_page
+    await act(user, action)
+frontend/webui/interaction/tests/test_scheme_table_refresh.py:110: in act
+    await callback(events.GenericEventArguments(sender=current, client=user.client, args=dict(current.rows[0])))
+frontend/webui/classification_editor.py:99: in publish_scheme
+    await refresh()
+          ^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+&gt;   ???
+E   NameError: cannot access free variable 'render_governance_cards' where it is not associated with a value in enclosing scope
+
+&lt;before-callback&gt;:321: NameError</failure></testcase></testsuite></testsuites>

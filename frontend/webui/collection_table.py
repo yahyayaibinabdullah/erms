@@ -19,7 +19,7 @@ from .classification_editor import scheme_action_buttons
 from nicegui import ui
 
 def build_collection_table(
-    *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_aggregation, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_recent_section, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, show_reopen_aggregation, subtitle, table_container, toggle_favourite,
+    *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_recent_section, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
 ):
     def render_table(spec: EntitySpec) -> None:
         # Background personal-section refreshes do not inherit a NiceGUI slot.
@@ -285,9 +285,6 @@ def build_collection_table(
             if spec.key == "records":
                 buttons = '<q-btn flat round dense icon="open_in_new" color="primary" @click="$parent.$emit(\'open_record\', props.row)"><q-tooltip>Open record</q-tooltip></q-btn>' + buttons
                 buttons += '<q-btn flat round dense icon="attach_file" color="secondary" @click="$parent.$emit(\'components\', props.row)"><q-tooltip>Digital components</q-tooltip></q-btn>'
-            if spec.key == "aggregations":
-                buttons = '<q-btn flat round dense icon="folder_open" color="secondary" @click="$parent.$emit(\'open_aggregation\', props.row)"><q-tooltip>Open aggregation</q-tooltip></q-btn>' + buttons
-                buttons += '<q-btn v-if="props.row._directly_closed" flat round dense icon="lock_open" color="primary" @click="$parent.$emit(\'reopen\', props.row)"><q-tooltip>Reopen aggregation</q-tooltip></q-btn>'
             buttons = organization_membership_action(spec, buttons)
             if spec.key == "profiles":
                 buttons += '<q-btn flat round dense icon="key" color="secondary" @click="$parent.$emit(\'profile_privileges\', props.row)"><q-tooltip>Manage privileges</q-tooltip></q-btn>'
@@ -317,29 +314,20 @@ def build_collection_table(
             if spec.key == "records":
                 table.on("open_record", lambda event: show_record_details(event.args))
                 table.on("components", lambda event: show_components(event.args))
-            if spec.key == "aggregations":
-                table.on("open_aggregation", lambda event: open_aggregation(event.args))
-                async def reopen_from_table(event) -> None:
-                    row = event.args
-                    async def reopened(_: dict[str, Any]) -> None:
-                        await load_recent(spec)
-                        if collection_state["searched"]:
-                            await load_rows(
-                        repeat_search=True, on_loaded=render_governance_cards,
-                        is_current=lambda: not card_host.is_deleted,
-                    )
-                        else:
-                            render_table(spec)
-
-                    await show_reopen_aggregation(row, reopened)
-                table.on("reopen", reopen_from_table)
             if spec.key == "classification-schemes":
+                async def refresh_scheme_table() -> None:
+                    # The mutation may finish after navigation deleted this table.
+                    # Do not start a read for the new page, or repaint an old view.
+                    if table.is_deleted:
+                        return
+                    await load_rows(
+                        repeat_search=True,
+                        is_current=lambda: not table.is_deleted,
+                    )
+
                 bind_scheme_actions(
                     table, api=api, error_message=error_message,
-                    refresh=lambda: load_rows(
-                        repeat_search=True, on_loaded=render_governance_cards,
-                        is_current=lambda: not card_host.is_deleted,
-                    ),
+                    refresh=refresh_scheme_table,
                 )
             if spec.key in {"users", "roles"}:
                 table.on(

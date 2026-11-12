@@ -905,7 +905,7 @@ def build_aggregation_details(
                     ui.label(render_message("webui.open_aggregation.label.no_child_aggregations_7e6e2073")).classes("px-5 pb-3 text-sm text-slate-400")
 
                 ui.label(render_message("webui.open_aggregation.label.records_in_this_aggregation_db111558")).classes("px-5 pt-2 text-base font-semibold")
-                if not records:
+                if not records and not record_query:
                     ui.label(render_message("webui.open_aggregation.label.this_aggregation_does_not_contain_any_reco_4b0da9c6")).classes("px-5 pb-6 text-slate-500")
                 else:
                     expanded_child_records = set(

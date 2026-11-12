@@ -38,16 +38,6 @@ def check_application(page):
                     result={'destination':name,'language':language,'cycle':cycle,'heading':plain(heading.text),'milliseconds':round((time.monotonic()-start)*1000,2),'requests':[e for e in page.events()[before:] if e['path'] not in POLLING]}
                     page.report.setdefault('destinations',[]).append(result)
                     if cycle=='forward':page.capture('application-'+name+'-'+language)
-                    errors=page.driver.execute_script('return window.__webuiTestErrors || []')
-                    if errors and name in {'org-units','roles','users','security-levels','profiles','login-sessions'}:
-                        # The existing collection view constructs its two broken
-                        # icon props before and after loading. Browser batching
-                        # can report one or both renders. Preserve exact error
-                        # type and bounded counts; retain every occurrence below.
-                        counts={2} if name=='login-sessions' else {2,4}
-                        assert len(errors) in counts and all(error=={'kind':'error','message':'TypeError: u.match is not a function'} for error in errors),errors
-                        page.report.setdefault('existing_pagination_icon_errors',[]).append({'language':language,'destination':name,'cycle':cycle,'errors':errors})
-                        page.driver.execute_script('window.__webuiTestErrors=[]')
                     page.errors()
         page.settings()
     with page.check('all destination requests succeeded'):

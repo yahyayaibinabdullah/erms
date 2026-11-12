@@ -43,16 +43,11 @@ with psycopg.connect(url) as c:
             page.click(page.t('webui.confirm_revoke.button.cancel_9fc0545b'))
             page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
             filter_query('Phase6F absent');page.see(page.t('webui.select_login_sessions.label.no_login_sessions_match_these_filters_2c8578fd'));capture('empty')
-            errors=page.driver.execute_script('return window.__webuiTestErrors || []')
-            assert errors==[{'kind':'error','message':'TypeError: u.match is not a function'}]*2,errors
-            page.report.setdefault('existing_pagination_icon_errors',[]).append({'language':language,'errors':errors})
-            page.driver.execute_script('window.__webuiTestErrors=[]')
+            page.errors()
             url=page.driver.current_url;history=page.driver.execute_script('return history.length')
             page.settings();page.drawer('login_sessions');page.one('.login-session-card-grid')
             assert page.driver.current_url==url and page.driver.execute_script('return history.length')==history
-            errors=page.driver.execute_script('return window.__webuiTestErrors || []')
-            assert errors==[{'kind':'error','message':'TypeError: u.match is not a function'}]*2,errors
-            page.driver.execute_script('window.__webuiTestErrors=[]')
+            page.errors()
     with page.check('no cancelled revocation writes or unexpected browser errors'):
         assert not [e for e in page.events() if e['method']=='DELETE' and '/auth/' in e['path']]
         page.errors()

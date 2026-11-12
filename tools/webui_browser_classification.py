@@ -6,6 +6,10 @@ from tools.check_webui_browser import plain
 
 
 def check_classification(page):
+    response=page.api.post('/api/v1/classification-schemes',json={
+        'code':'LEGACY-AUDIT','title':'Legacy caller audit scheme',
+    })
+    response.raise_for_status();audit_scheme=response.json()
     def t(key):return page.t(key)
     def capture(name):page.capture('classification-'+name+'-'+page.language)
     def tree():page.see(t('webui.render_workspace_right.label.classification_tree_69593539'))
@@ -72,6 +76,33 @@ def check_classification(page):
             filter_scheme('zz_missing_phase6d');page.see(t('webui.render_scheme_list.label.no_matching_schemes_2a601365'))
             page.activate(page.one('.classification-workspace .text-lg'));capture('empty')
             filter_scheme('T01');page.see('Test scheme 1')
+        with page.check('dedicated scheme publish and lifecycle refresh, reload and return'):
+            filter_scheme('LEGACY-AUDIT');page.see('Legacy caller audit scheme')
+            page.click('LEGACY-AUDIT — Legacy caller audit scheme');page.one('.classification-actions-panel')
+            def read_scheme():
+                result=page.api.get(f'/api/v1/classification-schemes/{audit_scheme["id"]}')
+                result.raise_for_status();return result.json()
+            if read_scheme().get('date_published') is None:
+                page.click(t('webui.render_workspace_right.button.publish_2e621852'))
+                page.see(t('webui.render_workspace_right.button.unpublish_57f099a0'))
+            assert read_scheme().get('date_published')
+            capture('published')
+            for deactivated in (True,False):
+                key=('webui.render_workspace_right.button.deactivate_ee74ba2e' if deactivated
+                     else 'webui.render_workspace_right.button.reactivate_b2117181')
+                page.click(t(key));dialog=page.one('.q-dialog__inner > .q-card')
+                reason=dialog.find_element('css selector','textarea')
+                page.activate(reason);reason.send_keys('Verify dedicated workspace refresh')
+                # The last button is the existing localized confirmation action.
+                page.activate(dialog.find_elements('css selector','button')[-1])
+                page.wait.until(lambda _:not page.visible('.q-dialog__inner > .q-card'))
+                opposite=('webui.render_workspace_right.button.reactivate_b2117181' if deactivated
+                          else 'webui.render_workspace_right.button.deactivate_ee74ba2e')
+                page.see(t(opposite));assert bool(read_scheme().get('date_deactivated'))==deactivated
+                capture('deactivated' if deactivated else 'reactivated')
+            page.reload();page.one('.classification-actions-panel')
+            page.see(t('webui.render_workspace_right.button.deactivate_ee74ba2e'))
+            back();filter_scheme('T01');page.see('Test scheme 1')
         with page.check('classification errors and bounded requests'):
             assert not page.errors(),page.errors()
             requests=[e for e in page.events() if e['method']=='GET' and e['path']=='/api/v1/classifications']

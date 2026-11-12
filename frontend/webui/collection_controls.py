@@ -53,7 +53,11 @@ def build_collection_loader(
                 page = pages.setdefault(spec.key, {
                     "offset": 0, "limit": 25, "total": 0, "query": "",
                     "status": "all", "account_type": "all",
-                    "sort": "level_number" if spec.key == "security-levels" else "name",
+                    "sort": (
+                        "level_number" if spec.key == "security-levels"
+                        else "title" if spec.key == "classification-schemes"
+                        else "name"
+                    ),
                 })
                 conditions: list[dict[str, Any]] = []
                 query = str(page.get("query") or "").strip()

@@ -1,5 +1,5 @@
 """Saved component controls retain permissions, paging, writes and failure recovery."""
-import ast,asyncio
+import ast,asyncio,gc,json
 from io import BytesIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -8,6 +8,7 @@ import pytest
 from nicegui import ui
 from frontend.webui import app as host
 from frontend.webui.api_client import ApiError
+from frontend.webui.i18n_catalogue import set_active_messages
 
 pytest_plugins=['nicegui.testing.user_plugin']
 pytestmark=pytest.mark.asyncio
@@ -16,16 +17,24 @@ def build(values):
     from frontend.webui.components import build_components
     return build_components(**values,error_message=host.error_message,render_component_cards=host.render_component_cards)
 
-async def setup(user,*,closed=False,medium='digital',allowed=True):
-    rows=[dict(id=i,version=3,file_name=f'Fixture {i}.png',mime_type='image/png',content_status='available',component_order=i,size_in_bytes=1) for i in (1,2)]
+async def setup(user,*,closed=False,medium='digital',allowed=True,language='en',inline=False,row_count=2):
+    rows=[dict(id=i,version=3,file_name=f'Fixture {i}.png',mime_type='image/png',content_status='available',component_order=i,size_in_bytes=1) for i in range(1,row_count+1)]
     caps={k:allowed for k in ('add_component','view_component','download_component','print_component','reindex_components','reorder_components','remove_component')}
     api=SimpleNamespace(effective_aggregation_closure=AsyncMock(return_value={'aggregation_number':'CLOSED','title':'Closed fixture'} if closed else None),resource_capabilities=AsyncMock(return_value=caps),component_page=AsyncMock(side_effect=lambda *a,**kw:{'items':list(rows),'total':len(rows)}),component_indexing_status=AsyncMock(return_value={'status':'indexed'}),move_component=AsyncMock(),delete_component=AsyncMock(),download_component=AsyncMock(return_value=b'fixture bytes'),reindex_component=AsyncMock(return_value={'status':'queued'}),upload_component=AsyncMock())
     values=dict(api=api,show_entity_history=AsyncMock(),preview_record_components=AsyncMock())
     record={'id':11,'aggregation_id':9,'record_number':'FIX','medium':medium}
     @ui.page('/component-feature')
-    async def page():values['show']=build(values);await values['show'](record)
+    async def page():
+        messages={r['message_key']:r['translated_text'] for r in json.loads((Path(__file__).parents[2]/'i18n/messages.ar.generated.json').read_text())['items']} if language=='ar' else {}
+        set_active_messages(messages)
+        values['show']=build(values)
+        if inline:
+            values['container']=ui.column()
+            await values['show'](record,container=values['container'])
+        else:
+            await values['show'](record)
     await user.open('/component-feature')
-    d=max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
+    d=values['container'] if inline else max((d for d in user.find(ui.dialog).elements if d.value),key=lambda d:d.id)
     return api,values,rows,record,d
 
 def buttons(d,icon):return [e for e in d.descendants() if isinstance(e,ui.button) and e.props.get('icon')==icon]
@@ -51,6 +60,51 @@ async def test_component_delete_version_and_optimistic_rollback(user,failure):
     api.delete_component.assert_awaited_once_with(1,3)
     assert len(buttons(d,'delete_outline'))==(2 if failure else 1)
     assert api.component_page.await_count==(1 if failure else 2)
+
+
+@pytest.mark.parametrize('language',['en','ar'])
+@pytest.mark.parametrize('inline',[False,True])
+@pytest.mark.parametrize('outcome',['success','delete_failure','refresh_failure','last_component'])
+async def test_delete_notifies_from_surviving_context_and_refreshes(user,monkeypatch,language,inline,outcome):
+    from nicegui.functions.notify import notify as real_notify
+    callbacks={}
+    real_cards=host.render_component_cards
+    def render_cards(rows,on_move,on_remove,*args,**kwargs):
+        callbacks['remove']=on_remove
+        return real_cards(rows,on_move,on_remove,*args,**kwargs)
+    monkeypatch.setattr(host,'render_component_cards',render_cards)
+    api,v,rows,record,d=await setup(user,language=language,inline=inline,row_count=1 if outcome=='last_component' else 2)
+    notifications=[]
+    def notify(message,**kwargs):
+        # User.notify normally bypasses NiceGUI's client/slot lookup, hiding this defect.
+        real_notify(message,**kwargs)
+        notifications.append((str(message),kwargs.get('color')))
+    monkeypatch.setattr(ui,'notify',notify)
+    async def delete(identifier,version):
+        # Match native event lifetime: the originating card no longer owns a live slot.
+        gc.collect()
+        await asyncio.sleep(0)
+        if outcome=='delete_failure':raise ApiError(409,'Conflict')
+        rows[:]=[r for r in rows if r['id']!=identifier]
+        if outcome=='refresh_failure':api.component_page.side_effect=ApiError(503,'Refresh failed')
+    api.delete_component.side_effect=delete
+    button=buttons(d,'delete_outline')[0]
+    slot=button.parent_slot
+    # Await the real card callback inside the same parent-slot context as native events.
+    del button
+    with slot:
+        await callbacks['remove'](rows[0])
+    api.delete_component.assert_awaited_once_with(1,3)
+    expected='أُزيل المكوّن الرقمي' if language=='ar' else 'Digital component removed'
+    if outcome=='delete_failure':
+        assert len(buttons(d,'delete_outline'))==2
+        assert api.component_page.await_count==1
+        assert [color for _,color in notifications]==['negative']
+    else:
+        assert api.component_page.await_count==2
+        assert len(buttons(d,'delete_outline'))==(0 if outcome=='last_component' else 1)
+        assert notifications[0]==(expected,'positive')
+        assert [color for _,color in notifications]==(['positive','negative'] if outcome=='refresh_failure' else ['positive'])
 
 @pytest.mark.parametrize('failure',[False,True])
 async def test_move_refresh_history_preview_download_and_reindex(user,failure,monkeypatch):

@@ -61,8 +61,8 @@ def build_login_sessions(
                 rows_per_page = ui.select({20: "20", 50: "50", 100: "100"}, value=20, label=render_message("webui.select_login_sessions.select.per_page_a942866a")).props("outlined dense options-dense").classes("w-28")
                 first_page = ui.button(render_message("webui.select_login_sessions.button.first_3e9443bf"), icon="first_page").props("flat dense no-caps")
                 previous_page = ui.button(render_message("webui.select_login_sessions.button.previous_6631329f"), icon="chevron_left").props("flat dense no-caps")
-                next_page = ui.button(render_message("webui.select_login_sessions.button.next_b09718d5"), icon="chevron_right").props("flat dense no-caps icon-right")
-                last_page = ui.button(render_message("webui.select_login_sessions.button.last_5cfe5c95"), icon="last_page").props("flat dense no-caps icon-right")
+                next_page = ui.button(render_message("webui.select_login_sessions.button.next_b09718d5"), icon="chevron_right").props("flat dense no-caps")
+                last_page = ui.button(render_message("webui.select_login_sessions.button.last_5cfe5c95"), icon="last_page").props("flat dense no-caps")
 
         def client_summary(user_agent: str | None) -> tuple[str, str]:
             value = user_agent or render_message("webui.client_summary.text.unknown_client_a90618da")

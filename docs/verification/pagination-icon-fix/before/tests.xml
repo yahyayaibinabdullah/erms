@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="14" skipped="0" tests="14" time="4.810" timestamp="2026-11-12T00:48:46.881026+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[profiles-en]" time="0.065"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x107f75210&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'resource': 'profiles', 'user': &lt;nicegui.testing.user.User object at 0x107f1ba50&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x107f75210&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x107f75210&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[profiles-ar]" time="0.047"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x110332950&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'ar', 'resource': 'profiles', 'user': &lt;nicegui.testing.user.User object at 0x107f40bd0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x110332950&gt;
+expected = 'last_page'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x110332950&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[security-levels-en]" time="0.064"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1107fbc50&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'resource': 'security-levels', 'user': &lt;nicegui.testing.user.User object at 0x1104f6bd0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x1107fbc50&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1107fbc50&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[security-levels-ar]" time="0.040"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x11094dc50&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'ar', 'resource': 'security-levels', 'user': &lt;nicegui.testing.user.User object at 0x1107c9050&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x11094dc50&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x11094dc50&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[users-en]" time="0.035"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1109a8590&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'resource': 'users', 'user': &lt;nicegui.testing.user.User object at 0x1107593d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x1109a8590&gt;
+expected = 'last_page'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1109a8590&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[users-ar]" time="0.071"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x110e76bd0&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'ar', 'resource': 'users', 'user': &lt;nicegui.testing.user.User object at 0x110cba4d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x110e76bd0&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'التالي', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x110e76bd0&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[roles-en]" time="0.034"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1111aac90&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'resource': 'roles', 'user': &lt;nicegui.testing.user.User object at 0x1111cc150&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x1111aac90&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1111aac90&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[roles-ar]" time="0.039"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1113ee150&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'ar', 'resource': 'roles', 'user': &lt;nicegui.testing.user.User object at 0x1113ba610&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x1113ee150&gt;
+expected = 'last_page'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1113ee150&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[org-units-en]" time="0.029"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1117a5590&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'resource': 'org-units', 'user': &lt;nicegui.testing.user.User object at 0x1111ad850&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x1117a5590&gt;
+expected = 'last_page'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Last', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1117a5590&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_administration_pager_icons_offsets_and_boundaries[org-units-ar]" time="0.084"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1119cf550&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'ar', 'resource': 'org-units', 'user': &lt;nicegui.testing.user.User object at 0x107eae450&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:53: in test_administration_pager_icons_offsets_and_boundaries
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x1119cf550&gt;
+expected = 'last_page'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'الأخيرة', 'icon': 'last_page', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x1119cf550&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_session_pager_icons_and_request_offsets[en]" time="0.014"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x111d3f7d0&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x106b826d0&gt;, 'user': &lt;nicegui.testing.user.User object at 0x110167850&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:82: in test_session_pager_icons_and_request_offsets
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x111d3f7d0&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'flat': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x111d3f7d0&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_session_pager_icons_and_request_offsets[ar]" time="0.018"><failure message="RuntimeError: coroutine raised StopIteration">user = &lt;nicegui.testing.user.User object at 0x111d0f2d0&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107f52690&gt;
+language = 'ar'
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    async def test_session_pager_icons_and_request_offsets(user, monkeypatch, language):
+        import test_login_sessions_feature as fixture
+        original = fixture.build
+        def localized(scope):
+            set_active_messages(messages(language))
+            return original(scope)
+        monkeypatch.setattr(fixture, 'build', localized)
+        api, _ = await session_setup(user)
+        for key, icon, offset in [
+            ('next_b09718d5','chevron_right',20), ('last_5cfe5c95','last_page',40),
+            ('previous_6631329f','chevron_left',20), ('first_3e9443bf','first_page',0)]:
+&gt;           b = session_button(user, 'webui.select_login_sessions.button.'+key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/interaction/tests/test_pagination_icons.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x111d0f2d0&gt;
+key = 'webui.select_login_sessions.button.next_b09718d5'
+
+&gt;   def button(user,key):return next(b for b in user.find(ui.button).elements if _owner_strip_diagnostic_metadata(b.text)==t(key))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   StopIteration
+
+frontend/webui/interaction/tests/test_login_sessions_feature.py:53: StopIteration
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107f52690&gt;, 'user': &lt;nicegui.testing.user.User object at 0x111d0f2d0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           RuntimeError: coroutine raised StopIteration
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: RuntimeError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_credential_pager_icons_direction_and_offsets[en]" time="0.011"><failure message="AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'outline': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)&#10; +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'outline': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x111f40ed0&gt;.props&#10; +  and   False = isinstance(True, str)">args = ()
+kwargs = {'language': 'en', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x111fecbd0&gt;, 'user': &lt;nicegui.testing.user.User object at 0x111feeb50&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+frontend/webui/interaction/tests/test_pagination_icons.py:100: in test_credential_pager_icons_direction_and_offsets
+    valid_icon(b, icon)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+button = &lt;nicegui.elements.button.Button object at 0x111f40ed0&gt;
+expected = 'chevron_right'
+
+    def valid_icon(button, expected):
+        assert button.props.get('icon') == expected
+&gt;       assert 'icon-right' not in button.props or isinstance(button.props['icon-right'], str)
+E       AssertionError: assert ('icon-right' not in {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'outline': True, 'dense': True, 'no-caps': True, 'icon-right': True} or False)
+E        +  where {'color': 'primary', 'label': 'Next', 'icon': 'chevron_right', 'outline': True, 'dense': True, 'no-caps': True, 'icon-right': True} = &lt;nicegui.elements.button.Button object at 0x111f40ed0&gt;.props
+E        +  and   False = isinstance(True, str)
+
+frontend/webui/interaction/tests/test_pagination_icons.py:26: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_pagination_icons" name="test_credential_pager_icons_direction_and_offsets[ar]" time="0.019"><failure message="RuntimeError: coroutine raised StopIteration">user = &lt;nicegui.testing.user.User object at 0x111e3bd90&gt;
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107ee4950&gt;
+language = 'ar'
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    async def test_credential_pager_icons_direction_and_offsets(user, monkeypatch, language):
+        import test_text_indexers_feature as fixture
+        original = fixture.build
+        def localized(scope):
+            set_active_messages(messages(language))
+            return original(scope)
+        monkeypatch.setattr(fixture, 'build', localized)
+        api, _ = await indexer_setup(user, detail=True, direction='rtl' if language=='ar' else 'ltr')
+        for key, icon, offset in [('next_e284c9ef','chevron_left' if language=='ar' else 'chevron_right',5),
+                                  ('previous_86972be8','chevron_right' if language=='ar' else 'chevron_left',0)]:
+&gt;           b = indexer_button(user, 'webui.select_text_indexer_details.button.'+key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/interaction/tests/test_pagination_icons.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x111e3bd90&gt;
+key = 'webui.select_text_indexer_details.button.next_e284c9ef', root = None
+
+    def button(user,key,root=None):
+        candidates=root.descendants() if root else user.find(ui.button).elements
+        if root is None:
+            def outside_dialog(b):
+                while b.parent_slot:
+                    b=b.parent_slot.parent
+                    if isinstance(b,ui.dialog):return False
+                return True
+            candidates=[b for b in candidates if outside_dialog(b)]
+&gt;       return next(b for b in candidates if isinstance(b,ui.button) and _owner_strip_diagnostic_metadata(b.text)==t(key))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       StopIteration
+
+frontend/webui/interaction/tests/test_text_indexers_feature.py:56: StopIteration
+
+The above exception was the direct cause of the following exception:
+
+args = ()
+kwargs = {'language': 'ar', 'monkeypatch': &lt;_pytest.monkeypatch.MonkeyPatch object at 0x107ee4950&gt;, 'user': &lt;nicegui.testing.user.User object at 0x111e3bd90&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           RuntimeError: coroutine raised StopIteration
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: RuntimeError</failure></testcase></testsuite></testsuites>

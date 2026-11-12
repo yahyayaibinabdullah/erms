@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="10" time="0.995" timestamp="2026-11-11T20:13:47.856293+04:00" hostname="Yahyas-MacBook-Air.local"><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_title_uses_localized_resource_name[aggregations-en]" time="0.053" /><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_title_uses_localized_resource_name[aggregations-ar]" time="0.012"><failure message="AssertionError: assert 'نقل aggregation' == 'نقل ملف'&#10;  &#10;  - نقل ملف&#10;  + نقل aggregation">args = ()
+kwargs = {'language': 'ar', 'resource': 'aggregations', 'user': &lt;nicegui.testing.user.User object at 0x110100cd0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x110100cd0&gt;
+resource = 'aggregations', language = 'ar'
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['aggregations', 'records'])
+    async def test_move_title_uses_localized_resource_name(user, resource, language):
+        _, _, s = await setup_move(user, resource, language)
+        expected = {
+            ('en', 'aggregations'): 'Move aggregation', ('en', 'records'): 'Move record',
+            ('ar', 'aggregations'): 'نقل ملف', ('ar', 'records'): 'نقل وثيقة',
+        }[language, resource]
+        title = next(e for e in s['dialog'].descendants()
+                     if isinstance(e, ui.label) and 'text-xl' in e.classes)
+&gt;       assert title.text.replace('\u2068', '').replace('\u2069', '') == expected
+E       AssertionError: assert 'نقل aggregation' == 'نقل ملف'
+E         
+E         - نقل ملف
+E         + نقل aggregation
+
+frontend/webui/interaction/tests/test_governed_move.py:68: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_title_uses_localized_resource_name[records-en]" time="0.108" /><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_title_uses_localized_resource_name[records-ar]" time="0.009"><failure message="AssertionError: assert 'نقل record' == 'نقل وثيقة'&#10;  &#10;  - نقل وثيقة&#10;  + نقل record">args = ()
+kwargs = {'language': 'ar', 'resource': 'records', 'user': &lt;nicegui.testing.user.User object at 0x110725ad0&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x110725ad0&gt;, resource = 'records'
+language = 'ar'
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('resource', ['aggregations', 'records'])
+    async def test_move_title_uses_localized_resource_name(user, resource, language):
+        _, _, s = await setup_move(user, resource, language)
+        expected = {
+            ('en', 'aggregations'): 'Move aggregation', ('en', 'records'): 'Move record',
+            ('ar', 'aggregations'): 'نقل ملف', ('ar', 'records'): 'نقل وثيقة',
+        }[language, resource]
+        title = next(e for e in s['dialog'].descendants()
+                     if isinstance(e, ui.label) and 'text-xl' in e.classes)
+&gt;       assert title.text.replace('\u2068', '').replace('\u2069', '') == expected
+E       AssertionError: assert 'نقل record' == 'نقل وثيقة'
+E         
+E         - نقل وثيقة
+E         + نقل record
+
+frontend/webui/interaction/tests/test_governed_move.py:68: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_preview_displays_backend_subtree_counts[0-0-en]" time="0.107" /><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_preview_displays_backend_subtree_counts[0-0-ar]" time="0.108" /><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_preview_displays_backend_subtree_counts[2-3-en]" time="0.109"><failure message="assert 'Subtree: 2 aggregations · 3 records' in ['Move aggregation', &quot;Only destinations compatible with this resource's medium are shown.&quot;, 'No compatible destination aggregation is currently available.', 'ACL impact: 1 grants added · 2 removed', 'Subtree: 0 aggregations · 0 records']">args = ()
+kwargs = {'aggregations': 2, 'language': 'en', 'records': 3, 'user': &lt;nicegui.testing.user.User object at 0x1107c2d90&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1107c2d90&gt;, language = 'en'
+aggregations = 2, records = 3
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('aggregations,records', [(0, 0), (2, 3), (7, 11)])
+    async def test_move_preview_displays_backend_subtree_counts(user, language, aggregations, records):
+        api, _, s = await setup_move(user, 'aggregations', language)
+        api.acl_move_preview.return_value['affected_subtree'] = {
+            'affected_aggregation_count': aggregations, 'affected_record_count': records}
+        with user:
+            s['destination'].set_options({8: 'Destination'}, value=8)
+        await asyncio.sleep(.1)
+        key = 'webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8'
+        template = AR[key] if language == 'ar' else 'Subtree: {get} aggregations · {get_2} records'
+        expected = template.format(get=aggregations, get_2=records)
+&gt;       assert expected in [e.text.replace('\u2068', '').replace('\u2069', '')
+                            for e in s['dialog'].descendants() if isinstance(e, ui.label)]
+E       assert 'Subtree: 2 aggregations · 3 records' in ['Move aggregation', "Only destinations compatible with this resource's medium are shown.", 'No compatible destination aggregation is currently available.', 'ACL impact: 1 grants added · 2 removed', 'Subtree: 0 aggregations · 0 records']
+
+frontend/webui/interaction/tests/test_governed_move.py:89: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_preview_displays_backend_subtree_counts[2-3-ar]" time="0.114"><failure message="AssertionError: assert 'الشجرة الفرعية: 2 ملفات · 3 وثائق' in ['نقل aggregation', 'لا تظهر إلا الوجهات المتوافقة مع وسيط هذا المورد.', 'لا يتوفر حالياً ملف وجهة متوافق.', 'أثر قائمة التحكم في الوصول: أُضيفت 1 منح · أُزيلت 2', 'الشجرة الفرعية: 0 ملفات · 0 وثائق']">args = ()
+kwargs = {'aggregations': 2, 'language': 'ar', 'records': 3, 'user': &lt;nicegui.testing.user.User object at 0x1108b4c10&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1108b4c10&gt;, language = 'ar'
+aggregations = 2, records = 3
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('aggregations,records', [(0, 0), (2, 3), (7, 11)])
+    async def test_move_preview_displays_backend_subtree_counts(user, language, aggregations, records):
+        api, _, s = await setup_move(user, 'aggregations', language)
+        api.acl_move_preview.return_value['affected_subtree'] = {
+            'affected_aggregation_count': aggregations, 'affected_record_count': records}
+        with user:
+            s['destination'].set_options({8: 'Destination'}, value=8)
+        await asyncio.sleep(.1)
+        key = 'webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8'
+        template = AR[key] if language == 'ar' else 'Subtree: {get} aggregations · {get_2} records'
+        expected = template.format(get=aggregations, get_2=records)
+&gt;       assert expected in [e.text.replace('\u2068', '').replace('\u2069', '')
+                            for e in s['dialog'].descendants() if isinstance(e, ui.label)]
+E       AssertionError: assert 'الشجرة الفرعية: 2 ملفات · 3 وثائق' in ['نقل aggregation', 'لا تظهر إلا الوجهات المتوافقة مع وسيط هذا المورد.', 'لا يتوفر حالياً ملف وجهة متوافق.', 'أثر قائمة التحكم في الوصول: أُضيفت 1 منح · أُزيلت 2', 'الشجرة الفرعية: 0 ملفات · 0 وثائق']
+
+frontend/webui/interaction/tests/test_governed_move.py:89: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_preview_displays_backend_subtree_counts[7-11-en]" time="0.111"><failure message="assert 'Subtree: 7 aggregations · 11 records' in ['Move aggregation', &quot;Only destinations compatible with this resource's medium are shown.&quot;, 'No compatible destination aggregation is currently available.', 'ACL impact: 1 grants added · 2 removed', 'Subtree: 0 aggregations · 0 records']">args = ()
+kwargs = {'aggregations': 7, 'language': 'en', 'records': 11, 'user': &lt;nicegui.testing.user.User object at 0x1108b5390&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x1108b5390&gt;, language = 'en'
+aggregations = 7, records = 11
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('aggregations,records', [(0, 0), (2, 3), (7, 11)])
+    async def test_move_preview_displays_backend_subtree_counts(user, language, aggregations, records):
+        api, _, s = await setup_move(user, 'aggregations', language)
+        api.acl_move_preview.return_value['affected_subtree'] = {
+            'affected_aggregation_count': aggregations, 'affected_record_count': records}
+        with user:
+            s['destination'].set_options({8: 'Destination'}, value=8)
+        await asyncio.sleep(.1)
+        key = 'webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8'
+        template = AR[key] if language == 'ar' else 'Subtree: {get} aggregations · {get_2} records'
+        expected = template.format(get=aggregations, get_2=records)
+&gt;       assert expected in [e.text.replace('\u2068', '').replace('\u2069', '')
+                            for e in s['dialog'].descendants() if isinstance(e, ui.label)]
+E       assert 'Subtree: 7 aggregations · 11 records' in ['Move aggregation', "Only destinations compatible with this resource's medium are shown.", 'No compatible destination aggregation is currently available.', 'ACL impact: 1 grants added · 2 removed', 'Subtree: 0 aggregations · 0 records']
+
+frontend/webui/interaction/tests/test_governed_move.py:89: AssertionError</failure></testcase><testcase classname="frontend.webui.interaction.tests.test_governed_move" name="test_move_preview_displays_backend_subtree_counts[7-11-ar]" time="0.108"><failure message="AssertionError: assert 'الشجرة الفرعية: 7 ملفات · 11 وثائق' in ['نقل aggregation', 'لا تظهر إلا الوجهات المتوافقة مع وسيط هذا المورد.', 'لا يتوفر حالياً ملف وجهة متوافق.', 'أثر قائمة التحكم في الوصول: أُضيفت 1 منح · أُزيلت 2', 'الشجرة الفرعية: 0 ملفات · 0 وثائق']">args = ()
+kwargs = {'aggregations': 7, 'language': 'ar', 'records': 11, 'user': &lt;nicegui.testing.user.User object at 0x110912790&gt;}
+
+    async def wrapped_test(*args, **kwargs):
+        with Client.auto_index_client:
+&gt;           return await original_test(*args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+frontend/webui/.venv/lib/python3.11/site-packages/nicegui/testing/user_plugin.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+user = &lt;nicegui.testing.user.User object at 0x110912790&gt;, language = 'ar'
+aggregations = 7, records = 11
+
+    @pytest.mark.parametrize('language', ['en', 'ar'])
+    @pytest.mark.parametrize('aggregations,records', [(0, 0), (2, 3), (7, 11)])
+    async def test_move_preview_displays_backend_subtree_counts(user, language, aggregations, records):
+        api, _, s = await setup_move(user, 'aggregations', language)
+        api.acl_move_preview.return_value['affected_subtree'] = {
+            'affected_aggregation_count': aggregations, 'affected_record_count': records}
+        with user:
+            s['destination'].set_options({8: 'Destination'}, value=8)
+        await asyncio.sleep(.1)
+        key = 'webui.refresh_preview.label.subtree_get_aggregations_get_2_records_e9a4c3b8'
+        template = AR[key] if language == 'ar' else 'Subtree: {get} aggregations · {get_2} records'
+        expected = template.format(get=aggregations, get_2=records)
+&gt;       assert expected in [e.text.replace('\u2068', '').replace('\u2069', '')
+                            for e in s['dialog'].descendants() if isinstance(e, ui.label)]
+E       AssertionError: assert 'الشجرة الفرعية: 7 ملفات · 11 وثائق' in ['نقل aggregation', 'لا تظهر إلا الوجهات المتوافقة مع وسيط هذا المورد.', 'لا يتوفر حالياً ملف وجهة متوافق.', 'أثر قائمة التحكم في الوصول: أُضيفت 1 منح · أُزيلت 2', 'الشجرة الفرعية: 0 ملفات · 0 وثائق']
+
+frontend/webui/interaction/tests/test_governed_move.py:89: AssertionError</failure></testcase></testsuite></testsuites>

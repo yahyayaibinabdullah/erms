@@ -825,7 +825,7 @@ def build_dashboard(
                             ui.label(item["title"]).classes(
                                 "text-sm font-semibold text-slate-700 truncate w-full"
                             ).tooltip(item["title"])
-                            number = item.get("aggregation_number") or item.get("record_number")
+                            number = item.get("aggregation_number" if resource == "aggregations" else "record_number")
                             resource_label = dashboard_resource_type(resource)
                             ui.label(render_message("dashboard.resource.identity",type=resource_label,number=number)).classes(
                                 "text-xs text-slate-500 truncate w-full"
@@ -858,7 +858,9 @@ def build_dashboard(
                         render_favourites_dashboard()
                         if dialog_refresh is not None:
                             dialog_refresh()
-                        ui.notify(render_message("webui.remove_dashboard_favourite.notify.removed_from_favourites_6953809b"), color="positive")
+                        # Both lists may have removed the originating event's row.
+                        with favourites_area:
+                            ui.notify(render_message("webui.remove_dashboard_favourite.notify.removed_from_favourites_6953809b"), color="positive")
                     except ApiError as error:
                         if not dashboard_view_is_current():
                             return
@@ -867,7 +869,9 @@ def build_dashboard(
                 def show_all_favourites() -> None:
                     if not dashboard_view_is_current():
                         return
-                    dialog = ui.dialog()
+                    # Keep the dialog outside the panel rebuilt after each removal.
+                    with dashboard_content:
+                        dialog = ui.dialog()
                     with dialog, ui.card().classes(
                         "dashboard-personal-dialog w-[760px] max-w-full max-h-[85vh]"
                     ):

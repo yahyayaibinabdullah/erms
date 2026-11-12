@@ -1,0 +1,404 @@
+{
+  "browser": "chrome",
+  "version": "157.0.8103.40",
+  "scope": "governed-moves",
+  "maildev_enabled": false,
+  "checks": [
+    {
+      "name": "real sign-in and Settings drawer caller",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 9309.5
+    },
+    {
+      "name": "aggregations move opens, validates, searches after empty results and cancels",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 14137.76
+    },
+    {
+      "name": "aggregations committed move, keep access=False, fresh detail and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 14218.34
+    },
+    {
+      "name": "aggregations committed move, keep access=True, fresh detail and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 14776.28
+    },
+    {
+      "name": "records move opens, validates, searches after empty results and cancels",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 14210.35
+    },
+    {
+      "name": "records committed move, keep access=False, fresh detail and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 13495.54
+    },
+    {
+      "name": "records committed move, keep access=True, fresh detail and reload",
+      "language": "en",
+      "status": "pass",
+      "milliseconds": 13848.91
+    },
+    {
+      "name": "aggregations move opens, validates, searches after empty results and cancels",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 14599.31
+    },
+    {
+      "name": "aggregations committed move, keep access=False, fresh detail and reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 15227.0
+    },
+    {
+      "name": "aggregations committed move, keep access=True, fresh detail and reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 15609.39
+    },
+    {
+      "name": "records move opens, validates, searches after empty results and cancels",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 14555.54
+    },
+    {
+      "name": "records committed move, keep access=False, fresh detail and reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 13761.12
+    },
+    {
+      "name": "records committed move, keep access=True, fresh detail and reload",
+      "language": "ar",
+      "status": "pass",
+      "milliseconds": 14007.6
+    },
+    {
+      "name": "unauthorized move preview is denied for both resource types",
+      "language": "ar",
+      "status": "fail",
+      "error": "{\"detail\":\"aggregation not found\"}",
+      "traceback": "Traceback (most recent call last):\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/check_webui_browser.py\", line 190, in check\n    yield\n  File \"/Users/yahyayai/Offline-Documents/code/erms/tools/webui_browser_governed_moves.py\", line 178, in check_governed_moves\n    assert denied.status_code == 403, denied.text\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {\"detail\":\"aggregation not found\"}\n",
+      "recent_native_clicks": [],
+      "milliseconds": 2614.02
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "move-aggregations-preview-en.png",
+      "sha256": "62db8044d3d06f0253c7420ed9d9aab77c9404569f096734d82c86ad1bcb318a",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-aggregations-saved-en-False.png",
+      "sha256": "352d4504bc4f9cbda1160f115953c3a8130ac30c570e641761dab0507546885d",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-aggregations-saved-en-True.png",
+      "sha256": "c053c9785a1dbc3a5f1ed1c34a771389dceb837e029ba2307ecbea58e5cf19d1",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-records-preview-en.png",
+      "sha256": "96a5869547f4faea31331aeefac026807cf041d799f962253c1aee37f1d80191",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-records-saved-en-False.png",
+      "sha256": "cdbfa8eba262006dd6695f8c9ff636d3901a28b3ea6a016d53ba493d0d764422",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-records-saved-en-True.png",
+      "sha256": "84f4564b2373d7385df540f0cb589579d5e4fc92b7f346095513c31bb68817c3",
+      "language": "en",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "ltr",
+        "fontFamily": "Changa, ui-sans-serif, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-aggregations-preview-ar.png",
+      "sha256": "1fe1f97f865d05ec92f2c893f82264cabe71dd31a78b6e8ef930af99c035e2e2",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-aggregations-saved-ar-False.png",
+      "sha256": "2512da14ec42d19ca8ebaf7f0c9e982d4503d96e40230f644cb0e13e9bd92c97",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-aggregations-saved-ar-True.png",
+      "sha256": "97647f2dbb29ceed927519dcbe2c5478fb65be7f37cd87e2103cb347fb721f6d",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-records-preview-ar.png",
+      "sha256": "864025ac46b6878c7ebb1b2d4418f1a54c8d9845a08d95bfb998b52a0097bb57",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-records-saved-ar-False.png",
+      "sha256": "0323176f1c0b29f759320389b0b39269479cf24f43f866a4575de00d19ac78cc",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "move-records-saved-ar-True.png",
+      "sha256": "125c628765b1721c5bb27b6de5eb5d38df11f40f1f6ee6b162cffce49ffc3975",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    },
+    {
+      "file": "failure-14.png",
+      "sha256": "5becd7e9b9bbf2c3e6dee9a633e1bd77b57165919421df24dd0fabb70bb10080",
+      "language": "ar",
+      "identity": "admin@test.invalid",
+      "dynamic_content": [],
+      "environment": {
+        "browserTimezone": "Asia/Dubai",
+        "dir": "rtl",
+        "fontFamily": "Changa, Tahoma, Arial, \"Segoe UI\", sans-serif",
+        "fonts": "loaded",
+        "height": 1000,
+        "scale": 1,
+        "width": 1440,
+        "zoom": 1
+      }
+    }
+  ],
+  "complete": false,
+  "driver_version": "ChromeDriver 157.0.8103.50 (049750111b1e5c11565c792b2aeed5541f332bad-refs/branch-heads/8103_38@{#8})",
+  "driver_sha256": "9b5856e0acf23efca2c77f79ffad7a93b2267097926491971813d4f996408484",
+  "browser_errors": [],
+  "moves": [
+    {
+      "resource": "aggregations",
+      "language": "en",
+      "keep_access": false,
+      "id": 31,
+      "destination": 28,
+      "before_version": 1,
+      "after_version": 2,
+      "inherit_acl_from_parent": true
+    },
+    {
+      "resource": "aggregations",
+      "language": "en",
+      "keep_access": true,
+      "id": 31,
+      "destination": 1,
+      "before_version": 2,
+      "after_version": 3,
+      "inherit_acl_from_parent": false
+    },
+    {
+      "resource": "records",
+      "language": "en",
+      "keep_access": false,
+      "id": 2,
+      "destination": 29,
+      "before_version": 1,
+      "after_version": 2,
+      "inherit_acl_from_parent": true
+    },
+    {
+      "resource": "records",
+      "language": "en",
+      "keep_access": true,
+      "id": 2,
+      "destination": 1,
+      "before_version": 2,
+      "after_version": 3,
+      "inherit_acl_from_parent": false
+    },
+    {
+      "resource": "aggregations",
+      "language": "ar",
+      "keep_access": false,
+      "id": 33,
+      "destination": 28,
+      "before_version": 1,
+      "after_version": 2,
+      "inherit_acl_from_parent": true
+    },
+    {
+      "resource": "aggregations",
+      "language": "ar",
+      "keep_access": true,
+      "id": 33,
+      "destination": 1,
+      "before_version": 2,
+      "after_version": 3,
+      "inherit_acl_from_parent": false
+    },
+    {
+      "resource": "records",
+      "language": "ar",
+      "keep_access": false,
+      "id": 3,
+      "destination": 29,
+      "before_version": 1,
+      "after_version": 2,
+      "inherit_acl_from_parent": true
+    },
+    {
+      "resource": "records",
+      "language": "ar",
+      "keep_access": true,
+      "id": 3,
+      "destination": 1,
+      "before_version": 2,
+      "after_version": 3,
+      "inherit_acl_from_parent": false
+    }
+  ]
+}

@@ -29,10 +29,7 @@ def check_security(page):
             field=page.field(page.t('webui.show_profile_privilege_editor.input.find_privileges_1fa8656a'))
             field.send_keys('record.view');time.sleep(.3);capture('profile-filter')
             close('webui.show_profile_privilege_editor.button.cancel_d03380ff')
-            errors=page.driver.execute_script('return window.__webuiTestErrors || []')
-            assert errors==[{'kind':'error','message':'TypeError: u.match is not a function'}]*4,errors
-            page.report.setdefault('existing_pagination_icon_errors',[]).append(dict(language=language,errors=errors))
-            page.driver.execute_script('window.__webuiTestErrors=[]')
+            page.errors()
         with page.check('record access, explanation and security-level dialogs'):
             page.drawer('records')
             page.fill(page.t('webui.index.input.search_by_number_title_or_description_e21ed520'),'TEST-REC')

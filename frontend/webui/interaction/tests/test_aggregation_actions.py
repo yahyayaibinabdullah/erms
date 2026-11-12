@@ -1,4 +1,4 @@
-"""Aggregation action contracts and recorded pre-existing movement failure."""
+"""Aggregation reopen and ownership-correction contracts."""
 from frontend.webui.i18n_catalogue import strip_diagnostic_metadata as _owner_strip_diagnostic_metadata
 import ast,asyncio
 from pathlib import Path
@@ -61,20 +61,3 @@ async def test_ownership_correction_filters_current_owner_and_preserves_preview_
     else:api.correct_ownership.assert_awaited_once_with(7,2,'Correct fixture ownership')
     assert any(d.value for d in user.find(ui.dialog).elements)==(failure!='none')
     assert saved.await_count==(1 if failure=='none' else 0)
-
-@pytest.mark.parametrize('resource',['aggregations','records'])
-async def test_original_governed_move_missing_name_is_preserved_until_separate_bug_approval(user,resource):
-    picker=Mock();failure=[]
-    @ui.page('/move-baseline')
-    async def page():
-        with pytest.raises(NameError,match='compatible_aggregations') as caught:
-            await build('show_governed_move',{'api':SimpleNamespace(),'bind_remote_relationship_select':picker})(resource,{'id':7,'version':4,'medium':'physical'},AsyncMock())
-        failure.append(caught.value.name)
-    await user.open('/move-baseline')
-    assert failure==['compatible_aggregations']
-    assert not any(d.value for d in user.find(ui.dialog).elements)
-    args=picker.call_args
-    assert args.args[1:]==('aggregations',('aggregation_number','title'),('aggregation_number','title'))
-    assert args.kwargs['exclude_id']==(7 if resource=='aggregations' else None)
-    assert args.kwargs['item_filter']({'medium':'physical'})
-    assert not args.kwargs['item_filter']({'medium':'digital'})

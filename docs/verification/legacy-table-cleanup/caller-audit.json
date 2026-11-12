@@ -1,0 +1,14 @@
+{
+  "removed": "Only aggregation generic-table Open/Reopen markup, callbacks and their unused dependencies",
+  "early_return": [
+    {
+      "condition": "spec.key in {'aggregations', 'records'}",
+      "line": 46,
+      "ends_with_return": true
+    }
+  ],
+  "immutable_spec": "EntitySpec is a frozen dataclass in entities.py",
+  "persisted_scheme_navigation": "Preserved: NavigationController accepts stored page strings; restore_navigation_entry dispatches ENTITIES through select_entity",
+  "remaining_classification_callback_defect": "Not repaired or deleted; saved-navigation path prevents proof of non-use",
+  "catalogue_change": false
+}
