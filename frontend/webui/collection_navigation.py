@@ -1,7 +1,7 @@
 """Collection entry, bounded loading and existing background personal refresh."""
 from __future__ import annotations
 from .api_client import ApiError
-from .entities import ENTITIES
+from .entities import COLLECTION_ENTITIES
 from .entities import EntitySpec
 import asyncio
 from nicegui import background_tasks
@@ -13,6 +13,7 @@ def build_collection_navigation(
     *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, collection_state, error_message, get_resource, guidance, load_recent, load_rows, personal, principal, register_navigation, reload_favourites, render_resource_personal_sections, render_table, search_bar, search_input, select_aggregation_browser, set_connection_status, set_resource, show_authenticated_view, subtitle, title,
 ):
     async def select_entity(key: str) -> None:
+        spec = COLLECTION_ENTITIES[key]
         entity_navigation_keys = {
             "aggregations": "navigation.item.aggregations",
             "records": "navigation.item.records",
@@ -32,7 +33,6 @@ def build_collection_navigation(
         register_navigation(key, entity_label)
         show_authenticated_view()
         set_resource(key); collection_state.update(rows=[], searched=False, lifecycle_filter='all'); aggregation_state.update(aggregation_detail=None)
-        spec = ENTITIES[key]
         title.text = entity_label
         subtitle.text = render_message("webui.select_entity.text.search_required_before_loading_results_88549c49") if spec.search_first else render_message("webui.select_entity.text.manage_current_system_entries_fcec8116")
         aggregation_mode_bar.set_visibility(key == "aggregations")

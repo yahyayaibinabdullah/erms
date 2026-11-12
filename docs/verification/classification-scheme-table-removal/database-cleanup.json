@@ -1,0 +1,26 @@
+{
+  "runs": {
+    "edge": {
+      "database": "erms_webui_test_c8ee1996707d4f1089f9ad4672346a13",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:52551",
+      "ui_url": "http://127.0.0.1:52552",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "edge"
+    },
+    "chrome": {
+      "database": "erms_webui_test_baf4e5dca97845e986ac452b8f3f3787",
+      "database_dropped": true,
+      "ready": true,
+      "api_url": "http://127.0.0.1:52760",
+      "ui_url": "http://127.0.0.1:52761",
+      "fixture": "fixed-v1",
+      "test_exit_code": 0,
+      "browser": "chrome"
+    }
+  },
+  "remaining_databases": [],
+  "audit": "Independent read-only PostgreSQL catalogue query"
+}

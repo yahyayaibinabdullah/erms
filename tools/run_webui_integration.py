@@ -63,7 +63,7 @@ def main():
     parser.add_argument('--fixed-fixture', action='store_true',
                         help='Use dated synthetic records, paged branches and published Arabic for browser baselines')
     parser.add_argument('--browser', choices=['chrome', 'edge', 'firefox', 'safari'])
-    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'classification', 'legacy-schemes', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
+    parser.add_argument('--browser-scope', choices=['full', 'navigation', 'keyboard', 'shell', 'session', 'relationships', 'audit', 'collections', 'classification', 'security', 'login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'], default='full',
                         help='Subset runs supplement, rather than replace, full browser acceptance')
     parser.add_argument('--maildev', action='store_true',
                         help='Verify local SMTP delivery through the repository-managed MailDev instance')
@@ -85,7 +85,7 @@ def main():
             ROOT / 'frontend/webui/i18n/messages.ar.generated.json',
             *[ROOT / 'tools' / filename for filename in (
                 'run_webui_integration.py', 'check_webui_browser.py',
-                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_classification.py', 'webui_browser_legacy_schemes.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_aggregations.py', 'webui_browser_governed_moves.py', 'webui_browser_records.py', 'webui_browser_security_operations.py', 'webui_browser_governance_custody.py', 'webui_browser_global_search.py', 'webui_browser_advanced_search.py', 'webui_browser_dashboard.py', 'webui_browser_pagination.py', 'webui_browser_disposition.py', 'webui_browser_messaging.py', 'webui_browser_application.py', 'webui_browser_performance.py', 'seed_webui_disposition.py', 'webui_browser_server.py',
+                'webui_browser_navigation.py', 'webui_browser_keyboard.py', 'webui_browser_shell.py', 'webui_browser_session.py', 'webui_browser_relationships.py', 'webui_browser_audit.py', 'webui_browser_collections.py', 'webui_browser_classification.py', 'webui_browser_security.py', 'webui_browser_login_sessions.py', 'webui_browser_organization.py', 'webui_browser_text_indexers.py', 'webui_browser_account.py', 'webui_browser_translations.py', 'webui_browser_holds.py', 'webui_browser_components.py', 'webui_browser_aggregations.py', 'webui_browser_governed_moves.py', 'webui_browser_records.py', 'webui_browser_security_operations.py', 'webui_browser_governance_custody.py', 'webui_browser_global_search.py', 'webui_browser_advanced_search.py', 'webui_browser_dashboard.py', 'webui_browser_pagination.py', 'webui_browser_disposition.py', 'webui_browser_messaging.py', 'webui_browser_application.py', 'webui_browser_performance.py', 'seed_webui_disposition.py', 'webui_browser_server.py',
                 'seed_webui_regression.py', 'webui_test_events.py')],
         ]
         (output / 'source-environment.json').write_text(json.dumps({
@@ -186,8 +186,6 @@ def main():
                     "app.add_middleware(SessionMiddleware, secret_key=os.environ['WEBUI_STORAGE_SECRET'], session_cookie='erms_refactor_disposable'); "
                     + ("from tools.webui_browser_server import BrowserDiagnostics, install_client_diagnostics; app.add_middleware(BrowserDiagnostics); "
                        f"install_client_diagnostics({str(output)!r}); " if args.browser else "") +
-                    ("from tools.webui_browser_legacy_schemes import install_saved_navigation_fixture; install_saved_navigation_fixture(); "
-                     if args.browser and args.browser_scope == 'legacy-schemes' else "") +
                     "runpy.run_module('frontend.webui.app',run_name='__main__')"],
                     pass_fds=(ui_socket.fileno(),))
                 wait_ready(webui, ui_url + '/')

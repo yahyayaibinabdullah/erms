@@ -5,22 +5,41 @@ from pathlib import Path
 APP_PATH = Path(__file__).parents[1] / "app.py"
 
 
-def test_saved_generic_scheme_entry_still_dispatches_to_collection():
-    """A persisted entity entry prevents treating its fallback as unused."""
+def test_retired_scheme_page_is_not_a_collection_or_restorable_destination():
+    """The resource remains editable, but no longer defines a collection page."""
     import asyncio
-    from types import SimpleNamespace
     from unittest.mock import AsyncMock
-    from frontend.webui.entities import ENTITIES
+    import pytest
+    from frontend.webui.api_client import ApiError
+    from frontend.webui.entities import COLLECTION_ENTITIES, ENTITIES
+
+    assert 'classification-schemes' in ENTITIES
+    assert ENTITIES['classification-schemes'].fields
+    assert not ENTITIES['classification-schemes'].columns
+    assert 'classification-schemes' not in COLLECTION_ENTITIES
+    assert set(COLLECTION_ENTITIES) == set(ENTITIES) - {'classification-schemes'}
 
     restore = next(node for node in ast.walk(ast.parse(APP_PATH.read_text()))
                    if isinstance(node, ast.AsyncFunctionDef)
                    and node.name == 'restore_navigation_entry')
     select = AsyncMock()
-    namespace = dict(Any=object, ENTITIES=ENTITIES, collection_state={},
-                     select_entity=select, search_input=SimpleNamespace(value=''))
+    workspace = AsyncMock()
+    namespace = dict(Any=object, COLLECTION_ENTITIES=COLLECTION_ENTITIES,
+                     ApiError=ApiError, select_entity=select,
+                     select_classification_workspace=workspace)
     exec(compile(ast.Module(body=[restore], type_ignores=[]), str(APP_PATH), 'exec'), namespace)
-    asyncio.run(namespace['restore_navigation_entry']({'page': 'classification-schemes', 'state': {}}))
-    select.assert_awaited_once_with('classification-schemes')
+    with pytest.raises(ApiError) as error:
+        asyncio.run(namespace['restore_navigation_entry']({'page': 'classification-schemes', 'state': {}}))
+    assert error.value.status_code == 404
+    select.assert_not_awaited()
+    workspace.assert_not_awaited()
+    for entry, expected in [
+        ({'page': 'classification-workspace'}, {}),
+        ({'page': 'classification-scheme-details', 'entity_id': 7}, {'initial_scheme_id': 7}),
+        ({'page': 'classification-details', 'entity_id': 8}, {'initial_classification_id': 8}),
+    ]:
+        asyncio.run(namespace['restore_navigation_entry'](entry))
+        workspace.assert_awaited_with(**expected)
 
 
 def test_security_administration_pages_can_be_restored_from_navigation_history():
@@ -58,6 +77,7 @@ def test_return_to_tree_does_not_replay_an_earlier_search():
         load_rows = AsyncMock()
         namespace = {
             "Any": object, "state": state, "collection_state": state, "aggregation_state": aggregation_state,
+            "COLLECTION_ENTITIES": {"aggregations": SimpleNamespace(search_first=True)},
             "ENTITIES": {"aggregations": SimpleNamespace(search_first=True)},
             "select_entity": select_entity, "load_rows": load_rows,
             "search_input": SimpleNamespace(value=""),

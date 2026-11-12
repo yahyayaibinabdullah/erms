@@ -481,12 +481,10 @@ modules, URLs, browser history and UI behavior remain unchanged. The
 [working defect register](../../docs/webui-refactor-existing-observations.md)
 tracks preserved issues for the final refactoring handoff.
 
-The [legacy-table caller audit](../../docs/legacy-table-cleanup-verification.md)
-removes only the unreachable aggregation Open/Reopen table actions. Keep the
-classification-scheme fallback until its persisted-navigation callers have been
-handled explicitly; current menus using the dedicated workspace do not prove
-that the fallback is unused.
-Its [refresh callback repair](../../docs/classification-scheme-refresh-fix-verification.md)
-preserves saved navigation, reloads the bounded table after scheme actions and
-ignores results belonging to a deleted view. The disposable `legacy-schemes`
-browser scope verifies this path in English and Arabic.
+The obsolete classification-scheme collection page and table implementation
+have been [removed](../../docs/classification-scheme-table-removal-verification.md).
+The current classification workspace is unchanged. Resource/editor definitions
+remain separate from `COLLECTION_ENTITIES`, which controls generic collection
+navigation, loading and rendering. The old page name is no longer accepted and
+has no compatibility redirect. The `classification` browser scope verifies the
+current workspace in English and Arabic.

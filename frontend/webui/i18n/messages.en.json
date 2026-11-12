@@ -32634,50 +32634,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda",
-    "context_group": "webui.change_scheme_lifecycle",
-    "default_text": "Classification scheme {action}d",
-    "semantic_meaning": "Interpolated notification message in the change scheme lifecycle workflow.",
-    "common_locations": [
-      "WebUI: change scheme lifecycle"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "notification message",
-    "parameter_schema": {
-      "action": "text"
-    },
-    "rendered_example": "Classification scheme <action>d",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.change_scheme_lifecycle.text.deactivate_871a64d1",
-    "context_group": "webui.change_scheme_lifecycle",
-    "default_text": "deactivate",
-    "semantic_meaning": "Interface text in the change scheme lifecycle workflow.",
-    "common_locations": [
-      "WebUI: change scheme lifecycle"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "deactivate",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.change_scheme_lifecycle.text.reactivate_ef9784c4",
-    "context_group": "webui.change_scheme_lifecycle",
-    "default_text": "reactivate",
-    "semantic_meaning": "Interface text in the change scheme lifecycle workflow.",
-    "common_locations": [
-      "WebUI: change scheme lifecycle"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "reactivate",
-    "is_html": false
-  },
-  {
     "message_key": "webui.change_status.notify.text_indexer_status_updated_d7cf4113",
     "context_group": "webui.change_status",
     "default_text": "Text indexer status updated",
@@ -41050,20 +41006,6 @@
       "lower": "text"
     },
     "rendered_example": "User <lower>ed",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.publish_scheme.notify.classification_scheme_published_cd141332",
-    "context_group": "webui.publish_scheme",
-    "default_text": "Classification scheme published",
-    "semantic_meaning": "Notification message in the publish scheme workflow.",
-    "common_locations": [
-      "WebUI: publish scheme"
-    ],
-    "translator_guidance": "Translate as a concise notification message; preserve the intent used in this workflow.",
-    "grammatical_role": "notification message",
-    "parameter_schema": {},
-    "rendered_example": "Classification scheme published",
     "is_html": false
   },
   {

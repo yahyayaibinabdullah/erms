@@ -2,7 +2,6 @@
 from __future__ import annotations
 from typing import Any
 from .organization_table import bind_organization_table_destinations
-from .classification_editor import bind_scheme_actions
 from .organization_collection_actions import build_change_suspension
 from .organization_collection_actions import build_confirm_lifecycle
 from .organization_collection_actions import build_issue_password
@@ -14,14 +13,16 @@ from .organization_table import organization_table_filters
 from .organization_table import organization_user_actions
 from .organization_table import organization_user_slots
 from .classification_editor import render_classification_search_prompt
+from .entities import COLLECTION_ENTITIES
 from .i18n_catalogue import render_message
-from .classification_editor import scheme_action_buttons
 from nicegui import ui
 
 def build_collection_table(
     *, RELATIONSHIP_DISPLAY_FIELDS, add_timestamp_slots, api, collection_state, current_session_revoked, decorate_for_spec, error_message, favourite_state, format_timestamp, guidance, load_recent, load_rows, open_editor, reload_favourites, render_administration_cards, render_entity_compact_results, render_recent_section, render_resource_personal_sections, required_principal, select_organization_unit_details, select_role_details, select_user_details, show_api_error, show_components, show_entity_history, show_memberships, show_profile_privilege_editor, show_record_details, subtitle, table_container, toggle_favourite,
 ):
     def render_table(spec: EntitySpec) -> None:
+        if spec.key not in COLLECTION_ENTITIES:
+            raise ValueError("Entity has no collection page")
         # Background personal-section refreshes do not inherit a NiceGUI slot.
         # Resolve translations in the owning page before updating its labels.
         with table_container:
@@ -79,7 +80,7 @@ def build_collection_table(
                 {"name", "description"}
                 if spec.key in {"org-units", "roles", "users", "security-levels"}
                 else {"title", "description"}
-                if spec.key in {"classification-schemes", "classifications"}
+                if spec.key == "classifications"
                 else set()
             )
             for row in visible_rows:
@@ -290,8 +291,6 @@ def build_collection_table(
                 buttons += '<q-btn flat round dense icon="key" color="secondary" @click="$parent.$emit(\'profile_privileges\', props.row)"><q-tooltip>Manage privileges</q-tooltip></q-btn>'
             buttons = organization_user_actions(spec, buttons)
             buttons = organization_lifecycle_actions(spec, buttons)
-            if spec.key == "classification-schemes":
-                buttons = scheme_action_buttons(buttons)
             table.add_slot("body-cell-actions", f'<q-td :props="props">{buttons}</q-td>')
             table.on("edit", lambda event: open_editor(event.args))
             table.on("history", lambda event, resource=spec.key: show_entity_history(resource, event.args))
@@ -314,21 +313,6 @@ def build_collection_table(
             if spec.key == "records":
                 table.on("open_record", lambda event: show_record_details(event.args))
                 table.on("components", lambda event: show_components(event.args))
-            if spec.key == "classification-schemes":
-                async def refresh_scheme_table() -> None:
-                    # The mutation may finish after navigation deleted this table.
-                    # Do not start a read for the new page, or repaint an old view.
-                    if table.is_deleted:
-                        return
-                    await load_rows(
-                        repeat_search=True,
-                        is_current=lambda: not table.is_deleted,
-                    )
-
-                bind_scheme_actions(
-                    table, api=api, error_message=error_message,
-                    refresh=refresh_scheme_table,
-                )
             if spec.key in {"users", "roles"}:
                 table.on(
                     "memberships",

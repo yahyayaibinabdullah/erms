@@ -630,11 +630,6 @@ with psycopg.connect(url) as c:
             check_security(self)
             self.report['complete'] = True
             return
-        if self.args.scope == 'legacy-schemes':
-            from tools.webui_browser_legacy_schemes import check_legacy_schemes
-            check_legacy_schemes(self)
-            self.report['complete'] = True
-            return
         if self.args.scope == 'classification':
             from tools.webui_browser_classification import check_classification
             check_classification(self)
@@ -716,7 +711,7 @@ with psycopg.connect(url) as c:
 def main():
     parser=argparse.ArgumentParser()
     for name in ('browser','url','api','api-python'):parser.add_argument('--'+name,required=True)
-    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification', 'legacy-schemes','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
+    parser.add_argument('--scope',choices=['full','navigation','keyboard','shell','session','relationships','audit','collections','classification','security','login-sessions', 'organization', 'text-indexers', 'account', 'translations', 'holds', 'components', 'aggregations', 'governed-moves', 'pagination', 'records', 'security-operations', 'governance-custody', 'global-search', 'advanced-search', 'dashboard', 'disposition', 'messaging', 'application', 'performance'],default='full')
     parser.add_argument('--maildev-url')
     parser.add_argument('--smtp-port',type=int)
     parser.add_argument('--output',type=Path,required=True)

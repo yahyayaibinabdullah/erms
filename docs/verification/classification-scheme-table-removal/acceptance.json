@@ -1,0 +1,35 @@
+{
+  "status": "Obsolete classification-scheme page and table removed",
+  "branch": "refactor-API-python-file",
+  "head": "a9f2871fdd87147f04b44281ec02c55799ec58ea",
+  "local_uncommitted": true,
+  "tests": {
+    "unit": 233,
+    "interaction-final": 34
+  },
+  "browsers": {
+    "chrome": {
+      "version": "157.0.8103.51",
+      "checks": 11,
+      "screenshots": 24,
+      "source_hashes_match": 187,
+      "database_dropped": true
+    },
+    "edge": {
+      "version": "157.0.4341.46",
+      "checks": 11,
+      "screenshots": 24,
+      "source_hashes_match": 187,
+      "database_dropped": true
+    }
+  },
+  "removed_message_keys": [
+    "webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda",
+    "webui.change_scheme_lifecycle.text.deactivate_871a64d1",
+    "webui.change_scheme_lifecycle.text.reactivate_ef9784c4",
+    "webui.publish_scheme.notify.classification_scheme_published_cd141332"
+  ],
+  "retained_translations_and_provenance_unchanged": true,
+  "compatibility_redirect": false,
+  "current_workspace_preserved": true
+}

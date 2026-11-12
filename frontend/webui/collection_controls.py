@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Any, Callable
 from nicegui import ui
 from .api_client import ApiError
-from .entities import ENTITIES
+from .entities import COLLECTION_ENTITIES
 
 
 def build_collection_loader(
@@ -22,7 +22,7 @@ def build_collection_loader(
         *, repeat_search: bool = False, on_loaded: Callable[[], None] | None = None,
         is_current: Callable[[], bool] | None = None,
     ) -> None:
-        spec = ENTITIES[get_resource()]
+        spec = COLLECTION_ENTITIES[get_resource()]
         nonlocal request_revision
         request_revision += 1
         revision = request_revision
@@ -53,11 +53,7 @@ def build_collection_loader(
                 page = pages.setdefault(spec.key, {
                     "offset": 0, "limit": 25, "total": 0, "query": "",
                     "status": "all", "account_type": "all",
-                    "sort": (
-                        "level_number" if spec.key == "security-levels"
-                        else "title" if spec.key == "classification-schemes"
-                        else "name"
-                    ),
+                    "sort": "level_number" if spec.key == "security-levels" else "name",
                 })
                 conditions: list[dict[str, Any]] = []
                 query = str(page.get("query") or "").strip()

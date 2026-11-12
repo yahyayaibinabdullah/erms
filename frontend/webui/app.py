@@ -97,7 +97,7 @@ from .application_settings_controller import ApplicationSettingsController
 from .relationship_types_controller import RelationshipTypesController
 from .capabilities import can_navigate, can_navigate_disposition
 from .config import api_url, full_text_search_enabled, host, port, reload_enabled, storage_secret
-from .entities import ENTITIES
+from .entities import COLLECTION_ENTITIES, ENTITIES
 from .i18n_catalogue import clear_active_messages, disable_diagnostic_metadata, render_message, render_message_plain, set_active_messages
 from .locale_services import (
     clear_locale_context, current_locale_context, format_instant, format_local_date,
@@ -2334,7 +2334,6 @@ def index(q: str = "") -> None:
             "aggregations": "folder",
             "records": "description",
             "advanced-search": "manage_search",
-            "classification-schemes": "account_tree",
             "classification-workspace": "account_tree",
             "classification-scheme-details": "account_tree",
             "classification-details": "schema",
@@ -2430,7 +2429,6 @@ def index(q: str = "") -> None:
         "full-text-search": "webui.run_global_search.text.search_results_ecc13a7a",
         "aggregations": "navigation.item.aggregations",
         "records": "navigation.item.records",
-        "classification-schemes": "navigation.item.classification_schemes",
         "classification-workspace": "navigation.item.classification_schemes",
         "organization-browser": "navigation.item.organization_browser",
         "org-units": "navigation.item.org_units",
@@ -2556,7 +2554,7 @@ def index(q: str = "") -> None:
             await select_messages(page.removeprefix("messages-"))
         elif page == "advanced-search":
             await select_advanced_search()
-        elif page in ENTITIES:
+        elif page in COLLECTION_ENTITIES:
             if saved.get("entity_result_state"):
                 restored_result_state = dict(saved["entity_result_state"])
                 restored_result_state["expanded_results"] = set(

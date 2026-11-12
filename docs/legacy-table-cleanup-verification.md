@@ -1,5 +1,8 @@
 # Legacy table caller audit and cleanup
 
+**Superseded:** the user later authorized [removal of the obsolete scheme table](classification-scheme-table-removal-verification.md).
+This report and its evidence describe the earlier implementation.
+
 **Status: completed and locally verified on 12 November 2026.**
 
 Follow-up: the separately authorized

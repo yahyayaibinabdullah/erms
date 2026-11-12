@@ -12,16 +12,15 @@ reliability/accessibility investigation; **P3** is a lower-impact warning or tes
 
 ## Reproduced original product defects
 
-The previously listed generic-table callback defect has now been repaired under
-separate authorization; see the corrected section below. The legacy presentation
-and pagination limitations remain listed separately.
+The previously listed generic-table callback defects have been resolved. The
+user subsequently authorized removal of the entire obsolete scheme table and
+its old page destination; its display/pagination limitations no longer apply
+to an active screen. See the removal entry below.
 
 ## Existing UX limitations and unresolved observations
 
 | Priority | Observation and certainty | Evidence | Recommended next action |
 | --- | --- | --- | --- |
-| P2 | The restored legacy scheme table has client pagination over its bounded server page, without equivalent server-page controls. The dedicated workspace remains the complete menu destination. This old-view completeness limitation is preserved by the callback repair. | [Scheme refresh report](classification-scheme-refresh-fix-verification.md); `collection_table.py` and `collection_controls.py`. | Review legacy paging or explicitly approve how old navigation should reach the current workspace; do not silently redirect saved navigation. |
-| P3 | The restored legacy scheme table uses the default “Dashboard” heading and retains English action tooltips/date formatting in Arabic. These existing display quirks are unchanged. | [Scheme refresh report and captures](classification-scheme-refresh-fix-verification.md). | Review old-view labels and date localization separately. |
 | P2 | The email-dialog keyboard boundary does not always wrap focus; Arabic Chrome/Edge differ and some runs put focus on the page body. Preserved baseline behavior, not an accessibility certification. | [Phase 2](webui-refactor-phase2-verification.md), keyboard results. | Review accessible focus containment and restoration across supported browsers. |
 | P2 | Some accessible labels remain English in Arabic, including breadcrumb overflow and favourite controls. | [Phase 1](webui-refactor-phase1-baseline.md), original English/Arabic inspection. | Audit translated accessible names and screen-reader behavior separately; preserve current wording during this refactor. |
 | P3 | An audit-event Settings link selects the correct category but does not automatically focus the target field. This is recorded baseline behavior, not a new regression. | [Phase 2](webui-refactor-phase2-verification.md), caller coverage. | Review whether a separate UX change should add target-field focus; preserve existing behavior until approved. |
@@ -113,7 +112,16 @@ and pagination limitations remain listed separately.
 
 ## Separately approved and corrected product defects
 
-Classification-scheme refresh P3: the user separately approved repairing the
+Obsolete classification-scheme table: the user explicitly authorized removing its
+old page destination and all table-specific code. The former P2 pagination and
+P3 heading/Arabic display limitations are retired with that screen. The current
+workspace, API resource identity and editor fields remain. No compatibility alias
+or redirect was introduced. Chrome and Edge passed the current workspace in
+English and Arabic; 267 focused tests passed. See the
+[removal verification report](classification-scheme-table-removal-verification.md).
+
+Historical classification-scheme refresh P3 (superseded by removal above): the
+user separately approved repairing the
 remaining legacy callback while preserving saved navigation. It now reloads the
 bounded table using its actual lifetime, with no read/repaint after navigation.
 The related invalid default sort and translated lifecycle API path are also

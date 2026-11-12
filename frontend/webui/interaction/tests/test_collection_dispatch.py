@@ -6,11 +6,33 @@ import pytest
 from nicegui import ui
 
 from frontend.webui.collection_table import build_collection_table
+from frontend.webui.collection_controls import build_collection_loader
+from frontend.webui.collection_navigation import build_collection_navigation
 from frontend.webui.entities import ENTITIES
 from frontend.webui import i18n_catalogue as i18n
 
 pytest_plugins = ['nicegui.testing.user_plugin']
 pytestmark = pytest.mark.asyncio
+
+
+async def test_resource_without_collection_cannot_render_load_or_navigate():
+    dependencies = {name: Mock() for name in inspect.signature(build_collection_table).parameters}
+    with pytest.raises(ValueError, match='no collection page'):
+        build_collection_table(**dependencies)(ENTITIES['classification-schemes'])
+    dependencies['table_container'].clear.assert_not_called()
+
+    for factory in (build_collection_loader, build_collection_navigation):
+        values = {name: Mock() for name in inspect.signature(factory).parameters}
+        if factory is build_collection_loader:
+            values['get_resource'] = lambda: 'classification-schemes'
+            with pytest.raises(KeyError):
+                await factory(**values)()
+            values['api'].search_request.assert_not_called()
+        else:
+            with pytest.raises(KeyError):
+                await factory(**values)('classification-schemes')
+            values['register_navigation'].assert_not_called()
+            values['set_resource'].assert_not_called()
 
 
 @pytest.mark.parametrize('resource', ['aggregations', 'records'])

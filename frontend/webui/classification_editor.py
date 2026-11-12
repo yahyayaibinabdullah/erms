@@ -1,5 +1,4 @@
 """Classification-specific rules and adapters used by the shared entity controls."""
-from typing import Any
 from nicegui import ui
 from .api_client import ApiError
 from .i18n_catalogue import render_message
@@ -77,44 +76,3 @@ def render_classification_search_prompt():
             render_message("webui.render_table.label.search_classifications_by_code_title_descr_30044cab")
         ).classes("font-medium")
         ui.label(render_message("webui.render_table.label.partial_matching_is_automatic_wildcard_cha_6cff96d6")).classes("text-xs")
-
-
-
-def scheme_action_buttons(buttons):
-    buttons += '<q-btn v-if="!props.row.date_published" flat round dense icon="publish" color="primary" @click="$parent.$emit(\'publish_scheme\', props.row)"><q-tooltip>Publish now</q-tooltip></q-btn>'
-    buttons += '<q-btn flat round dense :icon="props.row.date_deactivated ? \'toggle_on\' : \'toggle_off\'" :color="props.row.date_deactivated ? \'positive\' : \'negative\'" @click="$parent.$emit(\'scheme_lifecycle\', props.row)"><q-tooltip>{{ props.row.date_deactivated ? \'Reactivate\' : \'Deactivate\' }}</q-tooltip></q-btn>'
-
-    return buttons
-
-
-def bind_scheme_actions(table, *, api, refresh, error_message):
-    async def publish_scheme(event) -> None:
-        row = event.args
-        try:
-            await api.request(
-                "POST", f"/api/v1/classification-schemes/{row['id']}/publish",
-                headers={"If-Match": str(row["version"])},
-            )
-            ui.notify(render_message("webui.publish_scheme.notify.classification_scheme_published_cd141332"), color="positive")
-            await refresh()
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-    async def change_scheme_lifecycle(event) -> None:
-        row = event.args
-        action_id = "reactivate" if row.get("date_deactivated") else "deactivate"
-        action = render_message("webui.change_scheme_lifecycle.text.reactivate_ef9784c4") if row.get("date_deactivated") else render_message("webui.change_scheme_lifecycle.text.deactivate_871a64d1")
-        try:
-            await api.request(
-                "POST", f"/api/v1/classification-schemes/{row['id']}/{action_id}",
-                headers={
-                    "If-Match": str(row["version"]),
-                    "X-Change-Reason": f"{action_id.title()} from classification administration",
-                },
-            )
-            ui.notify(render_message("webui.change_scheme_lifecycle.notify.classification_scheme_action_d_18fb0eda", action=action), color="positive")
-            await refresh()
-        except ApiError as error:
-            ui.notify(error_message(error), color="negative", close_button=True)
-    table.on("publish_scheme", publish_scheme)
-    table.on("scheme_lifecycle", change_scheme_lifecycle)
-

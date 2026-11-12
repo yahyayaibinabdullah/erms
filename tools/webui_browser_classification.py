@@ -6,10 +6,6 @@ from tools.check_webui_browser import plain
 
 
 def check_classification(page):
-    response=page.api.post('/api/v1/classification-schemes',json={
-        'code':'LEGACY-AUDIT','title':'Legacy caller audit scheme',
-    })
-    response.raise_for_status();audit_scheme=response.json()
     def t(key):return page.t(key)
     def capture(name):page.capture('classification-'+name+'-'+page.language)
     def tree():page.see(t('webui.render_workspace_right.label.classification_tree_69593539'))
@@ -28,6 +24,12 @@ def check_classification(page):
         field.click();field.send_keys(Keys.COMMAND,'a',Keys.NULL);field.send_keys(value,Keys.ENTER)
     for language in ('en','ar'):
         if language=='ar':page.settings();page.language_change('ar')
+        scheme_code='WORKSPACE-'+language.upper()
+        scheme_title='Workspace verification scheme '+language
+        response=page.api.post('/api/v1/classification-schemes',json={
+            'code':scheme_code,'title':scheme_title,
+        })
+        response.raise_for_status();audit_scheme=response.json()
         with page.check('classification entry, retained preferences, URL and bounded hierarchy'):
             enter();url=page.driver.current_url;history=page.driver.execute_script('return history.length')
             filter_scheme('T01');page.see('Test scheme 1')
@@ -77,8 +79,8 @@ def check_classification(page):
             page.activate(page.one('.classification-workspace .text-lg'));capture('empty')
             filter_scheme('T01');page.see('Test scheme 1')
         with page.check('dedicated scheme publish and lifecycle refresh, reload and return'):
-            filter_scheme('LEGACY-AUDIT');page.see('Legacy caller audit scheme')
-            page.click('LEGACY-AUDIT — Legacy caller audit scheme');page.one('.classification-actions-panel')
+            filter_scheme(scheme_code);page.see(scheme_title)
+            page.click(scheme_code+' — '+scheme_title);page.one('.classification-actions-panel')
             def read_scheme():
                 result=page.api.get(f'/api/v1/classification-schemes/{audit_scheme["id"]}')
                 result.raise_for_status();return result.json()
