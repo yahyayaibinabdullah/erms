@@ -83,7 +83,7 @@ def build_advanced_search(
                 {"type": "condition", "kind": "structured", "field": "title", "operator": "contains_ci", "value": ""},
             ]},
             "sort_field": "id", "sort_direction": "asc", "limit": 25,
-            "max_results": 1000, "offset": 0, "total": 0, "searched": False,
+            "offset": 0, "total": 0, "searched": False,
             "busy": False, "error": None, "saved": None, "baseline": None,
             "audience_mode": "private", "role_ids": [], "org_unit_ids": [],
             "search_name": "", "search_category": None, "search_description": "",
@@ -122,10 +122,6 @@ def build_advanced_search(
                         target = ui.select(targets, value=workspace["resource"], label=render_message("webui.select_advanced_search.select.search_for_410f853e")).props(
                             'outlined dense options-dense aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.search_target_27bbcc33"))
                         ).classes("w-56")
-                        max_results = ui.number(render_message("advanced_search.field.maximum_results"), value=workspace["max_results"], min=1, max=5000, step=1).props(
-                            'outlined dense aria-label=' + repr(render_message("webui.select_advanced_search.accessible_name.maximum_results_4993c5ac"))
-                        ).classes("w-48")
-                        ui.label(render_message("webui.select_advanced_search.label.system_maximum_5_000_77d23fb5")).classes("text-xs text-slate-500 pb-2")
                     ui.label(render_message("webui.select_advanced_search.label.criteria_ef9a8718")).classes("text-lg font-semibold mt-3")
                     ui.label(render_message("webui.select_advanced_search.label.nest_all_any_and_not_groups_up_to_50_condi_a3faa193")).classes("text-sm text-slate-500")
                     component_scope_help = ui.label(
@@ -202,7 +198,6 @@ def build_advanced_search(
             return {
                 "schema_version": 1,
                 "resource_type": "record" if workspace["resource"] == "records" else "aggregation",
-                "max_results": max(1, min(5000, int(max_results.value or 1000))),
                 "request": request,
             }
 
@@ -228,7 +223,7 @@ def build_advanced_search(
                     "description": workspace.get("search_description"), "root": workspace["root"],
                     "resource": workspace["resource"], "sort": workspace["sort_field"],
                     "direction": workspace["sort_direction"],
-                    "maximum": max_results.value, "audience_mode": workspace["audience_mode"],
+                    "audience_mode": workspace["audience_mode"],
                     "role_ids": workspace["role_ids"], "org_unit_ids": workspace["org_unit_ids"],
                 }
             return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
@@ -242,8 +237,10 @@ def build_advanced_search(
             value = json.loads(baseline)
             if "definition" in value:
                 value["definition"]["request"].pop("limit", None)
+                value["definition"].pop("max_results", None)
             else:
                 value.pop("limit", None)
+                value.pop("maximum", None)
             baseline = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
             return current_saved_signature() != baseline
 
@@ -287,7 +284,7 @@ def build_advanced_search(
             can_execute = saved is None or capabilities.get("execute") is True
             _, validation_error = validate_builder()
             structurally_valid = validation_error is None
-            for control in (search_name, search_category, search_description, target, max_results, sort_field, sort_direction, page_size, reset_advanced):
+            for control in (search_name, search_category, search_description, target, sort_field, sort_direction, page_size, reset_advanced):
                 control.set_enabled(editable)
             if editable:
                 builder_host.props(remove="inert aria-disabled")
@@ -329,7 +326,6 @@ def build_advanced_search(
             workspace["sort_field"] = (visible_sort or {"field": "id"})["field"]
             workspace["sort_direction"] = (visible_sort or {"direction": "asc"})["direction"]
             workspace["limit"] = int(request.get("limit", 25))
-            workspace["max_results"] = int(definition.get("max_results", 1000))
             # A newly loaded definition has no execution results. Do not let
             # navigation restore cards belonging to the previous target/query.
             workspace.update(
@@ -353,7 +349,6 @@ def build_advanced_search(
             search_category.value = saved.get("category")
             search_description.value = saved.get("description")
             target.value = workspace["resource"]
-            max_results.value = workspace["max_results"]
             page_size.value = workspace["limit"]
             sort_direction.value = workspace["sort_direction"]
             results_host.clear(); freshness_host.clear(); pagination.set_visibility(False)
@@ -418,7 +413,6 @@ def build_advanced_search(
                         render_message("webui.save_search.input.category_a403b84d"), value=str(workspace.get("search_category") or ""),
                         autocomplete=list(workspace.get("category_suggestions") or []),
                     ).props("outlined clearable maxlength=80").classes("grow min-w-56")
-                    ui.label(render_message("webui.save_search.label.int_maximum_results_ae8080bb", int=format(int(max_results.value or 1000), ','))).classes("text-sm text-slate-500 self-center")
                 description_control = ui.textarea(render_message("webui.save_search.textarea.description_491f6450"), value=workspace.get("search_description") or "").props("outlined maxlength=500 autogrow").classes("w-full")
                 audience_mode = ui.radio({"private": render_message("webui.save_search.radio.only_me_739a9de4"), "shared": render_message("webui.save_search.radio.roles_or_organizational_units_01b067ca")}, value="private" if save_as else workspace["audience_mode"]).props("inline")
                 audience_host = ui.column().classes("w-full gap-3")
@@ -632,7 +626,7 @@ def build_advanced_search(
                                             render_message("webui.load_saved_page.label.title_value_updated_format_timestamp_value_b78393c6", title=localized_editor_entity("records" if item["resource_type"] == "record" else "aggregations", item["resource_type"]), value=item.get('category') or render_message("webui.saved_search_metadata.uncategorized"), format_timestamp=format_timestamp(item['date_updated']), value_2=render_message("webui.saved_search_metadata.owned") if mine else render_message("webui.saved_search_metadata.shared_by", owner=str((owner.get('localized') or {}).get('name') or owner.get('name') or item['owner_user_id'])))
                                         ).classes("text-xs text-slate-500")
                                         ui.label(
-                                            render_message("webui.load_saved_page.label.maximum_max_results_results_audience_label_1664749d", max_results=format(item['definition']['max_results'], ','), audience_label=audience_label)
+                                            render_message("webui.load_saved_page.label.maximum_max_results_results_audience_label_1664749d", max_results=format(item.get('result_cap', item['definition'].get('max_results', 1000)), ','), audience_label=audience_label)
                                         ).classes("text-xs text-slate-500")
                                         for kind, field, label_key in (
                                             ("roles", "role_ids", "webui.save_search.select.roles_c2c266e1"),
@@ -1002,7 +996,6 @@ def build_advanced_search(
                     show_validation(error)
                     validation_summary.run_method("focus")
                     return
-                maximum = max(1, min(5000, int(max_results.value or 1000)))
                 request = {
                     "where": copy.deepcopy(expression),
                     "sort": [{"field": workspace["sort_field"], "direction": workspace["sort_direction"]}],
@@ -1015,7 +1008,6 @@ def build_advanced_search(
                     saved = None
                 execution = {
                     "resource": workspace["resource"], "request": request,
-                    "max_results": maximum,
                     "saved_id": int(saved["id"]) if saved else None,
                     "saved_version": saved["version"] if saved else None,
                 }
@@ -1030,8 +1022,7 @@ def build_advanced_search(
                 return search_view_is_current() and workspace.get("execution_revision", 0) == revision
 
             request = execution["request"]
-            maximum = execution["max_results"]
-            payload = {**request, "limit": min(request["limit"], maximum - page_offset), "offset": page_offset}
+            payload = {**request, "offset": page_offset}
             resource = execution["resource"]
             saved_id = execution["saved_id"]
             workspace.update(busy=True, error=None)
@@ -1046,7 +1037,7 @@ def build_advanced_search(
                         saved_id, {"limit": payload["limit"], "offset": page_offset},
                     )
                 else:
-                    result = await api.search_request(resource, payload)
+                    result = await api.search_request(resource, payload, advanced=True)
                 if not execution_is_current():
                     return
                 if saved_id is not None and result["saved_search"]["version"] != execution["saved_version"]:
@@ -1073,7 +1064,7 @@ def build_advanced_search(
                     workspace["record_capabilities"] = {
                         int(item["id"]): capabilities for item, capabilities in zip(result_items, record_capabilities)
                     }
-                workspace.update(execution=execution, offset=page_offset, total=min(int(result["total"]), maximum), searched=True)
+                workspace.update(execution=execution, offset=page_offset, total=int(result["total"]), searched=True)
                 render_results(result)
             except ApiError as api_error:
                 if not execution_is_current():
@@ -1105,7 +1096,10 @@ def build_advanced_search(
             start = workspace["offset"] + 1 if items else 0
             end = workspace["offset"] + len(items)
             total = workspace["total"]
-            status_label.text = render_message("webui.render_results.text.total_authorized_result_value_da53e146", total=format(total, ','), value='s' if total != 1 else '')
+            if result.get("truncated"):
+                status_label.text = render_message("advanced_search.results.truncated", limit=format(total, ","))
+            else:
+                status_label.text = render_message("webui.render_results.text.total_authorized_result_value_da53e146", total=format(total, ','), value='s' if total != 1 else '')
             range_label.text = render_message("webui.render_results.text.start_end_of_total_a1dbcf9a", start=format(start, ','), end=format(end, ','), total=format(total, ','))
             pagination.set_visibility(total > 0)
             first_page.set_enabled(workspace["offset"] > 0)
@@ -1219,7 +1213,7 @@ def build_advanced_search(
             reset_search(clear_metadata=True)
 
         def reset_search(*, clear_metadata: bool = False) -> None:
-            workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=25, max_results=1000, offset=0, total=0, searched=False, last_result=None)
+            workspace.update(root={"type": "group", "operator": "and", "children": [new_condition()]}, sort_field="id", sort_direction="asc", limit=25, offset=0, total=0, searched=False, last_result=None)
             workspace.update(execution=None, execution_revision=workspace["execution_revision"] + 1, busy=False)
             workspace.update(expanded_results=[], record_capabilities={})
             workspace.pop("return_anchor", None)
@@ -1229,7 +1223,6 @@ def build_advanced_search(
                     search_name="", search_category=None, search_description="",
                 )
                 search_name.value = ""; search_category.value = None; search_description.value = ""
-            max_results.value = 1000
             page_size.value = 25
             sort_direction.value = "asc"
             results_host.clear()
@@ -1260,10 +1253,6 @@ def build_advanced_search(
                 await execute_search(page_offset=offset)
 
         target.on_value_change(change_target)
-        max_results.on_value_change(lambda event: (
-            workspace.__setitem__("max_results", max(1, min(5000, int(event.value or 1000)))),
-            persist_workspace(),
-        ))
         sort_field.on_value_change(lambda event: (workspace.__setitem__("sort_field", event.value), persist_workspace()))
         sort_direction.on_value_change(lambda event: (workspace.__setitem__("sort_direction", event.value), persist_workspace()))
         page_size.on_value_change(lambda event: (workspace.update(limit=int(event.value)), persist_workspace()))

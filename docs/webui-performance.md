@@ -348,6 +348,34 @@ stale-while-revalidate for overview information where immediate navigation and
 automatic freshness are both required. Do not cache mutation responses as if
 they were generally reusable reads.
 
+Global Search uses a server list scoped to the user, login session, tab and
+submitted query. A normal page request rechecks the current access and match
+state for the saved candidates. If the list is unavailable, the WebUI retries
+once with the same submitted query and requested page, then uses the new list
+and page tokens. It discards a late retry response after sign-out, navigation
+away or a new submission. See the [Global Search contract](../specs/full-text-search.md#103-global-search-endpoint).
+
+The search response supplies the two record display capabilities used by this
+screen. Do not follow it with per-record requests to the general capabilities
+endpoint. Page evidence and capabilities use request-local, shared SQL
+authorization; they are not cached permissions.
+
+Synchronous authentication, policy/settings reads and connection cleanup must
+run together in a worker thread. Never wait for a PostgreSQL session lock or a
+synchronous pool connection on the API event loop. Authentication uses
+`FOR NO KEY UPDATE` to serialize session changes while permitting the
+`KEY SHARE` reference held by a search-cache foreign-key insert. The stronger
+`FOR UPDATE` lock previously conflicted with that insert; waiting on the event
+loop could also prevent the search request from committing and releasing it.
+Keep both protections: compatible row locking and a nonblocking event loop.
+Concurrent lock regressions verify progress and rejection after revocation.
+
+When profiling Global Search, measure initial and cached pages separately.
+Inspect candidate lookup, authorization, scoring and details for the returned
+page. The cap limits the saved list, but a broad query can still score far more
+candidates. Include a selective query and a query that matches much of the
+collection, and compare the ranked IDs and scores when changing the query.
+
 ## 10. Verification requirements
 
 For performance-sensitive WebUI changes:
@@ -600,3 +628,12 @@ The dashboard-specific design, index inventory, maintenance rules and regression
 map are in the [dashboard guide](dashboard.md#optimization-and-maintenance).
 Regression matrix, query plans, benchmark scope and cleanup evidence are in
 [dashboard isolation and performance verification](verification/dashboard-isolation-performance.md).
+
+## Search performance acceptance
+
+All search and filtering implementations must follow the normative
+[search performance contract](search-performance.md). Use SQL for matching, authorization, ranking and paging;
+reuse batch permission calculations and indexable candidate predicates.
+Changes require the disposable large-data correctness and latency gate: more
+than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
+counts/ranking/order, and every measured response within 3 seconds.

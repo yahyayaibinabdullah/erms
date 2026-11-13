@@ -4,7 +4,7 @@ import os
 import psycopg
 from psycopg.rows import dict_row
 
-from backend.services.api.dashboard_visibility import VISIBILITY_CTES
+from backend.services.api.dashboard_visibility import VISIBILITY_CTES, visibility_ctes
 from backend.services.api.dashboard import _resource_metrics
 
 
@@ -16,6 +16,33 @@ def assert_equivalent(connection, identity):
         actual=connection.execute(
             f'WITH RECURSIVE {VISIBILITY_CTES} SELECT id FROM authorized_{table} ORDER BY id').fetchall()
         assert actual==expected,(identity,table,actual,expected)
+        # Search limits the ACL graph to candidate rows and their ancestors.
+        # Record visibility alone must never let a file affect the result.
+        candidate_filter = "id % 2 = 0"
+        extra = "" if kind == 'aggregation' else (
+            ", current_user_can_record_component_operation(id,'record.component.view','record.component.view') AS can_view_component"
+        )
+        expected_search = connection.execute(f"""SELECT id{extra} FROM {table}
+            WHERE {candidate_filter} AND current_user_can_view_{kind}(id)
+              AND (disposition_status NOT IN (10,11,12) OR disposition_private.can_manage())
+            ORDER BY id""").fetchall()
+        component_access = kind == 'record'
+        projection = ', can_view_component' if component_access else ''
+        ctes = visibility_ctes(candidate_resource=table, component_access=component_access)
+        actual_search = connection.execute(f"""WITH RECURSIVE
+            candidate_ids AS (SELECT id FROM {table} WHERE {candidate_filter}), {ctes}
+            SELECT id{projection} FROM authorized_{table} ORDER BY id""").fetchall()
+        assert actual_search == expected_search, (identity, table, actual_search, expected_search)
+    page_ctes = visibility_ctes(component_access=True, page_access=True)
+    expected_page = connection.execute("""SELECT id,
+        current_user_can_record_component_operation(id,'record.component.view','record.component.view') AS can_view_component,
+        current_user_can_list_record_components(id) AS can_list_components
+        FROM records WHERE current_user_can_view_record(id) ORDER BY id""").fetchall()
+    actual_page = connection.execute(f"""WITH RECURSIVE
+        page_record_ids AS (SELECT id FROM records),
+        page_aggregation_ids AS (SELECT id FROM aggregations), {page_ctes}
+        SELECT id,can_view_component,can_list_components FROM authorized_records ORDER BY id""").fetchall()
+    assert actual_page == expected_page, (identity, actual_page, expected_page)
     expected=connection.execute("SELECT code FROM privileges WHERE user_has_global_privilege(current_user_id(),code) ORDER BY code").fetchall()
     actual=connection.execute(f'WITH RECURSIVE {VISIBILITY_CTES} SELECT code FROM effective_privileges ORDER BY code').fetchall()
     assert actual==expected
@@ -54,7 +81,8 @@ def test_set_visibility_matches_acl_sources_contextual_roles_clearance_and_ident
         local_role=c.execute("INSERT INTO roles(org_unit_id,code,name,profile_id,security_level_id) VALUES(%s,'LOCAL','Local reader',%s,%s) RETURNING id",(child_unit,profile,low)).fetchone()['id']
         c.execute('INSERT INTO user_role_assignments(user_id,role_id) VALUES(%s,%s)',(user,local_role))
         c.execute('UPDATE org_units SET managing_role_id=%s,file_administrator_role_id=%s WHERE id=%s',(role,role,owner))
-        permission=c.execute("SELECT id,code FROM permissions WHERE code IN ('record.view','aggregation.view')").fetchall()
+        permission=c.execute("""SELECT id,code FROM permissions WHERE code IN
+            ('record.view','aggregation.view','record.component.list','record.component.view')""").fetchall()
         permissions={row['code']:row['id'] for row in permission}
         # Exercise inherited resource ACLs, custom child defaults, inheritance
         # breaks and a child with a different owner from its ACL source.
@@ -69,11 +97,16 @@ def test_set_visibility_matches_acl_sources_contextual_roles_clearance_and_ident
                   ('aggregation_acl_grants','aggregation_id',children[2],'aggregation.view'),
                   ('aggregation_child_aggregation_acl_defaults','aggregation_id',children[0],'aggregation.view'),
                   ('record_acl_grants','record_id',record['id'],'record.view'),
-                  ('aggregation_child_record_acl_defaults','aggregation_id',children[1],'record.view')]
+                  ('aggregation_child_record_acl_defaults','aggregation_id',children[1],'record.view'),
+                  ('record_acl_grants','record_id',record['id'],'record.component.list'),
+                  ('aggregation_child_record_acl_defaults','aggregation_id',children[1],'record.component.list'),
+                  ('record_acl_grants','record_id',record['id'],'record.component.view'),
+                  ('aggregation_child_record_acl_defaults','aggregation_id',children[1],'record.component.view')]
         c.execute("UPDATE aggregations SET default_child_aggregation_acl_mode='custom' WHERE id=%s",(children[0],))
         for principal in ('everyone','role','org_unit_members','owning_and_higher_level_unit_managers','effective_file_administrator'):
-            for table,column,identifier,code in matrices:
+            for table,column,identifier in dict.fromkeys(entry[:3] for entry in matrices):
                 c.execute(f'DELETE FROM {table} WHERE {column}=%s',(identifier,))
+            for table,column,identifier,code in matrices:
                 c.execute(f'INSERT INTO {table}({column},principal_type,role_id,permission_id) VALUES(%s,%s,%s,%s)',
                           (identifier,principal,role if principal=='role' else None,permissions[code]))
             for identity in (1,user,None,user,1):assert_equivalent(c,identity)

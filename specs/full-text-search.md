@@ -3,12 +3,17 @@
 **Status:** Approved
 **Project:** ERMS / Wathiq  
 **Prepared:** 24 September 2026  
-**Revision:** 0.35 — Accurate extractor failure classification
+**Revision:** 0.40 — Independent database-elected search-cache maintenance
 
 ### Revision history
 
 | Revision | Date | Change |
 | --- | --- | --- |
+| 0.40 | 13 November 2026 | Independently supervised cleanup with one active database-elected owner, optional standbys, safe connection-loss failover and tandem local-stack ownership |
+| 0.39 | 12 November 2026 | Required SQL-based processing, plan verification and deterministic large-data correctness tests with a three-second maximum per response |
+| 0.38 | 12 November 2026 | Reused role and access calculations across full-text candidates and recovered the requested page automatically when the tab's result list was unavailable |
+| 0.37 | 12 November 2026 | Moved the result limit and cache idle timeout into Application Settings and reused the first ranking for page one and the saved list |
+| 0.36 | 12 November 2026 | Capped each Global Search at 1,000 authorized results and bound the saved ranking to the user, login session, and browser tab |
 | 0.35 | 25 September 2026 | Reserved `corrupt` for affirmative malformed-content evidence and required Tika process, JVM, fork-initialization and local-communication failures to be reported as retryable `extractor_unavailable` outcomes |
 | 0.34 | 25 September 2026 | Added current-failure diagnostics, permission-aware record/component links, and an aggregate list of currently unsupported formats to Text Indexers Health |
 | 0.33 | 25 September 2026 | Separated currently failed search documents from retained failed-job history in Health/readiness and added a privilege-gated bounded retry action for current failures |
@@ -1638,6 +1643,7 @@ different:
   },
   "result_types": ["records", "aggregations"],
   "limit": 25,
+  "tab_id": "3f95be50-10cb-4ab2-a270-0e97b20aa5a0",
   "cursor": null
 }
 ```
@@ -1654,15 +1660,102 @@ The server converts user input with `websearch_to_tsquery` for the applicable
 explicit configurations. Raw `to_tsquery` syntax is not accepted in the
 initial release. Parameter binding is mandatory.
 
-The opaque cursor encodes the stable ordering tuple and query fingerprint.
-Offset pagination is not used for deep global-search pages. The response has a
-bounded page size; total counts are optional and, if returned, count only
-authorized results.
+An initial request ranks authorized candidates once. For a single full-text
+leaf, the server finds candidates using the existing text indexes where
+selective, resolves roles, clearance and access grants for those candidates
+as a group, and scores authorized metadata and file evidence. File-only
+matches and file scores require component view permission. The same ranked
+SQL result provides the requested page's details and the ordered IDs and
+scores saved for later pages. Only that page's details are loaded. The server
+saves at most `SEARCH_RESULT_LIMIT` across both resource
+types. Administrators can set this value from 1 to 5,000 in Application
+Settings. The default is 1,000. Each branch contributes at most the configured
+limit plus one candidate to the merge. A match beyond the limit sets
+`truncated: true`. The response includes `result_cap`. Initial requests with
+`include_totals: true` return counts by type within the saved list, and the UI
+shows the configured limit if the list was truncated. Continuations omit
+totals. Ranking may still need to evaluate candidates beyond the result cap.
 
-An initial request may set `include_totals` to `true`. The response then
-includes `totals`, keyed by the requested resource types, for all authorized
-matches before the page limit. Cursor requests omit totals. The option does
-not change the query fingerprint or result ordering.
+When both sources are selected, metadata matches establish candidates directly;
+file matching adds records outside that metadata set. This avoids redundant
+candidate matching, and can skip the file-match scan when all records already
+match metadata. It does not alter ranking: all eligible candidates still receive
+their existing permitted metadata and active-file score contributions, and page
+attribution still reports matching file evidence on metadata hits.
+
+The WebUI generates a random `tab_id` for each browser tab's live application
+instance and sends it with the initial search and each page request. The server
+returns a new random `search_id` and may return an opaque `next_cursor` page
+token. The page token refers to a position in the saved list. Each page
+request repeats the submitted branches and page size. To read the first page
+again or switch type filters, send `search_id` with the original `tab_id`, omit
+the page token, and set `result_filter` to `record` or `aggregation` if needed.
+A direct API caller that omits `tab_id` gets a server-generated tab ID carried
+in its continuation token. To request a numbered page without a page token,
+send `page` (starting at 1). The response returns the page served, using the
+last available page if the requested page is beyond the list, or page 1 if
+there are no matches. A request cannot supply both `page` and `cursor`.
+
+The shared PostgreSQL cache stores only the ordered resource types, IDs and
+scores, the query fingerprint, and ownership and expiry metadata. The
+authenticated user ID, login session ID, tab ID, search ID, and fingerprint
+must all match. A new submission replaces the previous list for the same tab
+and login. Other tabs and logins keep their own lists. An older concurrent
+submission cannot replace a newer one. The list expires after `GLOBAL_SEARCH_CACHE_IDLE_MINUTES` of inactivity
+(default 15), at login expiry or revocation, or if the cache is lost. The
+earlier applicable expiry wins. A change to `SEARCH_RESULT_LIMIT` or
+`GLOBAL_SEARCH_CACHE_IDLE_MINUTES` makes
+lists created under the previous values unavailable once the setting takes
+effect. The login
+session cleanup worker removes expired lists, and deletion of the login session
+removes its lists. Closing a tab relies on idle expiry. The API returns
+`410 global_search_expired` for an unavailable or mismatched continuation.
+While the user is still signed in, the WebUI silently submits the tab's last
+submitted query, selected result type, page size and requested page once,
+without the old search ID or token. The API builds a fresh list using current
+permissions and settings, and returns the requested page when it still exists.
+The WebUI replaces its tokens and counts with values from the new list.
+Expired or revoked logins still require sign-in.
+
+Physical cache cleanup uses separate Application Settings:
+`GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS` defaults to 60 seconds and
+`GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE` defaults to 5,000 **lists**, not hits.
+Both are positive integers. Changing either affects maintenance only and does
+not invalidate valid lists. The standalone `backend.services.api.session_cleanup`
+process runs cache cleanup and login-history cleanup on independent schedules,
+in separate transactions, with distinct advisory locks. Each cache pass deletes
+at most its configured batch, oldest expiry first, using the expiry index and
+`FOR UPDATE SKIP LOCKED`; it does not inspect or rerank the saved JSON hits.
+Cleanup skips busy tab rows. Production supervises this process independently
+of API start/stop/restart, enabling it at system boot. A database-scoped session
+advisory lock (`2026091803`) elects at most one active process across hosts;
+standbys retry every five seconds and execute neither job. Job SQL uses the same
+connection that owns leadership, so losing it prevents further cleanup and causes
+a nonzero exit for supervisor restart. Leadership survives job commits and idle
+waits; PostgreSQL releases it when the connection ends. One-shot/dry-run commands
+respect the same ownership. Retain the per-job transaction locks as an additional
+safeguard. Local `run-local-stack.sh` owns its separate process and starts/stops it
+with the complete stack, retaining the same database-wide election. See
+[the operational procedure](../docs/operations.md#6-login-session-cleanup).
+
+The initial ranking applies current record, aggregation and component
+permissions in SQL. Later page requests, including First, Previous and type
+changes, recheck the saved candidates in SQL with current permissions and
+content. Deleted records, hidden resources, and items that no longer
+match are skipped. A page fills from the remaining saved IDs when possible.
+Snippets and displayed scores use currently authorized evidence. New matches
+and a new order appear on the next submission or automatic rebuild. Reading a
+page from an available list does not rerun the whole search.
+
+Page enrichment is batched in SQL: metadata/file attribution, bounded snippets,
+visible parent labels and display capabilities are fetched together for the
+returned page. Each record item includes `record_capabilities.list_components`
+and `record_capabilities.has_previewable_component`, with the same permission
+and file-format rules as the record capabilities endpoint. The WebUI uses these
+two flags directly; it does not call the general capabilities endpoint for each
+hit. Neither evidence nor capability flags are stored in the ranked-list cache.
+The cached-page query shares authorization sets across its candidate records;
+explicit retained-destruction expressions retain their specialized access checks.
 
 ### 10.4 Global result shape
 
@@ -1681,6 +1774,10 @@ not change the query fingerprint or result ordering.
         "aggregation_number": "FIN-2026"
       },
       "matched_record_metadata": true,
+      "record_capabilities": {
+        "list_components": true,
+        "has_previewable_component": true
+      },
       "matching_components": [
         {
           "id": 501,
@@ -1705,6 +1802,9 @@ not change the query fingerprint or result ordering.
     }
   ],
   "next_cursor": null,
+  "search_id": "9472dddc-2b3c-4a91-8e0a-e4d925786c40",
+  "truncated": false,
+  "result_cap": 1000,
   "index_freshness": {
     "has_pending_content": false
   }
@@ -1953,8 +2053,8 @@ guidance.
 
 Aggregation results use the same surface and rhythm with a distinct type icon
 and open-aggregation action. Type tabs filter the already submitted query. The
-tab counts come from the initial response and stay fixed while paging. Each
-tab uses its own cursor so Next requests one page for that tab. At mobile
+tab counts come from the initial saved list and stay fixed while paging. Each
+filter pages through its part of the same ranked list. At mobile
 widths actions use the established row/card navigation behavior, component
 matches stack vertically, and no horizontal scrolling is required.
 
@@ -2385,6 +2485,8 @@ rebuildable derived data, but their removal requires a later explicit migration.
 | FTS-61 | Built-in roles are visible and clearly labelled in Roles administration but remain read-only and excluded from ordinary assignment selectors; the text-indexer role links authorized users to Text Indexers | API visibility/mutation tests and live-browser list/detail verification |
 | FTS-62 | Text Indexers Health/readiness counts only currently failed eligible search documents while exposing retained failed-job history separately; an administrator can idempotently queue a bounded 1–500 retry batch for current failures without deleting history or duplicating active work | disposable-database current/history/readiness, authorization, bounds, idempotency and UI workflow tests |
 | FTS-63 | Text Indexers Health provides current-failure groups and a paginated current-failure list with safe diagnostic metadata; record/component labels and links require ordinary resource-view authorization; currently unsupported formats are aggregated separately by MIME type and historical attempts are excluded | disposable-database authorization/leakage/pagination/aggregation tests and live-browser navigation/visual verification |
+| FTS-64 | Global Search uses the administrator-set result limit and idle timeout, ranks once for page one and the list, and rechecks access on later pages within the user, login session and tab | API cap, tab and login isolation, expiry, permission change, and browser paging tests |
+| FTS-65 | Matching, authorization and ranking execute in SQL with indexable candidates and shared permission sets; the disposable fixture exceeds 50,000 aggregations and 150,000 records, preserves exact counts/ranks/order with a 1,000-hit cap, and every response finishes within 3 seconds | `tools/check_search_performance.py`; canonical permission differential tests; [performance contract](../docs/search-performance.md) |
 
 The feature is not complete until every acceptance criterion has implementation
 and verification evidence. Database tests must follow the repository rule that
@@ -2407,3 +2509,12 @@ production ERMS database.
 - PostgreSQL 18 supplies built-in language configurations and dictionaries,
   including the Arabic Snowball dictionary used by `pg_catalog.arabic`:
   <https://www.postgresql.org/docs/18/textsearch-psql.html>
+
+## Search performance acceptance
+
+All search and filtering implementations must follow the normative
+[search performance contract](../docs/search-performance.md). Use SQL for matching, authorization, ranking and paging;
+reuse batch permission calculations and indexable candidate predicates.
+Changes require the disposable large-data correctness and latency gate: more
+than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
+counts/ranking/order, and every measured response within 3 seconds.

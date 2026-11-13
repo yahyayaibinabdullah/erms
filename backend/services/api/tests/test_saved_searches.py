@@ -34,6 +34,15 @@ def _payload(**changes) -> dict:
     return value
 
 
+def _restore_legacy_limit(saved_id: int, maximum: int) -> None:
+    with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
+        connection.execute("SELECT set_config('app.user_id','1',true), set_config('app.change_reason','Legacy test fixture',true)")
+        connection.execute(
+            "UPDATE saved_searches SET definition = definition || jsonb_build_object('max_results', %s::integer) WHERE id=%s",
+            (maximum, saved_id),
+        )
+
+
 def test_owner_name_follows_viewer_language(client):
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         connection.execute("UPDATE users SET translations=%s WHERE id=1", (Jsonb({'ar': {'name': 'عمر إبراهيم'}}),))
@@ -120,6 +129,10 @@ def test_execute_saved_search_uses_fresh_results_and_enforces_stored_cap(client,
     created = client.post("/api/v1/saved-searches", json=_payload(definition=_definition(maximum=2)))
     assert created.status_code == 201, created.text
     saved = created.json()
+    assert "max_results" not in saved["definition"]
+    assert saved["result_cap"] == 1000
+    _restore_legacy_limit(saved["id"], 2)
+    saved = client.get(f"/api/v1/saved-searches/{saved['id']}").json()
 
     first = client.post(f"/api/v1/saved-searches/{saved['id']}/execute", json={"limit": 25, "offset": 0})
     assert first.status_code == 200, first.text
@@ -144,6 +157,11 @@ def test_execute_saved_search_uses_fresh_results_and_enforces_stored_cap(client,
     fresh = client.post(f"/api/v1/saved-searches/{saved['id']}/execute", json={})
     assert fresh.status_code == 200
     assert fresh.json()["total"] == 2
+    from backend.services.api.tests.test_application_settings import save
+    assert save(client, {"SEARCH_RESULT_LIMIT": 1}).status_code == 200
+    reduced = client.post(f"/api/v1/saved-searches/{saved['id']}/execute", json={})
+    assert reduced.status_code == 200
+    assert reduced.json()["result_cap"] == 1 and reduced.json()["returned"] == 1
 
 
 def test_role_sharing_is_visible_but_does_not_grant_administration(client):
@@ -269,6 +287,7 @@ def test_administration_filters_and_execution_does_not_create_history(client):
         name="Small finance search", category="Finance", definition=_definition(maximum=50),
     ))
     assert private.status_code == 201, private.text
+    _restore_legacy_limit(private.json()["id"], 50)
     other = client.post("/api/v1/saved-searches", json=_payload(
         name="Large legal search", category="Legal", definition=_definition(maximum=2000),
     ))

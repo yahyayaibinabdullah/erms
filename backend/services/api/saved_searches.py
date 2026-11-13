@@ -15,6 +15,8 @@ from .audit_context import decode_change_reason
 from .concurrency import expected_version
 from .database import get_connection
 from .authorization_policy import require_global_privilege
+from .application_settings import cache as settings_cache
+from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
 from .schemas import SearchRequest
 from .search import canonicalize_search_request, search_rows
 from .entity_localization import localize_rows, localized_projection, preferred_language
@@ -31,7 +33,8 @@ class SavedSearchDefinition(BaseModel):
     model_config = ConfigDict(extra="forbid")
     schema_version: Literal[1] = 1
     resource_type: Literal["record", "aggregation"]
-    max_results: int = Field(default=1000, ge=1, le=5000)
+    # Accept the legacy field from older clients. Only already-stored limits affect execution.
+    max_results: int | None = Field(default=None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM)
     request: SearchRequest
 
     @model_validator(mode="after")
@@ -180,6 +183,7 @@ def _capabilities(connection: Connection, row: dict[str, Any]) -> tuple[dict[str
 
 def _serialize(connection: Connection, row: dict[str, Any], language: str) -> dict[str, Any]:
     result = dict(row)
+    result["result_cap"] = _saved_search_result_cap(connection, row["definition"])
     roles, units = _audience(connection, row["id"])
     result["role_ids"] = roles
     result["org_unit_ids"] = units
@@ -191,6 +195,11 @@ def _serialize(connection: Connection, row: dict[str, Any], language: str) -> di
         result["owner"].pop("translations", None)
     result["capabilities"], result["capability_reasons"] = _capabilities(connection, row)
     return result
+
+
+def _saved_search_result_cap(connection: Connection, definition: dict[str, Any]) -> int:
+    system_limit = settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"]
+    return min(int(definition.get("max_results") or system_limit), system_limit)
 
 
 def _get(
@@ -220,7 +229,6 @@ def _canonical_definition(connection: Connection, definition: SavedSearchDefinit
     return {
         "schema_version": 1,
         "resource_type": definition.resource_type,
-        "max_results": definition.max_results,
         "request": canonical,
     }
 
@@ -390,8 +398,8 @@ def administer_saved_searches(
     resource_type: Literal["record", "aggregation"] | None = None,
     q: str | None = None, category: str | None = None,
     role_id: int | None = None, org_unit_id: int | None = None,
-    max_results_min: int | None = Query(None, ge=1, le=5000),
-    max_results_max: int | None = Query(None, ge=1, le=5000),
+    max_results_min: int | None = Query(None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM),
+    max_results_max: int | None = Query(None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM),
     created_from: datetime | None = None, created_before: datetime | None = None,
     updated_from: datetime | None = None, updated_before: datetime | None = None,
     limit: int = Query(25, ge=1, le=100), offset: int = Query(0, ge=0),
@@ -401,6 +409,7 @@ def administer_saved_searches(
         raise HTTPException(status_code=403, detail={"code": "insufficient_privilege"})
     if max_results_min is not None and max_results_max is not None and max_results_min > max_results_max:
         raise HTTPException(status_code=422, detail={"code": "invalid_max_results_range"})
+    system_limit = settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"]
     where = """WHERE (%s::bigint IS NULL OR saved.owner_user_id=%s)
       AND (%s::text IS NULL OR owner.name ILIKE '%%'||%s||'%%' OR owner.email ILIKE '%%'||%s||'%%')
       AND (%s::text IS NULL OR saved.resource_type=%s)
@@ -408,8 +417,8 @@ def administer_saved_searches(
       AND (%s::text IS NULL OR lower(saved.category)=lower(%s))
       AND (%s::bigint IS NULL OR EXISTS (SELECT 1 FROM saved_search_role_grants grant_row WHERE grant_row.saved_search_id=saved.id AND grant_row.role_id=%s))
       AND (%s::bigint IS NULL OR EXISTS (SELECT 1 FROM saved_search_org_unit_grants grant_row WHERE grant_row.saved_search_id=saved.id AND grant_row.org_unit_id=%s))
-      AND (%s::integer IS NULL OR (saved.definition->>'max_results')::integer >= %s)
-      AND (%s::integer IS NULL OR (saved.definition->>'max_results')::integer <= %s)
+      AND (%s::integer IS NULL OR LEAST((saved.definition->>'max_results')::integer, %s) >= %s)
+      AND (%s::integer IS NULL OR LEAST((saved.definition->>'max_results')::integer, %s) <= %s)
       AND (%s::timestamptz IS NULL OR saved.date_created >= %s::timestamptz)
       AND (%s::timestamptz IS NULL OR saved.date_created < %s::timestamptz)
       AND (%s::timestamptz IS NULL OR saved.date_updated >= %s::timestamptz)
@@ -418,7 +427,7 @@ def administer_saved_searches(
         owner_user_id, owner_user_id, owner_q, owner_q, owner_q,
         resource_type, resource_type, q, q, category, category,
         role_id, role_id, org_unit_id, org_unit_id,
-        max_results_min, max_results_min, max_results_max, max_results_max,
+        max_results_min, system_limit, max_results_min, max_results_max, system_limit, max_results_max,
         created_from, created_from, created_before, created_before,
         updated_from, updated_from, updated_before, updated_before,
     )
@@ -478,7 +487,7 @@ def execute_saved_search(
             status_code=422,
             detail={"code": "saved_search_definition_unsupported"},
         )
-    maximum = int(definition["max_results"])
+    maximum = _saved_search_result_cap(connection, definition)
     if payload.offset >= maximum:
         raise HTTPException(
             status_code=422,
@@ -496,8 +505,8 @@ def execute_saved_search(
     result = search_rows(
         connection, resource, execution_request,
         endpoint=f"/api/v1/saved-searches/{saved_search_id}/execute",
+        max_results=maximum,
     )
-    result["total"] = min(int(result["total"]), maximum)
     result["saved_search"] = {
         "id": row["id"], "name": row["name"], "version": row["version"],
         "resource_type": row["resource_type"], "max_results": maximum,
@@ -541,6 +550,8 @@ def update_saved_search(
     if audience_changed:
         _validate_audience(connection, payload, administrator=administrator)
     definition = _canonical_definition(connection, payload.definition)
+    if "max_results" in row["definition"]:
+        definition["max_results"] = row["definition"]["max_results"]
     connection.execute("SELECT set_config('app.change_reason',%s,true)", (reason,))
     connection.execute("SELECT set_config('app.event_metadata',%s,true)", (json.dumps({
         "audience_before": {"role_ids": old_roles, "org_unit_ids": old_units},

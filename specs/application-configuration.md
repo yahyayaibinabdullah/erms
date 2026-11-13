@@ -263,6 +263,19 @@ password change, or administrative password recovery clears the counter/lock.
 | `SEARCH_RATE_LIMIT_PER_MINUTE` | integer | `600` | At least `1` |
 | `MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE` | integer | `60` | At least `1` |
 | `AUDIT_TRAIL_SEARCH_RESULT_LIMIT` | integer | `1000` | At least `1`; limits Audit Trail matching results and count work |
+| `SEARCH_RESULT_LIMIT` | integer | `1000` | From 1 through 5,000. Shared cap across all pages of Global Search and Advanced Search. |
+| `GLOBAL_SEARCH_CACHE_IDLE_MINUTES` | integer | `15` | At least 1. A Global Search list becomes unavailable at the earlier of cache idle expiry or login session expiry. The WebUI rebuilds the list when a still signed-in user requests another page. |
+| `GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS` | integer | `60` | At least 1. Delay after a completed expired-search-list cleanup pass; independent of login-session cleanup. |
+| `GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE` | integer | `5000` | At least 1. Maximum expired cached lists removed in one transaction, counting one row per login/browser tab, not individual hits. |
+
+The two cleanup settings are database-owned Application Settings in **Search
+and indexing**, never environment variables. The active standalone session-cleanup
+worker checks settings at least every 30 seconds while idle and applies changes
+without restart. A running batch finishes under its captured settings. Each job
+runs once on acquiring database leadership, then waits its own interval after completion; there
+is no unlimited backlog-draining loop. Cleanup settings do not change cache
+validity, result limits or invalidate still-valid lists. Expiry remains enforced
+on each search request, regardless of when expired rows are physically deleted.
 
 The Audit Trail limit is editable through Administration Settings and uses the
 general 30-second settings cache. Changes require no restart. Each request uses

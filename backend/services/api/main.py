@@ -10,6 +10,7 @@ from uuid import UUID, uuid4
 import psycopg
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, Request, Response, UploadFile, status
 from fastapi.responses import JSONResponse, StreamingResponse
+from starlette.concurrency import run_in_threadpool
 from psycopg import Connection
 from psycopg_pool import PoolTimeout
 from psycopg.types.json import Jsonb
@@ -28,7 +29,7 @@ from .audit_context import (
     event_source_context,
     request_id_context,
 )
-from .authentication import CSRF_COOKIE, SESSION_COOKIE, hash_secret, resolve_principal, router as authentication_router
+from .authentication import CSRF_COOKIE, SESSION_COOKIE, Principal, hash_secret, principal_from_request, resolve_principal, router as authentication_router
 from .service_authentication import (
     TEXT_INDEXING_ROUTE_PREFIX, resolve_text_indexer_principal, service_request_allowed,
 )
@@ -251,9 +252,10 @@ async def validation_error_handler(request: Request, error: RequestValidationErr
 @operation_policy("resource_scoped", "record.view", "record.view")
 def full_text_search(
     payload: GlobalSearchRequest,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return global_search_rows(connection,payload)
+    return global_search_rows(connection, payload, session_id=principal.session_id, user_id=principal.user_id)
 
 EVENT_SOURCES = {
     "api", "web_ui", "bulk_import", "background_worker", "scheduled_job",
@@ -317,20 +319,41 @@ async def audit_request_context(request: Request, call_next):
     request_settings = None
     if internal_text_indexing_path or session_token:
         try:
-            with pool.connection() as authentication_connection:
-                if internal_text_indexing_path and bearer_token:
-                    service_principal = resolve_text_indexer_principal(
-                        authentication_connection, bearer_token,
-                        worker_id=request.headers.get("X-Worker-ID"),
-                    )
-                elif session_token:
-                    principal = resolve_principal(authentication_connection, session_token)
-                    request.state.policy_context = (
-                        load_policy_context(authentication_connection, principal)
-                        if principal else None
-                    )
-                if service_principal or principal:
-                    request_settings = settings_cache.for_connection(authentication_connection)
+            def authenticate():
+                # A search-cache INSERT takes a foreign-key KEY SHARE lock on its
+                # login_sessions row until the search transaction commits. A
+                # simultaneous request used to authenticate with FOR UPDATE here
+                # on the event-loop thread. Waiting for that row could freeze the
+                # loop, preventing the first request's dependency cleanup/commit
+                # from releasing it: a database/application wait cycle which
+                # PostgreSQL alone cannot identify as a database deadlock.
+                #
+                # resolve_principal now uses a compatible NO KEY UPDATE lock,
+                # but revocation/expiry writes and pool exhaustion can still
+                # legitimately wait. Run the WHOLE synchronous transaction in a
+                # worker, including policy/settings reads and connection exit.
+                # The loop remains free to finish requests and their cleanup.
+                # Do not move just the SELECT to a worker or return its connection
+                # to the event loop. Set request state only after commit below.
+                principal = service_principal = policy_context = request_settings = None
+                with pool.connection() as authentication_connection:
+                    if internal_text_indexing_path and bearer_token:
+                        service_principal = resolve_text_indexer_principal(
+                            authentication_connection, bearer_token,
+                            worker_id=request.headers.get("X-Worker-ID"),
+                        )
+                    elif session_token:
+                        principal = resolve_principal(authentication_connection, session_token)
+                        policy_context = (
+                            load_policy_context(authentication_connection, principal)
+                            if principal else None
+                        )
+                    if service_principal or principal:
+                        request_settings = settings_cache.for_connection(authentication_connection)
+                return principal, service_principal, policy_context, request_settings
+
+            principal, service_principal, policy_context, request_settings = await run_in_threadpool(authenticate)
+            request.state.policy_context = policy_context
         except PoolTimeout:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -354,7 +377,7 @@ async def audit_request_context(request: Request, call_next):
                             headers={"Retry-After": "1"})
     if principal and request.method == "POST":
         is_reindex = request.url.path.endswith("/reindex")
-        is_search = request.url.path.endswith("/search") or request.url.path == "/api/v1/full-text-search"
+        is_search = request.url.path.endswith(("/search", "/advanced-search")) or request.url.path == "/api/v1/full-text-search"
         if is_reindex and not service_request_allowed(
             -1_000_000_000-principal.user_id,
             request_settings["MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE"],
@@ -758,6 +781,16 @@ def search_aggregations(
     return search_rows(connection, "aggregations", payload, endpoint="/api/v1/aggregations/search", record_creation=record_creation, digital_only=digital_only, display_filter=display_filter)
 
 
+@app.post("/api/v1/aggregations/advanced-search", response_model=None, tags=["aggregations"])
+@operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
+def advanced_search_aggregations(
+    payload: SearchRequest,
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    return search_rows(connection, "aggregations", payload, endpoint="/api/v1/aggregations/advanced-search",
+                       max_results=settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"])
+
+
 @app.get("/api/v1/aggregations/{aggregation_id}", response_model=AggregationRead, tags=["aggregations"])
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def get_aggregation(aggregation_id: int, connection: Connection = Depends(get_connection, scope="function")):
@@ -1135,6 +1168,16 @@ def search_records(
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     return search_rows(connection, "records", payload, endpoint="/api/v1/records/search", display_filter=display_filter)
+
+
+@app.post("/api/v1/records/advanced-search", response_model=None, tags=["records"])
+@operation_policy("resource_scoped", "record.view", "record.view")
+def advanced_search_records(
+    payload: SearchRequest,
+    connection: Connection = Depends(get_connection, scope="function"),
+):
+    return search_rows(connection, "records", payload, endpoint="/api/v1/records/advanced-search",
+                       max_results=settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"])
 
 
 @app.get("/api/v1/records/{record_id}", response_model=RecordRead, tags=["records"])

@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "842ff0fa5cdcfef8e609f54b0d17c596c0aec6125c859e8e744e12f70f1c062c",
+  "catalogue_sha256": "e828932baa26cf9d2db72ddfaa0a9f4c781971e3036e1932a58751df12301dcc",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261110071750",
   "generated_at": "2026-11-10T07:17:50.721352+04:00",
@@ -640,18 +640,6 @@
       }
     },
     {
-      "message_key": "advanced_search.field.maximum_results",
-      "translated_text": "الحد الأقصى للنتائج",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
-        "date_published": "2026-09-26T16:20:14.562571+00:00"
-      }
-    },
-    {
       "message_key": "advanced_search.field.medium",
       "translated_text": "وسط",
       "quality_flags": [],
@@ -1057,6 +1045,17 @@
         "source_status": "published",
         "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
         "date_published": "2026-09-26T16:20:14.562571+00:00"
+      }
+    },
+    {
+      "message_key": "advanced_search.results.truncated",
+      "translated_text": "أكثر من {limit} نتيجة مطابقة. تُعرض أول {limit} نتيجة.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
       }
     },
     {
@@ -15951,6 +15950,17 @@
       }
     },
     {
+      "message_key": "global_search.results.capped",
+      "translated_text": "أكثر من {limit} نتيجة مطابقة. حدّد معايير البحث بدقة أكبر للاطلاع على نتائج أخرى.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
       "message_key": "governance_custody.field.clearance",
       "translated_text": "درجة السرية",
       "quality_flags": [],
@@ -25599,6 +25609,88 @@
       }
     },
     {
+      "message_key": "settings.field.global_search_cache_cleanup_batch_size.description",
+      "translated_text": "الحد الأقصى لقوائم البحث المنتهية الصلاحية التي تُحذف في كل عملية تنظيف. تخص كل قائمة علامة تبويب واحدة في المتصفح؛ ولا يشير هذا العدد إلى نتائج البحث الفردية.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "model": "GPT-6",
+        "prompt_version": "search-cache-cleanup-2026-11-13",
+        "batch_id": "search-cache-cleanup-20261113",
+        "generated_at": "2026-11-13T06:01:00.109904+00:00",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "settings.field.global_search_cache_cleanup_batch_size.label",
+      "translated_text": "حجم دفعة تنظيف ذاكرة نتائج البحث الشامل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "model": "GPT-6",
+        "prompt_version": "search-cache-cleanup-2026-11-13",
+        "batch_id": "search-cache-cleanup-20261113",
+        "generated_at": "2026-11-13T06:01:00.109904+00:00",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "settings.field.global_search_cache_cleanup_interval_seconds.description",
+      "translated_text": "عدد الثواني بين عمليات تنظيف قوائم البحث المنتهية الصلاحية. وهو مستقل عن تنظيف جلسات تسجيل الدخول وانتهاء صلاحية ذاكرة النتائج.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "model": "GPT-6",
+        "prompt_version": "search-cache-cleanup-2026-11-13",
+        "batch_id": "search-cache-cleanup-20261113",
+        "generated_at": "2026-11-13T06:01:00.109904+00:00",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "settings.field.global_search_cache_cleanup_interval_seconds.label",
+      "translated_text": "الفاصل الزمني لتنظيف ذاكرة نتائج البحث الشامل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "model": "GPT-6",
+        "prompt_version": "search-cache-cleanup-2026-11-13",
+        "batch_id": "search-cache-cleanup-20261113",
+        "generated_at": "2026-11-13T06:01:00.109904+00:00",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "settings.field.global_search_cache_idle_minutes.description",
+      "translated_text": "عدد دقائق الخمول قبل انتهاء صلاحية قائمة نتائج البحث الشامل المحفوظة. تصبح القائمة غير متاحة أيضًا عند انتهاء جلسة تسجيل الدخول.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "settings.field.global_search_cache_idle_minutes.label",
+      "translated_text": "مهلة خمول ذاكرة نتائج البحث الشامل",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
       "message_key": "settings.field.manual_reindex_rate_limit_per_minute.description",
       "translated_text": "الحد الأقصى لطلبات إعادة الفهرسة اليدوية في الدقيقة. النوع: عدد صحيح. الحد الأدنى: 1. القيمة الافتراضية الأولية: 60. بعد تفعيل هذا الإعداد عند تحديث التطبيق، تسري التغييرات خلال 30 ثانية دون إعادة التشغيل.",
       "quality_flags": [],
@@ -25728,6 +25820,28 @@
         "source_status": "published",
         "date_reviewed": "2026-10-14T15:10:41.600042+00:00",
         "date_published": "2026-10-14T15:10:41.600042+00:00"
+      }
+    },
+    {
+      "message_key": "settings.field.search_result_limit.description",
+      "translated_text": "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم.",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
+      }
+    },
+    {
+      "message_key": "settings.field.search_result_limit.label",
+      "translated_text": "الحد الأقصى لنتائج البحث",
+      "quality_flags": [],
+      "provenance": {
+        "kind": "generated",
+        "generator": "Codex",
+        "source_origin": "generated",
+        "source_status": "draft"
       }
     },
     {
@@ -40479,18 +40593,6 @@
       }
     },
     {
-      "message_key": "webui.save_search.label.int_maximum_results_ae8080bb",
-      "translated_text": "{int} نتيجة كحد أقصى",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
-        "date_published": "2026-09-26T16:20:14.562571+00:00"
-      }
-    },
-    {
       "message_key": "webui.save_search.label.recipients_can_run_this_query_but_results_c13f331f",
       "translated_text": "يمكن للمستلمين تشغيل هذا الاستعلام، لكن تظل النتائج خاضعة لصلاحية وصول كل شخص الحالية إلى الوثائق.",
       "quality_flags": [],
@@ -40767,18 +40869,6 @@
       }
     },
     {
-      "message_key": "webui.select_advanced_search.accessible_name.maximum_results_4993c5ac",
-      "translated_text": "الحد الأقصى للنتائج",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T16:20:14.562571+00:00",
-        "date_published": "2026-09-26T16:20:14.562571+00:00"
-      }
-    },
-    {
       "message_key": "webui.select_advanced_search.accessible_name.next_page_d75b42e2",
       "translated_text": "الصفحة التالية",
       "quality_flags": [],
@@ -40961,18 +41051,6 @@
     {
       "message_key": "webui.select_advanced_search.label.saved_search_6ccb135c",
       "translated_text": "بحث محفوظ",
-      "quality_flags": [],
-      "provenance": {
-        "kind": "admin_catalogue_export",
-        "source_origin": "generated",
-        "source_status": "published",
-        "date_reviewed": "2026-09-26T13:44:17.672002+00:00",
-        "date_published": "2026-09-26T13:44:17.672002+00:00"
-      }
-    },
-    {
-      "message_key": "webui.select_advanced_search.label.system_maximum_5_000_77d23fb5",
-      "translated_text": "الحد الأقصى للنظام: 5,000",
       "quality_flags": [],
       "provenance": {
         "kind": "admin_catalogue_export",

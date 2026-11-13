@@ -117,6 +117,46 @@
 - Report database creation and cleanup failures; do not silently leave test
   databases behind.
 
+## Search and filtering performance
+
+- Before optimizing search/filter SQL, read
+  [the PostgreSQL optimization lessons](docs/postgresql-search-optimization-lessons.md).
+  Preserve the measured cause, failed approaches and validation conditions;
+  do not apply a prior query's planner workarounds without new plan evidence.
+- These rules apply to every search, filter, count, selector and paginated list
+  in Wathiq, including Global Search, Advanced Search, records and aggregations.
+- Perform text matching, relevance scoring, authorization, filtering, sorting
+  and page selection in PostgreSQL. Never download candidates to evaluate or
+  rank them in Python or the WebUI.
+- Use indexable predicates to find candidates before expensive enrichment.
+  Resolve effective roles, privileges, clearance, contextual grants and inherited
+  ACL sources as sets shared across each SQL branch. Do not call the same authorization
+  function repeatedly per hit, file, chunk, count or projection. Reuse the
+  canonical batch authorization implementation and verify equivalent decisions.
+- Never parse the same phrase for each document or chunk. Reuse parsed queries
+  for scoring and fixed-configuration predicates for candidate selection. Use the
+  existing full-text indexes where selective. Inspect actual execution plans;
+  an index existing or an SQL statement containing LIMIT is not performance proof.
+- Apply authorization before the result cap. Preserve complete ranked results,
+  deterministic tie-breaking and current permissions on every page. Never meet
+  a timing target by cutting off candidates before ranking or weakening access.
+- Fetch snippets, capabilities and display details only for the returned page.
+  Avoid one API/database round trip per hit and repeated full searches for paging.
+- A result cap bounds output, not necessarily database work. Verify broad matches,
+  empty matches, selective criteria, denied access and realistic data volumes.
+- Changes to search SQL, indexes, permissions or result processing must run the
+  repeatable correctness/performance gate in `tools/check_search_performance.py`.
+  Its disposable fixture exceeds 50,000 aggregations and 150,000 records.
+  With a 1,000-result cap, every measured response must finish within 3 seconds;
+  averages and medians cannot conceal a failing sample.
+- Extend performance coverage to each new or changed search/filter flow and its
+  worst-case criteria. A passing benchmark for an unrelated endpoint is not
+  evidence that the changed flow is fast.
+- Preserve a report of dataset sizes, query criteria, exact expected counts,
+  ranked IDs/scores, all response timings, execution plans and database cleanup.
+  Fix failures before declaring search performance complete. See
+  `docs/search-performance.md` for the reproducible procedure and measurement scope.
+
 ## Canonical database SQL
 
 - SQL files must contain portable PostgreSQL SQL only. Never put `psql`
@@ -168,6 +208,11 @@
 - Do not reintroduce catalogue parsing on message-render paths, duplicate page
   requests, serial independent requests, destructive dashboard loading states,
   or optional assets on the initial authenticated critical path.
+- Never perform synchronous database/pool/lock waits on an async request's
+  event loop. Keep authentication's complete transaction and cleanup in its
+  worker thread; preserve session-update serialization without conflicting
+  unnecessarily with search-cache foreign-key references. Changes here require
+  concurrent lock-wait and revocation regressions, not just single-request tests.
 - Every new cache must define its scope, key, freshness policy, invalidation,
   failure behavior, and identity/language isolation.
 - Performance-sensitive UI work is incomplete until repeated navigation,

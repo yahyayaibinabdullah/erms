@@ -10,6 +10,9 @@ from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
+SEARCH_RESULT_LIMIT_MAXIMUM = 5000
+
+
 @dataclass(frozen=True)
 class Setting:
     key: str
@@ -85,6 +88,10 @@ _DEFINITIONS = (
     integer("SEARCH_RATE_LIMIT_PER_MINUTE", "search", 600, "Search request rate limit", "Maximum authenticated search requests per minute."),
     integer("MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE", "search", 60, "Manual reindex rate limit", "Maximum manual reindex requests per minute."),
     integer("AUDIT_TRAIL_SEARCH_RESULT_LIMIT", "search", 1000, "Audit Trail search result limit", "Maximum matching Audit Trail results and bounded count work; one effective cap applies throughout each request."),
+    integer("SEARCH_RESULT_LIMIT", "search", 1000, "Search result limit", "Maximum results across all pages of Global Search and Advanced Search.", maximum=SEARCH_RESULT_LIMIT_MAXIMUM),
+    integer("GLOBAL_SEARCH_CACHE_IDLE_MINUTES", "search", 15, "Global Search cache idle timeout", "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends."),
+    integer("GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS", "search", 60, "Global Search cache cleanup interval", "Seconds between expired search-list cleanup passes. Independent of login-session cleanup and cache expiry."),
+    integer("GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE", "search", 5000, "Global Search cache cleanup batch size", "Maximum expired search lists deleted per pass. Each list belongs to one browser tab; this does not count individual search hits."),
     Setting("DISPOSITION_DESTRUCTION_REVIEW_ROUTE", "disposition", "enum", "standard", "Destruction review route", "New jobs capture this route permanently. Records Manager Only omits independent internal review.", choices=("standard", "simplified", "records_manager_only")),
     Setting("DISPOSITION_CLASSIFICATION_SCHEME_ID", "disposition", "scheme", None, "Classification scheme", "Scheme for both disposition destinations; unset blocks the relevant artifact tasks.", nullable=True, group="destinations"),
     Setting("DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID", "disposition", "classification", None, "Uploaded evidence classification", "Terminal classification in the selected scheme for uploads and the digital destruction certificate.", nullable=True, group="destinations"),

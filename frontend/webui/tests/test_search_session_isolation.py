@@ -33,12 +33,14 @@ def load(name, namespace):
 def test_logout_discards_query_results_and_diagnostics():
     state = new_global_search_state('private query')
     state.update(global_search_revision=4, search_diagnostics_sent={'private': True},
-                 global_search_streams={'record': ([{'record': {'id': 42}}], 'private cursor')},
+                 global_search_items=[{'record': {'id': 42}}],
+                 global_search_id='private-search', global_search_page_tokens={('record', 2): 'private cursor'},
                  global_search_totals={'records': 1, 'aggregations': 0})
     control = SimpleNamespace(value='private query', update=lambda: None)
     load('clear_global_search_session', {'state': state, 'collection_state': state, 'global_search_input': control})()
     assert control.value == state['global_search_query'] == ''
-    assert state['global_search_streams'] == {}
+    assert state['global_search_items'] == []
+    assert state['global_search_id'] is None
     assert state['global_search_totals'] is None
     assert state['search_diagnostics_sent'] is None
     assert state['global_search_revision'] == 5
@@ -73,7 +75,8 @@ def test_old_search_response_cannot_repopulate_new_session():
         principal['principal'] = {'id': 2}
         release.set()
         await task
-        assert state['global_search_streams'] == {}
+        assert state['global_search_items'] == []
+        assert state['global_search_id'] is None
         assert state['global_search_query'] == ''
         assert len(renders) == 1  # only the original loading render
     asyncio.run(scenario())
@@ -111,7 +114,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
         principal = {'principal': {'user': {'id': 1}}}
         started, release = asyncio.Event(), asyncio.Event()
         renders = []
-        async def search(*args):
+        async def search(*args, **kwargs):
             if outcome != 'component_details':
                 started.set()
                 await release.wait()
@@ -136,7 +139,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
                   asyncio=asyncio, ApiError=RuntimeError, results_host=Host(),
                   validate_builder=lambda: ({'field': 'title', 'operator': 'contains_ci', 'value': 'private'}, None),
                   search_advanced=SimpleNamespace(disable=lambda: None, enable=lambda: renders.append('enabled')),
-                  status_label=SimpleNamespace(text=''), max_results=SimpleNamespace(value=1000),
+                  status_label=SimpleNamespace(text=''),
                   render_message=lambda *a: '',
                   ui=SimpleNamespace(spinner=lambda **k: SimpleNamespace(classes=lambda *a: None)),
                   advanced_search_has_positive_full_text=lambda root: False,
@@ -199,15 +202,14 @@ def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
                  'operator': 'between', 'value': ['2026-01-01', '2026-12-31']}
         workspace = dict(root={'type': 'group', 'operator': 'and', 'children': [condition, dates]},
                          resource='aggregations', sort_field='id', sort_direction='asc', limit=25)
-        maximum = SimpleNamespace(value=62)
-        search_request = AsyncMock(return_value={'items': [], 'total': 80})
+        search_request = AsyncMock(return_value={'items': [], 'total': 62, 'result_cap': 62})
         host = nullcontext()
         host.clear = Mock()
         namespace = dict(
             state={}, workspace=workspace, search_view_is_current=lambda: True, copy=copy,
             validate_builder=lambda: (compile_advanced_search_node(workspace['root'], 'aggregations'), None),
             advanced_search_has_positive_full_text=lambda root: False,
-            api=SimpleNamespace(search_request=search_request), max_results=maximum,
+            api=SimpleNamespace(search_request=search_request),
             search_advanced=Mock(), ui=Mock(), results_host=host, status_label=SimpleNamespace(),
             render_message=lambda key: key, render_results=Mock(), refresh_saved_actions=Mock(),
             persist_workspace=Mock(), ApiError=RuntimeError,
@@ -220,9 +222,8 @@ def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
         condition['value'] = 'draft'
         dates['value'][0] = '2026-06-01'
         workspace.update(sort_field='title', sort_direction='desc', limit=100)
-        maximum.value = 5
         for direction, offset, limit in (
-            ('next', 25, 25), ('last', 50, 12), ('previous', 25, 25), ('first', 0, 25),
+            ('next', 25, 25), ('last', 50, 25), ('previous', 25, 25), ('first', 0, 25),
         ):
             await move_page(direction)
             assert workspace['offset'] == offset
@@ -235,19 +236,24 @@ def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
         assert submitted['where']['and'][0]['value'] == 'draft'
         assert submitted['where']['and'][1]['value'][0] == '2026-06-01'
         assert submitted['sort'] == [{'field': 'title', 'direction': 'desc'}]
-        assert submitted['limit'] == 5
+        assert submitted['limit'] == 100
+        assert 'max_results' not in submitted
+        assert search_request.await_args.kwargs == {'advanced': True}
     asyncio.run(scenario())
 
 
 def test_global_search_state_factory_keeps_clients_independent():
     from frontend.webui.global_search_state import new_global_search_state
     first, second = new_global_search_state(' private '), new_global_search_state()
-    first['global_search_streams']['record'] = ([{'type': 'record', 'record': {'id': 7}}], 'cursor')
+    first['global_search_items'].append({'type': 'record', 'record': {'id': 7}})
+    first['global_search_page_tokens'][('record', 2)] = 'cursor'
     first['global_search_expanded_results'].add('records:7')
     first['search_diagnostics_sent'] = {'query': 'private'}
     assert first['global_search_query'] == 'private'
     assert second['global_search_query'] == ''
-    assert second['global_search_streams'] == {}
+    assert second['global_search_items'] == []
+    assert second['global_search_page_tokens'] == {}
+    assert second['global_search_tab_id'] != first['global_search_tab_id']
     assert second['global_search_expanded_results'] == set()
     assert second['search_diagnostics_sent'] is None
 

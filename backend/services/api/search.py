@@ -6,15 +6,19 @@ import json
 import re
 import base64
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import HTTPException, status
 from psycopg import Connection, sql
+from psycopg.types.json import Jsonb
 from pydantic import TypeAdapter, ValidationError
 
 from .schemas import GlobalSearchRequest, SearchExpression, SearchRequest
 from .crud import redact_hidden_relationships
 from .application_settings import cache as settings_cache
+from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
+from .dashboard_visibility import visibility_ctes
+from .search_page import page_details, page_permission_ctes
 
 
 MAX_SEARCH_DEPTH = 5
@@ -345,6 +349,18 @@ def _compile_comparison(
     ), [value]
 
 
+def _full_text_sources(resource: str, query: str, requested: list[str] | None) -> list[str]:
+    if len(re.findall(r"\S+", query)) > MAX_FULL_TEXT_TOKENS:
+        raise _invalid(f"full-text queries may contain at most {MAX_FULL_TEXT_TOKENS} tokens")
+    allowed = FULL_TEXT_SOURCES.get(resource)
+    if allowed is None:
+        raise _invalid(f"full_text is not supported for {resource}")
+    sources = requested or list(allowed)
+    if len(sources) != len(set(sources)) or any(source not in allowed for source in sources):
+        raise _invalid(f"invalid full-text sources for {resource}")
+    return sources
+
+
 def _compile_expression(
     expression: SearchExpression,
     fields: dict[str, SearchField],
@@ -354,7 +370,11 @@ def _compile_expression(
     condition_counter: list[int],
     component_alias: str | None = None,
     component_absent: bool = False,
+    batch_permissions: bool = False,
 ) -> tuple[sql.Composable, list[Any]]:
+    def component_permission(record_id):
+        return ("page_access.can_view_component" if batch_permissions else
+                f"current_user_can_record_component_operation({record_id},'record.component.view','record.component.view')")
     if depth > MAX_SEARCH_DEPTH:
         raise _invalid(f"search expressions may be nested at most {MAX_SEARCH_DEPTH} levels")
 
@@ -398,8 +418,7 @@ def _compile_expression(
                 return sql.SQL(
                     "EXISTS (SELECT 1 FROM digital_components search_component "
                     "WHERE search_component.record_id=resource.id "
-                    "AND current_user_can_record_component_operation("
-                    "search_component.record_id,'record.component.view','record.component.view') "
+                    f"AND {component_permission('search_component.record_id')} "
                     "AND ({}))"
                 ).format(comparison), parameters
             return _compile_comparison(
@@ -449,14 +468,7 @@ def _compile_expression(
         if condition_counter[0] > MAX_SEARCH_CONDITIONS:
             raise _invalid(f"searches may contain at most {MAX_SEARCH_CONDITIONS} conditions")
         query = expression.full_text.query
-        if len(re.findall(r"\S+", query)) > MAX_FULL_TEXT_TOKENS:
-            raise _invalid(f"full-text queries may contain at most {MAX_FULL_TEXT_TOKENS} tokens")
-        allowed = FULL_TEXT_SOURCES.get(resource)
-        if allowed is None:
-            raise _invalid(f"full_text is not supported for {resource}")
-        sources = expression.full_text.sources or list(allowed)
-        if len(sources) != len(set(sources)) or any(source not in allowed for source in sources):
-            raise _invalid(f"invalid full-text sources for {resource}")
+        sources = _full_text_sources(resource, query, expression.full_text.sources)
         predicates: list[sql.Composable] = []
         parameters: list[Any] = []
         if resource == "records":
@@ -472,10 +484,11 @@ def _compile_expression(
                     "LEFT JOIN digital_component_search_chunks ftk ON ftk.digital_component_id=ftc.id "
                     "WHERE ftc.record_id=resource.id AND fts.status IN ('indexed','processing') AND fts.indexed_at IS NOT NULL "
                     "AND fts.content_set_id=ftc.active_content_set_id "
-                    "AND current_user_can_record_component_operation(ftc.record_id,'record.component.view','record.component.view') "
+                    f"AND {component_permission('ftc.record_id')} "
                     "AND (to_tsvector('pg_catalog.simple',coalesce(ftc.file_name,''))@@websearch_to_tsquery('pg_catalog.simple',%s) "
                     "OR ftk.search_vector@@websearch_to_tsquery(ftk.text_search_config,%s)))"
-                )); parameters.extend((query, query))
+                ))
+                parameters.extend((query, query))
         elif resource == "aggregations":
             predicates.append(sql.SQL(
                 "EXISTS (SELECT 1 FROM authorized_aggregation_search_documents ftd "
@@ -500,7 +513,7 @@ def _compile_expression(
         clause, parameters = _compile_expression(
             expression.not_, fields, resource=resource, depth=depth + 1,
             condition_counter=condition_counter, component_alias=component_alias,
-            component_absent=component_absent,
+            component_absent=component_absent, batch_permissions=batch_permissions,
         )
         return sql.SQL("NOT ({})").format(clause), parameters
 
@@ -518,7 +531,7 @@ def _compile_expression(
         _compile_expression(
             child, fields, resource=resource, depth=depth + 1,
             condition_counter=condition_counter, component_alias=active_component_alias,
-            component_absent=component_absent,
+            component_absent=component_absent, batch_permissions=batch_permissions,
         )
         for child in children
     ]
@@ -529,8 +542,7 @@ def _compile_expression(
         component_exists = sql.SQL(
             "EXISTS (SELECT 1 FROM digital_components search_component "
             "WHERE search_component.record_id=resource.id "
-            "AND current_user_can_record_component_operation("
-            "search_component.record_id,'record.component.view','record.component.view') "
+            f"AND {component_permission('search_component.record_id')} "
             "AND ({}))"
         ).format(combined)
         # Preserve ordinary Boolean meaning when a mixed alternative can be
@@ -540,7 +552,7 @@ def _compile_expression(
         # enclosing All scope.
         without_component, without_parameters = _compile_expression(
             expression, fields, resource=resource, depth=depth,
-            condition_counter=[0], component_absent=True,
+            condition_counter=[0], component_absent=True, batch_permissions=batch_permissions,
         )
         combined = sql.SQL("(({}) OR ({}))").format(
             without_component, component_exists,
@@ -734,14 +746,35 @@ def _attribution(connection: Connection, resource: str, item: dict, leaves: list
             "matching_components": list(components.values())}
 
 
-def _relevance_expression(resource: str, leaves: list[tuple[str, Any]]) -> tuple[sql.Composable,list[Any]]:
+def _relevance_expression(
+    resource: str, leaves: list[tuple[str, Any]], *, protect_component_scores: bool = False,
+    batch_permissions: bool = False,
+) -> tuple[sql.Composable,list[Any]]:
     terms: list[sql.Composable]=[]; parameters: list[Any]=[]
     for _, leaf in leaves:
         sources=leaf.sources or list(FULL_TEXT_SOURCES[resource])
         if resource=="records" and "metadata" in sources:
             terms.append(sql.SQL("coalesce((SELECT ts_rank_cd(d.search_vector,websearch_to_tsquery(d.text_search_config,%s)) FROM authorized_record_search_documents d WHERE d.record_id=resource.id),0)")); parameters.append(leaf.query)
         if resource=="records" and "components" in sources:
-            terms.append(sql.SQL("coalesce((SELECT max(ts_rank_cd(k.search_vector,websearch_to_tsquery(k.text_search_config,%s))) FROM digital_component_search_documents s JOIN digital_component_search_chunks k ON k.digital_component_id=s.digital_component_id WHERE s.record_id=resource.id AND s.status IN ('indexed','processing') AND s.indexed_at IS NOT NULL),0)")); parameters.append(leaf.query)
+            active = sql.SQL("")
+            if protect_component_scores:
+                active = sql.SQL(
+                    " AND EXISTS (SELECT 1 FROM digital_components c WHERE c.id=s.digital_component_id"
+                    " AND c.active_content_set_id=s.content_set_id)"
+                )
+            component_score = sql.SQL(
+                "coalesce((SELECT max(ts_rank_cd(k.search_vector,websearch_to_tsquery(k.text_search_config,%s))) "
+                "FROM digital_component_search_documents s JOIN digital_component_search_chunks k "
+                "ON k.digital_component_id=s.digital_component_id WHERE s.record_id=resource.id "
+                "AND s.status IN ('indexed','processing') AND s.indexed_at IS NOT NULL{}),0)"
+            ).format(active)
+            if protect_component_scores:
+                permission = ("page_access.can_view_component" if batch_permissions else
+                              "current_user_can_record_component_operation("
+                              "resource.id,'record.component.view','record.component.view')")
+                component_score = sql.SQL("CASE WHEN " + permission + " THEN {} ELSE 0 END").format(component_score)
+            terms.append(component_score)
+            parameters.append(leaf.query)
         if resource=="aggregations":
             terms.append(sql.SQL("coalesce((SELECT ts_rank_cd(d.search_vector,websearch_to_tsquery(d.text_search_config,%s)) FROM authorized_aggregation_search_documents d WHERE d.aggregation_id=resource.id),0)")); parameters.append(leaf.query)
         if resource=="digital_components" and "content" in sources:
@@ -821,14 +854,18 @@ def search_rows(
     record_creation: bool = False,
     digital_only: bool = False,
     display_filter: str | None = None,
+    max_results: int | None = None,
 ) -> dict[str, Any]:
     settings = settings_cache.for_connection(connection)
     audit_cap = settings["AUDIT_TRAIL_SEARCH_RESULT_LIMIT"]
+    result_cap = audit_cap if table == "event_history" else max_results
     if table == "event_history" and request.offset >= audit_cap:
         raise HTTPException(status_code=422, detail={
             "code": "audit_result_cap", "message_key": "audit.filter.results_capped",
             "params": {"limit": audit_cap},
         })
+    if max_results is not None and request.offset >= max_results:
+        raise HTTPException(status_code=422, detail={"code": "advanced_search_result_limit_exceeded"})
     if _full_text_leaves(request.where) and not settings["FULL_TEXT_SEARCH_ENABLED"]:
         raise HTTPException(status_code=503, detail={
             "code": "full_text_search_disabled",
@@ -922,15 +959,17 @@ def search_rows(
     count_query = sql.SQL("SELECT count(*) AS total FROM {}{}").format(
         source, where_clause
     )
-    if table == "event_history":
+    if result_cap is not None:
         count_query = sql.SQL(
-            "SELECT count(*) AS total FROM (SELECT 1 FROM {}{} LIMIT {}) audit_count"
-        ).format(source, where_clause, sql.Literal(min(audit_cap + 1, 9223372036854775807)))
+            "SELECT count(*) AS total FROM (SELECT 1 FROM {}{} LIMIT {}) {}"
+        ).format(source, where_clause, sql.Literal(min(result_cap + 1, 9223372036854775807)),
+                 sql.Identifier("audit_count" if table == "event_history" else "bounded_count"))
     total = connection.execute(count_query, parameters).fetchone()["total"]
-    truncated = table == "event_history" and total > audit_cap
-    if table == "event_history":
-        total = min(total, audit_cap)
-    page_limit = min(request.limit, audit_cap-request.offset) if table == "event_history" else request.limit
+    truncated = result_cap is not None and total > result_cap
+    page_limit = request.limit
+    if result_cap is not None:
+        total = min(total, result_cap)
+        page_limit = min(page_limit, result_cap - request.offset)
 
     relevance,relevance_parameters=_relevance_expression(table,positive_leaves)
     language_candidates = []
@@ -995,8 +1034,8 @@ def search_rows(
         "offset": request.offset,
         "returned": len(items),
     }
-    if table == "event_history":
-        result.update(result_cap=audit_cap, truncated=truncated)
+    if result_cap is not None:
+        result.update(result_cap=result_cap, truncated=truncated)
     if all_leaves:
         if table == "records":
             pending = connection.execute(
@@ -1032,139 +1071,585 @@ def _cursor_encode(value: dict[str, Any]) -> str:
     return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
 
-def _cursor_decode(value: str) -> dict[str, Any]:
+def _cursor_decode(value: str) -> tuple[UUID, UUID, int, str | None]:
     try:
-        raw=base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
-        decoded=json.loads(raw)
-        if set(decoded)!={"fingerprint","score","type","id"}:
+        raw = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+        decoded = json.loads(raw)
+        position = decoded["position"]
+        result_filter = decoded["filter"]
+        if type(position) is not int or not 0 <= position <= SEARCH_RESULT_LIMIT_MAXIMUM:
             raise ValueError
-        return decoded
-    except (ValueError,TypeError,json.JSONDecodeError) as exception:
-        raise _invalid("invalid global-search cursor") from exception
+        if result_filter not in (None, "record", "aggregation"):
+            raise ValueError
+        return UUID(decoded["search_id"]), UUID(decoded["tab_id"]), position, result_filter
+    except (ValueError, TypeError, KeyError, AttributeError) as exception:
+        raise _invalid("invalid global-search page token") from exception
 
 
-def _global_branch(
-    connection: Connection,resource: str,expression: SearchExpression,
-    limit: int,after: dict[str,Any] | None, *, include_total: bool = False,
-) -> list[dict[str,Any]]:
-    leaves=_full_text_leaves(expression)
+def _indexed_text_ids(
+    table: str, id_column: str, query: str, configurations: tuple[str, ...],
+) -> tuple[sql.Composable, list[str]]:
+    source = sql.SQL("SELECT {} AS id FROM {} WHERE ").format(
+        sql.Identifier(id_column), sql.Identifier(table),
+    )
+    configs = [sql.SQL("{}::regconfig").format(sql.Literal(config)) for config in configurations]
+    # A fixed configuration lets PostgreSQL use the GIN index on search_vector.
+    predicates = [
+        sql.SQL("(text_search_config = {} AND search_vector @@ websearch_to_tsquery({}, %s))").format(
+            config, config,
+        )
+        for config in configs
+    ]
+    # One common-config branch allows a BitmapOr for selective terms and one
+    # sequential scan for corpus-wide terms, rather than a full scan per language.
+    branches = [source + sql.SQL(" OR ").join(predicates)]
+    # Preserve matching for rows written with other installed configurations.
+    branches.append(source + sql.SQL(
+        "text_search_config NOT IN ({}) AND search_vector @@ "
+        "CASE text_search_config "
+        "WHEN 'pg_catalog.english'::regconfig THEN (SELECT english FROM search_query) "
+        "WHEN 'pg_catalog.arabic'::regconfig THEN (SELECT arabic FROM search_query) "
+        "ELSE (SELECT parsed FROM other_search_queries WHERE config = text_search_config) END"
+    ).format(sql.SQL(", ").join(configs)))
+    return sql.SQL(" UNION ALL ").join(branches), [query] * len(configs)
+
+
+def _indexed_global_candidates(
+    resource: str, query: str, sources: list[str], structured_filter=None,
+) -> tuple[sql.Composable, list[Any]]:
+    ctes: list[sql.Composable] = []
+    candidates: list[sql.Composable] = []
+    parameters: list[Any] = []
+    match_flags = "components" in sources and "metadata" in sources
+    if "metadata" in sources:
+        kind = "record" if resource == "records" else "aggregation"
+        metadata, metadata_parameters = _indexed_text_ids(
+            f"{kind}_search_documents", f"{kind}_id", query, ("pg_catalog.simple",),
+        )
+        ctes.append(sql.SQL("metadata_matches AS MATERIALIZED ({})").format(metadata))
+        candidates.append(sql.SQL("SELECT id FROM metadata_matches"))
+        parameters.extend(metadata_parameters)
+    if "components" in sources:
+        chunks, chunk_parameters = _indexed_text_ids(
+            "digital_component_search_chunks", "digital_component_id", query,
+            ("pg_catalog.simple", "pg_catalog.english", "pg_catalog.arabic"),
+        )
+        # A metadata match already qualifies the record. Find additional file
+        # matches only for other records; still score ALL permitted active file
+        # chunks later, including those on metadata hits (not just text matches).
+        # The one-time guard skips the broad chunk match scan entirely when
+        # every record already matches metadata, without capping any candidates.
+        file_guard = sql.SQL("true")
+        record_guard = sql.SQL("true")
+        if match_flags:
+            file_guard = sql.SQL("""EXISTS (
+                SELECT 1 FROM records remaining
+                WHERE NOT EXISTS (SELECT 1 FROM metadata_matches metadata WHERE metadata.id=remaining.id)
+            )""")
+            record_guard = sql.SQL("""NOT EXISTS (
+                SELECT 1 FROM metadata_matches metadata WHERE metadata.id=component.record_id
+            )""")
+        ctes.append(sql.SQL("""
+            matching_files AS NOT MATERIALIZED (
+                SELECT id FROM (
+                SELECT id FROM digital_components
+                WHERE to_tsvector('pg_catalog.simple', coalesce(file_name, ''))
+                      @@ websearch_to_tsquery('pg_catalog.simple', %s)
+                UNION
+                SELECT id FROM ({}) AS matching_chunks
+                ) file_candidates WHERE ({})
+            ),
+            -- Keep correlated content identities out of join selectivity:
+            -- treating the two equalities as independent estimated one row
+            -- for a corpus-wide match and selected quadratic nested loops.
+            -- OFFSET 0 preserves this boundary while streaming its rows.
+            matching_component_rows AS NOT MATERIALIZED (
+                SELECT component.record_id AS id,
+                       document.status IN ('indexed', 'processing')
+                       AND document.indexed_at IS NOT NULL
+                       AND document.content_set_id = component.active_content_set_id AS searchable
+                FROM matching_files file
+                JOIN digital_components component ON component.id = file.id
+                JOIN digital_component_search_documents document ON document.digital_component_id = component.id
+                WHERE ({})
+                OFFSET 0
+            ),
+            component_matches AS NOT MATERIALIZED (
+                SELECT DISTINCT id FROM matching_component_rows WHERE searchable
+            )
+        """).format(chunks, file_guard, record_guard))
+        candidates.append(sql.SQL("SELECT id FROM component_matches"))
+        parameters.extend((query, *chunk_parameters))
+    candidate_name = "text_candidate_ids" if structured_filter is not None else "candidate_ids"
+    # Keep match flags with each unique record ID. Rejoining both match sets
+    # after authorization duplicates work and loses useful cardinality facts.
+    candidate_query = sql.SQL("""
+        SELECT id,true AS metadata_match,false AS component_match FROM metadata_matches
+        UNION ALL
+        SELECT id,false,true FROM component_matches
+    """) if match_flags else sql.SQL(" UNION ").join(candidates)
+    ctes.append(sql.SQL("{} AS MATERIALIZED ({})").format(
+        sql.Identifier(candidate_name), candidate_query))
+    if structured_filter is not None:
+        clause, arguments = _compile_expression(
+            structured_filter, SEARCH_FIELDS[resource], resource=resource, depth=1, condition_counter=[0],
+        )
+        source = _search_from(sql.Identifier(f"authorized_{resource}_for_search"), resource, structured_filter)
+        ctes.append(sql.SQL("""candidate_ids AS MATERIALIZED (
+            SELECT candidate.* FROM {} JOIN text_candidate_ids candidate ON candidate.id=resource.id
+            WHERE {})""").format(source, clause))
+        parameters.extend(arguments)
+    ctes.append(sql.SQL(visibility_ctes(
+        candidate_resource=resource, component_access="components" in sources, match_flags=match_flags,
+    )))
+    return sql.SQL(", ").join(ctes) + sql.SQL(", "), parameters
+
+
+def _indexed_global_ranking(resource, leaf, limit, structured_filter=None):
+    sources = _full_text_sources(resource, leaf.query, leaf.sources)
+    ctes, parameters = _indexed_global_candidates(resource, leaf.query, sources, structured_filter)
+    # A row-dependent configuration otherwise reparses the same phrase for
+    # every document/chunk. Materialize the common configurations once.
+    ctes = sql.SQL("""search_query AS MATERIALIZED (
+        SELECT %s::text AS phrase,
+               websearch_to_tsquery('pg_catalog.simple', %s) AS simple,
+               websearch_to_tsquery('pg_catalog.english', %s) AS english,
+               websearch_to_tsquery('pg_catalog.arabic', %s) AS arabic
+    ), other_search_queries AS MATERIALIZED (
+        SELECT config.oid::regconfig AS config,
+               websearch_to_tsquery(config.oid::regconfig, search_query.phrase) AS parsed
+        FROM pg_catalog.pg_ts_config config CROSS JOIN search_query
+        WHERE config.oid NOT IN ('pg_catalog.simple'::regconfig,
+                                'pg_catalog.english'::regconfig, 'pg_catalog.arabic'::regconfig)
+    ), """) + ctes
+    parameters = [leaf.query] * 4 + parameters
+    def parsed_query(alias):
+        return sql.SQL("""CASE {}.text_search_config
+            WHEN 'pg_catalog.simple'::regconfig THEN (SELECT simple FROM search_query)
+            WHEN 'pg_catalog.english'::regconfig THEN (SELECT english FROM search_query)
+            WHEN 'pg_catalog.arabic'::regconfig THEN (SELECT arabic FROM search_query)
+            ELSE (SELECT parsed FROM other_search_queries WHERE config = {}.text_search_config) END""").format(
+                sql.Identifier(alias), sql.Identifier(alias))
+    joins = []
+    matches = []
+    scores = []
+    if "components" in sources:
+        # Use the same maximum over active chunks as the original rank. The batch
+        # ACL must authorize component evidence even for a metadata match.
+        ctes += sql.SQL("""
+            eligible_components AS MATERIALIZED (
+                SELECT candidate.id, document.digital_component_id,
+                       component.active_content_set_id = document.content_set_id AS current_content
+                  FROM authorized_records candidate
+                  JOIN digital_component_search_documents document ON document.record_id = candidate.id
+                  JOIN digital_components component ON component.id = document.digital_component_id
+                 WHERE candidate.can_view_component AND document.status IN ('indexed','processing')
+                   AND document.indexed_at IS NOT NULL
+            ),
+            eligible_component_ids AS MATERIALIZED (
+                SELECT digital_component_id FROM eligible_components WHERE current_content
+            ),
+            component_scan_strategy AS MATERIALIZED (
+                -- ACL selectivity is not available in table statistics. Use
+                -- the actual permitted set to choose indexed or bulk retrieval.
+                -- This is a scan decision, never a limit on candidates/results.
+                SELECT count(*) > greatest(1000, (
+                    SELECT greatest(reltuples,0) * 0.05 FROM pg_class
+                    WHERE oid='digital_components'::regclass
+                )) AS bulk FROM eligible_component_ids
+            ),
+            -- Narrow the hash input before joining wide chunk vectors. Otherwise
+            -- hash batching spills entire vectors even though the result is small.
+            -- Stream the single-use scores; OFFSET 0 keeps vectors out of later joins.
+            scored_component_chunks AS NOT MATERIALIZED (
+                SELECT chunk.digital_component_id, ts_rank_cd(chunk.search_vector, {}) AS score
+                FROM digital_component_search_chunks chunk
+                WHERE NOT (SELECT bulk FROM component_scan_strategy)
+                  AND chunk.digital_component_id = ANY (ARRAY(
+                      SELECT digital_component_id FROM eligible_component_ids))
+                UNION ALL
+                SELECT chunk.digital_component_id, ts_rank_cd(chunk.search_vector, {}) AS score
+                FROM (
+                    SELECT digital_component_id,search_vector,text_search_config
+                    FROM digital_component_search_chunks OFFSET 0
+                ) chunk
+                WHERE (SELECT bulk FROM component_scan_strategy)
+                  AND chunk.digital_component_id IN (
+                      SELECT digital_component_id FROM eligible_component_ids)
+                OFFSET 0
+            ), component_scores AS (
+                SELECT candidate.id, max(chunk.score) AS score
+                FROM eligible_components candidate
+                JOIN scored_component_chunks chunk USING (digital_component_id)
+                GROUP BY candidate.id
+            ),
+        """).format(parsed_query("chunk"), parsed_query("chunk"))
+        joins.append(sql.SQL("LEFT JOIN component_scores component USING (id)"))
+        if "metadata" in sources:
+            matches.append(sql.SQL("(candidate.can_view_component AND candidate.component_match)"))
+        else:
+            matches.append(sql.SQL("candidate.can_view_component"))
+    if "metadata" in sources:
+        kind = "record" if resource == "records" else "aggregation"
+        if "components" in sources:
+            # Do not carry full metadata vectors through the file-score join.
+            ctes += sql.SQL("""metadata_scores AS NOT MATERIALIZED (
+                SELECT candidate.id, ts_rank_cd(metadata.search_vector, {}) AS score
+                FROM authorized_records candidate
+                JOIN record_search_documents metadata ON metadata.record_id=candidate.id
+                OFFSET 0
+            ), """).format(parsed_query("metadata"))
+            joins.append(sql.SQL("LEFT JOIN metadata_scores metadata USING (id)"))
+            scores.append(sql.SQL("coalesce(metadata.score, 0)"))
+            matches.append(sql.SQL("candidate.metadata_match"))
+        else:
+            joins.append(sql.SQL("LEFT JOIN {} metadata ON metadata.{} = candidate.id").format(
+                sql.Identifier(f"{kind}_search_documents"), sql.Identifier(f"{kind}_id"),
+            ))
+            scores.append(sql.SQL("coalesce(ts_rank_cd(metadata.search_vector, {}), 0)").format(parsed_query("metadata")))
+            matches.append(sql.SQL("true"))
+    if "components" in sources:
+        scores.append(sql.SQL("coalesce(component.score, 0)"))
+    statement = sql.SQL("""
+        WITH RECURSIVE {} ranked AS (
+            SELECT candidate.id, ({})::double precision AS score
+            FROM {} candidate {}
+            WHERE {}
+        )
+        SELECT * FROM ranked ORDER BY score DESC, id ASC LIMIT %s
+    """).format(
+        ctes, sql.SQL(" + ").join(scores), sql.Identifier(f"authorized_{resource}"),
+        sql.SQL(" ").join(joins), sql.SQL(" OR ").join(matches),
+    )
+    return statement, [*parameters, limit]
+
+
+def _global_ranking_statement(connection, resource, expression, limit):
+    leaves = _full_text_leaves(expression)
     if not leaves:
         raise _invalid("global-search branches require a positive full_text expression")
-    _validate_indexable(connection,leaves)
-    clause,clause_parameters=_compile_expression(
-        expression,SEARCH_FIELDS[resource],resource=resource,depth=1,condition_counter=[0],
+    _validate_indexable(connection, leaves)
+    if expression.full_text is not None:
+        return _indexed_global_ranking(resource, expression.full_text, limit)
+    if expression.and_ and not _filters_disposition(expression):
+        text_nodes = [node for node in expression.and_ if node.full_text is not None]
+        other_nodes = [node for node in expression.and_ if node.full_text is None]
+        if len(text_nodes) == 1 and not any(
+            _full_text_leaves(node) or _full_text_leaves(node, positive=False) for node in other_nodes
+        ):
+            return _indexed_global_ranking(
+                resource, text_nodes[0].full_text, limit,
+                SearchExpression.model_validate({"and": other_nodes}) if other_nodes else None,
+            )
+    relevance, relevance_parameters = _relevance_expression(resource, leaves, protect_component_scores=True)
+    table = sql.Identifier("authorized_records_for_search" if resource == "records" else "authorized_aggregations_for_search")
+    visibility = _resource_visibility(resource, expression)
+    source = _search_from(table, resource, expression)
+    projection = sql.SQL("resource.id, ({})::double precision AS score").format(relevance)
+    clause, parameters = _compile_expression(
+        expression, SEARCH_FIELDS[resource], resource=resource, depth=1, condition_counter=[0],
     )
-    relevance,relevance_parameters=_relevance_expression(resource,leaves)
-    table=sql.Identifier("authorized_records_for_search" if resource=="records" else "authorized_aggregations_for_search")
-    visibility=_resource_visibility(resource,expression)
-    outer=sql.SQL("")
-    outer_parameters: list[Any]=[]
-    branch_type="record" if resource=="records" else "aggregation"
-    if after:
-        # Global order is score DESC, type ASC, id ASC. Apply its exact
-        # continuation tuple independently to each authorized SQL branch.
-        if branch_type>after["type"]:
-            outer=sql.SQL("WHERE score<=%s") ; outer_parameters=[after["score"]]
-        elif branch_type<after["type"]:
-            outer=sql.SQL("WHERE score<%s") ; outer_parameters=[after["score"]]
-        else:
-            outer=sql.SQL("WHERE score<%s OR (score=%s AND id>%s)")
-            outer_parameters=[after["score"],after["score"],after["id"]]
-    total_column = sql.SQL(",count(*) OVER () AS match_total") if include_total else sql.SQL("")
-    query=sql.SQL(
-        "WITH matched AS (SELECT resource.*,({})::double precision AS score{} FROM {} "
-        "WHERE ({}) AND ({})) SELECT * FROM matched {} ORDER BY score DESC,id ASC LIMIT %s"
-    ).format(relevance,total_column,_search_from(table,resource,expression),visibility,clause,outer)
-    return list(connection.execute(
-        query,[*relevance_parameters,*clause_parameters,*outer_parameters,limit+1],
-    ).fetchall())
+    statement = sql.SQL("""
+        SELECT {} FROM {} WHERE ({}) AND ({})
+        ORDER BY score DESC, id ASC LIMIT %s
+    """).format(projection, source, visibility, clause)
+    return statement, [*relevance_parameters, *parameters, limit]
 
 
-def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> dict[str, Any]:
+def _global_current_rows(connection, resource, expression, candidate_ids):
+    if _filters_disposition(expression):
+        return _global_retained_current_rows(connection, resource, expression, candidate_ids)
+    leaves = _full_text_leaves(expression)
+    relevance, relevance_parameters = _relevance_expression(
+        resource, leaves, protect_component_scores=True, batch_permissions=True,
+    )
+    clause, clause_parameters = _compile_expression(
+        expression, SEARCH_FIELDS[resource], resource=resource, depth=1,
+        condition_counter=[0], batch_permissions=True,
+    )
+    kind = "record" if resource == "records" else "aggregation"
+    table = sql.Identifier(f"authorized_{resource}_for_search")
+    source = _search_from(table, resource, expression)
+    columns = ("id,record_number,title,security_level_id,description,aggregation_id,"
+               "date_originated,is_vital,on_effective_hold" if resource == "records" else
+               "id,aggregation_number,title,date_opened,security_level_id,description,"
+               "is_vital,on_effective_hold")
+    statement = sql.SQL("""
+        WITH RECURSIVE page_record_ids AS MATERIALIZED (SELECT unnest(%s::bigint[]) AS id),
+             page_aggregation_ids AS MATERIALIZED (SELECT unnest(%s::bigint[]) AS id),
+             {permissions}
+        SELECT {columns}, ({relevance})::double precision AS score
+        FROM {source} JOIN {authorized} page_access ON page_access.id=resource.id
+        WHERE ({clause})
+    """).format(permissions=page_permission_ctes(),
+                columns=sql.SQL(",").join(sql.Identifier("resource", column) for column in columns.split(",")), relevance=relevance,
+                source=source, authorized=sql.Identifier(f"authorized_{resource}"), clause=clause)
+    return connection.execute(statement, [
+        candidate_ids if kind == "record" else [], candidate_ids if kind == "aggregation" else [],
+        *relevance_parameters, *clause_parameters,
+    ], prepare=False).fetchall()
+
+
+def _global_retained_current_rows(connection, resource, expression, candidate_ids):
+    leaves = _full_text_leaves(expression)
+    relevance, relevance_parameters = _relevance_expression(resource, leaves, protect_component_scores=True)
+    table = sql.Identifier("authorized_records_for_search" if resource == "records" else "authorized_aggregations_for_search")
+    visibility = _resource_visibility(resource, expression)
+    source = _search_from(table, resource, expression)
+    clause, clause_parameters = _compile_expression(
+        expression, SEARCH_FIELDS[resource], resource=resource, depth=1, condition_counter=[0],
+    )
+    # Restrict the current authorization and match checks to IDs from the saved list.
+    statement = sql.SQL("""
+        SELECT current_match.*
+        FROM unnest(%s::bigint[]) AS saved(id)
+        JOIN LATERAL (
+            SELECT resource.*, ({})::double precision AS score
+            FROM {}
+            WHERE resource.id = saved.id AND ({}) AND ({})
+            OFFSET 0
+        ) AS current_match ON true
+    """).format(relevance, source, visibility, clause)
+    return connection.execute(statement, [candidate_ids, *relevance_parameters, *clause_parameters]).fetchall()
+
+
+def _global_page_offset(hit_count, page_number, page_size):
+    return min(page_number - 1, max(0, hit_count - 1) // page_size) * page_size
+
+
+def _rank_global_search(connection, branches, result_cap, result_filter, page_size, page_number):
+    statements = []
+    parameters = []
+    for kind, (resource, expression) in branches.items():
+        statement, arguments = _global_ranking_statement(connection, resource, expression, result_cap + 1)
+        statements.append(sql.SQL("SELECT {} AS kind, id, score FROM ({}) AS branch").format(
+            sql.Literal(kind), statement,
+        ))
+        parameters.extend(arguments)
+    filter_clause = sql.SQL("") if result_filter is None else sql.SQL("WHERE kind = %s")
+    statement = sql.SQL("""
+        WITH ranked AS MATERIALIZED (
+            SELECT kind, id, score FROM ({}) AS combined
+            ORDER BY score DESC, kind, id LIMIT %s
+        ),
+        filtered AS MATERIALIZED (
+            SELECT kind, id, score FROM (
+                SELECT kind, id, score FROM ranked ORDER BY score DESC, kind, id LIMIT %s
+            ) AS capped
+            {}
+        ),
+        selected_page AS MATERIALIZED (
+            SELECT kind, id FROM filtered
+            ORDER BY score DESC, kind, id LIMIT %s
+            OFFSET (SELECT LEAST(%s - 1, GREATEST(count(*) - 1, 0) / %s) * %s FROM filtered)
+        )
+        SELECT ranked.kind, ranked.id, ranked.score, COALESCE(record.details, aggregation.details) AS details
+        FROM ranked
+        LEFT JOIN selected_page page ON page.kind = ranked.kind AND page.id = ranked.id
+        LEFT JOIN LATERAL (
+            SELECT to_jsonb(detail) AS details
+            FROM (
+                SELECT resource.id, record_number, title, security_level_id, description,
+                       aggregation_id, date_originated, is_vital, on_effective_hold
+                FROM authorized_records_for_search resource
+                WHERE page.kind = 'record' AND resource.id = page.id
+                OFFSET 0
+            ) detail
+        ) record ON true
+        LEFT JOIN LATERAL (
+            SELECT to_jsonb(detail) AS details
+            FROM (
+                SELECT resource.id, aggregation_number, title, date_opened, security_level_id,
+                       description, is_vital, on_effective_hold
+                FROM authorized_aggregations_for_search resource
+                WHERE page.kind = 'aggregation' AND resource.id = page.id
+                OFFSET 0
+            ) detail
+        ) aggregation ON true
+        ORDER BY ranked.score DESC, ranked.kind, ranked.id
+    """).format(sql.SQL(" UNION ALL ").join(statements), filter_clause)
+    parameters.extend((result_cap + 1, result_cap))
+    if result_filter is not None:
+        parameters.append(result_filter)
+    parameters.extend((page_size, page_number, page_size, page_size))
+    # Selectivity varies dramatically by phrase; never reuse a generic prepared
+    # plan that estimates a common term as a rare one (or vice versa).
+    rows = connection.execute(statement, parameters, prepare=False).fetchall()
+    hits = [{"type": row["kind"], "id": row["id"], "score": row["score"]} for row in rows[:result_cap]]
+    page = [
+        (row["kind"], {**row["details"], "score": row["score"]})
+        for row in rows if row["details"] is not None
+    ]
+    return hits, page, len(rows) > result_cap
+
+
+def _expired_global_search() -> HTTPException:
+    return HTTPException(status_code=410, detail={"code": "global_search_expired"})
+
+
+def _save_global_search(connection, hits, truncated, session_id, user_id, tab_id, fingerprint, requires_tab_id, idle_minutes):
+    search_id = uuid4()
+    stored = connection.execute("""
+        INSERT INTO global_search_results
+            (session_id, tab_id, user_id, requires_tab_id, search_id, fingerprint, hits, truncated, started_at, expires_at)
+        SELECT id, %s, user_id, %s, %s, %s, %s, %s, transaction_timestamp(),
+               clock_timestamp() + LEAST(%s::double precision * 60,
+                   extract(epoch FROM LEAST(expires_at, absolute_expires_at) - clock_timestamp())) * interval '1 second'
+        FROM login_sessions
+        WHERE id = %s AND user_id = %s AND revoked_at IS NULL
+          AND LEAST(expires_at, absolute_expires_at) > clock_timestamp()
+        ON CONFLICT (session_id, tab_id) DO UPDATE
+        SET search_id = EXCLUDED.search_id, fingerprint = EXCLUDED.fingerprint, hits = EXCLUDED.hits,
+            requires_tab_id = EXCLUDED.requires_tab_id,
+            truncated = EXCLUDED.truncated, started_at = EXCLUDED.started_at, expires_at = EXCLUDED.expires_at
+        WHERE global_search_results.started_at <= EXCLUDED.started_at
+        RETURNING search_id
+    """, (tab_id, requires_tab_id, search_id, fingerprint, Jsonb(hits), truncated, idle_minutes, session_id, user_id)).fetchone()
+    if stored is None:
+        raise _expired_global_search()
+    return search_id
+
+
+def _read_global_search(connection, session_id, user_id, tab_id, search_id, fingerprint, supplied_tab_id, idle_minutes):
+    saved = connection.execute("""
+        UPDATE global_search_results AS saved
+        SET expires_at = clock_timestamp() + LEAST(%s::double precision * 60,
+            extract(epoch FROM LEAST(login.expires_at, login.absolute_expires_at) - clock_timestamp())) * interval '1 second'
+        FROM login_sessions AS login
+        WHERE saved.session_id = login.id AND saved.session_id = %s AND saved.user_id = %s
+          AND login.user_id = saved.user_id AND login.revoked_at IS NULL
+          AND LEAST(login.expires_at, login.absolute_expires_at, saved.expires_at) > clock_timestamp()
+          AND saved.tab_id = %s AND saved.search_id = %s AND saved.fingerprint = %s
+          AND (NOT saved.requires_tab_id OR %s)
+        RETURNING saved.hits, saved.truncated
+    """, (idle_minutes, session_id, user_id, tab_id, search_id, fingerprint, supplied_tab_id)).fetchone()
+    if saved is None:
+        raise _expired_global_search()
+    return saved["hits"], saved["truncated"]
+
+
+def _global_search_page(connection, branches, hits, position, limit):
+    page = []
+    batch_size = limit + 1
+    while position < len(hits):
+        batch = hits[position:position + batch_size]
+        visible = {}
+        for kind, (resource, expression) in branches.items():
+            ids = [hit["id"] for hit in batch if hit["type"] == kind]
+            if ids:
+                visible.update({
+                    (kind, row["id"]): row
+                    for row in _global_current_rows(connection, resource, expression, ids)
+                })
+        for hit in batch:
+            row = visible.get((hit["type"], hit["id"]))
+            if row is not None:
+                if len(page) == limit:
+                    return page, position
+                page.append((hit["type"], row))
+            position += 1
+        # When access changes have opened gaps, avoid checking one skipped row per query.
+        batch_size = max(batch_size, 50)
+    return page, None
+
+
+def _global_search_item(kind, row, detail):
+    if kind == "record":
+        return {"type": kind, "record": {
+            "id": row["id"], "record_number": row["record_number"], "title": row["title"],
+            "security_level_id": row["security_level_id"], "description": row["description"],
+            "aggregation_id": row["aggregation_id"], "aggregation_number": detail["aggregation_number"],
+            "date_originated": row["date_originated"], "is_vital": row["is_vital"],
+            "on_effective_hold": row["on_effective_hold"],
+        }, "matched_record_metadata": detail["metadata_matched"],
+            "matching_components": detail["matching_components"], "score": row["score"],
+            "record_capabilities": {key: detail[key] for key in ("list_components", "has_previewable_component")}}
+    return {"type": kind, "aggregation": {
+        "id": row["id"], "aggregation_number": row["aggregation_number"], "title": row["title"],
+        "date_opened": row["date_opened"], "security_level_id": row["security_level_id"],
+        "description": row["description"], "is_vital": row["is_vital"], "on_effective_hold": row["on_effective_hold"],
+    }, "snippet": detail["snippet"], "score": row["score"]}
+
+
+def global_search_rows(
+    connection: Connection, request: GlobalSearchRequest, *, session_id: int | None = None, user_id: int | None = None,
+) -> dict[str, Any]:
     settings = settings_cache.for_connection(connection)
     if not settings["FULL_TEXT_SEARCH_ENABLED"]:
         raise HTTPException(status_code=503, detail={
             "code": "full_text_search_disabled",
             "message": "Full-text search is temporarily disabled.",
         })
-    if _condition_count(request.record_where)+_condition_count(request.aggregation_where)>MAX_SEARCH_CONDITIONS:
+    if session_id is None or user_id is None:
+        raise HTTPException(status_code=401, detail="authentication required")
+    if _condition_count(request.record_where) + _condition_count(request.aggregation_where) > MAX_SEARCH_CONDITIONS:
         raise _invalid(f"global search may contain at most {MAX_SEARCH_CONDITIONS} combined conditions")
-    received=request.model_dump(mode="json",by_alias=True,exclude_unset=True,exclude_none=True)
-    canonical=request.model_dump(mode="json",by_alias=True,exclude_none=True)
-    canonical.pop("cursor",None); canonical.pop("debug",None)
-    canonical.pop("include_totals", None)
-    canonical["result_types"]=sorted(canonical["result_types"])
-    if request.record_where is not None:
-        canonical["record_where"]=_canonical_request("records",SearchRequest(where=request.record_where))["where"]
-    if request.aggregation_where is not None:
-        canonical["aggregation_where"]=_canonical_request("aggregations",SearchRequest(where=request.aggregation_where))["where"]
-    fingerprint="sha256:"+hashlib.sha256(json.dumps(canonical,ensure_ascii=False,separators=(",",":"),sort_keys=True).encode()).hexdigest()
-    after=_cursor_decode(request.cursor) if request.cursor else None
-    if after and after["fingerprint"]!=fingerprint:
-        raise _invalid("global-search cursor does not belong to this query")
-    merged=[]
-    totals: dict[str, int] | None = {} if request.include_totals and after is None else None
-    if request.record_where is not None:
-        branch=_global_branch(connection,"records",request.record_where,request.limit,after,include_total=totals is not None)
-        if totals is not None:
-            totals["records"] = branch[0]["match_total"] if branch else 0
-        leaves=_full_text_leaves(request.record_where)
-        for record in branch:
-            score=record.pop("score")
-            search=_attribution(connection,"records",record,leaves,score)
-            aggregation=connection.execute(
-                """SELECT aggregation_number FROM aggregations
-                    WHERE id=%s AND current_user_can_view_aggregation(id)""",(record.get("aggregation_id"),),
-            ).fetchone()
-            merged.append({"type":"record","record":{
-                "id":record["id"],"record_number":record["record_number"],"title":record["title"],
-                "security_level_id":record["security_level_id"],
-                "description":record.get("description"),
-                "aggregation_id":record.get("aggregation_id"),
-                "aggregation_number":aggregation["aggregation_number"] if aggregation else None,
-                "date_originated":record.get("date_originated"),
-                "is_vital":record.get("is_vital",False),
-                "on_effective_hold":record.get("on_effective_hold",False),
-            },"matched_record_metadata":search["metadata_matched"],
-                "matching_components":search["matching_components"],"score":search["relevance"],
-                "_id":record["id"]})
-    if request.aggregation_where is not None:
-        branch=_global_branch(connection,"aggregations",request.aggregation_where,request.limit,after,include_total=totals is not None)
-        if totals is not None:
-            totals["aggregations"] = branch[0]["match_total"] if branch else 0
-        leaves=_full_text_leaves(request.aggregation_where)
-        for aggregation in branch:
-            score=aggregation.pop("score")
-            search=_attribution(connection,"aggregations",aggregation,leaves,score)
-            leaf=_full_text_leaves(request.aggregation_where)[0][1]
-            snippet=connection.execute(
-                """SELECT ts_headline('pg_catalog.simple',concat_ws(' ',aggregation_number,title,description),
-                           websearch_to_tsquery('pg_catalog.simple',%s),
-                           'StartSel=⟦,StopSel=⟧,MaxWords=35,MinWords=12,MaxFragments=1') AS value
-                     FROM aggregations WHERE id=%s AND current_user_can_view_aggregation(id)""",
-                (leaf.query,aggregation["id"]),
-            ).fetchone()["value"]
-            merged.append({"type":"aggregation","aggregation":{
-                "id":aggregation["id"],"aggregation_number":aggregation["aggregation_number"],
-                "title":aggregation["title"],"date_opened":aggregation.get("date_opened"),
-                "security_level_id":aggregation["security_level_id"],
-                "description":aggregation.get("description"),
-                "is_vital":aggregation.get("is_vital",False),
-                "on_effective_hold":aggregation.get("on_effective_hold",False),
-            },"snippet":snippet,"score":search["relevance"],
-                "_id":aggregation["id"]})
-    merged.sort(key=lambda item:(-item["score"],item["type"],item["_id"]))
-    if after:
-        key=(-float(after["score"]),after["type"],int(after["id"]))
-        merged=[item for item in merged if (-item["score"],item["type"],item["_id"])>key]
-    page=merged[:request.limit]
-    more=len(merged)>request.limit
-    next_cursor=None
-    if more and page:
-        last=page[-1]
-        next_cursor=_cursor_encode({"fingerprint":fingerprint,"score":last["score"],
-                                    "type":last["type"],"id":last["_id"]})
-    for item in page: item.pop("_id",None)
+    branches = {
+        kind: (resource, expression)
+        for kind, resource, expression in (
+            ("record", "records", request.record_where),
+            ("aggregation", "aggregations", request.aggregation_where),
+        )
+        if expression is not None
+    }
+    received = request.model_dump(mode="json", by_alias=True, exclude_unset=True, exclude_none=True)
+    canonical = {
+        f"{kind}_where": _canonical_request(resource, SearchRequest(where=expression))["where"]
+        for kind, (resource, expression) in branches.items()
+    }
+    canonical.update(result_types=sorted(request.result_types), limit=request.limit)
+    result_cap = settings["SEARCH_RESULT_LIMIT"]
+    idle_minutes = settings["GLOBAL_SEARCH_CACHE_IDLE_MINUTES"]
+    fingerprint = hashlib.sha256(json.dumps(
+        [canonical, result_cap, idle_minutes,
+         settings.versions["SEARCH_RESULT_LIMIT"], settings.versions["GLOBAL_SEARCH_CACHE_IDLE_MINUTES"]],
+        ensure_ascii=False, separators=(",", ":"), sort_keys=True,
+    ).encode()).hexdigest()
+    tab_id = request.tab_id
+    search_id = request.search_id
+    result_filter = request.result_filter
+    position = 0
+    page_number = request.page or 1
+    if request.cursor:
+        token_search, token_tab, position, token_filter = _cursor_decode(request.cursor)
+        if (tab_id is not None and tab_id != token_tab) or (search_id is not None and search_id != token_search):
+            raise _expired_global_search()
+        if result_filter is not None and result_filter != token_filter:
+            raise _expired_global_search()
+        search_id, tab_id, result_filter = token_search, token_tab, token_filter
+    initial = search_id is None
+    supplied_tab_id = request.tab_id is not None
+    if initial:
+        tab_id = tab_id or uuid4()
+        hits, page, truncated = _rank_global_search(
+            connection, branches, result_cap, result_filter, request.limit, page_number,
+        )
+        search_id = _save_global_search(
+            connection, hits, truncated, session_id, user_id, tab_id, fingerprint, supplied_tab_id, idle_minutes,
+        )
+    else:
+        hits, truncated = _read_global_search(
+            connection, session_id, user_id, tab_id, search_id, fingerprint, supplied_tab_id, idle_minutes,
+        )
+    totals = None
+    if initial and request.include_totals:
+        totals = {resource: sum(hit["type"] == kind for hit in hits) for kind, (resource, _) in branches.items()}
+    filtered = [hit for hit in hits if result_filter is None or hit["type"] == result_filter]
+    if request.page is not None:
+        position = _global_page_offset(len(filtered), page_number, request.limit)
+        page_number = position // request.limit + 1
+    if initial:
+        end = position + len(page)
+        next_position = end if len(filtered) > end else None
+    else:
+        page, next_position = _global_search_page(connection, branches, filtered, position, request.limit)
+    details = page_details(connection, page, {
+        kind: _full_text_leaves(expression) for kind, (_, expression) in branches.items()
+    }) if page else {}
+    items = [_global_search_item(kind, row, details[kind, row["id"]]) for kind, row in page]
+    next_cursor = _cursor_encode({
+        "search_id": str(search_id), "tab_id": str(tab_id), "position": next_position, "filter": result_filter,
+    }) if next_position is not None else None
     pending=connection.execute(
         """SELECT EXISTS(SELECT 1 FROM digital_component_search_documents document
              JOIN digital_components component ON component.id=document.digital_component_id
@@ -1173,8 +1658,10 @@ def global_search_rows(connection: Connection, request: GlobalSearchRequest) -> 
                        AND EXISTS(SELECT 1 FROM records pending_record WHERE pending_record.id=document.record_id AND (pending_record.disposition_status NOT IN (10,11,12) OR disposition_private.can_manage()))
               AND current_user_can_record_component_operation(document.record_id,'record.component.view','record.component.view')) AS value"""
     ).fetchone()["value"]
-    result={"items":page,"next_cursor":next_cursor,
+    result={"items":items,"next_cursor":next_cursor,"search_id":str(search_id),"truncated":truncated,"result_cap":result_cap,
             "index_freshness":{"has_pending_content":pending}}
+    if request.page is not None:
+        result["page"] = page_number
     if totals is not None:
         result["totals"] = totals
     if request.debug:

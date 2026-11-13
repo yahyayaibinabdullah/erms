@@ -166,7 +166,7 @@ def test_workers_inherit_environment_and_stop_with_stack(stack, failed_worker):
         assert process.returncode == 1
         expected = {
             'content_cleanup': 'managed segmented-content cleanup worker stopped unexpectedly',
-            'session_cleanup': 'managed login-session cleanup worker stopped unexpectedly',
+            'session_cleanup': 'managed login-session and search-cache cleanup worker stopped unexpectedly',
             'text_indexing_maintenance': 'API-owned text-indexing maintenance worker stopped unexpectedly',
         }.get(failed_worker, 'managed disposition worker stopped unexpectedly')
         assert expected in (directory / 'output.log').read_text()

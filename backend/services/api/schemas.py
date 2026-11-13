@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
+from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
+
 
 NonBlankString = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 LocationCode = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
@@ -1564,12 +1566,20 @@ class GlobalSearchRequest(ApiModel):
     aggregation_where: SearchExpression | None = None
     result_types: list[Literal["records", "aggregations"]] = Field(min_length=1, max_length=2)
     limit: int = Field(default=25, ge=1, le=100)
+    page: int | None = Field(default=None, ge=1, le=SEARCH_RESULT_LIMIT_MAXIMUM)
     cursor: str | None = Field(default=None, max_length=2000)
+    tab_id: UUID | None = None
+    search_id: UUID | None = None
+    result_filter: Literal["record", "aggregation"] | None = None
     include_totals: bool = False
     debug: bool = False
 
     @model_validator(mode="after")
     def branches_match_result_types(self):
+        if self.page is not None and self.cursor is not None:
+            raise ValueError("supply a page number or a page token, not both")
+        if self.search_id is not None and self.tab_id is None:
+            raise ValueError("a saved result list requires its tab ID")
         if len(set(self.result_types)) != len(self.result_types):
             raise ValueError("result_types cannot contain duplicates")
         supplied = ({"records"} if self.record_where is not None else set()) | (

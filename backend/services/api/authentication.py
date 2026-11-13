@@ -95,6 +95,16 @@ def _roles(connection: Connection, user_id: int) -> list[dict[str, Any]]:
 
 
 def resolve_principal(connection: Connection, token: str) -> Principal | None:
+    # Serialize simultaneous authentication/expiry/revocation work on this
+    # session, but do not take FOR UPDATE: inserting global_search_results
+    # references this row via a foreign key and holds KEY SHARE until commit.
+    # FOR UPDATE unnecessarily conflicts with that reference; NO KEY UPDATE
+    # permits it while still conflicting with other session updates/deletes.
+    # This is valid because authentication changes timestamps, never the session
+    # primary key. Keep the lock through the policy checks and timestamp update
+    # below so concurrent requests cannot race session expiry or revive it.
+    # The caller must also keep this synchronous transaction off an async event
+    # loop: unrelated session writes can still cause legitimate lock waits.
     row = connection.execute(
         """
         SELECT s.id AS session_id, s.user_id, u.name, u.email, u.account_type,
@@ -109,7 +119,7 @@ def resolve_principal(connection: Connection, token: str) -> Principal | None:
           AND s.absolute_expires_at > CURRENT_TIMESTAMP
           AND u.status = 'active'
           AND u.account_type = 'person'
-        FOR UPDATE OF s
+        FOR NO KEY UPDATE OF s
         """, (hash_secret(token),)
     ).fetchone()
     if not row:

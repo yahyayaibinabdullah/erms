@@ -213,7 +213,7 @@ async def test_loaded_saved_target_change_cancels_safely_or_starts_detached_new_
                      role_ids=[11], org_unit_ids=[22], return_anchor='old-result',
                      expanded_results=[3],
                      record_capabilities={3: {}}, sort_field='title', sort_direction='desc',
-                     max_results=500, limit=100)
+                     limit=100)
     def payload():
         return {'definition': {'request': {'where': copy.deepcopy(workspace['root'])},
                                'resource_type': workspace['resource']}}
@@ -240,7 +240,7 @@ async def test_loaded_saved_target_change_cancels_safely_or_starts_detached_new_
         assert workspace['audience_mode'] == 'private'
         assert workspace['role_ids'] == workspace['org_unit_ids'] == []
         assert workspace['sort_field'] == 'id' and workspace['sort_direction'] == 'asc'
-        assert workspace['max_results'] == 1000 and workspace['limit'] == 25
+        assert 'max_results' not in workspace and workspace['limit'] == 25
         assert workspace['expanded_results'] == []
         assert workspace['record_capabilities'] == {}
         assert 'return_anchor' not in workspace

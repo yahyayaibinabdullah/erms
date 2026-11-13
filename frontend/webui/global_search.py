@@ -2,7 +2,6 @@
 from __future__ import annotations
 from typing import Any
 from .api_client import ApiError
-import asyncio
 from .global_search_state import new_global_search_state
 import json
 from .i18n_catalogue import render_message
@@ -18,15 +17,15 @@ def build_global_search(
     ) -> dict[str, Any]:
         full_text = {"full_text": {"query": query}}
         payload: dict[str, Any] = {
-            "result_types": [],
+            "result_types": ["records", "aggregations"],
+            "record_where": full_text, "aggregation_where": full_text,
             "limit": global_search_state["global_search_page_size"],
+            "tab_id": global_search_state["global_search_tab_id"],
         }
-        if selected in ("all", "record"):
-            payload["record_where"] = full_text
-            payload["result_types"].append("records")
-        if selected in ("all", "aggregation"):
-            payload["aggregation_where"] = full_text
-            payload["result_types"].append("aggregations")
+        if global_search_state["global_search_id"] is not None:
+            payload["search_id"] = global_search_state["global_search_id"]
+        if selected != "all":
+            payload["result_filter"] = selected
         if cursor:
             payload["cursor"] = cursor
         if include_totals:
@@ -108,13 +107,9 @@ def build_global_search(
         table_container.clear()
         query = global_search_state["global_search_query"]
         selected = global_search_state["global_search_filter"]
-        visible, cursor = global_search_state["global_search_streams"].get(selected, ([], None))
-        page_size = int(global_search_state.get("global_search_page_size", 10))
-        page_count = max(1, (len(visible) + page_size - 1) // page_size)
-        global_search_state["global_search_page"] = min(max(1, int(global_search_state.get("global_search_page", 1))), page_count)
+        page_items = global_search_state["global_search_items"]
         page_number = global_search_state["global_search_page"]
-        page_start = (page_number - 1) * page_size
-        page_items = visible[page_start:page_start + page_size]
+        has_next = (selected, page_number + 1) in global_search_state["global_search_page_tokens"]
         totals = global_search_state["global_search_totals"] or {}
         record_count = totals.get("records", 0)
         aggregation_count = totals.get("aggregations", 0)
@@ -160,7 +155,8 @@ def build_global_search(
                         render_message("webui.render_global_search_results.button.try_again_75a7aeea"),
                         icon="refresh",
                         on_click=lambda: run_global_search(
-                            query, load_more=True, target_page=global_search_state["global_search_retry_page"],
+                            query, load_more=True,
+                            target_page=global_search_state["global_search_retry_page"],
                         ),
                     ).props("outline no-caps color=negative")
                 return
@@ -168,7 +164,9 @@ def build_global_search(
                 with ui.row().classes("w-full items-center gap-2 rounded-lg bg-blue-50 border border-blue-200 p-3").props("role=status"):
                     ui.icon("info", color="primary")
                     ui.label(render_message("webui.render_global_search_results.label.recently_added_content_may_still_be_indexi_b45b7d39")).classes("text-sm text-slate-700")
-            if not visible:
+            if global_search_state["global_search_truncated"]:
+                ui.label(render_message("global_search.results.capped", limit=format(global_search_state["global_search_result_cap"], ","))).classes("text-sm text-slate-600").props("role=status")
+            if not page_items:
                 with ui.column().classes("w-full items-center py-12 gap-2").props("role=status"):
                     ui.icon("search_off", size="42px").classes("text-slate-300")
                     ui.label(render_message("webui.render_global_search_results.label.no_results_found_ab1c85dc")).classes("text-lg font-semibold")
@@ -208,7 +206,7 @@ def build_global_search(
                                 on_open=open_global_aggregation_from_result,
                                 metadata_matched=True,
                             )
-            if visible:
+            if page_items or page_number > 1:
                 with ui.row().classes("w-full items-center justify-center gap-2 pt-1"):
                     first_button = ui.button(icon="first_page", on_click=lambda: change_global_search_page(1)).props(
                         'flat round aria-label=' + repr(render_message("webui.render_global_search_results.accessible_name.first_page_69926c59"))
@@ -222,43 +220,23 @@ def build_global_search(
                     ).tooltip(render_message("webui.render_global_search_results.tooltip.next_page_62ca3105"))
                     first_button.set_enabled(page_number > 1)
                     previous_button.set_enabled(page_number > 1)
-                    next_button.set_enabled(page_number < page_count or bool(cursor))
+                    next_button.set_enabled(has_next)
             restore_compact_result_anchor(global_search_state.pop("global_search_return_anchor", None))
 
 
     async def select_global_search_filter(selected: str) -> None:
         if global_search_state["global_search_loading"] or get_resource() != "full-text-search":
             return
-        totals = global_search_state["global_search_totals"]
-        if totals is None:
+        if global_search_state["global_search_id"] is None:
             return
-        streams = global_search_state["global_search_streams"]
-        global_search_state.update(
-            global_search_filter=selected, global_search_page=1, global_search_error=None,
-        )
-        if selected not in streams and selected != "all":
-            mixed, _ = streams["all"]
-            matching = [item for item in mixed if item["type"] == selected]
-            if len(matching) == totals[f"{selected}s"]:
-                streams[selected] = (matching, None)
-        if selected in streams:
-            render_global_search_results()
-        else:
-            await run_global_search(global_search_state["global_search_query"], load_more=True)
-
+        global_search_state["global_search_filter"] = selected
+        await run_global_search(global_search_state["global_search_query"], load_more=True)
 
     async def change_global_search_page(target_page: int) -> None:
-        if global_search_state["global_search_loading"] or get_resource() != "full-text-search":
+        if (global_search_state["global_search_loading"] or get_resource() != "full-text-search"
+                or target_page == global_search_state["global_search_page"]):
             return
-        selected = global_search_state["global_search_filter"]
-        items, cursor = global_search_state["global_search_streams"].get(selected, ([], None))
-        page_size = global_search_state["global_search_page_size"]
-        target_page = max(1, int(target_page))
-        if (target_page - 1) * page_size < len(items):
-            global_search_state["global_search_page"] = target_page
-            render_global_search_results()
-        elif cursor and target_page == global_search_state["global_search_page"] + 1:
-            await run_global_search(global_search_state["global_search_query"], load_more=True, target_page=target_page)
+        await run_global_search(global_search_state["global_search_query"], load_more=True, target_page=target_page)
 
 
     def remember_global_result(item: dict[str, Any], resource: str) -> None:
@@ -301,8 +279,10 @@ def build_global_search(
             ui.notify(render_message("webui.run_global_search.notify.enter_words_to_search_for_317e3f34"), color="warning")
             return
         selected = global_search_state["global_search_filter"] if load_more else "all"
-        stream = global_search_state["global_search_streams"].get(selected) if load_more else None
-        if stream is not None and not stream[1]:
+        target_page = max(1, target_page) if load_more else 1
+        tokens = global_search_state["global_search_page_tokens"]
+        cursor = tokens.get((selected, target_page)) if load_more else None
+        if load_more and cursor is None and target_page > global_search_state["global_search_page"]:
             return
         revision = global_search_state.get("global_search_revision", 0) + 1
         global_search_state["global_search_revision"] = revision
@@ -317,11 +297,17 @@ def build_global_search(
             discard_navigation_guard()
             register_navigation("full-text-search", "Search results")
             enter_global_search()
-            global_search_state.update(new_global_search_state(query), search_diagnostics_enabled=diagnostics)
+            global_search_state.update(
+                new_global_search_state(query, tab_id=global_search_state["global_search_tab_id"]),
+                search_diagnostics_enabled=diagnostics,
+            )
+            tokens = global_search_state["global_search_page_tokens"]
         payload = global_search_payload(
-            query, cursor=stream[1] if stream is not None else None, selected=selected,
+            query, cursor=cursor, selected=selected,
             include_totals=selected == "all" and global_search_state["global_search_totals"] is None,
         )
+        if target_page > 1 and cursor is None:
+            payload["page"] = target_page
         if global_search_state["search_diagnostics_enabled"]:
             global_search_state["search_diagnostics_sent"] = payload
         global_search_state["global_search_loading"] = True
@@ -343,33 +329,43 @@ def build_global_search(
                 )
             if not is_current():
                 return
-            result = await api.full_text_search(payload)
+            try:
+                result = await api.full_text_search(payload)
+            except ApiError as error:
+                if not (
+                    error.status_code == 410 and isinstance(error.detail, dict)
+                    and error.detail.get("code") == "global_search_expired" and "search_id" in payload
+                ):
+                    raise
+                if not is_current():
+                    return
+                # Re-submit the tab's last query and request the same page of the fresh list.
+                payload = {key: value for key, value in payload.items() if key not in {"search_id", "cursor"}}
+                payload.update(page=target_page, include_totals=True)
+                if global_search_state["search_diagnostics_enabled"]:
+                    global_search_state["search_diagnostics_sent"] = payload
+                result = await api.full_text_search(payload)
             if not is_current():
                 return
             result_items = list(result.get("items", []))
-            record_items = [item for item in result_items if item.get("type") == "record"]
-            async def load_record_capabilities(result_item: dict[str, Any]) -> dict[str, Any]:
-                try:
-                    return await api.resource_capabilities("records", int(result_item["record"]["id"]))
-                except ApiError:
-                    return {}
-            record_capabilities = await asyncio.gather(*(
-                load_record_capabilities(result_item) for result_item in record_items
-            ))
-            if not is_current():
-                return
-            for result_item, capabilities in zip(record_items, record_capabilities):
-                result_item["record_capabilities"] = capabilities
-            loaded = stream[0] if stream is not None else []
-            loaded.extend(result_items)
-            cursor = result.get("next_cursor")
-            if stream is not None and cursor == stream[1]:
-                cursor = None
-            global_search_state["global_search_streams"][selected] = (loaded, cursor)
-            if payload.get("include_totals"):
+            if result["search_id"] != global_search_state["global_search_id"]:
+                tokens.clear()
+            target_page = result.get("page", target_page)
+            global_search_state["global_search_id"] = result["search_id"]
+            global_search_state["global_search_items"] = result_items
+            global_search_state["global_search_page"] = target_page
+            global_search_state["global_search_truncated"] = bool(result.get("truncated"))
+            global_search_state["global_search_result_cap"] = result.get("result_cap")
+            next_page = (selected, target_page + 1)
+            next_token = result.get("next_cursor")
+            if tokens.get(next_page) != next_token:
+                for key in list(tokens):
+                    if key[0] == selected and key[1] > target_page:
+                        del tokens[key]
+            if next_token:
+                tokens[next_page] = next_token
+            if "totals" in result:
                 global_search_state["global_search_totals"] = result["totals"]
-            if result_items:
-                global_search_state["global_search_page"] = target_page
             global_search_state["global_search_pending"] = bool(result.get("index_freshness", {}).get("has_pending_content"))
             global_search_state["search_diagnostics_accepted"] = result.get("_debug")
         except ApiError as error:

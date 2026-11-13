@@ -36,12 +36,13 @@ async def setup(user,items=None,privileges=None):
     state=new_global_search_state('Example')
     state['resource']='full-text-search'
     if items:
-        state['global_search_streams']['all']=(items,None)
+        state['global_search_id']='saved-search'
+        state['global_search_items']=items
         state['global_search_totals']={
             'records':sum(row['type']=='record' for row in items),
             'aggregations':sum(row['type']=='aggregation' for row in items),
         }
-    s=dict(vars(host),state=state,collection_state={},auth_state={'principal':{'global_privileges':privileges or []}},register_navigation=Mock(),show_authenticated_view=Mock(),restore_compact_result_anchor=Mock(),select_record_details=AsyncMock(),open_aggregation=AsyncMock(),error_message=lambda e:'Search unavailable',api=SimpleNamespace(full_text_search=AsyncMock(return_value={'items':[]}),resource_capabilities=AsyncMock(return_value={'list_components':True,'view_component':True}),component_page=AsyncMock(return_value={'items':[{'id':7,'mime_type':'image/png'}]})))
+    s=dict(vars(host),state=state,collection_state={},auth_state={'principal':{'global_privileges':privileges or []}},register_navigation=Mock(),show_authenticated_view=Mock(),restore_compact_result_anchor=Mock(),select_record_details=AsyncMock(),open_aggregation=AsyncMock(),error_message=lambda e:'Search unavailable',api=SimpleNamespace(full_text_search=AsyncMock(return_value={'items':[],'search_id':'saved-search'}),resource_capabilities=AsyncMock(return_value={'list_components':True,'view_component':True}),component_page=AsyncMock(return_value={'items':[{'id':7,'mime_type':'image/png'}]})))
     s['rendered']=[]
     def compact(resource,row,**kwargs):s['rendered'].append((resource,row,kwargs));ui.label(row['title'])
     s['render_compact_resource_result']=compact
@@ -53,18 +54,60 @@ async def setup(user,items=None,privileges=None):
         build(s);s['render_global_search_results']()
     await user.open('/global-search-contract');return s
 
-async def test_cursor_paging_keeps_server_bound_and_stops_unchanged_cursor(user):
+async def test_next_and_previous_read_the_saved_search_from_the_server(user):
     s=await setup(user,[item(i) for i in range(10)])
-    streams=s['state']['global_search_streams']
-    streams['all']=(streams['all'][0],'next')
-    s['api'].full_text_search.return_value={'items':[item(10)],'next_cursor':'next'}
+    s['state']['global_search_page_tokens'][('all', 2)]='next'
+    search=s['api'].full_text_search
+    search.return_value={'items':[item(10)],'search_id':'saved-search','next_cursor':None}
     with user:await s['change_global_search_page'](2)
     assert s['state']['global_search_page']==2
-    assert s['api'].full_text_search.await_args.args[0]['limit']==10
-    assert s['api'].full_text_search.await_args.args[0]['cursor']=='next'
-    assert s['api'].full_text_search.await_count==1
-    assert streams['all'][1] is None
+    assert search.await_args.args[0]['limit']==10
+    assert search.await_args.args[0]['cursor']=='next'
+    assert search.await_args.args[0]['search_id']=='saved-search'
+    assert search.await_args.args[0]['tab_id']==s['state']['global_search_tab_id']
     await user.should_see('Result 10');await user.should_not_see('Result 0')
+    search.return_value={'items':[item(1)],'search_id':'saved-search','next_cursor':'next'}
+    with user:await s['change_global_search_page'](1)
+    assert search.await_count==2
+    assert 'cursor' not in search.await_args.args[0]
+    assert search.await_args.args[0]['search_id']=='saved-search'
+    await user.should_see('Result 1')
+
+
+async def test_expired_search_rebuilds_the_requested_page_and_discards_old_tokens(user):
+    s = await setup(user, [item(11, 'record')])
+    state = s['state']
+    state.update(global_search_filter='record', global_search_page=2)
+    state['global_search_page_tokens'].update({('record', 2): 'old-second', ('record', 3): 'old-third',
+                                             ('all', 2): 'old-mixed'})
+    s['global_search_input'].value = 'unsubmitted edit'
+    search = s['api'].full_text_search
+    search.side_effect = [
+        ApiError(410, {'code': 'global_search_expired'}),
+        {'items': [item(21, 'record')], 'search_id': 'rebuilt', 'page': 3,
+         'totals': {'records': 23, 'aggregations': 5}},
+        {'items': [item(12, 'record')], 'search_id': 'rebuilt', 'page': 2, 'next_cursor': 'new-third'},
+    ]
+    with user:
+        await s['change_global_search_page'](3)
+    await user.should_see('Result 21')
+    await user.should_not_see('Search unavailable')
+    first, rebuild = [call.args[0] for call in search.await_args_list]
+    assert first['cursor'] == 'old-third' and first['search_id'] == 'saved-search'
+    assert rebuild == {key: value for key, value in first.items() if key not in {'search_id', 'cursor'}} | {
+        'page': 3, 'include_totals': True,
+    }
+    assert rebuild['record_where']['full_text']['query'] == 'Example'
+    assert state['global_search_page'] == 3
+    assert state['global_search_page_tokens'] == {}
+    assert state['global_search_totals'] == {'records': 23, 'aggregations': 5}
+    with user:
+        await s['change_global_search_page'](2)
+    assert search.await_args.args[0]['search_id'] == 'rebuilt'
+    assert search.await_args.args[0]['page'] == 2
+    assert state['global_search_page_tokens'] == {('record', 3): 'new-third'}
+    await user.should_see('Result 12')
+
 
 def click_tab(user, key, count):
     label=t(key,count=count)
@@ -78,7 +121,7 @@ async def test_totals_and_record_pages_do_not_depend_on_mixed_cursor(user,record
     s=await setup(user)
     search=s['api'].full_text_search
     search.return_value={
-        'items':[item(i) for i in range(10)], 'next_cursor':'mixed-next',
+        'items':[item(i) for i in range(10)], 'next_cursor':'mixed-next', 'search_id':'saved-search',
         'totals':{'records':records,'aggregations':97},
     }
     with user:await s['run_global_search']('Example',load_more=True)
@@ -87,14 +130,16 @@ async def test_totals_and_record_pages_do_not_depend_on_mixed_cursor(user,record
     await user.should_see(t('global_search.filter.aggregations',count=97))
     search.return_value={
         'items':[item(i,'record') for i in range(30,30+min(records,10))],
-        'next_cursor':'record-next' if records>10 else None,
+        'next_cursor':'record-next' if records>10 else None, 'search_id':'saved-search',
     }
     click_tab(user,'global_search.filter.records',records)
     await user.should_see('Result 30')
     first_page=search.await_args.args[0]
-    assert first_page=={'result_types':['records'],'record_where':{'full_text':{'query':'Example'}},'limit':10}
+    assert first_page['result_types']==['records','aggregations']
+    assert first_page['result_filter']=='record'
+    assert first_page['search_id']=='saved-search'
     if records>10:
-        search.return_value={'items':[item(i,'record') for i in range(40,50)],'next_cursor':'record-last'}
+        search.return_value={'items':[item(i,'record') for i in range(40,50)],'next_cursor':'record-last','search_id':'saved-search'}
     with user:
         await asyncio.gather(s['change_global_search_page'](2), s['change_global_search_page'](2))
     if records>10:
@@ -102,22 +147,25 @@ async def test_totals_and_record_pages_do_not_depend_on_mixed_cursor(user,record
         assert search.await_args.args[0]=={**first_page,'cursor':'record-next'}
         await user.should_see('Result 40')
         await user.should_not_see('Result 30')
+        search.return_value={'items':[item(30,'record')],'next_cursor':'record-next','search_id':'saved-search'}
         with user:await s['change_global_search_page'](1)
         await user.should_see('Result 30')
-        assert search.await_count==3
+        assert search.await_count==4
     else:
         next_button=next(button for button in user.find(ui.button).elements if button.props.get('icon')=='chevron_right')
         assert not next_button.enabled
         assert search.await_count==2
     await user.should_see(t('global_search.filter.records',count=records))
     await user.should_see(t('global_search.filter.aggregations',count=97))
+    search.return_value={'items':[item(0)],'search_id':'saved-search'}
     click_tab(user,'global_search.filter.all',records+97)
     await user.should_see('Result 0')
-    assert search.await_count==(3 if records>10 else 2)
+    assert search.await_count==(5 if records>10 else 3)
 
 
 async def test_filters_expansions_and_return_anchors(user):
     s=await setup(user,[item(1),item(2,'record')])
+    s['api'].full_text_search.return_value={'items':[item(2,'record')],'search_id':'saved-search'}
     with user:s['set_global_result_expansion']('records',2,True)
     click_tab(user,'global_search.filter.records',1)
     await user.should_not_see('Result 1');await user.should_see('Result 2')
@@ -143,32 +191,40 @@ async def test_late_response_does_not_replace_current_results(user,boundary):
         s['auth_state']['principal']=None
     else:s['state']['global_search_revision']+=1
     release.set();await task
-    assert s['state']['global_search_streams']=={}
+    assert s['state']['global_search_items']==[]
     await user.should_not_see('Result 99')
 
-async def test_authorized_components_and_failure_fallback_are_bounded(user):
-    s=await setup(user);s['api'].full_text_search.return_value={'items':[item(1,'record')],'totals':{'records':2,'aggregations':0},'next_cursor':'next','index_freshness':{'has_pending_content':True}}
+@pytest.mark.parametrize('flags', [
+    {'list_components': True, 'has_previewable_component': True},
+    {'list_components': False, 'has_previewable_component': False},
+    {},
+])
+async def test_search_response_supplies_display_capabilities_without_extra_requests(user, flags):
+    result = {**item(1,'record'), 'record_capabilities': flags}
+    s=await setup(user);s['api'].full_text_search.return_value={'items':[result],'search_id':'saved-search','totals':{'records':2,'aggregations':0},'next_cursor':'next','index_freshness':{'has_pending_content':True}}
     with user:await s['run_global_search']('Example',load_more=True)
     s['api'].component_page.assert_not_awaited()
-    s['api'].resource_capabilities.assert_awaited_once_with('records',1)
-    assert s['state']['global_search_streams']['all'][0][0]['matching_components'][0]['id']==7
+    s['api'].resource_capabilities.assert_not_awaited()
+    assert s['state']['global_search_items'][0]['matching_components'][0]['id']==7
     assert s['state']['global_search_pending']
-    s['api'].resource_capabilities.side_effect=ApiError(403,'Forbidden')
+    assert s['rendered'][-1][2]['can_preview'] == bool(flags.get('has_previewable_component'))
+    assert s['rendered'][-1][2]['can_expand_components'] == bool(flags.get('list_components'))
     with user:await s['run_global_search']('Example',load_more=True)
-    assert s['state']['global_search_streams']['all'][0][-1]['record_capabilities']=={}
+    s['api'].resource_capabilities.assert_not_awaited()
+    assert s['state']['global_search_items'][-1]['record_capabilities']==flags
 
 async def test_error_empty_and_diagnostics_do_not_disclose_without_privilege(user):
     s=await setup(user);assert not any(isinstance(e,ui.switch) for e in user.client.elements.values())
     s['api'].full_text_search.side_effect=ApiError(503,'Unavailable')
     with user:await s['run_global_search']('Example',load_more=True)
     await user.should_see('Search unavailable');assert not s['state']['global_search_loading']
-    s['api'].full_text_search.side_effect=None;s['api'].full_text_search.return_value={'items':[],'totals':{'records':0,'aggregations':0}}
+    s['api'].full_text_search.side_effect=None;s['api'].full_text_search.return_value={'items':[],'search_id':'saved-search','totals':{'records':0,'aggregations':0}}
     with user:await s['run_global_search']('Example',load_more=True)
     await user.should_see(t('webui.render_global_search_results.label.no_results_found_ab1c85dc'))
 
 async def test_diagnostics_explicit_opt_in_and_cleanup(user):
     s=await setup(user,privileges=['search.query.debug'])
-    s['api'].full_text_search.return_value={'items':[],'totals':{'records':0,'aggregations':0}}
+    s['api'].full_text_search.return_value={'items':[],'search_id':'saved-search','totals':{'records':0,'aggregations':0}}
     toggle=next(e for e in user.client.elements.values() if isinstance(e,ui.switch))
     with user:toggle.value=True
     await asyncio.sleep(.1)

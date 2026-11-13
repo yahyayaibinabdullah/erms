@@ -9,6 +9,8 @@ unapproved column names from clients.
 ```text
 POST /api/v1/aggregations/search
 POST /api/v1/records/search
+POST /api/v1/aggregations/advanced-search
+POST /api/v1/records/advanced-search
 POST /api/v1/digital-components/search
 POST /api/v1/event-history/search
 POST /api/v1/users/search
@@ -17,6 +19,22 @@ POST /api/v1/roles/search
 POST /api/v1/user-role-assignments/search
 POST /api/v1/full-text-search
 ```
+
+Global Search ranks once and uses that ranking to return the requested page and
+save the combined result list. The administrator-controlled
+`SEARCH_RESULT_LIMIT` caps Global Search and Advanced Search. The default is
+1,000 and the allowed range is 1 to 5,000. The Global Search page token
+references the saved list for the authenticated login and browser tab. Later
+pages recheck access before returning records or file details. If the saved
+list is gone, the WebUI repeats the submitted query once with a page number
+in place of the old search ID and token.
+See [the Global Search contract](../specs/full-text-search.md#103-global-search-endpoint).
+
+Advanced Search endpoints use the current Application Setting and reject
+offsets at or beyond the cap. The response includes `result_cap` and
+`truncated`. Smaller limits already stored in legacy saved searches still
+apply. Clients can select a page size. The Records and Aggregations collection
+filters use the ordinary search endpoints with a page size limit.
 
 The ordinary `GET` collection endpoints remain available for simple equality
 filters. Use the search endpoints for boolean logic, ranges, sets, null tests,
@@ -173,9 +191,10 @@ not create attribution or affect positive relevance.
 `aggregation_where` branches. `result_types` must exactly match the supplied
 branches; omitting a branch excludes that resource type rather than matching
 every resource. The two branches share the 50-condition budget. Pages contain
-at most 100 results and use the returned opaque `next_cursor`; a cursor is
-rejected if reused with a different canonical query. The response also reports
-whether authorized content is pending indexing.
+at most 100 results. The opaque `next_cursor` page token is rejected if used
+with a different canonical query. A caller can supply a numbered `page`
+instead of a token; the response reports the page served. The response also
+reports whether authorized content is pending indexing.
 
 ## Privileged diagnostics
 
@@ -312,3 +331,12 @@ valid only for text fields. Null operators are valid only for nullable fields.
 - A request can contain at most 10 sort fields.
 - A response can contain at most 500 items.
 - Invalid queries return HTTP `422 Unprocessable Entity`.
+
+## Search performance acceptance
+
+All search and filtering implementations must follow the normative
+[search performance contract](search-performance.md). Use SQL for matching, authorization, ranking and paging;
+reuse batch permission calculations and indexable candidate predicates.
+Changes require the disposable large-data correctness and latency gate: more
+than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
+counts/ranking/order, and every measured response within 3 seconds.

@@ -3796,6 +3796,10 @@ CREATE FUNCTION public.application_setting_value_valid(p_key text, p_value jsonb
  WHEN 'SEARCH_RATE_LIMIT_PER_MINUTE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
  WHEN 'MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
  WHEN 'AUDIT_TRAIL_SEARCH_RESULT_LIMIT' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
+ WHEN 'SEARCH_RESULT_LIMIT' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 5000)
+ WHEN 'GLOBAL_SEARCH_CACHE_IDLE_MINUTES' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
+ WHEN 'GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
+ WHEN 'GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)
  WHEN 'DISPOSITION_DESTRUCTION_REVIEW_ROUTE' THEN p_secret IS NULL AND (jsonb_typeof(p_value)='string' AND btrim(p_value#>>'{}')<>'' AND (p_value#>>'{}') !~ E'[\r\n]' AND (p_value#>>'{}') IN ('standard','simplified','records_manager_only'))
  WHEN 'DISPOSITION_CLASSIFICATION_SCHEME_ID' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)))
  WHEN 'DISPOSITION_UPLOADED_EVIDENCE_CLASSIFICATION_ID' THEN p_secret IS NULL AND ((p_value='null'::jsonb OR (jsonb_typeof(p_value)='number' AND p_value::text ~ '^[0-9]+$' AND (p_value#>>'{}')::numeric BETWEEN 1 AND 9223372036854775807)))
@@ -9058,6 +9062,23 @@ CREATE SEQUENCE public.login_sessions_id_seq
 
 ALTER SEQUENCE public.login_sessions_id_seq OWNED BY public.login_sessions.id;
 
+CREATE UNLOGGED TABLE public.global_search_results (
+    session_id bigint NOT NULL,
+    tab_id uuid NOT NULL,
+    user_id bigint NOT NULL,
+    requires_tab_id boolean NOT NULL,
+    search_id uuid NOT NULL,
+    fingerprint text NOT NULL,
+    hits jsonb NOT NULL,
+    truncated boolean NOT NULL,
+    started_at timestamp with time zone NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    PRIMARY KEY (session_id, tab_id),
+    CHECK (jsonb_typeof(hits) = 'array' AND jsonb_array_length(hits) <= 5000)
+);
+
+CREATE INDEX global_search_results_expiry_idx ON public.global_search_results (expires_at);
+
 CREATE TABLE public.message_action_amendments (
     id uuid NOT NULL,
     original_envelope_id uuid NOT NULL,
@@ -9873,7 +9894,15 @@ CREATE TABLE public.saved_searches (
     version bigint DEFAULT 1 NOT NULL,
     CONSTRAINT saved_searches_audience_mode_valid CHECK ((audience_mode = ANY (ARRAY['private'::text, 'shared'::text]))),
     CONSTRAINT saved_searches_category_valid CHECK (((category IS NULL) OR ((btrim(category) <> ''::text) AND (length(category) <= 80)))),
-    CONSTRAINT saved_searches_definition_valid CHECK (((jsonb_typeof(definition) = 'object'::text) AND ((definition ->> 'schema_version'::text) = '1'::text) AND ((definition ->> 'resource_type'::text) = resource_type) AND (jsonb_typeof((definition -> 'request'::text)) = 'object'::text) AND ((definition ->> 'max_results'::text) ~ '^[0-9]+$'::text) AND ((((definition ->> 'max_results'::text))::integer >= 1) AND (((definition ->> 'max_results'::text))::integer <= 5000)))),
+    CONSTRAINT saved_searches_definition_valid CHECK (
+        jsonb_typeof(definition) = 'object'
+        AND definition->>'schema_version' = '1'
+        AND definition->>'resource_type' = resource_type
+        AND jsonb_typeof(definition->'request') = 'object'
+        AND (NOT definition ? 'max_results' OR COALESCE(
+            (definition->>'max_results') ~ '^[0-9]+$'
+            AND (definition->>'max_results')::numeric BETWEEN 1 AND 5000, false))
+    ),
     CONSTRAINT saved_searches_description_bounded CHECK (((description IS NULL) OR (length(description) <= 500))),
     CONSTRAINT saved_searches_name_bounded CHECK ((length(name) <= 120)),
     CONSTRAINT saved_searches_name_not_blank CHECK ((btrim(name) <> ''::text)),
@@ -11074,6 +11103,18 @@ CREATE INDEX classifications_scheme_parent_idx ON public.classifications USING b
 CREATE INDEX classifications_translation_text_trgm_idx ON public.classifications USING gin (((translations)::text) public.gin_trgm_ops);
 
 CREATE INDEX classifications_translations_gin ON public.classifications USING gin (translations jsonb_path_ops);
+
+CREATE INDEX digital_components_filename_vector_gin ON public.digital_components
+    USING gin (to_tsvector('pg_catalog.simple', coalesce(file_name, '')));
+
+CREATE INDEX component_search_other_config_idx ON public.digital_component_search_chunks (text_search_config)
+    WHERE text_search_config NOT IN ('pg_catalog.simple'::regconfig, 'pg_catalog.english'::regconfig, 'pg_catalog.arabic'::regconfig);
+
+CREATE INDEX record_search_other_config_idx ON public.record_search_documents (text_search_config)
+    WHERE text_search_config <> 'pg_catalog.simple'::regconfig;
+
+CREATE INDEX aggregation_search_other_config_idx ON public.aggregation_search_documents (text_search_config)
+    WHERE text_search_config <> 'pg_catalog.simple'::regconfig;
 
 CREATE INDEX component_search_chunks_vector_gin ON public.digital_component_search_chunks USING gin (search_vector);
 
@@ -13287,3 +13328,6 @@ COMMIT;
 
 REVOKE ALL ON FUNCTION disposition_private.preparer_eligible(bigint,text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION disposition_private.can_add_preparation_members(bigint,bigint) FROM PUBLIC;
+
+ALTER TABLE ONLY public.global_search_results ADD CONSTRAINT global_search_results_session_id_fkey
+    FOREIGN KEY (session_id) REFERENCES public.login_sessions(id) ON DELETE CASCADE;

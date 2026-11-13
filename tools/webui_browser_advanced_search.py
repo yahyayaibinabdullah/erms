@@ -112,7 +112,7 @@ with psycopg.connect(url) as c:
                 updated=read_saved(identifier)
                 assert updated['definition']['request']['where']=={'and':[dict(leaf,value=edited)]}
                 assert updated['definition']['resource_type']==saved['definition']['resource_type']
-                assert updated['definition']['max_results']==saved['definition']['max_results']
+                assert updated['definition'].get('max_results')==saved['definition'].get('max_results')
                 assert updated['audience_mode']==saved['audience_mode'] and updated['owner_user_id']==saved['owner_user_id']
                 open_named(name)
                 page.wait.until(lambda _:page.field(page.t(value)).get_attribute('value')==edited)
@@ -170,7 +170,7 @@ with psycopg.connect(url) as c:
             started=len(page.events())
             click(search,page.one('.advanced-search-submit-row'))
             page.wait.until(lambda _:result_ids('aggregations')==fixture_ids[-1:])
-            assert [e['path'] for e in page.events()[started:] if e['method']=='POST']==['/api/v1/aggregations/search']
+            assert [e['path'] for e in page.events()[started:] if e['method']=='POST']==['/api/v1/aggregations/advanced-search']
             assert not page.button(page.t(next_page)).is_enabled()
             click('webui.select_advanced_search.button.reset_507afbb7',page.one('.advanced-search-submit-row'))
             page.errors()

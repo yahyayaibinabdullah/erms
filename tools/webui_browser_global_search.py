@@ -53,18 +53,36 @@ with psycopg.connect(url) as c:
             next_page();assert len(page.visible('.compact-result-item'))==9;assert requests()==count+2;totals();capture('third')
             previous=page.t('webui.render_global_search_results.accessible_name.previous_page_571d7f79')
             page.click(previous);page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10)
-            assert requests()==count+2
+            assert requests()==count+3
             page.click(page.t('global_search.filter.records').format(count=2));page.wait.until(lambda _:len(page.visible('.compact-result-item'))==2);capture('records')
             totals()
             assert not page.button(page.t('webui.render_global_search_results.accessible_name.next_page_c45c7218')).is_enabled()
-            assert requests()==count+2  # All pages already contained both records.
+            assert requests()==count+4  # The filter rechecks current access to its page.
             page.one('button[aria-label="Open record"]',scope=page.visible('.compact-result-item')[0]).click();page.one('.component-list');capture('record')
             label=page.t('webui.run_global_search.text.search_results_ecc13a7a')
             crumbs=[b for b in page.visible('button.max-w-52') if label in plain(b.text)];assert crumbs;page.activate(crumbs[-1]);page.wait.until(lambda _:len(page.visible('.compact-result-item'))==2);capture('return')
-            assert requests()==count+2
+            assert requests()==count+5
             assert page.driver.current_url.endswith('/?q=Quasararchive') and page.driver.execute_script('return history.length')==history
         with page.check('existing query URL reload and empty search'):
             page.reload();page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10);capture('reload')
             search('zz_phase6q_absent');page.see(page.t('webui.render_global_search_results.label.no_results_found_ab1c85dc'));capture('empty')
             page.reload();page.see(page.t('webui.render_global_search_results.label.no_results_found_ab1c85dc'))
             assert page.driver.current_url.endswith('/?q=zz_phase6q_absent');page.errors()
+        with page.check('expired search silently rebuilds on the requested page'):
+            search('Quasararchive');next_page()
+            second = [plain(row.text) for row in page.visible('.compact-result-item')]
+            subprocess.run([page.args.api_python,'-c',"""
+import os,psycopg
+from psycopg.conninfo import conninfo_to_dict
+url=os.environ['DATABASE_URL'];assert conninfo_to_dict(url)['dbname'].startswith('erms_webui_test_')
+with psycopg.connect(url) as c:
+ c.execute("UPDATE global_search_results SET expires_at=clock_timestamp()")
+"""],check=True,timeout=30)
+            count=requests()
+            next_page()
+            assert len(page.visible('.compact-result-item'))==9 and requests()==count+2
+            page.click(previous)
+            page.wait.until(lambda _:len(page.visible('.compact-result-item'))==10)
+            assert [plain(row.text) for row in page.visible('.compact-result-item')]==second
+            assert requests()==count+3
+            totals();page.errors()

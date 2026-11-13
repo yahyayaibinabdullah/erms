@@ -3,7 +3,7 @@
 **Status:** Implemented
 **Project:** ERMS  
 **Prepared:** 18 September 2026  
-**Revision:** 0.1
+**Revision:** 0.2 — 13 November 2026: independent cleanup supervision and database-wide leadership
 
 ## 1. Purpose
 
@@ -305,8 +305,39 @@ It supports:
 - idempotent overlapping invocation; and
 - structured counts and nonzero failure exits.
 
-Production may schedule the one-shot command or supervise exactly one `--watch`
-process per logical database. Cleanup must never start from each FastAPI worker.
+Production supervises the standalone `erms-session-cleanup.service` independently
+of API services. It is enabled at system boot; API start/stop/restart must not
+start, stop or restart cleanup. Cleanup must never start inside FastAPI workers.
+There must be at most one active cleanup process per logical PostgreSQL database.
+Optional processes on other hosts remain standbys and retry leadership every five
+seconds. Both jobs use the same dedicated database connection that holds session
+advisory lock `2026091803` across job commits and idle waits. Losing that connection
+must prevent further cleanup and exit nonzero for supervisor restart; ownership
+must never be retained across a transparent reconnect. Connection closure releases
+ownership; takeover follows PostgreSQL detecting the disconnection plus the
+standby retry delay. Use a direct database connection or session pooling, never
+transaction pooling. Each active or standby process consumes one connection.
+
+One-shot and dry-run commands also acquire leadership; when another owner exists,
+they report standby/skipped work and exit successfully without running either job.
+Stop all watch copies before deliberate one-shot maintenance. Per-job transaction
+locks remain an additional safeguard, including during upgrades from older code.
+Upgrade all cleanup copies together: an older process lacks the leadership lock.
+
+For local development, `run-local-stack.sh` starts and stops its separate cleanup
+process in tandem with the complete local stack. It preserves process ownership;
+if another copy owns this database, its process remains a standby.
+
+The same process removes expired Global Search lists on its own interval and
+batch-size Application Settings (60 seconds and 5,000 lists by default). Login
+history keeps its independent interval, batch size and audit/retention rules.
+The jobs use separate transactions and advisory locks. A one-shot invocation
+runs one bounded pass of each job. `--batch-size`, `--interval-seconds` and
+`--retention-days` override login-history policy only; search-cache settings
+remain database-owned. `--dry-run` commits neither job's changes.
+SIGTERM/SIGINT wakes an idle worker immediately, allows an in-flight bounded
+transaction to finish, and prevents further passes. Forced termination rolls
+back any uncommitted transaction. Failures exit nonzero for supervisor restart.
 
 Commands and configuration are maintained in the central
 [Operational Tools Catalogue](../docs/operations.md#6-login-session-cleanup).

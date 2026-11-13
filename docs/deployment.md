@@ -15,7 +15,7 @@ worker configuration, scheduling and recovery procedures.
 | FastAPI backend | Core application | [`erms-api.service`](../backend/services/api/deploy/erms-api.service); may have multiple API processes/instances sharing one database. |
 | NiceGUI frontend | Browser application | [`erms-webui.service`](../frontend/webui/deploy/erms-webui.service); calls the API. Multiple instances require session affinity and WebSocket support. |
 | HTTPS reverse proxy/load balancer | Public browser access | Operator-managed TLS endpoint in front of the frontend; route WebSockets and provide affinity when using multiple frontend instances. |
-| Login-session cleanup | Authentication retention | One [`erms-session-cleanup.service`](../backend/services/api/deploy/erms-session-cleanup.service) per logical database, or a scheduler running the one-shot command; [procedure](operations.md#6-login-session-cleanup). |
+| Login-session and search-cache cleanup | Independent retention/cache schedules | One [`erms-session-cleanup.service`](../backend/services/api/deploy/erms-session-cleanup.service) active per logical database, independently supervised with optional standbys; [procedure](operations.md#6-login-session-cleanup). |
 | Segmented-content cleanup | Stored-content retention and abandoned upload cleanup | One [`erms-content-cleanup.service`](../backend/services/api/deploy/erms-content-cleanup.service) per logical database, or deployment scheduler running the one-shot command; [procedure](operations.md#5-segmented-content-cleanup). |
 | Text indexer | Full-text extraction/indexing | [`erms-text-indexer.service`](../backend/services/text_indexer/deploy/erms-text-indexer.service); REST-only service with its own process pool and API identity. Follow the staged rollout below. |
 | Indexing/credential maintenance | Indexing history, staging and retained indexer credentials | One [`erms-text-indexing-maintenance.service`](../backend/services/api/deploy/erms-text-indexing-maintenance.service) per logical database, or one-shot scheduled cleanup; [procedure](operations.md#7-full-text-indexing-history-and-staging-cleanup). |
@@ -227,9 +227,10 @@ This is a starting recommendation, not a measured workload capacity guarantee.
 With one instance of each of the six standalone database workers (content
 cleanup, session cleanup, indexing maintenance, disposition eligibility,
 communications and destruction/completion), budget six additional concurrent
-connections for their current sequential work. These workers open direct
-connections for work rather than maintaining six API-sized pools; they do not
-necessarily hold a connection while sleeping. UI, MailDev and REST text-indexer
+connections for their current sequential work. These workers use direct
+connections rather than API-sized pools. Session/search-cache cleanup holds its
+one leadership connection while sleeping; add one connection per optional
+standby. Other workers do not necessarily hold connections while sleeping. UI, MailDev and REST text-indexer
 processes add no direct database connections.
 
 | Example allocation | One API process | Two API processes |
@@ -588,7 +589,10 @@ They assume `/opt/erms`, a service account and group named `erms`, and
 `/etc/erms/api.env` and `/etc/erms/webui.env`. Adapt paths and account names
 if needed. FastAPI hosts the backend request handlers, including authentication,
 search queries and document conversion. The indexer, maintenance and disposition
-workers listed above run separately and do not start with FastAPI. API-owned
+workers listed above run separately, outside FastAPI. The session/search-cache
+worker is enabled at boot independently of API start/stop/restart. A database
+session lock elects one active owner; optional copies wait as standbys. Other
+workers retain their own supervised lifecycles. API-owned
 workers share `/etc/erms/api.env` and the API Python environment; install its
 dependencies before starting them. PostgreSQL uses its independently managed
 service. Use either the packaged content-cleanup service or its scheduled
@@ -797,12 +801,78 @@ sudo systemctl enable --now erms-disposition-eligibility.service erms-dispositio
 sudo systemctl status erms-disposition-eligibility.service erms-disposition-communications.service erms-disposition-destruction.service
 ```
 
-Start the text indexer using the staged-rollout procedure above. Verify each
-configured cleanup service or its scheduled alternative. Where session cleanup is
-scheduled instead, omit `erms-session-cleanup.service` from the activation command.
+Start the text indexer using the staged-rollout procedure above. Enable
+`erms-session-cleanup.service` independently on its maintenance host. Optional
+copies on other hosts wait as standbys; only the database leadership-lock owner
+runs either job. API instance/worker counts do not determine cleanup scheduling.
+`API_WORKERS=2` starts two request workers within one API service, with no cleanup
+child. API start/stop/restart leaves independently supervised cleanup unchanged.
+Local development retains tandem stack/cleanup ownership in `run-local-stack.sh`.
+
+The worker holds session advisory lock `2026091803` on the same dedicated
+connection that performs its job SQL, across commits and idle waits. Standbys
+retry every five seconds without running jobs. Losing the connection prevents
+further work and causes supervisor restart; it cannot silently reconnect as an
+owner. PostgreSQL disconnect detection plus the retry interval determines failover
+time. Each deployed copy consumes one persistent connection. Connect directly to
+PostgreSQL or through session pooling, never transaction pooling. Per-job
+transaction locks still prevent overlapping legacy/manual batches; upgrade all
+old copies together because they do not acquire the leadership lock.
+
+The Linux regression driver is `tools/linux_search_cleanup/verify.py`. Run it only
+inside a **new disposable Linux VM or isolated systemd container**, with the real
+units at `/etc/systemd/system/`, source/dependencies at `/opt/erms`, and a freshly
+created PostgreSQL 18 database named `erms_linux_cleanup_<unique suffix>`.
+Initialize from the canonical schema, required reference seed and baseline, then
+apply the messaging, hold-notification and relationship-type seeds used by the
+disposable API runner. Configure `/etc/erms/api.env` for that database with
+`API_WORKERS=2`, `API_RELOAD=false`, `API_HOST=127.0.0.1`. Enable cleanup (leave API
+disabled) before boot, so the driver can verify independent boot startup.
+
+Create `/etc/erms/disposable-lifecycle-test` containing that database name. The
+driver rejects mismatches with its process/service database configuration before
+starting or signalling services. As root inside that disposable environment:
+
+```bash
+cd /opt/erms
+set -a
+source /etc/erms/api.env
+set +a
+PYTHONPATH=/opt/erms backend/services/api/.venv/bin/python tools/linux_search_cleanup/verify.py
+```
+
+The driver installs a second test-only service under `/run/systemd/system/` and
+checks boot, explicit restart, API independence, concurrent leader/standby
+behavior, one-shot exclusion, SIGTERM takeover, SIGKILL recovery, database
+connection loss and independent leaders in two databases on the same PostgreSQL
+server. It collects `/tmp/lifecycle-result.json`. Stop all test services,
+explicitly drop the disposable database even on failure, then delete the VM or
+all task-owned containers/images/volumes. Never run this on an operational host.
+See [the independent-worker verification](verification/search-cleanup-independent-2026-11-13.md).
+
+Upgrade from the API-coupled units requires no new database migration (migration
+110 is still required for the earlier cache-maintenance settings). Stop all
+cleanup copies, install the updated Python code and **both** unit files, then:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl reenable erms-session-cleanup.service
+sudo systemctl start erms-session-cleanup.service
+sudo systemctl status erms-api.service erms-session-cleanup.service
+sudo journalctl -u erms-session-cleanup.service -n 30 --no-pager
+```
+
+Re-enabling removes the old `erms-api.service.wants` link and installs the
+`multi-user.target.wants` link. Remove any site-specific drop-ins that recreate
+API `Wants` or cleanup `PartOf`/`BindsTo` coupling. API restart is not required for
+this worker change. Confirm one `role=leader`, optional `role=standby` copies and
+both startup job-count lines from the leader. API restart/stop must leave cleanup
+unchanged. Cleanup stop/restart must leave API unchanged. The local stack still
+starts/stops its owned cleanup process in tandem with the complete stack.
 
 On separate servers, use only the service installed on that server. Logs and
-routine lifecycle operations are independent:
+routine WebUI operations remain independent; manage API and maintenance services
+separately:
 
 ```bash
 sudo journalctl -u erms-api.service -f

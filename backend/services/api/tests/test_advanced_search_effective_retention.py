@@ -11,7 +11,7 @@ from backend.services.api.search import SEARCH_FIELDS, _compile_expression, _sea
 from backend.services.api.tests.test_phase7_mutation_authorization import (
     _grant_principal, _login_as_phase7, _set_aggregation_acl,
 )
-from backend.services.api.tests.test_saved_searches import _payload
+from backend.services.api.tests.test_saved_searches import _payload, _restore_legacy_limit
 
 PREFIX = 'effective_retention.'
 CURRENT = PREFIX + 'current_period_years'
@@ -150,6 +150,7 @@ def test_saved_execution_uses_current_rule_and_stored_cap(client):
     created = client.post('/api/v1/saved-searches', json=_payload(definition=definition))
     assert created.status_code == 201, created.text
     saved = created.json()
+    _restore_legacy_limit(saved["id"], 2)
     reopened = client.get(f"/api/v1/saved-searches/{saved['id']}").json()
     assert reopened['definition']['request']['where'] == leaf()
     url=f"/api/v1/saved-searches/{saved['id']}/execute"

@@ -2525,7 +2525,7 @@ def index(q: str = "") -> None:
             query = str(saved.get("global_search_query") or global_search_state.get("global_search_query") or "")
             if query:
                 selected = saved.get("global_search_filter") or "all"
-                if selected in global_search_state["global_search_streams"] and global_search_state.get("global_search_query") == query:
+                if global_search_state["global_search_id"] and global_search_state["global_search_query"] == query:
                     global_search_state["global_search_revision"] = global_search_state.get("global_search_revision", 0) + 1
                     global_search_state["global_search_loading"] = False
                     global_search_state["global_search_error"] = None
@@ -2542,7 +2542,7 @@ def index(q: str = "") -> None:
                     show_authenticated_view()
                     search_bar.set_visibility(False); aggregation_mode_bar.set_visibility(False)
                     add_button.set_visibility(False); add_record_button.set_visibility(False)
-                    render_global_search_results()
+                    await run_global_search(query, load_more=True, target_page=global_search_state["global_search_page"])
                 else:
                     await run_global_search(query)
             else:

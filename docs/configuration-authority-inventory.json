@@ -141,7 +141,7 @@
       "consumers": [
         {
           "path": "backend/services/api/authentication.py",
-          "line": 34
+          "line": 35
         }
       ],
       "templates": [
@@ -1184,6 +1184,60 @@
       "service": "API"
     },
     {
+      "setting": "GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": 5000,
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "scope": "Bounds expired search-list rows deleted in one cleanup transaction."
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum expired search lists deleted per pass. Each list belongs to one browser tab; this does not count individual search hits.",
+      "runtime_status": "database_only_search_consumer",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": 60,
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/session_cleanup.py",
+          "scope": "Schedules search-cache cleanup independently of login-session retention cleanup."
+        }
+      ],
+      "templates": [],
+      "purpose": "Seconds between expired search-list cleanup passes. Independent of login-session cleanup and cache expiry.",
+      "runtime_status": "database_only_search_consumer",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "GLOBAL_SEARCH_CACHE_IDLE_MINUTES",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": 15,
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/search.py",
+          "scope": "Sets the idle expiry of a Global Search result list."
+        }
+      ],
+      "templates": [],
+      "purpose": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+      "runtime_status": "database_only_search_consumer",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
       "setting": "LIBREOFFICE_BINARY",
       "authority": "deployment",
       "contract": "specs/application-configuration.md section 4.3",
@@ -1192,7 +1246,7 @@
       "consumers": [
         {
           "path": "backend/services/api/document_conversion.py",
-          "line": 35
+          "line": 28
         }
       ],
       "templates": [
@@ -1448,7 +1502,7 @@
       "consumers": [
         {
           "path": "backend/services/api/messaging/realtime.py",
-          "line": 211
+          "line": 212
         }
       ],
       "templates": [
@@ -1595,7 +1649,7 @@
       "consumers": [
         {
           "path": "backend/services/api/messaging/realtime.py",
-          "line": 34
+          "line": 35
         }
       ],
       "templates": [
@@ -1616,7 +1670,7 @@
       "consumers": [
         {
           "path": "backend/services/api/messaging/realtime.py",
-          "line": 27
+          "line": 28
         }
       ],
       "templates": [
@@ -1637,7 +1691,7 @@
       "consumers": [
         {
           "path": "backend/services/api/messaging/realtime.py",
-          "line": 30
+          "line": 31
         }
       ],
       "templates": [
@@ -1658,7 +1712,7 @@
       "consumers": [
         {
           "path": "backend/services/api/messaging/realtime.py",
-          "line": 33
+          "line": 34
         }
       ],
       "templates": [
@@ -1679,7 +1733,7 @@
       "consumers": [
         {
           "path": "backend/services/api/messaging/realtime.py",
-          "line": 37
+          "line": 38
         }
       ],
       "templates": [
@@ -1837,6 +1891,32 @@
       "templates": [],
       "purpose": "Maximum authenticated search requests per minute.",
       "runtime_status": "database_only_request_and_worker_cutover_verified",
+      "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
+      "service": "API"
+    },
+    {
+      "setting": "SEARCH_RESULT_LIMIT",
+      "authority": "database",
+      "contract": "specs/application-configuration.md section 5.5",
+      "default_or_requirement": 1000,
+      "category": "search",
+      "consumers": [
+        {
+          "path": "backend/services/api/search.py",
+          "scope": "Caps the ranked Global Search list."
+        },
+        {
+          "path": "backend/services/api/main.py",
+          "scope": "Caps unsaved Advanced Search."
+        },
+        {
+          "path": "backend/services/api/saved_searches.py",
+          "scope": "Caps saved search execution and supplies the effective limit."
+        }
+      ],
+      "templates": [],
+      "purpose": "Maximum results across all pages of Global Search and Advanced Search.",
+      "runtime_status": "database_only_search_consumer",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
     },
@@ -2686,7 +2766,7 @@
     }
   ],
   "reconciliation": [
-    "All 55 database settings have explicit API registry categories.",
+    "All 59 database settings have explicit API registry categories.",
     "All six environment templates are checked, including the generated API and standalone indexer examples.",
     "Later request-presentation settings follow the approved Administration Settings amendment; original phase evidence remains historical.",
     "SSL_CERT_FILE is optional process TLS infrastructure; public certificates use platform trust.",

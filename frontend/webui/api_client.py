@@ -886,10 +886,11 @@ class ErmsApiClient:
         return await self.request("GET", "/api/v1/event-history/filter-options")
 
     async def search_request(
-        self, resource: str, payload: dict[str, Any], **params: Any,
+        self, resource: str, payload: dict[str, Any], *, advanced: bool = False, **params: Any,
     ) -> dict[str, Any]:
+        operation = "advanced-search" if advanced else "search"
         return await self.request(
-            "POST", f"/api/v1/{resource}/search", json=payload,
+            "POST", f"/api/v1/{resource}/{operation}", json=payload,
             params={key: value for key, value in params.items() if value is not None},
         )
 

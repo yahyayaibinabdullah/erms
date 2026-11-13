@@ -1,0 +1,401 @@
+{
+  "checks": [
+    "packaged systemd units validate",
+    "enabled cleanup starts at Linux boot without API",
+    "cleanup works with API stopped, preserves active list, obeys batch size",
+    "two-worker API start/restart/stop leave cleanup unchanged",
+    "cleanup restart leaves API unchanged",
+    "concurrent workers keep one leader across job commits; standby performs no jobs",
+    "one-shot and dry-run commands respect existing leader",
+    "graceful leader stop releases lock and standby takes over and cleans",
+    "SIGKILL releases leadership, supervision restarts process, cleanup continues",
+    "lost PostgreSQL leader connection forces restart and safe takeover without API restart",
+    "two databases on one PostgreSQL server elect independent active workers",
+    "stopping both cleanup services releases leadership and leaves API operational until explicitly stopped"
+  ],
+  "snapshots": [
+    {
+      "label": "two_workers",
+      "api": {
+        "MainPID": "222",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "InvocationID": "4bc8b99eec394dea8e8c033c14948651"
+      },
+      "cleanup": {
+        "MainPID": "247",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "InvocationID": "c25cb36ee5624777989ddf5e86a579dc"
+      },
+      "standby": {
+        "MainPID": "277",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "InvocationID": "4ae9585b807c40f897a78a04c7ed956b"
+      },
+      "owners": [
+        [
+          250,
+          "idle"
+        ]
+      ]
+    },
+    {
+      "label": "after_crash",
+      "api": {
+        "MainPID": "222",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "InvocationID": "4bc8b99eec394dea8e8c033c14948651"
+      },
+      "cleanup": {
+        "MainPID": "357",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "InvocationID": "ed4db04679a64154aeb11126e5224cf2"
+      },
+      "standby": {
+        "MainPID": "409",
+        "NRestarts": "1",
+        "ActiveState": "active",
+        "InvocationID": "ee4292aa337540e99dfcbc1a57ff8d3b"
+      },
+      "owners": [
+        [
+          360,
+          "idle"
+        ]
+      ]
+    },
+    {
+      "label": "connection_loss",
+      "api": {
+        "MainPID": "222",
+        "NRestarts": "0",
+        "ActiveState": "active",
+        "InvocationID": "4bc8b99eec394dea8e8c033c14948651"
+      },
+      "cleanup": {
+        "MainPID": "530",
+        "NRestarts": "1",
+        "ActiveState": "active",
+        "InvocationID": "ec099586bbb84aafb01bff21a63ba71e"
+      },
+      "standby": {
+        "MainPID": "409",
+        "NRestarts": "1",
+        "ActiveState": "active",
+        "InvocationID": "ee4292aa337540e99dfcbc1a57ff8d3b"
+      },
+      "owners": [
+        [
+          413,
+          "idle"
+        ]
+      ]
+    },
+    {
+      "label": "final_stop",
+      "api": {
+        "MainPID": "0",
+        "NRestarts": "0",
+        "ActiveState": "inactive",
+        "InvocationID": ""
+      },
+      "cleanup": {
+        "MainPID": "0",
+        "NRestarts": "1",
+        "ActiveState": "inactive",
+        "InvocationID": "ec099586bbb84aafb01bff21a63ba71e"
+      },
+      "standby": {
+        "MainPID": "0",
+        "NRestarts": "0",
+        "ActiveState": "inactive",
+        "InvocationID": ""
+      },
+      "owners": []
+    }
+  ],
+  "leader_samples": [
+    [],
+    [
+      110
+    ],
+    [
+      110
+    ],
+    [
+      124
+    ],
+    [],
+    [],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [
+      250
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      282
+    ],
+    [
+      282
+    ],
+    [
+      282
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      360
+    ],
+    [
+      360
+    ],
+    [
+      360
+    ],
+    [
+      360
+    ],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      413
+    ],
+    [
+      413
+    ],
+    [
+      413
+    ],
+    [],
+    [
+      546
+    ],
+    [
+      413
+    ],
+    [],
+    []
+  ],
+  "database": "erms_linux_cleanup_c74c4814bb66",
+  "systemd": "systemd 255 (255.4-1ubuntu8.18)",
+  "linux": "Linux 6.10.14-linuxkit aarch64 GNU/Linux",
+  "os_release": "PRETTY_NAME=\"Ubuntu 24.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.5 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+  "api_workers": 2,
+  "postgresql": "18.7 (Ubuntu 18.7-1.pgdg24.04+2)",
+  "graceful_stop_seconds": 0.035,
+  "graceful_takeover_seconds": 1.036,
+  "secondary_database_dropped": "erms_linux_cleanup_c74c4814bb66_other",
+  "passed": true,
+  "environment_kind": "Disposable Ubuntu 24.04 systemd container in Docker Desktop Linux VM; two independent cleanup services, no host mounts or published ports",
+  "cleanup": {
+    "databases_explicitly_dropped": [
+      "erms_linux_cleanup_1b301aac28d0",
+      "erms_linux_cleanup_527b22e7d3e1",
+      "erms_linux_cleanup_d7c1a2d1759f",
+      "erms_linux_cleanup_c98df4422f97",
+      "erms_linux_cleanup_f78267d152a7",
+      "erms_linux_cleanup_400b8abfe4ba",
+      "erms_linux_cleanup_c74c4814bb66",
+      "erms_linux_cleanup_400b8abfe4ba_other",
+      "erms_linux_cleanup_c74c4814bb66_other"
+    ],
+    "remaining_test_databases": 0,
+    "remaining_labeled_containers_images_volumes_networks": 0,
+    "persistent_volumes_created": 0,
+    "bootstrap_container_removed": true,
+    "systemd_container_removed": true,
+    "committed_test_image_removed": true,
+    "downloaded_ubuntu_image_removed": true,
+    "buildkit_cache_created": false,
+    "preexisting_resources_pruned": false
+  },
+  "source_sha256": {
+    "backend/services/api/session_cleanup.py": "84aa7e4a3753d23ae4f35d0e3bcd710f9323767fafd003a0d11609e1734914f0",
+    "backend/services/api/deploy/erms-api.service": "611e0211b908f4c9aedac762558fa64a9e0258d90636cc0ce593bbbdf4ebfb83",
+    "backend/services/api/deploy/erms-session-cleanup.service": "6a92870e5e651f02616a272bf4945763bf1fa1bfaf4a8af56a42af7b1fffa7a6",
+    "run-local-stack.sh": "273bfc7d084ebc16e53f14358d48a62812cb9a53e0679b9d06308a65c33bec2a",
+    "tools/linux_search_cleanup/verify.py": "090c9fd9e05fe54467dec932c972f013ef48398fbddcf55e287d4ea46f583438"
+  },
+  "database_regressions": {
+    "passed": 35,
+    "database": "erms_messaging_test_acl_237b34c0e8a941d9be0d8579b2af4d49",
+    "dropped": true
+  },
+  "local_stack_regressions": {
+    "passed": 38
+  },
+  "previous_complete_run": {
+    "database": "erms_linux_cleanup_400b8abfe4ba",
+    "passed": true,
+    "checks": 12
+  }
+}

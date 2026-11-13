@@ -254,20 +254,6 @@
     "is_html": false
   },
   {
-    "message_key": "advanced_search.field.maximum_results",
-    "context_group": "advanced_search.field",
-    "default_text": "Maximum results",
-    "semantic_meaning": "User-interface text for advanced search.field.maximum results.",
-    "common_locations": [
-      "Web UI"
-    ],
-    "translator_guidance": "Translate for this specific interface context while preserving named placeholders exactly.",
-    "grammatical_role": "label",
-    "parameter_schema": {},
-    "rendered_example": "Maximum results",
-    "is_html": false
-  },
-  {
     "message_key": "advanced_search.field.medium",
     "context_group": "advanced_search.field",
     "default_text": "Medium",
@@ -747,6 +733,22 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Records",
+    "is_html": false
+  },
+  {
+    "message_key": "advanced_search.results.truncated",
+    "context_group": "advanced_search.results",
+    "default_text": "More than {limit} matches. Showing the first {limit}.",
+    "semantic_meaning": "There are more authorized matches than the maximum for this execution.",
+    "common_locations": [
+      "Advanced Search results"
+    ],
+    "translator_guidance": "Use the established search terminology. Preserve both occurrences of {limit}.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "limit": "text"
+    },
+    "rendered_example": "More than 1,000 matches. Showing the first 1,000.",
     "is_html": false
   },
   {
@@ -19096,6 +19098,22 @@
     "is_html": false
   },
   {
+    "message_key": "global_search.results.capped",
+    "context_group": "global_search.results",
+    "default_text": "More than {limit} matches. Refine your search to see other results.",
+    "semantic_meaning": "More than {limit} matches. Refine your search to see other results.",
+    "common_locations": [
+      "Global search results"
+    ],
+    "translator_guidance": "Preserve the search terminology and any placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {
+      "limit": "text"
+    },
+    "rendered_example": "More than 1,000 matches. Refine your search to see other results.",
+    "is_html": false
+  },
+  {
     "message_key": "governance_custody.field.clearance",
     "context_group": "governance_custody.field",
     "default_text": "Clearance",
@@ -30718,6 +30736,90 @@
     "is_html": false
   },
   {
+    "message_key": "settings.field.global_search_cache_cleanup_batch_size.description",
+    "context_group": "settings.field.global_search_cache_cleanup_batch_size",
+    "default_text": "Maximum expired search lists deleted per pass. Each list belongs to one browser tab; this does not count individual search hits.",
+    "semantic_meaning": "Maximum expired search lists deleted per pass. Each list belongs to one browser tab; this does not count individual search hits.",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Search-cache maintenance: a list is one browser tab’s cached result set, not an individual search hit. Preserve the distinction from cache expiry and login-session retention.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum expired search lists deleted per pass. Each list belongs to one browser tab; this does not count individual search hits.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.global_search_cache_cleanup_batch_size.label",
+    "context_group": "settings.field.global_search_cache_cleanup_batch_size",
+    "default_text": "Global Search cache cleanup batch size",
+    "semantic_meaning": "Global Search cache cleanup batch size",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Search-cache maintenance: a list is one browser tab’s cached result set, not an individual search hit. Preserve the distinction from cache expiry and login-session retention.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Global Search cache cleanup batch size",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.global_search_cache_cleanup_interval_seconds.description",
+    "context_group": "settings.field.global_search_cache_cleanup_interval_seconds",
+    "default_text": "Seconds between expired search-list cleanup passes. Independent of login-session cleanup and cache expiry.",
+    "semantic_meaning": "Seconds between expired search-list cleanup passes. Independent of login-session cleanup and cache expiry.",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Search-cache maintenance: a list is one browser tab’s cached result set, not an individual search hit. Preserve the distinction from cache expiry and login-session retention.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Seconds between expired search-list cleanup passes. Independent of login-session cleanup and cache expiry.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.global_search_cache_cleanup_interval_seconds.label",
+    "context_group": "settings.field.global_search_cache_cleanup_interval_seconds",
+    "default_text": "Global Search cache cleanup interval",
+    "semantic_meaning": "Global Search cache cleanup interval",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Search-cache maintenance: a list is one browser tab’s cached result set, not an individual search hit. Preserve the distinction from cache expiry and login-session retention.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Global Search cache cleanup interval",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.global_search_cache_idle_minutes.description",
+    "context_group": "settings.field.global_search_cache_idle_minutes",
+    "default_text": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+    "semantic_meaning": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Preserve the search terminology and any placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.global_search_cache_idle_minutes.label",
+    "context_group": "settings.field.global_search_cache_idle_minutes",
+    "default_text": "Global Search cache idle timeout",
+    "semantic_meaning": "Global Search cache idle timeout",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Preserve the search terminology and any placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Global Search cache idle timeout",
+    "is_html": false
+  },
+  {
     "message_key": "settings.field.manual_reindex_rate_limit_per_minute.description",
     "context_group": "settings.field.manual_reindex_rate_limit_per_minute",
     "default_text": "Maximum manual reindex requests per minute. Type: whole number. Minimum: 1. Initial default: 60. After the application upgrade activates this setting, changes propagate within 30 seconds without restart.",
@@ -30869,6 +30971,34 @@
     "grammatical_role": "label",
     "parameter_schema": {},
     "rendered_example": "Search request rate limit",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.search_result_limit.description",
+    "context_group": "settings.field.search_result_limit",
+    "default_text": "Maximum results across all pages of Global Search and Advanced Search.",
+    "semantic_meaning": "Maximum results across all pages of Global Search and Advanced Search.",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Preserve the search terminology and any placeholders.",
+    "grammatical_role": "guidance",
+    "parameter_schema": {},
+    "rendered_example": "Maximum results across all pages of Global Search and Advanced Search.",
+    "is_html": false
+  },
+  {
+    "message_key": "settings.field.search_result_limit.label",
+    "context_group": "settings.field.search_result_limit",
+    "default_text": "Search result limit",
+    "semantic_meaning": "Search result limit",
+    "common_locations": [
+      "Application Settings"
+    ],
+    "translator_guidance": "Preserve the search terminology and any placeholders.",
+    "grammatical_role": "label",
+    "parameter_schema": {},
+    "rendered_example": "Search result limit",
     "is_html": false
   },
   {
@@ -48530,22 +48660,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.save_search.label.int_maximum_results_ae8080bb",
-    "context_group": "webui.save_search",
-    "default_text": "{int} maximum results",
-    "semantic_meaning": "Interpolated interface text in the save search workflow.",
-    "common_locations": [
-      "WebUI: save search"
-    ],
-    "translator_guidance": "Translate the complete message naturally and preserve every named placeholder exactly.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {
-      "int": "text"
-    },
-    "rendered_example": "<int> maximum results",
-    "is_html": false
-  },
-  {
     "message_key": "webui.save_search.label.recipients_can_run_this_query_but_results_c13f331f",
     "context_group": "webui.save_search",
     "default_text": "Recipients can run this query, but results still respect each person's current record access.",
@@ -48873,20 +48987,6 @@
     "is_html": false
   },
   {
-    "message_key": "webui.select_advanced_search.accessible_name.maximum_results_4993c5ac",
-    "context_group": "webui.select_advanced_search",
-    "default_text": "Maximum results",
-    "semantic_meaning": "Accessible name in the select advanced search workflow.",
-    "common_locations": [
-      "WebUI accessibility: select advanced search"
-    ],
-    "translator_guidance": "Translate as a concise accessible name for the corresponding control or region.",
-    "grammatical_role": "accessible name",
-    "parameter_schema": {},
-    "rendered_example": "Maximum results",
-    "is_html": false
-  },
-  {
     "message_key": "webui.select_advanced_search.accessible_name.next_page_d75b42e2",
     "context_group": "webui.select_advanced_search",
     "default_text": "Next page",
@@ -49108,20 +49208,6 @@
     "grammatical_role": "interface text",
     "parameter_schema": {},
     "rendered_example": "Saved search",
-    "is_html": false
-  },
-  {
-    "message_key": "webui.select_advanced_search.label.system_maximum_5_000_77d23fb5",
-    "context_group": "webui.select_advanced_search",
-    "default_text": "System maximum: 5,000",
-    "semantic_meaning": "Interface text in the select advanced search workflow.",
-    "common_locations": [
-      "WebUI: select advanced search"
-    ],
-    "translator_guidance": "Translate as a concise interface text; preserve the intent used in this workflow.",
-    "grammatical_role": "interface text",
-    "parameter_schema": {},
-    "rendered_example": "System maximum: 5,000",
     "is_html": false
   },
   {
