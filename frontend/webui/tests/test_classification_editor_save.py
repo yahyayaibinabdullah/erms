@@ -59,7 +59,7 @@ def test_classification_save_preserves_retention_payload_order_and_versions(crea
         assert calls[-1][1]==('classifications',7,'ar',{'title':'عنوان'},4,'Review')
         assert scope['row']['version']==5
     scope['dialog'].close.assert_called_once()
-    scope['load_recent'].assert_awaited_once()
+    scope['load_recent'].assert_not_awaited()
     scope['on_saved'].assert_awaited_once()
 
 

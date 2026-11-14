@@ -37,7 +37,9 @@ def test_global_search_header_results_and_safe_snippets_are_present():
     assert 'ui.html(' not in source[source.index("def render_safe_snippet("):source.index("async def copy_diagnostic_json(")]
     assert 'await api.full_text_search(payload)' in source
     assert 'async def full_text_search(' in CLIENT.read_text()
-    assert 'result_item["record_capabilities"] = capabilities' in source
+    global_search = APP.with_name("global_search.py").read_text()
+    assert 'record_capabilities = item.get("record_capabilities") or {}' in global_search
+    assert 'api.resource_capabilities(' not in global_search
     assert 'for component in item.get("matching_components", [])' in source
     assert 'preview_record_components(selected, component_id)' in source
     assert "Preview digital component" in source
