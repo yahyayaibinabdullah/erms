@@ -107,15 +107,44 @@ async def test_accepted_favourite_write_invokes_async_refresh_and_updates_member
     assert data.favourite_ids['records']==set()
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('resource',['records','aggregations'])
-async def test_recent_activity_keeps_bounded_load_and_created_updated_subsets(resource):
-    rows=[{'id':i,'_operation':operation} for i,operation in enumerate(('CREATE','UPDATE','CONTENT_VIEWED'))]
-    api=SimpleNamespace(recent_resource_activity=AsyncMock(return_value=rows))
-    data=PersonalResourceState();decorate=AsyncMock(return_value=rows)
-    owner=personal(api,data,{'principal':object()},lambda:resource,decorate)
-    await owner.load_recent(ENTITIES[resource])
-    api.recent_resource_activity.assert_awaited_once_with(resource,limit=50)
-    assert data.recent_activity==rows
-    assert data.recent_created==rows[:1] and data.recent_updated==rows[1:2]
-    await owner.load_recent(ENTITIES['classifications'])
-    assert data.recent_created==data.recent_updated==data.recent_activity==[]
+async def test_activity_snapshots_stay_separate_across_navigation():
+    rows = {"aggregations": [{"id": 1}], "records": [{"id": 2}]}
+    api = SimpleNamespace(recent_resource_activity=AsyncMock(side_effect=lambda key, **_: rows[key]))
+    data = PersonalResourceState()
+    owner = personal(api, data, {"principal": object()}, lambda: "records", AsyncMock())
+    await owner.load_recent(ENTITIES["records"])
+    data.leave_view()
+    await owner.load_recent(ENTITIES["aggregations"])
+    await owner.load_recent(ENTITIES["classifications"])
+    assert data.recent_activity == rows
+    assert all(call.kwargs == {"limit": 50} for call in api.recent_resource_activity.call_args_list)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("change", ["rapid_navigation", "language", "login"])
+async def test_abandoned_activity_cannot_replace_current_snapshot(change):
+    started, release = asyncio.Event(), asyncio.Event()
+
+    async def read(*args, **kwargs):
+        started.set()
+        await release.wait()
+        return [{"id": 1}]
+
+    data = PersonalResourceState()
+    identity = {"principal": object()}
+    api = SimpleNamespace(recent_resource_activity=AsyncMock(side_effect=read))
+    owner = personal(api, data, identity, lambda: "records", AsyncMock())
+    older = asyncio.create_task(owner.load_recent(ENTITIES["records"]))
+    await started.wait()
+    if change == "language":
+        identity["language"] = "ar"
+    elif change == "login":
+        identity["principal"] = object()
+    else:
+        data.leave_view()
+        data.leave_view()  # Records -> Aggregations -> Records
+    api.recent_resource_activity = AsyncMock(return_value=[{"id": 2}])
+    await owner.load_recent(ENTITIES["records"])
+    release.set()
+    await older
+    assert data.recent_activity == {"records": [{"id": 2}]}

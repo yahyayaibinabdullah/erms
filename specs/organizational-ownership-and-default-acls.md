@@ -807,6 +807,24 @@ newest qualifying view per resource is retained. The UI labels these entries
 **Viewed**, applies current resource-visibility checks, and does not expose the
 component as a separate activity item.
 
+The landing pages request one resource type through
+`GET /api/v1/auth/me/recent-activity` using `entity_type=aggregation` or
+`entity_type=record`. The response includes the current title and number for
+each card. PostgreSQL uses the ordinary view scope and evaluates permissions
+for the distinct candidates before applying the limit. Keep the latest event
+per resource and activity type, preferring the larger event ID for equal
+timestamps. **View all** retains up to 50 authorized entries per activity type,
+ordered by newest event timestamp and then resource ID ascending. Where view
+access uses information governance, record the bypass once per returned
+resource using the existing audit policy.
+
+Each WebUI client retains the latest authorized response separately for Records
+and Aggregations, scoped to the signed-in user, login session and effective
+language. A return visit can render that resource's snapshot while one
+background refresh checks current access. Navigation, disconnect and identity
+changes invalidate pending responses. Sign-out and scope changes discard
+snapshots. Data refresh after a mutation still uses the authorized endpoint.
+
 ## 15. Event history and audit
 
 Creation history must include the initial owning org unit and selected

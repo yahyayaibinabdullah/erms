@@ -477,10 +477,14 @@ def build_aggregation_browser(
                 render_message("aggregation_browser.heading.recent_activity"), icon="history",
             ).classes("w-full border-t border-slate-200"):
                 with ui.row().classes("w-full p-4 gap-5 items-start"):
-                    for heading, rows in (
-                        (render_message("aggregation_browser.heading.recently_created"), personal.recent_created),
-                        (render_message("aggregation_browser.heading.recently_updated"), personal.recent_updated),
+                    for heading, operation in (
+                        (render_message("aggregation_browser.heading.recently_created"), "CREATE"),
+                        (render_message("aggregation_browser.heading.recently_updated"), "UPDATE"),
                     ):
+                        rows = [
+                            item for item in personal.recent_activity.get("aggregations", [])
+                            if item["_operation"] == operation
+                        ]
                         with ui.column().classes("grow min-w-[280px] gap-2"):
                             ui.label(heading).classes("text-sm font-semibold text-slate-600")
                             if not rows:

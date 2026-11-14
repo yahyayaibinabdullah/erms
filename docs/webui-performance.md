@@ -162,8 +162,15 @@ Independent requests should run concurrently with `asyncio.gather`, within the
 bounded request concurrency enforced by `ErmsApiClient`. Current examples are:
 
 - favourites and recent activity on Records and Aggregations landing pages;
-- recent activity and the aggregation hierarchy needed to decorate it; and
 - role reference lists that are independent of one another.
+
+Records and Aggregations activity uses one resource-scoped card request per
+refresh. The response contains the display fields for both the preview and
+the existing bounded **View all** list. Render from that response without
+fetching resource details, parent labels or closure state for each card. Keep
+the two snapshots separate within a WebUI client, keyed by user, login and
+effective language. Revalidate on entry, discard late responses from abandoned
+views and clear the snapshots on sign-out or identity/language changes.
 
 Do not parallelize requests when one determines the authorization, identifier,
 version, or parameters of another. Do not bypass the API client's request-slot

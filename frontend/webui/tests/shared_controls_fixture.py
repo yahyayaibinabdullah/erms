@@ -10,10 +10,11 @@ def selector(api):
     return build_relationship_selector(api,error_message=lambda error:str(error))
 
 
-def personal(api,data,principal,resource,decorate):
+def personal(api,data,principal,resource,_decorate):
     return build_personal_resources(api,data,get_principal=lambda:principal['principal'],
         get_resource=resource,accept_application_configuration=Mock(),
-        decorate_for_spec=decorate,error_message=lambda error:str(error))
+        get_recent_scope=lambda: (principal["principal"], principal.get("language", "en")),
+        error_message=lambda error:str(error))
 
 
 def collection_loader(scope):

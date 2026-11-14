@@ -458,6 +458,15 @@ def index(q: str = "") -> None:
 
 
     personal = PersonalResourceState()
+    page_client.on_disconnect(personal.leave_view)
+
+    def recent_activity_scope() -> tuple | None:
+        principal = session.principal
+        if principal is None:
+            return None
+        return (principal["user"]["id"], principal["session"]["id"],
+                session.locale.get("effective_language", "en"))
+
     aggregation_state = new_aggregation_state()
     record_state = new_record_state()
     collection_state = new_collection_state()
@@ -2504,6 +2513,7 @@ def index(q: str = "") -> None:
         # A newly committed page transition owns subsequent reads. Any older
         # transition may no longer update the visible page and is cancelled.
         api.cancel_pending_reads()
+        personal.leave_view()
         if page != "full-text-search":
             global_search_state["search_diagnostics_sent"] = None
             global_search_state["search_diagnostics_accepted"] = None
@@ -2627,6 +2637,8 @@ def index(q: str = "") -> None:
         aggregation_state.pop("aggregation_browse", None)
         personal.favourites = {"aggregations": [], "records": []}
         personal.favourite_ids = {"aggregations": set(), "records": set()}
+        personal.leave_view()
+        personal.sync_recent_scope(None)
         title.text = ""
         subtitle.text = ""
         page_title_icon.set_visibility(False)
@@ -3312,7 +3324,7 @@ def index(q: str = "") -> None:
         title=title,
     )
 
-    select_entity = build_collection_navigation(
+    select_entity, refresh_personal_sections = build_collection_navigation(
         add_button=add_button,
         add_record_button=add_record_button,
         aggregation_mode_bar=aggregation_mode_bar,
@@ -3320,6 +3332,7 @@ def index(q: str = "") -> None:
         collection_state=collection_state,
         error_message=lambda *args, **kwargs: error_message(*args, **kwargs),
         get_resource=lambda: state.get("resource"),
+        get_recent_scope=recent_activity_scope,
         guidance=guidance,
         load_recent=lambda *args, **kwargs: load_recent(*args, **kwargs),
         load_rows=lambda *args, **kwargs: load_rows(*args, **kwargs),
@@ -3735,7 +3748,7 @@ def index(q: str = "") -> None:
         api, personal, get_principal=lambda: session.principal,
         get_resource=lambda: state.get("resource"),
         accept_application_configuration=accept_application_configuration,
-        decorate_for_spec=decorate_for_spec, error_message=error_message,
+        get_recent_scope=recent_activity_scope, error_message=error_message,
     )
     reload_favourites = personal_resources.reload_favourites
     favourite_state = personal_resources.favourite_state
@@ -3826,8 +3839,19 @@ def index(q: str = "") -> None:
             button.on("click", lambda: guarded_page_navigation(select_translation_administration))
         else:
             button.on("click", lambda _, entity_key=key: guarded_page_navigation(lambda: select_entity(entity_key)))
-    aggregation_search_mode.on("click", lambda: guarded_page_navigation(select_aggregation_search))
-    aggregation_browse_mode.on("click", lambda: guarded_page_navigation(select_aggregation_browser))
+    async def enter_aggregation_search_mode() -> None:
+        personal.leave_view()
+        personal.sync_recent_scope(recent_activity_scope())
+        await select_aggregation_search()
+        refresh_personal_sections(ENTITIES["aggregations"])
+
+    async def enter_aggregation_browse_mode() -> None:
+        personal.leave_view()
+        personal.sync_recent_scope(recent_activity_scope())
+        await select_aggregation_browser()
+
+    aggregation_search_mode.on("click", lambda: guarded_page_navigation(enter_aggregation_search_mode))
+    aggregation_browse_mode.on("click", lambda: guarded_page_navigation(enter_aggregation_browse_mode))
     dashboard_navigation.on("click", lambda: guarded_page_navigation(select_dashboard))
     organization_browser_navigation.on("click", lambda: guarded_page_navigation(show_organization_structure))
     audit_navigation.on("click", lambda: guarded_page_navigation(select_audit_trail))
@@ -3880,6 +3904,8 @@ def index(q: str = "") -> None:
     async def reset_private_views() -> None:
         clear_global_search_session()
         clear_dashboard_session()
+        personal.leave_view()
+        personal.sync_recent_scope(None)
         await clear_translation_inspector_session()
 
     handle_unauthorized = session.handle_unauthorized

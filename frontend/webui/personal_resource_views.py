@@ -149,11 +149,7 @@ def build_personal_resource_views(api: Any, personal: PersonalResourceState, *,
         icon = "folder" if resource == "aggregations" else "description"
         number_field = "aggregation_number" if resource == "aggregations" else "record_number"
         favourite_items = personal.favourites[resource]
-        recent_items = sorted(
-            personal.recent_activity,
-            key=lambda item: str(item.get("_activity_at") or ""),
-            reverse=True,
-        )
+        recent_items = personal.recent_activity.get(resource, [])
         personal_loading = bool(
             personal.personal_sections_loading.get(resource)
         )

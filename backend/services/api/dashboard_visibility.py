@@ -158,7 +158,7 @@ org_tree AS (
         OR grant_row.principal_type='effective_file_administrator' AND unit.file_administrator
     GROUP BY target.source_id,target.is_child_default,target.owning_org_unit_id
 ), authorized_aggregations AS MATERIALIZED (
-    SELECT resource.id,{authorized_aggregation_details}
+    SELECT resource.id,{authorized_aggregation_details}{aggregation_acl_attribution}
            resource.owning_org_unit_id,resource.parent_aggregation_id,resource.disposition_status
       FROM live_aggregations resource
       JOIN security_levels required ON required.id=resource.security_level_id CROSS JOIN authority
@@ -174,7 +174,7 @@ org_tree AS (
                    AND acl.owning_org_unit_id=resource.owning_org_unit_id)))
 ), authorized_records AS MATERIALIZED (
     SELECT resource.id,{authorized_record_details}resource.owning_org_unit_id,resource.aggregation_id,
-           resource.disposition_status {component_projection} FROM live_records resource
+           resource.disposition_status {record_acl_attribution}{component_projection} FROM live_records resource
       JOIN security_levels required ON required.id=resource.security_level_id CROSS JOIN authority
      WHERE current_user_id() IS NOT NULL
        AND 'record.view' IN (SELECT code FROM effective_privileges)
@@ -191,6 +191,7 @@ org_tree AS (
 def visibility_ctes(
     *, candidate_resource: str | None = None, component_access: bool = False,
     match_flags: bool = False, page_access: bool = False, ordinary_access: bool = False,
+    acl_attribution: bool = False,
 ) -> str:
     """Optionally authorize only the IDs in a search's candidate_ids CTE."""
     if page_access:
@@ -241,6 +242,17 @@ def visibility_ctes(
             + ("resource.metadata_match,resource.component_match," if match_flags else ""),
         record_permissions="'record.view', 'record.component.view', 'record.component.list'" if page_access else "'record.view', 'record.component.view'" if component_access else "'record.view'",
         component_projection=component_projection,
+        aggregation_acl_attribution="""EXISTS (
+            SELECT 1 FROM resolved_aggregation_sources source
+            JOIN matched_aggregation_acl acl USING (source_id,is_child_default)
+            WHERE source.id=resource.id AND acl.owning_org_unit_id=resource.owning_org_unit_id
+        ) AS has_view_acl,""" if acl_attribution else "",
+        record_acl_attribution=""", (
+            (CASE WHEN resource.inherit_acl_from_parent THEN resource.aggregation_id ELSE resource.id END,
+             resource.inherit_acl_from_parent,resource.owning_org_unit_id) IN (
+                SELECT source_id,is_child_default,owning_org_unit_id
+                FROM matched_record_acl WHERE can_view_record)
+        ) AS has_view_acl""" if acl_attribution else "",
     )
 
 

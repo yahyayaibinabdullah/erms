@@ -1,8 +1,4 @@
-"""Per-page favourites and recent activity, shared by Dashboard and resource views.
-
-Values have the same response-driven freshness as before: entry/write callbacks
-reload them; no new cache or timer is introduced. Identity cleanup is host-owned.
-"""
+"""Per-client favourites and recent activity owned by the authenticated page."""
 from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
@@ -18,11 +14,26 @@ STOP_PROPAGATION_CLICK_HANDLER = "(event) => { event.stopPropagation(); emit(); 
 class PersonalResourceState:
     favourites: dict = field(default_factory=lambda: {"aggregations": [], "records": []})
     favourite_ids: dict = field(default_factory=lambda: {"aggregations": set(), "records": set()})
-    recent_created: list = field(default_factory=list)
-    recent_updated: list = field(default_factory=list)
-    recent_activity: list = field(default_factory=list)
+    recent_activity: dict = field(default_factory=dict)
+    recent_scope: tuple | None = None
+    navigation_revision: int = 0
+    personal_refresh: asyncio.Task | None = None
     personal_sections_loading: dict = field(default_factory=dict)
     personal_section_hosts: dict = field(default_factory=dict)
+
+    def leave_view(self) -> None:
+        """Release the old panel refresh before a new view starts its reads."""
+        self.navigation_revision += 1
+        if self.personal_refresh is not None:
+            self.personal_refresh.cancel()
+            self.personal_refresh = None
+        self.personal_sections_loading.clear()
+        self.personal_section_hosts.clear()
+
+    def sync_recent_scope(self, scope: tuple | None) -> None:
+        if self.recent_scope != scope:
+            self.recent_activity.clear()
+            self.recent_scope = scope
 
 @dataclass(frozen=True)
 class PersonalResources:
@@ -34,13 +45,15 @@ class PersonalResources:
 
 def build_personal_resources(api: Any, personal: PersonalResourceState, *,
     get_principal: Callable, get_resource: Callable[[], str],
-    accept_application_configuration: Callable, decorate_for_spec: Callable,
+    accept_application_configuration: Callable, get_recent_scope: Callable,
     error_message: Callable[[ApiError], str]):
     async def reload_favourites() -> dict[str, list[dict[str, Any]]]:
         principal = get_principal()
         resource = get_resource()
+        revision = personal.navigation_revision
         favourites = await api.favourites()
-        if get_principal() is not principal or get_resource() != resource:
+        if (get_principal() is not principal or get_resource() != resource
+                or personal.navigation_revision != revision):
             return favourites
         accept_application_configuration(favourites["application_configuration"])
         personal.favourites = {key:favourites[key] for key in ("aggregations","records")}
@@ -126,22 +139,17 @@ def build_personal_resources(api: Any, personal: PersonalResourceState, *,
 
 
     async def load_recent(spec: EntitySpec) -> None:
-        if not spec.search_first:
-            personal.recent_created = []
-            personal.recent_updated = []
-            personal.recent_activity = []
+        if spec.key not in {"aggregations", "records"}:
             return
-        if spec.key in {"aggregations", "records"}:
-            activity = await api.recent_resource_activity(spec.key, limit=50)
-            decorated = await decorate_for_spec(spec, activity)
-            personal.recent_activity = decorated
-            personal.recent_created = [item for item in decorated if item["_operation"] == "CREATE"]
-            personal.recent_updated = [item for item in decorated if item["_operation"] == "UPDATE"]
+        scope = get_recent_scope()
+        personal.sync_recent_scope(scope)
+        if scope is None:
             return
-        created, updated = await api.recently_created(spec.key), await api.recently_updated(spec.key)
-        personal.recent_activity = []
-        personal.recent_created = await decorate_for_spec(spec, created)
-        personal.recent_updated = await decorate_for_spec(spec, updated)
+        revision = personal.navigation_revision
+        activity = await api.recent_resource_activity(spec.key, limit=50)
+        if (get_recent_scope() == personal.recent_scope == scope
+                and personal.navigation_revision == revision):
+            personal.recent_activity[spec.key] = activity
 
     return PersonalResources(reload_favourites, favourite_state, toggle_favourite, favourite_button, load_recent)
 

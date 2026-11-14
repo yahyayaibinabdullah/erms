@@ -6,7 +6,7 @@ import math
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, Literal
 
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
@@ -420,95 +420,23 @@ def me(
     return principal_response(principal, connection)
 
 
-@router.get("/me/recent-activity", response_model=list[SelfRecentActivityRead])
+@router.get("/me/recent-activity", response_model=list[SelfRecentActivityRead],
+            response_model_exclude_unset=True)
 @operation_policy("authenticated_only")
 def my_recent_activity(
     limit: int = Query(6, ge=1, le=50),
     since: datetime | None = None,
+    entity_type: Literal["aggregation", "record"] | None = None,
     principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    """Return only the caller's own recent governed-resource work.
-
-    This is not an audit-trail endpoint: it contains no audit snapshots,
-    reasons, other actors, or resources the caller can no longer view.
-    """
+    """Return the caller's own activity, with card fields on a scoped request."""
     from .application_configuration import recent_since_default
-    from .application_settings import cache
+    from .recent_activity import recent_activity
+
     if since is None:
-        since = recent_since_default(cache.for_connection(connection)["DASHBOARD_RECENT_DAYS"])
-    return list(connection.execute(
-        """WITH governed_resource_events AS (
-               SELECT DISTINCT ON (event.entity_type,event.entity_id,event.operation)
-                      event.id,event.entity_type,event.entity_id,event.operation,
-                      event.occurred_at
-                 FROM event_history AS event
-                WHERE event.actor_user_id=%s
-                  AND event.entity_type IN ('aggregation','record')
-                  AND event.operation IN ('CREATE','UPDATE')
-                  AND (%s::timestamptz IS NULL OR event.occurred_at >= %s)
-                ORDER BY event.entity_type,event.entity_id,event.operation,
-                         event.occurred_at DESC,event.id DESC
-           ), content_view_targets AS (
-               SELECT event.id,'record'::text AS entity_type,
-                      component.record_id AS entity_id,event.operation,event.occurred_at
-                 FROM event_history event
-                 JOIN digital_components component ON component.id=event.entity_id
-                WHERE event.actor_user_id=%s
-                  AND event.entity_type='digital_component'
-                  AND event.operation='CONTENT_VIEWED'
-                  AND (%s::timestamptz IS NULL OR event.occurred_at >= %s)
-               UNION ALL
-               SELECT event.id,'aggregation'::text AS entity_type,
-                      record.aggregation_id AS entity_id,event.operation,event.occurred_at
-                 FROM event_history event
-                 JOIN digital_components component ON component.id=event.entity_id
-                 JOIN records record ON record.id=component.record_id
-                WHERE event.actor_user_id=%s
-                  AND event.entity_type='digital_component'
-                  AND event.operation='CONTENT_VIEWED'
-                  AND (%s::timestamptz IS NULL OR event.occurred_at >= %s)
-           ), content_view_events AS (
-               SELECT DISTINCT ON (entity_type,entity_id)
-                      id,entity_type,entity_id,operation,occurred_at
-                 FROM content_view_targets
-                ORDER BY entity_type,entity_id,occurred_at DESC,id DESC
-           ), latest_resource_events AS (
-               SELECT * FROM governed_resource_events
-               UNION ALL
-               SELECT * FROM content_view_events
-           ), matching_events AS (
-               SELECT event.entity_type,event.entity_id,event.operation,event.occurred_at,
-                      row_number() OVER (
-                          PARTITION BY event.entity_type, event.operation
-                          ORDER BY event.occurred_at DESC, event.id DESC
-                      ) AS position
-                 FROM latest_resource_events AS event
-                WHERE (
-                      (event.entity_type='aggregation' AND EXISTS (
-                          SELECT 1 FROM aggregations resource
-                           WHERE resource.id=event.entity_id
-                             AND current_user_can_view_aggregation(resource.id)
-                      ))
-                      OR
-                      (event.entity_type='record' AND EXISTS (
-                          SELECT 1 FROM records resource
-                           WHERE resource.id=event.entity_id
-                             AND current_user_can_view_record(resource.id)
-                      ))
-                  )
-           )
-           SELECT entity_type, entity_id, operation, occurred_at
-             FROM matching_events
-            WHERE position <= %s
-            ORDER BY occurred_at DESC, entity_type, entity_id""",
-        (
-            principal.user_id, since, since,
-            principal.user_id, since, since,
-            principal.user_id, since, since,
-            limit,
-        ),
-    ).fetchall())
+        since = recent_since_default(settings_cache.for_connection(connection)["DASHBOARD_RECENT_DAYS"])
+    return recent_activity(connection, principal.user_id, since, limit, entity_type)
 
 
 @router.post("/logout", status_code=204)

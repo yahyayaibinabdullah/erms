@@ -1323,6 +1323,13 @@ def test_browser_native_image_preview_preserves_mime_type_and_is_audited(client:
     }
     assert ("record", record["id"]) in viewed_resources
     assert ("aggregation", record["aggregation_id"]) in viewed_resources
+    for kind, identifier in (("record", record["id"]), ("aggregation", record["aggregation_id"])):
+        scoped = client.get("/api/v1/auth/me/recent-activity", params={"entity_type": kind})
+        assert scoped.status_code == 200, scoped.text
+        viewed = next(item for item in scoped.json() if item["operation"] == "CONTENT_VIEWED")
+        assert viewed["entity_id"] == identifier
+        assert viewed["title"] and viewed["number"]
+        assert set(viewed) == {"entity_type", "entity_id", "operation", "occurred_at", "title", "number"}
 
 
 def test_upload_size_limit(client: TestClient, record: dict, monkeypatch):

@@ -1128,6 +1128,8 @@ class SelfRecentActivityRead(ApiModel):
     entity_id: int
     operation: Literal["CREATE", "UPDATE", "CONTENT_VIEWED"]
     occurred_at: datetime
+    title: str | None = None
+    number: str | None = None
 
 
 class OwnershipDashboardCount(ApiModel):

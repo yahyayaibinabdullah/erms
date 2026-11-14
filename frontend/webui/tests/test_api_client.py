@@ -684,34 +684,29 @@ def test_recently_updated_uses_self_activity_without_audit_access():
     ]
 
 
-def test_recent_resource_activity_hydrates_content_views_for_aggregations():
+@pytest.mark.parametrize(("resource", "entity_type"), [("aggregations", "aggregation"), ("records", "record")])
+def test_recent_resource_activity_uses_one_scoped_card_request(resource, entity_type):
     requests = []
 
     async def handler(request: httpx.Request) -> httpx.Response:
-        requests.append(request.url.path)
-        if request.url.path == "/api/v1/auth/me/recent-activity":
-            return httpx.Response(200, json=[{
-                "entity_type": "aggregation", "entity_id": 8,
-                "operation": "CONTENT_VIEWED", "occurred_at": "2026-09-25T18:00:00Z",
-            }])
-        assert request.url.path == "/api/v1/aggregations/8"
-        return httpx.Response(200, json={"id": 8, "title": "Parent aggregation"})
+        requests.append((request.url.path, dict(request.url.params)))
+        return httpx.Response(200, json=[{
+            "entity_type": entity_type, "entity_id": 8, "title": "Activity resource",
+            "number": "ITEM-8", "operation": "CONTENT_VIEWED", "occurred_at": "2026-09-25T18:00:00Z",
+        }])
 
     async def exercise():
         client = ErmsApiClient("http://api.test", transport=httpx.MockTransport(handler))
         try:
-            return await client.recent_resource_activity("aggregations")
+            return await client.recent_resource_activity(resource)
         finally:
             await client.close()
 
     assert asyncio.run(exercise()) == [{
-        "id": 8, "title": "Parent aggregation",
-        "_activity_at": "2026-09-25T18:00:00Z",
-        "_operation": "CONTENT_VIEWED",
+        "id": 8, "title": "Activity resource", f"{entity_type}_number": "ITEM-8",
+        "_activity_at": "2026-09-25T18:00:00Z", "_operation": "CONTENT_VIEWED",
     }]
-    assert requests == [
-        "/api/v1/auth/me/recent-activity", "/api/v1/aggregations/8",
-    ]
+    assert requests == [("/api/v1/auth/me/recent-activity", {"limit": "50", "entity_type": entity_type})]
 
 
 @pytest.mark.parametrize(

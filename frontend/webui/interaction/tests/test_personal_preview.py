@@ -45,3 +45,47 @@ def test_configured_preview_limit_keeps_complete_list_reachable(language, resour
         clear_active_messages(client.id)
         client.delete()
         set_active_messages({})
+
+
+@pytest.mark.parametrize("resource", ["records", "aggregations"])
+def test_activity_preview_and_view_all_use_only_the_current_resource(resource):
+    client = Client(ui.page("/activity-preview-contract"), request=None)
+    try:
+        with client:
+            personal = PersonalResourceState()
+            personal.recent_activity = {
+                "aggregations": [
+                    {"id": i, "title": f"Aggregation {i}", "_operation": "CREATE",
+                     "_activity_at": "2026-11-14T08:00:00Z"}
+                    for i in range(8)
+                ],
+                "records": [
+                    {"id": i, "title": f"Record {i}", "_operation": "CONTENT_VIEWED",
+                     "_activity_at": "2026-11-14T08:00:00Z"}
+                    for i in range(10)
+                ],
+            }
+            api = Mock()
+            views = build_personal_resource_views(
+                api, personal, get_configuration=lambda: {"DASHBOARD_FAVOURITE_ITEM_LIMIT": 2},
+                render_table=Mock(), open_aggregation=AsyncMock(), show_record_details=AsyncMock(),
+                toggle_favourite=AsyncMock(), error_message=str,
+                format_timestamp=str, personal_dialog_list_height=lambda _: 300,
+            )
+            views.render_resource_personal_sections(ENTITIES[resource])
+            panels = [element for element in client.elements.values() if "dashboard-personal-panel" in element.classes]
+            panel = panels[1]
+            view_all = next(element for element in panel.descendants() if isinstance(element, ui.button))
+            def card_titles(container):
+                return [element.text for element in container.descendants()
+                        if isinstance(element, ui.label) and "truncate" in element.classes
+                        and "font-semibold" in element.classes]
+
+            expected = [row["title"] for row in personal.recent_activity[resource]]
+            assert card_titles(panel) == expected[:2]
+            next(event.handler for event in view_all._event_listeners.values() if event.type == "click")(None)
+            dialog = next(element for element in client.elements.values() if isinstance(element, ui.dialog))
+            assert card_titles(dialog) == expected
+            assert not api.mock_calls
+    finally:
+        client.delete()

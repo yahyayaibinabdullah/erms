@@ -323,7 +323,6 @@ def test_records_and_aggregations_landing_use_dashboard_personal_panel_treatment
     assert source.count('"dashboard-personal-item"') >= 4
     assert 'f"dashboard-activity-badge {activity_class}"' in source
     assert 'activity = await api.recent_resource_activity(spec.key, limit=50)' in source
-    assert 'decorated = await decorate_for_spec(spec, activity)' in source
     assert 'api.recent_resource_activity(spec.key, limit=50)' in source
     assert '"CONTENT_VIEWED": ("Viewed", "visibility", "dashboard-activity-viewed")' in source
     assert 'personal.recent_activity' in PERSONAL_SOURCE
@@ -1909,15 +1908,6 @@ def test_classification_workspace_reuses_path_loaded_for_tree_reveal():
     assert 'workspace["paths"].clear()' in WORKSPACE_SOURCE
     assert 'workspace["paths"][selected["id"]][:-1]' in WORKSPACE_SOURCE
     assert 'if not current(revision):' in WORKSPACE_SOURCE
-
-
-def test_resource_personal_sections_load_lazily_and_update_their_own_host():
-    source = APP_SOURCE
-    select_source = with_english_messages(inspect.getsource(collection_navigation))
-    assert 'personal.personal_sections_loading[key] = True' in select_source
-    assert "background_tasks.create(refresh_personal_sections())" in select_source
-    assert 'personal.personal_section_hosts.get(resource_key)' in select_source
-    assert "render_resource_personal_sections(\n                                resource_spec, container=personal_host," in select_source
 
 
 def test_committed_navigation_cancels_abandoned_reads():

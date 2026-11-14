@@ -385,10 +385,13 @@ class ErmsApiClient:
 
     async def my_recent_activity(
         self, *, limit: int = 6, since: datetime | None = None,
+        entity_type: str | None = None,
     ) -> list[dict[str, Any]]:
         params: dict[str, Any] = {"limit": limit}
         if since is not None:
             params["since"] = since.isoformat()
+        if entity_type is not None:
+            params["entity_type"] = entity_type
         return await self.request("GET", "/api/v1/auth/me/recent-activity", params=params)
 
     async def profile_references(self) -> list[dict[str, Any]]:
@@ -1138,20 +1141,16 @@ class ErmsApiClient:
             else datetime.fromisoformat(since.replace("Z", "+00:00")) if since
             else None
         )
-        activity = await self.my_recent_activity(limit=limit, since=parsed_since)
-        entries = [item for item in activity if item["entity_type"] == entity_type]
-        results = await asyncio.gather(
-            *(self.get(resource, entry["entity_id"]) for entry in entries),
-            return_exceptions=True,
-        )
+        activity = await self.my_recent_activity(limit=limit, since=parsed_since, entity_type=entity_type)
         return [
             {
-                **result,
+                "id": entry["entity_id"],
+                "title": entry["title"],
+                f"{entity_type}_number": entry["number"],
                 "_activity_at": entry["occurred_at"],
                 "_operation": entry["operation"],
             }
-            for entry, result in zip(entries, results)
-            if isinstance(result, dict)
+            for entry in activity
         ]
 
     async def recently_created(

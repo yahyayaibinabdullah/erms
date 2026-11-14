@@ -30,7 +30,8 @@ async def test_resource_without_collection_cannot_render_load_or_navigate():
             values['api'].search_request.assert_not_called()
         else:
             with pytest.raises(KeyError):
-                await factory(**values)('classification-schemes')
+                navigate, _ = factory(**values)
+                await navigate('classification-schemes')
             values['register_navigation'].assert_not_called()
             values['set_resource'].assert_not_called()
 

@@ -10,8 +10,50 @@ from .i18n_catalogue import render_message
 from nicegui import ui
 
 def build_collection_navigation(
-    *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, collection_state, error_message, get_resource, guidance, load_recent, load_rows, personal, principal, register_navigation, reload_favourites, render_resource_personal_sections, render_table, search_bar, search_input, select_aggregation_browser, set_connection_status, set_resource, show_authenticated_view, subtitle, title,
+    *, add_button, add_record_button, aggregation_mode_bar, aggregation_state, collection_state, error_message, get_resource, get_recent_scope, guidance, load_recent, load_rows, personal, principal, register_navigation, reload_favourites, render_resource_personal_sections, render_table, search_bar, search_input, select_aggregation_browser, set_connection_status, set_resource, show_authenticated_view, subtitle, title,
 ):
+    def refresh_personal_sections(spec: EntitySpec) -> None:
+        if personal.personal_refresh is not None:
+            return
+        key = spec.key
+        scope = get_recent_scope()
+        revision = personal.navigation_revision
+        personal.sync_recent_scope(scope)
+        personal.personal_sections_loading[key] = True
+
+        def current() -> bool:
+            return (personal.navigation_revision == revision and get_recent_scope() == scope
+                    and get_resource() == key and not (
+                        key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse"
+                    ))
+
+        async def refresh() -> None:
+            if not current():
+                return
+            try:
+                # Each response can finish independently. A failed favourites
+                # fetch must not leave a successful activity refresh invisible.
+                results = await asyncio.gather(reload_favourites(), load_recent(spec), return_exceptions=True)
+                if current():
+                    for result in results:
+                        if isinstance(result, ApiError):
+                            set_connection_status(result.status_code != 503)
+                            ui.notify(error_message(result), color="negative", close_button=True)
+                        elif isinstance(result, Exception):
+                            raise result
+            except asyncio.CancelledError:
+                return
+            finally:
+                if personal.personal_refresh is asyncio.current_task():
+                    personal.personal_refresh = None
+                    personal.personal_sections_loading.pop(key, None)
+            if current():
+                host = personal.personal_section_hosts.get(key)
+                if host is not None and not host.is_deleted:
+                    render_resource_personal_sections(spec, container=host)
+
+        personal.personal_refresh = background_tasks.create(refresh())
+
     async def select_entity(key: str) -> None:
         spec = COLLECTION_ENTITIES[key]
         entity_navigation_keys = {
@@ -53,36 +95,12 @@ def build_collection_navigation(
             if key in {"aggregations", "records"} and not (
                 key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse"
             ):
-                personal.personal_sections_loading[key] = True
+                refresh_personal_sections(spec)
                 render_table(spec)
-                await load_rows()
-
-                async def refresh_personal_sections(
-                    resource_key: str = key, resource_spec: EntitySpec = spec,
-                ) -> None:
-                    try:
-                        await asyncio.gather(reload_favourites(), load_recent(resource_spec))
-                    except asyncio.CancelledError:
-                        return
-                    except ApiError as error:
-                        if get_resource() == resource_key:
-                            set_connection_status(error.status_code != 503)
-                            ui.notify(error_message(error), color="negative", close_button=True)
-                    finally:
-                        personal.personal_sections_loading[resource_key] = False
-                    if get_resource() == resource_key and not (
-                        resource_key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse"
-                    ):
-                        personal_host = personal.personal_section_hosts.get(resource_key)
-                        if personal_host is not None and not getattr(personal_host, "_deleted", False):
-                            render_resource_personal_sections(
-                                resource_spec, container=personal_host,
-                            )
-                        else:
-                            render_table(resource_spec)
-
-                background_tasks.create(refresh_personal_sections())
+                await load_rows(on_loaded=lambda: None)
                 return
+            revision = personal.navigation_revision
+            personal.sync_recent_scope(get_recent_scope())
             startup_requests = []
             if key in {"aggregations", "records"}:
                 startup_requests.append(reload_favourites())
@@ -90,6 +108,8 @@ def build_collection_navigation(
                 startup_requests.append(load_recent(spec))
             if startup_requests:
                 await asyncio.gather(*startup_requests)
+            if personal.navigation_revision != revision:
+                return
             if key == "aggregations" and aggregation_state.get("aggregation_mode") == "browse":
                 await select_aggregation_browser()
                 return
@@ -100,4 +120,4 @@ def build_collection_navigation(
             ui.notify(error_message(error), color="negative", close_button=True)
 
 
-    return select_entity
+    return select_entity, refresh_personal_sections

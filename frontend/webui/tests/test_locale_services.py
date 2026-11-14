@@ -217,7 +217,6 @@ def test_entity_page_startup_parallelizes_requests_and_bounds_relationship_resol
     personal_source = inspect.getsource(personal_resources)
     hydration_source = inspect.getsource(collection_hydration)
     assert "activity = await api.recent_resource_activity(spec.key, limit=50)" in personal_source
-    assert "decorated = await decorate_for_spec(spec, activity)" in personal_source
     assert "async def rows_by_id(" in hydration_source
     assert "async def org_unit_context(" in hydration_source
 
