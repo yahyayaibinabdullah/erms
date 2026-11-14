@@ -8,7 +8,7 @@ BEGIN
         RAISE EXCEPTION 'Schema baseline is already recorded';
     END IF;
     IF to_regprocedure('disposition_private.complete_certificate_task(bigint,bigint,bigint)') IS NULL
-       OR to_regclass('public.global_search_results') IS NULL
+       OR to_regclass('public.search_results_cache') IS NULL
        OR NOT application_setting_value_valid('SEARCH_RESULT_LIMIT', '1000'::jsonb, NULL) THEN
         RAISE EXCEPTION 'Load the latest canonical schema before recording its baseline';
     END IF;
@@ -73,5 +73,7 @@ INSERT INTO schema_migrations(version) VALUES
  ('107_global_search_result_cache'),
  ('108_search_application_settings'),
  ('109_search_candidate_indexes'),
- ('110_search_cache_cleanup_settings');
+ ('110_search_cache_cleanup_settings'),
+ ('111_shared_search_results_cache'),
+ ('112_search_vector_storage');
 COMMIT;

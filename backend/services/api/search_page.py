@@ -74,10 +74,21 @@ def page_details(connection, page, leaves_by_kind):
                 SELECT jsonb_agg(jsonb_build_object(
                     'id',matched.id,'file_name',matched.file_name,'mime_type',matched.mime_type,
                     'content_status',matched.content_status,
+                    'match_count_is_capped',matched.match_count_is_capped,
                     'snippet',ts_headline(matched.config,matched.extracted_text,matched.query,
                         'StartSel=⟦,StopSel=⟧,MaxWords=35,MinWords=12,MaxFragments=1'))
                     ORDER BY matched.score DESC,matched.id,matched.chunk_no) AS items
                 FROM (
+                    -- Keep the same top-12 evidence window and capped flag,
+                    -- but create a headline only for the first chunk of each
+                    -- component. Python previously discarded the other 9/11
+                    -- headlines for multi-chunk files after paying to parse
+                    -- their text. The ordering below selects exactly the same
+                    -- snippet and component order as that existing behavior.
+                    SELECT selected.*,
+                           row_number() OVER (PARTITION BY id ORDER BY score DESC,chunk_no) AS component_position,
+                           count(*) OVER () >= 12 AS match_count_is_capped
+                    FROM (
                     SELECT component.id,component.file_name,component.mime_type,component.content_status,
                            chunk.chunk_no,chunk.extracted_text,query.config,query.query,
                            ts_rank_cd(chunk.search_vector,query.query) AS score
@@ -91,7 +102,9 @@ def page_details(connection, page, leaves_by_kind):
                       AND document.content_set_id=component.active_content_set_id
                       AND chunk.search_vector @@ query.query
                     ORDER BY score DESC,component.id,chunk.chunk_no LIMIT 12
+                    ) selected
                 ) matched
+                WHERE matched.component_position=1
             ) chunks ON true
         )
         SELECT page.kind,page.id,
@@ -100,11 +113,20 @@ def page_details(connection, page, leaves_by_kind):
                    JOIN authorized_aggregations access ON access.id=parent.id
                    WHERE parent.id=record.aggregation_id) END AS aggregation_number,
                coalesce(access.can_list_components,false) AS list_components,
+               CASE WHEN access.can_list_components THEN (
+                   SELECT count(*) FROM digital_components WHERE record_id=page.id
+               ) ELSE 0 END AS component_count,
                coalesce(access.can_list_components AND access.can_view_component,false)
                  AND EXISTS(SELECT 1 FROM digital_components WHERE record_id=page.id AND ({previewable}))
                    AS has_previewable_component,
                (SELECT jsonb_agg(to_jsonb(evidence) ORDER BY ordinal)
                 FROM record_evidence evidence WHERE evidence.id=page.id AND page.kind='record') AS evidence,
+               page.kind='aggregation' AND EXISTS (
+                   SELECT 1 FROM authorized_aggregation_search_documents document
+                   JOIN parsed query ON query.kind='aggregation' AND query.metadata
+                                     AND query.config=document.text_search_config
+                   WHERE document.aggregation_id=page.id AND document.search_vector @@ query.query
+               ) AS aggregation_metadata_matched,
                CASE WHEN page.kind='aggregation' THEN (
                    SELECT ts_headline('pg_catalog.simple',concat_ws(' ',aggregation_number,title,description),
                        (SELECT query FROM parsed WHERE kind='aggregation' AND ordinal=0
@@ -122,7 +144,7 @@ def page_details(connection, page, leaves_by_kind):
     details = {}
     for row in rows:
         components = {}
-        metadata_matched = False
+        metadata_matched = row.pop("aggregation_metadata_matched")
         for evidence in row.pop("evidence") or []:
             leaf_id = evidence["leaf_id"]
             metadata_matched |= evidence["metadata_matched"]
@@ -137,7 +159,7 @@ def page_details(connection, page, leaves_by_kind):
                 identifier = component["id"]
                 if identifier not in components and len(components) < 3:
                     components[identifier] = {
-                        **component, "leaf_ids": [leaf_id], "match_count_is_capped": len(chunks) >= 12,
+                        **component, "leaf_ids": [leaf_id],
                     }
                 elif identifier in components and leaf_id not in components[identifier]["leaf_ids"]:
                     components[identifier]["leaf_ids"].append(leaf_id)

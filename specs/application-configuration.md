@@ -263,8 +263,8 @@ password change, or administrative password recovery clears the counter/lock.
 | `SEARCH_RATE_LIMIT_PER_MINUTE` | integer | `600` | At least `1` |
 | `MANUAL_REINDEX_RATE_LIMIT_PER_MINUTE` | integer | `60` | At least `1` |
 | `AUDIT_TRAIL_SEARCH_RESULT_LIMIT` | integer | `1000` | At least `1`; limits Audit Trail matching results and count work |
-| `SEARCH_RESULT_LIMIT` | integer | `1000` | From 1 through 5,000. Shared cap across all pages of Global Search and Advanced Search. |
-| `GLOBAL_SEARCH_CACHE_IDLE_MINUTES` | integer | `15` | At least 1. A Global Search list becomes unavailable at the earlier of cache idle expiry or login session expiry. The WebUI rebuilds the list when a still signed-in user requests another page. |
+| `SEARCH_RESULT_LIMIT` | integer | `1000` | From 1 through 5,000. Shared cap across all pages of Global Search, Advanced Search, and aggregation/record collection filters. |
+| `GLOBAL_SEARCH_CACHE_IDLE_MINUTES` | integer | `15` | At least 1. The shared search list for a login session and NiceGUI browser tab becomes unavailable at the earlier of cache idle expiry or login session expiry. An unavailable or replaced list is silently rebuilt from that screen's last submitted criteria when a still signed-in user requests another page. Persisted GLOBAL_SEARCH_CACHE_* keys retain their names and configured values for compatibility. |
 | `GLOBAL_SEARCH_CACHE_CLEANUP_INTERVAL_SECONDS` | integer | `60` | At least 1. Delay after a completed expired-search-list cleanup pass; independent of login-session cleanup. |
 | `GLOBAL_SEARCH_CACHE_CLEANUP_BATCH_SIZE` | integer | `5000` | At least 1. Maximum expired cached lists removed in one transaction, counting one row per login/browser tab, not individual hits. |
 

@@ -328,7 +328,7 @@ For local development, `run-local-stack.sh` starts and stops its separate cleanu
 process in tandem with the complete local stack. It preserves process ownership;
 if another copy owns this database, its process remains a standby.
 
-The same process removes expired Global Search lists on its own interval and
+The same process removes expired shared search lists on its own interval and
 batch-size Application Settings (60 seconds and 5,000 lists by default). Login
 history keeps its independent interval, batch size and audit/retention rules.
 The jobs use separate transactions and advisory locks. A one-shot invocation

@@ -96,7 +96,7 @@ def test_clear_search_discards_pending_results_and_resets_result_controls(resour
         async def search(*args, **kwargs):
             started.set()
             await release.wait()
-            return {'items': [{'id': 408}], 'total': 1}
+            return {'items': [{'id': 408}], 'total': 1, 'offset': 0}
         async def decorate(spec, rows):
             return rows
         search_input = Mock(value='سجل')
@@ -124,7 +124,7 @@ def test_clear_search_discards_pending_results_and_resets_result_controls(resour
 @pytest.mark.parametrize('resource', ['aggregations', 'records'])
 def test_compact_search_requests_only_visible_page_and_keeps_submitted_query(resource):
     async def run():
-        api = Mock(search_request=AsyncMock(return_value={'items': [{'id': 103}], 'total': 103}))
+        api = Mock(search_request=AsyncMock(side_effect=lambda resource, payload, **kw: {'items': [{'id': 103}], 'total': 103, 'offset': payload['offset'], 'search_id': '49b25021-424b-4fc3-9443-5a789a44cf85'}))
         search = Mock(value='Submitted')
         state = {'resource': resource}
         decorate = AsyncMock(side_effect=lambda spec, rows: rows)
@@ -148,12 +148,22 @@ def test_compact_search_requests_only_visible_page_and_keeps_submitted_query(res
         assert state['entity_result_states'][resource]['page'] == 11
         assert state['rows'] == [{'id': 103}]
         assert decorate_components.await_count == (2 if resource == 'records' else 0)
+        assert str(request.search_id) == result['search_id']
+        first_payload = api.search_request.await_args_list[0].args[1]
+        assert args[1]['tab_id'] == first_payload['tab_id'] and 'search_id' not in first_payload
+        await loader(repeat_search=True)  # Mutation refresh preserves submitted criteria, rebuilds membership.
+        assert 'search_id' not in api.search_request.await_args.args[1]
+        await loader()  # Explicit submission adopts the draft and starts at page one.
+        submitted = api.search_request.await_args.args[1]
+        assert 'search_id' not in submitted and submitted['offset'] == 0
+        assert submitted['where']['or'][0]['value'] == 'Draft'
+
     asyncio.run(run())
 
 
 def test_dashboard_scope_is_kept_when_unclassified_roots_are_paged_or_refreshed():
     async def run():
-        api = Mock(search_request=AsyncMock(return_value={'items': [], 'total': 111}))
+        api = Mock(search_request=AsyncMock(side_effect=lambda resource, payload, **kw: {'items': [], 'total': 111, 'offset': payload['offset']}))
         state = {'resource': 'aggregations'}
         loader = collection_loader(dict(
             state=state, search_input=Mock(value='Draft'), api=api,

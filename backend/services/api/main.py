@@ -776,18 +776,20 @@ def search_aggregations(
     record_creation: bool = False,
     digital_only: bool = False,
     display_filter: str | None = None,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return search_rows(connection, "aggregations", payload, endpoint="/api/v1/aggregations/search", record_creation=record_creation, digital_only=digital_only, display_filter=display_filter)
+    return search_rows(connection, "aggregations", payload, session_id=principal.session_id, user_id=principal.user_id, endpoint="/api/v1/aggregations/search", record_creation=record_creation, digital_only=digital_only, display_filter=display_filter)
 
 
 @app.post("/api/v1/aggregations/advanced-search", response_model=None, tags=["aggregations"])
 @operation_policy("resource_scoped", "aggregation.view", "aggregation.view")
 def advanced_search_aggregations(
     payload: SearchRequest,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return search_rows(connection, "aggregations", payload, endpoint="/api/v1/aggregations/advanced-search",
+    return search_rows(connection, "aggregations", payload, session_id=principal.session_id, user_id=principal.user_id, endpoint="/api/v1/aggregations/advanced-search",
                        max_results=settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"])
 
 
@@ -1165,18 +1167,20 @@ def list_records(
 def search_records(
     payload: SearchRequest,
     display_filter: str | None = None,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return search_rows(connection, "records", payload, endpoint="/api/v1/records/search", display_filter=display_filter)
+    return search_rows(connection, "records", payload, session_id=principal.session_id, user_id=principal.user_id, endpoint="/api/v1/records/search", display_filter=display_filter)
 
 
 @app.post("/api/v1/records/advanced-search", response_model=None, tags=["records"])
 @operation_policy("resource_scoped", "record.view", "record.view")
 def advanced_search_records(
     payload: SearchRequest,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
-    return search_rows(connection, "records", payload, endpoint="/api/v1/records/advanced-search",
+    return search_rows(connection, "records", payload, session_id=principal.session_id, user_id=principal.user_id, endpoint="/api/v1/records/advanced-search",
                        max_results=settings_cache.for_connection(connection)["SEARCH_RESULT_LIMIT"])
 
 

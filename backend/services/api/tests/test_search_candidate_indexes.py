@@ -69,3 +69,44 @@ def test_metadata_hit_keeps_rank_from_nonmatching_component_chunk(client, record
         'result_types': ['records'], 'record_where': {'full_text': {'query': 'cat -dog'}}})
     assert response.status_code == 200, response.text
     assert response.json()['items'][0]['score'] == expected
+
+
+@pytest.mark.parametrize('query,chunks,matches', [
+    ('alphaprobe betaprobe', ['alphaprobe betaprobe'], True),
+    ('alphaprobe betaprobe', ['alphaprobe', 'betaprobe'], False),
+    ('alphaprobe -betaprobe', ['alphaprobe betaprobe'], False),
+    ('alphaprobe -betaprobe', ['alphaprobe', 'betaprobe'], True),
+    ('"alphaprobe betaprobe"', ['alphaprobe betaprobe'], True),
+    ('"alphaprobe betaprobe"', ['alphaprobe', 'betaprobe'], False),
+])
+def test_documented_chunk_local_matching_is_shared(client, record, query, chunks, matches):
+    """FTS-66: retain the explicitly approved multi-chunk limitations.
+
+    A minus word inside a full-text string is local to its matching vector;
+    these cases do not change outer JSON Boolean predicate semantics.
+    """
+    from .test_application_settings import save
+    from uuid import uuid4
+    assert save(client, {'FULL_TEXT_SEARCH_ENABLED': True}).status_code == 200
+    _grant_phase3_privileges()
+    component = _upload(client, record)
+    _publish_component(component, chunks[0], configuration='pg_catalog.simple')
+    with psycopg.connect(os.environ['DATABASE_URL']) as c:
+        for number, text in enumerate(chunks[1:], 1):
+            c.execute('''INSERT INTO digital_component_search_chunks
+                (digital_component_id,chunk_no,extracted_text,search_vector,text_search_config)
+                VALUES (%s,%s,%s,to_tsvector('simple',%s),'simple')''',
+                (component['id'], number, text, text))
+    leaf = {'full_text': {'query': query, 'sources': ['components']}}
+    for endpoint, request in [
+        ('/api/v1/full-text-search', {'record_where': leaf, 'result_types': ['records']}),
+        ('/api/v1/records/advanced-search', {'where': leaf}),
+        ('/api/v1/records/search', {'where': leaf}),
+    ]:
+        response = client.post(endpoint, json={**request, 'tab_id': str(uuid4())})
+        assert response.status_code == 200, response.text
+        items = response.json()['items']
+        assert bool(items) is matches, (endpoint, query, chunks, response.text)
+        if matches:
+            actual = items[0]['record']['id'] if endpoint.endswith('full-text-search') else items[0]['id']
+            assert actual == record['id']

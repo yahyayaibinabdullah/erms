@@ -27,6 +27,8 @@ from nicegui import ui
 def build_advanced_search(
     *, add_button, add_record_button, advanced_search_state, aggregation_mode_bar, aggregation_state, api, bind_remote_relationship_select, bind_remote_saved_audience_select, browse_advanced_aggregation, browse_advanced_classification, collection_state, discard_navigation_guard, enter_advanced_search, error_message, format_timestamp, get_principal, get_resource, guidance, localized_editor_entity, open_aggregation, register_navigation, render_compact_resource_result, restore_compact_result_anchor, search_bar, select_record_details, set_navigation_guard, show_authenticated_view, show_organization_structure, style_status_chip_select, subtitle, table_container, title,
 ):
+    page_client = table_container.client
+
     async def select_advanced_search() -> None:
         search_session_revision = advanced_search_state.get("advanced_search_session_revision", 0)
         search_principal = get_principal()
@@ -1032,9 +1034,16 @@ def build_advanced_search(
             with results_host:
                 ui.spinner(size="lg").classes("self-center")
             try:
+                await page_client.connected()
+                if not execution_is_current():
+                    return
+                cache_context = {"tab_id": page_client.tab_id}
+                if execution.get("search_id"):
+                    cache_context["search_id"] = execution["search_id"]
+                payload.update(cache_context)
                 if saved_id is not None:
                     result = await api.execute_saved_search(
-                        saved_id, {"limit": payload["limit"], "offset": page_offset},
+                        saved_id, {"limit": payload["limit"], "offset": page_offset, **cache_context},
                     )
                 else:
                     result = await api.search_request(resource, payload, advanced=True)
@@ -1048,23 +1057,11 @@ def build_advanced_search(
                         status_label.text = ""
                     await show_stale_saved_search(saved_id)
                     return
-                workspace["record_capabilities"] = {}
-                if resource == "records":
-                    async def load_record_capabilities(record_item: dict[str, Any]) -> dict[str, Any]:
-                        try:
-                            return await api.resource_capabilities("records", int(record_item["id"]))
-                        except ApiError:
-                            return {}
-                    result_items = result["items"]
-                    record_capabilities = await asyncio.gather(*(
-                        load_record_capabilities(record_item) for record_item in result_items
-                    ))
-                    if not execution_is_current():
-                        return
-                    workspace["record_capabilities"] = {
-                        int(item["id"]): capabilities for item, capabilities in zip(result_items, record_capabilities)
-                    }
-                workspace.update(execution=execution, offset=page_offset, total=int(result["total"]), searched=True)
+                workspace["record_capabilities"] = {
+                    int(item["id"]): item.get("_capabilities", {}) for item in result["items"]
+                } if resource == "records" else {}
+                execution["search_id"] = result.get("search_id")
+                workspace.update(execution=execution, offset=int(result["offset"]), total=int(result["total"]), searched=True)
                 render_results(result)
             except ApiError as api_error:
                 if not execution_is_current():

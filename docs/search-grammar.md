@@ -22,7 +22,7 @@ POST /api/v1/full-text-search
 
 Global Search ranks once and uses that ranking to return the requested page and
 save the combined result list. The administrator-controlled
-`SEARCH_RESULT_LIMIT` caps Global Search and Advanced Search. The default is
+`SEARCH_RESULT_LIMIT` caps Global Search, Advanced Search, and aggregation/record page filters. The default is
 1,000 and the allowed range is 1 to 5,000. The Global Search page token
 references the saved list for the authenticated login and browser tab. Later
 pages recheck access before returning records or file details. If the saved
@@ -30,11 +30,20 @@ list is gone, the WebUI repeats the submitted query once with a page number
 in place of the old search ID and token.
 See [the Global Search contract](../specs/full-text-search.md#103-global-search-endpoint).
 
-Advanced Search endpoints use the current Application Setting and reject
-offsets at or beyond the cap. The response includes `result_cap` and
+Advanced Search endpoints use the current Application Setting. Uncached legacy
+requests reject offsets at or beyond the cap; cached requests clamp to the last
+available page. The response includes `result_cap` and
 `truncated`. Smaller limits already stored in legacy saved searches still
 apply. Clients can select a page size. The Records and Aggregations collection
-filters use the ordinary search endpoints with a page size limit.
+filters use the ordinary search endpoints with the same administrator result cap
+when using the tab search contract. These requests supply `tab_id` (NiceGUI's
+connected `client.tab_id`) and receive `search_id`. Paging repeats the submitted
+criteria/sort plus both IDs; an unavailable or mismatched list is rebuilt in the
+same request. All four search screens share the existing PostgreSQL cache slot,
+not one slot per endpoint. Fingerprints discriminate search type and criteria;
+list IDs, user/login identity and tab identity must also match. Saved-search
+execution accepts the same runtime IDs; saved definitions must not contain them.
+Relationship selectors omit the runtime IDs and do not replace tab results.
 
 The ordinary `GET` collection endpoints remain available for simple equality
 filters. Use the search endpoints for boolean logic, ranges, sets, null tests,
@@ -153,6 +162,15 @@ one comparison, one `full_text` leaf, or one of `and`, `or`, and `not`. `and` an
 empty.
 
 ## Full-text expressions
+
+File content is matched one indexed text chunk at a time. Within one query
+string, `alpha beta` needs both words in the same chunk; `"alpha beta"` cannot
+match across a chunk boundary; `alpha -beta` can match a chunk without `beta`
+even if another chunk contains it. Single-chunk files cover all their indexed
+text. Matching file names or enabled metadata may independently qualify a
+resource. This accepted limitation applies to every full-text caller and does
+not change JSON Boolean groups combining resource predicates. See the
+[matching-scope contract](../specs/full-text-search.md#1011-matching-scope-and-multi-chunk-limitations).
 
 Records, aggregations, and digital components support a controlled full-text
 leaf anywhere a comparison can appear:

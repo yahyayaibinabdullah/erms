@@ -4,7 +4,10 @@ This records the Wathiq Global Search investigation of 12 November 2026 on
 PostgreSQL 18.4. Read it before optimizing a search or filter. The
 [performance contract](search-performance.md) defines the requirements; the
 [verification report](verification/search-performance-2026-11-12.md) records
-the final measurements and their limits.
+that investigation's measurements and their limits. The
+[consolidated benchmark history and acceptance decision](search-performance-benchmarks.md)
+includes subsequent experiments through 14 November and the user's acceptance
+of the compressed-storage baseline with its documented latency exception.
 
 Several problems compounded each other: repeated permission work, repeated
 language scans and parsing, misleading row estimates, and large intermediate
@@ -118,8 +121,9 @@ The effective changes were to keep permission/candidate rows compact, reduce
 vectors to scores before downstream joins, preserve match flags with record IDs,
 and fetch display details only for the selected page.
 
-Materialize shared work when reuse matters. Stream single-use intermediate
-scores where possible. The final SQL uses targeted `OFFSET 0` boundaries to
+Materialize shared work when reuse matters. A syntactically single-use CTE can
+still be executed many times by a nested-loop join: inspect actual loops before
+deciding that its scores can safely stream. The SQL uses targeted `OFFSET 0` boundaries to
 prevent projection/filter movement that previously recreated bad estimates or
 wide joins, without writing every intermediate result to a tuplestore. These
 boundaries need plan evidence; they are not general optimization decorations.
@@ -178,6 +182,163 @@ durability features, moving ranking into Python, or cutting off candidates
 before ranking were **not adopted fixes**. Do not describe untested alternatives
 as measured failures. Any future memory/planner tuning needs its own evidence,
 including the effect of concurrent searches.
+
+## 13 November: richer vectors and repeated scoring
+
+The original repetitive-text fixture did not reveal every expensive plan. The
+richer corpus has 151,470 one-chunk files, 1,386 ten-chunk files and 153
+hundred-chunk files (153,009 records and 51,003 aggregations). Each chunk contains
+hundreds of distinct lexemes. Extracted-text sizes are about 4 KB, 160 KB and
+1.6 MB per file respectively; these are not original binary document sizes.
+
+A selective AND query estimated one eligible file although 1,200 matched.
+PostgreSQL inlined the chunk-score batch beneath a nested loop and executed
+that entire batch 1,200 times: 1,440,000 `ts_rank_cd` calculations instead of
+1,200. Existing GIN candidate retrieval did not prevent this later mistake.
+`OFFSET 0` stopped some projection movement but did not guarantee one execution.
+
+The correction materializes the narrow `(component ID, numeric score)` batch
+and the completed per-record maximum. Text and vectors stay out of those
+stored intermediate rows. Global and Advanced Search retain their existing
+score formulas and eligibility rules. A corrected selective plan recorded
+1,200 scored rows with one execution, rather than 1,200 executions. Verify the
+producer's `Actual Loops`, not just how many times a CTE scan reads its result.
+
+The combined metadata/file variant exposed the same issue in a separate
+metadata-score batch. Its plan executed 1,200 metadata scores 1,200 times.
+Materializing those numeric scores reduced the exact captured ranking SQL from
+2.222 to 0.167 seconds in the paired diagnostic, with identical returned rows
+and scores. These are SQL timings, not complete HTTP response timings. Protect
+both score sources; testing only file-only searches misses this join shape.
+
+Page evidence had another avoidable cost. SQL produced a headline for every
+one of the top 12 matching chunks, then Python retained only the first snippet
+per file. The revised SQL keeps the same top-12 window and tie-breaks, marks its
+cap before deduplication, and generates a headline only for the retained first
+chunk per file. Differential tests compare filenames, snippets, ordering,
+component IDs and cap flags against the previous implementation, including
+files with 100 chunks. This removes repeated presentation work without
+changing matching or relevance.
+
+The approved product behavior remains chunk-local: terms in an AND must match
+one vector; NOT excludes a matching chunk rather than the complete file; a
+phrase cannot span two adjacent chunks. The rejected mixed single/multi-chunk
+matcher changed these semantics and introduced more plan branches. It is not
+part of this fix. The specification and grammar guide state these limitations,
+and the richer gate asserts the existing behavior explicitly.
+
+Do not equate the scoring fix with a complete performance pass. Larger vectors
+also expose TOAST retrieval, decompression and headline costs that the original
+fixture hid. Disposable-only storage experiments compare `MAIN`, LZ4 and a
+larger TOAST target; a faster isolated scan does not establish a faster API
+request. Capture the API's complete SQL, including its outer ranking/page
+projection. Explaining only an inner branch can produce a different plan.
+Retain response timings separately from later instrumented EXPLAIN timings.
+
+Host contention is another separate measurement. Record CPU, memory and
+database read waits alongside every run; do not attribute all elapsed time to
+the planner or to antivirus activity. No antivirus setting is disabled for the
+gate. Failed attempts remain evidence, and reducing host pressure does not
+justify deleting their samples or claiming a production latency guarantee.
+
+Forcing index paths was also insufficient. In an isolated diagnostic,
+`enable_seqscan=off` changed the broad-word matching branch to a GIN bitmap scan,
+but the complete SQL took 3.965 seconds versus 3.894 seconds with normal planner
+choices. Its mixed-configuration filter still evaluated the vector predicate
+after the bitmap lookup, so it still read/decompressed the large vectors. The
+forced-index phrase query was slower too (5.200 versus 4.208 seconds). The
+experiment restored the setting and was never adopted in application code.
+An index name in a plan is not evidence that expensive text work disappeared.
+
+### Verify physical vectors, not just a column's declared policy
+
+Native Mac sampling found substantial time retrieving out-of-line vectors and
+decompressing PGLZ values. `tsvector` is a TOAST-capable type: TOAST compression
+can apply to its physical value both inline and out of line. It is not a
+separate full-text encoding, and it does not discard terms or positions.
+
+`MAIN` with LZ4 reduced those costs in the richer fixture while preserving all
+logical values. MAIN prefers an inline compressed vector but still permits
+overflow when needed. The selected physical policy is in migration 112 and the
+fresh schema; it does not change database-wide defaults. The API gate, not an
+isolated decompression microbenchmark, remains the release criterion.
+
+Two traps needed explicit regressions:
+
+- A destination's LZ4 setting does not necessarily recompress a copied datum.
+  The original synthetic template insertion retained 99,847 PGLZ values even
+  though `attcompression` said LZ4. Check `pg_column_compression` on actual
+  rows. The fixture now makes a fresh identical vector before insertion.
+- A same-type `ALTER COLUMN TYPE ... USING ...` rewrites the table but resets
+  its column storage policy. Applying MAIN/LZ4 in preceding statements produced
+  another PGLZ table. Migration 112 specifies the type expression and final
+  storage/compression policy in one ALTER operation. Its populated-upgrade test
+  compares binary vector values, matching, scores, data and physical policy.
+
+Do not reparse extracted text just to change compression: current dictionaries
+or normalization could change search values. Preserve the vector itself, and
+document the rewrite's lock, temporary space, WAL and post-rewrite maintenance.
+See PostgreSQL's [TOAST storage documentation](https://www.postgresql.org/docs/18/storage-toast.html)
+and the [upgrade procedure](../database/README.md#existing-database).
+
+### More indexes or memory did not establish a complete latency fix
+
+Separate common-language GIN indexes could remove the redundant mixed-language
+filter while keeping the existing single OR branch. Splitting the query into
+three language scans remained slower because it revisited the heap three times.
+The additional indexes alone did not pass the richer API gate, so they were not
+added to the canonical schema.
+
+With those experimental indexes, the broad AND bitmap had 66,101 lossy heap
+pages at 4 MB `work_mem`; 8 MB eliminated lossiness. Zero rows removed by a
+recheck does **not** mean PostgreSQL avoided rechecking vectors. At 12 MB the
+tested complete ranking queries also stopped spilling their narrow intermediate
+rows. Nevertheless full SQL/API latency remained variable, and 16 MB was not
+consistently faster. The extra indexes and memory increases were not adopted.
+Removing one expensive operation is useful evidence, not proof of overall speed.
+Any future memory proposal must measure complete requests and concurrent-query
+memory use: `work_mem` is an allowance per operation, not a whole-query limit.
+The subsequent canonical 4 MB run still failed one response at 3.105 seconds;
+a later search-scoped 12 MB experiment still failed two responses (maximum
+3.325 seconds). It was removed, preserving the caller's memory policy. Removing
+spills did not establish a reliable whole-request improvement. Restoration tests
+cover lower/higher initial memory values, nesting, other connections, Python
+errors, SQL rollback and transaction completion.
+
+Removing first-page detail projection did not establish a parallel-query fix.
+The native follow-up compared complete captured SQL with ranking-only variants,
+including an inline form of the same identity expression. All ranked IDs and
+scores agreed, but none of these plans selected Gather nodes and timings did
+not improve consistently. Do not relabel permission functions `PARALLEL SAFE`
+merely because a scan is slow: prove both semantic safety and an actual plan
+benefit. This rejected diagnostic changed no application SQL or function labels.
+See the [follow-up evidence](verification/search-score-reuse-2026-11-13.md#parallel-query-diagnostic-not-adopted).
+
+### Uncompressed vectors were not a better storage policy
+
+The 14 November native Mac comparison ran both gates with current storage and
+with EXTERNAL (no vector compression), using fresh disposable databases and
+identical application SQL. The original fixture's vectors were already
+uncompressed in both arms, with identical table sizes; its timing variation is
+not evidence of a compression benefit. Verify actual values before interpreting
+a column-policy experiment.
+
+For the larger corpus, all 180,630 chunk vectors were LZ4 in the current arm and
+uncompressed in the EXTERNAL arm. Binary vector fingerprints and every result,
+score, order and permission expectation agreed. EXTERNAL increased total chunk
+storage, including indexes, by 16.2%, moved much more data into TOAST, and produced
+slower median first pages for all six broad content-search cases. Ten responses
+exceeded three seconds versus one with current storage. The current arm's lone
+3.407-second response remains a failed latency sample; medians cannot excuse it.
+The user subsequently accepted this baseline as good enough for now on the
+shared MacBook. That explicit decision ends this tuning round without changing
+the test threshold or claiming that host contention caused the failed sample.
+
+Disabling compression is not equivalent to eliminating retrieval work. EXTERNAL
+also changes physical placement and can add TOAST buffer accesses. Keep those
+effects separate from LZ4 decoding cost and from host contention. The experiment
+was not adopted in the application schema. See the
+[complete comparison and measurement limits](verification/search-vector-storage-2026-11-14.md).
 
 ## Two different kinds of disk writes
 
@@ -303,3 +464,121 @@ Revalidate with production-like hierarchy depth, ACL diversity, text size,
 selectivity, concurrent users and storage conditions before making a production
 latency guarantee. The current scan cutoff and query boundaries are starting
 points for measurement, not substitutes for it.
+
+## 13 November: extending result caching to Advanced Search and filters
+
+Do not select full-corpus candidate IDs through a display view without inspecting
+its plan. `authorized_records_for_search` includes a lateral effective-hold
+aggregate. In the first shared-cache prototype, even `SELECT resource.id` kept
+that aggregate: the plan evaluated inherited hold ancestry once per candidate,
+then repeated it while matching and ranking. On the 153,009-record fixture this
+was unacceptable and the diagnostic run was cancelled and its database dropped.
+
+Ordinary-field candidates and ordering now use base relations plus the canonical
+batch permission sets. Display views hydrate only the selected page. Inherited hold and location criteria use shared sets in `search_projections.py`;
+retention resolves each distinct root classification once and joins root overrides
+before propagating values to descendants. Their meanings remain those of the
+canonical SQL resolvers. The gate also covers broad not-held, null-location and
+inherited-retention criteria; selecting a base column is not a substitute for an
+inherited value.
+Likewise, `page_permission_ctes()` is for a small displayed page, not the entire
+corpus. The initial pass uses `visibility_ctes(candidate_resource=...)`; parent
+label filters use a separate batch of candidate parent IDs. Small-fixture
+correctness tests did not expose these costs; the mandatory large-data test did.
+
+The next repeated run exposed a separate scoring problem in the new Advanced
+Search path. Joining chunks to the parsed-language relation carried vectors
+through an external sort, and underestimated eligible files led to 153,009
+individual chunk index lookups. The broad-content plan wrote 53,775 temporary
+blocks and took 5.09 seconds under EXPLAIN ANALYZE; measured API requests reached
+5.88 seconds. A preceding single-repeat run had passed, so that pass was not
+enough evidence of a reliable implementation.
+
+The correction keeps parsed queries in scalar lookups, reduces vectors to
+per-leaf scores before downstream joins, and selects indexed or bulk chunk
+retrieval from the actual eligible-file count. It preserves Advanced Search's
+existing eligibility and left-to-right float4 score addition, including its
+historical difference from Global Search's active-content score protection.
+Standalone positive full-text leaves also bound the permission pass with their
+indexed text candidates. That shortcut is not applied to arbitrary NOT/OR
+trees, where excluding nonmatching candidates could change Boolean semantics.
+The repeated gate must verify exact scores as well as IDs and timings after
+these changes; neither less disk traffic nor a faster single sample suffices.
+
+Moving text candidates before permissions then exposed the same correlated
+content-identity estimate in Advanced Search's *matching* branch. Previously a
+metadata match could short-circuit that branch; a candidate union executes it.
+The diagnostic request stalled, was cancelled, and its database was dropped.
+Keep the active-content Boolean behind a measured projection boundary before
+filtering it, as in Global Search; otherwise an estimated single file can choose
+a nested loop across the broad set. Metadata hits need file scoring and page
+attribution, but do not need the redundant file-only candidate scan.
+
+The all-records coverage guard now compares exact metadata-match and record
+counts instead of building an anti-join hash simply to prove no records remain.
+This relies on a real invariant: one metadata document per record, a foreign key
+to that record, and disjoint text-configuration branches. Never substitute
+estimated table counts or copy this shortcut to duplicate-producing match sets.
+
+### Check JIT on the actual PostgreSQL build
+
+The disposable Linux comparison exposed a cost absent from the earlier local
+plans: LLVM JIT compilation. One Global record plan compiled 649 functions for
+5.51 seconds; its aggregation plan compiled 449 functions for 4.50 seconds.
+The complete broad API responses took 16.18–16.61 seconds. Even an empty record
+plan spent 469 ms compiling and only about 37 ms on the remaining execution.
+High estimated costs from recursive ACL branches triggered this work regardless
+of how many rows those branches eventually produced.
+
+[PostgreSQL's JIT decision documentation](https://www.postgresql.org/docs/18/jit-decision.html)
+explains that compilation is chosen from estimated cost at planning time and
+can cost more than it saves for short queries. A build without LLVM performs
+no JIT, so SQL parity alone does not establish performance parity across builds.
+The native Postgres.app installation reported `jit=on`,
+`pg_jit_available()=false`, and no `--with-llvm` build option; its missing JIT
+timings were a build difference, not evidence that the SQL avoided compilation
+on Linux.
+
+`search_execution.py` now disables JIT only during interactive ranking/cached
+page SQL and restores the prior connection setting afterward. SET LOCAL also
+bounds it to the transaction; a failed SQL transaction is left for its owner's
+rollback so restoration cannot hide the original exception. Regressions cover
+initial settings on/off, successful execution, Python exceptions and SQL errors.
+At that stage server defaults, join algorithms, work_mem, durability and
+authorization remained unchanged; the later scoped-memory investigation is
+recorded above. Explain probes use the same execution context as the real endpoint.
+Record default JIT, JIT availability and compilation timing in future evidence.
+
+### Reuse the compact ranking path and respect the requested sort
+
+The generic Advanced Search plan still rejoined the full candidate/resource set
+while matching, scoring and ordering. A standalone full-text leaf, including
+one-child All/Any wrappers produced by the builder, now reuses the compact Global
+candidate/ranking SQL. An explicit option preserves Advanced Search's historical
+score eligibility; Global Search retains its stronger score protection. A
+regression removes file-view access and checks identical Advanced scores without
+file evidence, while Global retains its existing lower protected score.
+
+When the user sorts by a field rather than relevance, scores cannot determine
+which rows belong in the capped list. That path matches and authorizes first,
+selects the requested deterministic order, then computes unchanged scores only
+for the retained rows (and one extra truncation sentinel). Relevance sorting
+still scores every authorized match before the cap. The gate includes grouped
+text and text-plus-field criteria with explicit field sorting; do not benchmark
+only a bare leaf if the WebUI submits a group.
+
+### Preserve measurement conditions as well as passing numbers
+
+The final three-repeat Linux run passed 876 API requests, maximum 2.3503 seconds,
+with exact cached IDs/scores and all page orders verified. It explicitly waited
+60 seconds after fixture maintenance, without issuing a search or oracle during
+that interval. First broad Global pages took 2.0661–2.3503 seconds and Next took
+0.1373–0.1632 seconds. SQL fixes and varying host load both separate this run
+from earlier failures; do not attribute the whole reduction to one change or
+discard the failures. These are maintained-data, single-client API timings, not
+a guarantee under arbitrary contention. The
+[verification report](verification/shared-search-cache-2026-11-13.md) records all
+attempts, the exact synthetic broad criterion, reproducible command, environment,
+source hashes and cleanup. A cap of 1,000 is an output limit after authorization
+and ranking, not permission to stop examining candidates before the correct top
+1,000 are known.

@@ -4,7 +4,7 @@
   "model_version": "1",
   "prompt_version": "manual-admin-export-v1",
   "specification_sha256": "316c494f760b24066a68808169d2f0f2599c79cc4d1d8ab3d6e1e294c1952db2",
-  "catalogue_sha256": "e828932baa26cf9d2db72ddfaa0a9f4c781971e3036e1932a58751df12301dcc",
+  "catalogue_sha256": "3205684cb7ffeae46abe5d9b3e6beed36bed2470991f98cb76c6d8e46e7d60dc",
   "terminology_sha256": "e78b99a3c2dfbb75833a1fc9349f6484781a7e741904bd4240a2ca27478279b6",
   "batch_id": "admin-export-ar-20261110071750",
   "generated_at": "2026-11-10T07:17:50.721352+04:00",
@@ -420,6 +420,21 @@
     ],
     "settings.page.propagation": [
       "قد يستغرق تطبيق التغييرات المحفوظة على جميع نسخ الخدمة حتى 30 ثانية. تستخدم الوظائف الجديدة وحفظ المخرجات ومحاولات إرسال البريد الإعدادات المحفوظة الحالية."
+    ],
+    "settings.field.global_search_cache_cleanup_batch_size.label": [
+      "حجم دفعة تنظيف ذاكرة نتائج البحث الشامل"
+    ],
+    "settings.field.global_search_cache_cleanup_interval_seconds.label": [
+      "الفاصل الزمني لتنظيف ذاكرة نتائج البحث الشامل"
+    ],
+    "settings.field.global_search_cache_idle_minutes.description": [
+      "عدد دقائق الخمول قبل انتهاء صلاحية قائمة نتائج البحث الشامل المحفوظة. تصبح القائمة غير متاحة أيضًا عند انتهاء جلسة تسجيل الدخول."
+    ],
+    "settings.field.global_search_cache_idle_minutes.label": [
+      "مهلة خمول ذاكرة نتائج البحث الشامل"
+    ],
+    "settings.field.search_result_limit.description": [
+      "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم."
     ]
   },
   "items": [
@@ -25625,8 +25640,10 @@
     },
     {
       "message_key": "settings.field.global_search_cache_cleanup_batch_size.label",
-      "translated_text": "حجم دفعة تنظيف ذاكرة نتائج البحث الشامل",
-      "quality_flags": [],
+      "translated_text": "حجم دفعة تنظيف ذاكرة نتائج البحث",
+      "quality_flags": [
+        "needs_human_review"
+      ],
       "provenance": {
         "kind": "generated",
         "generator": "Codex",
@@ -25655,8 +25672,10 @@
     },
     {
       "message_key": "settings.field.global_search_cache_cleanup_interval_seconds.label",
-      "translated_text": "الفاصل الزمني لتنظيف ذاكرة نتائج البحث الشامل",
-      "quality_flags": [],
+      "translated_text": "الفاصل الزمني لتنظيف ذاكرة نتائج البحث",
+      "quality_flags": [
+        "needs_human_review"
+      ],
       "provenance": {
         "kind": "generated",
         "generator": "Codex",
@@ -25670,8 +25689,10 @@
     },
     {
       "message_key": "settings.field.global_search_cache_idle_minutes.description",
-      "translated_text": "عدد دقائق الخمول قبل انتهاء صلاحية قائمة نتائج البحث الشامل المحفوظة. تصبح القائمة غير متاحة أيضًا عند انتهاء جلسة تسجيل الدخول.",
-      "quality_flags": [],
+      "translated_text": "عدد دقائق الخمول قبل انتهاء صلاحية قائمة نتائج البحث المشتركة لعلامة تبويب المتصفح. تصبح القائمة غير متاحة أيضًا عند انتهاء جلسة تسجيل الدخول.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
       "provenance": {
         "kind": "generated",
         "generator": "Codex",
@@ -25681,8 +25702,10 @@
     },
     {
       "message_key": "settings.field.global_search_cache_idle_minutes.label",
-      "translated_text": "مهلة خمول ذاكرة نتائج البحث الشامل",
-      "quality_flags": [],
+      "translated_text": "مهلة خمول ذاكرة نتائج البحث",
+      "quality_flags": [
+        "needs_human_review"
+      ],
       "provenance": {
         "kind": "generated",
         "generator": "Codex",
@@ -25824,8 +25847,10 @@
     },
     {
       "message_key": "settings.field.search_result_limit.description",
-      "translated_text": "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم.",
-      "quality_flags": [],
+      "translated_text": "الحد الأقصى لعدد النتائج في جميع صفحات البحث الشامل والبحث المتقدم ومرشحات الملفات أو الوثائق.",
+      "quality_flags": [
+        "needs_human_review"
+      ],
       "provenance": {
         "kind": "generated",
         "generator": "Codex",

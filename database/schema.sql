@@ -8315,6 +8315,12 @@ CREATE TABLE public.digital_component_search_chunks (
     CONSTRAINT digital_component_search_chunks_chunk_no_check CHECK ((chunk_no >= 0))
 );
 
+-- Prefer an inline, quickly decompressed vector; exceptionally large values
+-- may still use TOAST. This changes physical storage, never search semantics.
+ALTER TABLE public.digital_component_search_chunks
+    ALTER COLUMN search_vector SET STORAGE MAIN,
+    ALTER COLUMN search_vector SET COMPRESSION lz4;
+
 CREATE SEQUENCE public.digital_component_search_chunks_id_seq
     START WITH 1
     INCREMENT BY 1
@@ -9062,7 +9068,7 @@ CREATE SEQUENCE public.login_sessions_id_seq
 
 ALTER SEQUENCE public.login_sessions_id_seq OWNED BY public.login_sessions.id;
 
-CREATE UNLOGGED TABLE public.global_search_results (
+CREATE UNLOGGED TABLE public.search_results_cache (
     session_id bigint NOT NULL,
     tab_id uuid NOT NULL,
     user_id bigint NOT NULL,
@@ -9077,7 +9083,7 @@ CREATE UNLOGGED TABLE public.global_search_results (
     CHECK (jsonb_typeof(hits) = 'array' AND jsonb_array_length(hits) <= 5000)
 );
 
-CREATE INDEX global_search_results_expiry_idx ON public.global_search_results (expires_at);
+CREATE INDEX search_results_cache_expiry_idx ON public.search_results_cache (expires_at);
 
 CREATE TABLE public.message_action_amendments (
     id uuid NOT NULL,
@@ -13329,5 +13335,5 @@ COMMIT;
 REVOKE ALL ON FUNCTION disposition_private.preparer_eligible(bigint,text) FROM PUBLIC;
 REVOKE ALL ON FUNCTION disposition_private.can_add_preparation_members(bigint,bigint) FROM PUBLIC;
 
-ALTER TABLE ONLY public.global_search_results ADD CONSTRAINT global_search_results_session_id_fkey
+ALTER TABLE ONLY public.search_results_cache ADD CONSTRAINT search_results_cache_session_id_fkey
     FOREIGN KEY (session_id) REFERENCES public.login_sessions(id) ON DELETE CASCADE;

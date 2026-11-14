@@ -591,10 +591,24 @@ translation until it has been corrected and reviewed.
 
 When a screen or message is removed, the agent removes the key only after the
 checked-in extractor/manifest proves that no application reference remains.
-Deletion must follow the catalogue's audited, referentially safe removal path
-and preserve immutable event history. If another screen still references the
-key, or historical/deployment compatibility requires it, the key remains and
-is updated or explicitly deprecated rather than silently deleted.
+If another screen still references the key, keep its definition active. Retain
+or explicitly deprecate keys as needed for historical or deployment
+compatibility.
+
+When a key is absent from the checked-in English manifest, definition sync sets
+`is_deprecated` on its existing database definition. Translation origin,
+review, and publication status do not affect that decision. Deprecated
+definitions are excluded from the active UI catalogue and translation exports.
+Sync retains the definition and every translation row, including manually
+published wording and its review and publication metadata. The deprecation
+records a before-and-after definition event in `event_history`, which also
+retains the earlier translation events. The `--missing-only` Arabic seed skips
+deprecated definitions.
+
+Database deletion is a separate, audited operation. If a retired definition
+is removed, its dependent translation rows must be removed first. Each
+deletion requires an audit reason and records the full prior row in
+`event_history`. Existing audit events must be preserved.
 
 The agent must run the catalogue completeness and stale-key checks before
 declaring the screen complete. A pull request or implementation handoff for UI

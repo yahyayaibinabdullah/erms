@@ -741,7 +741,8 @@
     "default_text": "More than {limit} matches. Showing the first {limit}.",
     "semantic_meaning": "There are more authorized matches than the maximum for this execution.",
     "common_locations": [
-      "Advanced Search results"
+      "Advanced Search results",
+      "Records and Aggregations filters"
     ],
     "translator_guidance": "Use the established search terminology. Preserve both occurrences of {limit}.",
     "grammatical_role": "guidance",
@@ -30752,15 +30753,15 @@
   {
     "message_key": "settings.field.global_search_cache_cleanup_batch_size.label",
     "context_group": "settings.field.global_search_cache_cleanup_batch_size",
-    "default_text": "Global Search cache cleanup batch size",
-    "semantic_meaning": "Global Search cache cleanup batch size",
+    "default_text": "Search results cache cleanup batch size",
+    "semantic_meaning": "Search results cache cleanup batch size",
     "common_locations": [
       "Application Settings"
     ],
     "translator_guidance": "Search-cache maintenance: a list is one browser tab’s cached result set, not an individual search hit. Preserve the distinction from cache expiry and login-session retention.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Global Search cache cleanup batch size",
+    "rendered_example": "Search results cache cleanup batch size",
     "is_html": false
   },
   {
@@ -30780,43 +30781,43 @@
   {
     "message_key": "settings.field.global_search_cache_cleanup_interval_seconds.label",
     "context_group": "settings.field.global_search_cache_cleanup_interval_seconds",
-    "default_text": "Global Search cache cleanup interval",
-    "semantic_meaning": "Global Search cache cleanup interval",
+    "default_text": "Search results cache cleanup interval",
+    "semantic_meaning": "Search results cache cleanup interval",
     "common_locations": [
       "Application Settings"
     ],
     "translator_guidance": "Search-cache maintenance: a list is one browser tab’s cached result set, not an individual search hit. Preserve the distinction from cache expiry and login-session retention.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Global Search cache cleanup interval",
+    "rendered_example": "Search results cache cleanup interval",
     "is_html": false
   },
   {
     "message_key": "settings.field.global_search_cache_idle_minutes.description",
     "context_group": "settings.field.global_search_cache_idle_minutes",
-    "default_text": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
-    "semantic_meaning": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+    "default_text": "Minutes of inactivity before the shared search result list for a browser tab expires. The list is also unavailable when the login session ends.",
+    "semantic_meaning": "Minutes of inactivity before the shared search result list for a browser tab expires. The list is also unavailable when the login session ends.",
     "common_locations": [
       "Application Settings"
     ],
     "translator_guidance": "Preserve the search terminology and any placeholders.",
     "grammatical_role": "guidance",
     "parameter_schema": {},
-    "rendered_example": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+    "rendered_example": "Minutes of inactivity before the shared search result list for a browser tab expires. The list is also unavailable when the login session ends.",
     "is_html": false
   },
   {
     "message_key": "settings.field.global_search_cache_idle_minutes.label",
     "context_group": "settings.field.global_search_cache_idle_minutes",
-    "default_text": "Global Search cache idle timeout",
-    "semantic_meaning": "Global Search cache idle timeout",
+    "default_text": "Search results cache idle timeout",
+    "semantic_meaning": "Search results cache idle timeout",
     "common_locations": [
       "Application Settings"
     ],
     "translator_guidance": "Preserve the search terminology and any placeholders.",
     "grammatical_role": "label",
     "parameter_schema": {},
-    "rendered_example": "Global Search cache idle timeout",
+    "rendered_example": "Search results cache idle timeout",
     "is_html": false
   },
   {
@@ -30976,15 +30977,15 @@
   {
     "message_key": "settings.field.search_result_limit.description",
     "context_group": "settings.field.search_result_limit",
-    "default_text": "Maximum results across all pages of Global Search and Advanced Search.",
-    "semantic_meaning": "Maximum results across all pages of Global Search and Advanced Search.",
+    "default_text": "Maximum results across all pages of Global Search, Advanced Search, and aggregation or record filters.",
+    "semantic_meaning": "Maximum results across all pages of Global Search, Advanced Search, and aggregation or record filters.",
     "common_locations": [
       "Application Settings"
     ],
     "translator_guidance": "Preserve the search terminology and any placeholders.",
     "grammatical_role": "guidance",
     "parameter_schema": {},
-    "rendered_example": "Maximum results across all pages of Global Search and Advanced Search.",
+    "rendered_example": "Maximum results across all pages of Global Search, Advanced Search, and aggregation or record filters.",
     "is_html": false
   },
   {

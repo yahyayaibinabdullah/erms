@@ -4,12 +4,45 @@ from uuid import uuid4
 
 import psycopg
 from psycopg.rows import dict_row
+import pytest
 
 from backend.services.api.schemas import SearchExpression
 from backend.services.api.search import _attribution, _full_text_leaves, _global_retained_current_rows
 from backend.services.api.tests.test_full_text_search_phase3 import (
     _grant_phase3_privileges, _publish_component, _upload,
 )
+
+
+@pytest.mark.parametrize('chunk_count', [1, 10, 12, 100])
+def test_one_headline_per_component_preserves_snippet_order_and_cap(client, record, chunk_count):
+    from .test_application_settings import save
+    _grant_phase3_privileges()
+    assert save(client, {'FULL_TEXT_SEARCH_ENABLED': True}).status_code == 200
+    # Multiple components plus tied/distinct scores protect the exact top-12
+    # window, first chunk per component, filename precedence and capped flag.
+    for index in range(3):
+        component = _upload(client, record, f'evidence-{index}.txt', order=index + 1)
+        _publish_component(component, None)
+        with psycopg.connect(os.environ['DATABASE_URL']) as c:
+            for number in range(chunk_count):
+                text = f'Opening {number} ' + 'budget expenditure ' * (1 + number % 4) + f' ending {index}'
+                c.execute('''INSERT INTO digital_component_search_chunks
+                    (digital_component_id,chunk_no,extracted_text,search_vector,text_search_config)
+                    VALUES (%s,%s,%s,to_tsvector('english',%s),'english')''',
+                    (component['id'], number, text, text))
+    for query in ('budget', 'budget OR evidence', 'budget -draft'):
+        expression = SearchExpression.model_validate({'full_text': {'query': query, 'sources': ['components']}})
+        with psycopg.connect(os.environ['DATABASE_URL'], row_factory=dict_row) as c:
+            c.execute("SELECT set_config('app.user_id','1',true)")
+            legacy_row, = _global_retained_current_rows(c, 'records', expression, [record['id']])
+            expected = _attribution(c, 'records', legacy_row, _full_text_leaves(expression), legacy_row['score'])
+        response = client.post('/api/v1/full-text-search', json={
+            'tab_id': str(uuid4()), 'result_types': ['records'],
+            'record_where': expression.model_dump(by_alias=True, exclude_none=True)})
+        assert response.status_code == 200, response.text
+        item, = response.json()['items']
+        assert item['matching_components'] == expected['matching_components']
+        assert item['score'] == expected['relevance']
 
 
 def test_page_batch_preserves_evidence_scores_and_capabilities(client, record):

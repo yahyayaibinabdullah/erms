@@ -64,7 +64,7 @@ and a link to its specialized normative documentation.
 | Cleanup responsibility | Owning module/service | Status | Execution model | Specialized documentation |
 | --- | --- | --- | --- | --- |
 | Segmented content, upload session, draft, and superseded-content cleanup | `backend.services.api.content_cleanup` | Implemented | Scheduled one shot or one supervised `--watch` process | [Segmented-content cleanup](#5-segmented-content-cleanup), [content-storage guide](content-storage.md), [storage specification](../specs/segmented-postgresql-content-storage.md#11-cleanup-and-recovery) |
-| Expired/retained revoked login sessions and expired Global Search lists | `backend.services.api.session_cleanup` | Implemented | One independently supervised active `--watch` process per database, optional standbys, two independent schedules; one-shot/dry-run for maintenance | [Session/cache cleanup](#6-login-session-cleanup), [authentication guide](authentication.md), [session-lifecycle specification](../specs/authentication-and-login-session-lifecycle.md#8-retention-and-cleanup) |
+| Expired/retained revoked login sessions and expired shared search lists | `backend.services.api.session_cleanup` | Implemented | One independently supervised active `--watch` process per database, optional standbys, two independent schedules; one-shot/dry-run for maintenance | [Session/cache cleanup](#6-login-session-cleanup), [authentication guide](authentication.md), [session-lifecycle specification](../specs/authentication-and-login-session-lifecycle.md#8-retention-and-cleanup) |
 | Full-text indexing attempt/job history, abandoned result staging, and retained text-indexer credential cleanup | `backend.services.api.text_indexing_maintenance` | Implemented | Scheduled one shot or one supervised `--watch` process | [Full-text indexing cleanup](#7-full-text-indexing-history-and-staging-cleanup), [full-text-search specification](../specs/full-text-search.md#66-content_indexing_attempts) |
 | Per-job text-indexer temporary-file cleanup | `backend.services.text_indexer` | Implemented | Immediate `finally` cleanup plus bounded startup recovery sweep; not a database scheduler | [Full-text indexing cleanup](#7-full-text-indexing-history-and-staging-cleanup), [security and robustness requirements](../specs/full-text-search.md#14-security-and-robustness) |
 
@@ -81,7 +81,7 @@ cleanup merely because dependent rows cascade.
 | `./run-local-stack.sh` | Implemented; local development only | Foreground without arguments; explicit `up`, `down`, `status`, `restart` | Manage local services and workers; append logs under `.runtime/local-stack/`; production uses separate supervisors | [Local lifecycle](local-tooling.md#local-stack-lifecycle) |
 | `./run-maildev.py` | Implemented; local development only | Explicit `up`, `down`, `status`, `restart` | Manage loopback MailDev with implicit TLS and MCP; no database access | [Local MailDev](#15-local-development-maildev) |
 | `backend.services.api.content_cleanup` | Implemented | One shot | Remove abandoned uploads, expired drafts, and unreferenced content sets | [Section 5](#5-segmented-content-cleanup) |
-| `backend.services.api.session_cleanup` | Implemented | One shot; production service uses `--watch` | Audit/remove retained login sessions and remove expired Global Search lists on separate schedules | [Section 6](#6-login-session-cleanup) |
+| `backend.services.api.session_cleanup` | Implemented | One shot; production service uses `--watch` | Audit/remove retained login sessions and remove expired shared search lists on separate schedules | [Section 6](#6-login-session-cleanup) |
 | `backend.services.api.text_indexing_maintenance cleanup` | Implemented | One shot or supervised `--watch` | Remove expired terminal indexing history/jobs, abandoned result staging, and retained revoked/expired text-indexer credentials | [Section 7](#7-full-text-indexing-history-and-staging-cleanup) |
 | `backend.services.api.manage_auth` | Implemented | One shot | Bootstrap authentication and perform deliberate credential recovery | [Section 8](#8-authentication-bootstrap-and-credential-recovery) |
 | Database migration commands | Implemented | One shot | Upgrade the schema exactly once per database | [Section 9](#9-database-migrations) |
@@ -145,7 +145,7 @@ participates in that election. See [deployment](deployment.md#separate-systemd-s
 This worker treats `login_sessions` as transient operational security data
 while preserving `event_history` as the durable authentication audit trail.
 
-The worker also removes expired Global Search result lists in bounded batches.
+The worker also removes expired shared search result lists in bounded batches.
 Apply migrations through `110_search_cache_cleanup_settings` before upgrading
 the API and this worker. The shared unlogged PostgreSQL table stores ranked IDs and scores
 for the authenticated user, login session and browser tab. Lists expire after

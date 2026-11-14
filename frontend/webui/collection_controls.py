@@ -65,19 +65,20 @@ def build_collection_loader(
                         accept_results([], False)
                 else:
                     payload = compact_search_payload(spec, view)
+                    await page_client.connected()
+                    if not request_is_current():
+                        return
+                    payload["tab_id"] = page_client.tab_id
+                    # Explicit submissions and mutation refreshes rebuild. Only a
+                    # page move reuses the last submitted query's result identity.
+                    if compact_state is not None and view.get("search_id"):
+                        payload["search_id"] = view["search_id"]
                     result = await api.search_request(spec.key, payload, display_filter=view["filter"].strip())
                     if not request_is_current():
                         return
-                    total = int(result["total"])
-                    last_page = max(1, (total + view["page_size"] - 1) // view["page_size"])
-                    if view["page"] > last_page:
-                        view["page"] = last_page
-                        if total:
-                            result = await api.search_request(
-                                spec.key, compact_search_payload(spec, view), display_filter=view["filter"].strip(),
-                            )
-                            if not request_is_current():
-                                return
+                    view.update(search_id=result.get("search_id"),
+                                page=int(result["offset"]) // view["page_size"] + 1,
+                                truncated=result.get("truncated", False), result_cap=result.get("result_cap"))
                     decorated = await decorate_for_spec(spec, result["items"])
                     if not request_is_current():
                         return

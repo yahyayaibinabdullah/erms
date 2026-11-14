@@ -32,6 +32,7 @@ def build_resource_collection_results(
                 {10: "10", 25: "25", 50: "50", 100: "100"},
                 value=int(result_state.get("page_size", 10)), label=render_message("webui.render_entity_compact_results.select.per_page_d6d26cbd"),
             ).props("outlined dense options-dense").classes("w-28")
+        cap_notice = ui.label().classes("text-sm text-slate-500 px-5")
         summary = ui.label().classes("text-sm text-slate-500 px-5")
         host = ui.column().classes("compact-result-list w-[calc(100%-2.5rem)] mx-5 gap-0")
         pager = ui.row().classes("w-full items-center justify-center gap-2 px-5 pb-5")
@@ -59,6 +60,8 @@ def build_resource_collection_results(
             start = (page_number - 1) * page_size
             page_rows = collection_state["rows"]
             count.text = str(total)
+            cap_notice.text = render_message("advanced_search.results.truncated", limit=format(result_state["result_cap"], ",")) if result_state.get("truncated") else ""
+            cap_notice.set_visibility(bool(result_state.get("truncated")))
             if result_state.get("unclassified_roots"):
                 guidance.text = render_message("webui.show_unclassified_roots.text.showing_row_count_of_total_unclassified_ro_823f8b47", row_count=len(page_rows), total=total)
             summary.text = render_message("webui.render_results.text.showing_value_value_2_of_row_count_results_3d5b1825", value=start + 1 if page_rows else 0, value_2=start + len(page_rows), row_count=total)

@@ -1,5 +1,6 @@
 """Small adapters for exercising the real shared controls without a server."""
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock
+from types import SimpleNamespace
 from frontend.webui.entity_selectors import build_relationship_selector
 from frontend.webui.personal_resources import PersonalResourceState, build_personal_resources
 from frontend.webui.collection_controls import build_collection_loader
@@ -18,6 +19,9 @@ def personal(api,data,principal,resource,decorate):
 def collection_loader(scope):
     """Use the host's same narrow view adapters with a test-owned view state."""
     state=scope['state']
+    page_client = scope.get('page_client') or SimpleNamespace(_deleted=False)
+    page_client.connected = AsyncMock()
+    page_client.tab_id = 'e2170d62-e82f-4718-a4c6-375eb00c7c49'
     return build_collection_loader(scope['api'],
         get_resource=lambda:state['resource'],
         get_query=lambda:getattr(scope.get('search_input'),'value',''),
@@ -26,5 +30,5 @@ def collection_loader(scope):
         compact_states=state.setdefault('entity_result_states',{}),
         decorate_for_spec=scope['decorate_for_spec'],
         decorate_record_search_components=scope.get('decorate_record_search_components'),
-        page_client=scope.get('page_client'),set_connection_status=scope['set_connection_status'],
+        page_client=page_client,set_connection_status=scope['set_connection_status'],
         render_table=scope['render_table'],error_message=lambda error:str(error))

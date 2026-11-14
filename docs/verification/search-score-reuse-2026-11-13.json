@@ -1,0 +1,566 @@
+{
+  "status": "incomplete_native_latency_gates_failed",
+  "threshold_seconds": 3,
+  "result_cap": 1000,
+  "fixture": {
+    "aggregations": 51003,
+    "records": 153009,
+    "chunks": 180630,
+    "single_chunk_files": 151470,
+    "ten_chunk_files": 1386,
+    "hundred_chunk_files": 153
+  },
+  "attempts": [
+    {
+      "run": "iteration-01",
+      "responses": 143,
+      "above_three_seconds": 14,
+      "maximum_seconds": 10.441800707951188,
+      "cleanup": {
+        "database": "erms_large_text_d1d82ea3f35d441496dcbcce6b5d4ad1",
+        "dropped": true
+      },
+      "outcome": "failed_latency"
+    },
+    {
+      "run": "iteration-02-main",
+      "responses": 143,
+      "above_three_seconds": 11,
+      "maximum_seconds": 9.696553000248969,
+      "cleanup": {
+        "database": "erms_large_text_352ab9c974414bf4b33ab2b8d8584be3",
+        "dropped": true
+      },
+      "outcome": "failed_latency"
+    },
+    {
+      "run": "iteration-03-main-lz4",
+      "responses": 143,
+      "above_three_seconds": 11,
+      "maximum_seconds": 9.64817866589874,
+      "cleanup": {
+        "database": "erms_large_text_bb20db5a5f394d1bbba80317484df60f",
+        "dropped": true
+      },
+      "outcome": "failed_latency"
+    },
+    {
+      "run": "iteration-04-original-storage",
+      "responses": 143,
+      "above_three_seconds": 4,
+      "maximum_seconds": 3.7452577501535416,
+      "cleanup": {
+        "database": "erms_large_text_b78685ce0f134418b6771cac58cac714",
+        "dropped": true
+      },
+      "outcome": "failed_latency"
+    },
+    {
+      "run": "iteration-05-main-target",
+      "responses": 154,
+      "above_three_seconds": 11,
+      "maximum_seconds": 20.045084917917848,
+      "cleanup": {
+        "database": "erms_large_text_73388b389d8e4cc5988deab138879d90",
+        "dropped": true
+      },
+      "outcome": "failed_latency"
+    },
+    {
+      "run": "iteration-06-main-lz4",
+      "responses": 154,
+      "above_three_seconds": 8,
+      "maximum_seconds": 6.070794708095491,
+      "cleanup": {
+        "database": "erms_large_text_1bbebfa99e5a4aa7bbe5c5ee4bf8acb1",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "8 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-06-main-lz4/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-07-native",
+      "responses": 154,
+      "above_three_seconds": 9,
+      "maximum_seconds": 7.940393041819334,
+      "cleanup": {
+        "database": "erms_large_text_439e67626bfa48b2ad226293ac8103df",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "9 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-07-native/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-08-native-main-lz4",
+      "responses": 428,
+      "above_three_seconds": 14,
+      "maximum_seconds": 6.815857082605362,
+      "cleanup": {
+        "database": "erms_large_text_9426fea562ef4b559bbdd0af6225e434",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "14 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-08-native-main-lz4/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-09-native-lz4-verified",
+      "responses": 428,
+      "above_three_seconds": 1,
+      "maximum_seconds": 3.4832664178684354,
+      "cleanup": {
+        "database": "erms_large_text_82ff7fb49696467eab806e47ac2af1ea",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "1 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-09-native-lz4-verified/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-10-native-lz4-indexes",
+      "responses": 428,
+      "above_three_seconds": 2,
+      "maximum_seconds": 3.3932564174756408,
+      "cleanup": {
+        "database": "erms_large_text_61fcf727d1e84f83a873639ea817f9f7",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "2 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-10-native-lz4-indexes/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-11-native-memory-8",
+      "responses": 428,
+      "above_three_seconds": 12,
+      "maximum_seconds": 7.621731124818325,
+      "cleanup": {
+        "database": "erms_large_text_cd0b7a3160d5455a80a4a342dddb6d9f",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "12 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-11-native-memory-8/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-12-native-canonical",
+      "responses": 428,
+      "above_three_seconds": 1,
+      "maximum_seconds": 3.1045949161052704,
+      "cleanup": {
+        "database": "erms_large_text_2482fc9700f04f1fad2f78e80bc35dd4",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "1 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-12-native-canonical/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-13-native-search-memory",
+      "responses": 1,
+      "above_three_seconds": 0,
+      "maximum_seconds": 0.007721208035945892,
+      "cleanup": {
+        "database": "erms_large_text_0dd5abce45144e69b7c7ad49b8173d25",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "{\"detail\":\"authentication required\"}"
+      },
+      "outcome": "invalid_session_expired_before_ranking"
+    },
+    {
+      "run": "iteration-14-native-search-memory",
+      "responses": 428,
+      "above_three_seconds": 2,
+      "maximum_seconds": 3.3246095832437277,
+      "cleanup": {
+        "database": "erms_large_text_6688e3b3fea642c080f9f720e15885c3",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "2 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-14-native-search-memory/results.json"
+      },
+      "outcome": "failed"
+    },
+    {
+      "run": "iteration-15-native-retained",
+      "responses": 428,
+      "above_three_seconds": 4,
+      "maximum_seconds": 3.7972390837967396,
+      "cleanup": {
+        "database": "erms_large_text_6dc8d014c3194b6f8602f154e8a13f58",
+        "dropped": true
+      },
+      "failure": {
+        "type": "AssertionError",
+        "message": "4 responses exceeded 3 seconds; see /Users/yahyayai/Offline-Documents/code/erms/.runtime/search-scoring/iteration-15-native-retained/results.json"
+      },
+      "outcome": "failed"
+    }
+  ],
+  "final_runs": [
+    {
+      "run": "standard-native-01",
+      "responses": 876,
+      "above_three_seconds": 10,
+      "maximum_seconds": 8.9061,
+      "outcome": "failed_latency",
+      "failures": [
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_grouped",
+          "repeat": 0,
+          "offset": 0,
+          "seconds": 8.9061
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_grouped",
+          "repeat": 2,
+          "offset": 0,
+          "seconds": 6.6462
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_field_sort",
+          "repeat": 0,
+          "offset": 0,
+          "seconds": 3.5169
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_field_sort",
+          "repeat": 1,
+          "offset": 0,
+          "seconds": 3.7334
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_field_sort",
+          "repeat": 2,
+          "offset": 0,
+          "seconds": 3.8133
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_content",
+          "repeat": 0,
+          "offset": 0,
+          "seconds": 7.2173
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_content",
+          "repeat": 1,
+          "offset": 0,
+          "seconds": 7.9808
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "broad_content",
+          "repeat": 2,
+          "offset": 0,
+          "seconds": 5.8799
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "filtered_descending",
+          "repeat": 0,
+          "offset": 0,
+          "seconds": 3.1842
+        },
+        {
+          "identity": "reader",
+          "resource": "records",
+          "case": "filtered_descending",
+          "repeat": 1,
+          "offset": 0,
+          "seconds": 3.6843
+        }
+      ],
+      "cleanup": {
+        "database": "erms_search_perf_c3d4964f2c7547569decd7ecf96efc83",
+        "dropped": true
+      },
+      "environment": {
+        "database": "erms_search_perf_c3d4964f2c7547569decd7ecf96efc83",
+        "postgres": "PostgreSQL 18.4 (Postgres.app) on aarch64-apple-darwin23.6.0, compiled by Apple clang version 15.0.0 (clang-1500.3.9.4), 64-bit",
+        "platform": "macOS-15.6.1-arm64-arm-64bit",
+        "aggregations": 51003,
+        "records": 153009,
+        "components": 153009,
+        "chunks": 306018,
+        "repeats": 3,
+        "threshold_seconds": 3,
+        "page_size": 100,
+        "result_cap": 1000,
+        "source_sha256": {
+          "tools/check_search_performance.py": "e96bd7d6b039238f3b5a91317170aae969c8136ad6c1046809d08eccc59faa6c",
+          "backend/services/api/search.py": "a7ea00d31b5b3ac4dc34a64bf1ba7796f0ac37a13c2e06e61f7b42d023a32a15",
+          "backend/services/api/search_page.py": "b97e816e2a3668ddc6a7d0ff6cdec20f64f372cec747d40244242491272c0f64",
+          "backend/services/api/search_cache.py": "956999eebd1418b026a2a7b6679cbaad9cc51425d5d7dd6a221c53cb1fe1d931",
+          "backend/services/api/search_projections.py": "66e45b88d435c0c8841fd449260649b0697c65bc67b41c6045d9709859ce4f4c",
+          "backend/services/api/search_execution.py": "5a748605811627728659dfba7af96dbc799cb383971b93df86180018c498579b",
+          "tools/search_cache_performance.py": "1fe1070c8283322a5881a6d7d2750963b74240de5d9b6c8bb00874679b07ca44",
+          "backend/services/api/authentication.py": "fb952495fbab22bec8cd4f4fe224ddc928245b1d0e57cd0bc8f053150060a963",
+          "backend/services/api/main.py": "3b2eae90d3c3e7a950e65105c8dc4b75b1a3d04b1f16f52eed9d8a837ec17415",
+          "backend/services/api/dashboard_visibility.py": "700297562b8e73cd1ce35f1a86dd3024c1fe42c030983d27afedf869ec161d56",
+          "database/schema.sql": "7b716da6bc84379bf945e9553b374b919a547f55a2063ffef4a29068df2af398",
+          "database/seeds/000_required_reference_data.sql": "5381e7625882ed6b66775f6ee3d0c83eee8bb5098b077f46dfad12dd9fd26835"
+        },
+        "work_mem": "4MB",
+        "search_execution": {
+          "jit": "off",
+          "work_mem": "4MB"
+        },
+        "jit_default": "on",
+        "jit_available": false,
+        "search_jit": "disabled only within search execution; previous setting restored",
+        "data_checksums": "on",
+        "wal_log_hints": "off",
+        "fixture_maintenance": "VACUUM ANALYZE after bulk load; no search warm-up",
+        "post_load_idle_seconds": 300,
+        "cpu_count": 8
+      }
+    }
+  ],
+  "latest_richer_run_source_sha256": {
+    "backend/services/api/search.py": "a7ea00d31b5b3ac4dc34a64bf1ba7796f0ac37a13c2e06e61f7b42d023a32a15",
+    "backend/services/api/search_page.py": "b97e816e2a3668ddc6a7d0ff6cdec20f64f372cec747d40244242491272c0f64",
+    "backend/services/api/search_cache.py": "956999eebd1418b026a2a7b6679cbaad9cc51425d5d7dd6a221c53cb1fe1d931",
+    "tools/search_benchmark_app.py": "e422aec1e5e8de94bd9ffc44fa817901f9438b31e9ed1397da3cec0316da3bc7",
+    "backend/services/api/search_execution.py": "5a748605811627728659dfba7af96dbc799cb383971b93df86180018c498579b",
+    "backend/services/api/search_projections.py": "66e45b88d435c0c8841fd449260649b0697c65bc67b41c6045d9709859ce4f4c",
+    "backend/services/api/dashboard_visibility.py": "700297562b8e73cd1ce35f1a86dd3024c1fe42c030983d27afedf869ec161d56",
+    "backend/services/api/authentication.py": "fb952495fbab22bec8cd4f4fe224ddc928245b1d0e57cd0bc8f053150060a963",
+    "backend/services/api/main.py": "3b2eae90d3c3e7a950e65105c8dc4b75b1a3d04b1f16f52eed9d8a837ec17415",
+    "database/baseline.sql": "65d91db570228e67a851ac39e116d633a59ced7c63c511e354ba393e52997819",
+    "database/migrations/112_search_vector_storage.sql": "f59298675c845639e523d93f97b70f10f69d54bfba64224e61fc9ce4e4180fb6",
+    "database/seeds/000_required_reference_data.sql": "5381e7625882ed6b66775f6ee3d0c83eee8bb5098b077f46dfad12dd9fd26835",
+    "tools/initialize_database.py": "7a408dd79af297e4ec193df684a9701141484381b67de1b6b7e6daf0bff95369",
+    "tools/search_memory_probe.py": "fbe9bdc845ba14663bde05c3f6b90703e672f92332ae902f3d2f616d39b485df",
+    "database/schema.sql": "7b716da6bc84379bf945e9553b374b919a547f55a2063ffef4a29068df2af398",
+    "tools/check_large_text_search_performance.py": "eaf91018f8a56df287f3dea0a71da179544b86fc384eb6f24732ce9c96c6b19e",
+    "tools/search_large_text_fixture.py": "6188296b130f5069b8d3a006285d3163dca28d0188a243cb996ef2f608ee92fa",
+    "tools/check_search_performance.py": "e96bd7d6b039238f3b5a91317170aae969c8136ad6c1046809d08eccc59faa6c"
+  },
+  "parallel_diagnostic": {
+    "run": "native-parallel-probe-01",
+    "scope": "Raw SQL; CPU observed around plain execution; I/O from a separate subsequent EXPLAIN",
+    "outcome": "Identical ranked IDs and scores; no Gather nodes and no consistent speedup; not adopted",
+    "samples": [
+      {
+        "query": "universal -\"boundaryalpha boundarybeta\"",
+        "variant": "complete",
+        "sql_seconds": 10.439264374785125,
+        "leader_cpu_seconds": 5.6299999999999955,
+        "explain_execution_ms": 4254.417,
+        "shared_reads": 223959,
+        "io_read_ms": 547.93,
+        "gather": []
+      },
+      {
+        "query": "universal -\"boundaryalpha boundarybeta\"",
+        "variant": "rank_only",
+        "sql_seconds": 4.225886290892959,
+        "leader_cpu_seconds": 3.8700000000000045,
+        "explain_execution_ms": 3729.511,
+        "shared_reads": 222210,
+        "io_read_ms": 7.417,
+        "gather": []
+      },
+      {
+        "query": "universal -\"boundaryalpha boundarybeta\"",
+        "variant": "rank_only_inline_identity",
+        "sql_seconds": 4.029524958692491,
+        "leader_cpu_seconds": 3.6500000000000057,
+        "explain_execution_ms": 3903.194,
+        "shared_reads": 221082,
+        "io_read_ms": 8.156,
+        "gather": []
+      },
+      {
+        "query": "universal -\"boundaryalpha boundarybeta\"",
+        "variant": "rank_only_inline_identity",
+        "sql_seconds": 4.592305249534547,
+        "leader_cpu_seconds": 4.219999999999999,
+        "explain_execution_ms": 4606.719,
+        "shared_reads": 219954,
+        "io_read_ms": 62.209,
+        "gather": []
+      },
+      {
+        "query": "universal -\"boundaryalpha boundarybeta\"",
+        "variant": "rank_only",
+        "sql_seconds": 4.110489040613174,
+        "leader_cpu_seconds": 3.720000000000013,
+        "explain_execution_ms": 4608.103,
+        "shared_reads": 218826,
+        "io_read_ms": 9.291,
+        "gather": []
+      },
+      {
+        "query": "universal -\"boundaryalpha boundarybeta\"",
+        "variant": "complete",
+        "sql_seconds": 4.6186356246471405,
+        "leader_cpu_seconds": 4.1299999999999955,
+        "explain_execution_ms": 4265.295,
+        "shared_reads": 217698,
+        "io_read_ms": 7.347,
+        "gather": []
+      },
+      {
+        "query": "universal",
+        "variant": "complete",
+        "sql_seconds": 3.5874250000342727,
+        "leader_cpu_seconds": 3.280000000000001,
+        "explain_execution_ms": 3535.517,
+        "shared_reads": 216639,
+        "io_read_ms": 9.106,
+        "gather": []
+      },
+      {
+        "query": "universal",
+        "variant": "rank_only",
+        "sql_seconds": 4.23924708366394,
+        "leader_cpu_seconds": 3.8000000000000114,
+        "explain_execution_ms": 3674.716,
+        "shared_reads": 215761,
+        "io_read_ms": 10.526,
+        "gather": []
+      },
+      {
+        "query": "universal",
+        "variant": "rank_only_inline_identity",
+        "sql_seconds": 5.2319869585335255,
+        "leader_cpu_seconds": 4.2900000000000205,
+        "explain_execution_ms": 4140.825,
+        "shared_reads": 215465,
+        "io_read_ms": 11.028,
+        "gather": []
+      },
+      {
+        "query": "universal",
+        "variant": "rank_only_inline_identity",
+        "sql_seconds": 4.245868084020913,
+        "leader_cpu_seconds": 3.920000000000016,
+        "explain_execution_ms": 4355.17,
+        "shared_reads": 215044,
+        "io_read_ms": 12.228,
+        "gather": []
+      },
+      {
+        "query": "universal",
+        "variant": "rank_only",
+        "sql_seconds": 4.889232916757464,
+        "leader_cpu_seconds": 3.9299999999999784,
+        "explain_execution_ms": 4019.636,
+        "shared_reads": 215089,
+        "io_read_ms": 10.549,
+        "gather": []
+      },
+      {
+        "query": "universal",
+        "variant": "complete",
+        "sql_seconds": 3.9639775827527046,
+        "leader_cpu_seconds": 3.6500000000000057,
+        "explain_execution_ms": 4090.688,
+        "shared_reads": 214488,
+        "io_read_ms": 10.655,
+        "gather": []
+      },
+      {
+        "query": "universal evidence",
+        "variant": "complete",
+        "sql_seconds": 5.078038374893367,
+        "leader_cpu_seconds": 4.139999999999986,
+        "explain_execution_ms": 3933.322,
+        "shared_reads": 213955,
+        "io_read_ms": 9.29,
+        "gather": []
+      },
+      {
+        "query": "universal evidence",
+        "variant": "rank_only",
+        "sql_seconds": 4.534221957437694,
+        "leader_cpu_seconds": 4.139999999999986,
+        "explain_execution_ms": 3511.324,
+        "shared_reads": 213482,
+        "io_read_ms": 7.769,
+        "gather": []
+      },
+      {
+        "query": "universal evidence",
+        "variant": "rank_only_inline_identity",
+        "sql_seconds": 4.627875207923353,
+        "leader_cpu_seconds": 3.7399999999999807,
+        "explain_execution_ms": 4158.292,
+        "shared_reads": 213114,
+        "io_read_ms": 211.446,
+        "gather": []
+      },
+      {
+        "query": "universal evidence",
+        "variant": "rank_only_inline_identity",
+        "sql_seconds": 5.006346249952912,
+        "leader_cpu_seconds": 3.9099999999999966,
+        "explain_execution_ms": 4438.874,
+        "shared_reads": 213060,
+        "io_read_ms": 486.691,
+        "gather": []
+      },
+      {
+        "query": "universal evidence",
+        "variant": "rank_only",
+        "sql_seconds": 4.19994075037539,
+        "leader_cpu_seconds": 3.269999999999982,
+        "explain_execution_ms": 3954.922,
+        "shared_reads": 214919,
+        "io_read_ms": 459.492,
+        "gather": []
+      },
+      {
+        "query": "universal evidence",
+        "variant": "complete",
+        "sql_seconds": 4.645798833109438,
+        "leader_cpu_seconds": 3.589999999999975,
+        "explain_execution_ms": 4096.819,
+        "shared_reads": 213597,
+        "io_read_ms": 602.051,
+        "gather": []
+      }
+    ],
+    "cleanup": {
+      "database": "erms_large_probe_dd0960972c8e44799e128af414511973",
+      "dropped": true
+    }
+  }
+}

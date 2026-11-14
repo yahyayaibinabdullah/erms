@@ -190,7 +190,7 @@ org_tree AS (
 
 def visibility_ctes(
     *, candidate_resource: str | None = None, component_access: bool = False,
-    match_flags: bool = False, page_access: bool = False,
+    match_flags: bool = False, page_access: bool = False, ordinary_access: bool = False,
 ) -> str:
     """Optionally authorize only the IDs in a search's candidate_ids CTE."""
     if page_access:
@@ -205,6 +205,10 @@ def visibility_ctes(
         # The search views also allow non-destroyed terminal rows for governance.
         candidates = """disposition_status <> 10
             AND (disposition_status NOT IN (11,12) OR (SELECT disposition_private.can_manage()))"""
+        # Parent labels follow ordinary view permission, independently of the
+        # search-only terminal-status restrictions on returned resources.
+        if ordinary_access:
+            candidates = "disposition_status <> 10"
         aggregation_scope = candidates if candidate_resource == "aggregations" else "false"
         record_scope = candidates if candidate_resource == "records" else "false"
     component_projection = ""

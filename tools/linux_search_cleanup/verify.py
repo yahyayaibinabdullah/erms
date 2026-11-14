@@ -81,12 +81,12 @@ def check(label):
 
 def cache_count():
     with psycopg.connect(os.environ['DATABASE_URL']) as c:
-        return c.execute('SELECT count(*) FROM global_search_results').fetchone()[0]
+        return c.execute('SELECT count(*) FROM search_results_cache').fetchone()[0]
 
 
 def seed_expired():
     with psycopg.connect(os.environ['DATABASE_URL']) as c:
-        c.execute("""INSERT INTO global_search_results(session_id,tab_id,user_id,requires_tab_id,
+        c.execute("""INSERT INTO search_results_cache(session_id,tab_id,user_id,requires_tab_id,
             search_id,fingerprint,hits,truncated,started_at,expires_at)
             SELECT id,gen_random_uuid(),user_id,true,gen_random_uuid(),'linux-fixture','[]',false,
                 now(),now()-interval '1 minute' FROM login_sessions WHERE session_token_hash='linux-test-token'
@@ -130,7 +130,7 @@ def main():
         user = c.execute("INSERT INTO users(name,email,account_type) VALUES('Linux cleanup fixture','linux-cleanup@example.invalid','person') RETURNING id").fetchone()[0]
         session = c.execute("""INSERT INTO login_sessions(user_id,session_token_hash,csrf_token_hash,expires_at,absolute_expires_at)
             VALUES(%s,'linux-test-token','linux-test-csrf',now()+interval '1 hour',now()+interval '2 hours') RETURNING id""", (user,)).fetchone()[0]
-        c.execute("""INSERT INTO global_search_results(session_id,tab_id,user_id,requires_tab_id,search_id,fingerprint,hits,truncated,started_at,expires_at)
+        c.execute("""INSERT INTO search_results_cache(session_id,tab_id,user_id,requires_tab_id,search_id,fingerprint,hits,truncated,started_at,expires_at)
             SELECT %s,md5(n::text)::uuid,%s,true,md5(n::text)::uuid,'linux-fixture','[]',false,now(),
                 now()+CASE WHEN n<=3 THEN -interval '1 minute' ELSE interval '1 hour' END FROM generate_series(1,4) n
         """, (session, user))

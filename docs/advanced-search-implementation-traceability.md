@@ -322,3 +322,22 @@ Evidence: `.runtime/search-verification/english-confirmed-new-search.jpg` and
 Fixture API/UI shutdown succeeded, and disposable database
 `erms_messaging_test_acl_aa146f72194447d880b9a4ae7ecddf9b` was dropped.
 No user-visible wording or maintained translation artifacts changed.
+
+## Shared tab cache extension — 13 November 2026
+
+| Requirement | Implementation | Regression evidence |
+| --- | --- | --- |
+| One slot across Global, Advanced, saved executions and record/aggregation filters | `search_cache.py`, `search.py`, shared `search_results_cache` primary key | `test_tab_search_cache.py::test_one_slot_shared_across_screens_rebuilds_expired_or_replaced_page` |
+| Never read another search type's list | User/session/tab/list IDs plus endpoint/criteria/sort/version/settings fingerprint | `test_fingerprint_blocks_reuse_with_different_criteria_sort_or_endpoint`, copied-tab/login tests |
+| Same administrator cap on collection filters | `cached_search_rows`, compact result cap notice | `test_filtered_search_uses_admin_cap_and_rechecks_permissions` |
+| Reuse submitted criteria on paging; discard abandoned responses | `advanced_search.py`, `collection_controls.py`, `global_search.py` | `test_search_session_isolation.py`, `test_collection_filter_requests.py` |
+| Framework tab identity survives reload, duplicates remain separate | NiceGUI connected `client.tab_id` | `tools/webui_browser_global_search.py` reload and opener-copy assertions, English/Arabic |
+| Preserve cache entries and lifecycle during rename | Migration 111, canonical schema and baseline; independent cleanup queries | `test_migration_111_preserves_entries_unlogged_storage_and_login_cascade`, cleanup suite |
+| Preserve results and ordered cache; measure actual changed endpoints | Candidate selection, scoring, permissions and sorting in SQL | `test_cached_search_preserves_results_sort_and_scores`; `tools/search_cache_performance.py` called by the mandatory large-fixture runner |
+
+Verification results, failed attempts, timing scope and deployment requirements
+are recorded in the [shared-cache verification report](verification/shared-search-cache-2026-11-13.md).
+The final large-fixture run passed all 876 requests across Global and shared
+Advanced/saved/filter cases (maximum 2.3503 seconds); every valid Next retained
+its list ID. The report preserves the exact timing scope, preparation interval,
+earlier failures and cleanup rather than treating this as a concurrent-load SLA.

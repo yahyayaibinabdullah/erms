@@ -1553,6 +1553,16 @@ class SearchSort(ApiModel):
 
 
 class SearchRequest(ApiModel):
+    # Runtime paging context; never part of a saved-search definition.
+    tab_id: UUID | None = None
+    search_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def cache_requires_tab(self):
+        if self.search_id is not None and self.tab_id is None:
+            raise ValueError("a saved result list requires its tab ID")
+        return self
+
     where: SearchExpression | None = None
     sort: list[SearchSort] = Field(default_factory=list, max_length=10)
     limit: int = Field(default=100, ge=1, le=500)

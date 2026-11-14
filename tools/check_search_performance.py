@@ -9,6 +9,7 @@ import platform
 import signal
 import sys
 import time
+import traceback
 from uuid import uuid4
 
 import psycopg
@@ -42,7 +43,7 @@ CASES = [
 ]
 
 
-def seed(c):
+def seed(c, *, include_chunks=True):
     from backend.services.api.authentication import hash_password
     c.execute("SELECT set_config('app.event_source','seeding',true)")
     unit = c.execute("INSERT INTO org_units(code,name) VALUES('PERF','Performance') RETURNING id").fetchone()['id']
@@ -102,7 +103,10 @@ def seed(c):
     c.execute("""INSERT INTO digital_component_search_documents(digital_component_id,record_id,content_set_id,
         content_checksum_algo,content_checksum_value,status,extraction_config_version,index_config_version,indexed_at)
         SELECT id,id,id,'sha256',repeat('a',64),'indexed','perf-v1','perf-v1',CURRENT_TIMESTAMP FROM records""")
-    c.execute("""WITH templates AS MATERIALIZED (
+    # The richer-text fixture supplies its own chunks. Avoid first writing
+    # and then discarding this corpus (and its WAL) during that fixture's setup.
+    if include_chunks:
+        c.execute("""WITH templates AS MATERIALIZED (
         SELECT language,probe,text,config,to_tsvector(config,text) AS vector
         FROM generate_series(0,2) language CROSS JOIN (VALUES (true),(false)) p(probe)
         CROSS JOIN LATERAL (SELECT
@@ -125,7 +129,7 @@ def seed(c):
         c.autocommit = False
 
 
-def oracle(c, query, sources, maximum_id=None):
+def oracle(c, query, sources, maximum_id=None, kind=None, order_by_id=False):
     # Independent flat SQL over the seeded evidence, no production search helpers
     # or ACL shortcuts. The reader has explicit grants on every fixture container.
     rows = c.execute("""WITH q AS MATERIALIZED (
@@ -151,8 +155,9 @@ def oracle(c, query, sources, maximum_id=None):
         WHERE (%s AND d.search_vector@@q.s)
            OR (%s AND (f.matched OR to_tsvector('simple',dc.file_name)@@q.s))
     ) SELECT *,count(*) OVER() AS total FROM hits WHERE (%s::bigint IS NULL OR id<=%s)
-      ORDER BY score DESC,type,id LIMIT 1001""",
-        (query,query,query,sources!='components',sources!='components',sources!='metadata',sources!='components',sources!='metadata',maximum_id,maximum_id)).fetchall()
+        AND (%s::text IS NULL OR type=%s)
+      ORDER BY CASE WHEN %s THEN id END,score DESC,type,id LIMIT 1001""",
+        (query,query,query,sources!='components',sources!='components',sources!='metadata',sources!='components',sources!='metadata',maximum_id,maximum_id,kind,kind,order_by_id)).fetchall()
     return rows
 
 
@@ -223,7 +228,7 @@ def exercise(output, repeats):
                         if sample['page']==1:
                             assert sum(body['totals'].values())==len(expected)
                             assert body['truncated']==(count>1000 and identity=='reader')
-                            cached=c.execute("SELECT hits FROM global_search_results WHERE search_id=%s",(body['search_id'],)).fetchone()['hits']
+                            cached=c.execute("SELECT hits FROM search_results_cache WHERE search_id=%s",(body['search_id'],)).fetchone()['hits']
                             assert cached==[{k:e[k] for k in ('type','id','score')} for e in expected],(identity,label,'ranked cache')
                         if not body['next_cursor']:break
                         request={**request,'cursor':body['next_cursor'],'include_totals':False}
@@ -241,7 +246,9 @@ def exercise(output, repeats):
                     for resource,expression in [('records',parsed.record_where),('aggregations',parsed.aggregation_where)]:
                         if expression is None:continue
                         stmt,args=search._global_ranking_statement(c,resource,expression,1001)
-                        plan=c.execute(sql.SQL('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) ')+stmt,args).fetchone()['QUERY PLAN']
+                        from backend.services.api.search_execution import search_sql_execution
+                        with search_sql_execution(c):
+                            plan=c.execute(sql.SQL('EXPLAIN (ANALYZE,BUFFERS,FORMAT JSON) ')+stmt,args).fetchone()['QUERY PLAN']
                         (output/f'{label}-{resource}-plan.json').write_text(json.dumps(plan,indent=2))
                         def indexes(node):
                             return {node.get('Index Name')} | set().union(*(indexes(p) for p in node.get('Plans', [])))
@@ -254,6 +261,8 @@ def exercise(output, repeats):
                         if label == 'content' and resource == 'records':
                             assert 'component_search_chunks_vector_gin' in used
                     c.commit()
+            from tools.search_cache_performance import exercise as exercise_tab_cache
+            failures.extend(exercise_tab_cache(client, c, output, repeats, identity, oracle))
         assert not failures, f'{len(failures)} responses exceeded 3 seconds; see {output}/results.json'
 
 
@@ -261,12 +270,22 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,default=ROOT/'.runtime'/'search-performance'/uuid4().hex)
     parser.add_argument('--repeats',type=int,default=3)
+    parser.add_argument('--vector-storage', choices=('current', 'uncompressed'), default='current',
+                        help='Disposable-only storage comparison; application schema is unchanged')
+    parser.add_argument('--settle-seconds',type=int,default=0,
+                        help='Explicit idle interval after fixture maintenance, before any search; recorded in evidence')
     args=parser.parse_args()
     if args.repeats<1:parser.error('repeats must be positive')
+    if not 0<=args.settle_seconds<=300:parser.error('settle-seconds must be between 0 and 300')
     args.output.mkdir(parents=True,exist_ok=False)
     source_hashes = {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in (
         'tools/check_search_performance.py', 'backend/services/api/search.py',
-        'backend/services/api/search_page.py', 'backend/services/api/authentication.py',
+        'backend/services/api/search_page.py', 'backend/services/api/search_cache.py',
+        'backend/services/api/search_projections.py',
+        'backend/services/api/search_execution.py',
+        'tools/search_cache_performance.py', 'tools/search_storage_experiment.py',
+        'tools/search_benchmark_support.py',
+        'backend/services/api/authentication.py',
         'backend/services/api/main.py',
         'backend/services/api/dashboard_visibility.py', 'database/schema.sql',
         'database/seeds/000_required_reference_data.sql')}
@@ -275,6 +294,9 @@ def main():
     admin=make_conninfo(config['DATABASE_URL'],dbname='postgres')
     url=make_conninfo(config['DATABASE_URL'],dbname=name)
     created=False
+    from tools.search_benchmark_support import HostMonitor, BufferedOutput
+    monitor = HostMonitor(args.output)
+    monitor.thread.start()
     def interrupted(*_):raise KeyboardInterrupt
     signal.signal(signal.SIGTERM,interrupted)
     try:
@@ -283,27 +305,55 @@ def main():
         os.environ.update({k:str(v) for k,v in config.items() if v is not None})
         os.environ.update(DATABASE_URL=url,AUTH_COOKIE_SECURE='false')
         with psycopg.connect(url,row_factory=dict_row) as c:
-            initialize(c);seed(c)
+            initialize(c)
+            from tools.search_storage_experiment import configure, inspect
+            configure(c, args.vector_storage)
+            seed(c)
             assert c.execute('SELECT count(*) AS n FROM aggregations').fetchone()['n']>50000
             assert c.execute('SELECT count(*) AS n FROM records').fetchone()['n']>150000
+            from backend.services.api.search_execution import search_sql_execution
+            with search_sql_execution(c):
+                search_settings=c.execute("SELECT current_setting('jit') AS jit,current_setting('work_mem') AS work_mem").fetchone()
             (args.output/'environment.json').write_text(json.dumps({
                 'database':name,'postgres':c.execute('SELECT version() AS v').fetchone()['v'],
                 'platform':platform.platform(),'aggregations':AGGREGATIONS,'records':RECORDS,
                 'components':RECORDS,'chunks':RECORDS*2,'repeats':args.repeats,
                 'threshold_seconds':3,'page_size':100,'result_cap':1000,
                 'source_sha256':source_hashes,
+                'storage_experiment':inspect(c, args.vector_storage),
                 'work_mem':c.execute('SHOW work_mem').fetchone()['work_mem'],
+                'search_execution':search_settings,
+                'jit_default':c.execute('SHOW jit').fetchone()['jit'],
+                'jit_available':c.execute('SELECT pg_jit_available() AS value').fetchone()['value'],
+                'search_jit':'disabled only within search execution; previous setting restored',
                 'data_checksums':c.execute('SHOW data_checksums').fetchone()['data_checksums'],
                 'wal_log_hints':c.execute('SHOW wal_log_hints').fetchone()['wal_log_hints'],
                 'fixture_maintenance':'VACUUM ANALYZE after bulk load; no search warm-up',
+                'post_load_idle_seconds':args.settle_seconds,
+                'diagnostics':'Artifact writes buffered until all requests finish; oracle and EXPLAIN remain between timed requests',
                 'cpu_count':os.cpu_count()},indent=2))
         print('Fixture ready',flush=True)
-        exercise(args.output,args.repeats)
+        if args.settle_seconds:
+            print(f'Idling {args.settle_seconds} seconds after bulk-load maintenance; no search warm-up',flush=True)
+            time.sleep(args.settle_seconds)
+        buffered = BufferedOutput(args.output)
+        try:
+            exercise(buffered,args.repeats)
+        finally:
+            buffered.flush()
+    except BaseException as error:
+        (args.output/'failure.json').write_text(json.dumps({
+            'type':type(error).__name__, 'message':str(error),
+            'traceback':traceback.format_exc()},indent=2))
+        raise
     finally:
-        if created:
-            with psycopg.connect(admin,autocommit=True) as c:c.execute(sql.SQL('DROP DATABASE {} WITH (FORCE)').format(sql.Identifier(name)))
-            (args.output/'cleanup.json').write_text(json.dumps({'database':name,'dropped':True}))
-            print('Dropped disposable database '+name,flush=True)
+        try:
+            if created:
+                with psycopg.connect(admin,autocommit=True) as c:c.execute(sql.SQL('DROP DATABASE {} WITH (FORCE)').format(sql.Identifier(name)))
+                (args.output/'cleanup.json').write_text(json.dumps({'database':name,'dropped':True}))
+                print('Dropped disposable database '+name,flush=True)
+        finally:
+            monitor.close()
 
 
 if __name__=='__main__':main()

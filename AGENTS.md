@@ -120,7 +120,8 @@
 ## Search and filtering performance
 
 - Before optimizing search/filter SQL, read
-  [the PostgreSQL optimization lessons](docs/postgresql-search-optimization-lessons.md).
+  [the PostgreSQL optimization lessons](docs/postgresql-search-optimization-lessons.md)
+  and [the benchmark history and acceptance decision](docs/search-performance-benchmarks.md).
   Preserve the measured cause, failed approaches and validation conditions;
   do not apply a prior query's planner workarounds without new plan evidence.
 - These rules apply to every search, filter, count, selector and paginated list
@@ -140,6 +141,12 @@
 - Apply authorization before the result cap. Preserve complete ranked results,
   deterministic tie-breaking and current permissions on every page. Never meet
   a timing target by cutting off candidates before ranking or weakening access.
+- Global Search, Advanced Search/saved execution, and aggregation/record page
+  filters share one `search_results_cache` slot per login session and connected
+  NiceGUI `client.tab_id`, with user, list-ID and query-fingerprint checks. Do not
+  introduce a per-screen cache or a page-construction UUID. Paging must reuse
+  submitted criteria and silently rebuild a replaced/expired list. Relationship
+  selectors must not replace the tab's slot. See the Advanced Search cache contract.
 - Fetch snippets, capabilities and display details only for the returned page.
   Avoid one API/database round trip per hit and repeated full searches for paging.
 - A result cap bounds output, not necessarily database work. Verify broad matches,
@@ -154,8 +161,31 @@
   evidence that the changed flow is fast.
 - Preserve a report of dataset sizes, query criteria, exact expected counts,
   ranked IDs/scores, all response timings, execution plans and database cleanup.
+  Record PostgreSQL's JIT availability and compilation time: a local build
+  without LLVM can hide seconds of compilation in the production Linux build.
+  Preserve the search-scoped JIT setting and its pooled-connection restoration
+  tests; do not change server-wide planner settings to make a benchmark pass.
   Fix failures before declaring search performance complete. See
   `docs/search-performance.md` for the reproducible procedure and measurement scope.
+- Also run `tools/check_large_text_search_performance.py` for full-text scoring
+  or evidence changes. Its fixed corpus is mostly single-chunk files, with
+  10/100-chunk outliers and larger vectors. Small repetitive vectors can hide
+  TOAST reads, repeated scoring and unnecessary headline generation. Inspect
+  actual loops at chunk and metadata score-producing nodes: an estimated single candidate
+  must never rescore an entire batch for every actual candidate. Preserve
+  chunk-local matching and the explicit multi-chunk limitations in the spec.
+- The user accepted the 14 November 2026 compressed-storage baseline as good
+  enough for now, with the documented latency exception in specification
+  revision 0.44. Do not reopen that tuning round solely because its retained
+  samples exceed 3 seconds. This exception does not weaken future gates, excuse
+  new regressions or turn a failed sample into a pass. Preserve the failures
+  and keep MAIN/LZ4 rather than adopting the uncompressed experiment.
+- Physical vector-storage changes must preserve lexemes, positions, weights,
+  configurations and exact scores. Verify actual `pg_column_compression` values;
+  a column policy does not rewrite existing or copied compressed datums. Test
+  populated upgrades and overflow-sized vectors, document rewrite locking/space
+  and maintenance, and compare complete API timings before adopting new indexes
+  or memory allowances. Less spill alone is not a performance pass.
 
 ## Canonical database SQL
 
@@ -254,6 +284,9 @@
   For the authorized local `demo` database, use the explicit Arabic seed utility
   with `--missing-only` to fill missing drafts after catalogue synchronization.
   Preserve all existing translations and leave drafts unpublished for review.
+- Keep retired message keys out of the checked-in English and translated
+  catalogues. Let sync deprecate their database definitions and preserve
+  published translations, publication metadata, and audit history.
 - Keep `frontend/webui/i18n/messages.en.json` sorted lexicographically by the
   complete contextual `message_key` after every catalogue edit. Reorder every
   maintained language artifact to that exact sequence without changing its

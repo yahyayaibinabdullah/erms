@@ -68,6 +68,8 @@ def build_resource_row_hydration(
         rows: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         async def context(record: dict[str, Any]) -> dict[str, Any]:
+            if "_capabilities" in record:
+                return record["_capabilities"]
             try:
                 return await api.resource_capabilities("records", int(record["id"]))
             except ApiError:

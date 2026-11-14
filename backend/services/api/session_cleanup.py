@@ -104,7 +104,7 @@ def cleanup_search_cache(
     # A statement-stable cutoff permits an expiry-index range scan. Do not use
     # a volatile clock_timestamp() predicate that must be evaluated per row.
     expired = """
-        SELECT session_id, tab_id FROM global_search_results
+        SELECT session_id, tab_id FROM search_results_cache
         WHERE expires_at <= statement_timestamp()
         ORDER BY expires_at, session_id, tab_id LIMIT %s FOR UPDATE SKIP LOCKED
     """
@@ -114,7 +114,7 @@ def cleanup_search_cache(
         ).fetchone()["n"]
         return SearchCacheCleanupResult(selected=count)
     count = connection.execute(f"""
-        DELETE FROM global_search_results saved USING ({expired}) expired
+        DELETE FROM search_results_cache saved USING ({expired}) expired
         WHERE saved.session_id = expired.session_id AND saved.tab_id = expired.tab_id
     """, (batch_size,)).rowcount
     return SearchCacheCleanupResult(selected=count, removed=count)

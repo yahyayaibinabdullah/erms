@@ -1,6 +1,6 @@
 # Full-text search implementation traceability
 
-**Specification:** `specs/full-text-search.md`, approved revision 0.40
+**Specification:** `specs/full-text-search.md`, approved revision 0.44
 **Maintained from:** Phase 0  
 **Current delivery state:** Phases 0–5 implemented and verified locally; production rollout execution is an environment operation
 
@@ -146,7 +146,9 @@ and later rollout/final reconciliation may also apply.
 | FTS-62 | 5 | pending | Current-failed-document readiness metric, separate historical count, bounded idempotent retry API/UI and preserved history; disposable PostgreSQL and live-browser evidence required |
 | FTS-63 | 5 | verified | Privilege-gated current-failure groups/page, negative metadata/link authorization, current unsupported-format aggregation, and live-browser record/component navigation with highlighted component |
 | FTS-64 | Global Search paging | verified | `test_global_and_advanced_search_caps_keep_browse_available`, `test_global_search_saved_list_is_bound_to_tab_and_login_and_expires`, `test_global_search_respects_component_view_for_file_names_and_indexed_text`, `test_global_search_page_batch.py` (exact evidence, fresh scores and overlapping sources), `test_search_session_concurrency.py` (real locks and revocation), and WebUI paging/display-capability tests |
-| FTS-65 | Search performance | verified for the documented maintained-data fixture | `tools/check_search_performance.py`: latest 192 responses, maximum 2.7375 seconds; exact counts/ranks/order, denied access and index paths; canonical permission regressions. [Latest verification, failed intermediate run and measurement limits](verification/search-page-batching-2026-11-13.md); [original first-scan limitation](verification/search-performance-2026-11-12.md) |
+| FTS-65 | Search performance | verified for the documented original maintained-data fixture; richer-text exception approved in revision 0.44 | `tools/check_search_performance.py`: current-storage native run passed 876 responses, maximum 2.4953 seconds; exact counts/ranks/order, denied access and index paths. [Benchmark history and acceptance](search-performance-benchmarks.md); [latest storage comparison and limits](verification/search-vector-storage-2026-11-14.md); [page-batching regressions](verification/search-page-batching-2026-11-13.md); [original first-scan limitation](verification/search-performance-2026-11-12.md) |
+| FTS-66 | Chunk-local matching and score reuse | correctness verified; remaining latency optimization `approved_deferred` in revision 0.44 | `search.py` and `search_cache.py` retain numeric chunk, metadata and per-record scores once; `test_search_candidate_indexes.py` protects accepted multi-chunk semantics; `test_global_search_page_batch.py` compares snippet selection with the prior implementation; `tools/check_large_text_search_performance.py` verifies complete capped rankings, uncapped membership and actual score-batch loop counts. [14 November comparison](verification/search-vector-storage-2026-11-14.md): current storage passed correctness but one of 428 responses took 3.407 s; [explicit user acceptance](search-performance-benchmarks.md#decision) retains that failure and the future three-second threshold |
+| FTS-67 | Physical vector storage | verified for the populated upgrade and fresh schema | Migration 112 and canonical MAIN/LZ4 policy; `test_search_vector_storage.py` compares binary values, weights/positions, matching, scores, row data and indexes, including an overflow-sized vector. Included in the 77-test native disposable regression pass. [Verification and historical performance failures](verification/search-score-reuse-2026-11-13.md); [decision to retain compression](search-performance-benchmarks.md#storage-cost) |
 
 ## 4. Approved deferrals and departures
 
@@ -154,6 +156,14 @@ There are no approved Phase 0 deferrals. Work explicitly assigned to Phases
 1–5 is not a deferral. The invalid illustrative `to_regconfig(text)` call was
 corrected in approved revision 0.22 to a portable PostgreSQL catalogue check;
 this preserves rather than changes the requirement.
+
+Specification revision 0.44 records the user's 14 November 2026 acceptance of
+the current compressed-storage search baseline as good enough for now. Further
+latency tuning is `approved_deferred`: the latest larger-text run's single
+3.4069-second response remains a numerical failure, alongside earlier failures.
+This is a performance-baseline exception only; it does not defer correctness,
+permission checks or future regression gates. See the
+[dedicated benchmark history and rationale](search-performance-benchmarks.md).
 
 ## 5. Phase 1 entry inventory
 
@@ -245,3 +255,20 @@ part of this phase.
 | P5-09 — approved revision 0.27 and FTS-59: operational health and bounded backfill within Text Indexers | 5 | Dedicated health/backfill APIs; Text Indexers Health section; operations guide | 272 API + 155 frontend tests on disposable PostgreSQL 18.4; live-browser Health cards and 1–500 batch dialog | verified | Distinguishes API liveness from worker/queue readiness; temporary UI administrator removed |
 | P5-10 — approved revisions 0.28–0.29 and FTS-60: process-isolated extraction concurrency | 5 | Claim/process-count configuration; supervisor and lease handling; `erms-text-indexer.service`; deployment/operations guidance | Text-indexer tests; configuration, supervisor and unit verification | verified | One service owns a restartable child pool; one claimed job per child |
 | P5-11 — approved revision 0.30 and FTS-61: read-only built-in role visibility | 5 | Roles API opt-in; mutation guards; Roles list/detail UI | 273 API + 157 frontend tests on disposable PostgreSQL 18.4; live list/detail/link verification | verified | Ordinary relationship selectors retain the default built-in exclusion; temporary UI administrator removed |
+
+## Shared tab result cache — 13 November 2026
+
+The cache is now `search_results_cache` (migration 111 preserves the existing
+UNLOGGED table in place). Global Search shares its `(session_id, tab_id)` slot
+with Advanced Search, saved-search execution and aggregation/record collection
+filters. Each list also checks the authenticated user, list ID and search
+fingerprint. The browser supplies NiceGUI's connected `client.tab_id`; reloads
+reuse it and copied/duplicated tabs receive distinct identities. Cross-screen
+replacement/rebuilding, caps, SQL parity and ownership regressions are mapped in
+[the Advanced Search traceability extension](advanced-search-implementation-traceability.md#shared-tab-cache-extension--13-november-2026).
+The [shared-cache verification report](verification/shared-search-cache-2026-11-13.md)
+records the English/Arabic browser regressions and the final 876-request
+large-fixture gate (maximum 2.3503 seconds), including failed attempts,
+measurement conditions and database/container cleanup. Migration 111 was
+subsequently applied to demo on 13 November 2026 after explicit authorization;
+all 111 migration markers and restarted local-stack health were verified.

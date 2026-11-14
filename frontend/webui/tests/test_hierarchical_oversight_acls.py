@@ -76,7 +76,17 @@ def test_oversight_catalogue_covers_both_languages_and_preserves_curated_rows():
         candidate = current_by_key[item['message_key']]
         if candidate == item:
             continue
-        assert item.get('origin') == candidate.get('origin') == 'generated'
+        assert (item.get('origin') or item.get('provenance', {}).get('source_origin')) == 'generated'
+        assert (candidate.get('origin') or candidate.get('provenance', {}).get('source_origin')) == 'generated'
+        if 'provenance' in item:
+            # Governed artifacts carry origin/status in provenance. Permit only
+            # an explicitly superseded generated draft; curated rows must stay
+            # byte-for-byte equal, as checked by the origin assertions above.
+            assert item['provenance']['source_status'] == candidate['provenance']['source_status'] == 'draft'
+            assert candidate['provenance'] == item['provenance']
+            assert item['translated_text'] in current['superseded_translations'][item['message_key']]
+            assert 'needs_human_review' in candidate['quality_flags']
+            continue
         assert item.get('status') == candidate.get('status') == 'draft'
         assert 'provenance' not in item and 'provenance' not in candidate
         assert not item['message_key'].startswith('authorization.oversight.')

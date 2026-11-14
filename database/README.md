@@ -49,6 +49,42 @@ client meta-commands such as `\\i`, `\\ir`, `\\set`, and `\\copy` are prohibited
 
 ## Existing database
 
+Migration `112_search_vector_storage.sql` changes the physical storage of file
+search vectors to `MAIN` with LZ4 compression. PostgreSQL must be built with LZ4
+support. `MAIN` prefers an inline compressed value but still supports overflow
+for larger vectors; it does not truncate lexemes, positions or weights.
+
+Changing a column's compression policy alone does not convert existing values.
+Migration 112 rewrites the chunk table and its indexes using a logically
+identical vector expression, without extracting or parsing document text again.
+Plan a maintenance window: stop new searches and pause index publishing, allow
+existing transactions to finish, and provision space for the replacement table,
+indexes and generated WAL while the old files still exist. The rewrite takes
+an `ACCESS EXCLUSIVE` lock. A failure rolls back the migration and its version
+marker. Take the normal deployment backup before upgrading.
+
+After applying this migration, run the following outside a transaction before
+resuming traffic, to complete post-rewrite visibility/statistics maintenance:
+
+```sql
+VACUUM ANALYZE public.digital_component_search_chunks;
+```
+
+Verify the column policy and the actual values independently; small values may
+legitimately remain uncompressed:
+
+```sql
+SELECT attstorage, attcompression FROM pg_attribute
+WHERE attrelid='public.digital_component_search_chunks'::regclass
+  AND attname='search_vector'; -- m, l
+SELECT pg_column_compression(search_vector), count(*)
+FROM public.digital_component_search_chunks GROUP BY 1;
+```
+
+No PostgreSQL-wide memory, planner, durability or compression default is changed.
+The fresh schema contains the same column policy without replaying this rewrite.
+See [the measured investigation](../docs/verification/search-score-reuse-2026-11-13.md).
+
 Migration `080_fix_held_component_trigger.sql` fixes table-specific field access in
 legal-hold protection without weakening holds. Apply it after migration 079,
 then restart the API-owned content cleanup worker (or local stack) with the
@@ -322,3 +358,10 @@ settings preview/apply/check for each database; applying schema is not a legacy
 settings import. Persistent deployment requires explicit authorization. Migration 071 removes
 temporary release gates; existing workflow/permission checks still authorize
 each destruction action. No destruction occurs merely by applying migrations.
+
+Migration 111 renames the shared UNLOGGED result-list table from
+`global_search_results` to `search_results_cache`, preserving rows, ownership,
+constraints, expiry index and login-session cascade. Deploy API and independent
+cleanup-worker code together after this migration. All four record/aggregation
+search screens replace the same session/tab slot; schema initialization uses the
+new name directly. See `docs/application-settings-upgrade.md`.

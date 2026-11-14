@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from typing import Any, Literal
+from uuid import UUID
+
+from .authentication import Principal, principal_from_request
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from psycopg import Connection
@@ -43,6 +46,8 @@ class SavedSearchDefinition(BaseModel):
             raise ValueError("saved-search page size must be 25, 50, or 100")
         if self.request.offset != 0:
             raise ValueError("saved-search definitions must begin at offset 0")
+        if self.request.tab_id is not None or self.request.search_id is not None:
+            raise ValueError("cache identifiers are runtime state and cannot be saved")
         if self.request.debug:
             raise ValueError("debug is runtime state and cannot be saved")
         return self
@@ -77,6 +82,8 @@ class SavedSearchExecution(BaseModel):
     limit: Literal[25, 50, 100] | None = None
     offset: int = Field(default=0, ge=0)
     debug: bool = False
+    tab_id: UUID | None = None
+    search_id: UUID | None = None
 
 
 def _current_user_id(connection: Connection) -> int:
@@ -474,6 +481,7 @@ def get_saved_search(saved_search_id: int, request: Request, connection: Connect
 @operation_policy("relationship_scoped")
 def execute_saved_search(
     saved_search_id: int, payload: SavedSearchExecution,
+    principal: Principal = Depends(principal_from_request),
     connection: Connection = Depends(get_connection, scope="function"),
 ):
     # Administration permits governance of a saved search, but never grants
@@ -488,29 +496,39 @@ def execute_saved_search(
             detail={"code": "saved_search_definition_unsupported"},
         )
     maximum = _saved_search_result_cap(connection, definition)
-    if payload.offset >= maximum:
+    if payload.search_id is not None and payload.tab_id is None:
+        raise HTTPException(status_code=422, detail="a saved result list requires its tab ID")
+    if payload.tab_id is None and payload.offset >= maximum:
         raise HTTPException(
             status_code=422,
             detail={"code": "saved_search_result_limit_exceeded", "max_results": maximum},
         )
     stored_request = SearchRequest.model_validate(definition["request"])
     requested_limit = payload.limit or stored_request.limit
-    effective_limit = min(requested_limit, maximum - payload.offset)
+    effective_limit = requested_limit if payload.tab_id else min(requested_limit, maximum - payload.offset)
     execution_request = stored_request.model_copy(update={
         "limit": effective_limit,
         "offset": payload.offset,
         "debug": payload.debug,
+        "tab_id": payload.tab_id, "search_id": payload.search_id,
     })
     resource = "records" if row["resource_type"] == "record" else "aggregations"
     result = search_rows(
         connection, resource, execution_request,
         endpoint=f"/api/v1/saved-searches/{saved_search_id}/execute",
-        max_results=maximum,
+        max_results=maximum, session_id=principal.session_id, user_id=principal.user_id,
+        cache_version=row["version"],
     )
     result["saved_search"] = {
         "id": row["id"], "name": row["name"], "version": row["version"],
         "resource_type": row["resource_type"], "max_results": maximum,
     }
+    if "index_freshness" in result:
+        return result
+    if payload.tab_id is not None and row["resource_type"] == "record":
+        from .search_cache import pending_content
+        result["index_freshness"] = {"has_pending_content": pending_content(connection)}
+        return result
     if row["resource_type"] == "record":
         pending = connection.execute(
             """SELECT EXISTS(SELECT 1 FROM digital_component_search_documents document

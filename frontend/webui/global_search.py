@@ -11,6 +11,8 @@ from nicegui import ui
 def build_global_search(
     *, add_button, add_record_button, aggregation_mode_bar, api, clear_advanced_workspace, clear_collection_results, discard_navigation_guard, enter_global_search, error_message, get_principal, get_resource, global_search_input, global_search_state, invalidate_advanced_session, open_aggregation, register_navigation, render_compact_resource_result, restore_compact_result_anchor, search_bar, select_record_details, show_authenticated_view, subtitle, table_container, title,
 ):
+    page_client = table_container.client
+
     def global_search_payload(
         query: str, *, cursor: str | None = None, selected: str = "all",
         include_totals: bool = False,
@@ -320,6 +322,16 @@ def build_global_search(
         add_button.set_visibility(False); add_record_button.set_visibility(False)
         render_global_search_results()
         try:
+            # Capture the owning client when building the screen: background
+            # callbacks may have no active NiceGUI slot. The framework tab ID
+            # is available after its handshake, survives reloads and is renewed
+            # for duplicated tabs. Mark loading before this await so two Next
+            # clicks cannot both start a request while waiting for connection.
+            await page_client.connected()
+            if not is_current():
+                return
+            global_search_state["global_search_tab_id"] = page_client.tab_id
+            payload["tab_id"] = page_client.tab_id
             if not load_more:
                 global_search_input.value = query
                 global_search_input.update()

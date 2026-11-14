@@ -1232,7 +1232,7 @@
         }
       ],
       "templates": [],
-      "purpose": "Minutes of inactivity before a saved Global Search result list expires. The list is also unavailable when the login session ends.",
+      "purpose": "Minutes of inactivity before the shared search result list for a browser tab expires. The list is also unavailable when the login session ends.",
       "runtime_status": "database_only_search_consumer",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"
@@ -1915,7 +1915,7 @@
         }
       ],
       "templates": [],
-      "purpose": "Maximum results across all pages of Global Search and Advanced Search.",
+      "purpose": "Maximum results across all pages of Global Search, Advanced Search, and aggregation or record filters.",
       "runtime_status": "database_only_search_consumer",
       "restart": "No; API 30-second cache (current committed capture at specified workflow boundaries)",
       "service": "API"

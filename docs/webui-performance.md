@@ -637,3 +637,30 @@ reuse batch permission calculations and indexable candidate predicates.
 Changes require the disposable large-data correctness and latency gate: more
 than 50,000 aggregations and 150,000 records, a 1,000-result cap, exact expected
 counts/ranking/order, and every measured response within 3 seconds.
+
+## Shared tab result lists (13 November 2026)
+
+Global Search, Advanced Search (including saved searches), and aggregation/record
+collection filters share one PostgreSQL UNLOGGED cache slot per login session and
+NiceGUI `client.tab_id`, additionally checked against the signed-in user. Wait for
+the framework connection before reading this ID. Reuse it across reloads and
+verify duplicated-tab isolation; never invent a per-page UUID.
+
+Each screen preserves its own submitted query and returned list ID. Reusing a
+slot requires matching list ID and fingerprint (search type/endpoint, resource,
+criteria, sorting, display filter, saved version, cap/idle setting versions).
+A different screen's submission replaces the slot. Paging an older search
+silently rebuilds it and serves its requested page. Do not use editable draft
+controls for that rebuild. Mutation refreshes and explicit submissions rerun;
+permission checks and current display details are never cached. Language-specific
+rendering remains per request; these lists contain IDs/scores, not translated UI.
+
+All four flows use the administrator cap (default 1,000, maximum 5,000). Selectors,
+hierarchy branches and unrelated domains retain their separate contracts and
+must not replace this slot. Existing cache idle/cleanup settings now govern all
+four flows; no new environment variables are required. Migration 111 renames
+`global_search_results` to `search_results_cache` in place, preserving entries,
+UNLOGGED storage, indexes and the login-session cascade. Login expiry,
+revocation/deletion, idle expiry, settings changes and UNLOGGED-table loss retain
+the existing invalidation rules. See the Advanced Search specification for the
+complete contract and API recovery behavior.

@@ -397,6 +397,15 @@ update in that database; the missing-only hook does not replace them.
 The 75 Job/Task corrections applied explicitly to demo are unreviewed drafts
 until approved/published there. Another database does not inherit that approval.
 
+When a key is absent from the checked-in English catalogue, sync marks its
+database definition as deprecated. This applies even if someone manually
+translated and published the key. The key drops out of the active UI catalogue,
+and the database retains its translation rows, published wording, and review
+and publication metadata. The definition change adds a before-and-after audit
+event and preserves the earlier translation events. Keep retired keys out of
+the checked-in catalogues. In local `demo`, retain the seven deprecated
+entries from the former Recent Items panel and Classifications table.
+
 Localized names of individual people, roles and organizational units are entity
 data, separate from UI message catalogues. Editing a person's Arabic name in
 demo does not add it to the checked-in UI catalogue or another local database.

@@ -16,6 +16,9 @@ SOURCE = ast.parse('\n'.join((Path(__file__).parents[1] / name).read_text() for 
 
 def load(name, namespace):
     state=namespace['state']
+    if 'ui' not in namespace:
+        namespace['ui'] = Mock()
+    namespace['page_client'] = SimpleNamespace(connected=AsyncMock(), tab_id='e2170d62-e82f-4718-a4c6-375eb00c7c49')
     namespace.update(global_search_state=state, advanced_search_state=state, new_global_search_state=new_global_search_state,
         get_principal=lambda:namespace.get('auth_state',{}).get('principal'),
         get_resource=lambda:state.get('resource'),
@@ -106,7 +109,7 @@ def test_advanced_workspace_is_cleared_and_old_callbacks_cannot_restore_it():
     assert 'discard_navigation_guard' not in state
 
 
-@pytest.mark.parametrize("outcome", ["success", "error", "cancelled", "navigation", "component_details"])
+@pytest.mark.parametrize("outcome", ["success", "error", "cancelled", "navigation"])
 def test_advanced_search_late_response_does_not_render_or_restore_private_results(outcome):
     async def scenario():
         import copy
@@ -122,7 +125,7 @@ def test_advanced_search_late_response_does_not_render_or_restore_private_result
                 raise RuntimeError('old-session failure')
             if outcome == 'cancelled':
                 raise asyncio.CancelledError
-            return {'items': [{'id': 42, 'title': 'private result'}], 'total': 1}
+            return {'items': [{'id': 42, 'title': 'private result'}], 'total': 1, 'offset': 0}
         async def component_details(*args, **kwargs):
             started.set()
             await release.wait()
@@ -202,7 +205,7 @@ def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
                  'operator': 'between', 'value': ['2026-01-01', '2026-12-31']}
         workspace = dict(root={'type': 'group', 'operator': 'and', 'children': [condition, dates]},
                          resource='aggregations', sort_field='id', sort_direction='asc', limit=25)
-        search_request = AsyncMock(return_value={'items': [], 'total': 62, 'result_cap': 62})
+        search_request = AsyncMock(side_effect=lambda resource, payload, **kw: {'items': [], 'total': 62, 'result_cap': 62, 'offset': payload['offset'], 'search_id': 'saved-search'})
         host = nullcontext()
         host.clear = Mock()
         namespace = dict(
@@ -227,7 +230,7 @@ def test_advanced_pagination_uses_last_execution_until_search_is_submitted():
         ):
             await move_page(direction)
             assert workspace['offset'] == offset
-            assert search_request.await_args.args == ('aggregations', {**original, 'offset': offset, 'limit': limit})
+            assert search_request.await_args.args == ('aggregations', {**original, 'offset': offset, 'limit': limit, 'search_id': 'saved-search'})
         assert search_request.await_count == 5
         await move_page('next')
         await execute()
@@ -253,7 +256,9 @@ def test_global_search_state_factory_keeps_clients_independent():
     assert second['global_search_query'] == ''
     assert second['global_search_items'] == []
     assert second['global_search_page_tokens'] == {}
-    assert second['global_search_tab_id'] != first['global_search_tab_id']
+    assert second['global_search_tab_id'] is first['global_search_tab_id'] is None
+    # The connected NiceGUI client owns identity, not the page state factory.
+    assert new_global_search_state(tab_id='framework-id')['global_search_tab_id'] == 'framework-id'
     assert second['global_search_expanded_results'] == set()
     assert second['search_diagnostics_sent'] is None
 

@@ -37,8 +37,8 @@ async def test_reopen_canonical_definition_is_editable_clean_and_semantically_pr
     principal={'user':{'id':1},'global_privileges':['record.view','aggregation.view','search.saved_search.save']}
     state={'admin_saved_search_id':7}
     api=SimpleNamespace(saved_search=AsyncMock(return_value=saved),
-        execute_saved_search=AsyncMock(return_value={'items':[],'total':0,'saved_search':{'version':3}}),
-        search_request=AsyncMock(return_value={'items':[],'total':0}),
+        execute_saved_search=AsyncMock(return_value={'items':[],'total':0,'offset':0,'saved_search':{'version':3}}),
+        search_request=AsyncMock(return_value={'items':[],'total':0,'offset':0}),
         update_saved_search=AsyncMock())
     deps={name:Mock() for name in inspect.signature(build_advanced_search).parameters}
     deps.update(api=api,advanced_search_state=state,collection_state={},aggregation_state={},
@@ -69,7 +69,7 @@ async def test_reopen_canonical_definition_is_editable_clean_and_semantically_pr
     assert search.enabled
     search.mark('execute-saved');user.find(marker='execute-saved').click()
     await asyncio.sleep(.1)
-    api.execute_saved_search.assert_awaited_once_with(7,{'limit':25,'offset':0})
+    api.execute_saved_search.assert_awaited_once_with(7,{'limit':25,'offset':0,'tab_id':deps['table_container'].client.tab_id})
     api.search_request.assert_not_awaited()
     if expression==TITLE:
         field=next(e for e in user.find(ui.input).elements if e.value=='budget')

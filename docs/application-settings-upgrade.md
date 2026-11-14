@@ -339,3 +339,22 @@ Four English message keys and four generated Arabic drafts cover the new labels
 and descriptions; existing translations/provenance are preserved. Synchronize
 definitions and seed missing drafts with the existing `--missing-only` utility;
 the new drafts require review and are not published automatically.
+
+## Shared search cache and collection caps (migration 111)
+
+Stop/restart the API and independent cleanup worker as one deployment unit around
+`111_shared_search_results_cache.sql`. It renames `global_search_results` to
+`search_results_cache` in place and preserves its rows, UNLOGGED storage, indexes,
+(session_id, tab_id) key and login-session deletion cascade. Old binaries still
+refer to the old name and must not remain running after migration. New databases
+use the canonical schema and updated baseline directly.
+
+Restart WebUI to activate NiceGUI tab IDs and shared caching for Global Search,
+Advanced Search/saved-search execution, and aggregation/record collection filters.
+These filters now use the existing `SEARCH_RESULT_LIMIT` (default 1,000; maximum
+5,000). The settings whose persisted keys start `GLOBAL_SEARCH_CACHE_` retain
+those keys and current values for compatibility; their UI labels now say Search
+results cache and their idle/cleanup policy covers every search type in the slot.
+No environment variables are added or renamed. This migration does not apply
+itself during local stack startup; apply it explicitly before restarting updated
+services. Arabic wording changes remain drafts for administrator review.

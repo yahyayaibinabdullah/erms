@@ -96,7 +96,7 @@ def _roles(connection: Connection, user_id: int) -> list[dict[str, Any]]:
 
 def resolve_principal(connection: Connection, token: str) -> Principal | None:
     # Serialize simultaneous authentication/expiry/revocation work on this
-    # session, but do not take FOR UPDATE: inserting global_search_results
+    # session, but do not take FOR UPDATE: inserting search_results_cache
     # references this row via a foreign key and holds KEY SHARE until commit.
     # FOR UPDATE unnecessarily conflicts with that reference; NO KEY UPDATE
     # permits it while still conflicting with other session updates/deletes.

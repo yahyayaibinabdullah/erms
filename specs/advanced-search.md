@@ -145,6 +145,14 @@ A full-text condition may be nested, negated, or combined with structured
 conditions exactly like any other leaf. A non-indexable full-text value is a
 validation error and must never become an unbounded query.
 
+Full-text query strings use the same chunk-local matching as Global Search.
+AND terms and quoted phrases do not combine evidence across extracted-text
+chunks; a minus-prefixed term excludes it from the matching chunk, not from
+every chunk in the file. These are the approved limitations in
+[Full-Text Search §10.1.1](full-text-search.md#1011-matching-scope-and-multi-chunk-limitations),
+including for saved-search execution. Outer JSON Boolean groups retain their
+existing resource-predicate semantics.
+
 `_relevance` is offered as a sort only when the expression contains a positive
 full-text leaf. When match details are useful, the UI adds
 `include: ["full_text_matches"]`; this remains response decoration and does not
@@ -251,11 +259,12 @@ be persisted in the definition:
 - `offset` other than canonical `0`;
 - cursors;
 - `debug`;
+- runtime `tab_id` and `search_id`;
 - selected result-page number; and
 - returned results, counts, snippets, scores, or index-freshness state.
 
 Application Settings supplies the shared `SEARCH_RESULT_LIMIT` for Global
-Search and Advanced Search. It defaults to 1,000 and accepts values from 1 to
+Search, Advanced Search, and aggregation/record collection filters. It defaults to 1,000 and accepts values from 1 to
 5,000. Saved definitions created under the former contract may carry a smaller
 `max_results`. Execution uses the lower of that stored value and the
 administrator's current cap. Updates preserve the legacy value. New saved
@@ -269,6 +278,50 @@ Unknown `schema_version` values shall be rejected. A future grammar change that
 cannot execute an older definition shall return a stable
 `saved_search_definition_unsupported` error rather than silently rewriting its
 meaning.
+
+### 4.1 Shared tab result cache
+
+Advanced Search, saved-search execution, Global Search, and aggregation/record
+collection filters use **one replaceable server result list per authenticated
+user, login session and NiceGUI `client.tab_id`**. The list lives in PostgreSQL's
+existing UNLOGGED `search_results_cache` table. Reloads reuse the framework tab
+identifier; duplicated tabs and other devices/logins have independent slots.
+
+Each submission ranks/sorts all authorized candidates in SQL, retains at most
+`SEARCH_RESULT_LIMIT` IDs/scores, and uses the same ordered list for its first
+page. Advanced Search, saved execution and collection-filter responses include
+`search_id`, `result_cap`, `truncated`, and the served `offset`; Global Search
+retains its documented page/cursor response. Paging sends the list identity,
+the same `tab_id`, and the last submitted
+criteria/sort. Unsubmitted builder edits do not change paging. The server checks
+current permissions and criteria for saved IDs before selecting the page;
+display details and capabilities are computed only for that page. New matches
+enter on explicit resubmission or automatic rebuilding, and mutation refreshes
+submit a new search. Ordinary relationship selectors do not replace the slot.
+When the list is still valid, Next reuses its saved order and scores; it does
+not repeat the full-corpus search or ranking. This applies equally to record
+filters and aggregation filters.
+
+The fingerprint includes the endpoint/resource, submitted criteria/sorting,
+display filter, saved-definition version, and cap/idle setting versions. The
+server also checks the user, login, tab and list IDs. A mismatched, expired,
+replaced or lost list silently rebuilds the submitted search and serves the
+requested offset, clamped to the last remaining page if needed. It cannot read
+another search type's list. Saved-search audience/privilege/version checks still
+run on every execution. Missing or revoked login sessions require sign-in.
+
+Global → Advanced → collection filter replaces the slot twice. Returning to
+Advanced and clicking Next rebuilds Advanced, replaces the filter list, and
+serves Advanced's requested page. Other tabs are unaffected. All lists follow
+the idle expiry, login revocation/deletion, setting-change invalidation and
+independent cleanup lifecycle defined in the
+[Global Search cache contract](full-text-search.md#103-global-search-endpoint).
+
+The aggregation/record collection screens now intentionally cap total search
+matches using the same administrator setting (default 1,000, maximum 5,000),
+show the existing truncated-results notice, and allow only page-size selection.
+This changes their former uncapped filtered-results contract. It does not add
+caps to other domain searches, relationship selectors, or hierarchy browsing.
 
 ## 5. Advanced Search page
 
@@ -333,7 +386,9 @@ place the complete query or sensitive search values in the URL.
 The mockup above is the approved conceptual layout and interaction baseline. It
 establishes the nested
 Boolean-group presentation, typed condition rows, full-text treatment, sorting,
-maximum-results control, and primary actions. The task-first ordering in
+and primary actions. Its maximum-results control is superseded by the
+administrator-owned result cap in §4; users cannot choose that limit.
+The task-first ordering in
 section 5.2 supersedes the mockup's earlier always-visible saved-search metadata
 placement. Exact spacing may adapt to the
 implemented Wathiq component system and responsive viewport, but implementation
@@ -415,7 +470,7 @@ logical tab order, screen-reader group descriptions, and Arabic/RTL layout.
 
 ### 5.4 Unsaved changes
 
-Editing the builder, sort, target, or maximum results marks the page dirty,
+Editing the builder, sort, or target marks the page dirty,
 except choosing a target for an otherwise unchanged unsaved search. That target
 switch establishes a fresh clean baseline: switching again, opening a saved
 search, starting a new search, or leaving must not prompt unless other edits
@@ -590,7 +645,8 @@ principal ID is prohibited.
 - `Save as` is shown only while an existing saved search is open and always
   creates a new owner-scoped search.
 - The user who created a saved search may rename it and update its category,
-  description, and definition, including criteria, sort, and maximum results.
+  description, and definition, including criteria and sort. The result cap is
+  administrator-owned and is not an editable saved-search control.
   This owner right remains available even if the owner later loses the save
   privilege. Ownership cannot be transferred.
 - Only the owner or a user with `search.saved_search.administer` may modify a

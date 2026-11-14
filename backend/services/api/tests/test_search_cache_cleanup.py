@@ -58,7 +58,7 @@ def seed_lists(expired=4, active=1):
     session_id = make_session()[1]
     with db() as c:
         c.execute("""
-            INSERT INTO global_search_results
+            INSERT INTO search_results_cache
                 (session_id,tab_id,user_id,requires_tab_id,search_id,fingerprint,hits,truncated,started_at,expires_at)
             SELECT %s,md5(n::text)::uuid,1,true,md5(n::text)::uuid,'cleanup-fixture','[]',false,
                 now()-interval '1 hour',now()+CASE WHEN n<=%s THEN -interval '1 minute' ELSE interval '1 hour' END
@@ -69,7 +69,7 @@ def seed_lists(expired=4, active=1):
 
 def count_lists():
     with db() as c:
-        return c.execute('SELECT count(*) AS n FROM global_search_results').fetchone()['n']
+        return c.execute('SELECT count(*) AS n FROM search_results_cache').fetchone()['n']
 
 
 def test_defaults_delete_5000_lists_not_hits_preserve_active_and_dry_run(client):
@@ -99,7 +99,7 @@ def test_cache_lock_and_busy_tab_do_not_block_other_work(client):
         assert count_lists() == 5
     with db() as held:
         held.execute('SELECT pg_advisory_xact_lock(%s)', (worker.LOCK_KEY,))
-        held.execute("SELECT 1 FROM global_search_results WHERE session_id=%s AND tab_id=md5('1')::uuid FOR UPDATE", (session_id,))
+        held.execute("SELECT 1 FROM search_results_cache WHERE session_id=%s AND tab_id=md5('1')::uuid FOR UPDATE", (session_id,))
         with db() as c:
             c.execute("SET LOCAL statement_timeout='1s'")
             assert worker.cleanup_search_cache(c).removed == 3

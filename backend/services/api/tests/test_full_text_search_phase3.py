@@ -221,7 +221,7 @@ def test_global_search_saved_list_is_bound_to_tab_and_login_and_expires(client, 
 
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         connection.execute(
-            "UPDATE global_search_results SET expires_at=clock_timestamp() WHERE search_id=%s",
+            "UPDATE search_results_cache SET expires_at=clock_timestamp() WHERE search_id=%s",
             (current_page["search_id"],),
         )
     assert client.post(endpoint, json=current_page).status_code == 410
@@ -229,7 +229,7 @@ def test_global_search_saved_list_is_bound_to_tab_and_login_and_expires(client, 
     with psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row) as connection:
         cleanup_search_cache(connection, batch_size=25)
         assert connection.execute(
-            "SELECT 1 FROM global_search_results WHERE search_id=%s", (current_page["search_id"],),
+            "SELECT 1 FROM search_results_cache WHERE search_id=%s", (current_page["search_id"],),
         ).fetchone() is None
 
 
@@ -254,7 +254,7 @@ def test_global_and_advanced_search_caps_keep_browse_available(client, aggregati
     assert first.json()["result_cap"] == 3
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         seconds = connection.execute(
-            "SELECT extract(epoch FROM expires_at - clock_timestamp()) FROM global_search_results WHERE search_id=%s",
+            "SELECT extract(epoch FROM expires_at - clock_timestamp()) FROM search_results_cache WHERE search_id=%s",
             (first.json()["search_id"],),
         ).fetchone()[0]
     assert 400 < seconds <= 420
@@ -304,7 +304,7 @@ def test_global_search_can_rebuild_on_requested_page_and_continue(client, aggreg
     second = client.post(endpoint, json={**payload, "cursor": first["next_cursor"]}).json()
     third = client.post(endpoint, json={**payload, "cursor": second["next_cursor"]}).json()
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
-        connection.execute("DELETE FROM global_search_results WHERE search_id=%s", (first["search_id"],))
+        connection.execute("DELETE FROM search_results_cache WHERE search_id=%s", (first["search_id"],))
     assert client.post(endpoint, json={**payload, "cursor": second["next_cursor"]}).status_code == 410
     rebuilt = client.post(endpoint, json={**payload, "page": 3})
     assert rebuilt.status_code == 200, rebuilt.text

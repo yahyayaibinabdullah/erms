@@ -19,6 +19,7 @@ from .application_settings import cache as settings_cache
 from .application_settings_registry import SEARCH_RESULT_LIMIT_MAXIMUM
 from .dashboard_visibility import visibility_ctes
 from .search_page import page_details, page_permission_ctes
+from .search_execution import interactive_search
 
 
 MAX_SEARCH_DEPTH = 5
@@ -371,6 +372,7 @@ def _compile_expression(
     component_alias: str | None = None,
     component_absent: bool = False,
     batch_permissions: bool = False,
+    full_text_predicate=None,
 ) -> tuple[sql.Composable, list[Any]]:
     def component_permission(record_id):
         return ("page_access.can_view_component" if batch_permissions else
@@ -467,6 +469,8 @@ def _compile_expression(
         condition_counter[0] += 1
         if condition_counter[0] > MAX_SEARCH_CONDITIONS:
             raise _invalid(f"searches may contain at most {MAX_SEARCH_CONDITIONS} conditions")
+        if full_text_predicate is not None:
+            return full_text_predicate(expression.full_text)
         query = expression.full_text.query
         sources = _full_text_sources(resource, query, expression.full_text.sources)
         predicates: list[sql.Composable] = []
@@ -513,7 +517,7 @@ def _compile_expression(
         clause, parameters = _compile_expression(
             expression.not_, fields, resource=resource, depth=depth + 1,
             condition_counter=condition_counter, component_alias=component_alias,
-            component_absent=component_absent, batch_permissions=batch_permissions,
+            component_absent=component_absent, batch_permissions=batch_permissions, full_text_predicate=full_text_predicate,
         )
         return sql.SQL("NOT ({})").format(clause), parameters
 
@@ -531,7 +535,7 @@ def _compile_expression(
         _compile_expression(
             child, fields, resource=resource, depth=depth + 1,
             condition_counter=condition_counter, component_alias=active_component_alias,
-            component_absent=component_absent, batch_permissions=batch_permissions,
+            component_absent=component_absent, batch_permissions=batch_permissions, full_text_predicate=full_text_predicate,
         )
         for child in children
     ]
@@ -552,7 +556,7 @@ def _compile_expression(
         # enclosing All scope.
         without_component, without_parameters = _compile_expression(
             expression, fields, resource=resource, depth=depth,
-            condition_counter=[0], component_absent=True, batch_permissions=batch_permissions,
+            condition_counter=[0], component_absent=True, batch_permissions=batch_permissions, full_text_predicate=full_text_predicate,
         )
         combined = sql.SQL("(({}) OR ({}))").format(
             without_component, component_exists,
@@ -632,6 +636,8 @@ def _canonical_request(resource: str, request: SearchRequest) -> dict[str, Any]:
         sort.append({"field": "id", "direction": "asc"})
     value["sort"] = sort
     value.pop("debug", None)
+    value.pop("tab_id", None)
+    value.pop("search_id", None)
     return value
 
 
@@ -855,8 +861,19 @@ def search_rows(
     digital_only: bool = False,
     display_filter: str | None = None,
     max_results: int | None = None,
+    session_id: int | None = None, user_id: int | None = None,
+    cache_version: int | None = None,
 ) -> dict[str, Any]:
     settings = settings_cache.for_connection(connection)
+    if request.tab_id is not None:
+        from .search_cache import cached_search_rows
+        if table not in {"records", "aggregations"} or record_creation:
+            raise _invalid("tab result caching is only supported for record and aggregation searches")
+        return cached_search_rows(
+            connection, table, request, session_id=session_id, user_id=user_id,
+            endpoint=endpoint, display_filter=display_filter, max_results=max_results,
+            cache_version=cache_version,
+        )
     audit_cap = settings["AUDIT_TRAIL_SEARCH_RESULT_LIMIT"]
     result_cap = audit_cap if table == "event_history" else max_results
     if table == "event_history" and request.offset >= audit_cap:
@@ -1142,10 +1159,12 @@ def _indexed_global_candidates(
         file_guard = sql.SQL("true")
         record_guard = sql.SQL("true")
         if match_flags:
-            file_guard = sql.SQL("""EXISTS (
-                SELECT 1 FROM records remaining
-                WHERE NOT EXISTS (SELECT 1 FROM metadata_matches metadata WHERE metadata.id=remaining.id)
-            )""")
+            # Each metadata document has one PK/FK-backed record ID and the
+            # configuration branches are disjoint. Equal exact counts therefore
+            # prove that every record matched, without building an anti-join
+            # hash of all metadata IDs merely to discover that none remain.
+            file_guard = sql.SQL("""(SELECT count(*) FROM metadata_matches)
+                < (SELECT count(*) FROM records)""")
             record_guard = sql.SQL("""NOT EXISTS (
                 SELECT 1 FROM metadata_matches metadata WHERE metadata.id=component.record_id
             )""")
@@ -1205,7 +1224,7 @@ def _indexed_global_candidates(
     return sql.SQL(", ").join(ctes) + sql.SQL(", "), parameters
 
 
-def _indexed_global_ranking(resource, leaf, limit, structured_filter=None):
+def _indexed_global_ranking(resource, leaf, limit, structured_filter=None, *, protect_component_scores=True):
     sources = _full_text_sources(resource, leaf.query, leaf.sources)
     ctes, parameters = _indexed_global_candidates(resource, leaf.query, sources, structured_filter)
     # A row-dependent configuration otherwise reparses the same phrase for
@@ -1234,16 +1253,18 @@ def _indexed_global_ranking(resource, leaf, limit, structured_filter=None):
     matches = []
     scores = []
     if "components" in sources:
-        # Use the same maximum over active chunks as the original rank. The batch
-        # ACL must authorize component evidence even for a metadata match.
+        # Global ranking protects scores with component access/current content.
+        # Advanced Search historically uses all indexed chunks for its score;
+        # its caller explicitly preserves that formula. Candidate permissions
+        # and page evidence remain protected in BOTH modes.
         ctes += sql.SQL("""
             eligible_components AS MATERIALIZED (
                 SELECT candidate.id, document.digital_component_id,
-                       component.active_content_set_id = document.content_set_id AS current_content
+                       {current_content} AS current_content
                   FROM authorized_records candidate
                   JOIN digital_component_search_documents document ON document.record_id = candidate.id
-                  JOIN digital_components component ON component.id = document.digital_component_id
-                 WHERE candidate.can_view_component AND document.status IN ('indexed','processing')
+                  {component_join}
+                 WHERE {score_access} AND document.status IN ('indexed','processing')
                    AND document.indexed_at IS NOT NULL
             ),
             eligible_component_ids AS MATERIALIZED (
@@ -1258,10 +1279,13 @@ def _indexed_global_ranking(resource, leaf, limit, structured_filter=None):
                     WHERE oid='digital_components'::regclass
                 )) AS bulk FROM eligible_component_ids
             ),
-            -- Narrow the hash input before joining wide chunk vectors. Otherwise
-            -- hash batching spills entire vectors even though the result is small.
-            -- Stream the single-use scores; OFFSET 0 keeps vectors out of later joins.
-            scored_component_chunks AS NOT MATERIALIZED (
+            -- Retain only IDs and numeric scores, never text/search vectors.
+            -- This is also an execution boundary: a selective AND/phrase can
+            -- be estimated as one candidate although hundreds actually match.
+            -- Inlining this batch then lets a nested-loop join fetch and score
+            -- the WHOLE batch once per file (1,200 x 1,200 in the regression
+            -- corpus). Compute each chunk score once regardless of join choice.
+            scored_component_chunks AS MATERIALIZED (
                 SELECT chunk.digital_component_id, ts_rank_cd(chunk.search_vector, {}) AS score
                 FROM digital_component_search_chunks chunk
                 WHERE NOT (SELECT bulk FROM component_scan_strategy)
@@ -1277,13 +1301,18 @@ def _indexed_global_ranking(resource, leaf, limit, structured_filter=None):
                   AND chunk.digital_component_id IN (
                       SELECT digital_component_id FROM eligible_component_ids)
                 OFFSET 0
-            ), component_scores AS (
+            ), component_scores AS MATERIALIZED (
+                -- Reuse the completed per-record aggregate too. Otherwise a
+                -- misestimated final LEFT JOIN can replay aggregation per hit.
                 SELECT candidate.id, max(chunk.score) AS score
                 FROM eligible_components candidate
                 JOIN scored_component_chunks chunk USING (digital_component_id)
                 GROUP BY candidate.id
             ),
-        """).format(parsed_query("chunk"), parsed_query("chunk"))
+        """).format(parsed_query("chunk"), parsed_query("chunk"),
+            current_content=sql.SQL('component.active_content_set_id = document.content_set_id' if protect_component_scores else 'true'),
+            component_join=sql.SQL('JOIN digital_components component ON component.id=document.digital_component_id' if protect_component_scores else ''),
+            score_access=sql.SQL('candidate.can_view_component' if protect_component_scores else 'true'))
         joins.append(sql.SQL("LEFT JOIN component_scores component USING (id)"))
         if "metadata" in sources:
             matches.append(sql.SQL("(candidate.can_view_component AND candidate.component_match)"))
@@ -1292,8 +1321,11 @@ def _indexed_global_ranking(resource, leaf, limit, structured_filter=None):
     if "metadata" in sources:
         kind = "record" if resource == "records" else "aggregation"
         if "components" in sources:
-            # Do not carry full metadata vectors through the file-score join.
-            ctes += sql.SQL("""metadata_scores AS NOT MATERIALIZED (
+            # Keep only numeric metadata scores, and compute this batch once.
+            # A selective combined-source query was estimated as one candidate;
+            # inlining replayed all 1,200 metadata scores for each of 1,200 hits.
+            # OFFSET 0 alone does not stop a nested-loop rescan of that batch.
+            ctes += sql.SQL("""metadata_scores AS MATERIALIZED (
                 SELECT candidate.id, ts_rank_cd(metadata.search_vector, {}) AS score
                 FROM authorized_records candidate
                 JOIN record_search_documents metadata ON metadata.record_id=candidate.id
@@ -1417,6 +1449,7 @@ def _global_page_offset(hit_count, page_number, page_size):
     return min(page_number - 1, max(0, hit_count - 1) // page_size) * page_size
 
 
+@interactive_search
 def _rank_global_search(connection, branches, result_cap, result_filter, page_size, page_number):
     statements = []
     parameters = []
@@ -1490,7 +1523,7 @@ def _expired_global_search() -> HTTPException:
 def _save_global_search(connection, hits, truncated, session_id, user_id, tab_id, fingerprint, requires_tab_id, idle_minutes):
     search_id = uuid4()
     stored = connection.execute("""
-        INSERT INTO global_search_results
+        INSERT INTO search_results_cache
             (session_id, tab_id, user_id, requires_tab_id, search_id, fingerprint, hits, truncated, started_at, expires_at)
         SELECT id, %s, user_id, %s, %s, %s, %s, %s, transaction_timestamp(),
                clock_timestamp() + LEAST(%s::double precision * 60,
@@ -1502,7 +1535,7 @@ def _save_global_search(connection, hits, truncated, session_id, user_id, tab_id
         SET search_id = EXCLUDED.search_id, fingerprint = EXCLUDED.fingerprint, hits = EXCLUDED.hits,
             requires_tab_id = EXCLUDED.requires_tab_id,
             truncated = EXCLUDED.truncated, started_at = EXCLUDED.started_at, expires_at = EXCLUDED.expires_at
-        WHERE global_search_results.started_at <= EXCLUDED.started_at
+        WHERE search_results_cache.started_at <= EXCLUDED.started_at
         RETURNING search_id
     """, (tab_id, requires_tab_id, search_id, fingerprint, Jsonb(hits), truncated, idle_minutes, session_id, user_id)).fetchone()
     if stored is None:
@@ -1512,7 +1545,7 @@ def _save_global_search(connection, hits, truncated, session_id, user_id, tab_id
 
 def _read_global_search(connection, session_id, user_id, tab_id, search_id, fingerprint, supplied_tab_id, idle_minutes):
     saved = connection.execute("""
-        UPDATE global_search_results AS saved
+        UPDATE search_results_cache AS saved
         SET expires_at = clock_timestamp() + LEAST(%s::double precision * 60,
             extract(epoch FROM LEAST(login.expires_at, login.absolute_expires_at) - clock_timestamp())) * interval '1 second'
         FROM login_sessions AS login
@@ -1528,6 +1561,7 @@ def _read_global_search(connection, session_id, user_id, tab_id, search_id, fing
     return saved["hits"], saved["truncated"]
 
 
+@interactive_search
 def _global_search_page(connection, branches, hits, position, limit):
     page = []
     batch_size = limit + 1
