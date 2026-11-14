@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, Mock
 import pytest
 
 from frontend.webui.api_client import ApiError
+from frontend.webui.personal_resources import PersonalResourceState
 from frontend.webui.tests.account_sources import account_sources
 
 
@@ -21,6 +22,8 @@ def host():
     storage = {'session_token': 'old', 'navigation_trail': [{'page': 'old'}], 'organization_browser_state': {'private': True}}
     api = SimpleNamespace(login=AsyncMock(return_value=(principal, 'new')), logout=AsyncMock(), set_session_token=calls.token)
     h = dict(ApiError=ApiError, api=api, app=SimpleNamespace(storage=SimpleNamespace(user=storage)),
+             personal=PersonalResourceState(recent_scope=(1, 'old', 'en'),
+                                            recent_activity={'records': [{'entity_id': 8}]}),
              context=SimpleNamespace(client=SimpleNamespace(request=SimpleNamespace(headers={'user-agent': 'fixture-browser'}))),
              login_email=SimpleNamespace(value='person@test.invalid'), login_password=SimpleNamespace(value='test-secret'),
              login_error=SimpleNamespace(text='old'), login_error_message=str,
@@ -63,6 +66,7 @@ async def test_login_clears_private_state_and_stores_token_before_workspace(forc
     assert h['storage']['session_token'] == 'new'
     h['calls'].token.assert_called_once_with('new')
     h['calls'].search.assert_called_once(); h['calls'].dashboard.assert_called_once()
+    assert h['personal'].recent_scope is None and not h['personal'].recent_activity
     if forced:
         assert h['session'].principal is h['principal']
         h['show_change_password'].assert_awaited_once()

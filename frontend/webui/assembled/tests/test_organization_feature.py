@@ -29,7 +29,7 @@ async def test_membership_write_and_removal_refresh_through_user_details(assembl
     role=role_page['items'][0]
     await open_detail(user,'users','Users','viewer@test.invalid')
     click(user,t('webui.select_user_details.button.role_assignments_adaadc55'));d=await opened(user)
-    selector=next(e for e in d.descendants() if isinstance(e,ui.select))
+    selector=next(e for e in d.descendants() if isinstance(e,ui.select) and 'relationship-select' in e.classes)
     with user:selector.set_options({role['id']:role['name']},value=role['id'])
     click(user,t('webui.show_memberships.button.assign_e003b2ce'),d)
     await eventually(lambda:any(isinstance(e,ui.table) and e.rows for e in d.descendants()) and user.pending_requests==0)

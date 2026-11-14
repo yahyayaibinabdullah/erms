@@ -96,6 +96,16 @@ def test_saved_audience_scope_survives_every_browser_page_and_search():
     calls = [n for n in ast.walk(browser) if isinstance(n, ast.Call)
              and isinstance(n.func, ast.Attribute) and n.func.attr in
              {'organization_roots', 'organization_children', 'search_organization'}]
-    assert len(calls) == 7
-    assert all(any(k.arg == 'audience' and isinstance(k.value, ast.Name)
-                   and k.value.id == 'saved_audience' for k in call.keywords) for call in calls)
+    params = next(node.value for node in ast.walk(browser) if isinstance(node, ast.Assign)
+                  and any(isinstance(target, ast.Name) and target.id == 'params' for target in node.targets)
+                  and isinstance(node.value, ast.Dict))
+    assert {call.func.attr for call in calls} == {'organization_roots', 'organization_children', 'search_organization'}
+    for call in calls:
+        if call.func.attr == 'search_organization':
+            assert any(k.arg is None and isinstance(k.value, ast.Name) and k.value.id == 'params'
+                       for k in call.keywords)
+            scope = next(value for key, value in zip(params.keys, params.values)
+                         if isinstance(key, ast.Constant) and key.value == 'audience')
+        else:
+            scope = next(k.value for k in call.keywords if k.arg == 'audience')
+        assert isinstance(scope, ast.Name) and scope.id == 'saved_audience'

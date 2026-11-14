@@ -686,7 +686,8 @@ def test_identity_details_use_grouped_command_panels():
     assert 'assignment_results = ui.element("div").classes(' in source
     assert 'assignment_page_size = 5' in source
     assert 'def render_assignment_cards()' in source
-    assert 'page_rows = rows[offset:offset + assignment_page_size]' in source
+    assert 'await api.user_roles(user_id, limit=assignment_page_size, offset=offset, **criteria)' in source
+    assert 'for item in assignment_state["items"]:' in source
     assert 'assignment_previous = ui.button(' in source
     assert 'assignment_next = ui.button(' in source
     assert '"governance-list-facts user-role-assignment-facts"' in source
@@ -703,7 +704,7 @@ def test_identity_details_use_grouped_command_panels():
 def test_user_details_localize_controlled_values_and_assignment_facts():
     source = ((inspect.getsource(index) + account_sources()) + (organization_sources() + aggregation_sources() + record_sources()))
     assert '(person.get("localized") or {}).get("name") or person["name"]' in source
-    assert 'roles = [item.get("counterpart") or {} for item in assignments]' in source
+    assert 'role = item.get("counterpart") or {}' in source
     assert 'title=localized_account_type(person["account_type"])' in source
     assert 'ui.badge(localized_account_type(person["account_type"])' in source
     assert 'localized_lifecycle_value(person["status"])' in source
@@ -1186,7 +1187,7 @@ def test_navigation_drawer_does_not_load_or_render_entity_counts():
     assert "navigation_badges" not in source
     assert "refresh_navigation_counts" not in source
     assert "active_count" not in source
-    assert "page_state.update(total=int(page.get(\"total\", 0)), active=int(page.get(\"active\", 0)))" in source
+    assert 'page_state.update(offset=offset, total=int(page.get("total", 0)), active=int(page.get("active", 0)))' in source
 
 
 def test_navigation_drawer_collapses_to_clickable_icon_rail():
@@ -1868,7 +1869,7 @@ def test_record_and_aggregation_searches_use_shared_compact_results():
     assert "show_medium=True" in source
     assert 'parent_aggregation=parent' not in source
     assert 'icon="folder", on_click=lambda _, parent=parent_aggregation' not in source
-    assert 'await decorate_record_search_components(decorated_rows)' in COLLECTION_SOURCE
+    assert 'await decorate_record_search_components(decorated)' in COLLECTION_SOURCE
     assert 'flex: 0 0 92px; width: 92px;' in source
     assert 'font-variant-numeric: tabular-nums;' in source
 

@@ -7,6 +7,7 @@ from unittest.mock import Mock
 import pytest
 
 from frontend.webui.navigation_data import append_navigation_entry
+from frontend.webui.personal_resources import PersonalResourceState
 
 
 def host():
@@ -14,6 +15,7 @@ def host():
     node = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == 'prepare_navigation')
     calls = Mock()
     h = {'Any': object, 'api': SimpleNamespace(cancel_pending_reads=calls.cancel),
+         'personal': PersonalResourceState(),
          'state': dict(search_diagnostics_sent='old', search_diagnostics_accepted='old', search_diagnostics_error='old'),
          'content_card': SimpleNamespace(classes=calls.classes), 'set_active_drawer_link': calls.drawer,
          'set_page_title_icon': calls.icon, 'navigation_state': {'trail': [{'page': 'dashboard', 'state': {}}], 'restoring': False},
@@ -44,6 +46,7 @@ def test_registration_saves_previous_snapshot_then_new_visit():
                         'dynamic_label': False, 'entity_id': None, 'accessible_label': 'Open records', 'state': {}}
     assert [c[0] for c in h['calls'].mock_calls] == ['cancel', 'classes', 'drawer', 'icon', 'persist', 'render']
     assert all(value is None for value in h['state'].values())
+    assert h['personal'].navigation_revision == 1
 
 
 def test_restoration_updates_shell_and_cancels_reads_without_adding_history():
